@@ -8,7 +8,7 @@ import {
   SwapError,
   SwapErrorTypes,
   TradeQuote,
-  UtxoSupportedChainIds
+  UtxoSupportedChainIds,
 } from '../../../api'
 import { bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
@@ -40,12 +40,12 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     sellAssetAccountNumber,
     wallet,
     chainId,
-    receiveAddress
+    receiveAddress,
   } = input
 
   if (!wallet)
     throw new SwapError('[getThorTradeQuote] - wallet is required', {
-      code: SwapErrorTypes.VALIDATION_FAILED
+      code: SwapErrorTypes.VALIDATION_FAILED,
     })
 
   try {
@@ -55,14 +55,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     if (!sellAdapter)
       throw new SwapError(`[getThorTradeQuote] - No chain adapter found for ${chainId}.`, {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-        details: { chainId }
+        details: { chainId },
       })
 
     const rate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
 
     const buyAmount = toBaseUnit(
       bnOrZero(fromBaseUnit(sellAmount, sellAsset.precision)).times(rate),
-      buyAsset.precision
+      buyAsset.precision,
     )
 
     const tradeFee = await estimateTradeFee(deps, buyAsset)
@@ -82,7 +82,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       buyAsset,
       sellAsset,
       sellAssetAccountNumber,
-      minimum
+      minimum,
     }
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -96,18 +96,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             sellAmount,
             slippageTolerance: DEFAULT_SLIPPAGE,
             destinationAddress: receiveAddress,
-            tradeFee
+            tradeFee,
           })
           const feeData = await getEthTxFees({
             adapterManager: deps.adapterManager,
             sellAssetReference: sellAssetErc20Address,
-            tradeFee
+            tradeFee,
           })
 
           return {
             ...commonQuoteFields,
             allowanceContract: router,
-            feeData
+            feeData,
           }
         })()
 
@@ -123,7 +123,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             wallet,
             bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
             accountType: (input as GetUtxoTradeQuoteInput).accountType,
-            tradeFee
+            tradeFee,
           })
 
           const feeData = await getBtcTxFees({
@@ -132,13 +132,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             opReturnData,
             pubkey,
             sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>,
-            tradeFee
+            tradeFee,
           })
 
           return {
             ...commonQuoteFields,
             allowanceContract: '0x0', // not applicable to bitcoin
-            feeData
+            feeData,
           }
         })()
       case CHAIN_NAMESPACE.Cosmos:
@@ -153,21 +153,21 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             feeData: {
               fee: feeData.fast.txFee,
               tradeFee,
-              chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit }
-            }
+              chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },
+            },
           }
         })()
       default:
         throw new SwapError('[getThorTradeQuote] - Asset chainId is not supported.', {
           code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { chainId }
+          details: { chainId },
         })
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getThorTradeQuote]', {
       cause: e,
-      code: SwapErrorTypes.TRADE_QUOTE_FAILED
+      code: SwapErrorTypes.TRADE_QUOTE_FAILED,
     })
   }
 }

@@ -21,7 +21,7 @@ const VALID_ASSET_ID = 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
 const getWallet = async (): Promise<HDWallet> => {
   const nativeAdapterArgs: NativeAdapterArgs = {
     mnemonic: testMnemonic,
-    deviceId: 'test'
+    deviceId: 'test',
   }
   const wallet = new NativeHDWallet(nativeAdapterArgs)
   await wallet.initialize()
@@ -38,9 +38,9 @@ const getUtxosMockResponse = {
       height: 4312262,
       confirmations: 30,
       address: 'DHgFEkHSTxDmMEZqDw4Qp6HbXKUt1CRLVd',
-      path: "m/44'/3'/0'/1/13"
-    }
-  ]
+      path: "m/44'/3'/0'/1/13",
+    },
+  ],
 }
 
 const getAccountMockResponse = {
@@ -52,8 +52,8 @@ const getAccountMockResponse = {
     network: 'MAINNET',
     pubkey:
       'xpub6LIERL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY',
-    symbol: 'DOGE'
-  }
+    symbol: 'DOGE',
+  },
 }
 
 const getTransactionMockResponse = {
@@ -71,10 +71,10 @@ const getTransactionMockResponse = {
         vout: 1,
         scriptSig: {
           asm: '3045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad[ALL] 027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
-          hex: '483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126'
+          hex: '483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
         },
-        sequence: 4294967295
-      }
+        sequence: 4294967295,
+      },
     ],
     vout: [
       {
@@ -85,8 +85,8 @@ const getTransactionMockResponse = {
           hex: '00140c0585f37ff3f9f127c9788941d6082cf7aa0121',
           reqSigs: 1,
           type: 'witness_v0_keyhash',
-          addresses: ['bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy']
-        }
+          addresses: ['bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy'],
+        },
       },
       {
         value: 0.00057203,
@@ -96,33 +96,33 @@ const getTransactionMockResponse = {
           hex: '76a914b22138dfe140e4611b98bdb728eed04beed754c488ac',
           reqSigs: 1,
           type: 'pubkeyhash',
-          addresses: ['1HEs5TpTvrWHDFqLqfZnXFLFc4hqHjHe5M']
-        }
-      }
+          addresses: ['1HEs5TpTvrWHDFqLqfZnXFLFc4hqHjHe5M'],
+        },
+      },
     ],
     hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
     blockhash: '000000000000000000033c8ec44721d844aa63f4312d65261eb4c4d0cd4e0379',
     confirmations: 2,
     time: 1634662208,
-    blocktime: 1634662208
-  }
+    blocktime: 1634662208,
+  },
 }
 
 const getNetworkFeesMockedResponse = {
   data: {
     fast: {
       blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024
+      satsPerKiloByte: 1024,
     },
     average: {
       blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024
+      satsPerKiloByte: 1024,
     },
     slow: {
       blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024
-    }
-  }
+      satsPerKiloByte: 1024,
+    },
+  },
 }
 
 describe('DogecoinChainAdapter', () => {
@@ -132,10 +132,10 @@ describe('DogecoinChainAdapter', () => {
     args = {
       providers: {
         http: {} as any,
-        ws: {} as any
+        ws: {} as any,
       },
       coinName: 'Dogecoin',
-      chainId: KnownChainIds.DogecoinMainnet
+      chainId: KnownChainIds.DogecoinMainnet,
     }
   })
 
@@ -191,9 +191,9 @@ describe('DogecoinChainAdapter', () => {
             unconfirmedBalance: '50',
             addresses: [],
             nextChangeAddressIndex: 0,
-            nextReceiveAddressIndex: 0
-          }
-        })
+            nextReceiveAddressIndex: 0,
+          },
+        }),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -206,8 +206,8 @@ describe('DogecoinChainAdapter', () => {
         chainSpecific: {
           addresses: [],
           nextChangeAddressIndex: 0,
-          nextReceiveAddressIndex: 0
-        }
+          nextReceiveAddressIndex: 0,
+        },
       }
       const data = await adapter.getAccount('SomeFakeAddress')
       expect(data).toMatchObject(expected)
@@ -223,7 +223,7 @@ describe('DogecoinChainAdapter', () => {
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse)
+        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -232,7 +232,7 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         coinType: 3,
         accountNumber: 0,
-        isChange: false
+        isChange: false,
       }
 
       const txInput: BuildSendTxInput<KnownChainIds.DogecoinMainnet> = {
@@ -242,8 +242,8 @@ describe('DogecoinChainAdapter', () => {
         wallet,
         chainSpecific: {
           accountType: UtxoAccountType.P2pkh,
-          satoshiPerByte: '1'
-        }
+          satoshiPerByte: '1',
+        },
       }
 
       await expect(adapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
@@ -256,25 +256,25 @@ describe('DogecoinChainAdapter', () => {
               amount: '7132554366',
               vout: 1,
               txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
-              hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000'
-            }
+              hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
+            },
           ],
           opReturnData: undefined,
           outputs: [
             {
               addressType: 'spend',
               amount: '400',
-              address: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp'
+              address: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
             },
             {
               addressType: 'change',
               amount: '7132553740',
               addressNList: [2147483692, 2147483651, 2147483648, 1, 0],
               scriptType: 'p2pkh',
-              isChange: true
-            }
-          ]
-        }
+              isChange: true,
+            },
+          ],
+        },
       })
       expect(args.providers.http.getUtxos).toHaveBeenCalledTimes(1)
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -292,7 +292,7 @@ describe('DogecoinChainAdapter', () => {
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse)
+        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -301,7 +301,7 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         coinType: 3,
         accountNumber: 0,
-        isChange: false
+        isChange: false,
       }
 
       const txInput: BuildSendTxInput<KnownChainIds.DogecoinMainnet> = {
@@ -311,19 +311,19 @@ describe('DogecoinChainAdapter', () => {
         wallet,
         chainSpecific: {
           accountType: UtxoAccountType.P2pkh,
-          satoshiPerByte: '1'
-        }
+          satoshiPerByte: '1',
+        },
       }
 
       const unsignedTx = await adapter.buildSendTransaction(txInput)
 
       const signedTx = await adapter.signTransaction({
         wallet,
-        txToSign: unsignedTx?.txToSign
+        txToSign: unsignedTx?.txToSign,
       })
 
       expect(signedTx).toEqual(
-        '0100000000010105abd41ac558c186429b77a2344106bdd978955fc407e3363239864cb479b9ad0000000000ffffffff02900100000000000016001408450440a15ea38314c52d5c9ae6201857d7cf7a677a000000000000160014bf44db911ae5acc9cffcc1bbb9622ddda4a1112b024730440220106d6510888c70719b98069ccfa9dc92db248c1f5b7572d5cf86f3db1d371bf40220118ca57a08ed36f94772a5fbd2491a713fcb250a5ccb5e498ba70de8653763ff0121029dc27a53da073b1fea5601cf370d02d3b33cf572156c3a6df9d5c03c5dbcdcd700000000'
+        '0100000000010105abd41ac558c186429b77a2344106bdd978955fc407e3363239864cb479b9ad0000000000ffffffff02900100000000000016001408450440a15ea38314c52d5c9ae6201857d7cf7a677a000000000000160014bf44db911ae5acc9cffcc1bbb9622ddda4a1112b024730440220106d6510888c70719b98069ccfa9dc92db248c1f5b7572d5cf86f3db1d371bf40220118ca57a08ed36f94772a5fbd2491a713fcb250a5ccb5e498ba70de8653763ff0121029dc27a53da073b1fea5601cf370d02d3b33cf572156c3a6df9d5c03c5dbcdcd700000000',
       )
     })
   })
@@ -332,7 +332,7 @@ describe('DogecoinChainAdapter', () => {
     it('is should correctly call broadcastTransaction', async () => {
       const sendDataResult = 'success'
       args.providers.http = {
-        sendTx: jest.fn().mockResolvedValue({ data: sendDataResult })
+        sendTx: jest.fn().mockResolvedValue({ data: sendDataResult }),
       } as any
       const adapter = new dogecoin.ChainAdapter(args)
       const mockTx = '0x123'
@@ -346,7 +346,7 @@ describe('DogecoinChainAdapter', () => {
     it('should return current BTC network fees', async () => {
       args.providers.http = {
         getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
-        getUtxos: jest.fn().mockResolvedValue({ data: [] })
+        getUtxos: jest.fn().mockResolvedValue({ data: [] }),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)
@@ -354,14 +354,14 @@ describe('DogecoinChainAdapter', () => {
       const data = await adapter.getFeeData({
         to: '0x',
         value: '0',
-        chainSpecific: { pubkey: '123' }
+        chainSpecific: { pubkey: '123' },
       })
       expect(data).toEqual(
         expect.objectContaining({
           average: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },
           fast: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },
-          slow: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' }
-        })
+          slow: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },
+        }),
       )
     })
   })
@@ -375,13 +375,13 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         accountNumber: 0,
         isChange: false,
-        index: 0
+        index: 0,
       }
 
       const addr: string | undefined = await adapter.getAddress({
         bip44Params,
         wallet,
-        accountType: UtxoAccountType.P2pkh
+        accountType: UtxoAccountType.P2pkh,
       })
       console.info(`addr: ${addr}`)
       expect(addr).toStrictEqual('DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp')
@@ -395,12 +395,12 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         accountNumber: 0,
         index: 1,
-        isChange: false
+        isChange: false,
       }
       const addr: string | undefined = await adapter.getAddress({
         bip44Params,
         wallet,
-        accountType: UtxoAccountType.P2pkh
+        accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('DAytULhYbMroCHtPvPzTqVktkpnk9RmXNo')
     })
@@ -413,12 +413,12 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         accountNumber: 0,
         index: 0,
-        isChange: true
+        isChange: true,
       }
       const addr: string | undefined = await adapter.getAddress({
         bip44Params,
         wallet,
-        accountType: UtxoAccountType.P2pkh
+        accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('DPCPWrTEMLXhP8o57jH3i6ZbwAQwNHNFdq')
     })
@@ -431,12 +431,12 @@ describe('DogecoinChainAdapter', () => {
         purpose: 44,
         accountNumber: 1,
         index: 0,
-        isChange: false
+        isChange: false,
       }
       const addr: string | undefined = await adapter.getAddress({
         bip44Params,
         wallet,
-        accountType: UtxoAccountType.P2pkh
+        accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('DSpBqkDV8g7C2MwpT2xmeyvsB89P5qmCbq')
     })

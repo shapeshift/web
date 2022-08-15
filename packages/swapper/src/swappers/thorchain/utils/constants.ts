@@ -24,5 +24,5 @@ export const THOR_TRADE_FEE_MULTIPLIERS: Record<ChainId, BigNumber> = {
   [KnownChainIds.LitecoinMainnet]: bn(0.000005), // 250 estimated bytes * 2 (as recommended on discord)
   [KnownChainIds.BitcoinCashMainnet]: bn(0.00003), // 1500 estimated bytes * 2 (as recommended on discord)
   [KnownChainIds.CosmosMainnet]: bn(0.00000002), // 1 gas * 2 (as recommended on discord)
-  [KnownChainIds.EthereumMainnet]: bn(0.00024) // A value that "works". Discord recommended value (80,000 gas * 2 or 160k) is often too low
+  [KnownChainIds.EthereumMainnet]: bn(0.00024), // A value that "works". Discord recommended value (80,000 gas * 2 or 160k) is often too low
 }

@@ -5,7 +5,7 @@ import {
   ApprovalNeededOutput,
   EvmSupportedChainIds,
   SwapError,
-  SwapErrorTypes
+  SwapErrorTypes,
 } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
@@ -14,7 +14,7 @@ import { ZrxSwapperDeps } from '../types'
 
 export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApprovalNeededInput<T>
+  { quote, wallet }: ApprovalNeededInput<T>,
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
 
@@ -24,7 +24,7 @@ export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
     if (sellAsset.chainId !== adapter.getChainId()) {
       throw new SwapError('[zrxApprovalNeeded] - sellAsset chainId is not supported', {
         code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-        details: { chainId: sellAsset.chainId }
+        details: { chainId: sellAsset.chainId },
       })
     }
 
@@ -41,7 +41,7 @@ export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
     if (!quote.allowanceContract) {
       throw new SwapError('[zrxApprovalNeeded] - allowanceTarget is required', {
         code: SwapErrorTypes.VALIDATION_FAILED,
-        details: { chainId: sellAsset.chainId }
+        details: { chainId: sellAsset.chainId },
       })
     }
 
@@ -50,23 +50,23 @@ export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
       erc20AllowanceAbi,
       sellAssetErc20Address,
       spenderAddress: quote.allowanceContract,
-      ownerAddress: receiveAddress
+      ownerAddress: receiveAddress,
     })
     const allowanceOnChain = bnOrZero(allowanceResult)
 
     if (!quote.feeData.chainSpecific?.gasPrice)
       throw new SwapError('[zrxApprovalNeeded] - no gas price with quote', {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { feeData: quote.feeData }
+        details: { feeData: quote.feeData },
       })
     return {
-      approvalNeeded: allowanceOnChain.lte(bnOrZero(quote.sellAmount))
+      approvalNeeded: allowanceOnChain.lte(bnOrZero(quote.sellAmount)),
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApprovalNeeded]', {
       cause: e,
-      code: SwapErrorTypes.CHECK_APPROVAL_FAILED
+      code: SwapErrorTypes.CHECK_APPROVAL_FAILED,
     })
   }
 }

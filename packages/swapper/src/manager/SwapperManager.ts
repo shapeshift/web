@@ -7,7 +7,7 @@ import { SwapError, SwapErrorTypes, SwapperType } from '../api'
 function validateSwapper(swapper: Swapper<ChainId>) {
   if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))
     throw new SwapError('[validateSwapper] - invalid swapper instance', {
-      code: SwapErrorTypes.MANAGER_ERROR
+      code: SwapErrorTypes.MANAGER_ERROR,
     })
 }
 
@@ -41,7 +41,7 @@ export class SwapperManager {
     if (!swapper)
       throw new SwapError('[getSwapper] - swapperType doesnt exist', {
         code: SwapErrorTypes.MANAGER_ERROR,
-        details: { swapperType }
+        details: { swapperType },
       })
     return swapper
   }
@@ -56,7 +56,7 @@ export class SwapperManager {
     if (!swapper)
       throw new SwapError('[removeSwapper] - swapperType doesnt exist', {
         code: SwapErrorTypes.MANAGER_ERROR,
-        details: { swapperType }
+        details: { swapperType },
       })
     this.swappers.delete(swapperType)
     return this
@@ -77,15 +77,15 @@ export class SwapperManager {
     const { sellAssetId, buyAssetId } = pair
     return Array.from(this.swappers.values()).filter(
       (swapper: Swapper<ChainId>) =>
-        swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length
+        swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length,
     )
   }
 
   getSupportedBuyAssetIdsFromSellId(args: BuyAssetBySellIdInput) {
     return uniq(
       Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
-        swapper.filterBuyAssetsBySellAssetId(args)
-      )
+        swapper.filterBuyAssetsBySellAssetId(args),
+      ),
     )
   }
 
@@ -94,8 +94,8 @@ export class SwapperManager {
 
     return uniq(
       Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
-        swapper.filterAssetIdsBySellable(assetIds)
-      )
+        swapper.filterAssetIdsBySellable(assetIds),
+      ),
     )
   }
 }

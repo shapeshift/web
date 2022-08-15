@@ -11,7 +11,7 @@ describe('thorTradeApprovalNeeded', () => {
   const deps = setupThorswapDeps()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
+    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
 
   const { tradeQuote, sellAsset } = setupQuote()
@@ -19,7 +19,7 @@ describe('thorTradeApprovalNeeded', () => {
   it('returns false if sellAsset assetId is ETH', async () => {
     const input = {
       quote: { ...tradeQuote, sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' } },
-      wallet
+      wallet,
     }
 
     expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({ approvalNeeded: false })
@@ -31,14 +31,14 @@ describe('thorTradeApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
       },
-      wallet
+      wallet,
     }
     ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
 
     expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
-      approvalNeeded: false
+      approvalNeeded: false,
     })
   })
 
@@ -48,14 +48,14 @@ describe('thorTradeApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
       },
-      wallet
+      wallet,
     }
     ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
 
     expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
-      approvalNeeded: true
+      approvalNeeded: true,
     })
   })
 })

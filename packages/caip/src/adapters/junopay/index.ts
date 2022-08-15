@@ -35,7 +35,7 @@ const assetIdToJunoPayTickerMap: Record<AssetId, string> = {
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'usdc',
   'eip155:1/erc20:0x8e870d67f660d95d5be530380d0ec0bd388289e1': 'usdp',
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
-  'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc'
+  'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
 }
 
 const junoPayTickerToAssetIdMap = invert(assetIdToJunoPayTickerMap)
@@ -49,5 +49,5 @@ export const assetIdToJunoPayTicker = (assetId: string): string | undefined =>
 export const getSupportedJunoPayAssets = () =>
   entries(assetIdToJunoPayTickerMap).map(([assetId, ticker]) => ({
     assetId,
-    ticker
+    ticker,
   }))

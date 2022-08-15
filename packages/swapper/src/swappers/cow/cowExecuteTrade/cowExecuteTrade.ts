@@ -14,41 +14,41 @@ import {
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
-  SIGNING_SCHEME
+  SIGNING_SCHEME,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import {
   CowSwapOrder,
   domain,
   getNowPlusThirtyMinutesTimestamp,
-  hashOrder
+  hashOrder,
 } from '../utils/helpers/helpers'
 
 export async function cowExecuteTrade(
   { apiUrl, adapter }: CowSwapperDeps,
-  { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>
+  { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
 ): Promise<TradeResult> {
   const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
   const { sellAsset, buyAsset, feeAmountInSellToken, sellAmountWithoutFee } = cowTrade
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
-    sellAsset.assetId
+    sellAsset.assetId,
   )
   const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId
+    buyAsset.assetId,
   )
 
   if (sellAssetNamespace !== 'erc20') {
     throw new SwapError('[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
       code: SwapErrorTypes.UNSUPPORTED_PAIR,
-      details: { sellAssetNamespace }
+      details: { sellAssetNamespace },
     })
   }
 
   if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
     throw new SwapError('[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
       code: SwapErrorTypes.UNSUPPORTED_PAIR,
-      details: { buyAssetChainId }
+      details: { buyAssetChainId },
     })
   }
 
@@ -68,7 +68,7 @@ export async function cowExecuteTrade(
       partiallyFillable: false,
       receiver: trade.receiveAddress,
       sellTokenBalance: ERC20_TOKEN_BALANCE,
-      buyTokenBalance: ERC20_TOKEN_BALANCE
+      buyTokenBalance: ERC20_TOKEN_BALANCE,
     }
 
     // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
@@ -80,9 +80,9 @@ export async function cowExecuteTrade(
     const message: SignMessageInput<ETHSignMessage> = {
       messageToSign: {
         addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-        message: ethers.utils.arrayify(orderDigest)
+        message: ethers.utils.arrayify(orderDigest),
       },
-      wallet
+      wallet,
     }
 
     const signatureOrderDigest = await adapter.signMessage(message)
@@ -117,8 +117,8 @@ export async function cowExecuteTrade(
         ...orderToSign,
         signingScheme: SIGNING_SCHEME,
         signature,
-        from: trade.receiveAddress
-      }
+        from: trade.receiveAddress,
+      },
     )
 
     return { tradeId: ordersResponse.data }
@@ -126,7 +126,7 @@ export async function cowExecuteTrade(
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowExecuteTrade]', {
       cause: e,
-      code: SwapErrorTypes.EXECUTE_TRADE_FAILED
+      code: SwapErrorTypes.EXECUTE_TRADE_FAILED,
     })
   }
 }

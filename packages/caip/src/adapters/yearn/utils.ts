@@ -26,7 +26,7 @@ export const fetchData = async () => {
     yearnSdk.vaults.get(),
     yearnSdk.ironBank.tokens(),
     yearnSdk.tokens.supported(),
-    yearnSdk.vaults.tokens()
+    yearnSdk.vaults.tokens(),
   ])
   const tokens = [...vaults, ...ironBankTokens, ...zapperTokens, ...underlyingVaultTokens]
   return uniqBy(tokens, 'address')
@@ -45,7 +45,7 @@ export const parseEthData = (data: (Token | Vault)[]) => {
       chainNamespace,
       chainReference,
       assetNamespace,
-      assetReference
+      assetReference,
     })
     acc[assetId] = id
     return acc
@@ -55,7 +55,7 @@ export const parseEthData = (data: (Token | Vault)[]) => {
 export const parseData = (d: (Token | Vault)[]) => {
   const ethMainnet = toChainId({
     chainNamespace: CHAIN_NAMESPACE.Ethereum,
-    chainReference: CHAIN_REFERENCE.EthereumMainnet
+    chainReference: CHAIN_REFERENCE.EthereumMainnet,
   })
   return { [ethMainnet]: parseEthData(d) }
 }

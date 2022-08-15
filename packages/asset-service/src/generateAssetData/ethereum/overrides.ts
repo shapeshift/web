@@ -13,6 +13,6 @@ export const overrideTokens: Array<Asset> = [
     symbol: 'FOX',
     explorer: ethereum.explorer,
     explorerAddressLink: ethereum.explorerAddressLink,
-    explorerTxLink: ethereum.explorerTxLink
-  }
+    explorerTxLink: ethereum.explorerTxLink,
+  },
 ]

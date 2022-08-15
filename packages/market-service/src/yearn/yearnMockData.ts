@@ -30,14 +30,14 @@ export const mockYearnVaultRestData: Vault[] = [
           withdrawal: null,
           management: 0.02,
           keep_crv: null,
-          cvx_keep_crv: null
+          cvx_keep_crv: null,
         },
         points: {
           week_ago: 0.00000780300855329763,
           month_ago: 0.000001793590841403514,
-          inception: 0.0040986514460876755
+          inception: 0.0040986514460876755,
         },
-        composite: null
+        composite: null,
       },
       displayIcon:
         'https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo-128.png',
@@ -53,62 +53,62 @@ export const mockYearnVaultRestData: Vault[] = [
       historicEarnings: [
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-09T23:59:19.000Z'
+          date: '2021-11-09T23:59:19.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-27T17:34:01.000Z'
+          date: '2021-11-27T17:34:01.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-27T17:34:01.000Z'
+          date: '2021-11-27T17:34:01.000Z',
         },
         {
           earnings: { amountUsdc: '4368298565', amount: '9235827' },
-          date: '2021-11-27T17:34:01.000Z'
+          date: '2021-11-27T17:34:01.000Z',
         },
         {
           earnings: { amountUsdc: '4568298565', amount: '9265827' },
-          date: '2021-11-30T21:11:26.000Z'
-        }
-      ]
-    }
+          date: '2021-11-30T21:11:26.000Z',
+        },
+      ],
+    },
   },
   {
     address: '0x19D3364A399d251E894aC732651be8B0E4e85001',
@@ -121,7 +121,7 @@ export const mockYearnVaultRestData: Vault[] = [
     tokenId: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     underlyingTokenBalance: {
       amount: '3749544503309184323796587',
-      amountUsdc: '3754148943959'
+      amountUsdc: '3754148943959',
     },
     metadata: {
       controller: '0x0000000000000000000000000000000000000000',
@@ -142,14 +142,14 @@ export const mockYearnVaultRestData: Vault[] = [
           withdrawal: null,
           management: 0,
           keep_crv: null,
-          cvx_keep_crv: null
+          cvx_keep_crv: null,
         },
         points: {
           week_ago: 0,
           month_ago: 0.029491166945441627,
-          inception: 0.09396663217129686
+          inception: 0.09396663217129686,
         },
-        composite: null
+        composite: null,
       },
       displayIcon:
         'https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo-128.png',
@@ -169,49 +169,49 @@ export const mockYearnVaultRestData: Vault[] = [
             address: '0x3D6532c589A11117a4494d9725bb8518C731f1Be',
             name: 'Routeryvdai043',
             description: "I don't have a description for this strategy yet",
-            protocols: []
-          }
-        ]
+            protocols: [],
+          },
+        ],
       },
       historicEarnings: [
         {
           earnings: {
             amountUsdc: '21408471734966',
-            amount: '21382214375712138070254065'
+            amount: '21382214375712138070254065',
           },
-          date: '2021-11-17T02:25:49.000Z'
+          date: '2021-11-17T02:25:49.000Z',
         },
         {
           earnings: {
             amountUsdc: '21408471734966',
-            amount: '21382214375712138070254065'
+            amount: '21382214375712138070254065',
           },
-          date: '2021-11-20T07:19:47.000Z'
+          date: '2021-11-20T07:19:47.000Z',
         },
         {
           earnings: {
             amountUsdc: '21408471734966',
-            amount: '21382214375712138070254065'
+            amount: '21382214375712138070254065',
           },
-          date: '2021-11-21T00:51:34.000Z'
+          date: '2021-11-21T00:51:34.000Z',
         },
         {
           earnings: {
             amountUsdc: '21308471734966',
-            amount: '21282214375712138070254065'
+            amount: '21282214375712138070254065',
           },
-          date: '2021-11-21T00:51:34.000Z'
+          date: '2021-11-21T00:51:34.000Z',
         },
         {
           earnings: {
             amountUsdc: '21408471734966',
-            amount: '21382214375712138070254065'
+            amount: '21382214375712138070254065',
           },
-          date: '2021-11-22T10:39:27.000Z'
-        }
-      ]
-    }
-  }
+          date: '2021-11-22T10:39:27.000Z',
+        },
+      ],
+    },
+  },
 ]
 
 export const mockYearnGQLData = {
@@ -224,34 +224,34 @@ export const mockYearnGQLData = {
               {
                 pricePerShare: '1082124440389265991',
                 timestamp: '1639132035000',
-                tokenPriceUSDC: '999932'
+                tokenPriceUSDC: '999932',
               },
               {
                 pricePerShare: '1082124440389265991',
                 timestamp: '1639241453000',
-                tokenPriceUSDC: '1000000'
+                tokenPriceUSDC: '1000000',
               },
               {
                 pricePerShare: '1082124440389265991',
                 timestamp: '1639269839000',
-                tokenPriceUSDC: '999963'
+                tokenPriceUSDC: '999963',
               },
               {
                 pricePerShare: '1084750123794815921',
                 timestamp: '1639441831000',
-                tokenPriceUSDC: '1000418'
+                tokenPriceUSDC: '1000418',
               },
               {
                 pricePerShare: '1084750123794815921',
                 timestamp: '1639530562000',
-                tokenPriceUSDC: '1001033'
-              }
-            ]
-          }
-        }
-      ]
-    }
-  }
+                tokenPriceUSDC: '1001033',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
 }
 
 export const mockYearnServiceFindAllData = {
@@ -259,48 +259,48 @@ export const mockYearnServiceFindAllData = {
     price: '4468.08',
     marketCap: '937771950.77',
     volume: '5932398898',
-    changePercent24Hr: 2.1380553852e-10
+    changePercent24Hr: 2.1380553852e-10,
   },
   'eip155:1/erc20:0xa258c4606ca8206d8aa700ce2143d7db854d168c': {
     price: '4062.35',
     marketCap: '864888828.22',
     volume: '0',
-    changePercent24Hr: 0
+    changePercent24Hr: 0,
   },
   'eip155:1/erc20:0xda816459f1ab5631232fe5e97a05bbbb94970c95': {
     price: '1.02',
     marketCap: '547790387.55',
     volume: '108391293604',
-    changePercent24Hr: 7.67881567474e-9
+    changePercent24Hr: 7.67881567474e-9,
   },
   'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9': {
     price: '1.09',
     marketCap: '280969149.48',
     volume: '55430827858',
-    changePercent24Hr: 1.93301855857e-9
-  }
+    changePercent24Hr: 1.93301855857e-9,
+  },
 }
 
 export const mockYearnFindByAssetIdData = {
   price: '1234',
   marketCap: '1564876159',
   volume: '509787461',
-  changePercent24Hr: -3.5487
+  changePercent24Hr: -3.5487,
 }
 
 export const mockYearnPriceHistoryData = [
   {
     price: 456789,
-    timestamp: 123456
+    timestamp: 123456,
   },
   {
     price: 556789,
-    timestamp: 223456
+    timestamp: 223456,
   },
   {
     price: 656789,
-    timestamp: 323456
-  }
+    timestamp: 323456,
+  },
 ]
 
 export const mockYearnTokenRestData: Token[] = [
@@ -310,7 +310,7 @@ export const mockYearnTokenRestData: Token[] = [
     symbol: 'yvWBTC',
     decimals: '8',
     priceUsdc: '50000000000',
-    supported: {}
+    supported: {},
   },
   {
     address: '0x19D3364A399d251E894aC732651be8B0E4e85001',
@@ -318,6 +318,6 @@ export const mockYearnTokenRestData: Token[] = [
     symbol: 'yvDAI',
     decimals: '18',
     priceUsdc: '990000',
-    supported: {}
-  }
+    supported: {},
+  },
 ]

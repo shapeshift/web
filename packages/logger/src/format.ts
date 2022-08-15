@@ -45,7 +45,7 @@ export default function format(x: unknown): FormattedObject | undefined {
       message: x.message,
       // Only keep the first 6 lines of the stack trace
       stack: x.stack?.split('\n').slice(0, 6).join('\n'),
-      kind: x.constructor.name
+      kind: x.constructor.name,
     }
     if (isErrorWithDetails(x)) {
       error.code = x.code

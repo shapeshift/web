@@ -5,7 +5,7 @@ import {
   ApprovalRequired,
   DepositWithdrawArgs,
   FeePriority,
-  InvestorOpportunity
+  InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -43,7 +43,7 @@ export type PreparedTransaction = {
 const feeMultipier: Record<FeePriority, number> = Object.freeze({
   fast: 1,
   average: 0.8,
-  slow: 0.5
+  slow: 0.5,
 })
 
 export class YearnOpportunity
@@ -93,7 +93,7 @@ export class YearnOpportunity
       routerContract: deps.contract,
       vault,
       web3: deps.web3,
-      yearn: deps.yearnSdk
+      yearn: deps.yearnSdk,
     }
 
     this.id = toLower(vault.address)
@@ -114,28 +114,28 @@ export class YearnOpportunity
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: vault.tokenId || vault.token
-      })
+        assetReference: vault.tokenId || vault.token,
+      }),
     }
     this.underlyingAsset = {
       balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: vault.tokenId || vault.token
-      })
+        assetReference: vault.tokenId || vault.token,
+      }),
     }
     this.positionAsset = {
       balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: this.id
+        assetReference: this.id,
       }),
-      underlyingPerPosition: bnOrZero(vault.metadata.pricePerShare)
+      underlyingPerPosition: bnOrZero(vault.metadata.pricePerShare),
     }
     this.feeAsset = {
-      assetId: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60',
     }
   }
 
@@ -150,7 +150,7 @@ export class YearnOpportunity
    */
   private async getVaultId({
     underlyingAssetAddress,
-    vaultAddress
+    vaultAddress,
   }: {
     underlyingAssetAddress: string
     vaultAddress: string
@@ -167,7 +167,7 @@ export class YearnOpportunity
     }
     if (isNil(id))
       throw new Error(
-        `Could not find vault id for token: ${underlyingAssetAddress} vault: ${vaultAddress}`
+        `Could not find vault id for token: ${underlyingAssetAddress} vault: ${vaultAddress}`,
       )
     return id
   }
@@ -191,7 +191,7 @@ export class YearnOpportunity
       gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
       nonce: numberToHex(tx.nonce),
       value: numberToHex(tx.value),
-      addressNList
+      addressNList,
     }
 
     if (wallet.supportsOfflineSigning()) {
@@ -215,19 +215,19 @@ export class YearnOpportunity
     // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
     // without affecting the DAOs affiliate revenue.
     const tokenChecksum = this.#internals.web3.utils.toChecksumAddress(
-      this.#internals.vault.tokenId
+      this.#internals.vault.tokenId,
     )
     const userChecksum = this.#internals.web3.utils.toChecksumAddress(address)
     const vaultIndex = await this.getVaultId({
       underlyingAssetAddress: this.#internals.vault.tokenId,
-      vaultAddress: this.#internals.vault.address
+      vaultAddress: this.#internals.vault.address,
     })
 
     const preDeposit = await this.#internals.routerContract.methods.deposit(
       tokenChecksum,
       userChecksum,
       amount.toString(),
-      vaultIndex
+      vaultIndex,
     )
     const data = await preDeposit.encodeABI({ from: address })
     const estimatedGas = bnOrZero(await preDeposit.estimateGas({ from: address }))
@@ -242,7 +242,7 @@ export class YearnOpportunity
       gasPrice,
       nonce: String(nonce),
       to: ssRouterContractAddress,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -268,14 +268,14 @@ export class YearnOpportunity
       gasPrice,
       nonce: String(nonce),
       to: this.id,
-      value: '0'
+      value: '0',
     }
   }
 
   public async allowance(address: string): Promise<BigNumber> {
     const depositTokenContract: Contract = new this.#internals.web3.eth.Contract(
       erc20Abi,
-      this.#internals.vault.tokenId
+      this.#internals.vault.tokenId,
     )
     const allowance = await depositTokenContract.methods
       .allowance(address, this.#internals.routerContract.options.address)
@@ -287,12 +287,12 @@ export class YearnOpportunity
   async prepareApprove(address: string, amount?: string): Promise<PreparedTransaction> {
     const depositTokenContract = new this.#internals.web3.eth.Contract(
       erc20Abi,
-      this.#internals.vault.tokenId
+      this.#internals.vault.tokenId,
     )
 
     const preApprove = await depositTokenContract.methods.approve(
       ssRouterContractAddress,
-      amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE
+      amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
     )
 
     const data = await preApprove.encodeABI({ from: address })
@@ -308,7 +308,7 @@ export class YearnOpportunity
       gasPrice,
       nonce: String(nonce),
       to: this.#internals.vault.tokenId,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -326,17 +326,17 @@ export class YearnOpportunity
       supply: this.supply.toString(),
       tvl: {
         assetId: this.tvl.assetId,
-        balance: this.tvl.balance.toString()
+        balance: this.tvl.balance.toString(),
       },
       underlyingAsset: {
         balance: this.underlyingAsset.balance.toString(),
-        assetId: this.underlyingAsset.assetId
+        assetId: this.underlyingAsset.assetId,
       },
       positionAsset: {
         balance: this.positionAsset.balance.toString(),
         assetId: this.positionAsset.assetId,
-        price: this.positionAsset.underlyingPerPosition.toString()
-      }
+        price: this.positionAsset.underlyingPerPosition.toString(),
+      },
     }
   }
 }

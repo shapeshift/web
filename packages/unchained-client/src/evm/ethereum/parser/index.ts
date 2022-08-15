@@ -25,7 +25,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),
       new thor.Parser({ chainId: this.chainId, rpcUrl: args.rpcUrl }),
       new zrx.Parser(),
-      new cowswap.Parser()
+      new cowswap.Parser(),
     ])
   }
 }

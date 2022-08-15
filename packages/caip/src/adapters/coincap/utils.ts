@@ -12,7 +12,7 @@ import {
   dogeChainId,
   ethChainId,
   ltcChainId,
-  osmosisChainId
+  osmosisChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -20,7 +20,7 @@ import {
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
-  osmosisAssetMap
+  osmosisAssetMap,
 } from '../../utils'
 
 export type CoinCapCoin = {
@@ -53,7 +53,7 @@ export const fetchData = async (URL: string) =>
 export const parseEthData = (data: CoinCapCoin[]) => {
   const ethCoins = data.filter(
     ({ id, explorer }) =>
-      (explorer && explorer.startsWith('https://etherscan.io/token/0x')) || id === 'ethereum'
+      (explorer && explorer.startsWith('https://etherscan.io/token/0x')) || id === 'ethereum',
   )
 
   return ethCoins.reduce((acc, { id, explorer }) => {
@@ -80,5 +80,5 @@ export const parseData = (d: CoinCapCoin[]) => ({
   [dogeChainId]: dogecoinAssetMap,
   [ltcChainId]: litecoinAssetMap,
   [cosmosChainId]: cosmosAssetMap,
-  [osmosisChainId]: osmosisAssetMap
+  [osmosisChainId]: osmosisAssetMap,
 })

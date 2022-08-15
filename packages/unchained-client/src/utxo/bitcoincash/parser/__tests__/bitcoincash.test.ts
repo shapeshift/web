@@ -23,7 +23,7 @@ describe('parseTx', () => {
         chainId: bchChainId,
         fee: {
           assetId: bchAssetId,
-          value: '185'
+          value: '185',
         },
         transfers: [
           {
@@ -32,9 +32,9 @@ describe('parseTx', () => {
             to: 'bitcoincash:qq5tfcdahtl0x5vt6evua3y24lcdx252zqlhz6safs',
             assetId: bchAssetId,
             totalValue: '10436903',
-            components: [{ value: '10436903' }]
-          }
-        ]
+            components: [{ value: '10436903' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -57,7 +57,7 @@ describe('parseTx', () => {
         chainId: bchChainId,
         fee: {
           assetId: bchAssetId,
-          value: '185'
+          value: '185',
         },
         transfers: [
           {
@@ -66,9 +66,9 @@ describe('parseTx', () => {
             to: 'bitcoincash:qq5tfcdahtl0x5vt6evua3y24lcdx252zqlhz6safs',
             assetId: bchAssetId,
             totalValue: '10436903',
-            components: [{ value: '10436903' }]
-          }
-        ]
+            components: [{ value: '10436903' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -95,9 +95,9 @@ describe('parseTx', () => {
             from: 'bitcoincash:qq8th24ps88yzgvtdzc0eslufg5w7qjdmv6smzhjmu',
             assetId: bchAssetId,
             totalValue: '10436718',
-            components: [{ value: '10436718' }]
-          }
-        ]
+            components: [{ value: '10436718' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -125,9 +125,9 @@ describe('parseTx', () => {
             from: 'bitcoincash:qq8th24ps88yzgvtdzc0eslufg5w7qjdmv6smzhjmu',
             assetId: bchAssetId,
             totalValue: '10436718',
-            components: [{ value: '10436718' }]
-          }
-        ]
+            components: [{ value: '10436718' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -149,7 +149,7 @@ describe('parseTx', () => {
         chainId: bchChainId,
         fee: {
           assetId: bchAssetId,
-          value: '220'
+          value: '220',
         },
         transfers: [
           {
@@ -158,7 +158,7 @@ describe('parseTx', () => {
             to: 'bitcoincash:qzm7ax32nzkmlgf97qtq5vdmpvdx4xvjj5dlmputzn',
             assetId: bchAssetId,
             totalValue: '8758569',
-            components: [{ value: '8758569' }]
+            components: [{ value: '8758569' }],
           },
           {
             type: TransferType.Receive,
@@ -166,9 +166,9 @@ describe('parseTx', () => {
             from: address,
             assetId: bchAssetId,
             totalValue: '8752492',
-            components: [{ value: '8752492' }]
-          }
-        ]
+            components: [{ value: '8752492' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -191,7 +191,7 @@ describe('parseTx', () => {
         chainId: bchChainId,
         fee: {
           assetId: bchAssetId,
-          value: '220'
+          value: '220',
         },
         transfers: [
           {
@@ -200,7 +200,7 @@ describe('parseTx', () => {
             to: 'bitcoincash:qzm7ax32nzkmlgf97qtq5vdmpvdx4xvjj5dlmputzn',
             assetId: bchAssetId,
             totalValue: '8758569',
-            components: [{ value: '8758569' }]
+            components: [{ value: '8758569' }],
           },
           {
             type: TransferType.Receive,
@@ -208,9 +208,9 @@ describe('parseTx', () => {
             from: address,
             assetId: bchAssetId,
             totalValue: '8752492',
-            components: [{ value: '8752492' }]
-          }
-        ]
+            components: [{ value: '8752492' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)

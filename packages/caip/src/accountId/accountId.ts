@@ -27,7 +27,7 @@ export const toAccountId: ToAccountId = ({
   chainId: maybeChainId,
   chainNamespace: maybeChainNamespace,
   chainReference: maybeChainReference,
-  account
+  account,
 }) => {
   if (!account) throw new Error(`toAccountId: account is required`)
 

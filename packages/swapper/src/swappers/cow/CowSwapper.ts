@@ -18,7 +18,7 @@ import {
   SwapperType,
   TradeQuote,
   TradeResult,
-  TradeTxs
+  TradeTxs,
 } from '../../api'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
@@ -53,7 +53,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   async getTradeQuote(
-    input: GetTradeQuoteInput
+    input: GetTradeQuoteInput,
   ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
@@ -67,20 +67,20 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   async approvalNeeded(
-    args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>
+    args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
   ): Promise<ApprovalNeededOutput> {
     return cowApprovalNeeded(this.deps, args)
   }
 
   async approveInfinite(
-    args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
+    args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>,
   ): Promise<string> {
     return cowApproveInfinite(this.deps, args)
   }
 
   async approveAmount(): Promise<string> {
     throw new SwapError('CowSwapper: approveAmount unimplemented', {
-      code: SwapErrorTypes.RESPONSE_ERROR
+      code: SwapErrorTypes.RESPONSE_ERROR,
     })
   }
 
@@ -96,13 +96,14 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
       (id) =>
         id !== sellAssetId &&
         fromAssetId(id).chainId === KnownChainIds.EthereumMainnet &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return assetIds.filter(
-      (id) => fromAssetId(id).assetNamespace === 'erc20' && !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+      (id) =>
+        fromAssetId(id).assetNamespace === 'erc20' && !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }
 

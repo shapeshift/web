@@ -38,15 +38,15 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   wallet,
   bip44Params,
   accountType,
-  tradeFee
+  tradeFee,
 }) => {
   try {
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-      `${deps.midgardUrl}/thorchain/inbound_addresses`
+      `${deps.midgardUrl}/thorchain/inbound_addresses`,
     )
 
     const sellAssetInboundAddresses = inboundAddresses.find(
-      (inbound) => inbound.chain === sellAsset.symbol.toUpperCase()
+      (inbound) => inbound.chain === sellAsset.symbol.toUpperCase(),
     )
 
     const vault = sellAssetInboundAddresses?.address
@@ -54,7 +54,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     if (!vault)
       throw new SwapError(`[getThorTxInfo]: vault not found for asset`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { inboundAddresses, sellAsset }
+        details: { inboundAddresses, sellAsset },
       })
 
     const limit = await getLimit({
@@ -65,17 +65,17 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       buyAsset,
       slippageTolerance,
       deps,
-      tradeFee
+      tradeFee,
     })
 
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
-      limit
+      limit,
     })
 
     const adapter = deps.adapterManager.get(
-      sellAsset.chainId
+      sellAsset.chainId,
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
 
     const pubkey = await adapter.getPublicKey(wallet, bip44Params, accountType)
@@ -83,7 +83,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     return {
       opReturnData: memo,
       vault,
-      pubkey: pubkey.xpub
+      pubkey: pubkey.xpub,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

@@ -13,7 +13,7 @@ describe('ThorchainSwapper', () => {
   const swapper = new ThorchainSwapper({
     midgardUrl: 'localhost:3000',
     adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
   })
 
   describe('name', () => {
@@ -29,7 +29,7 @@ describe('ThorchainSwapper', () => {
       })
 
       await expect(swapper.initialize()).rejects.toThrow(
-        '[thorchainInitialize]: initialize failed to set supportedAssetIds'
+        '[thorchainInitialize]: initialize failed to set supportedAssetIds',
       )
     })
   })

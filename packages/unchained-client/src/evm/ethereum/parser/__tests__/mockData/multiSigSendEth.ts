@@ -19,8 +19,8 @@ export default {
       {
         from: '0x79fE68B3e4Bc2B91a4C8dfFb5317C7B8813d8Ae7',
         to: '0x76DA1578aC163CA7ca4143B7dEAa428e85Db3042',
-        value: '1201235000000000000'
-      }
-    ]
-  }
+        value: '1201235000000000000',
+      },
+    ],
+  },
 }

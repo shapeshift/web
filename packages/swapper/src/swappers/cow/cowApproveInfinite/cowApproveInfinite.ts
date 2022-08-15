@@ -8,18 +8,18 @@ import { MAX_ALLOWANCE } from '../utils/constants'
 
 export async function cowApproveInfinite(
   { adapter, web3 }: CowSwapperDeps,
-  { quote, wallet }: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
+  { quote, wallet }: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>,
 ) {
   try {
     const allowanceGrantRequired = await grantAllowance<KnownChainIds.EthereumMainnet>({
       quote: {
         ...quote,
-        sellAmount: MAX_ALLOWANCE
+        sellAmount: MAX_ALLOWANCE,
       },
       wallet,
       adapter,
       erc20Abi,
-      web3
+      web3,
     })
 
     return allowanceGrantRequired
@@ -27,7 +27,7 @@ export async function cowApproveInfinite(
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowApproveInfinite]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_INFINITE_FAILED
+      code: SwapErrorTypes.APPROVE_INFINITE_FAILED,
     })
   }
 }

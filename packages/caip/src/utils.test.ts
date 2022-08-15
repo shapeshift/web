@@ -11,7 +11,7 @@ import {
   ethAssetId,
   ethChainId,
   osmosisAssetId,
-  osmosisChainId
+  osmosisChainId,
 } from './constants'
 import {
   assertIsAssetNamespace,
@@ -25,7 +25,7 @@ import {
   isAssetReference,
   isChainId,
   isChainNamespace,
-  isChainReference
+  isChainReference,
 } from './typeGuards'
 import { accountIdToChainId, accountIdToSpecifier, isValidChainPartsPair } from './utils'
 
@@ -62,16 +62,16 @@ describe('accountIdToSpecifier', () => {
 describe('isValidChainPartsPair', () => {
   it('correctly validates pairs', () => {
     expect(isValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
-      true
+      true,
     )
     expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
-      false
+      false,
     )
     expect(
-      isValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet)
+      isValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet),
     ).toEqual(false)
     expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference)).toEqual(
-      false
+      false,
     )
   })
 })
@@ -187,16 +187,16 @@ describe('type guard assertion', () => {
   describe('assertValidChainPartsPair', () => {
     it('correctly asserts type', () => {
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet)
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet),
       ).not.toThrow()
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.EthereumMainnet)
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.EthereumMainnet),
       ).toThrow()
       expect(() =>
-        assertValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet)
+        assertValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet),
       ).toThrow()
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference)
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference),
       ).toThrow()
     })
   })

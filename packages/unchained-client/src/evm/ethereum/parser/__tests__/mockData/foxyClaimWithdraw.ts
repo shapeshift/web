@@ -23,7 +23,7 @@ export default {
         type: 'ERC20',
         from: '0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
         to: '0x55FB947880EE0660C90bC2055748aD70956FbE3c',
-        value: '1200000000000000000000'
+        value: '1200000000000000000000',
       },
       {
         contract: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3',
@@ -33,8 +33,8 @@ export default {
         type: 'ERC20',
         from: '0xa542D7A3B031EabB5133993bA9a31631669F19B0',
         to: '0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
-        value: '1201078731873535361976'
-      }
-    ]
-  }
+        value: '1201078731873535361976',
+      },
+    ],
+  },
 }

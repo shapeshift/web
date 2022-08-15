@@ -11,7 +11,7 @@ export const secretNetwork: OsmosisMarketCap = {
   volume_24h: 3289855.395915219,
   volume_24h_change: 2479142.2564111263,
   name: 'Secret Network',
-  price_24h_change: -15.4199369882
+  price_24h_change: -15.4199369882,
 }
 
 export const ion: OsmosisMarketCap = {
@@ -23,7 +23,7 @@ export const ion: OsmosisMarketCap = {
   volume_24h: 353672.5116333088,
   volume_24h_change: 177537.462938586,
   name: 'Ion',
-  price_24h_change: -15.5060091033
+  price_24h_change: -15.5060091033,
 }
 
 export const osmo: OsmosisMarketCap = {
@@ -35,18 +35,18 @@ export const osmo: OsmosisMarketCap = {
   volume_24h: 169020038.66921267,
   volume_24h_change: 85749118.40114057,
   name: 'Osmosis',
-  price_24h_change: -8.5460553557
+  price_24h_change: -8.5460553557,
 }
 
 export const mockOsmosisFindAllData = {
-  data: [secretNetwork, ion, osmo]
+  data: [secretNetwork, ion, osmo],
 }
 
 export const mockOsmosisFindByAssetId: MarketData = {
   price: '8.0939512289',
   marketCap: '513382677.98398143',
   volume: '169020038.66921267',
-  changePercent24Hr: -8.5460553557
+  changePercent24Hr: -8.5460553557,
 }
 
 export const mockOsmosisYearlyHistoryData = [
@@ -55,29 +55,29 @@ export const mockOsmosisYearlyHistoryData = [
     close: 5.4010989774,
     high: 5.4141295587,
     low: 5.0003632977,
-    open: 5.0003632977
+    open: 5.0003632977,
   },
   {
     time: 1624579200,
     close: 7.3442392291,
     high: 7.3448735644,
     low: 5.3572962709,
-    open: 5.4010989774
+    open: 5.4010989774,
   },
   {
     time: 1624665600,
     close: 6.2011885916,
     high: 7.5765008227,
     low: 6.0288315142,
-    open: 7.3442142218
+    open: 7.3442142218,
   },
   {
     time: 1624752000,
     close: 5.3994292528,
     high: 6.2012808102,
     low: 5.0807420392,
-    open: 6.2011885916
-  }
+    open: 6.2011885916,
+  },
 ]
 
 export const mockHourlyHistoryData = [
@@ -87,7 +87,7 @@ export const mockHourlyHistoryData = [
     high: 8.7230634538,
     low: 8.7027347275,
     open: 8.7230634538,
-    volume: 322395.5646646317
+    volume: 322395.5646646317,
   },
   {
     time: 1645282800,
@@ -95,7 +95,7 @@ export const mockHourlyHistoryData = [
     high: 8.7281887188,
     low: 8.7088941334,
     open: 8.7099702887,
-    volume: 215774.9291578648
+    volume: 215774.9291578648,
   },
   {
     time: 1645286400,
@@ -103,7 +103,7 @@ export const mockHourlyHistoryData = [
     high: 8.8301414047,
     low: 8.7183602443,
     open: 8.7202062522,
-    volume: 544372.0382400643
+    volume: 544372.0382400643,
   },
   {
     time: 1645290000,
@@ -111,6 +111,6 @@ export const mockHourlyHistoryData = [
     high: 8.7584181833,
     low: 8.7271467319,
     open: 8.7551263817,
-    volume: 303458.094971553
-  }
+    volume: 303458.094971553,
+  },
 ]

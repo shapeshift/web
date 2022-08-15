@@ -9,7 +9,7 @@ import { ThorchainSwapperDeps } from '../types'
 
 export const thorTradeApprovalNeeded = async ({
   deps,
-  input
+  input,
 }: {
   deps: ThorchainSwapperDeps
   input: ApprovalNeededInput<KnownChainIds.EthereumMainnet>
@@ -33,8 +33,8 @@ export const thorTradeApprovalNeeded = async ({
         `[thorTradeApprovalNeeded] - no chain adapter found for chain Id: ${sellAsset.chainId}`,
         {
           code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { chainId: sellAsset.chainId }
-        }
+          details: { chainId: sellAsset.chainId },
+        },
       )
 
     // No approval needed for selling a fee asset
@@ -48,7 +48,7 @@ export const thorTradeApprovalNeeded = async ({
     if (!quote.allowanceContract) {
       throw new SwapError('[thorTradeApprovalNeeded] - allowanceTarget is required', {
         code: SwapErrorTypes.VALIDATION_FAILED,
-        details: { chainId: sellAsset.chainId }
+        details: { chainId: sellAsset.chainId },
       })
     }
 
@@ -57,23 +57,23 @@ export const thorTradeApprovalNeeded = async ({
       erc20AllowanceAbi,
       sellAssetErc20Address,
       spenderAddress: quote.allowanceContract,
-      ownerAddress: receiveAddress
+      ownerAddress: receiveAddress,
     })
     const allowanceOnChain = bnOrZero(allowanceResult)
 
     if (!quote.feeData.chainSpecific?.gasPrice)
       throw new SwapError('[thorTradeApprovalNeeded] - no gas price with quote', {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { feeData: quote.feeData }
+        details: { feeData: quote.feeData },
       })
     return {
-      approvalNeeded: allowanceOnChain.lte(bnOrZero(quote.sellAmount))
+      approvalNeeded: allowanceOnChain.lte(bnOrZero(quote.sellAmount)),
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[thorTradeApprovalNeeded]', {
       cause: e,
-      code: SwapErrorTypes.CHECK_APPROVAL_FAILED
+      code: SwapErrorTypes.CHECK_APPROVAL_FAILED,
     })
   }
 }

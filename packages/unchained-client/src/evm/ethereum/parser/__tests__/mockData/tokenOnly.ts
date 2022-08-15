@@ -25,12 +25,12 @@ export const tokenOnly = {
       type: 'ERC20',
       from: '0x51f360dA50a346157a2a906600F4834b1d5bAF6b',
       to: '0x5041ed759Dd4aFc3a72b8192C143F72f4724081A',
-      value: '376000000'
-    }
-  ]
+      value: '376000000',
+    },
+  ],
 }
 
 export default {
   tx: tokenOnly,
-  txMempool: mempoolMock(tokenOnly)
+  txMempool: mempoolMock(tokenOnly),
 }

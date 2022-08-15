@@ -23,7 +23,7 @@ export class TransactionParser {
       toAssetId({
         ...fromChainId(this.chainId),
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Cosmos
+        assetReference: ASSET_REFERENCE.Cosmos,
       })
   }
 
@@ -37,7 +37,7 @@ export class TransactionParser {
       confirmations: tx.confirmations,
       status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending, // TODO: handle failed case
       transfers: [],
-      txid: tx.txid
+      txid: tx.txid,
     }
 
     // For simplicity and to limit scope we assume 1 message per transaction
@@ -46,7 +46,7 @@ export class TransactionParser {
       tx.messages[0],
       tx.events,
       this.assetId,
-      address
+      address,
     )
 
     parsedTx.data = data
@@ -59,8 +59,8 @@ export class TransactionParser {
           from,
           to,
           totalValue: value.toString(10),
-          components: [{ value: value.toString(10) }]
-        }
+          components: [{ value: value.toString(10) }],
+        },
       ]
     }
 
@@ -72,8 +72,8 @@ export class TransactionParser {
           from,
           to,
           totalValue: value.toString(10),
-          components: [{ value: value.toString(10) }]
-        }
+          components: [{ value: value.toString(10) }],
+        },
       ]
     }
 

@@ -4,7 +4,7 @@ import WebSocket from 'isomorphic-ws'
 
 const logger = new Logger({
   namespace: ['unchained-client', 'websocket'],
-  level: process.env.LOG_LEVEL
+  level: process.env.LOG_LEVEL,
 })
 
 const NORMAL_CLOSURE_CODE = 1000
@@ -42,7 +42,7 @@ export class Client<T> {
     this.url = url
 
     this.connections = {
-      txs: undefined
+      txs: undefined,
     }
   }
 
@@ -65,7 +65,7 @@ export class Client<T> {
   private onOpen(
     ws: WebSocket,
     resolve: (value: boolean) => void,
-    reject: (reason?: unknown) => void
+    reject: (reason?: unknown) => void,
   ): void {
     this.retryCount = 0
 
@@ -99,11 +99,11 @@ export class Client<T> {
   private onClose(
     event: WebSocket.CloseEvent,
     resolve: (value: boolean) => void,
-    reject: (reason?: unknown) => void
+    reject: (reason?: unknown) => void,
   ): void {
     logger.warn(
       { fn: 'onClose', code: event.code, reason: event.reason, type: event.type },
-      'websocket closed'
+      'websocket closed',
     )
 
     this.connections.txs?.pingTimeout && clearTimeout(this.connections.txs.pingTimeout)
@@ -127,7 +127,7 @@ export class Client<T> {
 
     logger.error(
       { fn: 'onError', err: event.error, message: event.message, type: event.type },
-      'websocket error'
+      'websocket error',
     )
 
     // send connection errors to all subscription onError handlers
@@ -193,10 +193,10 @@ export class Client<T> {
     subscriptionId: string,
     data: TxsTopicData,
     onMessage: (message: TransactionMessage<T>) => void,
-    onError?: (err: ErrorResponse) => void
+    onError?: (err: ErrorResponse) => void,
   ): Promise<void> {
     const addresses = [
-      ...new Set([...(this.txs[subscriptionId]?.data?.addresses ?? []), ...data.addresses])
+      ...new Set([...(this.txs[subscriptionId]?.data?.addresses ?? []), ...data.addresses]),
     ]
 
     // keep track of all subscribed addresses and onMessage/onError handlers associated with each subscriptionId
@@ -210,7 +210,7 @@ export class Client<T> {
     // subscribe if connection exists and is ready
     if (this.connections.txs.ws.readyState === WebSocket.OPEN) {
       this.connections.txs.ws.send(
-        JSON.stringify({ subscriptionId, method: 'subscribe', data } as RequestPayload)
+        JSON.stringify({ subscriptionId, method: 'subscribe', data } as RequestPayload),
       )
     }
   }
@@ -237,7 +237,7 @@ export class Client<T> {
       // unsubscribe addresses from the current subscribed address set if addresses provided
       if (data?.addresses?.length) {
         this.txs[subscriptionId].data.addresses = this.txs[subscriptionId].data.addresses.filter(
-          (address) => !data.addresses.includes(address)
+          (address) => !data.addresses.includes(address),
         )
       } else {
         // delete subscription if no addresses provided
@@ -248,7 +248,7 @@ export class Client<T> {
     const payload: RequestPayload = {
       subscriptionId: subscriptionId ?? '',
       method: 'unsubscribe',
-      data: { topic: 'txs', addresses: data?.addresses ?? [] }
+      data: { topic: 'txs', addresses: data?.addresses ?? [] },
     }
 
     this.connections.txs?.ws.send(JSON.stringify(payload))

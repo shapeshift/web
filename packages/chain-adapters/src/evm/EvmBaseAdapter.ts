@@ -4,7 +4,7 @@ import {
   ETHSignMessage,
   ETHSignTx,
   ETHWallet,
-  supportsEthSwitchChain
+  supportsEthSwitchChain,
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -28,7 +28,7 @@ import {
   TxHistoryInput,
   TxHistoryResponse,
   ValidAddressResult,
-  ValidAddressResultType
+  ValidAddressResultType,
 } from '../types'
 import { chainIdToChainLabel, getAssetNamespace, toPath, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
@@ -40,7 +40,7 @@ export const evmChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.Avalanc
 export type EvmChainId = typeof evmChainIds[number]
 
 export const isEvmChainId = (
-  maybeEvmChainId: string | EvmChainId
+  maybeEvmChainId: string | EvmChainId,
 ): maybeEvmChainId is EvmChainId => {
   return evmChainIds.includes(maybeEvmChainId as EvmChainId)
 }
@@ -151,7 +151,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         if (maxFeePerGas && maxPriorityFeePerGas) {
           return {
             maxFeePerGas: numberToHex(maxFeePerGas),
-            maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas)
+            maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -166,7 +166,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         data,
         nonce: numberToHex(account.chainSpecific.nonce),
         gasLimit: numberToHex(gasLimit),
-        ...fees
+        ...fees,
       } as ChainTxType<T>
       return { txToSign }
     } catch (err) {
@@ -192,11 +192,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             assetId: toAssetId({
               chainId: this.chainId,
               assetNamespace: getAssetNamespace(token.type),
-              assetReference: token.contract
-            })
-          }))
+              assetReference: token.contract,
+            }),
+          })),
         },
-        pubkey: data.pubkey
+        pubkey: data.pubkey,
       } as Account<T>
     } catch (err) {
       return ErrorHandler(err)
@@ -207,7 +207,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     const { data } = await this.providers.http.getTxHistory({
       pubkey: input.pubkey,
       pageSize: input.pageSize,
-      cursor: input.cursor
+      cursor: input.cursor,
     })
 
     const txs = await Promise.all(
@@ -231,17 +231,17 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             from: transfer.from,
             to: transfer.to,
             type: transfer.type,
-            value: transfer.totalValue
+            value: transfer.totalValue,
           })),
-          data: parsedTx.data
+          data: parsedTx.data,
         }
-      })
+      }),
     )
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: txs
+      transactions: txs,
     }
   }
 
@@ -292,7 +292,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: bip32ToAddressNList(toPath(bip44Params)),
-      showDisplay: showOnDevice
+      showDisplay: showOnDevice,
     })
 
     if (!address) throw new Error('EvmBaseAdapter: no address available from wallet')
@@ -310,7 +310,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async subscribeTxs(
     input: SubscribeTxsInput,
     onMessage: (msg: Transaction) => void,
-    onError: (err: SubscribeError) => void
+    onError: (err: SubscribeError) => void,
   ): Promise<void> {
     const { wallet, bip44Params = this.defaultBIP44Params } = input
 
@@ -338,13 +338,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             from: transfer.from,
             to: transfer.to,
             type: transfer.type,
-            value: transfer.totalValue
+            value: transfer.totalValue,
           })),
           txid: tx.txid,
-          data: tx.data
+          data: tx.data,
         })
       },
-      (err) => onError({ message: err.message })
+      (err) => onError({ message: err.message }),
     )
   }
 

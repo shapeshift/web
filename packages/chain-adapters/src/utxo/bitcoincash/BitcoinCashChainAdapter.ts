@@ -13,7 +13,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinCashMainn
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.BitcoinCash),
-    accountNumber: 0
+    accountNumber: 0,
   }
 
   constructor(args: ChainAdapterArgs) {
@@ -23,12 +23,12 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinCashMainn
       supportedAccountTypes: SUPPORTED_ACCOUNT_TYPES,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
       defaultUtxoAccountType: ChainAdapter.defaultUtxoAccountType,
-      ...args
+      ...args,
     })
 
     this.assetId = bchAssetId
     this.parser = new unchained.bitcoincash.TransactionParser({
-      chainId: this.chainId
+      chainId: this.chainId,
     })
   }
 

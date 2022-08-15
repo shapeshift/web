@@ -7,7 +7,7 @@ export const deposit = async (
   vault: string,
   asset: string,
   amount: string,
-  memo: string
+  memo: string,
 ) => {
   const web3 = new Web3()
   const routerContract = new web3.eth.Contract(routerAbi, contractAddress)

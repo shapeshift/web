@@ -10,7 +10,7 @@ import {
   EvmSupportedChainIds,
   SwapError,
   SwapErrorTypes,
-  TradeQuote
+  TradeQuote,
 } from '../../../api'
 import { MAX_ALLOWANCE } from '../../cow/utils/constants'
 import { erc20Abi as erc20AbiImported } from '../abi/erc20-abi'
@@ -53,7 +53,7 @@ export const getERC20Allowance = async ({
   web3,
   sellAssetErc20Address,
   ownerAddress,
-  spenderAddress
+  spenderAddress,
 }: GetERC20AllowanceArgs) => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
@@ -66,7 +66,7 @@ export const getAllowanceRequired = async ({
   sellAsset,
   sellAmount,
   web3,
-  erc20AllowanceAbi
+  erc20AllowanceAbi,
 }: GetAllowanceRequiredArgs): Promise<BigNumber> => {
   try {
     if (sellAsset.assetId === adapter.getFeeAssetId()) {
@@ -83,13 +83,13 @@ export const getAllowanceRequired = async ({
       erc20AllowanceAbi,
       ownerAddress,
       spenderAddress,
-      sellAssetErc20Address
+      sellAssetErc20Address,
     })
     if (allowanceOnChain === '0') return bnOrZero(sellAmount)
     if (!allowanceOnChain) {
       throw new SwapError(`[getAllowanceRequired] - No allowance data`, {
         details: { allowanceContract, receiveAddress },
-        code: SwapErrorTypes.RESPONSE_ERROR
+        code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
     const allowanceRequired = bnOrZero(sellAmount).minus(allowanceOnChain)
@@ -98,7 +98,7 @@ export const getAllowanceRequired = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[getAllowanceRequired]', {
       cause: e,
-      code: SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED
+      code: SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED,
     })
   }
 }
@@ -108,7 +108,7 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
   wallet,
   adapter,
   erc20Abi,
-  web3
+  web3,
 }: GrantAllowanceArgs<T>): Promise<string> => {
   try {
     const { assetReference: sellAssetErc20Address } = fromAssetId(quote.sellAsset.assetId)
@@ -129,13 +129,13 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
       chainSpecific: {
         erc20ContractAddress: sellAssetErc20Address,
         gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
-        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
-      }
+        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0),
+      },
     })
 
     const grantAllowanceTxToSign = {
       ...txToSign,
-      data: approveTx
+      data: approveTx,
     }
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await adapter.signTransaction({ txToSign: grantAllowanceTxToSign, wallet })
@@ -146,20 +146,20 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
     } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const broadcastedTxId = await adapter.signAndBroadcastTransaction?.({
         txToSign: grantAllowanceTxToSign,
-        wallet
+        wallet,
       })
 
       return broadcastedTxId
     } else {
       throw new SwapError('[grantAllowance] - invalid HDWallet config', {
-        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED
+        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
       })
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[grantAllowance]', {
       cause: e,
-      code: SwapErrorTypes.GRANT_ALLOWANCE_FAILED
+      code: SwapErrorTypes.GRANT_ALLOWANCE_FAILED,
     })
   }
 }
@@ -183,7 +183,7 @@ export const normalizeIntegerAmount = (amount: string | number | BN): string => 
 export const getApproveContractData = ({
   web3,
   spenderAddress,
-  contractAddress
+  contractAddress,
 }: GetApproveContractDataArgs): string => {
   const contract = new web3.eth.Contract(erc20AbiImported, contractAddress)
   return contract.methods.approve(spenderAddress, MAX_ALLOWANCE).encodeABI()

@@ -14,7 +14,7 @@ export const accountIdToSpecifier = (accountId: AccountId): string =>
 
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
-  chainReference: ChainReference
+  chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }

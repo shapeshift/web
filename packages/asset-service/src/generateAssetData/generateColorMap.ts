@@ -28,7 +28,7 @@ const generateColorMap = async () => {
     atom,
     ...ethAssets,
     ...osmosisAssets,
-    ...avalancheAssets
+    ...avalancheAssets,
   ]
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)
@@ -49,7 +49,7 @@ const generateColorMap = async () => {
   await fs.promises.writeFile(
     `./src/generateAssetData/colorMap/color-map.json`,
     // beautify the file for github diff.
-    JSON.stringify(colorMap, null, 2)
+    JSON.stringify(colorMap, null, 2),
   )
 }
 

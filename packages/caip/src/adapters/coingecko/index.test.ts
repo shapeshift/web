@@ -4,13 +4,13 @@ import {
   btcChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
-  ethChainId
+  ethChainId,
 } from '../../constants'
 import {
   assetIdToCoingecko,
   chainIdToCoingeckoAssetPlatform,
   CoingeckoAssetPlatform,
-  coingeckoToAssetIds
+  coingeckoToAssetIds,
 } from '.'
 
 describe('adapters:coingecko', () => {
@@ -23,7 +23,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Bitcoin
+        assetReference: ASSET_REFERENCE.Bitcoin,
       })
       expect(coingeckoToAssetIds('bitcoin')).toEqual([assetId])
     })
@@ -35,7 +35,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Ethereum
+        assetReference: ASSET_REFERENCE.Ethereum,
       })
       expect(coingeckoToAssetIds('ethereum')).toEqual([assetId])
     })
@@ -56,7 +56,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Cosmos
+        assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(coingeckoToAssetIds('cosmos')).toEqual([assetId])
     })
@@ -68,7 +68,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis
+        assetReference: ASSET_REFERENCE.Osmosis,
       })
       expect(coingeckoToAssetIds('osmosis')).toEqual([assetId])
     })
@@ -80,13 +80,13 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace,
-        assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       })
       const usdcAvalanche = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.AvalancheCChain,
         assetNamespace,
-        assetReference: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
+        assetReference: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
       })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([usdcEth, usdcAvalanche])
     })
@@ -100,7 +100,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Bitcoin
+        assetReference: ASSET_REFERENCE.Bitcoin,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('bitcoin')
     })
@@ -112,7 +112,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Ethereum
+        assetReference: ASSET_REFERENCE.Ethereum,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('ethereum')
     })
@@ -133,7 +133,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Cosmos
+        assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('cosmos')
     })
@@ -145,7 +145,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis
+        assetReference: ASSET_REFERENCE.Osmosis,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
     })

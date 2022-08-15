@@ -8,7 +8,7 @@ import {
   fromAssetId,
   fromCAIP19,
   toAssetId,
-  toCAIP19
+  toCAIP19,
 } from './assetId'
 
 describe('assetId', () => {
@@ -28,7 +28,7 @@ describe('assetId', () => {
         ['cosmos:vega-testnet/slip44:118'],
         ['cosmos:osmosis-1/slip44:118'],
         ['cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'],
-        ['cosmos:osmo-testnet-1/slip44:118']
+        ['cosmos:osmo-testnet-1/slip44:118'],
       ])('returns an AssetId from the result of fromAssetId for %s', (assetId) => {
         const result = fromAssetId(assetId)
         expect(toAssetId(omit(result, 'chainId'))).toBe(assetId)
@@ -44,12 +44,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Ethereum,
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'eip155:1/slip44:60'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -61,12 +61,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Ethereum,
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'eip155:3/slip44:60'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -78,11 +78,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Ethereum,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -94,11 +94,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'cw721' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Ethereum,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -110,12 +110,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Cosmos,
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:cosmoshub-4/slip44:118'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -127,12 +127,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Cosmos,
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:osmosis-1/slip44:118'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -144,13 +144,13 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'ibc' as AssetNamespace,
         assetReference: '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593',
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected =
         'cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -162,12 +162,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'native' as AssetNamespace,
         assetReference: 'uion',
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:osmosis-1/native:uion'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -179,12 +179,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'cw20' as AssetNamespace,
         assetReference: 'canlab',
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:osmosis-1/cw20:canlab'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -196,12 +196,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'cw721' as AssetNamespace,
         assetReference: 'osmosiskitty',
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:osmosis-1/cw721:osmosiskitty'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -213,12 +213,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Cosmos,
-        chainId: toChainId({ chainNamespace, chainReference })
+        chainId: toChainId({ chainNamespace, chainReference }),
       }
       const expected = 'cosmos:vega-testnet/slip44:118'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -230,11 +230,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Cosmos,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -246,11 +246,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: 'bad',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -262,11 +262,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Bitcoin,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -278,12 +278,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -295,12 +295,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -312,12 +312,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc721' as AssetNamespace,
         assetReference: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'eip155:1/erc721:0xc770eefad204b5180df6a14ee197d99d808ee52d'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -329,12 +329,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'eip155:3/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -346,11 +346,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: '0xfoo',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -362,11 +362,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: '',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -378,11 +378,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'erc20' as AssetNamespace,
         assetReference: 'gm',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -394,11 +394,11 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: '' as AssetNamespace,
         assetReference: '0xdef1cafe',
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       expect(() => toAssetId(omit(assetIdArgSuperset, 'chainId'))).toThrow()
       expect(() =>
-        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))
+        toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference'])),
       ).toThrow()
     })
 
@@ -410,12 +410,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Bitcoin,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
 
@@ -427,12 +427,12 @@ describe('assetId', () => {
         chainReference,
         assetNamespace: 'slip44' as AssetNamespace,
         assetReference: ASSET_REFERENCE.Bitcoin,
-        chainId: `${chainNamespace}:${chainReference}`
+        chainId: `${chainNamespace}:${chainReference}`,
       }
       const expected = 'bip122:000000000933ea01ad0ee984209779ba/slip44:0'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
-        expected
+        expected,
       )
     })
   })
@@ -450,19 +450,19 @@ describe('assetId', () => {
           CHAIN_NAMESPACE.Ethereum,
           CHAIN_REFERENCE.EthereumMainnet,
           slip44,
-          ASSET_REFERENCE.Ethereum
+          ASSET_REFERENCE.Ethereum,
         ],
         [
           CHAIN_NAMESPACE.Ethereum,
           CHAIN_REFERENCE.EthereumRopsten,
           slip44,
-          ASSET_REFERENCE.Ethereum
+          ASSET_REFERENCE.Ethereum,
         ],
         [
           CHAIN_NAMESPACE.Ethereum,
           CHAIN_REFERENCE.EthereumMainnet,
           erc20,
-          '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+          '0xc770eefad204b5180df6a14ee197d99d808ee52d',
         ],
         [CHAIN_NAMESPACE.Cosmos, CHAIN_REFERENCE.CosmosHubMainnet, slip44, ASSET_REFERENCE.Cosmos],
         [CHAIN_NAMESPACE.Cosmos, CHAIN_REFERENCE.CosmosHubVega, slip44, ASSET_REFERENCE.Cosmos],
@@ -472,29 +472,29 @@ describe('assetId', () => {
           CHAIN_NAMESPACE.Cosmos,
           CHAIN_REFERENCE.OsmosisMainnet,
           ibc,
-          '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
+          '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593',
         ],
-        [CHAIN_NAMESPACE.Cosmos, CHAIN_REFERENCE.OsmosisMainnet, native, 'uion']
+        [CHAIN_NAMESPACE.Cosmos, CHAIN_REFERENCE.OsmosisMainnet, native, 'uion'],
       ])(
         'returns a AssetId from the result of fromAssetId for %s',
         (
           chainNamespace: ChainNamespace,
           chainReference: ChainReference,
           assetNamespace: AssetNamespace,
-          assetReference: AssetReference | string
+          assetReference: AssetReference | string,
         ) => {
           expect(
             fromAssetId(
-              toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference })
-            )
+              toAssetId({ chainNamespace, chainReference, assetNamespace, assetReference }),
+            ),
           ).toStrictEqual({
             chainNamespace,
             chainReference,
             assetReference,
             assetNamespace,
-            chainId: toChainId({ chainNamespace, chainReference })
+            chainId: toChainId({ chainNamespace, chainReference }),
           })
-        }
+        },
       )
     })
 
@@ -618,7 +618,7 @@ describe('assetId', () => {
       expect(chainId).toEqual(toChainId({ chainNamespace, chainReference }))
       expect(assetNamespace).toEqual('ibc')
       expect(assetReference).toEqual(
-        '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
+        '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593',
       )
     })
 

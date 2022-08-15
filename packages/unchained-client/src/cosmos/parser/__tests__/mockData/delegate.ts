@@ -7,7 +7,7 @@ export default {
     confirmations: 358801,
     fee: {
       amount: '6250',
-      denom: 'uatom'
+      denom: 'uatom',
     },
     gasUsed: '151141',
     gasWanted: '250000',
@@ -21,9 +21,9 @@ export default {
         type: 'delegate',
         value: {
           amount: '1920000',
-          denom: 'uatom'
-        }
-      }
+          denom: 'uatom',
+        },
+      },
     ],
     events: {
       '0': [
@@ -32,99 +32,99 @@ export default {
           attributes: [
             {
               key: 'receiver',
-              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05'
+              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
             },
             {
               key: 'amount',
-              value: '78085uatom'
+              value: '78085uatom',
             },
             {
               key: 'receiver',
-              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh'
+              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh',
             },
             {
               key: 'amount',
-              value: '1920000uatom'
-            }
-          ]
+              value: '1920000uatom',
+            },
+          ],
         },
         {
           type: 'coin_spent',
           attributes: [
             {
               key: 'spender',
-              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl'
+              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl',
             },
             {
               key: 'amount',
-              value: '78085uatom'
+              value: '78085uatom',
             },
             {
               key: 'spender',
-              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05'
+              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
             },
             {
               key: 'amount',
-              value: '1920000uatom'
-            }
-          ]
+              value: '1920000uatom',
+            },
+          ],
         },
         {
           type: 'delegate',
           attributes: [
             {
               key: 'validator',
-              value: 'cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl'
+              value: 'cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl',
             },
             {
               key: 'amount',
-              value: '1920000uatom'
+              value: '1920000uatom',
             },
             {
               key: 'new_shares',
-              value: '1920000.000000000000000000'
-            }
-          ]
+              value: '1920000.000000000000000000',
+            },
+          ],
         },
         {
           type: 'message',
           attributes: [
             {
               key: 'action',
-              value: '/cosmos.staking.v1beta1.MsgDelegate'
+              value: '/cosmos.staking.v1beta1.MsgDelegate',
             },
             {
               key: 'sender',
-              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl'
+              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl',
             },
             {
               key: 'module',
-              value: 'staking'
+              value: 'staking',
             },
             {
               key: 'sender',
-              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05'
-            }
-          ]
+              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
+            },
+          ],
         },
         {
           type: 'transfer',
           attributes: [
             {
               key: 'recipient',
-              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05'
+              value: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
             },
             {
               key: 'sender',
-              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl'
+              value: 'cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl',
             },
             {
               key: 'amount',
-              value: '78085uatom'
-            }
-          ]
-        }
-      ]
-    }
-  }
+              value: '78085uatom',
+            },
+          ],
+        },
+      ],
+    },
+  },
 }

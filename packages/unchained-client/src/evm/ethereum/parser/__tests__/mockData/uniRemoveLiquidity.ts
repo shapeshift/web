@@ -25,7 +25,7 @@ const uniRemoveLiquidity = {
       type: 'ERC20',
       from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
       to: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
-      value: '298717642142382954'
+      value: '298717642142382954',
     },
     {
       contract: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
@@ -35,7 +35,7 @@ const uniRemoveLiquidity = {
       type: 'ERC20',
       from: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
       to: '0x0000000000000000000000000000000000000000',
-      value: '298717642142382954'
+      value: '298717642142382954',
     },
     {
       contract: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -45,7 +45,7 @@ const uniRemoveLiquidity = {
       type: 'ERC20',
       from: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
       to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      value: '6761476182340434'
+      value: '6761476182340434',
     },
     {
       contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
@@ -55,7 +55,7 @@ const uniRemoveLiquidity = {
       type: 'ERC20',
       from: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
       to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      value: '15785079906515930982'
+      value: '15785079906515930982',
     },
     {
       contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
@@ -65,24 +65,24 @@ const uniRemoveLiquidity = {
       type: 'ERC20',
       from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '15785079906515930982'
-    }
+      value: '15785079906515930982',
+    },
   ],
   internalTxs: [
     {
       from: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      value: '6761476182340434'
+      value: '6761476182340434',
     },
     {
       from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '6761476182340434'
-    }
-  ]
+      value: '6761476182340434',
+    },
+  ],
 }
 
 export default {
   tx: uniRemoveLiquidity,
-  txMempool: mempoolMock(uniRemoveLiquidity)
+  txMempool: mempoolMock(uniRemoveLiquidity),
 }

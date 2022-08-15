@@ -25,7 +25,7 @@ const uniAddLiquidity = {
       type: 'ERC20',
       from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
       to: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
-      value: '100000000000000000000'
+      value: '100000000000000000000',
     },
     {
       contract: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -35,7 +35,7 @@ const uniAddLiquidity = {
       type: 'ERC20',
       from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
       to: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
-      value: '42673718176645189'
+      value: '42673718176645189',
     },
     {
       contract: '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c',
@@ -45,12 +45,12 @@ const uniAddLiquidity = {
       type: 'ERC20',
       from: '0x0000000000000000000000000000000000000000',
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '1888842410762840601'
-    }
-  ]
+      value: '1888842410762840601',
+    },
+  ],
 }
 
 export default {
   tx: uniAddLiquidity,
-  txMempool: mempoolMock(uniAddLiquidity)
+  txMempool: mempoolMock(uniAddLiquidity),
 }

@@ -7,7 +7,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 
@@ -20,7 +20,7 @@ import { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
 const logger = new Logger({
   namespace: ['market-service', 'coingecko'],
-  level: process.env.LOG_LEVEL
+  level: process.env.LOG_LEVEL,
 })
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINGECKO)
@@ -67,10 +67,10 @@ export class CoinGeckoMarketService implements MarketService {
       const marketData = await Promise.all(
         pageCount.map(async (page) => {
           const { data } = await axios.get<CoinGeckoMarketCap>(
-            `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false${this.maybeApiKeyQueryParam}`
+            `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false${this.maybeApiKeyQueryParam}`,
           )
           return data ?? []
-        })
+        }),
       )
 
       return marketData.flat().reduce<MarketCapResult>((prev, asset) => {
@@ -84,7 +84,7 @@ export class CoinGeckoMarketService implements MarketService {
             volume: asset.total_volume.toString(),
             changePercent24Hr: asset.price_change_percentage_24h,
             supply: asset.circulating_supply.toString(),
-            maxSupply: asset.max_supply?.toString() ?? asset.total_supply?.toString()
+            maxSupply: asset.max_supply?.toString() ?? asset.total_supply?.toString(),
           }
         })
 
@@ -120,7 +120,7 @@ export class CoinGeckoMarketService implements MarketService {
         volume: bnOrZero(marketData.total_volume?.[currency]).toString(),
         supply: bnOrZero(marketData.circulating_supply).toString(),
         maxSupply:
-          marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined
+          marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined,
       }
     } catch (e) {
       console.warn(e)
@@ -130,7 +130,7 @@ export class CoinGeckoMarketService implements MarketService {
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     const fnLogger = logger.child({ fn: 'findPriceHistoryByAssetId', assetId, timeframe })
 
@@ -167,7 +167,7 @@ export class CoinGeckoMarketService implements MarketService {
       const [baseUrl, apiKeyQueryParam = ''] = url.split('?')
 
       const { data: historyData } = await axios.get<CoinGeckoHistoryData>(
-        `${baseUrl}/market_chart/range?vs_currency=${currency}&from=${from}&to=${to}${apiKeyQueryParam}`
+        `${baseUrl}/market_chart/range?vs_currency=${currency}&from=${from}&to=${to}${apiKeyQueryParam}`,
       )
 
       return historyData.prices.reduce<HistoryData[]>((prev, data) => {
@@ -189,7 +189,7 @@ export class CoinGeckoMarketService implements MarketService {
     } catch (err) {
       fnLogger.error(err, 'failed to fetch price history')
       throw new Error(
-        'CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history'
+        'CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history',
       )
     }
   }

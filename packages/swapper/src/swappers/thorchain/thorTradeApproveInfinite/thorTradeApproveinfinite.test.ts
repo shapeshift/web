@@ -5,7 +5,7 @@ import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorTradeApproveInfinite } from './thorTradeApproveInfinite'
 
 jest.mock('../../utils/helpers/helpers', () => ({
-  grantAllowance: jest.fn(() => 'grantAllowanceTxId')
+  grantAllowance: jest.fn(() => 'grantAllowanceTxId'),
 }))
 
 describe('thorTradeApproveInfinite', () => {

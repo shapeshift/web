@@ -7,7 +7,7 @@ import {
   LoggerFunction,
   LoggerOptions,
   LoggerT,
-  LogLevel
+  LogLevel,
 } from './logger.type'
 
 const childIgnoredFields = Object.freeze([
@@ -17,7 +17,7 @@ const childIgnoredFields = Object.freeze([
   'defaultFields',
   'timestamp',
   'status',
-  'logFn'
+  'logFn',
 ])
 
 const rankedLogLevels = Object.freeze([
@@ -26,7 +26,7 @@ const rankedLogLevels = Object.freeze([
   LogLevel.INFO,
   LogLevel.WARN,
   LogLevel.ERROR,
-  LogLevel.NONE
+  LogLevel.NONE,
 ])
 
 const rankedLogLevelStrings = Object.freeze(rankedLogLevels.map(String))
@@ -98,7 +98,7 @@ export default class Logger implements LoggerT {
     level: LogLevel,
     arg1: unknown | Record<string, unknown> | string,
     arg2?: Record<string, unknown> | string,
-    arg3?: string
+    arg3?: string,
   ) {
     // No-op if logging is disabled
     if (rankedLogLevels.indexOf(level) < this.level || level === LogLevel.NONE) return
@@ -112,7 +112,7 @@ export default class Logger implements LoggerT {
       ...argsFormatted[2],
       timestamp: new Date().toISOString(),
       namespace: this.namespace.join(':') || undefined,
-      status: level
+      status: level,
     }
 
     // I'm concerned that this will add unnecessary overhead to all logging calls

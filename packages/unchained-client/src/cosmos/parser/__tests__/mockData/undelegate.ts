@@ -7,7 +7,7 @@ export default {
     confirmations: 229191,
     fee: {
       amount: '6250',
-      denom: 'uatom'
+      denom: 'uatom',
     },
     gasUsed: '159777',
     gasWanted: '250000',
@@ -21,9 +21,9 @@ export default {
         type: 'begin_unbonding',
         value: {
           amount: '200000',
-          denom: 'uatom'
-        }
-      }
+          denom: 'uatom',
+        },
+      },
     ],
     events: {
       '0': [
@@ -32,83 +32,83 @@ export default {
           attributes: [
             {
               key: 'receiver',
-              value: 'cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r'
+              value: 'cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r',
             },
             {
               key: 'amount',
-              value: '200000uatom'
-            }
-          ]
+              value: '200000uatom',
+            },
+          ],
         },
         {
           type: 'coin_spent',
           attributes: [
             {
               key: 'spender',
-              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh'
+              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh',
             },
             {
               key: 'amount',
-              value: '200000uatom'
-            }
-          ]
+              value: '200000uatom',
+            },
+          ],
         },
         {
           type: 'message',
           attributes: [
             {
               key: 'action',
-              value: '/cosmos.staking.v1beta1.MsgUndelegate'
+              value: '/cosmos.staking.v1beta1.MsgUndelegate',
             },
             {
               key: 'sender',
-              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh'
+              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh',
             },
             {
               key: 'module',
-              value: 'staking'
+              value: 'staking',
             },
             {
               key: 'sender',
-              value: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e'
-            }
-          ]
+              value: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
+            },
+          ],
         },
         {
           type: 'transfer',
           attributes: [
             {
               key: 'recipient',
-              value: 'cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r'
+              value: 'cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r',
             },
             {
               key: 'sender',
-              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh'
+              value: 'cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh',
             },
             {
               key: 'amount',
-              value: '200000uatom'
-            }
-          ]
+              value: '200000uatom',
+            },
+          ],
         },
         {
           type: 'unbond',
           attributes: [
             {
               key: 'validator',
-              value: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0'
+              value: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
             },
             {
               key: 'amount',
-              value: '200000uatom'
+              value: '200000uatom',
             },
             {
               key: 'completion_time',
-              value: '2022-03-25T21:38:35Z'
-            }
-          ]
-        }
-      ]
-    }
-  }
+              value: '2022-03-25T21:38:35Z',
+            },
+          ],
+        },
+      ],
+    },
+  },
 }

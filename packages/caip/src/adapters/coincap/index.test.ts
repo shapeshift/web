@@ -11,7 +11,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Bitcoin
+        assetReference: ASSET_REFERENCE.Bitcoin,
       })
       expect(coincapToAssetId('bitcoin')).toEqual(assetId)
     })
@@ -23,7 +23,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Ethereum
+        assetReference: ASSET_REFERENCE.Ethereum,
       })
       expect(coincapToAssetId('ethereum')).toEqual(assetId)
     })
@@ -45,7 +45,7 @@ describe('adapters:coincap', () => {
       chainNamespace,
       chainReference,
       assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Cosmos
+      assetReference: ASSET_REFERENCE.Cosmos,
     })
     expect(coincapToAssetId('cosmos')).toEqual(assetId)
   })
@@ -57,7 +57,7 @@ describe('adapters:coincap', () => {
       chainNamespace,
       chainReference,
       assetNamespace: 'slip44',
-      assetReference: ASSET_REFERENCE.Osmosis
+      assetReference: ASSET_REFERENCE.Osmosis,
     })
     expect(coincapToAssetId('osmosis')).toEqual(assetId)
   })
@@ -70,7 +70,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Bitcoin
+        assetReference: ASSET_REFERENCE.Bitcoin,
       })
       expect(assetIdToCoinCap(assetId)).toEqual('bitcoin')
     })
@@ -82,7 +82,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Ethereum
+        assetReference: ASSET_REFERENCE.Ethereum,
       })
       expect(assetIdToCoinCap(assetId)).toEqual('ethereum')
     })
@@ -103,7 +103,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Cosmos
+        assetReference: ASSET_REFERENCE.Cosmos,
       })
       expect(assetIdToCoinCap(assetId)).toEqual('cosmos')
     })
@@ -115,7 +115,7 @@ describe('adapters:coincap', () => {
         chainNamespace,
         chainReference,
         assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Osmosis
+        assetReference: ASSET_REFERENCE.Osmosis,
       })
       expect(assetIdToCoinCap(assetId)).toEqual('osmosis')
     })

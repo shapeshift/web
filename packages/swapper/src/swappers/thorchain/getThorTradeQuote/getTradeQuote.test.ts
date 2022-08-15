@@ -20,11 +20,11 @@ Web3.mockImplementation(() => ({
     Contract: jest.fn(() => ({
       methods: {
         deposit: jest.fn(() => ({
-          encodeABI: jest.fn(() => '0x1234')
-        }))
-      }
-    }))
-  }
+          encodeABI: jest.fn(() => '0x1234'),
+        })),
+      },
+    })),
+  },
 }))
 
 const mockedAxios = jest.mocked(thorService, true)
@@ -38,13 +38,13 @@ const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     fee: '700000',
     chainSpecific: { estimatedGas: '100000', approvalFee: '700000', gasPrice: '7' },
-    tradeFee: '0.00024'
+    tradeFee: '0.00024',
   },
   rate: '0.0000784',
   sources: [{ name: 'thorchain', proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
-  sellAssetAccountNumber: 0
+  sellAssetAccountNumber: 0,
 }
 
 describe('getTradeQuote', () => {
@@ -52,11 +52,11 @@ describe('getTradeQuote', () => {
   const { adapterManager } = setupThorswapDeps()
   const deps = {
     midgardUrl: 'https://midgard.thorchain.info/v2',
-    adapterManager
+    adapterManager,
   } as unknown as ThorchainSwapperDeps
 
   const wallet = {
-    supportsOfflineSigning: jest.fn(() => true)
+    supportsOfflineSigning: jest.fn(() => true),
   } as unknown as HDWallet
 
   it('should get a thorchain quote for a thorchain trade', async () => {
@@ -65,15 +65,15 @@ describe('getTradeQuote', () => {
         router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         address: '0x084b1c3C81545d370f3634392De611CaaBFf8148',
         chain: 'ETH',
-        gas_rate: '1'
-      }
+        gas_rate: '1',
+      },
     ]
     const input = {
       ...quoteInput,
       sellAmount: '10000000000000000000', // 100 FOX
       buyAsset: ETH,
       sellAsset: FOX,
-      wallet
+      wallet,
     }
 
     // Mock midgard api calls in 'getThorTxInfo' and 'getPriceRatio'

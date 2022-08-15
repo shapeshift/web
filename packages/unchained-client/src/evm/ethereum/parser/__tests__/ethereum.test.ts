@@ -4,7 +4,7 @@ import {
   FOXY_STAKING_CONTRACT,
   SHAPE_SHIFT_ROUTER_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V3,
-  WETH_CONTRACT_MAINNET
+  WETH_CONTRACT_MAINNET,
 } from '../constants'
 import { TransactionParser } from '../index'
 import ethSelfSend from './mockData/ethSelfSend'
@@ -34,7 +34,7 @@ import {
   uniV2Token,
   usdcToken,
   usdtToken,
-  yvUsdcToken
+  yvUsdcToken,
 } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import uniAddLiquidity from './mockData/uniAddLiquidity'
@@ -56,10 +56,10 @@ jest.mock('@yfi/sdk', () => ({
     vaults: {
       get: () => [
         { address: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2' },
-        { address: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9' }
-      ]
-    }
-  }))
+        { address: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9' },
+      ],
+    },
+  })),
 }))
 
 const txParser = new TransactionParser({ rpcUrl: '', chainId: 'eip155:1' })
@@ -77,7 +77,7 @@ describe('parseTx', () => {
         to: '0x76DA1578aC163CA7ca4143B7dEAa428e85Db3042',
         token: undefined,
         totalValue: '1201235000000000000',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const expected: Tx = {
@@ -90,7 +90,7 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: undefined,
         status: TxStatus.Confirmed,
-        transfers: [standardTransfer]
+        transfers: [standardTransfer],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -106,7 +106,7 @@ describe('parseTx', () => {
       const trade: Trade = {
         dexName: Dex.Thor,
         memo: 'SWAP:THOR.RUNE:thor19f3dsgetxzssvdmqnplfep5fe42fsrvq9u87ax:',
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const sellTransfer = {
         assetId: 'eip155:1/slip44:60',
@@ -114,7 +114,7 @@ describe('parseTx', () => {
         from: '0xCeb660E7623E8f8312B3379Df747c35f2217b595',
         to: '0xC145990E84155416144C532E31f89B840Ca8c2cE',
         totalValue: '295040000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -127,15 +127,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.Thor
+          parser: TxParser.Thor,
         },
         status: TxStatus.Confirmed,
         fee: {
           assetId: 'eip155:1/slip44:60',
-          value: '1700235000000000'
+          value: '1700235000000000',
         },
         transfers: [sellTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -149,7 +149,7 @@ describe('parseTx', () => {
       const trade: Trade = {
         dexName: Dex.Thor,
         memo: 'SWAP:THOR.RUNE:thor1hhjupkzy3t6ccelhz7qw8epyx4rm8a06nlm5ce:110928642111',
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const sellTransfer = {
         assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -158,7 +158,7 @@ describe('parseTx', () => {
         to: '0xC145990E84155416144C532E31f89B840Ca8c2cE',
         token: usdcToken,
         totalValue: '16598881497',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -171,15 +171,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.Thor
+          parser: TxParser.Thor,
         },
         status: TxStatus.Confirmed,
         fee: {
           assetId: 'eip155:1/slip44:60',
-          value: '4700280000000000'
+          value: '4700280000000000',
         },
         transfers: [sellTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -193,7 +193,7 @@ describe('parseTx', () => {
       const trade: Trade = {
         dexName: Dex.Thor,
         memo: 'OUT:8C859BA50BC2351797F52F954971E1C6BA1F0A77610AC197BD99C4EEC6A3692A',
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const buyTransfer = {
         assetId: 'eip155:1/slip44:60',
@@ -202,7 +202,7 @@ describe('parseTx', () => {
         to: '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E',
         token: undefined,
         totalValue: '1579727090000000000',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const expected: Tx = {
@@ -215,11 +215,11 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'transferOut',
-          parser: TxParser.Thor
+          parser: TxParser.Thor,
         },
         status: TxStatus.Confirmed,
         transfers: [buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -233,7 +233,7 @@ describe('parseTx', () => {
       const trade: Trade = {
         dexName: Dex.Thor,
         memo: 'OUT:F3AC4E90AB5951AB9FEB1715B481422B904A40B0F6753CC844E326B1213CF70E',
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const buyTransfer = {
         assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -242,7 +242,7 @@ describe('parseTx', () => {
         to: '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E',
         token: usdcToken,
         totalValue: '47596471640',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const expected: Tx = {
@@ -255,11 +255,11 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'transferOut',
-          parser: TxParser.Thor
+          parser: TxParser.Thor,
         },
         status: TxStatus.Confirmed,
         transfers: [buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -273,7 +273,7 @@ describe('parseTx', () => {
       const trade: Trade = {
         dexName: Dex.Thor,
         memo: 'REFUND:851B4997CF8F9FBA806B3780E0C178CCB173AE78E3FD5056F7375B059B22BD3A',
-        type: TradeType.Refund
+        type: TradeType.Refund,
       }
       const buyTransfer = {
         assetId: 'eip155:1/slip44:60',
@@ -282,7 +282,7 @@ describe('parseTx', () => {
         to: '0xfc0Cc6E85dFf3D75e3985e0CB83B090cfD498dd1',
         token: undefined,
         totalValue: '6412730000000000',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const expected: Tx = {
@@ -295,11 +295,11 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'transferOut',
-          parser: TxParser.Thor
+          parser: TxParser.Thor,
         },
         status: TxStatus.Confirmed,
         transfers: [buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -314,34 +314,34 @@ describe('parseTx', () => {
       const address = '0x5bb96c35a68Cba037D0F261C67477416db137F03'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const buyTransfer = {
         assetId: 'eip155:1/slip44:60',
         components: [
           {
-            value: '541566754246167133'
-          }
+            value: '541566754246167133',
+          },
         ],
         from: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
         to: '0x5bb96c35a68Cba037D0F261C67477416db137F03',
         token: undefined,
         totalValue: '541566754246167133',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const sellTransfer = {
         assetId: 'eip155:1/erc20:0xc7283b66eb1eb5fb86327f08e1b5816b0720212b',
         components: [
           {
-            value: '1000000000000000000000'
-          }
+            value: '1000000000000000000000',
+          },
         ],
         from: '0x5bb96c35a68Cba037D0F261C67477416db137F03',
         to: '0x7ce01885a13c652241aE02Ea7369Ee8D466802EB',
         token: tribeToken,
         totalValue: '1000000000000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -354,15 +354,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '8308480000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -375,35 +375,35 @@ describe('parseTx', () => {
       const address = '0x564BcA365D62BCC22dB53d032F8dbD35439C9206'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
 
       const buyTransfer = {
         assetId: 'eip155:1/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
         components: [
           {
-            value: '50000000000000000000000'
-          }
+            value: '50000000000000000000000',
+          },
         ],
         from: '0x22F9dCF4647084d6C31b2765F6910cd85C178C18',
         to: '0x564BcA365D62BCC22dB53d032F8dbD35439C9206',
         token: maticToken,
         totalValue: '50000000000000000000000',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const sellTransfer = {
         assetId: 'eip155:1/slip44:60',
         components: [
           {
-            value: '10000000000000000000'
-          }
+            value: '10000000000000000000',
+          },
         ],
         from: '0x564BcA365D62BCC22dB53d032F8dbD35439C9206',
         to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
         token: undefined,
         totalValue: '10000000000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -416,15 +416,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '19815285000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -437,7 +437,7 @@ describe('parseTx', () => {
       const address = '0xb8b19c048296E086DaF69F54d48dE2Da444dB047'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
 
       const buyTransfer = {
@@ -447,7 +447,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0xa2b4c0af19cc16a6cfacce81f192b024d625817d',
         totalValue: '9248567698016204727450',
         components: [{ value: '9248567698016204727450' }],
-        token: kishuToken
+        token: kishuToken,
       }
 
       const sellTransfer = {
@@ -457,7 +457,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
         totalValue: '45000000000',
         components: [{ value: '45000000000' }],
-        token: usdtToken
+        token: usdtToken,
       }
 
       const expected: Tx = {
@@ -470,15 +470,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '78183644000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -491,7 +491,7 @@ describe('parseTx', () => {
       const address = '0x986bB494db49E6f1CDC1be098e3157f8DDC5a821'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
 
       const buyTransfer1 = {
@@ -501,7 +501,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
         totalValue: '56639587020747520629',
         components: [{ value: '56639587020747520629' }],
-        token: uniToken
+        token: uniToken,
       }
 
       const buyTransfer2 = {
@@ -511,7 +511,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
         totalValue: '47448670568188553620',
         components: [{ value: '47448670568188553620' }],
-        token: uniToken
+        token: uniToken,
       }
 
       const sellTransfer1 = {
@@ -521,7 +521,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0x0391d2021f89dc339f60fff84546ea23e337750f',
         totalValue: '53910224825217010944',
         components: [{ value: '53910224825217010944' }],
-        token: bondToken
+        token: bondToken,
       }
 
       const sellTransfer2 = {
@@ -531,7 +531,7 @@ describe('parseTx', () => {
         assetId: 'eip155:1/erc20:0x0391d2021f89dc339f60fff84546ea23e337750f',
         totalValue: '46089775174782989056',
         components: [{ value: '46089775174782989056' }],
-        token: bondToken
+        token: bondToken,
       }
 
       const expected: Tx = {
@@ -544,15 +544,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '18399681000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [sellTransfer1, buyTransfer1, sellTransfer2, buyTransfer2],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -582,7 +582,7 @@ describe('parseTx', () => {
             from: address,
             assetId: 'eip155:1/slip44:60',
             totalValue: '503100000000000',
-            components: [{ value: '503100000000000' }]
+            components: [{ value: '503100000000000' }],
           },
           {
             type: TransferType.Receive,
@@ -590,9 +590,9 @@ describe('parseTx', () => {
             from: address,
             assetId: 'eip155:1/slip44:60',
             totalValue: '503100000000000',
-            components: [{ value: '503100000000000' }]
-          }
-        ]
+            components: [{ value: '503100000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -616,7 +616,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           value: '399000000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -625,7 +625,7 @@ describe('parseTx', () => {
             to: address,
             assetId: 'eip155:1/slip44:60',
             totalValue: '503100000000000',
-            components: [{ value: '503100000000000' }]
+            components: [{ value: '503100000000000' }],
           },
           {
             type: TransferType.Receive,
@@ -633,9 +633,9 @@ describe('parseTx', () => {
             to: address,
             assetId: 'eip155:1/slip44:60',
             totalValue: '503100000000000',
-            components: [{ value: '503100000000000' }]
-          }
-        ]
+            components: [{ value: '503100000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -664,7 +664,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
             totalValue: '1502080',
             components: [{ value: '1502080' }],
-            token: usdcToken
+            token: usdcToken,
           },
           {
             type: TransferType.Receive,
@@ -673,9 +673,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
             totalValue: '1502080',
             components: [{ value: '1502080' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -699,7 +699,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           value: '1011738000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -709,7 +709,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
             totalValue: '1502080',
             components: [{ value: '1502080' }],
-            token: usdcToken
+            token: usdcToken,
           },
           {
             type: TransferType.Receive,
@@ -718,9 +718,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
             totalValue: '1502080',
             components: [{ value: '1502080' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -745,14 +745,14 @@ describe('parseTx', () => {
         data: {
           assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
           method: 'approve',
-          parser: EvmTxParser.ERC20
+          parser: EvmTxParser.ERC20,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '1447243200000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -773,7 +773,7 @@ describe('parseTx', () => {
         confirmations: txMempool.confirmations,
         data: {
           method: 'addLiquidityETH',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Pending,
         transfers: [
@@ -788,8 +788,8 @@ describe('parseTx', () => {
               contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
               decimals: 18,
               name: 'FOX',
-              symbol: 'FOX'
-            }
+              symbol: 'FOX',
+            },
           },
           {
             type: TransferType.Send,
@@ -797,9 +797,9 @@ describe('parseTx', () => {
             to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
             assetId: 'eip155:1/slip44:60',
             totalValue: '42673718176645189',
-            components: [{ value: '42673718176645189' }]
-          }
-        ]
+            components: [{ value: '42673718176645189' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -823,7 +823,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           value: '26926494400000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -832,7 +832,7 @@ describe('parseTx', () => {
             to: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
             assetId: 'eip155:1/slip44:60',
             totalValue: '42673718176645189',
-            components: [{ value: '42673718176645189' }]
+            components: [{ value: '42673718176645189' }],
           },
           {
             type: TransferType.Send,
@@ -841,7 +841,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '100000000000000000000',
             components: [{ value: '100000000000000000000' }],
-            token: foxToken
+            token: foxToken,
           },
           {
             type: TransferType.Receive,
@@ -850,9 +850,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '1888842410762840601',
             components: [{ value: '1888842410762840601' }],
-            token: uniV2Token
-          }
-        ]
+            token: uniV2Token,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -873,7 +873,7 @@ describe('parseTx', () => {
         confirmations: txMempool.confirmations,
         data: {
           method: 'removeLiquidityETH',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Pending,
         transfers: [
@@ -884,9 +884,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '298717642142382954',
             components: [{ value: '298717642142382954' }],
-            token: uniV2Token
-          }
-        ]
+            token: uniV2Token,
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -910,7 +910,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           value: '4082585000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -920,7 +920,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '298717642142382954',
             components: [{ value: '298717642142382954' }],
-            token: uniV2Token
+            token: uniV2Token,
           },
           {
             type: TransferType.Receive,
@@ -929,7 +929,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '15785079906515930982',
             components: [{ value: '15785079906515930982' }],
-            token: foxToken
+            token: foxToken,
           },
           {
             type: TransferType.Receive,
@@ -937,9 +937,9 @@ describe('parseTx', () => {
             to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
             assetId: 'eip155:1/slip44:60',
             totalValue: '6761476182340434',
-            components: [{ value: '6761476182340434' }]
-          }
-        ]
+            components: [{ value: '6761476182340434' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -965,7 +965,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           value: '2559843000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -975,9 +975,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '1500000000000000000000',
             components: [{ value: '1500000000000000000000' }],
-            token: foxToken
-          }
-        ]
+            token: foxToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -998,10 +998,10 @@ describe('parseTx', () => {
         confirmations: txMempool.confirmations,
         data: {
           method: 'stake',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Pending,
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -1023,12 +1023,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'stake',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '4650509500000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -1038,9 +1038,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '99572547380794318',
             components: [{ value: '99572547380794318' }],
-            token: uniV2Token
-          }
-        ]
+            token: uniV2Token,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1061,10 +1061,10 @@ describe('parseTx', () => {
         confirmations: txMempool.confirmations,
         data: {
           method: 'exit',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Pending,
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -1086,12 +1086,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'exit',
-          parser: TxParser.UniV2
+          parser: TxParser.UniV2,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '6136186875000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -1101,7 +1101,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '531053586030903030',
             components: [{ value: '531053586030903030' }],
-            token: uniV2Token
+            token: uniV2Token,
           },
           {
             type: TransferType.Receive,
@@ -1110,9 +1110,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '317669338073988',
             components: [{ value: '317669338073988' }],
-            token: foxToken
-          }
-        ]
+            token: foxToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1136,14 +1136,14 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'approve',
-          parser: TxParser.Yearn
+          parser: TxParser.Yearn,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '4519526097650998',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1164,12 +1164,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.Yearn
+          parser: TxParser.Yearn,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '18139009291874667',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -1179,7 +1179,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
             totalValue: '999961394864662132',
             components: [{ value: '999961394864662132' }],
-            token: linkToken
+            token: linkToken,
           },
           {
             type: TransferType.Receive,
@@ -1188,9 +1188,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x671a912c10bba0cfa74cfc2d6fba9ba1ed9530b2',
             totalValue: '987002304279657611',
             components: [{ value: '987002304279657611' }],
-            token: linkYearnVault
-          }
-        ]
+            token: linkYearnVault,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1211,12 +1211,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'withdraw',
-          parser: TxParser.Yearn
+          parser: TxParser.Yearn,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '19460274119661600',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -1226,7 +1226,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x671a912c10bba0cfa74cfc2d6fba9ba1ed9530b2',
             totalValue: '493501152139828806',
             components: [{ value: '493501152139828806' }],
-            token: linkYearnVault
+            token: linkYearnVault,
           },
           {
             type: TransferType.Receive,
@@ -1235,9 +1235,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x514910771af9ca656af840dff83e8264ecf986ca',
             totalValue: '500482168225493862',
             components: [{ value: '500482168225493862' }],
-            token: linkToken
-          }
-        ]
+            token: linkToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1258,12 +1258,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.Yearn
+          parser: TxParser.Yearn,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '9099683709794574',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         transfers: [
           {
@@ -1273,7 +1273,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
             totalValue: '9178352',
             components: [{ value: '9178352' }],
-            token: yvUsdcToken
+            token: yvUsdcToken,
           },
           {
             type: TransferType.Send,
@@ -1282,9 +1282,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
             totalValue: '10000000',
             components: [{ value: '10000000' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1307,12 +1307,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'stake',
-          parser: TxParser.Foxy
+          parser: TxParser.Foxy,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '8343629232016788',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1323,7 +1323,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '109548875260073394762',
             components: [{ value: '109548875260073394762' }],
-            token: foxToken
+            token: foxToken,
           },
           {
             type: TransferType.Receive,
@@ -1332,9 +1332,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
             totalValue: '109548875260073394762',
             components: [{ value: '109548875260073394762' }],
-            token: foxyToken
-          }
-        ]
+            token: foxyToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1356,12 +1356,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'unstake',
-          parser: TxParser.Foxy
+          parser: TxParser.Foxy,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '7586577934107040',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1372,7 +1372,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
             totalValue: '24292579090466512304',
             components: [{ value: '24292579090466512304' }],
-            token: foxyToken
+            token: foxyToken,
           },
           {
             type: TransferType.Receive,
@@ -1381,9 +1381,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '22438383781076552673',
             components: [{ value: '22438383781076552673' }],
-            token: foxToken
-          }
-        ]
+            token: foxToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1405,12 +1405,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'instantUnstake',
-          parser: TxParser.Foxy
+          parser: TxParser.Foxy,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '10348720598973963',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1421,7 +1421,7 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
             totalValue: '9885337259647255313',
             components: [{ value: '9885337259647255313' }],
-            token: foxyToken
+            token: foxyToken,
           },
           {
             type: TransferType.Receive,
@@ -1430,9 +1430,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '9638203828156073931',
             components: [{ value: '9638203828156073931' }],
-            token: foxToken
-          }
-        ]
+            token: foxToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1454,12 +1454,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'claimWithdraw',
-          parser: TxParser.Foxy
+          parser: TxParser.Foxy,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '4735850597827293',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1470,9 +1470,9 @@ describe('parseTx', () => {
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '1200000000000000000000',
             components: [{ value: '1200000000000000000000' }],
-            token: foxToken
-          }
-        ]
+            token: foxToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1497,12 +1497,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.WETH
+          parser: TxParser.WETH,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '2161334514900778',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1517,8 +1517,8 @@ describe('parseTx', () => {
               contract: contractAddress,
               decimals: 18,
               name: 'Wrapped Ether',
-              symbol: 'WETH'
-            }
+              symbol: 'WETH',
+            },
           },
           {
             assetId: 'eip155:1/slip44:60',
@@ -1527,9 +1527,9 @@ describe('parseTx', () => {
             to: contractAddress,
             token: undefined,
             totalValue: '30000000000000000',
-            type: TransferType.Send
-          }
-        ]
+            type: TransferType.Send,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -1552,12 +1552,12 @@ describe('parseTx', () => {
         confirmations: tx2.confirmations,
         data: {
           method: 'deposit',
-          parser: TxParser.WETH
+          parser: TxParser.WETH,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '1087028000000000',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1572,8 +1572,8 @@ describe('parseTx', () => {
               contract: contractAddress,
               decimals: 18,
               name: 'Wrapped Ether',
-              symbol: 'WETH'
-            }
+              symbol: 'WETH',
+            },
           },
           {
             assetId: 'eip155:1/slip44:60',
@@ -1582,9 +1582,9 @@ describe('parseTx', () => {
             to: contractAddress,
             token: undefined,
             totalValue: '3264000000000000',
-            type: TransferType.Send
-          }
-        ]
+            type: TransferType.Send,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx2, address)
@@ -1604,7 +1604,7 @@ describe('parseTx', () => {
         to: address,
         token: undefined,
         totalValue: '100000000000000000',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const expected: Tx = {
@@ -1617,12 +1617,12 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: 'withdraw',
-          parser: TxParser.WETH
+          parser: TxParser.WETH,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '1482222626533792',
-          assetId: 'eip155:1/slip44:60'
+          assetId: 'eip155:1/slip44:60',
         },
         trade: undefined,
         transfers: [
@@ -1637,11 +1637,11 @@ describe('parseTx', () => {
               contract: contractAddress,
               decimals: 18,
               name: 'Wrapped Ether',
-              symbol: 'WETH'
-            }
+              symbol: 'WETH',
+            },
           },
-          internalTransfer
-        ]
+          internalTransfer,
+        ],
       }
 
       const actual = await txParser.parse(tx, address)

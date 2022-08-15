@@ -24,7 +24,7 @@ export const getZrxMinMax = async (sellAsset: Asset, buyAsset: Asset): Promise<M
     const maximum = MAX_ZRX_TRADE // Arbitrarily large value. 10e+28 here.
     return {
       minimum,
-      maximum
+      maximum,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

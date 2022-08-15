@@ -8,15 +8,15 @@ jest.mock('./exchange-rates-host/exchange-rates-host', () => ({
   ExchangeRateHostService: jest.fn().mockImplementation(() => {
     return {
       findByFiatSymbol: jest.fn(() => mockERHFindByFiatSymbol),
-      findPriceHistoryByFiatSymbol: jest.fn(() => mockERHPriceHistoryData)
+      findPriceHistoryByFiatSymbol: jest.fn(() => mockERHPriceHistoryData),
     }
-  })
+  }),
 }))
 
 describe('fiat market service', () => {
   describe('findByFiatSymbol', () => {
     const args = {
-      symbol: <const>'EUR'
+      symbol: <const>'EUR',
     }
     it('can return from first market service and skip the next', async () => {
       const result = await findByFiatSymbol(args)
@@ -33,7 +33,7 @@ describe('fiat market service', () => {
   describe('findPriceHistoryByFiatSymbol', () => {
     const args = {
       symbol: <const>'EUR',
-      timeframe: HistoryTimeframe.HOUR
+      timeframe: HistoryTimeframe.HOUR,
     }
     it('can return from first market service and skip the next', async () => {
       const result = await findPriceHistoryByFiatSymbol(args)

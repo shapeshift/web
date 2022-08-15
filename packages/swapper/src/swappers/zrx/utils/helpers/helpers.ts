@@ -17,7 +17,7 @@ export const baseUrlFromChainId = (chainId: string): string => {
       return 'https://avalanche.api.0x.org/'
     default:
       throw new SwapError(`baseUrlFromChainId] - Unsupported chainId: ${chainId}`, {
-        code: SwapErrorTypes.UNSUPPORTED_CHAIN
+        code: SwapErrorTypes.UNSUPPORTED_CHAIN,
       })
   }
 }
@@ -31,7 +31,7 @@ export const usdcContractFromChainId = (chainId: string): string => {
       return '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
     default:
       throw new SwapError(`usdcContractFromChainId] - Unsupported chainId: ${chainId}`, {
-        code: SwapErrorTypes.UNSUPPORTED_CHAIN
+        code: SwapErrorTypes.UNSUPPORTED_CHAIN,
       })
   }
 }
@@ -63,15 +63,15 @@ export const getUsdRate = async (asset: Asset): Promise<string> => {
         params: {
           buyToken: USDC_CONTRACT_ADDRESS,
           buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
-          sellToken: assetNamespace === 'erc20' ? erc20Address : symbol
-        }
-      }
+          sellToken: assetNamespace === 'erc20' ? erc20Address : symbol,
+        },
+      },
     )
 
     const price = bnOrZero(rateResponse.data.price)
     if (!price.gt(0))
       throw new SwapError('[getUsdRate] - Failed to get price data', {
-        code: SwapErrorTypes.RESPONSE_ERROR
+        code: SwapErrorTypes.RESPONSE_ERROR,
       })
 
     return bn(1).dividedBy(price).toString()
@@ -79,7 +79,7 @@ export const getUsdRate = async (asset: Asset): Promise<string> => {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {
       cause: e,
-      code: SwapErrorTypes.USD_RATE_FAILED
+      code: SwapErrorTypes.USD_RATE_FAILED,
     })
   }
 }

@@ -5,7 +5,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import axios from 'axios'
 
@@ -33,7 +33,7 @@ export class OsmosisMarketService implements MarketService {
             marketCap: token.liquidity.toString(),
             volume: token.volume_24h.toString(),
             changePercent24Hr: token.price_24h_change,
-            supply: bnOrZero(token.liquidity).div(token.price).toString()
+            supply: bnOrZero(token.liquidity).div(token.price).toString(),
           }
 
           return acc
@@ -51,7 +51,7 @@ export class OsmosisMarketService implements MarketService {
     try {
       const symbol = adapters.assetIdToOsmosis(assetId)
       const { data }: { data: OsmosisMarketCap[] } = await axios.get(
-        `${this.baseUrl}/tokens/v2/${symbol}`
+        `${this.baseUrl}/tokens/v2/${symbol}`,
       )
       const marketData = data[0]
 
@@ -62,7 +62,7 @@ export class OsmosisMarketService implements MarketService {
         marketCap: marketData.liquidity.toString(),
         volume: marketData.volume_24h.toString(),
         changePercent24Hr: bnOrZero(marketData.price_24h_change).toNumber(),
-        supply: bnOrZero(marketData.liquidity).div(marketData.price).toString()
+        supply: bnOrZero(marketData.liquidity).div(marketData.price).toString(),
       }
     } catch (e) {
       console.warn(e)
@@ -72,7 +72,7 @@ export class OsmosisMarketService implements MarketService {
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (!adapters.assetIdToOsmosis(assetId)) return []
     const symbol = adapters.assetIdToOsmosis(assetId)
@@ -141,7 +141,7 @@ export class OsmosisMarketService implements MarketService {
         const price = bnOrZero(current.close)
         acc.push({
           date,
-          price: price.toNumber()
+          price: price.toNumber(),
         })
         return acc
       }, [])

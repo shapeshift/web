@@ -9,7 +9,7 @@ export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
     fee: '0',
     blockHash: undefined,
     tokenTransfers: tokenTransfers ? tx.tokenTransfers : [],
-    internalTxs: undefined
+    internalTxs: undefined,
   }
   return Object.assign({}, tx, mempoolSpecific)
 }

@@ -13,7 +13,7 @@ export enum HistoryTimeframe {
   WEEK = '1W',
   MONTH = '1M',
   YEAR = '1Y',
-  ALL = 'All'
+  ALL = 'All',
 }
 
 export type HistoryData = {

@@ -178,7 +178,7 @@ export enum SwapperType {
   Thorchain = 'Thorchain',
   Osmosis = 'Osmosis',
   CowSwap = 'CowSwap',
-  Test = 'Test'
+  Test = 'Test',
 }
 
 export type TradeTxs = {
@@ -212,7 +212,7 @@ export enum SwapErrorTypes {
   PRICE_RATIO_FAILED = 'PRICE_RATIO_FAILED',
   POOL_NOT_FOUND = 'POOL_NOT_FOUND',
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
-  TRADE_FAILED = 'TRADE_FAILED'
+  TRADE_FAILED = 'TRADE_FAILED',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */

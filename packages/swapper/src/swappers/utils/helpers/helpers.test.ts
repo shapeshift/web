@@ -11,7 +11,7 @@ import {
   GetAllowanceRequiredArgs,
   grantAllowance,
   normalizeAmount,
-  normalizeIntegerAmount
+  normalizeIntegerAmount,
 } from './helpers'
 
 jest.mock('web3')
@@ -22,11 +22,11 @@ Web3.mockImplementation(() => ({
     Contract: jest.fn(() => ({
       methods: {
         allowance: jest.fn(() => ({
-          call: jest.fn()
-        }))
-      }
-    }))
-  }
+          call: jest.fn(),
+        })),
+      },
+    })),
+  },
 }))
 
 describe('utils', () => {
@@ -41,15 +41,15 @@ describe('utils', () => {
       erc20AllowanceAbi,
       allowanceContract: '0x0',
       sellAmount: '100',
-      sellAsset
+      sellAsset,
     }
 
     it('should return 0 if the sellAsset symbol is ETH', async () => {
       expect(
         await getAllowanceRequired({
           ...getAllowanceInput,
-          sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' }
-        })
+          sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' },
+        }),
       ).toEqual(bn(0))
     })
 
@@ -58,13 +58,13 @@ describe('utils', () => {
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
-            call: jest.fn(() => allowanceOnChain)
-          }))
-        }
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
       }))
 
       expect(await getAllowanceRequired(getAllowanceInput)).toEqual(
-        bnOrZero(getAllowanceInput.sellAmount)
+        bnOrZero(getAllowanceInput.sellAmount),
       )
     })
 
@@ -73,13 +73,13 @@ describe('utils', () => {
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
-            call: jest.fn(() => allowanceOnChain)
-          }))
-        }
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
       }))
 
       await expect(getAllowanceRequired(getAllowanceInput)).rejects.toThrow(
-        `[getAllowanceRequired]`
+        `[getAllowanceRequired]`,
       )
     })
 
@@ -89,9 +89,9 @@ describe('utils', () => {
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
-            call: jest.fn(() => allowanceOnChain)
-          }))
-        }
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
       }))
 
       expect(await getAllowanceRequired(getAllowanceInput)).toEqual(bn(0))
@@ -103,13 +103,13 @@ describe('utils', () => {
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           allowance: jest.fn(() => ({
-            call: jest.fn(() => allowanceOnChain)
-          }))
-        }
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
       }))
 
       expect(await getAllowanceRequired({ ...getAllowanceInput, sellAmount: '1000' })).toEqual(
-        bn(900)
+        bn(900),
       )
     })
   })
@@ -118,26 +118,26 @@ describe('utils', () => {
     const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const wallet = {
       supportsOfflineSigning: jest.fn(() => true),
-      ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
+      ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
     } as unknown as HDWallet
 
     it('should return a txid', async () => {
       const quote = {
-        ...tradeQuote
+        ...tradeQuote,
       }
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           approve: jest.fn(() => ({
             encodeABI: jest.fn(
-              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419'
-            )
-          }))
-        }
+              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419',
+            ),
+          })),
+        },
       }))
       ;(adapter.buildSendTransaction as jest.Mock).mockResolvedValueOnce({ txToSign: {} })
       ;(adapter.broadcastTransaction as jest.Mock).mockResolvedValueOnce('broadcastedTx')
       expect(await grantAllowance({ quote, wallet, adapter, erc20Abi, web3 })).toEqual(
-        'broadcastedTx'
+        'broadcastedTx',
       )
     })
   })

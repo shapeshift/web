@@ -7,7 +7,7 @@ import {
   Transfer,
   TransferType,
   TxParser,
-  TxStatus
+  TxStatus,
 } from '../../../../types'
 import { ParsedTx, ParsedTx as Tx, TxParser as EvmTxParser } from '../../../parser'
 import { TransactionParser } from '../index'
@@ -44,9 +44,9 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -69,7 +69,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
-          value: '573508559337000'
+          value: '573508559337000',
         },
         transfers: [
           {
@@ -78,9 +78,9 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -107,9 +107,9 @@ describe('parseTx', () => {
             from: '0x9Da5812111DCBD65fF9b736874a89751A4F0a2F8',
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -137,9 +137,9 @@ describe('parseTx', () => {
             from: '0x9Da5812111DCBD65fF9b736874a89751A4F0a2F8',
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -159,7 +159,7 @@ describe('parseTx', () => {
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -182,7 +182,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
-          value: '1736704000000000'
+          value: '1736704000000000',
         },
         transfers: [
           {
@@ -192,9 +192,9 @@ describe('parseTx', () => {
             assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             totalValue: '143199292',
             components: [{ value: '143199292' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -214,7 +214,7 @@ describe('parseTx', () => {
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -243,9 +243,9 @@ describe('parseTx', () => {
             assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             totalValue: '143199292',
             components: [{ value: '143199292' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -274,7 +274,7 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
+            components: [{ value: '6350190000000000000' }],
           },
           {
             type: TransferType.Receive,
@@ -282,9 +282,9 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -307,7 +307,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
-          value: '573508559337000'
+          value: '573508559337000',
         },
         transfers: [
           {
@@ -316,7 +316,7 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
+            components: [{ value: '6350190000000000000' }],
           },
           {
             type: TransferType.Receive,
@@ -324,9 +324,9 @@ describe('parseTx', () => {
             from: address,
             assetId: avalancheAssetId,
             totalValue: '6350190000000000000',
-            components: [{ value: '6350190000000000000' }]
-          }
-        ]
+            components: [{ value: '6350190000000000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -346,7 +346,7 @@ describe('parseTx', () => {
         chainId: avalancheChainId,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        transfers: []
+        transfers: [],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -369,7 +369,7 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
-          value: '1736704000000000'
+          value: '1736704000000000',
         },
         transfers: [
           {
@@ -379,7 +379,7 @@ describe('parseTx', () => {
             assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             totalValue: '143199292',
             components: [{ value: '143199292' }],
-            token: usdcToken
+            token: usdcToken,
           },
           {
             type: TransferType.Receive,
@@ -388,9 +388,9 @@ describe('parseTx', () => {
             assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
             totalValue: '143199292',
             components: [{ value: '143199292' }],
-            token: usdcToken
-          }
-        ]
+            token: usdcToken,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -416,8 +416,8 @@ describe('parseTx', () => {
         data: {
           assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
           method: 'approve',
-          parser: EvmTxParser.ERC20
-        }
+          parser: EvmTxParser.ERC20,
+        },
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -440,14 +440,14 @@ describe('parseTx', () => {
         status: TxStatus.Confirmed,
         fee: {
           assetId: avalancheAssetId,
-          value: '1645985000000000'
+          value: '1645985000000000',
         },
         transfers: [],
         data: {
           assetId: 'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
           method: 'approve',
-          parser: EvmTxParser.ERC20
-        }
+          parser: EvmTxParser.ERC20,
+        },
       }
 
       const actual = await txParser.parse(tx, address)
@@ -462,34 +462,34 @@ describe('parseTx', () => {
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
       const buyTransfer: Transfer = {
         assetId: avalancheAssetId,
         components: [
           {
-            value: '1419200313588432512'
-          }
+            value: '1419200313588432512',
+          },
         ],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         token: undefined,
         totalValue: '1419200313588432512',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const sellTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
         components: [
           {
-            value: '20000000000000000'
-          }
+            value: '20000000000000000',
+          },
         ],
         from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         token: wrappedEther,
         totalValue: '20000000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -502,15 +502,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '6626525000000000',
-          assetId: avalancheAssetId
+          assetId: avalancheAssetId,
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -523,35 +523,35 @@ describe('parseTx', () => {
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
 
       const buyTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
         components: [
           {
-            value: '819115016056635'
-          }
+            value: '819115016056635',
+          },
         ],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         token: wrappedEther,
         totalValue: '819115016056635',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const sellTransfer: Transfer = {
         assetId: avalancheAssetId,
         components: [
           {
-            value: '50000000000000000'
-          }
+            value: '50000000000000000',
+          },
         ],
         from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
         token: undefined,
         totalValue: '50000000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -564,15 +564,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '6346125000000000',
-          assetId: avalancheAssetId
+          assetId: avalancheAssetId,
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)
@@ -585,35 +585,35 @@ describe('parseTx', () => {
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
       const trade: Trade = {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       }
 
       const buyTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x50b7545627a5162f82a992c33b87adc75187b218',
         components: [
           {
-            value: '14605'
-          }
+            value: '14605',
+          },
         ],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         token: wrappedBitcoin,
         totalValue: '14605',
-        type: TransferType.Receive
+        type: TransferType.Receive,
       }
 
       const sellTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
         components: [
           {
-            value: '2000000000000000'
-          }
+            value: '2000000000000000',
+          },
         ],
         from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
         to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         token: wrappedEther,
         totalValue: '2000000000000000',
-        type: TransferType.Send
+        type: TransferType.Send,
       }
 
       const expected: Tx = {
@@ -626,15 +626,15 @@ describe('parseTx', () => {
         confirmations: tx.confirmations,
         data: {
           method: undefined,
-          parser: TxParser.ZRX
+          parser: TxParser.ZRX,
         },
         status: TxStatus.Confirmed,
         fee: {
           value: '8329875000000000',
-          assetId: avalancheAssetId
+          assetId: avalancheAssetId,
         },
         transfers: [sellTransfer, buyTransfer],
-        trade
+        trade,
       }
 
       const actual = await txParser.parse(tx, address)

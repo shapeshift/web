@@ -25,7 +25,7 @@ describe('coincap market service', () => {
       priceUsd: '48058.1487920485715076',
       changePercent24Hr: '2.0370678507913180',
       vwap24Hr: '47473.8260811456834087',
-      explorer: 'https://blockchain.info/'
+      explorer: 'https://blockchain.info/',
     }
 
     const eth: CoinCapMarketCap = {
@@ -40,7 +40,7 @@ describe('coincap market service', () => {
       priceUsd: '3887.1310740534754598',
       changePercent24Hr: '1.7301970732523704',
       vwap24Hr: '3796.0013297212388563',
-      explorer: 'https://etherscan.io/'
+      explorer: 'https://etherscan.io/',
     }
 
     it('can flatten multiple responses', async () => {
@@ -108,10 +108,10 @@ describe('coincap market service', () => {
 
   describe('findByAssetId', () => {
     const args1 = {
-      assetId: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60',
     }
     const args2 = {
-      assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+      assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     }
 
     const btc: CoinCapMarketCap = {
@@ -126,7 +126,7 @@ describe('coincap market service', () => {
       priceUsd: '48058.1487920485715076',
       changePercent24Hr: '2.0370678507913180',
       vwap24Hr: '47473.8260811456834087',
-      explorer: 'https://blockchain.info/'
+      explorer: 'https://blockchain.info/',
     }
 
     const eth: CoinCapMarketCap = {
@@ -141,7 +141,7 @@ describe('coincap market service', () => {
       priceUsd: '3887.1310740534754598',
       changePercent24Hr: '1.7301970732523704',
       vwap24Hr: '3796.0013297212388563',
-      explorer: 'https://etherscan.io/'
+      explorer: 'https://etherscan.io/',
     }
 
     it('should return market data for ETH', async () => {
@@ -150,7 +150,7 @@ describe('coincap market service', () => {
         marketCap: '461557096820.5397856216327206',
         price: '3887.1310740534754598',
         volume: '13216473429.9114945699035335',
-        supply: '118739782.1240000000000000'
+        supply: '118739782.1240000000000000',
       }
       mockedAxios.get.mockResolvedValue({ data: { data: eth } })
       expect(await coinMarketService.findByAssetId(args1)).toEqual(result)
@@ -163,7 +163,7 @@ describe('coincap market service', () => {
         price: '48058.1487920485715076',
         volume: '19001957914.4173604708767279',
         supply: '18901193.0000000000000000',
-        maxSupply: '21000000.0000000000000000'
+        maxSupply: '21000000.0000000000000000',
       }
       mockedAxios.get.mockResolvedValue({ data: { data: btc } })
       expect(await coinMarketService.findByAssetId(args2)).toEqual(result)
@@ -173,7 +173,7 @@ describe('coincap market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinMarketService.findByAssetId(args1)).rejects.toEqual(
-        new Error('MarketService(findByAssetId): error fetching market data')
+        new Error('MarketService(findByAssetId): error fetching market data'),
       )
     })
   })
@@ -181,7 +181,7 @@ describe('coincap market service', () => {
   describe('findPriceHistoryByAssetId', () => {
     const args = {
       assetId: 'eip155:1/slip44:60',
-      timeframe: HistoryTimeframe.HOUR
+      timeframe: HistoryTimeframe.HOUR,
     }
 
     it('should return market data for ETH', async () => {
@@ -189,14 +189,14 @@ describe('coincap market service', () => {
         { time: 1631664000000, priceUsd: '47135.43199562694' },
         { time: 1631577600000, priceUsd: '45139.83396873267' },
         { time: 1631491200000, priceUsd: '46195.21830082935' },
-        { time: 1631404800000, priceUsd: '45196.488277558245' }
+        { time: 1631404800000, priceUsd: '45196.488277558245' },
       ]
 
       const expected = [
         { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 47135.43199562694 },
         { date: new Date('2021-09-14T00:00:00.000Z').valueOf(), price: 45139.83396873267 },
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 46195.21830082935 },
-        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 }
+        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 },
       ]
       mockedAxios.get.mockResolvedValue({ data: { data: mockHistoryData } })
       expect(await coinMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
@@ -206,7 +206,7 @@ describe('coincap market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
-        new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
+        new Error('MarketService(findPriceHistoryByAssetId): error fetching price history'),
       )
     })
   })

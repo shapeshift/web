@@ -19,33 +19,33 @@ import { getUsdRate } from './utils/helpers/helpers'
 jest.mock('./utils/helpers/helpers')
 
 jest.mock('./cowApprovalNeeded/cowApprovalNeeded', () => ({
-  cowApprovalNeeded: jest.fn()
+  cowApprovalNeeded: jest.fn(),
 }))
 
 jest.mock('./cowApproveInfinite/cowApproveInfinite', () => ({
-  cowApproveInfinite: jest.fn()
+  cowApproveInfinite: jest.fn(),
 }))
 
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',
   adapter: {} as ethereum.ChainAdapter,
-  web3: {} as Web3
+  web3: {} as Web3,
 }
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
-  getCowSwapTradeQuote: jest.fn()
+  getCowSwapTradeQuote: jest.fn(),
 }))
 
 jest.mock('./cowBuildTrade/cowBuildTrade', () => ({
-  cowBuildTrade: jest.fn()
+  cowBuildTrade: jest.fn(),
 }))
 
 jest.mock('./cowExecuteTrade/cowExecuteTrade', () => ({
-  cowExecuteTrade: jest.fn()
+  cowExecuteTrade: jest.fn(),
 }))
 
 jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
-  cowGetTradeTxs: jest.fn()
+  cowGetTradeTxs: jest.fn(),
 }))
 
 const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
@@ -82,7 +82,7 @@ describe('CowSwapper', () => {
       expect(swapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
         WBTC.assetId,
         WETH.assetId,
-        FOX.assetId
+        FOX.assetId,
       ])
     })
 
@@ -95,7 +95,7 @@ describe('CowSwapper', () => {
   describe('filterBuyAssetsBySellAssetId', () => {
     it('returns empty array when called with an empty assetIds array', () => {
       expect(
-        swapper.filterBuyAssetsBySellAssetId({ assetIds: [], sellAssetId: WETH.assetId })
+        swapper.filterBuyAssetsBySellAssetId({ assetIds: [], sellAssetId: WETH.assetId }),
       ).toEqual([])
     })
 
@@ -103,14 +103,14 @@ describe('CowSwapper', () => {
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: ETH.assetId
-        })
+          sellAssetId: ETH.assetId,
+        }),
       ).toEqual([])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
-        })
+          sellAssetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+        }),
       ).toEqual([])
     })
 
@@ -118,20 +118,20 @@ describe('CowSwapper', () => {
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: WETH.assetId
-        })
+          sellAssetId: WETH.assetId,
+        }),
       ).toEqual([ETH.assetId, WBTC.assetId, FOX.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: WBTC.assetId
-        })
+          sellAssetId: WBTC.assetId,
+        }),
       ).toEqual([ETH.assetId, WETH.assetId, FOX.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: FOX.assetId
-        })
+          sellAssetId: FOX.assetId,
+        }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
@@ -140,11 +140,11 @@ describe('CowSwapper', () => {
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds,
-          sellAssetId: WETH.assetId
-        })
+          sellAssetId: WETH.assetId,
+        }),
       ).toEqual([FOX.assetId])
       expect(swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX.assetId })).toEqual(
-        []
+        [],
       )
     })
   })
@@ -204,11 +204,11 @@ describe('CowSwapper', () => {
           fee: '14557942658757988',
           chainSpecific: {
             estimatedGas: '100000',
-            gasPrice: '79036500000'
+            gasPrice: '79036500000',
           },
-          tradeFee: '0'
+          tradeFee: '0',
         },
-        sellAmountWithoutFee: '985442057341242012'
+        sellAmountWithoutFee: '985442057341242012',
       }
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
@@ -220,7 +220,7 @@ describe('CowSwapper', () => {
   describe('getTradeTxs', () => {
     it('calls cowGetTradeTxs on swapper.getTradeTxs', async () => {
       const args: TradeResult = {
-        tradeId: 'tradeId789456'
+        tradeId: 'tradeId789456',
       }
       await swapper.getTradeTxs(args)
       expect(cowGetTradeTxs).toHaveBeenCalledTimes(1)

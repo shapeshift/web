@@ -23,7 +23,7 @@ export const makeTradeTx = async ({
   slippageTolerance,
   deps,
   gasLimit,
-  tradeFee
+  tradeFee,
 }: {
   wallet: HDWallet
   bip44Params: BIP44Params
@@ -62,7 +62,7 @@ export const makeTradeTx = async ({
       sellAmount,
       slippageTolerance,
       destinationAddress,
-      tradeFee
+      tradeFee,
     })
 
     return adapter.buildCustomTx({
@@ -72,20 +72,20 @@ export const makeTradeTx = async ({
       gasLimit,
       ...(gasPrice !== undefined
         ? {
-            gasPrice
+            gasPrice,
           }
         : {
             maxFeePerGas,
-            maxPriorityFeePerGas
+            maxPriorityFeePerGas,
           }),
       value: isErc20Trade ? '0x0' : numberToHex(sellAmount),
-      data
+      data,
     })
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[makeTradeTx]: error making trade tx', {
       code: SwapErrorTypes.BUILD_TRADE_FAILED,
-      cause: e
+      cause: e,
     })
   }
 }

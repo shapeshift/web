@@ -3,7 +3,7 @@ import {
   bip32ToAddressNList,
   OsmosisSignTx,
   OsmosisTx,
-  supportsOsmosis
+  supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -19,7 +19,7 @@ import {
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
-  SignTxInput
+  SignTxInput,
 } from '../../types'
 import { toPath } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
@@ -28,14 +28,14 @@ import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.OsmosisMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.OsmosisMainnet
 const CHAIN_VALIDATOR_PREFIX_MAPPING = {
-  [KnownChainIds.OsmosisMainnet]: 'osmovaloper'
+  [KnownChainIds.OsmosisMainnet]: 'osmovaloper',
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Osmosis),
-    accountNumber: 0
+    accountNumber: 0,
   }
 
   constructor(args: ChainAdapterArgs) {
@@ -43,7 +43,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
-      ...args
+      ...args,
     })
 
     this.assetId = osmosisAssetId
@@ -51,7 +51,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     // TODO this will need to change to the osmosis tx parser once we support osmosis specic things (trading, lping)
     this.parser = new unchained.cosmos.TransactionParser({
       chainId: this.chainId,
-      assetId: this.assetId
+      assetId: this.assetId,
     })
   }
 
@@ -76,7 +76,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       if (supportsOsmosis(wallet)) {
         const osmosisAddress = await wallet.osmosisGetAddress({
           addressNList,
-          showDisplay: showOnDevice
+          showDisplay: showOnDevice,
         })
         if (!osmosisAddress) {
           throw new Error('Unable to generate Osmosis address.')
@@ -108,7 +108,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async buildSendTransaction(
-    tx: BuildSendTxInput<KnownChainIds.OsmosisMainnet>
+    tx: BuildSendTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
       const {
@@ -118,7 +118,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         chainSpecific: { gas, fee },
         sendMax = false,
         value,
-        memo = ''
+        memo = '',
       } = tx
 
       if (!to) throw new Error('OsmosisChainAdapter: to is required')
@@ -147,10 +147,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           amount: [
             {
               amount: bnOrZero(fee).toString(),
-              denom: 'uosmo'
-            }
+              denom: 'uosmo',
+            },
           ],
-          gas
+          gas,
         },
         msg: [
           {
@@ -159,16 +159,16 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
               amount: [
                 {
                   amount: bnOrZero(value).toString(),
-                  denom: 'uosmo'
-                }
+                  denom: 'uosmo',
+                },
               ],
               from_address: from,
-              to_address: to
-            }
-          }
+              to_address: to,
+            },
+          },
         ],
         signatures: [],
-        memo
+        memo,
       }
 
       const txToSign: OsmosisSignTx = {
@@ -176,7 +176,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence
+        sequence: account.chainSpecific.sequence,
       }
       return { txToSign }
     } catch (err) {
@@ -185,7 +185,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async buildDelegateTransaction(
-    tx: BuildDelegateTxInput<KnownChainIds.OsmosisMainnet>
+    tx: BuildDelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
       const {
@@ -194,7 +194,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
-        memo = ''
+        memo = '',
       } = tx
       if (!validator) throw new Error('OsmosisChainAdapter: validator is required')
       if (!value) throw new Error('OsmosisChainAdapter: value is required')
@@ -202,7 +202,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const chain = this.getType()
       if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
       const path = toPath(bip44Params)
@@ -211,7 +211,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const { valid } = await super.validateAddress(from)
       if (!valid)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`,
         )
 
       const account = await this.getAccount(from)
@@ -221,10 +221,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           amount: [
             {
               amount: bnOrZero(fee).toString(),
-              denom: 'uosmo'
-            }
+              denom: 'uosmo',
+            },
           ],
-          gas
+          gas,
         },
         msg: [
           {
@@ -232,15 +232,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
             value: {
               amount: {
                 amount: bnOrZero(value).toString(),
-                denom: 'uosmo'
+                denom: 'uosmo',
               },
               delegator_address: from,
-              validator_address: validator
-            }
-          }
+              validator_address: validator,
+            },
+          },
         ],
         signatures: [],
-        memo
+        memo,
       }
 
       const txToSign: OsmosisSignTx = {
@@ -248,7 +248,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence
+        sequence: account.chainSpecific.sequence,
       }
       return { txToSign }
     } catch (err) {
@@ -257,7 +257,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async buildUndelegateTransaction(
-    tx: BuildUndelegateTxInput<KnownChainIds.OsmosisMainnet>
+    tx: BuildUndelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
       const {
@@ -266,7 +266,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
         value,
-        memo = ''
+        memo = '',
       } = tx
       if (!validator) throw new Error('OsmosisChainAdapter: validator is required')
       if (!value) throw new Error('OsmosisChainAdapter: value is required')
@@ -274,7 +274,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const chain = this.getType()
       if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
       const path = toPath(bip44Params)
@@ -283,7 +283,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const { valid } = await super.validateAddress(from)
       if (!valid)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`,
         )
 
       const account = await this.getAccount(from)
@@ -293,10 +293,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           amount: [
             {
               amount: bnOrZero(fee).toString(),
-              denom: 'uosmo'
-            }
+              denom: 'uosmo',
+            },
           ],
-          gas
+          gas,
         },
         msg: [
           {
@@ -304,22 +304,22 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
             value: {
               amount: {
                 amount: bnOrZero(value).toString(),
-                denom: 'uosmo'
+                denom: 'uosmo',
               },
               delegator_address: from,
-              validator_address: validator
-            }
-          }
+              validator_address: validator,
+            },
+          },
         ],
         signatures: [],
-        memo
+        memo,
       }
       const txToSign: OsmosisSignTx = {
         addressNList,
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence
+        sequence: account.chainSpecific.sequence,
       }
       return { txToSign }
     } catch (err) {
@@ -328,7 +328,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async buildClaimRewardsTransaction(
-    tx: BuildClaimRewardsTxInput<KnownChainIds.OsmosisMainnet>
+    tx: BuildClaimRewardsTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
       const {
@@ -336,14 +336,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         wallet,
         bip44Params = this.defaultBIP44Params,
         chainSpecific: { gas, fee },
-        memo = ''
+        memo = '',
       } = tx
       if (!validator) throw new Error('OsmosisChainAdapter: validator is required')
       const { prefix } = bech32.decode(validator)
       const chain = this.getType()
       if (CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== prefix)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
       const path = toPath(bip44Params)
@@ -352,7 +352,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const { valid } = await super.validateAddress(from)
       if (!valid)
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid delegator address ${from}`,
         )
 
       const account = await this.getAccount(from)
@@ -362,29 +362,29 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           amount: [
             {
               amount: bnOrZero(fee).toString(),
-              denom: 'uosmo'
-            }
+              denom: 'uosmo',
+            },
           ],
-          gas
+          gas,
         },
         msg: [
           {
             type: 'cosmos-sdk/MsgWithdrawDelegationReward',
             value: {
               delegator_address: from,
-              validator_address: validator
-            }
-          }
+              validator_address: validator,
+            },
+          },
         ],
         signatures: [],
-        memo
+        memo,
       }
       const txToSign: OsmosisSignTx = {
         addressNList,
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence
+        sequence: account.chainSpecific.sequence,
       }
       return { txToSign }
     } catch (err) {
@@ -393,7 +393,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   async buildRedelegateTransaction(
-    tx: BuildRedelegateTxInput<KnownChainIds.OsmosisMainnet>
+    tx: BuildRedelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
       const {
@@ -403,7 +403,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         value,
         memo = '',
         fromValidator,
-        toValidator
+        toValidator,
       } = tx
       if (!toValidator) throw new Error('OsmosisChainAdapter: toValidator is required')
       if (!fromValidator) throw new Error('OsmosisChainAdapter: fromValidator is required')
@@ -416,7 +416,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         CHAIN_VALIDATOR_PREFIX_MAPPING[chain] !== fromPrefix
       )
         throw new Error(
-          `OsmosisChainAdapter:buildDelegateTransaction invalid toValidator or fromValidator address ${toValidator} ${fromValidator}`
+          `OsmosisChainAdapter:buildDelegateTransaction invalid toValidator or fromValidator address ${toValidator} ${fromValidator}`,
         )
 
       const path = toPath(bip44Params)
@@ -425,7 +425,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const { valid } = await super.validateAddress(from)
       if (!valid)
         throw new Error(
-          `OsmosisChainAdapter:buildRedelegateTransaction invalid delegator address ${from}`
+          `OsmosisChainAdapter:buildRedelegateTransaction invalid delegator address ${from}`,
         )
 
       const account = await this.getAccount(from)
@@ -435,10 +435,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           amount: [
             {
               amount: bnOrZero(fee).toString(),
-              denom: 'uosmo'
-            }
+              denom: 'uosmo',
+            },
           ],
-          gas
+          gas,
         },
         msg: [
           {
@@ -446,16 +446,16 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
             value: {
               amount: {
                 amount: bnOrZero(value).toString(),
-                denom: 'uosmo'
+                denom: 'uosmo',
               },
               delegator_address: from,
               validator_src_address: fromValidator,
-              validator_dst_address: toValidator
-            }
-          }
+              validator_dst_address: toValidator,
+            },
+          },
         ],
         signatures: [],
-        memo
+        memo,
       }
 
       const txToSign: OsmosisSignTx = {
@@ -463,7 +463,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence
+        sequence: account.chainSpecific.sequence,
       }
       return { txToSign }
     } catch (err) {
@@ -474,7 +474,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   // @ts-ignore - keep type signature with unimplemented state
   async getFeeData({
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented variable */
-    sendMax
+    sendMax,
   }: Partial<GetFeeDataInput<KnownChainIds.OsmosisMainnet>>): Promise<
     FeeDataEstimate<KnownChainIds.OsmosisMainnet>
   > {
@@ -483,7 +483,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     return {
       fast: { txFee: '5000', chainSpecific: { gasLimit: '300000' } },
       average: { txFee: '3500', chainSpecific: { gasLimit: '300000' } },
-      slow: { txFee: '2500', chainSpecific: { gasLimit: '300000' } }
+      slow: { txFee: '2500', chainSpecific: { gasLimit: '300000' } },
     }
   }
 

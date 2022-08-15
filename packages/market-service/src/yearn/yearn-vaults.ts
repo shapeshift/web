@@ -6,7 +6,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { ChainId, Yearn } from '@yfi/sdk'
 import head from 'lodash/head'
@@ -32,7 +32,7 @@ export class YearnVaultMarketCapService implements MarketService {
   yearnSdk: Yearn<ChainId>
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
-    count: 2500
+    count: 2500,
   }
 
   constructor(args: YearnVaultMarketCapServiceArgs) {
@@ -49,14 +49,14 @@ export class YearnVaultMarketCapService implements MarketService {
         .sort((a, b) =>
           bnOrZero(a.underlyingTokenBalance.amountUsdc).lt(b.underlyingTokenBalance.amountUsdc)
             ? 1
-            : -1
+            : -1,
         )
         .reduce((acc, yearnItem) => {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Ethereum,
             chainReference: CHAIN_REFERENCE.EthereumMainnet,
             assetNamespace: 'erc20',
-            assetReference: yearnItem.address
+            assetReference: yearnItem.address,
           })
           // if amountUsdc of a yearn asset is 0, the asset has not price or value
           if (bnOrZero(yearnItem.underlyingTokenBalance.amountUsdc).eq(0)) {
@@ -64,7 +64,7 @@ export class YearnVaultMarketCapService implements MarketService {
               price: '0',
               marketCap: '0',
               volume: '0',
-              changePercent24Hr: 0
+              changePercent24Hr: 0,
             }
 
             return acc
@@ -94,7 +94,7 @@ export class YearnVaultMarketCapService implements MarketService {
             : null
           if (lastHistoricalEarnings && secondToLastHistoricalEarnings) {
             volume = bnOrZero(lastHistoricalEarnings.earnings.amountUsdc).minus(
-              secondToLastHistoricalEarnings.earnings.amountUsdc
+              secondToLastHistoricalEarnings.earnings.amountUsdc,
             )
           }
 
@@ -110,7 +110,7 @@ export class YearnVaultMarketCapService implements MarketService {
             price,
             marketCap,
             volume: volume.abs().toString(),
-            changePercent24Hr
+            changePercent24Hr,
           }
 
           return acc
@@ -135,7 +135,7 @@ export class YearnVaultMarketCapService implements MarketService {
           price: '0',
           marketCap: '0',
           volume: '0',
-          changePercent24Hr: 0
+          changePercent24Hr: 0,
         }
       }
 
@@ -178,7 +178,7 @@ export class YearnVaultMarketCapService implements MarketService {
         price,
         marketCap,
         volume: volume.abs().toString(),
-        changePercent24Hr
+        changePercent24Hr,
       }
     } catch (e) {
       console.warn(e)
@@ -194,7 +194,7 @@ export class YearnVaultMarketCapService implements MarketService {
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     const id = adapters.assetIdToYearn(assetId)
     if (!id) return []
@@ -231,10 +231,10 @@ export class YearnVaultMarketCapService implements MarketService {
         id,
         shareToken: id,
         fromDate: this.getDate(daysAgo).getTime().toString(),
-        toDate: this.getDate(0).getTime().toString()
+        toDate: this.getDate(0).getTime().toString(),
       }
       const response: VaultDayDataGQLResponse = (await rateLimiter(() =>
-        this.yearnSdk.services.subgraph.fetchQuery(ACCOUNT_HISTORIC_EARNINGS, params)
+        this.yearnSdk.services.subgraph.fetchQuery(ACCOUNT_HISTORIC_EARNINGS, params),
       )) as VaultDayDataGQLResponse
 
       type VaultDayData = {
@@ -263,7 +263,7 @@ export class YearnVaultMarketCapService implements MarketService {
         }
         acc.push({
           date,
-          price: price.toNumber()
+          price: price.toNumber(),
         })
         return acc
       }, [])

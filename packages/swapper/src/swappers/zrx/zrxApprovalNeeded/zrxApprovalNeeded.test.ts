@@ -12,8 +12,8 @@ const zrxService = zrxServiceFactory('https://api.0x.org/')
 jest.mock('web3')
 jest.mock('axios', () => ({
   create: jest.fn(() => ({
-    get: jest.fn()
-  }))
+    get: jest.fn(),
+  })),
 }))
 
 // @ts-ignore
@@ -22,18 +22,18 @@ Web3.mockImplementation(() => ({
     Contract: jest.fn(() => ({
       methods: {
         allowance: jest.fn(() => ({
-          call: jest.fn()
-        }))
-      }
-    }))
-  }
+          call: jest.fn(),
+        })),
+      },
+    })),
+  },
 }))
 
 describe('zrxApprovalNeeded', () => {
   const deps = setupDeps()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
+    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
   ;(deps.adapter.getChainId as jest.Mock).mockReturnValue(KnownChainIds.EthereumMainnet)
 
@@ -42,7 +42,7 @@ describe('zrxApprovalNeeded', () => {
   it('returns false if sellAsset assetId is ETH', async () => {
     const input = {
       quote: { ...tradeQuote, sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' } },
-      wallet
+      wallet,
     }
 
     expect(await zrxApprovalNeeded(deps, input)).toEqual({ approvalNeeded: false })
@@ -51,7 +51,7 @@ describe('zrxApprovalNeeded', () => {
   it('throws an error if sellAsset chain is not ETH', async () => {
     const input = {
       quote: { ...tradeQuote, sellAsset: { ...sellAsset, chainId: '' } },
-      wallet
+      wallet,
     }
 
     await expect(zrxApprovalNeeded(deps, input)).rejects.toThrow('[zrxApprovalNeeded]')
@@ -64,21 +64,21 @@ describe('zrxApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
       },
-      wallet
+      wallet,
     }
     ;(deps.web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
       methods: {
         allowance: jest.fn(() => ({
-          call: jest.fn(() => allowanceOnChain)
-        }))
-      }
+          call: jest.fn(() => allowanceOnChain),
+        })),
+      },
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await zrxApprovalNeeded(deps, input)).toEqual({
-      approvalNeeded: false
+      approvalNeeded: false,
     })
   })
 
@@ -89,21 +89,21 @@ describe('zrxApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' }
+        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
       },
-      wallet
+      wallet,
     }
     ;(deps.web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
       methods: {
         allowance: jest.fn(() => ({
-          call: jest.fn(() => allowanceOnChain)
-        }))
-      }
+          call: jest.fn(() => allowanceOnChain),
+        })),
+      },
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await zrxApprovalNeeded(deps, input)).toEqual({
-      approvalNeeded: true
+      approvalNeeded: true,
     })
   })
 })

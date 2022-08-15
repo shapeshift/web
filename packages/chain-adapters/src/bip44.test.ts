@@ -10,7 +10,7 @@ describe('fromPath', () => {
       coinType: 0,
       accountNumber: 0,
       isChange: false,
-      index: 0
+      index: 0,
     }
     expect(result).toEqual(expected)
   })
@@ -23,7 +23,7 @@ describe('toPath', () => {
       coinType: 0,
       accountNumber: 0,
       isChange: false,
-      index: 0
+      index: 0,
     }
     const result = toPath(bip44Params)
     const expected = "m/84'/0'/0'/0/0"

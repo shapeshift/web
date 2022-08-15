@@ -6,7 +6,7 @@ import { Event, Message } from '../../generated/cosmos'
 import { TxMetadata } from '../types'
 const logger = new Logger({
   namespace: ['client', 'cosmos', 'utils'],
-  level: process.env.LOG_LEVEL
+  level: process.env.LOG_LEVEL,
 })
 
 const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undefined => {
@@ -20,7 +20,7 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         method: msg.type,
         delegator: msg.from,
         destinationValidator: msg.to,
-        value: msg?.value?.amount
+        value: msg?.value?.amount,
       }
     case 'begin_redelegate':
       return {
@@ -30,7 +30,7 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         delegator: msg.origin,
         destinationValidator: msg.to,
         value: msg?.value?.amount,
-        assetId
+        assetId,
       }
     case 'withdraw_delegator_reward':
       return {
@@ -38,7 +38,7 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         method: msg.type,
         destinationValidator: msg.to,
         value: msg?.value?.amount,
-        assetId
+        assetId,
       }
     case 'ibc_send':
     case 'ibc_receive':
@@ -48,7 +48,7 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
         ibcDestination: msg.to,
         ibcSource: msg.from,
         assetId,
-        value: msg?.value?.amount
+        value: msg?.value?.amount,
       }
     // known message types with no applicable metadata
     case 'send':
@@ -62,7 +62,7 @@ const metaData = (msg: Message | undefined, assetId: string): TxMetadata | undef
 const virtualMessageFromEvents = (
   msg: Message,
   events: { [key: string]: Event[] },
-  address: string
+  address: string,
 ): Message | undefined => {
   // ibc send tx indicated by events
   const ibcSendEventData = events[0]?.find((event) => event.type === 'send_packet')
@@ -79,8 +79,8 @@ const virtualMessageFromEvents = (
       }) =>
         subEvent.type === 'coin_received' &&
         subEvent.attributes[0].key === 'receiver' &&
-        subEvent.attributes[0].value.toLowerCase() === address.toLowerCase()
-    )
+        subEvent.attributes[0].value.toLowerCase() === address.toLowerCase(),
+    ),
   )
   const ibcRecvEventData = ibcReceivedData?.find((event) => {
     return event.type === 'recv_packet'
@@ -96,7 +96,7 @@ const virtualMessageFromEvents = (
   if (ibcSendEventData) {
     const parsedPacketData = JSON.parse(
       ibcSendEventData?.attributes.find((attribute) => attribute.key === 'packet_data')?.value ??
-        '{}'
+        '{}',
     )
 
     // We dont support parsing ibc sends unless they are atom or osmo
@@ -106,13 +106,13 @@ const virtualMessageFromEvents = (
         value: { amount: parsedPacketData.amount, denom: parsedPacketData.denom },
         from: parsedPacketData.sender,
         to: parsedPacketData.receiver,
-        origin: parsedPacketData.sender
+        origin: parsedPacketData.sender,
       }
     return
   } else if (ibcRecvEventData) {
     const parsedPacketData = JSON.parse(
       ibcRecvEventData?.attributes.find((attribute) => attribute.key === 'packet_data')?.value ??
-        '{}'
+        '{}',
     )
 
     // Osmosis IBC receives are showing up as osmosis. (Requires further debugging, probably during a swapper re-write)
@@ -124,11 +124,11 @@ const virtualMessageFromEvents = (
       value: { amount: parsedPacketData.amount, denom: parsedPacketData.denom },
       from: parsedPacketData.sender,
       to: parsedPacketData.receiver,
-      origin: parsedPacketData.sender
+      origin: parsedPacketData.sender,
     }
   } else if (rewardEventData) {
     const valueUnparsed = rewardEventData?.attributes?.find(
-      (attribute) => attribute.key === 'amount'
+      (attribute) => attribute.key === 'amount',
     )?.value
     const valueParsed = valueUnparsed?.slice(0, valueUnparsed.length - 'uatom'.length)
     return {
@@ -136,26 +136,26 @@ const virtualMessageFromEvents = (
       value: { amount: valueParsed ?? '', denom: 'uatom' },
       from: msg.from,
       to: msg.to,
-      origin: msg.origin
+      origin: msg.origin,
     }
   } else if (swapEventData) {
     const sender = swapEventData.attributes.find((attribute) => attribute.key === 'sender')?.value
     const swapAmount = swapEventData.attributes.find(
-      (attribute) => attribute.key === 'tokens_out'
+      (attribute) => attribute.key === 'tokens_out',
     )?.value
     const valueParsed = swapAmount?.slice(0, swapAmount?.length - 'uosmo'.length) ?? ''
     if (swapAmount?.includes('uosmo'))
       return {
         type: 'send',
         value: { amount: valueParsed, denom: 'uosmo' },
-        to: sender
+        to: sender,
       }
   }
 
   // no virtual message handled, but also no transaction message
   if (!msg) {
     logger.warn(
-      `no transaction message found and unable to create virtual message from events: ${events}`
+      `no transaction message found and unable to create virtual message from events: ${events}`,
     )
   }
 
@@ -166,7 +166,7 @@ export const valuesFromMsgEvents = (
   msg: Message,
   events: { [key: string]: Event[] },
   assetId: AssetId,
-  address: string
+  address: string,
 ): { from: string; to: string; value: BigNumber; data: TxMetadata | undefined; origin: string } => {
   const virtualMsg = virtualMessageFromEvents(msg, events, address)
   const data = metaData(virtualMsg, assetId)

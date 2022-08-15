@@ -23,8 +23,8 @@ describe('format(x: any)', () => {
       error: {
         message: err.message,
         stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
-        kind: 'RuntimeError'
-      }
+        kind: 'RuntimeError',
+      },
     })
   })
 
@@ -40,14 +40,14 @@ describe('format(x: any)', () => {
           error: {
             message: 'cause',
             stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
-            kind: 'Error'
-          }
+            kind: 'Error',
+          },
         },
         details: { foo: 'bar' },
         message: err.message,
         stack: expect.stringMatching(/_callCircusTest(?!_runTestsForDescribeBlock)/m),
-        kind: 'ErrorWithDetails'
-      }
+        kind: 'ErrorWithDetails',
+      },
     })
   })
 
@@ -59,6 +59,6 @@ describe('format(x: any)', () => {
     'should return undefined for any other value',
     (x) => {
       expect(format(x)).toBeUndefined()
-    }
+    },
   )
 })

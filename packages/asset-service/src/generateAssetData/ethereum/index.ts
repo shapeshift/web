@@ -16,14 +16,14 @@ import {
   getIronBankTokens,
   getUnderlyingVaultTokens,
   getYearnVaults,
-  getZapperTokens
+  getZapperTokens,
 } from './yearnVaults'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
     chainId: ethChainId,
     assetNamespace: 'erc20',
-    assetReference: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
+    assetReference: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3',
   }),
   chainId: ethChainId,
   name: 'FOX Yieldy',
@@ -33,7 +33,7 @@ const foxyToken: Asset = {
   symbol: 'FOXy',
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
-  explorerTxLink: ethereum.explorerTxLink
+  explorerTxLink: ethereum.explorerTxLink,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
@@ -44,7 +44,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     zapperTokens,
     underlyingTokens,
     uniV2PoolTokens,
-    idleTokens
+    idleTokens,
   ] = await Promise.all([
     coingecko.getAssets(ethChainId, overrideTokens),
     getYearnVaults(),
@@ -52,7 +52,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     getZapperTokens(),
     getUnderlyingVaultTokens(),
     getUniswapV2Pools(),
-    getIdleTokens()
+    getIdleTokens(),
   ])
 
   const ethAssets = [
@@ -64,7 +64,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     ...zapperTokens,
     ...underlyingTokens,
     ...uniV2PoolTokens,
-    ...idleTokens
+    ...idleTokens,
   ]
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy
@@ -84,17 +84,17 @@ export const getAssets = async (): Promise<Asset[]> => {
           const options: IdenticonOptions = {
             identiconImage: {
               size: 128,
-              background: [45, 55, 72, 255]
+              background: [45, 55, 72, 255],
             },
             identiconText: {
               symbolScale: 7,
-              enableShadow: true
-            }
+              enableShadow: true,
+            },
           }
           uniqueAssets[key].icon = getRenderedIdenticonBase64(
             uniqueAssets[key].assetId,
             uniqueAssets[key].symbol.substring(0, 3),
-            options
+            options,
           )
         }
         return uniqueAssets[key] // token without modified icon

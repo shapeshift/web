@@ -10,7 +10,7 @@ import { THOR_ETH_GAS_LIMIT } from '../../constants'
 export const getEthTxFees = async ({
   adapterManager,
   sellAssetReference,
-  tradeFee
+  tradeFee,
 }: {
   adapterManager: ChainAdapterManager
   sellAssetReference: AssetReference | string
@@ -25,8 +25,8 @@ export const getEthTxFees = async ({
         `[getThorTxInfo] - No chain adapter found for ${KnownChainIds.EthereumMainnet}.`,
         {
           code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { chainId: KnownChainIds.EthereumMainnet }
-        }
+          details: { chainId: KnownChainIds.EthereumMainnet },
+        },
       )
     }
 
@@ -41,9 +41,9 @@ export const getEthTxFees = async ({
         txFee: bn(gasLimit).times(gasFeeData[FeeDataKey.Fast].gasPrice).toString(),
         chainSpecific: {
           gasPrice: gasFeeData[FeeDataKey.Fast].gasPrice,
-          gasLimit
-        }
-      }
+          gasLimit,
+        },
+      },
     }
 
     const feeData = feeDataOptions['fast']
@@ -57,9 +57,9 @@ export const getEthTxFees = async ({
           sellAssetReference &&
           bnOrZero(APPROVAL_GAS_LIMIT)
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString()
+            .toString(),
       },
-      tradeFee
+      tradeFee,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

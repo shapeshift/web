@@ -12,12 +12,12 @@ describe('getTradeRate', () => {
   const deps: ThorchainSwapperDeps = {
     midgardUrl: 'localhost:3000',
     adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
 
   it('should calculate a correct rate for trading fox to eth', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
     )
 
     // 1 eth
@@ -28,7 +28,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading eth to fox', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
     )
 
     // 1 fox
@@ -39,7 +39,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading fox to btc', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] }),
     )
 
     // 1 fox
@@ -50,7 +50,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading btc to fox', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] }),
     )
 
     // 0.01 btc
@@ -61,11 +61,11 @@ describe('getTradeRate', () => {
 
   it('should throw if trying to calculate a rate for an unsupported asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
     )
 
     await expect(
-      getTradeRate(UNSUPPORTED, ETH.assetId, '1000000000000000000', deps)
+      getTradeRate(UNSUPPORTED, ETH.assetId, '1000000000000000000', deps),
     ).rejects.toThrow('[getPriceRatio]: No thorchain pool found')
   })
 })

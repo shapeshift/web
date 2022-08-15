@@ -25,7 +25,7 @@ const yearnWithdrawal = {
       type: 'ERC20',
       from: '0x43921eb2E5C78D9e887d3Ecd4620a3Bd606f4F95',
       to: '0xf6D87dFC0841A289614B3d6fdb78D956ebd3cfF0',
-      value: '500482168225493862'
+      value: '500482168225493862',
     },
     {
       contract: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
@@ -35,7 +35,7 @@ const yearnWithdrawal = {
       type: 'ERC20',
       from: '0xf6D87dFC0841A289614B3d6fdb78D956ebd3cfF0',
       to: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
-      value: '500482168225493862'
+      value: '500482168225493862',
     },
     {
       contract: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
@@ -45,7 +45,7 @@ const yearnWithdrawal = {
       type: 'ERC20',
       from: '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4',
       to: '0x0000000000000000000000000000000000000000',
-      value: '493501152139828806'
+      value: '493501152139828806',
     },
     {
       contract: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
@@ -55,12 +55,12 @@ const yearnWithdrawal = {
       type: 'ERC20',
       from: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
       to: '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4',
-      value: '500482168225493862'
-    }
-  ]
+      value: '500482168225493862',
+    },
+  ],
 }
 
 export default {
   tx: yearnWithdrawal,
-  txMempool: mempoolMock(yearnWithdrawal)
+  txMempool: mempoolMock(yearnWithdrawal),
 }

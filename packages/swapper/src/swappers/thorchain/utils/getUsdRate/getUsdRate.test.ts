@@ -11,17 +11,17 @@ describe('getUsdRate', () => {
   const deps = {
     midgardUrl: 'localhost:3000',
     adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
   it('should return USD rate of given Thorchain asset', async () => {
     const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: foxMidgardPool })
+      Promise.resolve({ data: foxMidgardPool }),
     )
 
     const rate = await getUsdRate({
       deps,
-      input: { assetId }
+      input: { assetId },
     })
 
     expect(rate).toEqual('0.15399605260336216')
@@ -34,8 +34,8 @@ describe('getUsdRate', () => {
     await expect(
       getUsdRate({
         deps,
-        input: { assetId }
-      })
+        input: { assetId },
+      }),
     ).rejects.toThrow('[getUsdRate]: No rate found')
   })
 
@@ -46,8 +46,8 @@ describe('getUsdRate', () => {
     await expect(
       getUsdRate({
         deps,
-        input: { assetId }
-      })
+        input: { assetId },
+      }),
     ).rejects.toThrow(`[getUsdRate]: No thorchainPoolId found for assetId: ${assetId}`)
   })
 })

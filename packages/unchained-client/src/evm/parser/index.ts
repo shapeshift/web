@@ -49,7 +49,7 @@ export class BaseTransactionParser<T extends Tx> {
     // We expect only one Parser to return a result. If multiple do, we take the first and early exit.
     const contractParserResult = await findAsyncSequential<SubParser<T>, TxSpecific>(
       this.parsers,
-      async (parser) => await parser.parse(tx)
+      async (parser) => await parser.parse(tx),
     )
 
     const parsedTx: ParsedTx = {
@@ -63,7 +63,7 @@ export class BaseTransactionParser<T extends Tx> {
       trade: contractParserResult?.trade,
       transfers: contractParserResult?.transfers ?? [],
       txid: tx.txid,
-      data: contractParserResult?.data
+      data: contractParserResult?.data,
     }
 
     return this.getParsedTxWithTransfers(tx, parsedTx, address)
@@ -90,7 +90,7 @@ export class BaseTransactionParser<T extends Tx> {
           this.assetId,
           tx.from,
           tx.to,
-          sendValue.toString(10)
+          sendValue.toString(10),
         )
       }
 
@@ -111,7 +111,7 @@ export class BaseTransactionParser<T extends Tx> {
           this.assetId,
           tx.from,
           tx.to,
-          receiveValue.toString(10)
+          receiveValue.toString(10),
         )
       }
     }
@@ -130,19 +130,19 @@ export class BaseTransactionParser<T extends Tx> {
         contract: transfer.contract,
         decimals: transfer.decimals,
         name: transfer.name,
-        symbol: transfer.symbol
+        symbol: transfer.symbol,
       }
 
       const transferArgs = [
         toAssetId({
           chainId: this.chainId,
           assetNamespace: 'erc20',
-          assetReference: transfer.contract
+          assetReference: transfer.contract,
         }),
         transfer.from,
         transfer.to,
         transfer.value,
-        token
+        token,
       ] as const
 
       // token send amount
@@ -150,7 +150,7 @@ export class BaseTransactionParser<T extends Tx> {
         parsedTx.transfers = aggregateTransfer(
           parsedTx.transfers,
           TransferType.Send,
-          ...transferArgs
+          ...transferArgs,
         )
       }
 
@@ -159,7 +159,7 @@ export class BaseTransactionParser<T extends Tx> {
         parsedTx.transfers = aggregateTransfer(
           parsedTx.transfers,
           TransferType.Receive,
-          ...transferArgs
+          ...transferArgs,
         )
       }
     })
@@ -172,7 +172,7 @@ export class BaseTransactionParser<T extends Tx> {
         parsedTx.transfers = aggregateTransfer(
           parsedTx.transfers,
           TransferType.Send,
-          ...transferArgs
+          ...transferArgs,
         )
       }
 
@@ -181,7 +181,7 @@ export class BaseTransactionParser<T extends Tx> {
         parsedTx.transfers = aggregateTransfer(
           parsedTx.transfers,
           TransferType.Receive,
-          ...transferArgs
+          ...transferArgs,
         )
       }
     })

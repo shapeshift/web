@@ -12,7 +12,7 @@ export const bnOrZero = (n: BigNumber.Value | null | undefined): BN => {
 export const fromBaseUnit = (
   value: BigNumber.Value,
   decimals: number,
-  displayDecimals = 6
+  displayDecimals = 6,
 ): string => {
   return bnOrZero(value)
     .div(`1e+${decimals}`)

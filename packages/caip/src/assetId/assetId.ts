@@ -9,7 +9,7 @@ import {
   assertIsChainReference,
   assertValidChainPartsPair,
   isAssetId,
-  isAssetNamespace
+  isAssetNamespace,
 } from '../typeGuards'
 import { Nominal, parseAssetIdRegExp } from '../utils'
 
@@ -64,16 +64,16 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
       return {
         chainId: args.chainId,
         chainNamespace: fromChainIdResult.chainNamespace,
-        chainReference: fromChainIdResult.chainReference
+        chainReference: fromChainIdResult.chainReference,
       }
     } else
       return {
         chainId: toChainId({
           chainNamespace: args.chainNamespace,
-          chainReference: args.chainReference
+          chainReference: args.chainReference,
         }),
         chainNamespace: args.chainNamespace,
-        chainReference: args.chainReference
+        chainReference: args.chainReference,
       }
   })()
 
@@ -88,7 +88,7 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
     !isAssetNamespace(assetNamespace)
   )
     throw new Error(
-      `toAssetId: AssetNamespace ${assetNamespace} not supported for Chain Namespace ${chainNamespace}`
+      `toAssetId: AssetNamespace ${assetNamespace} not supported for Chain Namespace ${chainNamespace}`,
     )
 
   if (assetNamespace === 'slip44' && !isValidSlip44(String(assetReference))) {
@@ -100,7 +100,7 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
       throw new Error(`toAssetId: assetReference must start with 0x: ${assetReference}`)
     if (assetReference.length !== 42)
       throw new Error(
-        `toAssetId: assetReference length must be 42, length: ${assetReference.length}`
+        `toAssetId: assetReference length must be 42, length: ${assetReference.length}`,
       )
   }
 

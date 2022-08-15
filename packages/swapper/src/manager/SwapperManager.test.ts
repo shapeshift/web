@@ -15,29 +15,29 @@ describe('SwapperManager', () => {
   const zrxEthereumSwapperDeps: ZrxSwapperDeps = {
     web3: <Web3>{},
     adapter: <ethereum.ChainAdapter>{
-      getChainId: () => KnownChainIds.EthereumMainnet
-    }
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    },
   }
 
   const zrxAvalancheSwapperDeps: ZrxSwapperDeps = {
     web3: <Web3>{},
     adapter: <ethereum.ChainAdapter>{
-      getChainId: () => KnownChainIds.AvalancheMainnet
-    }
+      getChainId: () => KnownChainIds.AvalancheMainnet,
+    },
   }
 
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api/',
     adapter: <ethereum.ChainAdapter>{
-      getChainId: () => KnownChainIds.EthereumMainnet
+      getChainId: () => KnownChainIds.EthereumMainnet,
     },
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
 
   const thorchainSwapperDeps: ThorchainSwapperDeps = {
     midgardUrl: 'localhost:3000',
     adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
 
   describe('constructor', () => {
@@ -95,7 +95,7 @@ describe('SwapperManager', () => {
     it('should throw an error if swapper is not set', () => {
       const swapper = new SwapperManager()
       expect(() => swapper.getSwapper(SwapperType.Thorchain)).toThrow(
-        '[getSwapper] - swapperType doesnt exist'
+        '[getSwapper] - swapperType doesnt exist',
       )
     })
 
@@ -103,7 +103,7 @@ describe('SwapperManager', () => {
       const manager = new SwapperManager()
       const invalidSwapper = {} as Swapper<ChainId>
       expect(() => manager.addSwapper(invalidSwapper)).toThrow(
-        '[validateSwapper] - invalid swapper instance'
+        '[validateSwapper] - invalid swapper instance',
       )
     })
   })
@@ -115,14 +115,14 @@ describe('SwapperManager', () => {
         .addSwapper(new ThorchainSwapper(thorchainSwapperDeps))
         .removeSwapper(SwapperType.Thorchain)
       expect(() => swapper.getSwapper(SwapperType.Thorchain)).toThrow(
-        `[getSwapper] - swapperType doesnt exist`
+        `[getSwapper] - swapperType doesnt exist`,
       )
     })
 
     it("should throw an error if swapper isn't set", () => {
       const swapper = new SwapperManager()
       expect(() => swapper.removeSwapper(SwapperType.Thorchain)).toThrow(
-        `[removeSwapper] - swapperType doesnt exist`
+        `[removeSwapper] - swapperType doesnt exist`,
       )
     })
   })
@@ -156,7 +156,7 @@ describe('SwapperManager', () => {
       const assetIds = [
         'bip122:000000000019d6689c085ae165831e93/slip44:0',
         'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' // Fox
+        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
       ]
 
       const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -164,7 +164,7 @@ describe('SwapperManager', () => {
       swapper.addSwapper(new ZrxSwapper(zrxEthereumSwapperDeps))
 
       expect(swapper.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds })).toStrictEqual(
-        assetIds.slice(-2)
+        assetIds.slice(-2),
       )
     })
 
@@ -173,7 +173,7 @@ describe('SwapperManager', () => {
         'bip122:000000000019d6689c085ae165831e93/slip44:0',
         'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
         'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' // Fox (duplicate)
+        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox (duplicate)
       ]
 
       const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -181,7 +181,7 @@ describe('SwapperManager', () => {
       swapper.addSwapper(new ZrxSwapper(zrxEthereumSwapperDeps))
 
       expect(swapper.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds })).toStrictEqual(
-        assetIds.slice(1, 3)
+        assetIds.slice(1, 3),
       )
     })
   })
@@ -191,7 +191,7 @@ describe('SwapperManager', () => {
       const assetIds = [
         'bip122:000000000019d6689c085ae165831e93/slip44:0',
         'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' // Fox
+        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
       ]
 
       const swapper = new SwapperManager()
@@ -205,7 +205,7 @@ describe('SwapperManager', () => {
         'bip122:000000000019d6689c085ae165831e93/slip44:0',
         'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
         'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' // Fox (duplicate)
+        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox (duplicate)
       ]
 
       const swapper = new SwapperManager()

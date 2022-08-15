@@ -6,14 +6,14 @@ import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'
 
 jest.mock('../utils/helpers/helpers', () => ({
-  getUsdRate: () => '0.25'
+  getUsdRate: () => '0.25',
 }))
 
 const DEPS = {
   apiUrl: '',
   web3: {} as Web3,
   adapter: {} as ethereum.ChainAdapter,
-  feeAsset: WETH
+  feeAsset: WETH,
 }
 
 describe('getCowSwapMinMax', () => {

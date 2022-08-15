@@ -8,7 +8,7 @@ import {
   SwapError,
   SwapErrorTypes,
   TradeQuote,
-  UtxoSupportedChainIds
+  UtxoSupportedChainIds,
 } from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
@@ -19,7 +19,7 @@ import { makeTradeTx } from '../utils/ethereum/makeTradeTx'
 
 export const buildTrade = async ({
   deps,
-  input
+  input,
 }: {
   deps: ThorchainSwapperDeps
   input: BuildTradeInput
@@ -32,7 +32,7 @@ export const buildTrade = async ({
       sellAmount,
       wallet,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
-      receiveAddress: destinationAddress
+      receiveAddress: destinationAddress,
     } = input
 
     const quote = await getThorTradeQuote({ deps, input })
@@ -42,14 +42,14 @@ export const buildTrade = async ({
       throw new SwapError('[buildTrade]: unsupported sell asset', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
         fn: 'buildTrade',
-        details: { sellAsset }
+        details: { sellAsset },
       })
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     if (chainNamespace === CHAIN_NAMESPACE.Ethereum) {
       const sellAssetBip44Params = sellAdapter.buildBIP44Params({
-        accountNumber: sellAssetAccountNumber
+        accountNumber: sellAssetAccountNumber,
       })
       const ethTradeTx = await makeTradeTx({
         wallet,
@@ -67,14 +67,14 @@ export const buildTrade = async ({
         gasLimit:
           (quote as TradeQuote<KnownChainIds.EthereumMainnet>).feeData.chainSpecific
             ?.estimatedGas ?? '0',
-        tradeFee: quote.feeData.tradeFee
+        tradeFee: quote.feeData.tradeFee,
       })
 
       return {
         chainId: KnownChainIds.EthereumMainnet,
         ...quote,
         receiveAddress: destinationAddress,
-        txData: ethTradeTx.txToSign
+        txData: ethTradeTx.txToSign,
       }
     } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
       const { vault, opReturnData } = await getBtcThorTxInfo({
@@ -87,7 +87,7 @@ export const buildTrade = async ({
         wallet,
         bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
         accountType: (input as GetUtxoTradeQuoteInput).accountType,
-        tradeFee: quote.feeData.tradeFee
+        tradeFee: quote.feeData.tradeFee,
       })
 
       const buildTxResponse = await (
@@ -101,15 +101,15 @@ export const buildTrade = async ({
           accountType: (input as GetUtxoTradeQuoteInput).accountType,
           satoshiPerByte: (quote as TradeQuote<KnownChainIds.BitcoinMainnet>).feeData.chainSpecific
             .satsPerByte,
-          opReturnData
-        }
+          opReturnData,
+        },
       })
 
       return {
         chainId: sellAsset.chainId as UtxoSupportedChainIds,
         ...quote,
         receiveAddress: destinationAddress,
-        txData: buildTxResponse.txToSign
+        txData: buildTxResponse.txToSign,
       }
     } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
       const txData = await cosmosTxData({
@@ -122,27 +122,27 @@ export const buildTrade = async ({
         buyAsset,
         wallet,
         destinationAddress,
-        quote: quote as TradeQuote<KnownChainIds.CosmosMainnet>
+        quote: quote as TradeQuote<KnownChainIds.CosmosMainnet>,
       })
 
       return {
         chainId: KnownChainIds.CosmosMainnet,
         ...quote,
         receiveAddress: destinationAddress,
-        txData
+        txData,
       }
     } else {
       throw new SwapError('[buildTrade]: unsupported chain id', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
         fn: 'buildTrade',
-        details: { sellAsset }
+        details: { sellAsset },
       })
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildTrade]: error building trade', {
       code: SwapErrorTypes.BUILD_TRADE_FAILED,
-      fn: 'buildTrade'
+      fn: 'buildTrade',
     })
   }
 }

@@ -12,7 +12,7 @@ export class Parser implements SubParser<Tx> {
     stakeSigHash: this.abiInterface.getSighash('stake(uint256,address)'),
     unstakeSigHash: this.abiInterface.getSighash('unstake'),
     instantUnstakeSigHash: this.abiInterface.getSighash('instantUnstake'),
-    claimWithdrawSigHash: this.abiInterface.getSighash('claimWithdraw')
+    claimWithdrawSigHash: this.abiInterface.getSighash('claimWithdraw'),
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -31,8 +31,8 @@ export class Parser implements SubParser<Tx> {
     return {
       data: {
         method: decoded.name,
-        parser: 'foxy'
-      }
+        parser: 'foxy',
+      },
     }
   }
 }

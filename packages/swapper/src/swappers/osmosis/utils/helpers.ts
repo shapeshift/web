@@ -8,7 +8,7 @@ import {
   CosmosSdkSupportedChainAdapters,
   SwapError,
   SwapErrorTypes,
-  TradeResult
+  TradeResult,
 } from '../../../index'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { OSMOSIS_PRECISION } from './constants'
@@ -23,7 +23,7 @@ export interface SymbolDenomMapping {
 export const symbolDenomMapping = {
   OSMO: 'uosmo',
   ATOM: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
-  USDC: 'ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858'
+  USDC: 'ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858',
 }
 
 const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
@@ -51,8 +51,8 @@ export const pollForComplete = async (txid: string, baseUrl: string): Promise<st
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${txid}`, {
-            code: SwapErrorTypes.RESPONSE_ERROR
-          })
+            code: SwapErrorTypes.RESPONSE_ERROR,
+          }),
         )
       } else {
         setTimeout(poll, interval)
@@ -68,7 +68,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
       return axios.get(`${osmoUrl}/bank/balances/${address}`)
     } catch (e) {
       throw new SwapError('failed to get balance', {
-        code: SwapErrorTypes.RESPONSE_ERROR
+        code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
   })()
@@ -76,7 +76,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
   try {
     const { amount } = find(
       osmoResponseBalance.data.result,
-      (b) => b.denom === symbolDenomMapping.ATOM
+      (b) => b.denom === symbolDenomMapping.ATOM,
     )
     toAtomChannelBalance = Number(amount)
   } catch (e) {
@@ -87,7 +87,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
 
 export const pollForAtomChannelBalance = async (
   address: string,
-  osmoUrl: string
+  osmoUrl: string,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
@@ -101,8 +101,8 @@ export const pollForAtomChannelBalance = async (
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find channel balance for ${address}`, {
-            code: SwapErrorTypes.RESPONSE_ERROR
-          })
+            code: SwapErrorTypes.RESPONSE_ERROR,
+          }),
         )
       } else {
         setTimeout(poll, interval)
@@ -122,7 +122,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
       return axios.get(poolsUrl)
     } catch (e) {
       throw new SwapError('failed to get pool', {
-        code: SwapErrorTypes.POOL_NOT_FOUND
+        code: SwapErrorTypes.POOL_NOT_FOUND,
       })
     }
   })()
@@ -137,7 +137,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
 
   if (!foundPool)
     throw new SwapError('could not find pool', {
-      code: SwapErrorTypes.POOL_NOT_FOUND
+      code: SwapErrorTypes.POOL_NOT_FOUND,
     })
 
   const { sellAssetIndex, buyAssetIndex } = (() => {
@@ -155,10 +155,10 @@ const getInfoFromPool = (
   sellAmount: string,
   pool: PoolInfo,
   sellAssetIndex: number,
-  buyAssetIndex: number
+  buyAssetIndex: number,
 ) => {
   const constantProduct = bnOrZero(pool.poolAssets[0].token.amount).times(
-    pool.poolAssets[1].token.amount
+    pool.poolAssets[1].token.amount,
   )
   const sellAssetInitialPoolSize = bnOrZero(pool.poolAssets[sellAssetIndex].token.amount)
   const buyAssetInitialPoolSize = bnOrZero(pool.poolAssets[buyAssetIndex].token.amount)
@@ -177,7 +177,7 @@ const getInfoFromPool = (
     rate,
     priceImpact,
     tradeFee,
-    buyAmount
+    buyAmount,
   }
 }
 
@@ -185,7 +185,7 @@ export const getRateInfo = async (
   sellAsset: string,
   buyAsset: string,
   sellAmount: string,
-  osmoUrl: string
+  osmoUrl: string,
 ) => {
   const { pool, sellAssetIndex, buyAssetIndex } = await findPool(sellAsset, buyAsset, osmoUrl)
   return getInfoFromPool(sellAmount, pool, sellAssetIndex, buyAssetIndex)
@@ -202,7 +202,7 @@ export const performIbcTransfer = async (
   feeAmount: string,
   accountNumber: string,
   sequence: string,
-  gas: string
+  gas: string,
 ): Promise<TradeResult> => {
   const { sender, receiver, amount } = input
 
@@ -211,13 +211,13 @@ export const performIbcTransfer = async (
       return axios.get(`${blockBaseUrl}/blocks/latest`)
     } catch (e) {
       throw new SwapError('failed to get latest block', {
-        code: SwapErrorTypes.RESPONSE_ERROR
+        code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
   })()
   const latestBlock = responseLatestBlock.data.block.header.height
   const bip44Params = adapter.buildBIP44Params({
-    accountNumber: 0 // TODO: Use real accountNumbers
+    accountNumber: 0, // TODO: Use real accountNumbers
   })
   const path = toPath(bip44Params)
   const addressNList = bip32ToAddressNList(path)
@@ -228,10 +228,10 @@ export const performIbcTransfer = async (
       amount: [
         {
           amount: feeAmount.toString(),
-          denom: 'uosmo'
-        }
+          denom: 'uosmo',
+        },
       ],
-      gas
+      gas,
     },
     signatures: null,
     msg: [
@@ -242,17 +242,17 @@ export const performIbcTransfer = async (
           source_channel: sourceChannel,
           token: {
             denom,
-            amount
+            amount,
           },
           sender,
           receiver,
           timeout_height: {
             revision_number: '4',
-            revision_height: String(Number(latestBlock) + 100)
-          }
-        }
-      }
-    ]
+            revision_height: String(Number(latestBlock) + 100),
+          },
+        },
+      },
+    ],
   }
 
   const signed = await adapter.signTransaction({
@@ -261,14 +261,14 @@ export const performIbcTransfer = async (
       addressNList,
       chain_id: CHAIN_REFERENCE.OsmosisMainnet,
       account_number: accountNumber,
-      sequence
+      sequence,
     },
-    wallet
+    wallet,
   })
   const tradeId = await adapter.broadcastTransaction(signed)
 
   return {
-    tradeId
+    tradeId,
   }
 }
 
@@ -280,7 +280,7 @@ export const buildTradeTx = async ({
   sellAssetDenom,
   sellAmount,
   gas,
-  wallet
+  wallet,
 }: {
   osmoAddress: string
   adapter: osmosis.ChainAdapter
@@ -296,7 +296,7 @@ export const buildTradeTx = async ({
   const sequence = responseAccount.chainSpecific.sequence || '0'
 
   const bip44Params = adapter.buildBIP44Params({
-    accountNumber: 0 // TODO: Use real accountNumbers
+    accountNumber: 0, // TODO: Use real accountNumbers
   })
   const path = toPath(bip44Params)
   const osmoAddressNList = bip32ToAddressNList(path)
@@ -307,10 +307,10 @@ export const buildTradeTx = async ({
       amount: [
         {
           amount: '0',
-          denom: 'uosmo'
-        }
+          denom: 'uosmo',
+        },
       ],
-      gas
+      gas,
     },
     signatures: null,
     msg: [
@@ -321,17 +321,17 @@ export const buildTradeTx = async ({
           routes: [
             {
               poolId: '1', // TODO: should probably get this from the util pool call
-              tokenOutDenom: buyAssetDenom
-            }
+              tokenOutDenom: buyAssetDenom,
+            },
           ],
           tokenIn: {
             denom: sellAssetDenom,
-            amount: sellAmount
+            amount: sellAmount,
           },
-          tokenOutMinAmount: '1' // slippage tolerance
-        }
-      }
-    ]
+          tokenOutMinAmount: '1', // slippage tolerance
+        },
+      },
+    ],
   }
 
   return {
@@ -340,8 +340,8 @@ export const buildTradeTx = async ({
       addressNList: osmoAddressNList,
       chain_id: CHAIN_REFERENCE.OsmosisMainnet,
       account_number: accountNumber,
-      sequence
+      sequence,
     },
-    wallet
+    wallet,
   }
 }

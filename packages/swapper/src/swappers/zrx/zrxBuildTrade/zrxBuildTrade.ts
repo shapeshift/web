@@ -7,7 +7,7 @@ import {
   EvmSupportedChainIds,
   QuoteFeeData,
   SwapError,
-  SwapErrorTypes
+  SwapErrorTypes,
 } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
@@ -21,13 +21,13 @@ import { zrxServiceFactory } from '../utils/zrxService'
 
 export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
-  input: BuildTradeInput
+  input: BuildTradeInput,
 ): Promise<ZrxTrade<T>> {
   const { sellAsset, buyAsset, sellAmount, slippage, sellAssetAccountNumber, receiveAddress } =
     input
   try {
     const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
-      buyAsset.assetId
+      buyAsset.assetId,
     )
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
@@ -39,7 +39,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
     if (buyAsset.chainId !== adapterChainId) {
       throw new SwapError(`[zrxBuildTrade] - buyAsset must be on chainId ${adapterChainId}`, {
         code: SwapErrorTypes.VALIDATION_FAILED,
-        details: { chainId: sellAsset.chainId }
+        details: { chainId: sellAsset.chainId },
       })
     }
 
@@ -70,7 +70,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
 
         // Handle the request based on your other config options, e.g. `statusCodesToRetry`
         return rax.shouldRetryRequest(err)
-      }
+      },
     })
     const quoteResponse: AxiosResponse<ZrxQuoteResponse> = await zrxRetry.get<ZrxQuoteResponse>(
       '/swap/v1/quote',
@@ -82,9 +82,9 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
           takerAddress: receiveAddress,
           slippagePercentage,
           skipValidation: false,
-          affiliateAddress: AFFILIATE_ADDRESS
-        }
-      }
+          affiliateAddress: AFFILIATE_ADDRESS,
+        },
+      },
     )
 
     const { data } = quoteResponse
@@ -102,14 +102,14 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         fee: bnOrZero(estimatedGas).multipliedBy(bnOrZero(data.gasPrice)).toString(),
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
-          gasPrice: data.gasPrice
+          gasPrice: data.gasPrice,
         },
-        tradeFee: '0'
+        tradeFee: '0',
       },
       txData: data.data,
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,
-      sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE
+      sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     } as ZrxTrade<T>
 
     const allowanceRequired = await getAllowanceRequired({
@@ -119,7 +119,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
       receiveAddress,
       sellAmount: data.sellAmount,
       web3,
-      erc20AllowanceAbi
+      erc20AllowanceAbi,
     })
 
     if (allowanceRequired) {
@@ -127,16 +127,18 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         fee: trade.feeData?.fee || '0',
         chainSpecific: {
           ...trade.feeData?.chainSpecific,
-          approvalFee: bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(data.gasPrice)).toString()
+          approvalFee: bnOrZero(APPROVAL_GAS_LIMIT)
+            .multipliedBy(bnOrZero(data.gasPrice))
+            .toString(),
         },
-        tradeFee: '0'
+        tradeFee: '0',
       } as QuoteFeeData<T>
     }
     return trade
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxBuildTrade]', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED
+      code: SwapErrorTypes.BUILD_TRADE_FAILED,
     })
   }
 }

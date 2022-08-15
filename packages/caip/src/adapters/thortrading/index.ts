@@ -4,7 +4,7 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
-  ltcAssetId
+  ltcAssetId,
 } from '../../constants'
 import { AssetId } from './../../assetId/assetId'
 
@@ -60,7 +60,7 @@ const thorPoolIdAssetIdSymbolMap: Record<string, AssetId> = {
   'LTC.LTC': ltcAssetId,
   'DOGE.DOGE': dogeAssetId,
   'GAIA.ATOM': cosmosAssetId,
-  'BCH.BCH': bchAssetId
+  'BCH.BCH': bchAssetId,
 }
 
 const invert = <T extends Record<string, string>>(data: T) =>

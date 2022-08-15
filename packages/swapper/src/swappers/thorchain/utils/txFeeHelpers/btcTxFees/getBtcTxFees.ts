@@ -10,7 +10,7 @@ export const getBtcTxFees = async ({
   sellAmount,
   sellAdapter,
   pubkey,
-  tradeFee
+  tradeFee,
 }: {
   opReturnData: string
   vault: string
@@ -23,7 +23,7 @@ export const getBtcTxFees = async ({
     const feeDataOptions = await sellAdapter.getFeeData({
       to: vault,
       value: sellAmount,
-      chainSpecific: { pubkey, opReturnData }
+      chainSpecific: { pubkey, opReturnData },
     })
 
     const feeData = feeDataOptions['fast']
@@ -47,8 +47,8 @@ export const getBtcTxFees = async ({
         byteCount: bn(feeData.txFee)
           .dividedBy(feeData.chainSpecific.satoshiPerByte)
           .dp(0)
-          .toString()
-      }
+          .toString(),
+      },
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

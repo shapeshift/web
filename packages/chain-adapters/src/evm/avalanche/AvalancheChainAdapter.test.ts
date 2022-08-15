@@ -16,7 +16,7 @@ import {
   BuildSendTxInput,
   SignMessageInput,
   SignTxInput,
-  ValidAddressResultType
+  ValidAddressResultType,
 } from '../../types'
 import { bn } from '../../utils/bignumber'
 import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
@@ -31,7 +31,7 @@ const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed
 const getWallet = async (): Promise<ETHWallet> => {
   const nativeAdapterArgs: NativeAdapterArgs = {
     mnemonic: testMnemonic,
-    deviceId: 'test'
+    deviceId: 'test',
   }
   const wallet = new NativeHDWallet(nativeAdapterArgs)
   await wallet.initialize()
@@ -68,10 +68,10 @@ const makeGetAccountMockResponse = (balance: {
         assetId: 'eip155:43114/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         balance: balance.erc20Balance,
         type: 'ERC20',
-        contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      }
-    ]
-  }
+        contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      },
+    ],
+  },
 })
 
 const makeChainAdapterArgs = (overrideArgs?: {
@@ -82,11 +82,11 @@ const makeChainAdapterArgs = (overrideArgs?: {
     {
       providers: {
         http: {} as unchained.avalanche.V1Api,
-        ws: {} as unchained.ws.Client<unchained.avalanche.Tx>
+        ws: {} as unchained.ws.Client<unchained.avalanche.Tx>,
       },
-      rpcUrl: ''
+      rpcUrl: '',
     },
-    overrideArgs
+    overrideArgs,
   )
 
 describe('AvalancheChainAdapter', () => {
@@ -114,7 +114,7 @@ describe('AvalancheChainAdapter', () => {
     it('should return current AVAX network fees', async () => {
       const httpProvider = {
         estimateGas: jest.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse())
+        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -125,8 +125,8 @@ describe('AvalancheChainAdapter', () => {
         value: '123',
         chainSpecific: {
           from: ZERO_ADDRESS,
-          contractData: '0x'
-        }
+          contractData: '0x',
+        },
       })
 
       expect(data).toEqual(
@@ -136,29 +136,29 @@ describe('AvalancheChainAdapter', () => {
               gasLimit: '21000',
               gasPrice: '5',
               maxFeePerGas: '300',
-              maxPriorityFeePerGas: '10'
+              maxPriorityFeePerGas: '10',
             },
-            txFee: '105000'
+            txFee: '105000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '6',
               maxFeePerGas: '360',
-              maxPriorityFeePerGas: '12'
+              maxPriorityFeePerGas: '12',
             },
-            txFee: '126000'
+            txFee: '126000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '4',
               maxFeePerGas: '240',
-              maxPriorityFeePerGas: '8'
+              maxPriorityFeePerGas: '8',
             },
-            txFee: '84000'
-          }
-        })
+            txFee: '84000',
+          },
+        }),
       )
     })
   })
@@ -166,7 +166,7 @@ describe('AvalancheChainAdapter', () => {
   describe('getGasFeeData', () => {
     it('should return current AVAX network gas fees', async () => {
       const httpProvider = {
-        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse())
+        getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -179,19 +179,19 @@ describe('AvalancheChainAdapter', () => {
           average: {
             gasPrice: '5',
             maxFeePerGas: '300',
-            maxPriorityFeePerGas: '10'
+            maxPriorityFeePerGas: '10',
           },
           fast: {
             gasPrice: '6',
             maxFeePerGas: '360',
-            maxPriorityFeePerGas: '12'
+            maxPriorityFeePerGas: '12',
           },
           slow: {
             gasPrice: '4',
             maxFeePerGas: '240',
-            maxPriorityFeePerGas: '8'
-          }
-        })
+            maxPriorityFeePerGas: '8',
+          },
+        }),
       )
     })
   })
@@ -199,12 +199,12 @@ describe('AvalancheChainAdapter', () => {
   describe('validateAddress', () => {
     const validAddressTuple = {
       valid: true,
-      result: ValidAddressResultType.Valid
+      result: ValidAddressResultType.Valid,
     }
 
     const invalidAddressTuple = {
       valid: false,
-      result: ValidAddressResultType.Invalid
+      result: ValidAddressResultType.Invalid,
     }
 
     it('should return true for a valid address', async () => {
@@ -239,7 +239,7 @@ describe('AvalancheChainAdapter', () => {
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
-        /Error signing & broadcasting tx/
+        /Error signing & broadcasting tx/,
       )
     })
 
@@ -248,13 +248,13 @@ describe('AvalancheChainAdapter', () => {
       const wallet = await getWallet()
 
       wallet.ethSendTx = async () => ({
-        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
       })
 
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
-        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
       )
     })
   })
@@ -268,12 +268,12 @@ describe('AvalancheChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: [2147483692, 2147492648, 2147483648, 0, 0]
-        }
+          addressNList: [2147483692, 2147492648, 2147483648, 0, 0],
+        },
       }
 
       await expect(adapter.signMessage(message)).resolves.toEqual(
-        '0x05a0edb4b98fe6b6ed270bf55aef84ddcb641512e19e340bf9eed3427854a7a4734fe45551dc24f1843cf2c823a73aa2454e3785eb15120573c522cc114e472d1c'
+        '0x05a0edb4b98fe6b6ed270bf55aef84ddcb641512e19e340bf9eed3427854a7a4734fe45551dc24f1843cf2c823a73aa2454e3785eb15120573c522cc114e472d1c',
       )
     })
 
@@ -287,12 +287,12 @@ describe('AvalancheChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: [2147483692, 2147492648, 2147483648, 0, 0]
-        }
+          addressNList: [2147483692, 2147492648, 2147483648, 0, 0],
+        },
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EvmBaseAdapter: error signing message/
+        /EvmBaseAdapter: error signing message/,
       )
     })
   })
@@ -302,7 +302,7 @@ describe('AvalancheChainAdapter', () => {
       const expectedResult = 'success'
 
       const httpProvider = {
-        sendTx: jest.fn().mockResolvedValue({ data: expectedResult })
+        sendTx: jest.fn().mockResolvedValue({ data: expectedResult }),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -323,11 +323,11 @@ describe('AvalancheChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress })
+        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'AvalancheChainAdapter: to is required'
+        'AvalancheChainAdapter: to is required',
       )
     })
 
@@ -337,11 +337,11 @@ describe('AvalancheChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
-        chainSpecific: makeChainSpecific()
+        chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'AvalancheChainAdapter: value is required'
+        'AvalancheChainAdapter: value is required',
       )
     })
 
@@ -349,43 +349,7 @@ describe('AvalancheChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
-      } as unknown as unchained.avalanche.V1Api
-
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new avalanche.ChainAdapter(args)
-
-      const wallet = await getWallet()
-      wallet.ethGetAddress = async () => ZERO_ADDRESS
-
-      const tx = {
-        wallet,
-        to: EOA_ADDRESS,
-        value,
-        chainSpecific: makeChainSpecific()
-      } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
-
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: [2147483692, 2147492648, 2147483648, 0, 0],
-          chainId: 43114,
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: numberToHex(value)
-        }
-      })
-
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-    })
-
-    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if AVAX balance is 0', async () => {
-      const httpProvider = {
-        getAccount: jest
-          .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -399,7 +363,43 @@ describe('AvalancheChainAdapter', () => {
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
-        sendMax: true
+      } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
+
+      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+        txToSign: {
+          addressNList: [2147483692, 2147492648, 2147483648, 0, 0],
+          chainId: 43114,
+          data: '',
+          gasLimit: numberToHex(gasLimit),
+          gasPrice: numberToHex(gasPrice),
+          nonce: '0x2',
+          to: EOA_ADDRESS,
+          value: numberToHex(value),
+        },
+      })
+
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+    })
+
+    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if AVAX balance is 0', async () => {
+      const httpProvider = {
+        getAccount: jest
+          .fn<any, any>()
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+      } as unknown as unchained.avalanche.V1Api
+
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
+      const adapter = new avalanche.ChainAdapter(args)
+
+      const wallet = await getWallet()
+      wallet.ethGetAddress = async () => ZERO_ADDRESS
+
+      const tx = {
+        wallet,
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: makeChainSpecific(),
+        sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
@@ -410,12 +410,12 @@ describe('AvalancheChainAdapter', () => {
     it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
-        bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any
+        bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
       )
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -429,7 +429,7 @@ describe('AvalancheChainAdapter', () => {
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
-        sendMax: true
+        sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -441,8 +441,8 @@ describe('AvalancheChainAdapter', () => {
           gasPrice: numberToHex(gasPrice),
           nonce: '0x2',
           to: EOA_ADDRESS,
-          value: expectedValue
-        }
+          value: expectedValue,
+        },
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -453,8 +453,8 @@ describe('AvalancheChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' })
-          )
+            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+          ),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -467,7 +467,7 @@ describe('AvalancheChainAdapter', () => {
         wallet,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress })
+        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -479,8 +479,8 @@ describe('AvalancheChainAdapter', () => {
           gasPrice: numberToHex(gasPrice),
           nonce: '0x2',
           to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          value: '0x0'
-        }
+          value: '0x0',
+        },
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -491,8 +491,8 @@ describe('AvalancheChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' })
-          )
+            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+          ),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -506,7 +506,7 @@ describe('AvalancheChainAdapter', () => {
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
-        sendMax: true
+        sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -518,8 +518,8 @@ describe('AvalancheChainAdapter', () => {
           gasPrice: numberToHex(gasPrice),
           nonce: '0x2',
           to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          value: '0x0'
-        }
+          value: '0x0',
+        },
       })
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -530,8 +530,8 @@ describe('AvalancheChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined })
-          )
+            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+          ),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -545,7 +545,7 @@ describe('AvalancheChainAdapter', () => {
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
-        sendMax: true
+        sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')

@@ -14,7 +14,7 @@ const axios: AxiosStatic = jest.createMockFromModule('axios')
 axios.create = jest.fn(() => axios)
 
 jest.mock('../utils/zrxService', () => ({
-  zrxServiceFactory: () => axios.create()
+  zrxServiceFactory: () => axios.create(),
 }))
 
 const zrxService = zrxServiceFactory('https://api.0x.org/')
@@ -30,8 +30,8 @@ describe('getZrxTradeQuote', () => {
   const zrxSwapperDeps = {
     web3: <Web3>{},
     adapter: <ethereum.ChainAdapter>{
-      getChainId: () => KnownChainIds.EthereumMainnet
-    }
+      getChainId: () => KnownChainIds.EthereumMainnet,
+    },
   }
 
   it('returns quote with fee data', async () => {
@@ -39,8 +39,8 @@ describe('getZrxTradeQuote', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({
-        data: { price: '100', gasPrice: '1000', estimatedGas: '1000000' }
-      })
+        data: { price: '100', gasPrice: '1000', estimatedGas: '1000000' },
+      }),
     )
     const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote.feeData).toStrictEqual({
@@ -48,9 +48,9 @@ describe('getZrxTradeQuote', () => {
       chainSpecific: {
         estimatedGas: '1500000',
         gasPrice: '1000',
-        approvalFee: '100000000'
+        approvalFee: '100000000',
       },
-      tradeFee: '0'
+      tradeFee: '0',
     })
     expect(quote.rate).toBe('100')
   })
@@ -61,8 +61,8 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(undefined))
     await expect(
       swapper.getTradeQuote({
-        ...quoteInput
-      })
+        ...quoteInput,
+      }),
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
 
@@ -70,13 +70,13 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({
-      response: { data: { code: 502, reason: 'Failed to do some stuff' } }
+      response: { data: { code: 502, reason: 'Failed to do some stuff' } },
     } as never)
 
     await expect(
       swapper.getTradeQuote({
-        ...quoteInput
-      })
+        ...quoteInput,
+      }),
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
 
@@ -85,8 +85,8 @@ describe('getZrxTradeQuote', () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({
-        data: { price: '100' }
-      })
+        data: { price: '100' },
+      }),
     )
     const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote?.feeData).toStrictEqual({
@@ -94,9 +94,9 @@ describe('getZrxTradeQuote', () => {
       chainSpecific: {
         estimatedGas: '0',
         approvalFee: '0',
-        gasPrice: undefined
+        gasPrice: undefined,
       },
-      tradeFee: '0'
+      tradeFee: '0',
     })
   })
 
@@ -107,8 +107,8 @@ describe('getZrxTradeQuote', () => {
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,
-        buyAsset: { ...buyAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
-      })
+        buyAsset: { ...buyAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' },
+      }),
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
 
@@ -119,8 +119,8 @@ describe('getZrxTradeQuote', () => {
     await expect(
       swapper.getTradeQuote({
         ...quoteInput,
-        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' }
-      })
+        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' },
+      }),
     ).rejects.toThrow('[getZrxTradeQuote]')
   })
 
@@ -128,15 +128,15 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { sellAmount: '20000000000000000000' } })
+      Promise.resolve({ data: { sellAmount: '20000000000000000000' } }),
     )
     const minimum = '20'
     const quote = await swapper.getTradeQuote({
       ...quoteInput,
-      sellAmount: '0'
+      sellAmount: '0',
     })
     expect(quote?.sellAmount).toBe(
-      bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString()
+      bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
     )
   })
 })

@@ -11,12 +11,12 @@ export class Parser implements SubParser<Tx> {
     return {
       trade: {
         dexName: Dex.Zrx,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       },
       data: {
         method: undefined, // TODO - add zrx ABI and decode
-        parser: 'zrx'
-      }
+        parser: 'zrx',
+      },
     }
   }
 }

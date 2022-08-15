@@ -24,13 +24,13 @@ describe('ExchangeRateHostService', () => {
 
   describe('findByFiatSymbol', () => {
     const args: FiatMarketDataArgs = {
-      symbol: 'EUR'
+      symbol: 'EUR',
     }
 
     const eurRate: ExchangeRateHostRate = {
       rates: {
-        EUR: 0.91
-      }
+        EUR: 0.91,
+      },
     }
 
     it('should return fiat market data for EUR', async () => {
@@ -42,7 +42,7 @@ describe('ExchangeRateHostService', () => {
       mockedAxios.get.mockRejectedValue(Error)
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(exchangeRateHostService.findByFiatSymbol(args)).rejects.toEqual(
-        new Error('FiatMarketService(findByFiatSymbol): error fetching market data')
+        new Error('FiatMarketService(findByFiatSymbol): error fetching market data'),
       )
       expect(consoleSpy).toHaveBeenCalledTimes(1)
     })
@@ -51,7 +51,7 @@ describe('ExchangeRateHostService', () => {
   describe('findPriceHistoryByFiatSymbol', () => {
     const args: FiatPriceHistoryArgs = {
       symbol: 'EUR',
-      timeframe: HistoryTimeframe.WEEK
+      timeframe: HistoryTimeframe.WEEK,
     }
 
     const data = {
@@ -59,14 +59,14 @@ describe('ExchangeRateHostService', () => {
         '2020-01-01': { EUR: 0.891186 },
         '2020-01-02': { EUR: 0.891186 },
         '2020-01-03': { EUR: 0.895175 },
-        '2020-01-04': { EUR: 0.895175 }
-      }
+        '2020-01-04': { EUR: 0.895175 },
+      },
     }
 
     it('should return historical fiat market data for EUR', async () => {
       mockedAxios.get.mockResolvedValue({ data })
       expect(await exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).toEqual(
-        mockERHPriceHistoryData
+        mockERHPriceHistoryData,
       )
     })
 
@@ -74,7 +74,7 @@ describe('ExchangeRateHostService', () => {
       mockedAxios.get.mockRejectedValue(Error)
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(exchangeRateHostService.findPriceHistoryByFiatSymbol(args)).rejects.toEqual(
-        new Error('ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history')
+        new Error('ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history'),
       )
       expect(consoleSpy).toHaveBeenCalledTimes(1)
     })
@@ -84,10 +84,10 @@ describe('ExchangeRateHostService', () => {
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
-        timeframe: HistoryTimeframe.HOUR
+        timeframe: HistoryTimeframe.HOUR,
       })
       expect(mockedAxios.get).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`
+        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
@@ -96,10 +96,10 @@ describe('ExchangeRateHostService', () => {
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
-        timeframe: HistoryTimeframe.DAY
+        timeframe: HistoryTimeframe.DAY,
       })
       expect(mockedAxios.get).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`
+        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-30&end_date=${mockDay}`,
       )
     })
 
@@ -108,10 +108,10 @@ describe('ExchangeRateHostService', () => {
 
       await exchangeRateHostService.findPriceHistoryByFiatSymbol({
         symbol: 'EUR',
-        timeframe: HistoryTimeframe.WEEK
+        timeframe: HistoryTimeframe.WEEK,
       })
       expect(mockedAxios.get).toBeCalledWith(
-        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-24&end_date=${mockDay}`
+        `https://api.exchangerate.host/timeseries?base=USD&symbols=EUR&start_date=2020-12-24&end_date=${mockDay}`,
       )
     })
   })
@@ -124,7 +124,7 @@ describe('makeExchangeRateRequestUrls', () => {
     const symbol = 'EUR'
     const baseUrl = 'https://api.exchangeratesapi.io'
     expect(makeExchangeRateRequestUrls(start, end, symbol, baseUrl)).toEqual([
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2020-01-01&end_date=2020-01-02'
+      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2020-01-01&end_date=2020-01-02',
     ])
   })
 
@@ -138,7 +138,7 @@ describe('makeExchangeRateRequestUrls', () => {
       'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2018-05-21&end_date=2019-05-21',
       'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2019-05-22&end_date=2020-05-21',
       'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2020-05-22&end_date=2021-05-22',
-      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2021-05-23&end_date=2022-05-17'
+      'https://api.exchangeratesapi.io/timeseries?base=USD&symbols=EUR&start_date=2021-05-23&end_date=2022-05-17',
     ])
   })
 })

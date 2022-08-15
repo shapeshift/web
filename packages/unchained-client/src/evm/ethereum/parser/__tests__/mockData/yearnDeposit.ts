@@ -25,7 +25,7 @@ const yearnDeposit = {
       type: 'ERC20',
       from: '0x0000000000000000000000000000000000000000',
       to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
-      value: '9178352'
+      value: '9178352',
     },
     {
       contract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -35,12 +35,12 @@ const yearnDeposit = {
       type: 'ERC20',
       from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
       to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
-      value: '10000000'
-    }
-  ]
+      value: '10000000',
+    },
+  ],
 }
 
 export default {
   tx: yearnDeposit,
-  txMempool: mempoolMock(yearnDeposit)
+  txMempool: mempoolMock(yearnDeposit),
 }

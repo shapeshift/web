@@ -30,7 +30,7 @@ export function buildTxToSign({
   gasPrice,
   nonce,
   to,
-  value
+  value,
 }: BuildTxToSignInput): ETHSignTx {
   const path = toPath(bip44Params)
   const addressNList = bip32ToAddressNList(path)
@@ -43,6 +43,6 @@ export function buildTxToSign({
     data,
     nonce: numberToHex(nonce),
     gasPrice: numberToHex(gasPrice),
-    gasLimit: numberToHex(estimatedGas)
+    gasLimit: numberToHex(estimatedGas),
   }
 }

@@ -11,7 +11,7 @@ import { getUsdRate } from '../utils/helpers/helpers'
 export const getCowSwapMinMax = async (
   deps: CowSwapperDeps,
   sellAsset: Asset,
-  buyAsset: Asset
+  buyAsset: Asset,
 ): Promise<MinMaxOutput> => {
   try {
     const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
@@ -27,7 +27,7 @@ export const getCowSwapMinMax = async (
     const maximum = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
     return {
       minimum,
-      maximum
+      maximum,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

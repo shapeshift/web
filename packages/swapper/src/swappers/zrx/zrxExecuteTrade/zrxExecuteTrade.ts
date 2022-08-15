@@ -6,7 +6,7 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 
 export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
   { adapter }: ZrxSwapperDeps,
-  { trade, wallet }: ZrxExecuteTradeInput<T>
+  { trade, wallet }: ZrxExecuteTradeInput<T>,
 ): Promise<TradeResult> {
   const { sellAsset } = trade
 
@@ -14,7 +14,7 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
     // value is 0 for erc20s
     const value = isNativeEvmAsset(sellAsset.assetId) ? trade.sellAmount : '0'
     const bip44Params = adapter.buildBIP44Params({
-      accountNumber: trade.sellAssetAccountNumber
+      accountNumber: trade.sellAssetAccountNumber,
     })
 
     const buildTxResponse = await adapter.buildSendTransaction({
@@ -23,9 +23,9 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
       to: trade.depositAddress,
       chainSpecific: {
         gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPrice || 0),
-        gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0)
+        gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0),
       },
-      bip44Params
+      bip44Params,
     })
 
     const { txToSign } = buildTxResponse
@@ -41,20 +41,20 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
     } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const txid = await adapter.signAndBroadcastTransaction?.({
         txToSign: txWithQuoteData,
-        wallet
+        wallet,
       })
 
       return { tradeId: txid }
     } else {
       throw new SwapError('[zrxExecuteTrade]', {
-        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED
+        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
       })
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxExecuteTrade]', {
       cause: e,
-      code: SwapErrorTypes.EXECUTE_TRADE_FAILED
+      code: SwapErrorTypes.EXECUTE_TRADE_FAILED,
     })
   }
 }

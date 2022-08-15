@@ -7,7 +7,7 @@ import { getZrxMinMax } from './getZrxMinMax'
 
 jest.mock('../utils/helpers/helpers', () => ({
   getUsdRate: () => '1',
-  normalizeAmount: () => '1'
+  normalizeAmount: () => '1',
 }))
 
 describe('getZrxMinMax', () => {

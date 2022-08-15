@@ -6,7 +6,7 @@ describe('OsmosisSwapper', () => {
   const swapper = new OsmosisSwapper({
     adapterManager: <ChainAdapterManager>{},
     osmoUrl: 'http://mock-osmo-url',
-    cosmosUrl: 'http://mock-cosmos-url'
+    cosmosUrl: 'http://mock-cosmos-url',
   })
 
   describe('name', () => {

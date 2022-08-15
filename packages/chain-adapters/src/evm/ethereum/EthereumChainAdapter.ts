@@ -13,7 +13,7 @@ import {
   GetFeeDataInput,
   ValidAddressResult,
   ValidAddressResultType,
-  ZrxGasApiResponse
+  ZrxGasApiResponse,
 } from '../../types'
 import { toPath } from '../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -29,7 +29,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
   static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Ethereum),
-    accountNumber: 0
+    accountNumber: 0,
   }
 
   constructor(args: ChainAdapterArgs) {
@@ -37,13 +37,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
-      ...args
+      ...args,
     })
 
     this.assetId = ethAssetId
     this.parser = new unchained.ethereum.TransactionParser({
       chainId: this.chainId,
-      rpcUrl: this.rpcUrl
+      rpcUrl: this.rpcUrl,
     })
   }
 
@@ -72,7 +72,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
         if (tx.maxFeePerGas && tx.maxPriorityFeePerGas) {
           return {
             maxFeePerGas: numberToHex(tx.maxFeePerGas),
-            maxPriorityFeePerGas: numberToHex(tx.maxPriorityFeePerGas)
+            maxPriorityFeePerGas: numberToHex(tx.maxPriorityFeePerGas),
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -87,7 +87,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
         data: tx.data,
         nonce: numberToHex(account.chainSpecific.nonce),
         gasLimit: numberToHex(tx.gasLimit),
-        ...fees
+        ...fees,
       }
 
       return { txToSign }
@@ -106,12 +106,12 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     const normalizationConstants = {
       fast: bnOrZero(bn(medianFees.fast).dividedBy(medianFees.standard)),
       average: bn(1),
-      slow: bnOrZero(bn(medianFees.low).dividedBy(medianFees.standard))
+      slow: bnOrZero(bn(medianFees.low).dividedBy(medianFees.standard)),
     }
 
     const calcFee = (
       fee: string | number | BigNumber,
-      speed: 'slow' | 'average' | 'fast'
+      speed: 'slow' | 'average' | 'fast',
     ): string => {
       return bnOrZero(fee)
         .times(normalizationConstants[speed])
@@ -123,18 +123,18 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       fast: {
         gasPrice: bnOrZero(medianFees.fast).toString(),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast')
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast'),
       },
       average: {
         gasPrice: bnOrZero(medianFees.standard).toString(),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average')
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average'),
       },
       slow: {
         gasPrice: bnOrZero(medianFees.low).toString(),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow')
-      }
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow'),
+      },
     }
   }
 
@@ -142,7 +142,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     to,
     value,
     chainSpecific: { contractAddress, from, contractData },
-    sendMax = false
+    sendMax = false,
   }: GetFeeDataInput<KnownChainIds.EthereumMainnet>): Promise<
     FeeDataEstimate<KnownChainIds.EthereumMainnet>
   > {
@@ -167,7 +167,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       from,
       to: isErc20Send ? contractAddress : to,
       value: isErc20Send ? '0' : value,
-      data
+      data,
     })
 
     const gasResults = await this.getGasFeeData()
@@ -175,16 +175,16 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     return {
       fast: {
         txFee: bnOrZero(bn(gasResults.fast.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.fast }
+        chainSpecific: { gasLimit, ...gasResults.fast },
       },
       average: {
         txFee: bnOrZero(bn(gasResults.average.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.average }
+        chainSpecific: { gasLimit, ...gasResults.average },
       },
       slow: {
         txFee: bnOrZero(bn(gasResults.slow.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.slow }
-      }
+        chainSpecific: { gasLimit, ...gasResults.slow },
+      },
     }
   }
 

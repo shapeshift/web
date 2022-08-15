@@ -2,7 +2,7 @@
 const ethers = {
   ...jest.requireActual('ethers').ethers,
   providers: {
-    JsonRpcProvider: jest.fn()
+    JsonRpcProvider: jest.fn(),
   },
   Contract: jest.fn().mockImplementation((address) => ({
     decimals: () => {
@@ -42,8 +42,8 @@ const ethers = {
         default:
           throw new Error(`no decimals mock for address: ${address}`)
       }
-    }
-  }))
+    },
+  })),
 }
 
 // extra mocks for hdwallet which uses explicit imports instead of the standard `import { ethers } from 'ethers'`
@@ -65,5 +65,5 @@ export {
   Signer,
   UnsignedTransaction,
   providers,
-  utils
+  utils,
 }

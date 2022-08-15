@@ -4,7 +4,7 @@ import {
   btcChainId,
   ChainId,
   dogeChainId,
-  ltcChainId
+  ltcChainId,
 } from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
@@ -36,7 +36,7 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
 export const utxoAccountParams = (
   chainId: ChainId,
   accountType: UtxoAccountType,
-  accountNumber: number
+  accountNumber: number,
 ): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
   // TODO: dynamic coinType assignment to reduce copy/pasta
   switch (chainId) {
@@ -46,8 +46,8 @@ export const utxoAccountParams = (
         bip44Params: {
           purpose: 44,
           coinType: Number(ASSET_REFERENCE.Dogecoin),
-          accountNumber
-        }
+          accountNumber,
+        },
       }
     case btcChainId:
       switch (accountType) {
@@ -57,8 +57,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 84,
               coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         case UtxoAccountType.SegwitP2sh:
           return {
@@ -66,8 +66,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 49,
               coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         case UtxoAccountType.P2pkh:
           return {
@@ -75,8 +75,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 44,
               coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         default:
           throw new TypeError('utxoAccountType')
@@ -87,8 +87,8 @@ export const utxoAccountParams = (
         bip44Params: {
           purpose: 44,
           coinType: Number(ASSET_REFERENCE.BitcoinCash),
-          accountNumber
-        }
+          accountNumber,
+        },
       }
     case ltcChainId:
       switch (accountType) {
@@ -98,8 +98,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 84,
               coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         case UtxoAccountType.SegwitP2sh:
           return {
@@ -107,8 +107,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 49,
               coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         case UtxoAccountType.P2pkh:
           return {
@@ -116,8 +116,8 @@ export const utxoAccountParams = (
             bip44Params: {
               purpose: 44,
               coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber
-            }
+              accountNumber,
+            },
           }
         default:
           throw new TypeError('utxoAccountType')
@@ -130,14 +130,14 @@ export const utxoAccountParams = (
 export const accountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType> = Object.freeze({
   [UtxoAccountType.P2pkh]: BTCInputScriptType.SpendAddress,
   [UtxoAccountType.SegwitP2sh]: BTCInputScriptType.SpendP2SHWitness,
-  [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness
+  [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness,
 })
 
 export const accountTypeToOutputScriptType: Record<UtxoAccountType, BTCOutputScriptType> =
   Object.freeze({
     [UtxoAccountType.P2pkh]: BTCOutputScriptType.PayToAddress,
     [UtxoAccountType.SegwitP2sh]: BTCOutputScriptType.PayToP2SHWitness,
-    [UtxoAccountType.SegwitNative]: BTCOutputScriptType.PayToWitness
+    [UtxoAccountType.SegwitNative]: BTCOutputScriptType.PayToWitness,
   })
 
 export const scriptTypeToAccountType: Record<BTCInputScriptType, UtxoAccountType | undefined> =
@@ -148,7 +148,7 @@ export const scriptTypeToAccountType: Record<BTCInputScriptType, UtxoAccountType
     [BTCInputScriptType.SpendMultisig]: undefined,
     [BTCInputScriptType.Bech32]: undefined,
     [BTCInputScriptType.CashAddr]: undefined,
-    [BTCInputScriptType.External]: undefined
+    [BTCInputScriptType.External]: undefined,
   })
 
 /*
@@ -176,13 +176,13 @@ enum PublicKeyType {
   zpub = '04b24746',
   dgub = '02facafd',
   Ltub = '019da462',
-  Mtub = '01b26ef6'
+  Mtub = '01b26ef6',
 }
 
 const accountTypeToVersion = {
   [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.xpub, 'hex'),
   [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.ypub, 'hex'),
-  [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, 'hex')
+  [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, 'hex'),
 }
 
 const convertVersions = ['xpub', 'ypub', 'zpub']

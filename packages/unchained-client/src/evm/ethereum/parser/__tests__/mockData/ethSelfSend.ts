@@ -15,10 +15,10 @@ const ethSelfSend: Tx = {
   gasLimit: '23100',
   gasUsed: '21000',
   gasPrice: '19000000000',
-  inputData: '0x'
+  inputData: '0x',
 }
 
 export default {
   tx: ethSelfSend,
-  txMempool: mempoolMock(ethSelfSend)
+  txMempool: mempoolMock(ethSelfSend),
 }

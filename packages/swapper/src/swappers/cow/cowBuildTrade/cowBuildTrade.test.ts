@@ -31,7 +31,7 @@ jest.mock('../utils/helpers/helpers', () => {
       }
 
       return Promise.resolve('20978.38')
-    }
+    },
   }
 })
 
@@ -44,7 +44,7 @@ jest.mock('../../utils/helpers/helpers', () => {
       }
       return bn(0)
     },
-    getApproveContractData: () => '0xABCDEFGHIJ'
+    getApproveContractData: () => '0xABCDEFGHIJ',
   }
 })
 
@@ -55,8 +55,8 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
       gasLimit: '100000',
       gasPrice: '79036500000',
       maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547'
-    }
+      maxPriorityFeePerGas: '2982734547',
+    },
   },
   slow: {
     txFee: '4080654495000000',
@@ -64,8 +64,8 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
       gasLimit: '100000',
       gasPrice: '79036500000',
       maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547'
-    }
+      maxPriorityFeePerGas: '2982734547',
+    },
   },
   average: {
     txFee: '4080654495000000',
@@ -73,9 +73,9 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
       gasLimit: '100000',
       gasPrice: '79036500000',
       maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547'
-    }
-  }
+      maxPriorityFeePerGas: '2982734547',
+    },
+  },
 }
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
@@ -87,7 +87,7 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   receiver: 'address11',
   sellAmountBeforeFee: '1000000000000000000',
   sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  validTo: 1656797787
+  validTo: 1656797787,
 }
 
 const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
@@ -99,7 +99,7 @@ const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
   receiver: 'address11',
   sellAmountBeforeFee: '100000000',
   sellToken: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-  validTo: 1656797787
+  validTo: 1656797787,
 }
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
@@ -111,7 +111,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
   receiver: 'address11',
   sellAmountBeforeFee: '1000000000000000000000',
   sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  validTo: 1656797787
+  validTo: 1656797787,
 }
 
 const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -120,9 +120,9 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
     fee: '0',
     chainSpecific: {
       estimatedGas: '100000',
-      gasPrice: '79036500000'
+      gasPrice: '79036500000',
     },
-    tradeFee: '0'
+    tradeFee: '0',
   },
   sellAmount: '1000000000000000000',
   buyAmount: '14501811818247595090576', // 14501 FOX
@@ -132,7 +132,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAssetAccountNumber: 0,
   receiveAddress: 'address11',
   feeAmountInSellToken: '14557942658757988',
-  sellAmountWithoutFee: '985442057341242012'
+  sellAmountWithoutFee: '985442057341242012',
 }
 
 const expectedTradeQuoteWbtcToWethWithApprovalFee: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -142,9 +142,9 @@ const expectedTradeQuoteWbtcToWethWithApprovalFee: CowTrade<KnownChainIds.Ethere
     chainSpecific: {
       estimatedGas: '100000',
       gasPrice: '79036500000',
-      approvalFee: '7903650000000000'
+      approvalFee: '7903650000000000',
     },
-    tradeFee: '0'
+    tradeFee: '0',
   },
   sellAmount: '100000000',
   buyAmount: '19136098853078932263', // 19.13 WETH
@@ -154,7 +154,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFee: CowTrade<KnownChainIds.Ethere
   sellAssetAccountNumber: 0,
   receiveAddress: 'address11',
   feeAmountInSellToken: '17238',
-  sellAmountWithoutFee: '99982762'
+  sellAmountWithoutFee: '99982762',
 }
 
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -163,9 +163,9 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
     fee: '0',
     chainSpecific: {
       estimatedGas: '100000',
-      gasPrice: '79036500000'
+      gasPrice: '79036500000',
     },
-    tradeFee: '0'
+    tradeFee: '0',
   },
   sellAmount: '1000000000000000000000',
   buyAmount: '46868859830863283',
@@ -175,16 +175,16 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAssetAccountNumber: 0,
   receiveAddress: 'address11',
   feeAmountInSellToken: '61804771879693983744',
-  sellAmountWithoutFee: '938195228120306016256'
+  sellAmountWithoutFee: '938195228120306016256',
 }
 
 const deps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api',
   adapter: {
     getAddress: jest.fn(() => Promise.resolve('address11')),
-    getFeeData: jest.fn(() => Promise.resolve(feeData))
+    getFeeData: jest.fn(() => Promise.resolve(feeData)),
   } as unknown as ethereum.ChainAdapter,
-  web3: {} as Web3
+  web3: {} as Web3,
 }
 
 describe('cowBuildTrade', () => {
@@ -197,11 +197,11 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       sellAssetAccountNumber: 1,
       wallet: <HDWallet>{},
-      receiveAddress: ''
+      receiveAddress: '',
     }
 
     await expect(cowBuildTrade(deps, tradeInput)).rejects.toThrow(
-      '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap'
+      '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
     )
   })
 
@@ -214,7 +214,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       sellAssetAccountNumber: 0,
       wallet: <HDWallet>{},
-      receiveAddress: ''
+      receiveAddress: '',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -227,10 +227,10 @@ describe('cowBuildTrade', () => {
             buyAmount: '14501811818247595090576',
             feeAmount: '14557942658757988',
             sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20'
-          }
-        }
-      })
+            buyTokenBalance: 'erc20',
+          },
+        },
+      }),
     )
 
     const trade = await cowBuildTrade(deps, tradeInput)
@@ -238,7 +238,7 @@ describe('cowBuildTrade', () => {
     expect(trade).toEqual(expectedTradeWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
-      expectedApiInputWethToFox
+      expectedApiInputWethToFox,
     )
   })
 
@@ -251,7 +251,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       sellAssetAccountNumber: 0,
       wallet: <HDWallet>{},
-      receiveAddress: ''
+      receiveAddress: '',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -264,10 +264,10 @@ describe('cowBuildTrade', () => {
             buyAmount: '19136098853078932263',
             feeAmount: '17238',
             sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20'
-          }
-        }
-      })
+            buyTokenBalance: 'erc20',
+          },
+        },
+      }),
     )
 
     const trade = await cowBuildTrade(deps, tradeInput)
@@ -275,7 +275,7 @@ describe('cowBuildTrade', () => {
     expect(trade).toEqual(expectedTradeQuoteWbtcToWethWithApprovalFee)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
-      expectedApiInputWbtcToWeth
+      expectedApiInputWbtcToWeth,
     )
   })
 
@@ -288,7 +288,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       sellAssetAccountNumber: 0,
       wallet: <HDWallet>{},
-      receiveAddress: ''
+      receiveAddress: '',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -301,10 +301,10 @@ describe('cowBuildTrade', () => {
             buyAmount: '46868859830863283',
             feeAmount: '61804771879693983744',
             sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20'
-          }
-        }
-      })
+            buyTokenBalance: 'erc20',
+          },
+        },
+      }),
     )
 
     const trade = await cowBuildTrade(deps, tradeInput)
@@ -312,7 +312,7 @@ describe('cowBuildTrade', () => {
     expect(trade).toEqual(expectedTradeQuoteFoxToEth)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
-      expectedApiInputFoxToEth
+      expectedApiInputFoxToEth,
     )
   })
 })

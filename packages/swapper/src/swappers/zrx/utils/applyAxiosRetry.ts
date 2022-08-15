@@ -5,7 +5,7 @@ type PartialRaxConfig = { raxConfig?: RetryConfig } & AxiosRequestConfig
 
 export function applyAxiosRetry(
   instance: AxiosInstance,
-  options?: Omit<RetryConfig, 'instance'>
+  options?: Omit<RetryConfig, 'instance'>,
 ): AxiosInstance {
   instance.interceptors.request.use((config: PartialRaxConfig) => {
     config.raxConfig = config.raxConfig || { instance, ...options }

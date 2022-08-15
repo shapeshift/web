@@ -3,7 +3,7 @@ import {
   ApproveInfiniteInput,
   EvmSupportedChainIds,
   SwapError,
-  SwapErrorTypes
+  SwapErrorTypes,
 } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
@@ -14,7 +14,7 @@ import { MAX_ALLOWANCE } from '../utils/constants'
 const grantAllowanceForAmount = async <T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<T>,
-  approvalAmount: string
+  approvalAmount: string,
 ) => {
   const approvalQuote = {
     ...quote,
@@ -25,22 +25,22 @@ const grantAllowanceForAmount = async <T extends EvmSupportedChainIds>(
         ...quote.feeData.chainSpecific,
         // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
         // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-        estimatedGas: APPROVAL_GAS_LIMIT
-      }
-    }
+        estimatedGas: APPROVAL_GAS_LIMIT,
+      },
+    },
   }
   return await grantAllowance<T>({
     quote: approvalQuote,
     wallet,
     adapter,
     erc20Abi,
-    web3
+    web3,
   })
 }
 
 export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
   deps: ZrxSwapperDeps,
-  args: ApproveAmountInput<T>
+  args: ApproveAmountInput<T>,
 ) {
   try {
     const sellAmount = args.quote.sellAmount
@@ -51,14 +51,14 @@ export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveAmount]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_AMOUNT_FAILED
+      code: SwapErrorTypes.APPROVE_AMOUNT_FAILED,
     })
   }
 }
 
 export async function zrxApproveInfinite<T extends EvmSupportedChainIds>(
   deps: ZrxSwapperDeps,
-  args: ApproveInfiniteInput<T>
+  args: ApproveInfiniteInput<T>,
 ) {
   try {
     return grantAllowanceForAmount(deps, args, MAX_ALLOWANCE)
@@ -66,7 +66,7 @@ export async function zrxApproveInfinite<T extends EvmSupportedChainIds>(
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_INFINITE_FAILED
+      code: SwapErrorTypes.APPROVE_INFINITE_FAILED,
     })
   }
 }

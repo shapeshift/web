@@ -17,7 +17,7 @@ const vault1: Vault = {
   tokenId: '0x5B3b5DF2BF2B6543f78e053bD91C4Bdd820929f1',
   underlyingTokenBalance: {
     amount: '1030180223839058491274',
-    amountUsdc: '1054861281'
+    amountUsdc: '1054861281',
   },
   metadata: {
     symbol: 'yvCurve-USDM',
@@ -38,7 +38,7 @@ const vault1: Vault = {
         withdrawal: null,
         management: 0.02,
         keep_crv: 0.1,
-        cvx_keep_crv: 0.1
+        cvx_keep_crv: 0.1,
       },
       points: null,
       composite: {
@@ -47,8 +47,8 @@ const vault1: Vault = {
         boosted_apr: 2.0610936247140685,
         base_apr: 0.8244374498856274,
         cvx_apr: 3.0709986361156054,
-        rewards_apr: 0
-      }
+        rewards_apr: 0,
+      },
     },
     displayIcon:
       'https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x5B3b5DF2BF2B6543f78e053bD91C4Bdd820929f1/logo-128.png',
@@ -59,8 +59,8 @@ const vault1: Vault = {
     allowZapIn: true,
     allowZapOut: true,
     hideIfNoDeposits: true,
-    historicEarnings: []
-  }
+    historicEarnings: [],
+  },
 }
 const vault2: Vault = {
   address: '0x19D3364A399d251E894aC732651be8B0E4e85001',
@@ -73,7 +73,7 @@ const vault2: Vault = {
   tokenId: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   underlyingTokenBalance: {
     amount: '3748145514430272688316652',
-    amountUsdc: '3750090801952'
+    amountUsdc: '3750090801952',
   },
   metadata: {
     symbol: 'yvDAI',
@@ -94,14 +94,14 @@ const vault2: Vault = {
         withdrawal: null,
         management: 0,
         keep_crv: null,
-        cvx_keep_crv: null
+        cvx_keep_crv: null,
       },
       points: {
         week_ago: 0,
         month_ago: 0.029529435816609828,
-        inception: 0.09280211858887322
+        inception: 0.09280211858887322,
       },
-      composite: null
+      composite: null,
     },
     displayIcon:
       'https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo-128.png',
@@ -121,12 +121,12 @@ const vault2: Vault = {
           address: '0x3D6532c589A11117a4494d9725bb8518C731f1Be',
           name: 'Routeryvdai043',
           description: "I don't have a description for this strategy yet",
-          protocols: []
-        }
-      ]
+          protocols: [],
+        },
+      ],
     },
-    historicEarnings: []
-  }
+    historicEarnings: [],
+  },
 }
 
 const vault3: Vault = {
@@ -140,7 +140,7 @@ const vault3: Vault = {
   tokenId: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
   underlyingTokenBalance: {
     amount: '10858852',
-    amountUsdc: '5318743893'
+    amountUsdc: '5318743893',
   },
   metadata: {
     symbol: 'yvWBTC',
@@ -161,14 +161,14 @@ const vault3: Vault = {
         withdrawal: null,
         management: 0.02,
         keep_crv: null,
-        cvx_keep_crv: null
+        cvx_keep_crv: null,
       },
       points: {
         week_ago: 0,
         month_ago: 0,
-        inception: 0.004031979987010104
+        inception: 0.004031979987010104,
       },
-      composite: null
+      composite: null,
     },
     displayIcon:
       'https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo-128.png',
@@ -181,14 +181,14 @@ const vault3: Vault = {
     migrationContract: '0x1824df8D751704FA10FA371d62A37f9B8772ab90',
     migrationTargetVault: '0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E',
     hideIfNoDeposits: true,
-    historicEarnings: []
-  }
+    historicEarnings: [],
+  },
 }
 
 jest.mock('fs', () => ({
   promises: {
-    writeFile: jest.fn(async () => undefined)
-  }
+    writeFile: jest.fn(async () => undefined),
+  },
 }))
 
 describe('adapters:yearn:utils', () => {
@@ -198,7 +198,7 @@ describe('adapters:yearn:utils', () => {
       const expected = {
         [`eip155:1/erc20:${toLower(vault1.address)}`]: vault1.address,
         [`eip155:1/erc20:${toLower(vault2.address)}`]: vault2.address,
-        [`eip155:1/erc20:${toLower(vault3.address)}`]: vault3.address
+        [`eip155:1/erc20:${toLower(vault3.address)}`]: vault3.address,
       }
       expect(result).toEqual(expected)
     })
@@ -209,15 +209,15 @@ describe('adapters:yearn:utils', () => {
       const data = {
         foo: {
           assetIdAbc: 'bitcorn',
-          assetIdDef: 'efferium'
-        }
+          assetIdDef: 'efferium',
+        },
       }
       const fooAssetIds = JSON.stringify(data.foo)
       console.info = jest.fn()
       await writeFiles(data)
       expect(realFs.promises.writeFile).toBeCalledWith(
         './src/adapters/yearn/generated/foo/adapter.json',
-        fooAssetIds
+        fooAssetIds,
       )
       expect(console.info).toBeCalledWith('Generated Yearn AssetId adapter data.')
     })

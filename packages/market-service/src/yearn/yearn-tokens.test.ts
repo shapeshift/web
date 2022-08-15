@@ -9,18 +9,18 @@ const mockedYearnSdk = jest.fn(() => ({
   vaults: {
     tokens: jest.fn(() => {
       return Promise.resolve(mockYearnTokenRestData)
-    })
+    }),
   },
   ironBank: {
     tokens: jest.fn(() => {
       return Promise.resolve(mockYearnTokenRestData)
-    })
+    }),
   },
   tokens: {
     supported: jest.fn(() => {
       return Promise.resolve(mockYearnTokenRestData)
-    })
-  }
+    }),
+  },
 }))()
 
 // @ts-ignore
@@ -71,13 +71,13 @@ describe('yearn token market service', () => {
         chainNamespace: CHAIN_NAMESPACE.Ethereum,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
-        assetReference: mockYearnTokenRestData[0].address.toLowerCase()
+        assetReference: mockYearnTokenRestData[0].address.toLowerCase(),
       })
       const yvDaiAssetId = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Ethereum,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
-        assetReference: mockYearnTokenRestData[1].address.toLowerCase()
+        assetReference: mockYearnTokenRestData[1].address.toLowerCase(),
       })
       const [yvBtcKey, yvDaiKey] = Object.keys(result)
       expect(yvDaiKey).toEqual(yvDaiAssetId)
@@ -87,14 +87,14 @@ describe('yearn token market service', () => {
 
   describe('findByAssetId', () => {
     const args = {
-      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
+      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
     }
     it('should return market data for yvDai', async () => {
       const result = {
         price: '0.99',
         marketCap: '0',
         changePercent24Hr: 0,
-        volume: '0'
+        volume: '0',
       }
       expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(result)
     })

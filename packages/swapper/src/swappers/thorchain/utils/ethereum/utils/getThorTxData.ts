@@ -31,14 +31,14 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   sellAmount,
   slippageTolerance,
   destinationAddress,
-  tradeFee
+  tradeFee,
 }) => {
   try {
     const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
 
     const isErc20Trade = assetNamespace === 'erc20'
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-      `${deps.midgardUrl}/thorchain/inbound_addresses`
+      `${deps.midgardUrl}/thorchain/inbound_addresses`,
     )
 
     const ethInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'ETH')
@@ -49,7 +49,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     if (!vault || !router)
       throw new SwapError(`[getPriceRatio]: router or vault found for ETH`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { inboundAddresses }
+        details: { inboundAddresses },
       })
 
     const limit = await getLimit({
@@ -60,26 +60,26 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       buyAsset,
       slippageTolerance,
       deps,
-      tradeFee
+      tradeFee,
     })
 
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
-      limit
+      limit,
     })
     const data = await deposit(
       router,
       vault,
       isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
       sellAmount,
-      memo
+      memo,
     )
 
     return {
       data,
       memo,
-      router
+      router,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

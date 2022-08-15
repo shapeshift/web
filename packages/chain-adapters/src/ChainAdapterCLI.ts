@@ -16,50 +16,50 @@ const btcChainAdapter = new BitcoinChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.bitcoin.Tx>('wss://dev-api.bitcoin.shapeshift.com'),
     http: new unchained.bitcoin.V1Api(
-      new unchained.bitcoin.Configuration({ basePath: 'https://dev-api.bitcoin.shapeshift.com' })
-    )
+      new unchained.bitcoin.Configuration({ basePath: 'https://dev-api.bitcoin.shapeshift.com' }),
+    ),
   },
-  coinName: 'Bitcoin'
+  coinName: 'Bitcoin',
 })
 
 const dogeChainAdapter = new DogecoinChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.dogecoin.Tx>('wss://dev-api.dogecoin.shapeshift.com'),
     http: new unchained.dogecoin.V1Api(
-      new unchained.dogecoin.Configuration({ basePath: 'https://dev-api.dogecoin.shapeshift.com' })
-    )
+      new unchained.dogecoin.Configuration({ basePath: 'https://dev-api.dogecoin.shapeshift.com' }),
+    ),
   },
-  coinName: 'Dogecoin'
+  coinName: 'Dogecoin',
 })
 
 const ethChainAdapter = new EthereumChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.ethereum.Tx>('wss://dev-api.ethereum.shapeshift.com'),
     http: new unchained.ethereum.V1Api(
-      new unchained.ethereum.Configuration({ basePath: 'https://dev-api.ethereum.shapeshift.com' })
-    )
+      new unchained.ethereum.Configuration({ basePath: 'https://dev-api.ethereum.shapeshift.com' }),
+    ),
   },
-  rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
+  rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57',
 })
 
 const cosmosChainAdapter = new CosmosChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.cosmos.Tx>('wss://dev-api.cosmos.shapeshift.com'),
     http: new unchained.cosmos.V1Api(
-      new unchained.cosmos.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' })
-    )
+      new unchained.cosmos.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' }),
+    ),
   },
-  coinName: 'Cosmos'
+  coinName: 'Cosmos',
 })
 
 const osmosisChainAdapter = new OsmosisChainAdapter({
   providers: {
     ws: new unchained.ws.Client<unchained.osmosis.Tx>('wss://dev-api.ethereum.shapeshift.com'),
     http: new unchained.osmosis.V1Api(
-      new unchained.osmosis.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' })
-    )
+      new unchained.osmosis.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' }),
+    ),
   },
-  coinName: 'Osmosis'
+  coinName: 'Osmosis',
 })
 
 const adapters = {
@@ -67,13 +67,13 @@ const adapters = {
   doge: dogeChainAdapter,
   eth: ethChainAdapter,
   cosmos: cosmosChainAdapter,
-  osmo: osmosisChainAdapter
+  osmo: osmosisChainAdapter,
 } as const
 
 const getWallet = async (): Promise<NativeHDWallet> => {
   const nativeAdapterArgs: NativeAdapterArgs = {
     mnemonic: process.env.CLI_MNEMONIC,
-    deviceId: 'test'
+    deviceId: 'test',
   }
   const wallet = new NativeHDWallet(nativeAdapterArgs)
   await wallet.initialize()
@@ -89,13 +89,13 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
     coinType: 0,
     accountNumber: 0,
     isChange: false,
-    index: 10
+    index: 10,
   }
 
   const address = await chainAdapter.getAddress({
     wallet,
     bip44Params,
-    accountType: UtxoAccountType.SegwitNative
+    accountType: UtxoAccountType.SegwitNative,
   })
   console.log('bitcoin: address:', address)
 
@@ -108,7 +108,7 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
   await chainAdapter.subscribeTxs(
     { wallet, bip44Params, accountType: UtxoAccountType.SegwitNative },
     (msg) => console.log('bitcoin: tx:', msg),
-    (err) => console.log(err)
+    (err) => console.log(err),
   )
 
   try {
@@ -117,7 +117,7 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
       value: '400',
       wallet,
       bip44Params,
-      chainSpecific: { accountType: UtxoAccountType.SegwitNative, satoshiPerByte: '4' }
+      chainSpecific: { accountType: UtxoAccountType.SegwitNative, satoshiPerByte: '4' },
     })
 
     const signedTx = await chainAdapter.signTransaction({ wallet, txToSign: unsignedTx.txToSign })
@@ -149,7 +149,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
   await chainAdapter.subscribeTxs(
     { wallet, bip44Params },
     (msg) => console.log('ethereum: tx:', msg),
-    (err) => console.log(err)
+    (err) => console.log(err),
   )
 
   try {
@@ -158,8 +158,8 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       value: '123',
       chainSpecific: {
         from: '0x0000000000000000000000000000000000000000',
-        contractData: '0x'
-      }
+        contractData: '0x',
+      },
     })
     console.log('ethereum: feeData', feeData)
   } catch (err) {
@@ -173,7 +173,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       value: '1',
       wallet,
       bip44Params,
-      chainSpecific: { gasPrice: '0', gasLimit: '0' }
+      chainSpecific: { gasPrice: '0', gasLimit: '0' },
     })
 
     //const unsignedTx = await chainAdapter.buildSendTransaction({
@@ -190,7 +190,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
 
     const signedTx = await chainAdapter.signTransaction({
       wallet,
-      txToSign: unsignedTx.txToSign
+      txToSign: unsignedTx.txToSign,
     })
     console.log('ethereum: signedTx:', signedTx)
 
@@ -207,8 +207,8 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       wallet,
       messageToSign: {
         message: 'Hello world 222',
-        addressNList: [2147483692, 2147483708, 2147483648, 0, 0]
-      }
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+      },
     })
     console.log('ethereum: signedMessage', signedMessage)
   } catch (err) {
@@ -231,14 +231,14 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('cosmos: txHistory:', txHistory)
 
   const shapeshiftValidator = await chainAdapter.getValidator(
-    'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+    'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
   )
   console.log('cosmos: shapeshiftValidator:', shapeshiftValidator)
 
   await chainAdapter.subscribeTxs(
     { wallet, bip44Params },
     (msg) => console.log('cosmos: tx:', msg),
-    (err) => console.log(err)
+    (err) => console.log(err),
   )
 
   // send cosmos example
@@ -252,7 +252,7 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
       value: '99000',
       wallet,
       bip44Params,
-      chainSpecific: { gas, fee }
+      chainSpecific: { gas, fee },
     })
 
     //const unsignedTx = await chainAdapter.buildClaimRewardsTransaction({
@@ -276,7 +276,7 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
     if (broadcast) {
       const txid = await chainAdapter.signAndBroadcastTransaction({
         wallet,
-        txToSign: unsignedTx.txToSign
+        txToSign: unsignedTx.txToSign,
       })
       console.log('cosmos: txid:', txid)
     }

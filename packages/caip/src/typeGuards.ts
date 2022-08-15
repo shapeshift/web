@@ -4,27 +4,27 @@ import {
   ASSET_NAMESPACE_STRINGS,
   ASSET_REFERENCE,
   CHAIN_NAMESPACE,
-  CHAIN_REFERENCE
+  CHAIN_REFERENCE,
 } from './constants'
 import { isValidChainPartsPair, parseAssetIdRegExp } from './utils'
 
 export const isChainNamespace = (
-  maybeChainNamespace: ChainNamespace | string
+  maybeChainNamespace: ChainNamespace | string,
 ): maybeChainNamespace is ChainNamespace =>
   Object.values(CHAIN_NAMESPACE).some((s) => s === maybeChainNamespace)
 
 export const isChainReference = (
-  maybeChainReference: ChainReference | string
+  maybeChainReference: ChainReference | string,
 ): maybeChainReference is ChainReference =>
   Object.values(CHAIN_REFERENCE).some((s) => s === maybeChainReference)
 
 export const isAssetNamespace = (
-  maybeAssetNamespace: AssetNamespace | string
+  maybeAssetNamespace: AssetNamespace | string,
 ): maybeAssetNamespace is AssetNamespace =>
   ASSET_NAMESPACE_STRINGS.some((s) => s === maybeAssetNamespace)
 
 export const isAssetReference = (
-  maybeAssetReference: AssetReference | string
+  maybeAssetReference: AssetReference | string,
 ): maybeAssetReference is AssetReference =>
   Object.values(ASSET_REFERENCE).some((s) => s === maybeAssetReference)
 
@@ -52,7 +52,7 @@ export const isChainId = (maybeChainId: ChainId | string): maybeChainId is Chain
 
 const getTypeGuardAssertion = <T>(
   typeGuard: (maybeT: T | string) => maybeT is T,
-  message: string
+  message: string,
 ) => {
   return (value: T | string | undefined): asserts value is T => {
     if ((value && !typeGuard(value)) || !value) throw new Error(`${message}: ${value}`)
@@ -63,39 +63,39 @@ export const assertIsChainId: (value: ChainId | string | undefined) => asserts v
   getTypeGuardAssertion(isChainId, 'assertIsChainId: unsupported ChainId')
 
 export const assertIsChainNamespace: (
-  value: ChainNamespace | string | undefined
+  value: ChainNamespace | string | undefined,
 ) => asserts value is ChainNamespace = getTypeGuardAssertion(
   isChainNamespace,
-  'assertIsChainNamespace: unsupported ChainNamespace'
+  'assertIsChainNamespace: unsupported ChainNamespace',
 )
 
 export const assertIsChainReference: (
-  value: ChainReference | string | undefined
+  value: ChainReference | string | undefined,
 ) => asserts value is ChainReference = getTypeGuardAssertion(
   isChainReference,
-  'assertIsChainReference: unsupported ChainReference'
+  'assertIsChainReference: unsupported ChainReference',
 )
 
 export const assertIsAssetNamespace: (
-  value: AssetNamespace | string | undefined
+  value: AssetNamespace | string | undefined,
 ) => asserts value is AssetNamespace = getTypeGuardAssertion(
   isAssetNamespace,
-  'assertIsAssetNamespace: unsupported AssetNamespace'
+  'assertIsAssetNamespace: unsupported AssetNamespace',
 )
 
 export const assertIsAssetReference: (
-  value: AssetReference | string | undefined
+  value: AssetReference | string | undefined,
 ) => asserts value is AssetReference = getTypeGuardAssertion(
   isAssetReference,
-  'assertIsAssetReference: unsupported AssetReference'
+  'assertIsAssetReference: unsupported AssetReference',
 )
 
 export const assertValidChainPartsPair = (
   chainNamespace: ChainNamespace,
-  chainReference: ChainReference
+  chainReference: ChainReference,
 ) => {
   if (!isValidChainPartsPair(chainNamespace, chainReference))
     throw new Error(
-      `toAssetId: Chain Reference ${chainReference} not supported for Chain Namespace ${chainNamespace}`
+      `toAssetId: Chain Reference ${chainReference} not supported for Chain Namespace ${chainNamespace}`,
     )
 }

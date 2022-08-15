@@ -59,10 +59,10 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
 export const parseData = (d: OsmosisCoin[]) => {
   const osmosisMainnet = toChainId({
     chainNamespace: CHAIN_NAMESPACE.Cosmos,
-    chainReference: CHAIN_REFERENCE.OsmosisMainnet
+    chainReference: CHAIN_REFERENCE.OsmosisMainnet,
   })
 
   return {
-    [osmosisMainnet]: parseOsmosisData(d)
+    [osmosisMainnet]: parseOsmosisData(d),
   }
 }

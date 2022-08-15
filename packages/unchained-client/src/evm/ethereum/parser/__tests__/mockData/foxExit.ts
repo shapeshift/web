@@ -25,7 +25,7 @@ const foxExit = {
       type: 'ERC20',
       from: UNI_V2_FOX_STAKING_REWARDS_V3,
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '531053586030903030'
+      value: '531053586030903030',
     },
     {
       contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
@@ -35,12 +35,12 @@ const foxExit = {
       type: 'ERC20',
       from: UNI_V2_FOX_STAKING_REWARDS_V3,
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '317669338073988'
-    }
-  ]
+      value: '317669338073988',
+    },
+  ],
 }
 
 export default {
   tx: foxExit,
-  txMempool: mempoolMock(foxExit)
+  txMempool: mempoolMock(foxExit),
 }

@@ -14,7 +14,7 @@ const idleSdk = new IdleSdk()
 const explorerData = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
-  explorerTxLink: ethereum.explorerTxLink
+  explorerTxLink: ethereum.explorerTxLink,
 }
 
 const getIdleVaults = async (): Promise<Asset[]> => {
@@ -32,7 +32,7 @@ const getIdleVaults = async (): Promise<Asset[]> => {
       tokenId: toLower(vault.address),
       chainId,
       assetId,
-      ...explorerData
+      ...explorerData,
     }
   })
 }
@@ -44,7 +44,7 @@ const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
     const assetId = toAssetId({
       chainId,
       assetNamespace: 'erc20',
-      assetReference: vault.underlyingAddress
+      assetReference: vault.underlyingAddress,
     })
 
     return {
@@ -55,7 +55,7 @@ const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       precision: Number(18),
       symbol: vault.tokenName,
       chainId,
-      assetId
+      assetId,
     }
   })
 }
@@ -63,7 +63,7 @@ const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
 export const getIdleTokens = async (): Promise<Asset[]> => {
   const [idleVaults, underlyingVaultTokens] = await Promise.all([
     getIdleVaults(),
-    getUnderlyingVaultTokens()
+    getUnderlyingVaultTokens(),
   ])
 
   return [...idleVaults, ...underlyingVaultTokens]

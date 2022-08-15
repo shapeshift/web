@@ -27,7 +27,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       confirmations: tx.confirmations,
       status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending,
       transfers: [],
-      txid: tx.txid
+      txid: tx.txid,
     }
 
     tx.vin.forEach((vin) => {
@@ -41,7 +41,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
             this.assetId,
             vin.addresses?.[0] ?? '',
             tx.vout[0].addresses?.[0] ?? '',
-            sendValue.toString(10)
+            sendValue.toString(10),
           )
         }
 
@@ -64,7 +64,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
             this.assetId,
             tx.vin[0].addresses?.[0] ?? '',
             vout.addresses?.[0] ?? '',
-            receiveValue.toString(10)
+            receiveValue.toString(10),
           )
         }
       }

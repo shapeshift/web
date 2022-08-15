@@ -39,7 +39,7 @@ const paintPixel = (pngObj: any, x: number, y: number, color: [number, number, n
 const getRenderedIdenticonPNG = (
   tokenId: string,
   text?: string,
-  options?: IdenticonOptions
+  options?: IdenticonOptions,
   // any is used here since a library without typings is used (identicon.js).
   // However, all functions that involved `any` are used internally (without export).
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -52,7 +52,7 @@ const getRenderedIdenticonPNG = (
       background: options?.identiconImage?.background || [240, 240, 240, 255],
       saturation: options?.identiconImage?.saturation || 0.7,
       brightness: options?.identiconImage?.brightness || 0.5,
-      format: 'png'
+      format: 'png',
     },
     identiconText: {
       textColor: options?.identiconText?.textColor || [255, 255, 255, 255],
@@ -61,15 +61,15 @@ const getRenderedIdenticonPNG = (
         options?.identiconText?.symbolScale ||
         Math.floor((options?.identiconImage?.size || 128) / (6 * (text?.length || 3))),
       enableShadow: options?.identiconText?.enableShadow || false,
-      shadowColor: options?.identiconText?.shadowColor || [0, 0, 0, 255]
-    }
+      shadowColor: options?.identiconText?.shadowColor || [0, 0, 0, 255],
+    },
   }
 
   // In order to additionally render text, we acquire PNGLib object here which has some convenient png operator.
   // https://github.com/stewartlord/identicon.js/blob/master/pnglib.js
   const identiconImage = new Identicon(
     tokenId?.substring(2),
-    identiconOptions.identiconImage
+    identiconOptions.identiconImage,
   ).render()
 
   // we just return if no symbol
@@ -87,12 +87,12 @@ const getRenderedIdenticonPNG = (
   const offsetX = Math.round(
     (identiconOptions.identiconImage.size -
       pixelSymbolWidth * identiconOptions.identiconText.symbolScale) /
-      2
+      2,
   )
   const offsetY = Math.round(
     (identiconOptions.identiconImage.size -
       pixelSymbolHeight * identiconOptions.identiconText.symbolScale) /
-      2
+      2,
   )
   // render pixel text
   for (let x = 0; x < identiconOptions.identiconImage.size; x++) {
@@ -117,7 +117,7 @@ const getRenderedIdenticonPNG = (
 export const getRenderedIdenticonBase64 = (
   tokenId: string,
   text?: string,
-  options?: IdenticonOptions
+  options?: IdenticonOptions,
 ): string => {
   return identiconPNGtoBase64(getRenderedIdenticonPNG(tokenId, text, options))
 }

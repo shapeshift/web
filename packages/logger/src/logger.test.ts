@@ -9,7 +9,7 @@ describe('Logger', () => {
       (dateSpy = jest
         .spyOn(Date.prototype, 'toISOString')
         // We need to mock toISOString so the logs will be the same every run
-        .mockImplementation(() => '2020-01-01T00:00:00Z'))
+        .mockImplementation(() => '2020-01-01T00:00:00Z')),
   )
   afterAll(() => dateSpy.mockRestore())
 
@@ -19,13 +19,13 @@ describe('Logger', () => {
       expect(() => {
         logger = new Logger({
           name: 'testLogger',
-          level: LogLevel.TRACE
+          level: LogLevel.TRACE,
         })
       }).not.toThrow()
       const expected = expect.objectContaining({
         info: expect.any(Function),
         trace: expect.any(Function),
-        debug: expect.any(Function)
+        debug: expect.any(Function),
       })
       expect(logger).toEqual(expected)
     })
@@ -42,7 +42,7 @@ describe('Logger', () => {
       const logger = new Logger({ namespace: ['testLogger', 'child'] })
       logger.info('test')
       expect(console.info).toHaveBeenCalledWith(
-        expect.stringMatching('namespace":"testLogger:child"')
+        expect.stringMatching('namespace":"testLogger:child"'),
       )
     })
 
@@ -51,7 +51,7 @@ describe('Logger', () => {
       const logger = new Logger({ namespace: ['testLogger', 'child'], name: 'child2' })
       logger.info('test')
       expect(spy).toHaveBeenCalledWith(
-        expect.stringMatching('namespace":"testLogger:child:child2"')
+        expect.stringMatching('namespace":"testLogger:child:child2"'),
       )
       spy.mockRestore()
     })
@@ -92,7 +92,7 @@ describe('Logger', () => {
       const logger = new Logger()
       logger.info('test')
       expect(spy).toHaveBeenCalledWith(
-        '{"message":"test","timestamp":"2020-01-01T00:00:00Z","status":"info"}'
+        '{"message":"test","timestamp":"2020-01-01T00:00:00Z","status":"info"}',
       )
       spy.mockRestore()
     })
@@ -123,16 +123,16 @@ describe('Logger', () => {
       it.each([
         [
           [message],
-          '{"default":true,"message":"app listening on port 3000","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}'
+          '{"default":true,"message":"app listening on port 3000","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}',
         ],
         [
           [data, message],
-          '{"default":true,"id":3,"message":"app listening on port 3000","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}'
+          '{"default":true,"id":3,"message":"app listening on port 3000","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}',
         ],
         [
           [error, data, message],
-          /"default":true,"error":{"message":"Oh no! Something went wrong.","stack":"Error: Oh no! Something went wrong\..*"timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}/
-        ]
+          /"default":true,"error":{"message":"Oh no! Something went wrong.","stack":"Error: Oh no! Something went wrong\..*"timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}/,
+        ],
       ])('should print the formatted log', (x, expected) => {
         const spy = jest.spyOn(console, 'info').mockReturnValue(undefined)
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -218,7 +218,7 @@ describe('Logger', () => {
         const spy = jest.spyOn(console, 'debug').mockReturnValue(undefined)
         logger.trace({ foo: 'bar' }, 'message')
         expect(spy).toHaveBeenCalledWith(
-          '{"default":true,"foo":"bar","message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"trace"}'
+          '{"default":true,"foo":"bar","message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"trace"}',
         )
         spy.mockRestore()
       })
@@ -238,7 +238,7 @@ describe('Logger', () => {
           // @ts-ignore
           logger[level]({ foo: 'bar' }, 'message')
           expect(spy).toHaveBeenCalledWith(
-            `{"default":true,"foo":"bar","message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"${level}"}`
+            `{"default":true,"foo":"bar","message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"${level}"}`,
           )
           spy.mockRestore()
         })
@@ -247,7 +247,7 @@ describe('Logger', () => {
           // @ts-ignore
           expect(() => logger[level]([])).toThrowError(Error)
         })
-      }
+      },
     )
 
     it('should allow for multiple string arguments', () => {
@@ -255,7 +255,7 @@ describe('Logger', () => {
       // @ts-ignore - this test is for when we expect an Error but get a string, maybe in a JS project
       logger.info('some unexpected error as a string', 'another', 'message')
       expect(spy).toHaveBeenCalledWith(
-        '{"default":true,"message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info","_messages":["some unexpected error as a string","another","message"]}'
+        '{"default":true,"message":"message","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info","_messages":["some unexpected error as a string","another","message"]}',
       )
       spy.mockRestore()
     })

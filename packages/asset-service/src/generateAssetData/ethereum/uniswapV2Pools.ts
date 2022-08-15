@@ -18,7 +18,7 @@ export const getUniswapV2Pools = (): Asset[] => {
     symbol: 'UNI-V2-FOX-WETH',
     explorer: ethereum.explorer,
     explorerAddressLink: ethereum.explorerAddressLink,
-    explorerTxLink: ethereum.explorerTxLink
+    explorerTxLink: ethereum.explorerTxLink,
   }
 
   return [foxWeth]

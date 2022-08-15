@@ -22,7 +22,7 @@ import {
   MAX_ALLOWANCE,
   tokeManagerAddress,
   tokePoolAddress,
-  tokeRewardHashAddress
+  tokeRewardHashAddress,
 } from '../constants'
 import { bn, bnOrZero, buildTxToSign } from '../utils'
 import {
@@ -49,7 +49,7 @@ import {
   TxReceipt,
   WithdrawEstimateGasInput,
   WithdrawInfo,
-  WithdrawInput
+  WithdrawInput,
 } from './foxy-types'
 
 export * from './foxy-types'
@@ -77,7 +77,7 @@ export const transformData = ({ tvl, apy, expired, ...contractData }: FoxyOpport
     chain: KnownChainIds.EthereumMainnet,
     tvl,
     apy,
-    expired
+    expired,
   }
 }
 
@@ -98,17 +98,17 @@ export class FoxyApi {
     adapter,
     providerUrl,
     foxyAddresses,
-    chainReference = CHAIN_REFERENCE.EthereumMainnet
+    chainReference = CHAIN_REFERENCE.EthereumMainnet,
   }: ConstructorArgs) {
     this.adapter = adapter
     this.provider = new Web3.providers.HttpProvider(providerUrl)
     this.jsonRpcProvider = new JsonRpcProvider(providerUrl)
     this.web3 = new Web3(this.provider)
     this.foxyStakingContracts = foxyAddresses.map(
-      (addresses) => new this.web3.eth.Contract(foxyStakingAbi, addresses.staking)
+      (addresses) => new this.web3.eth.Contract(foxyStakingAbi, addresses.staking),
     )
     this.liquidityReserveContracts = foxyAddresses.map(
-      (addresses) => new this.web3.eth.Contract(liquidityReserveAbi, addresses.liquidityReserve)
+      (addresses) => new this.web3.eth.Contract(liquidityReserveAbi, addresses.liquidityReserve),
     )
     this.ethereumChainReference = chainReference
     this.providerUrl = providerUrl
@@ -165,7 +165,7 @@ export class FoxyApi {
 
   private getStakingContract(contractAddress: string): Contract {
     const stakingContract = this.foxyStakingContracts.find(
-      (item) => toLower(item.options.address) === toLower(contractAddress)
+      (item) => toLower(item.options.address) === toLower(contractAddress),
     )
     if (!stakingContract) throw new Error('Not a valid contract address')
     return stakingContract
@@ -173,7 +173,7 @@ export class FoxyApi {
 
   private getLiquidityReserveContract(liquidityReserveAddress: string): Contract {
     const liquidityReserveContract = this.liquidityReserveContracts.find(
-      (item) => toLower(item.options.address) === toLower(liquidityReserveAddress)
+      (item) => toLower(item.options.address) === toLower(liquidityReserveAddress),
     )
     if (!liquidityReserveContract) throw new Error('Not a valid reserve contract address')
     return liquidityReserveContract
@@ -200,7 +200,7 @@ export class FoxyApi {
       const opportunities = await Promise.all(
         this.foxyAddresses.map(async (addresses) => {
           const stakingContract = this.foxyStakingContracts.find(
-            (item) => toLower(item.options.address) === toLower(addresses.staking)
+            (item) => toLower(item.options.address) === toLower(addresses.staking),
           )
           try {
             const expired = await stakingContract?.methods.pauseStaking().call()
@@ -210,7 +210,7 @@ export class FoxyApi {
           } catch (e) {
             throw new Error(`Failed to get contract data ${e}`)
           }
-        })
+        }),
       )
       return opportunities
     } catch (e) {
@@ -256,7 +256,7 @@ export class FoxyApi {
 
     try {
       const estimatedGas = await stakingContract.methods.claimWithdraw(addressToClaim).estimateGas({
-        from: userAddress
+        from: userAddress,
       })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -265,7 +265,7 @@ export class FoxyApi {
   }
 
   async estimateSendWithdrawalRequestsGas(
-    input: TxInputWithoutAmountAndWallet
+    input: TxInputWithoutAmountAndWallet,
   ): Promise<BigNumber> {
     const { userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -274,7 +274,7 @@ export class FoxyApi {
 
     try {
       const estimatedGas = await stakingContract.methods.sendWithdrawalRequests().estimateGas({
-        from: userAddress
+        from: userAddress,
       })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -293,7 +293,7 @@ export class FoxyApi {
       const estimatedGas = await liquidityReserveContract.methods
         .addLiquidity(this.normalizeAmount(amountDesired))
         .estimateGas({
-          from: userAddress
+          from: userAddress,
         })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -312,7 +312,7 @@ export class FoxyApi {
       const estimatedGas = await liquidityReserveContract.methods
         .removeLiquidity(this.normalizeAmount(amountDesired))
         .estimateGas({
-          from: userAddress
+          from: userAddress,
         })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -334,10 +334,10 @@ export class FoxyApi {
         ? await stakingContract.methods
             .unstake(this.normalizeAmount(amountDesired), true)
             .estimateGas({
-              from: userAddress
+              from: userAddress,
             })
         : await stakingContract.methods.instantUnstake(true).estimateGas({
-            from: userAddress
+            from: userAddress,
           })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -355,7 +355,7 @@ export class FoxyApi {
       const estimatedGas = await depositTokenContract.methods
         .approve(contractAddress, MAX_ALLOWANCE)
         .estimateGas({
-          from: userAddress
+          from: userAddress,
         })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -374,7 +374,7 @@ export class FoxyApi {
       const estimatedGas = await stakingContract.methods
         .stake(this.normalizeAmount(amountDesired), userAddress)
         .estimateGas({
-          from: userAddress
+          from: userAddress,
         })
       return bnOrZero(estimatedGas)
     } catch (e) {
@@ -390,7 +390,7 @@ export class FoxyApi {
       tokenContractAddress,
       userAddress,
       wallet,
-      contractAddress
+      contractAddress,
     } = input
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
     if (!wallet) throw new Error('Missing inputs')
@@ -405,7 +405,7 @@ export class FoxyApi {
     const data: string = depositTokenContract.methods
       .approve(contractAddress, amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE)
       .encodeABI({
-        from: userAddress
+        from: userAddress,
       })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -420,7 +420,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: tokenContractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -431,7 +431,7 @@ export class FoxyApi {
 
     const depositTokenContract: Contract = new this.web3.eth.Contract(
       erc20Abi,
-      tokenContractAddress
+      tokenContractAddress,
     )
 
     let allowance
@@ -450,7 +450,7 @@ export class FoxyApi {
       dryRun = false,
       contractAddress,
       userAddress,
-      wallet
+      wallet,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -470,7 +470,7 @@ export class FoxyApi {
       .stake(this.normalizeAmount(amountDesired), userAddress)
       .encodeABI({
         value: 0,
-        from: userChecksum
+        from: userChecksum,
       })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -485,7 +485,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -498,7 +498,7 @@ export class FoxyApi {
       contractAddress,
       userAddress,
       type,
-      wallet
+      wallet,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet) throw new Error('Missing inputs')
@@ -517,10 +517,10 @@ export class FoxyApi {
 
     const data: string = isDelayed
       ? stakingContract.methods.unstake(this.normalizeAmount(amountDesired), true).encodeABI({
-          from: userAddress
+          from: userAddress,
         })
       : stakingContract.methods.instantUnstake(true).encodeABI({
-          from: userAddress
+          from: userAddress,
         })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -535,7 +535,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -551,7 +551,7 @@ export class FoxyApi {
         const coolDown = await stakingContract.methods.coolDownInfo(userAddress).call()
         return {
           ...coolDown,
-          endEpoch: coolDown.expiry
+          endEpoch: coolDown.expiry,
         }
       } catch (e) {
         console.error(`Failed to get coolDowninfo: ${e}`)
@@ -600,7 +600,7 @@ export class FoxyApi {
 
     const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle).lte(currentCycleIndex)
     const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount).plus(
-      withdrawalAmount
+      withdrawalAmount,
     )
     const stakingTokenAvailable = bnOrZero(withdrawalAmount).gte(coolDownInfo.amount)
     const validCycleAndAmount =
@@ -617,7 +617,7 @@ export class FoxyApi {
       contractAddress,
       userAddress,
       claimAddress,
-      wallet
+      wallet,
     } = input
     const addressToClaim = claimAddress ?? userAddress
     this.verifyAddresses([userAddress, contractAddress, addressToClaim])
@@ -636,7 +636,7 @@ export class FoxyApi {
     if (!canClaim) throw new Error('Not ready to claim')
 
     const data: string = stakingContract.methods.claimWithdraw(addressToClaim).encodeABI({
-      from: userAddress
+      from: userAddress,
     })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -651,7 +651,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -746,7 +746,7 @@ export class FoxyApi {
     if (!canSendRequest) throw new Error('Not ready to send request')
 
     const data: string = stakingContract.methods.sendWithdrawalRequests().encodeABI({
-      from: userAddress
+      from: userAddress,
     })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -761,7 +761,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -775,7 +775,7 @@ export class FoxyApi {
       dryRun = false,
       contractAddress,
       userAddress,
-      wallet
+      wallet,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -794,7 +794,7 @@ export class FoxyApi {
     const data: string = liquidityReserveContract.methods
       .addLiquidity(this.normalizeAmount(amountDesired))
       .encodeABI({
-        from: userAddress
+        from: userAddress,
       })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -809,7 +809,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -823,7 +823,7 @@ export class FoxyApi {
       dryRun = false,
       contractAddress,
       userAddress,
-      wallet
+      wallet,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -841,7 +841,7 @@ export class FoxyApi {
     const data: string = liquidityReserveContract.methods
       .removeLiquidity(this.normalizeAmount(amountDesired))
       .encodeABI({
-        from: userAddress
+        from: userAddress,
       })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
@@ -856,7 +856,7 @@ export class FoxyApi {
       gasPrice,
       nonce,
       to: contractAddress,
-      value: '0'
+      value: '0',
     }
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
@@ -873,7 +873,7 @@ export class FoxyApi {
       const coolDown = await stakingContract.methods.coolDownInfo(userAddress).call()
       coolDownInfo = {
         ...coolDown,
-        endEpoch: coolDown.expiry
+        endEpoch: coolDown.expiry,
       }
     } catch (e) {
       throw new Error(`Failed to get coolDowninfo: ${e}`)
@@ -990,7 +990,7 @@ export class FoxyApi {
     }
     return {
       ...coolDownInfo,
-      releaseTime
+      releaseTime,
     }
   }
 
@@ -1015,10 +1015,10 @@ export class FoxyApi {
     try {
       const { latestClaimable } = cycleHashes
       const response = await axios.get<TokeClaimIpfs>(
-        `${TOKE_IPFS_URL}/${latestClaimable}/${contractAddress.toLowerCase()}.json`
+        `${TOKE_IPFS_URL}/${latestClaimable}/${contractAddress.toLowerCase()}.json`,
       )
       const {
-        data: { payload, signature }
+        data: { payload, signature },
       } = response
 
       const v = signature.v
@@ -1028,7 +1028,7 @@ export class FoxyApi {
         v,
         r,
         s,
-        recipient: payload
+        recipient: payload,
       }
     } catch (e) {
       throw new Error(`Failed to get information from Tokemak ipfs ${e}`)
@@ -1047,7 +1047,7 @@ export class FoxyApi {
         const events = (
           await foxyContract.getPastEvents('LogRebase', {
             fromBlock,
-            toBlock: 'latest'
+            toBlock: 'latest',
           })
         ).filter((rebase) => rebase.returnValues.rebase !== '0')
         return events
@@ -1063,7 +1063,7 @@ export class FoxyApi {
       try {
         const events = await foxyContract.getPastEvents('Transfer', {
           fromBlock,
-          toBlock: 'latest'
+          toBlock: 'latest',
         })
         return events
       } catch (e) {
@@ -1075,11 +1075,11 @@ export class FoxyApi {
     const events: RebaseEvent[] = rebaseEvents.map((rebaseEvent) => {
       const {
         blockNumber,
-        returnValues: { epoch }
+        returnValues: { epoch },
       } = rebaseEvent
       return {
         blockNumber,
-        epoch
+        epoch,
       }
     })
 
@@ -1098,13 +1098,13 @@ export class FoxyApi {
             const unstakedTransferInfo = transferEvents?.filter(
               (e) =>
                 e.blockNumber === event.blockNumber &&
-                e.returnValues.from.toLowerCase() === userAddress
+                e.returnValues.from.toLowerCase() === userAddress,
             )
             const unstakedTransferAmount = unstakedTransferInfo?.[0]?.returnValues?.value ?? 0
             const stakedTransferInfo = transferEvents?.filter(
               (e) =>
                 e.blockNumber === event.blockNumber &&
-                e.returnValues.to.toLowerCase() === userAddress
+                e.returnValues.to.toLowerCase() === userAddress,
             )
             const stakedTransferAmount = stakedTransferInfo?.[0]?.returnValues?.value ?? 0
 
@@ -1123,13 +1123,13 @@ export class FoxyApi {
 
             return {
               preRebaseBalance: preRebaseBalanceResult,
-              postRebaseBalance: postRebaseBalanceResult
+              postRebaseBalance: postRebaseBalanceResult,
             }
           } catch (e) {
             console.error(`Failed to get balance of address ${e}`)
             return {
               preRebaseBalance: bn(0).toString(),
-              postRebaseBalance: bn(0).toString()
+              postRebaseBalance: bn(0).toString(),
             }
           }
         })()
@@ -1145,7 +1145,7 @@ export class FoxyApi {
         })()
 
         return { assetId, preRebaseBalance, postRebaseBalance, blockTime }
-      })
+      }),
     )
 
     const actualResults = results.reduce<RebaseHistory[]>((acc, cur) => {
@@ -1161,7 +1161,7 @@ export class FoxyApi {
 
       acc.push({
         balanceDiff,
-        ...cur.value
+        ...cur.value,
       })
       return acc
     }, [])

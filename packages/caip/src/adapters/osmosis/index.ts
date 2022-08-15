@@ -4,7 +4,7 @@ export const osmosisUrl = 'https://api-osmosis.imperator.co/tokens/v2/all'
 
 const generatedAssetIdToOsmosisMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,
-  ...cur
+  ...cur,
 })) as Record<string, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>

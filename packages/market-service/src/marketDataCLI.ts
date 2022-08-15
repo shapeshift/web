@@ -29,8 +29,8 @@ const main = async (): Promise<void> => {
     providerUrls: {
       jsonRpcProviderUrl: '', // REACT_APP_ETHEREUM_NODE_URL
       unchainedEthereumHttpUrl: '', // REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
-      unchainedEthereumWsUrl: '' // REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-    }
+      unchainedEthereumWsUrl: '', // REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+    },
   })
   // const cgMarketService = new CoinGeckoMarketService()
   // const data = await yearnMarketService.findAll()

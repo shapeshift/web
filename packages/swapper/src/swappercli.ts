@@ -18,7 +18,7 @@ const {
   UNCHAINED_WS_API = 'wss://localhost:31300',
   ETH_NODE_URL = 'http://localhost:3000',
   DEVICE_ID = 'device123',
-  MNEMONIC = 'all all all all all all all all all all all all'
+  MNEMONIC = 'all all all all all all all all all all all all',
 } = process.env
 
 const toBaseUnit = (amount: BigNumber | string, precision: number): string => {
@@ -37,7 +37,7 @@ const getWallet = async (): Promise<NativeHDWallet> => {
   }
   const nativeAdapterArgs: NativeAdapterArgs = {
     mnemonic: MNEMONIC,
-    deviceId: DEVICE_ID
+    deviceId: DEVICE_ID,
   }
   const wallet = new NativeHDWallet(nativeAdapterArgs)
   await wallet.initialize()
@@ -82,11 +82,11 @@ const main = async (): Promise<void> => {
       ws: new unchained.ws.Client<unchained.ethereum.Tx>(UNCHAINED_WS_API),
       http: new unchained.ethereum.V1Api(
         new unchained.ethereum.Configuration({
-          basePath: UNCHAINED_HTTP_API
-        })
-      )
+          basePath: UNCHAINED_HTTP_API,
+        }),
+      ),
     },
-    rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57'
+    rpcUrl: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57',
   })
 
   const web3Provider = new Web3.providers.HttpProvider(ETH_NODE_URL)
@@ -98,7 +98,7 @@ const main = async (): Promise<void> => {
   manager.addSwapper(zrxSwapper)
   const swapper = await manager.getBestSwapper({
     sellAssetId: 'eip155:1/slip44:60',
-    buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   })
 
   if (!swapper) return
@@ -114,7 +114,7 @@ const main = async (): Promise<void> => {
       sellAssetAccountNumber: 0,
       sendMax: false,
       receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      wallet
+      wallet,
     })
   } catch (e) {
     console.error(e)
@@ -131,7 +131,7 @@ const main = async (): Promise<void> => {
   const answer = readline.question(
     `Swap ${sellAmount} ${sellAsset.symbol} for ${buyAmount} ${
       buyAsset.symbol
-    } on ${swapper.getType()}? (y/n): `
+    } on ${swapper.getType()}? (y/n): `,
   )
   if (answer === 'y') {
     const trade = await swapper.buildTrade({
@@ -142,7 +142,7 @@ const main = async (): Promise<void> => {
       sellAmount: sellAmountBase,
       sellAsset,
       sellAssetAccountNumber: 0,
-      receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     })
     const txid = await swapper.executeTrade({ trade, wallet })
     console.info('broadcast tx with id: ', txid)

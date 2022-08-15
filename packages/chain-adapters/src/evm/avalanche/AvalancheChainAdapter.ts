@@ -15,7 +15,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.AvalancheC),
-    accountNumber: 0
+    accountNumber: 0,
   }
 
   constructor(args: ChainAdapterArgs) {
@@ -23,13 +23,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
-      ...args
+      ...args,
     })
 
     this.assetId = avalancheAssetId
     this.parser = new unchained.avalanche.TransactionParser({
       chainId: this.chainId,
-      rpcUrl: this.rpcUrl
+      rpcUrl: this.rpcUrl,
     })
   }
 
@@ -51,12 +51,12 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     const normalizationConstants = {
       fast: bn(1.2),
       average: bn(1),
-      slow: bn(0.8)
+      slow: bn(0.8),
     }
 
     const calcFee = (
       fee: string | number | BigNumber,
-      speed: 'slow' | 'average' | 'fast'
+      speed: 'slow' | 'average' | 'fast',
     ): string => {
       return bnOrZero(fee)
         .times(normalizationConstants[speed])
@@ -68,18 +68,18 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
       fast: {
         gasPrice: calcFee(feeData.gasPrice, 'fast'),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast')
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast'),
       },
       average: {
         gasPrice: calcFee(feeData.gasPrice, 'average'),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average')
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average'),
       },
       slow: {
         gasPrice: calcFee(feeData.gasPrice, 'slow'),
         maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow')
-      }
+        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow'),
+      },
     }
   }
 
@@ -87,7 +87,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     to,
     value,
     chainSpecific: { contractAddress, from, contractData },
-    sendMax = false
+    sendMax = false,
   }: GetFeeDataInput<KnownChainIds.AvalancheMainnet>): Promise<
     FeeDataEstimate<KnownChainIds.AvalancheMainnet>
   > {
@@ -112,7 +112,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
       from,
       to: isErc20Send ? contractAddress : to,
       value: isErc20Send ? '0' : value,
-      data
+      data,
     })
 
     const gasResults = await this.getGasFeeData()
@@ -120,16 +120,16 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     return {
       fast: {
         txFee: bnOrZero(bn(gasResults.fast.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.fast }
+        chainSpecific: { gasLimit, ...gasResults.fast },
       },
       average: {
         txFee: bnOrZero(bn(gasResults.average.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.average }
+        chainSpecific: { gasLimit, ...gasResults.average },
       },
       slow: {
         txFee: bnOrZero(bn(gasResults.slow.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.slow }
-      }
+        chainSpecific: { gasLimit, ...gasResults.slow },
+      },
     }
   }
 }

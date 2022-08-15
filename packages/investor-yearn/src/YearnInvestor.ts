@@ -38,7 +38,7 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
       contract: new web3.eth.Contract(ssRouterAbi, ssRouterContractAddress),
       dryRun,
       web3,
-      yearnSdk: new Yearn(network, { provider: jsonRpcProvider })
+      yearnSdk: new Yearn(network, { provider: jsonRpcProvider }),
     })
     this.#opportunities = []
   }
@@ -46,7 +46,7 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
   async initialize() {
     await this.#deps.yearnSdk.ready
     this.#opportunities = (await this.#deps.yearnSdk.vaults.get()).map(
-      (vault) => new YearnOpportunity(this.#deps, vault)
+      (vault) => new YearnOpportunity(this.#deps, vault),
     )
   }
 
@@ -57,7 +57,7 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
   async findByOpportunityId(opportunityId: string) {
     return find(
       await this.findAll(),
-      (opp: YearnOpportunity) => opp.positionAsset.assetId === opportunityId
+      (opp: YearnOpportunity) => opp.positionAsset.assetId === opportunityId,
     )
   }
 

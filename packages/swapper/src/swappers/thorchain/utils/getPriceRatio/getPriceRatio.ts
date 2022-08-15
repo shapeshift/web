@@ -7,7 +7,7 @@ import { thorService } from '../thorService'
 
 export const getPriceRatio = async (
   deps: ThorchainSwapperDeps,
-  input: { buyAssetId: AssetId; sellAssetId: AssetId }
+  input: { buyAssetId: AssetId; sellAssetId: AssetId },
 ): Promise<string> => {
   const { buyAssetId, sellAssetId } = input
   try {
@@ -17,7 +17,7 @@ export const getPriceRatio = async (
     if (!buyPoolId || !sellPoolId)
       throw new SwapError(`[getPriceRatio]: No thorchain pool found`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { buyPoolId, sellPoolId }
+        details: { buyPoolId, sellPoolId },
       })
 
     const { data: responseData } = await thorService.get<PoolResponse[]>(`${deps.midgardUrl}/pools`)
@@ -28,14 +28,14 @@ export const getPriceRatio = async (
     if (!buyUsdPrice || !sellUsdPrice)
       throw new SwapError(`[getPriceRatio]: No rate found for pools`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { buyPoolId, sellPoolId }
+        details: { buyPoolId, sellPoolId },
       })
     return bnOrZero(sellUsdPrice).dividedBy(buyUsdPrice).toString()
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getPriceRatio]: Thorchain getPriceRatio failed', {
       code: SwapErrorTypes.PRICE_RATIO_FAILED,
-      cause: e
+      cause: e,
     })
   }
 }

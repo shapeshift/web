@@ -11,12 +11,12 @@ export class Parser implements SubParser<Tx> {
     return {
       trade: {
         dexName: Dex.CowSwap,
-        type: TradeType.Trade
+        type: TradeType.Trade,
       },
       data: {
         method: undefined,
-        parser: 'cowswap'
-      }
+        parser: 'cowswap',
+      },
     }
   }
 }

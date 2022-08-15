@@ -13,7 +13,7 @@ const MAX_LENGTH = 80
 export const makeSwapMemo = ({
   buyAssetId,
   destinationAddress,
-  limit
+  limit,
 }: {
   buyAssetId: string
   destinationAddress: string
@@ -23,7 +23,7 @@ export const makeSwapMemo = ({
   if (!thorId)
     throw new SwapError('[makeSwapMemo] - undefined thorId for given buyAssetId', {
       code: SwapErrorTypes.MAKE_MEMO_FAILED,
-      details: { buyAssetId }
+      details: { buyAssetId },
     })
 
   // bch hack
@@ -40,13 +40,13 @@ export const makeSwapMemo = ({
 
   if (abbreviationAmount > 39)
     throw new SwapError('[makeSwapMemo] - too much abbreviation for accurate matching', {
-      code: SwapErrorTypes.MAKE_MEMO_FAILED
+      code: SwapErrorTypes.MAKE_MEMO_FAILED,
     })
   // delimeter between ticker and id allowing us to abbreviate the id: https://dev.thorchain.org/thorchain-dev/memos#asset-notation
   const delimeterIndex = memo.indexOf('-') + 1
   if (!delimeterIndex) {
     throw new SwapError('[makeSwapMemo] - unable to abbreviate asset, no delimeter found', {
-      code: SwapErrorTypes.MAKE_MEMO_FAILED
+      code: SwapErrorTypes.MAKE_MEMO_FAILED,
     })
   }
   return memo.replace(memo.slice(delimeterIndex, delimeterIndex + abbreviationAmount), '')

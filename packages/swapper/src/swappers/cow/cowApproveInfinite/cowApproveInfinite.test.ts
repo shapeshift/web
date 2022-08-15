@@ -7,7 +7,7 @@ import { cowApproveInfinite } from './/cowApproveInfinite'
 
 jest.mock('web3')
 jest.mock('../../utils/helpers/helpers', () => ({
-  grantAllowance: jest.fn(() => 'grantAllowanceTxId')
+  grantAllowance: jest.fn(() => 'grantAllowanceTxId'),
 }))
 
 // @ts-ignore
@@ -16,11 +16,11 @@ Web3.mockImplementation(() => ({
     Contract: jest.fn(() => ({
       methods: {
         approve: jest.fn(() => ({
-          encodeABI: jest.fn()
-        }))
-      }
-    }))
-  }
+          encodeABI: jest.fn(),
+        })),
+      },
+    })),
+  },
 }))
 
 describe('cowApproveInfinite', () => {
@@ -28,7 +28,7 @@ describe('cowApproveInfinite', () => {
   const { tradeQuote } = setupQuote()
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
-    ethSignTx: jest.fn(() => Promise.resolve({}))
+    ethSignTx: jest.fn(() => Promise.resolve({})),
   } as unknown as HDWallet
 
   it('should return a txid', async () => {

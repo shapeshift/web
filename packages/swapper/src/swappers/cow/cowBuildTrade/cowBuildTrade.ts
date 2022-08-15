@@ -8,7 +8,7 @@ import { bn, bnOrZero } from '../../utils/bignumber'
 import {
   getAllowanceRequired,
   getApproveContractData,
-  normalizeAmount
+  normalizeAmount,
 } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowSwapQuoteResponse, CowTrade } from '../types'
@@ -17,14 +17,14 @@ import {
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
-  ORDER_KIND_SELL
+  ORDER_KIND_SELL,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import { getNowPlusThirtyMinutesTimestamp } from '../utils/helpers/helpers'
 
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
-  input: BuildTradeInput
+  input: BuildTradeInput,
 ): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
@@ -33,20 +33,20 @@ export async function cowBuildTrade(
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
     const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-      buyAsset.assetId
+      buyAsset.assetId,
     )
 
     if (sellAssetNamespace !== 'erc20') {
       throw new SwapError('[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
         code: SwapErrorTypes.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace }
+        details: { sellAssetNamespace },
       })
     }
 
     if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
       throw new SwapError('[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
         code: SwapErrorTypes.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId }
+        details: { buyAssetChainId },
       })
     }
 
@@ -79,11 +79,11 @@ export async function cowBuildTrade(
         partiallyFillable: false,
         from: receiveAddress,
         kind: ORDER_KIND_SELL,
-        sellAmountBeforeFee: normalizedSellAmount
+        sellAmountBeforeFee: normalizedSellAmount,
       })
 
     const {
-      data: { quote }
+      data: { quote },
     } = quoteResponse
 
     const buyCryptoAmount = bn(quote.buyAmount).div(bn(10).exponentiatedBy(buyAsset.precision))
@@ -93,13 +93,13 @@ export async function cowBuildTrade(
     const data = getApproveContractData({
       web3,
       spenderAddress: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      contractAddress: sellAssetErc20Address
+      contractAddress: sellAssetErc20Address,
     })
 
     const feeDataOptions = await adapter.getFeeData({
       to: sellAssetErc20Address,
       value: '0',
-      chainSpecific: { from: receiveAddress, contractData: data }
+      chainSpecific: { from: receiveAddress, contractData: data },
     })
 
     const feeData = feeDataOptions['fast']
@@ -110,9 +110,9 @@ export async function cowBuildTrade(
         fee: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
-          gasPrice: feeData.chainSpecific.gasPrice
+          gasPrice: feeData.chainSpecific.gasPrice,
         },
-        tradeFee: '0' // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+        tradeFee: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
       },
       sellAmount: normalizedSellAmount,
       buyAmount: quote.buyAmount,
@@ -122,7 +122,7 @@ export async function cowBuildTrade(
       sellAssetAccountNumber,
       receiveAddress,
       feeAmountInSellToken: quote.feeAmount,
-      sellAmountWithoutFee: quote.sellAmount
+      sellAmountWithoutFee: quote.sellAmount,
     }
 
     const allowanceRequired = await getAllowanceRequired({
@@ -132,7 +132,7 @@ export async function cowBuildTrade(
       receiveAddress,
       sellAmount: quote.sellAmount,
       web3: deps.web3,
-      erc20AllowanceAbi
+      erc20AllowanceAbi,
     })
 
     if (!allowanceRequired.isZero()) {
@@ -146,7 +146,7 @@ export async function cowBuildTrade(
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowBuildTrade]', {
       cause: e,
-      code: SwapErrorTypes.TRADE_QUOTE_FAILED
+      code: SwapErrorTypes.TRADE_QUOTE_FAILED,
     })
   }
 }

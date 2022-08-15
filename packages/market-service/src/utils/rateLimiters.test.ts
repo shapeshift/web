@@ -17,7 +17,7 @@ describe('rate limiters utilities', () => {
       const axiosAdapterLimiter = new ServerRateLimiter({
         tokensPerInterval: axiosAdapterLimiterRate,
         interval: axiosAdapterLimiterInterval,
-        fireImmediately: true
+        fireImmediately: true,
       })
 
       async function axiosTestAdapter(config: AxiosRequestConfig) {
@@ -59,7 +59,7 @@ describe('rate limiters utilities', () => {
       const functionLimiter = new ServerRateLimiter({
         tokensPerInterval: rateLimiterRate,
         interval: rateLimiterInterval,
-        fireImmediately: true
+        fireImmediately: true,
       })
 
       const functionToBeCalled = async () => {
@@ -100,7 +100,7 @@ describe('rate limiters utilities', () => {
       const axiosAdapterLimiter = new ServerRateLimiter({
         tokensPerInterval: axiosAdapterLimiterRate,
         interval: axiosAdapterLimiterInterval,
-        fireImmediately: true
+        fireImmediately: true,
       })
 
       async function axiosTestAdapter(config: AxiosRequestConfig) {
@@ -115,7 +115,7 @@ describe('rate limiters utilities', () => {
       const testAxiosInstance = rateLimitedAxios(
         axiosAdapterLimiterRate,
         axiosAdapterLimiterInterval,
-        axios.create({ adapter: axiosTestAdapter as AxiosAdapter })
+        axios.create({ adapter: axiosTestAdapter as AxiosAdapter }),
       )
 
       const onSuccess = () => successCount++
@@ -141,7 +141,7 @@ describe('rate limiters utilities', () => {
       expect(errorStatus).toBeNull()
       expect(successCount).toEqual(totalRequests)
       expect(end - start).toBeGreaterThan(
-        (totalRequests / axiosAdapterLimiterRate - 1) * axiosAdapterLimiterInterval
+        (totalRequests / axiosAdapterLimiterRate - 1) * axiosAdapterLimiterInterval,
       )
     })
 
@@ -158,7 +158,7 @@ describe('rate limiters utilities', () => {
       const functionLimiter = new ServerRateLimiter({
         tokensPerInterval: rateLimiterRate,
         interval: rateLimiterInterval,
-        fireImmediately: true
+        fireImmediately: true,
       })
 
       const functionToBeCalled = async () => {

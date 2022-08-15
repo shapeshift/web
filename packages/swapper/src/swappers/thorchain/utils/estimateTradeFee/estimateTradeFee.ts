@@ -9,19 +9,19 @@ import { thorService } from '../thorService'
 
 export const estimateTradeFee = async (
   deps: ThorchainSwapperDeps,
-  buyAsset: Asset
+  buyAsset: Asset,
 ): Promise<string> => {
   const thorId = adapters.assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   if (!thorId)
     throw new SwapError('[estimateTradeFee] - undefined thorId for given buyAssetId', {
       code: SwapErrorTypes.VALIDATION_FAILED,
-      details: { buyAssetId: buyAsset.assetId }
+      details: { buyAssetId: buyAsset.assetId },
     })
 
   const thorPoolChainId = thorId.slice(0, thorId.indexOf('.'))
 
   const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-    `${deps.midgardUrl}/thorchain/inbound_addresses`
+    `${deps.midgardUrl}/thorchain/inbound_addresses`,
   )
 
   const inboundInfo = inboundAddresses.find((inbound) => inbound.chain === thorPoolChainId)
@@ -29,7 +29,7 @@ export const estimateTradeFee = async (
   if (!inboundInfo)
     throw new SwapError('[estimateTradeFee] - unable to locate inbound pool info', {
       code: SwapErrorTypes.VALIDATION_FAILED,
-      details: { thorPoolChainId }
+      details: { thorPoolChainId },
     })
 
   const gasRate = inboundInfo.gas_rate
@@ -40,7 +40,7 @@ export const estimateTradeFee = async (
   if (!buyAdapter)
     throw new SwapError('[estimateTradeFee] - unable to get buy asset adapter', {
       code: SwapErrorTypes.VALIDATION_FAILED,
-      details: { buyChainId }
+      details: { buyChainId },
     })
 
   const buyFeeAssetId = buyAdapter.getFeeAssetId()
@@ -48,21 +48,21 @@ export const estimateTradeFee = async (
   if (!buyFeeAssetId)
     throw new SwapError('[estimateTradeFee] - no fee assetId', {
       code: SwapErrorTypes.VALIDATION_FAILED,
-      details: { buyAssetId: buyAsset.assetId }
+      details: { buyAssetId: buyAsset.assetId },
     })
 
   const buyFeeAssetRatio =
     buyAsset.assetId !== buyFeeAssetId
       ? await getPriceRatio(deps, {
           sellAssetId: buyAsset.assetId,
-          buyAssetId: buyFeeAssetId
+          buyAssetId: buyFeeAssetId,
         })
       : '1'
 
   if (!THOR_TRADE_FEE_MULTIPLIERS[buyChainId])
     throw new SwapError('[estimateTradeFee] - no trade fee multiplier', {
       code: SwapErrorTypes.VALIDATION_FAILED,
-      details: { buyChainId }
+      details: { buyChainId },
     })
   return THOR_TRADE_FEE_MULTIPLIERS[buyChainId].times(buyFeeAssetRatio).times(gasRate).toString()
 }

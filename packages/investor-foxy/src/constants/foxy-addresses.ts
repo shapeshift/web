@@ -4,8 +4,8 @@ export const foxyAddresses = [
     liquidityReserve: '0x8EC637Fe2800940C7959f9BAd4fE69e41225CD39',
     fox: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
     foxy: '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3',
-    version: 1
-  }
+    version: 1,
+  },
 ]
 
 export const tokeRewardHashAddress = '0x5ec3EC6A8aC774c7d53665ebc5DDf89145d02fB6'

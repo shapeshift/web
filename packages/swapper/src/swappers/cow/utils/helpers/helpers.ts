@@ -26,7 +26,7 @@ export const ORDER_TYPE_FIELDS = [
   { name: 'kind', type: 'string' },
   { name: 'partiallyFillable', type: 'bool' },
   { name: 'sellTokenBalance', type: 'string' },
-  { name: 'buyTokenBalance', type: 'string' }
+  { name: 'buyTokenBalance', type: 'string' },
 ]
 
 /**
@@ -82,7 +82,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
   if (assetNamespace !== 'erc20') {
     throw new SwapError('[getUsdRate] - unsupported asset namespace', {
       code: SwapErrorTypes.USD_RATE_FAILED,
-      details: { assetNamespace }
+      details: { assetNamespace },
     })
   }
 
@@ -106,7 +106,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
       partiallyFillable: false,
       from: DEFAULT_ADDRESS,
       kind: ORDER_KIND_BUY,
-      buyAmountAfterFee: buyAmount
+      buyAmountAfterFee: buyAmount,
     }
 
     /**
@@ -127,14 +127,14 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
       await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, apiInput)
 
     const {
-      data: { quote }
+      data: { quote },
     } = quoteResponse
 
     const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(asset.precision))
 
     if (!sellCryptoAmount.gt(0))
       throw new SwapError('[getUsdRate] - Failed to get sell token amount', {
-        code: SwapErrorTypes.RESPONSE_ERROR
+        code: SwapErrorTypes.RESPONSE_ERROR,
       })
 
     // dividing $1000 by amount of sell token received
@@ -143,7 +143,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {
       cause: e,
-      code: SwapErrorTypes.USD_RATE_FAILED
+      code: SwapErrorTypes.USD_RATE_FAILED,
     })
   }
 }
@@ -151,7 +151,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
 export const hashTypedData = (
   domain: TypedDataDomain,
   types: TypedDataTypes,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): string => {
   return ethers.utils._TypedDataEncoder.hash(domain, types, data)
 }
@@ -176,6 +176,6 @@ export const domain = (chainId: number, verifyingContract: string): TypedDataDom
     name: 'Gnosis Protocol',
     version: 'v2',
     chainId,
-    verifyingContract
+    verifyingContract,
   }
 }

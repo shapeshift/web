@@ -17,7 +17,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   readonly abiInterface = new ethers.utils.Interface(erc20)
 
   readonly supportedFunctions = {
-    approveSigHash: this.abiInterface.getSighash('approve')
+    approveSigHash: this.abiInterface.getSighash('approve'),
   }
 
   constructor(args: ParserArgs) {
@@ -42,11 +42,11 @@ export class Parser<T extends Tx> implements SubParser<T> {
         assetId: toAssetId({
           ...fromChainId(this.chainId),
           assetNamespace: 'erc20',
-          assetReference: tx.to
+          assetReference: tx.to,
         }),
         method: decoded.name,
-        parser: TxParser.ERC20
-      }
+        parser: TxParser.ERC20,
+      },
     }
   }
 }

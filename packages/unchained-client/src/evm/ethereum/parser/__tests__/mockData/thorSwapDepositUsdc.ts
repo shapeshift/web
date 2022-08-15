@@ -26,8 +26,8 @@ export default {
         type: 'ERC20',
         from: '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E',
         to: THOR_ROUTER_CONTRACT_MAINNET,
-        value: '16598881497'
-      }
-    ]
-  }
+        value: '16598881497',
+      },
+    ],
+  },
 }

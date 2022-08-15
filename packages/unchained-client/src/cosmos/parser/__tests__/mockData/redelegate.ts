@@ -7,7 +7,7 @@ export default {
     confirmations: 229341,
     fee: {
       amount: '6250',
-      denom: 'uatom'
+      denom: 'uatom',
     },
     gasUsed: '204950',
     gasWanted: '250000',
@@ -21,9 +21,9 @@ export default {
         type: 'begin_redelegate',
         value: {
           amount: '500000',
-          denom: 'uatom'
-        }
-      }
+          denom: 'uatom',
+        },
+      },
     ],
     events: {
       '0': [
@@ -32,40 +32,40 @@ export default {
           attributes: [
             {
               key: 'action',
-              value: '/cosmos.staking.v1beta1.MsgBeginRedelegate'
+              value: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
             },
             {
               key: 'module',
-              value: 'staking'
+              value: 'staking',
             },
             {
               key: 'sender',
-              value: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e'
-            }
-          ]
+              value: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
+            },
+          ],
         },
         {
           type: 'redelegate',
           attributes: [
             {
               key: 'source_validator',
-              value: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0'
+              value: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
             },
             {
               key: 'destination_validator',
-              value: 'cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf'
+              value: 'cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf',
             },
             {
               key: 'amount',
-              value: '500000uatom'
+              value: '500000uatom',
             },
             {
               key: 'completion_time',
-              value: '2022-03-25T21:35:55Z'
-            }
-          ]
-        }
-      ]
-    }
-  }
+              value: '2022-03-25T21:35:55Z',
+            },
+          ],
+        },
+      ],
+    },
+  },
 }

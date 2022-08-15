@@ -6,7 +6,7 @@ import ErrorWithCause from './ErrorWithCause'
 export default class ErrorWithDetails<
   T extends
     | { cause?: unknown; details?: Record<string, unknown>; code?: string }
-    | undefined = undefined
+    | undefined = undefined,
 > extends ErrorWithCause<T> {
   public details: T extends { details: infer R } ? R : undefined
   /**

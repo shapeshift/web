@@ -17,7 +17,7 @@ import {
   SwapperType,
   TradeQuote,
   TradeResult,
-  TradeTxs
+  TradeTxs,
 } from '../../api'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from './types'
@@ -46,7 +46,7 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
         return SwapperType.ZrxAvalanche
       default:
         throw new SwapError('[getType]', {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN
+          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
         })
     }
   }
@@ -85,7 +85,7 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
       (id) =>
         id.startsWith(this.chainId) &&
         sellAssetId?.startsWith(this.chainId) &&
-        !UNSUPPORTED_ASSETS.includes(id)
+        !UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
@@ -96,7 +96,7 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
     return {
       sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId
+      buyTxid: tradeResult.tradeId,
     }
   }
 }

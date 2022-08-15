@@ -15,7 +15,7 @@ export const setupZrxTradeQuoteResponse = () => {
     gas: '1235',
     gasPrice: '1236',
     sources: [],
-    buyAmount: ''
+    buyAmount: '',
   }
   return { quoteResponse, buyAsset, sellAsset }
 }
@@ -40,7 +40,7 @@ export const setupExecuteTrade = () => {
     receiveAddress: '0x0',
     feeData: { fee: '0', chainSpecific: {}, tradeFee: '0' },
     rate: '0',
-    sources: []
+    sources: [],
   }
   return { executeTradeInput, buyAsset, sellAsset }
 }

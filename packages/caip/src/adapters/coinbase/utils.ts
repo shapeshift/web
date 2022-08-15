@@ -34,7 +34,7 @@ export function parseData(data: CoinbaseCurrency[]): Record<AssetId, string> {
       acc[assetId] = current.id
       return acc
     },
-    {}
+    {},
   )
 }
 

@@ -10,7 +10,7 @@ import {
   domain,
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,
-  hashOrder
+  hashOrder,
 } from '../helpers/helpers'
 
 jest.mock('../cowService')
@@ -21,14 +21,14 @@ const expectedQuoteInputForUsdRate = {
   partiallyFillable: false,
   from: DEFAULT_ADDRESS,
   kind: ORDER_KIND_BUY,
-  buyAmountAfterFee: '1000000000'
+  buyAmountAfterFee: '1000000000',
 }
 
 describe('utils', () => {
   const cowSwapperDeps: CowSwapperDeps = {
     apiUrl: 'https://api.cow.fi/mainnet/api',
     adapter: {} as ethereum.ChainAdapter,
-    web3: {} as Web3
+    web3: {} as Web3,
   }
 
   describe('getUsdRate', () => {
@@ -37,10 +37,10 @@ describe('utils', () => {
         Promise.resolve({
           data: {
             quote: {
-              sellAmount: '7702130994619175777719'
-            }
-          }
-        })
+              sellAmount: '7702130994619175777719',
+            },
+          },
+        }),
       )
 
       const rate = await getUsdRate(cowSwapperDeps, FOX)
@@ -50,8 +50,8 @@ describe('utils', () => {
         expect.objectContaining({
           ...expectedQuoteInputForUsdRate,
           sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-        })
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        }),
       )
     })
 
@@ -60,10 +60,10 @@ describe('utils', () => {
         Promise.resolve({
           data: {
             quote: {
-              sellAmount: '3334763'
-            }
-          }
-        })
+              sellAmount: '3334763',
+            },
+          },
+        }),
       )
       const rate = await getUsdRate(cowSwapperDeps, WBTC)
       expect(parseFloat(rate)).toBeCloseTo(29987.13851629, 9)
@@ -72,8 +72,8 @@ describe('utils', () => {
         expect.objectContaining({
           ...expectedQuoteInputForUsdRate,
           sellToken: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-        })
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        }),
       )
     })
 
@@ -82,10 +82,10 @@ describe('utils', () => {
         Promise.resolve({
           data: {
             quote: {
-              sellAmount: '913757780947770826'
-            }
-          }
-        })
+              sellAmount: '913757780947770826',
+            },
+          },
+        }),
       )
 
       const rate = await getUsdRate(cowSwapperDeps, ETH)
@@ -95,8 +95,8 @@ describe('utils', () => {
         expect.objectContaining({
           ...expectedQuoteInputForUsdRate,
           sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-        })
+          buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        }),
       )
     })
 
@@ -108,7 +108,7 @@ describe('utils', () => {
 
     it('should fail when called with non-erc20 asset', async () => {
       await expect(getUsdRate(cowSwapperDeps, BTC)).rejects.toThrow(
-        '[getUsdRate] - unsupported asset namespace'
+        '[getUsdRate] - unsupported asset namespace',
       )
     })
 
@@ -117,13 +117,13 @@ describe('utils', () => {
         Promise.resolve({
           data: {
             quote: {
-              sellAmount: '0'
-            }
-          }
-        })
+              sellAmount: '0',
+            },
+          },
+        }),
       )
       await expect(getUsdRate(cowSwapperDeps, FOX)).rejects.toThrow(
-        '[getUsdRate] - Failed to get sell token amount'
+        '[getUsdRate] - Failed to get sell token amount',
       )
     })
 
@@ -166,12 +166,12 @@ describe('utils', () => {
         partiallyFillable: false,
         receiver: '0xFc81A7B9f715A344A7c4ABFc444A774c3E9BA42D',
         sellTokenBalance: 'erc20',
-        buyTokenBalance: 'erc20'
+        buyTokenBalance: 'erc20',
       }
 
       const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)
       expect(orderDigest).toEqual(
-        '0x4a3f1f235892ceb8df4a4ab3f3e22e13364251aeb0d1dde4c2ce66f8c27af757'
+        '0x4a3f1f235892ceb8df4a4ab3f3e22e13364251aeb0d1dde4c2ce66f8c27af757',
       )
     })
   })

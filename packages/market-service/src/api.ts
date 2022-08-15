@@ -2,7 +2,7 @@ import {
   FindAllMarketType,
   MarketData,
   MarketDataArgs,
-  PriceHistoryType
+  PriceHistoryType,
 } from '@shapeshiftoss/types'
 
 import { FiatPriceHistoryType, FindByFiatMarketType } from './fiat-market-service-types'

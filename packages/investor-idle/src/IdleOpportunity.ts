@@ -5,7 +5,7 @@ import {
   ApprovalRequired,
   DepositWithdrawArgs,
   FeePriority,
-  InvestorOpportunity
+  InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -22,7 +22,7 @@ import {
   IdleVault,
   MAX_ALLOWANCE,
   referralAddress,
-  ssRouterContractAddress
+  ssRouterContractAddress,
 } from './constants'
 import { bn, bnOrZero, normalizeAmount, toPath } from './utils'
 
@@ -39,7 +39,7 @@ export type PreparedTransaction = {
 const feeMultipier: Record<FeePriority, number> = Object.freeze({
   fast: 1,
   average: 0.8,
-  slow: 0.5
+  slow: 0.5,
 })
 
 type IdleOpportunityDeps = {
@@ -139,7 +139,7 @@ export class IdleOpportunity
       logger: deps.logger ?? new Logger({ name: 'Idle Opportunity' }),
       routerContract: deps.contract,
       web3: deps.web3,
-      network: deps.network
+      network: deps.network,
     }
 
     // this.metadata = vault.metadata
@@ -147,8 +147,8 @@ export class IdleOpportunity
     this.metadata = {
       ...vault,
       apy: {
-        net_apy: parseFloat(bnOrZero(vault.apr).div(100).toFixed())
-      }
+        net_apy: parseFloat(bnOrZero(vault.apr).div(100).toFixed()),
+      },
     }
     this.version = `${vault.protocolName} ${vault.strategy}`.trim()
     this.name = vault.poolName
@@ -162,28 +162,28 @@ export class IdleOpportunity
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: vault.address
-      })
+        assetReference: vault.address,
+      }),
     }
     this.underlyingAsset = {
       balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: vault.underlyingAddress
-      })
+        assetReference: vault.underlyingAddress,
+      }),
     }
     this.positionAsset = {
       balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
-        assetReference: vault.address
+        assetReference: vault.address,
       }),
-      underlyingPerPosition: normalizeAmount(vault.pricePerShare)
+      underlyingPerPosition: normalizeAmount(vault.pricePerShare),
     }
     this.feeAsset = {
-      assetId: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60',
     }
   }
 
@@ -242,7 +242,7 @@ export class IdleOpportunity
       gasPrice,
       nonce: String(nonce),
       to: vaultContract.options.address,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -278,7 +278,7 @@ export class IdleOpportunity
       gasPrice,
       nonce: String(nonce),
       to: vaultContract.options.address,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -338,7 +338,7 @@ export class IdleOpportunity
       gasPrice,
       nonce: String(nonce),
       to: vaultContract.options.address,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -371,10 +371,10 @@ export class IdleOpportunity
           assetId: toAssetId({
             chainId: 'eip155:1',
             assetNamespace: 'erc20',
-            assetReference: govTokenAddress
+            assetReference: govTokenAddress,
           }),
           address: govTokenAddress,
-          amount: govTokensAmounts[i]
+          amount: govTokensAmounts[i],
         })
       }
     }
@@ -387,7 +387,7 @@ export class IdleOpportunity
   public async allowance(address: string): Promise<BigNumber> {
     const depositTokenContract: Contract = new this.#internals.web3.eth.Contract(
       erc20Abi,
-      this.metadata.underlyingAddress
+      this.metadata.underlyingAddress,
     )
 
     let vaultContract: Contract
@@ -409,7 +409,7 @@ export class IdleOpportunity
   async prepareApprove(address: string): Promise<PreparedTransaction> {
     const depositTokenContract = new this.#internals.web3.eth.Contract(
       erc20Abi,
-      this.metadata.underlyingAddress
+      this.metadata.underlyingAddress,
     )
 
     let vaultContractAddress: string
@@ -423,7 +423,7 @@ export class IdleOpportunity
 
     const preApprove = await depositTokenContract.methods.approve(
       vaultContractAddress,
-      MAX_ALLOWANCE
+      MAX_ALLOWANCE,
     )
     const data = await preApprove.encodeABI({ from: address })
     const estimatedGas = bnOrZero(await preApprove.estimateGas({ from: address }))
@@ -438,7 +438,7 @@ export class IdleOpportunity
       gasPrice,
       nonce: String(nonce),
       to: this.metadata.underlyingAddress,
-      value: '0'
+      value: '0',
     }
   }
 
@@ -464,7 +464,7 @@ export class IdleOpportunity
       gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
       nonce: numberToHex(tx.nonce),
       value: numberToHex(tx.value),
-      addressNList
+      addressNList,
     }
 
     // console.log('signAndBroadcast', txToSign)
@@ -495,17 +495,17 @@ export class IdleOpportunity
       apy: this.apy.toString(),
       tvl: {
         assetId: this.tvl.assetId,
-        balance: this.tvl.balance.toString()
+        balance: this.tvl.balance.toString(),
       },
       underlyingAsset: {
         balance: this.underlyingAsset.balance.toString(),
-        assetId: this.underlyingAsset.assetId
+        assetId: this.underlyingAsset.assetId,
       },
       positionAsset: {
         balance: this.positionAsset.balance.toString(),
         assetId: this.positionAsset.assetId,
-        price: this.positionAsset.underlyingPerPosition.toString()
-      }
+        price: this.positionAsset.underlyingPerPosition.toString(),
+      },
     }
   }
 }

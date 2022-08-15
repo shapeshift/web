@@ -11,7 +11,7 @@ export const BTC: Asset = {
   explorer: 'https://live.blockcypher.com',
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
-  symbol: 'BTC'
+  symbol: 'BTC',
 }
 
 export const WETH: Asset = {
@@ -24,7 +24,7 @@ export const WETH: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
-  symbol: 'WETH'
+  symbol: 'WETH',
 }
 
 export const FOX: Asset = {
@@ -37,7 +37,7 @@ export const FOX: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
-  symbol: 'FOX'
+  symbol: 'FOX',
 }
 
 export const WBTC: Asset = {
@@ -50,7 +50,7 @@ export const WBTC: Asset = {
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png',
   name: 'Wrapped Bitcoin',
   precision: 8,
-  symbol: 'WBTC'
+  symbol: 'WBTC',
 }
 
 export const ETH: Asset = {
@@ -63,7 +63,7 @@ export const ETH: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/'
+  explorerAddressLink: 'https://etherscan.io/address/',
 }
 
 export const UNSUPPORTED: Asset = {
@@ -76,7 +76,7 @@ export const UNSUPPORTED: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/'
+  explorerAddressLink: 'https://etherscan.io/address/',
 }
 
 export const USDC: Asset = {
@@ -89,7 +89,7 @@ export const USDC: Asset = {
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
-  explorerTxLink: 'https://etherscan.io/tx/'
+  explorerTxLink: 'https://etherscan.io/tx/',
 }
 
 export const AVAX: Asset = {
@@ -102,5 +102,5 @@ export const AVAX: Asset = {
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
   explorer: 'https://snowtrace.io',
   explorerAddressLink: 'https://snowtrace.io/address/',
-  explorerTxLink: 'https://snowtrace.io/tx/'
+  explorerTxLink: 'https://snowtrace.io/tx/',
 }

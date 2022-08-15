@@ -14,10 +14,10 @@ const ethOnly = {
   gasLimit: '21000',
   gasUsed: '21000',
   gasPrice: '50000000000',
-  inputData: '0x'
+  inputData: '0x',
 }
 
 export default {
   tx: ethOnly,
-  txMempool: mempoolMock(ethOnly)
+  txMempool: mempoolMock(ethOnly),
 }

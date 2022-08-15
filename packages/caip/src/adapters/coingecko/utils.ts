@@ -15,7 +15,7 @@ import {
   ethAssetId,
   ethChainId,
   ltcChainId,
-  osmosisChainId
+  osmosisChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -23,7 +23,7 @@ import {
   cosmosAssetMap,
   dogecoinAssetMap,
   litecoinAssetMap,
-  osmosisAssetMap
+  osmosisAssetMap,
 } from '../../utils'
 
 export type CoingeckoCoin = {
@@ -46,7 +46,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             chainNamespace: CHAIN_NAMESPACE.Ethereum,
             chainReference: CHAIN_REFERENCE.EthereumMainnet,
             assetNamespace: 'erc20',
-            assetReference: platforms.ethereum
+            assetReference: platforms.ethereum,
           })
           prev[ethChainId][assetId] = id
         } catch {
@@ -60,7 +60,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             chainNamespace: CHAIN_NAMESPACE.Ethereum,
             chainReference: CHAIN_REFERENCE.AvalancheCChain,
             assetNamespace: 'erc20',
-            assetReference: platforms.avalanche
+            assetReference: platforms.avalanche,
           })
           prev[avalancheChainId][assetId] = id
         } catch {
@@ -72,8 +72,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     },
     {
       [ethChainId]: { [ethAssetId]: 'ethereum' },
-      [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' }
-    }
+      [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
+    },
   )
 
   return {
@@ -83,7 +83,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
     [cosmosChainId]: cosmosAssetMap,
-    [osmosisChainId]: osmosisAssetMap
+    [osmosisChainId]: osmosisAssetMap,
   }
 }
 
@@ -92,7 +92,7 @@ export const writeFiles = async (data: AssetMap) => {
     Object.entries(data).map(async ([chainId, assets]) => {
       const path = `./src/adapters/coingecko/generated/${chainId}/adapter.json`.replace(':', '_')
       await fs.promises.writeFile(path, JSON.stringify(assets))
-    })
+    }),
   )
   console.info('Generated CoinGecko AssetId adapter data.')
 }

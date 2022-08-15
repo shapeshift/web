@@ -7,7 +7,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
   const chainNamespaceToTrustWallet: Record<ChainNamespace, string> = {
     bip122: 'bitcoin/info',
     cosmos: 'cosmos/info',
-    eip155: 'ethereum'
+    eip155: 'ethereum',
   }
 
   const trustWalletChainName = chainNamespaceToTrustWallet[chainNamespace]
@@ -22,6 +22,6 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
   }
   return {
     info: `${url}/info.json`,
-    icon: `${url}/logo.png`
+    icon: `${url}/logo.png`,
   }
 }

@@ -12,7 +12,7 @@ export const ethereum: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
-  explorerTxLink: 'https://etherscan.io/tx/'
+  explorerTxLink: 'https://etherscan.io/tx/',
 }
 
 export const bitcoin: Asset = {
@@ -25,7 +25,7 @@ export const bitcoin: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/btc.png',
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
-  explorerTxLink: 'https://live.blockcypher.com/btc/tx/'
+  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
 }
 
 export const bitcoincash: Asset = {
@@ -38,7 +38,7 @@ export const bitcoincash: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/bch.png',
   explorer: 'https://blockchair.com',
   explorerAddressLink: 'https://blockchair.com/bitcoin-cash/address/',
-  explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/'
+  explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/',
 }
 
 export const dogecoin: Asset = {
@@ -51,7 +51,7 @@ export const dogecoin: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/doge.png',
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/doge/address/',
-  explorerTxLink: 'https://live.blockcypher.com/doge/tx/'
+  explorerTxLink: 'https://live.blockcypher.com/doge/tx/',
 }
 
 export const litecoin: Asset = {
@@ -64,7 +64,7 @@ export const litecoin: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/ltc.png',
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/ltc/address/',
-  explorerTxLink: 'https://live.blockcypher.com/ltc/tx/'
+  explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
 }
 
 export const atom: Asset = {
@@ -77,7 +77,7 @@ export const atom: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
   explorer: 'https://www.mintscan.io/cosmos',
   explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
-  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/'
+  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
 }
 
 export const osmosis: Asset = {
@@ -90,7 +90,7 @@ export const osmosis: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/osmo@2x.png',
   explorer: 'https://www.mintscan.io/osmosis',
   explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
-  explorerTxLink: 'https://www.mintscan.io/osmosis/txs/'
+  explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
 }
 
 export const avax: Asset = {
@@ -103,5 +103,5 @@ export const avax: Asset = {
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
   explorer: 'https://snowtrace.io',
   explorerAddressLink: 'https://snowtrace.io/address/',
-  explorerTxLink: 'https://snowtrace.io/tx/'
+  explorerTxLink: 'https://snowtrace.io/tx/',
 }

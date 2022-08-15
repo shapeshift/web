@@ -25,12 +25,12 @@ const tokenSelfSend = {
       type: 'ERC20',
       from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
       to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      value: '1502080'
-    }
-  ]
+      value: '1502080',
+    },
+  ],
 }
 
 export default {
   tx: tokenSelfSend,
-  txMempool: mempoolMock(tokenSelfSend, true)
+  txMempool: mempoolMock(tokenSelfSend, true),
 }

@@ -13,26 +13,26 @@ describe('cowGetTradeTxs', () => {
     const deps: CowSwapperDeps = {
       apiUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3
+      web3: {} as Web3,
     }
 
     const input: TradeResult = {
-      tradeId: 'tradeId1112345'
+      tradeId: 'tradeId1112345',
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({
         data: {
-          status: 'open'
-        }
-      })
+          status: 'open',
+        },
+      }),
     )
 
     const result = await cowGetTradeTxs(deps, input)
 
     expect(result).toEqual({ sellTxid: '' })
     expect(cowService.get).toHaveBeenCalledWith(
-      'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345'
+      'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345',
     )
     expect(cowService.get).toHaveBeenCalledTimes(1)
   })
@@ -41,25 +41,25 @@ describe('cowGetTradeTxs', () => {
     const deps: CowSwapperDeps = {
       apiUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3
+      web3: {} as Web3,
     }
 
     const input: TradeResult = {
-      tradeId: 'tradeId1112345'
+      tradeId: 'tradeId1112345',
     }
 
     ;(cowService.get as jest.Mock<unknown>)
       .mockReturnValueOnce(
         Promise.resolve({
           data: {
-            status: 'fulfilled'
-          }
-        })
+            status: 'fulfilled',
+          },
+        }),
       )
       .mockReturnValueOnce(
         Promise.resolve({
-          data: [{ txHash: '123txHash456' }]
-        })
+          data: [{ txHash: '123txHash456' }],
+        }),
       )
 
     const result = await cowGetTradeTxs(deps, input)
@@ -67,11 +67,11 @@ describe('cowGetTradeTxs', () => {
     expect(result).toEqual({ sellTxid: 'tradeId1112345', buyTxid: '123txHash456' })
     expect(cowService.get).toHaveBeenNthCalledWith(
       1,
-      'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345'
+      'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345',
     )
     expect(cowService.get).toHaveBeenNthCalledWith(
       2,
-      'https://api.cow.fi/mainnet/api/v1/trades/?orderUid=tradeId1112345'
+      'https://api.cow.fi/mainnet/api/v1/trades/?orderUid=tradeId1112345',
     )
     expect(cowService.get).toHaveBeenCalledTimes(2)
   })

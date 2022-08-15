@@ -14,13 +14,13 @@ describe('estimateTradeFee', () => {
     midgardUrl: 'localhost:3000',
     adapterManager: new Map([
       [ethChainId, { getFeeAssetId: () => ethAssetId }],
-      [btcChainId, { getFeeAssetId: () => btcAssetId }]
+      [btcChainId, { getFeeAssetId: () => btcAssetId }],
     ]) as ChainAdapterManager,
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
   it('should correctly estimate a trade fee for bitcoin as buy asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: mockInboundAdresses })
+      Promise.resolve({ data: mockInboundAdresses }),
     )
     const estimatedTradeFee = await estimateTradeFee(deps, BTC)
 
@@ -29,7 +29,7 @@ describe('estimateTradeFee', () => {
   })
   it('should correctly estimate a trade fee for ethereum as buy asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: mockInboundAdresses })
+      Promise.resolve({ data: mockInboundAdresses }),
     )
     const estimatedTradeFee = await estimateTradeFee(deps, ETH)
 
@@ -47,11 +47,11 @@ describe('estimateTradeFee', () => {
   })
   it('should throw if trying to get fee data for an unsupported buy asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: mockInboundAdresses })
+      Promise.resolve({ data: mockInboundAdresses }),
     )
 
     return expect(estimateTradeFee(deps, UNSUPPORTED)).rejects.toThrow(
-      `[estimateTradeFee] - undefined thorId for given buyAssetId`
+      `[estimateTradeFee] - undefined thorId for given buyAssetId`,
     )
   })
 })

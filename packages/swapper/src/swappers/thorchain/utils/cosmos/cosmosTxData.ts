@@ -31,10 +31,10 @@ export const cosmosTxData = async (input: {
     slippageTolerance,
     quote,
     wallet,
-    sellAdapter
+    sellAdapter,
   } = input
   const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-    `${deps.midgardUrl}/thorchain/inbound_addresses`
+    `${deps.midgardUrl}/thorchain/inbound_addresses`,
   )
   const atomInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'GAIA')
   const vault = atomInboundAddresses?.address
@@ -43,7 +43,7 @@ export const cosmosTxData = async (input: {
     throw new SwapError('[buildTrade]: no vault for chain', {
       code: SwapErrorTypes.BUILD_TRADE_FAILED,
       fn: 'buildTrade',
-      details: { chainId: input.chainId }
+      details: { chainId: input.chainId },
     })
 
   const limit = await getLimit({
@@ -54,13 +54,13 @@ export const cosmosTxData = async (input: {
     buyAsset,
     slippageTolerance,
     deps,
-    tradeFee: quote.feeData.tradeFee
+    tradeFee: quote.feeData.tradeFee,
   })
 
   const memo = makeSwapMemo({
     buyAssetId: buyAsset.assetId,
     destinationAddress,
-    limit
+    limit,
   })
 
   const buildTxResponse = await (
@@ -72,8 +72,8 @@ export const cosmosTxData = async (input: {
     memo,
     chainSpecific: {
       gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific.estimatedGas,
-      fee: quote.feeData.fee
-    }
+      fee: quote.feeData.fee,
+    },
   })
 
   return buildTxResponse.txToSign

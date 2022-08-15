@@ -17,7 +17,7 @@ export const setColors = async (assets: Asset[]): Promise<Asset[]> => {
       console.info(
         `${index + 1}/${assets.length} Could not get color for ${asset.assetId} iconUrl: ${
           asset.icon
-        }`
+        }`,
       )
     }
   }

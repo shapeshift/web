@@ -11,7 +11,7 @@ import {
   UNI_V2_FOX_STAKING_REWARDS_V3,
   UNI_V2_ROUTER_CONTRACT,
   WETH_CONTRACT_MAINNET,
-  WETH_CONTRACT_ROPSTEN
+  WETH_CONTRACT_ROPSTEN,
 } from './constants'
 
 export interface ParserArgs {
@@ -29,12 +29,12 @@ export class Parser implements SubParser<Tx> {
 
   readonly supportedFunctions = {
     addLiquidityEthSigHash: this.abiInterface.getSighash('addLiquidityETH'),
-    removeLiquidityEthSigHash: this.abiInterface.getSighash('removeLiquidityETH')
+    removeLiquidityEthSigHash: this.abiInterface.getSighash('removeLiquidityETH'),
   }
 
   readonly supportedStakingRewardsFunctions = {
     stakeSigHash: this.stakingRewardsInterface.getSighash('stake'),
-    exitSigHash: this.stakingRewardsInterface.getSighash('exit')
+    exitSigHash: this.stakingRewardsInterface.getSighash('exit'),
   }
 
   constructor(args: ParserArgs) {
@@ -81,7 +81,7 @@ export class Parser implements SubParser<Tx> {
           const assetId = toAssetId({
             ...fromChainId(this.chainId),
             assetNamespace: 'erc20',
-            assetReference: tokenAddress
+            assetReference: tokenAddress,
           })
 
           return [
@@ -92,8 +92,8 @@ export class Parser implements SubParser<Tx> {
               assetId,
               totalValue: value,
               components: [{ value }],
-              token: { contract: tokenAddress, decimals, name, symbol }
-            }
+              token: { contract: tokenAddress, decimals, name, symbol },
+            },
           ]
         }
         case this.supportedFunctions.removeLiquidityEthSigHash: {
@@ -106,7 +106,7 @@ export class Parser implements SubParser<Tx> {
           const assetId = toAssetId({
             ...fromChainId(this.chainId),
             assetNamespace: 'erc20',
-            assetReference: lpTokenAddress
+            assetReference: lpTokenAddress,
           })
 
           return [
@@ -117,8 +117,8 @@ export class Parser implements SubParser<Tx> {
               assetId,
               totalValue: value,
               components: [{ value }],
-              token: { contract: lpTokenAddress, decimals, name, symbol }
-            }
+              token: { contract: lpTokenAddress, decimals, name, symbol },
+            },
           ]
         }
         default:
@@ -133,8 +133,8 @@ export class Parser implements SubParser<Tx> {
       transfers,
       data: {
         parser: 'uniV2',
-        method: decoded.name
-      }
+        method: decoded.name,
+      },
     }
   }
 
@@ -154,8 +154,8 @@ export class Parser implements SubParser<Tx> {
     return {
       data: {
         parser: 'uniV2',
-        method: decoded.name
-      }
+        method: decoded.name,
+      },
     }
   }
 

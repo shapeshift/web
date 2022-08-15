@@ -61,9 +61,9 @@ export default {
   globals: {
     'ts-jest': {
       tsconfig: {
-        sourceMap: true
-      }
-    }
+        sourceMap: true,
+      },
+    },
   },
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
@@ -156,7 +156,7 @@ export default {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ['/node_modules/', '.d.ts', '.js', '__mocks__', 'mockData']
+  testPathIgnorePatterns: ['/node_modules/', '.d.ts', '.js', '__mocks__', 'mockData'],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

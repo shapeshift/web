@@ -26,7 +26,9 @@
   "rules": {
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/no-autofocus": "error",
-    "prettier/prettier": "error",
+    "prettier/prettier": ["error", {
+      "trailingComma": "all"
+    }],
     "default-case": "off",
     "no-console": [
       "error",

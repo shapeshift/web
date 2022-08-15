@@ -26,7 +26,7 @@ export const SupportedFiatCurrenciesList = Object.freeze([
   'SAR',
   'SGD',
   'ILS',
-  'IDR'
+  'IDR',
 ] as const)
 
 export type SupportedFiatCurrencies = typeof SupportedFiatCurrenciesList[number]

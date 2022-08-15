@@ -15,10 +15,10 @@ const yearnApproval = {
   gasUsed: '46643',
   gasPrice: '96896127986',
   inputData:
-    '0x095ea7b30000000000000000000000006a1e73f12018d8e5f966ce794aa2921941feb17e00000000000000000fffffffffffffffffffffffffffffffffffffffffffffff'
+    '0x095ea7b30000000000000000000000006a1e73f12018d8e5f966ce794aa2921941feb17e00000000000000000fffffffffffffffffffffffffffffffffffffffffffffff',
 }
 
 export default {
   tx: yearnApproval,
-  txMempool: mempoolMock(yearnApproval)
+  txMempool: mempoolMock(yearnApproval),
 }

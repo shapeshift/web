@@ -25,13 +25,13 @@ type UniswapTokenData = {
 
 export async function getUniswapTokens(): Promise<Asset[]> {
   const { data: uniswapTokenData } = await axios.get<UniswapTokenData>(
-    'https://tokens.coingecko.com/uniswap/all.json'
+    'https://tokens.coingecko.com/uniswap/all.json',
   )
 
   return uniswapTokenData.tokens.reduce<Asset[]>((acc, token) => {
     const overrideToken: Asset | undefined = lodash.find(
       overrideTokens,
-      (override: Asset) => fromAssetId(override.assetId).assetReference === token.address
+      (override: Asset) => fromAssetId(override.assetId).assetReference === token.address,
     )
 
     if (overrideToken) {
@@ -56,7 +56,7 @@ export async function getUniswapTokens(): Promise<Asset[]> {
       symbol: token.symbol,
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
-      explorerTxLink: 'https://etherscan.io/tx/'
+      explorerTxLink: 'https://etherscan.io/tx/',
     }
     acc.push(result)
     return acc

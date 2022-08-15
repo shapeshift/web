@@ -11,7 +11,7 @@ export enum CoingeckoAssetPlatform {
   Ethereum = 'ethereum',
   Cosmos = 'cosmos',
   Osmosis = 'osmosis',
-  Avalanche = 'avalanche'
+  Avalanche = 'avalanche',
 }
 
 type CoinGeckoId = string
@@ -24,11 +24,11 @@ const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] = Object.va
 
 const generatedAssetIdToCoingeckoMap = assetIdToCoinGeckoIdMapByChain.reduce((acc, cur) => ({
   ...acc,
-  ...cur
+  ...cur,
 })) as Record<string, string>
 
 const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy(
-  generatedAssetIdToCoingeckoMap
+  generatedAssetIdToCoingeckoMap,
 )
 
 export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
@@ -49,7 +49,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Avalanche
         default:
           throw new Error(
-            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
     case CHAIN_NAMESPACE.Cosmos:
@@ -60,7 +60,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Osmosis
         default:
           throw new Error(
-            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
@@ -71,7 +71,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
 }
 
 export const makeCoingeckoUrlParts = (
-  apiKey?: string
+  apiKey?: string,
 ): { baseUrl: string; maybeApiKeyQueryParam: string } => {
   const baseUrl = apiKey ? coingeckoProBaseUrl : coingeckoBaseUrl
   const maybeApiKeyQueryParam = apiKey ? `&x_cg_pro_api_key=${apiKey}` : ''
@@ -89,7 +89,7 @@ export const makeCoingeckoAssetUrl = (assetId: AssetId, apiKey?: string): string
 
   if (assetNamespace === 'erc20') {
     const assetPlatform = chainIdToCoingeckoAssetPlatform(
-      toChainId({ chainNamespace, chainReference })
+      toChainId({ chainNamespace, chainReference }),
     )
 
     return `${baseUrl}/coins/${assetPlatform}/contract/${assetReference}?${maybeApiKeyQueryParam}`

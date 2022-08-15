@@ -12,15 +12,15 @@ const mockedYearnSdk = jest.fn(() => ({
       return Promise.resolve(
         addresses
           ? mockYearnVaultRestData.filter((datum) => addresses.includes(datum.address))
-          : mockYearnVaultRestData
+          : mockYearnVaultRestData,
       )
-    })
+    }),
   },
   services: {
     subgraph: {
-      fetchQuery: jest.fn(() => Promise.resolve(mockYearnGQLData))
-    }
-  }
+      fetchQuery: jest.fn(() => Promise.resolve(mockYearnGQLData)),
+    },
+  },
 }))()
 
 // @ts-ignore
@@ -41,8 +41,8 @@ describe('yearn market service', () => {
           chainNamespace: CHAIN_NAMESPACE.Ethereum,
           chainReference: CHAIN_REFERENCE.EthereumMainnet,
           assetNamespace: 'erc20',
-          assetReference: yvBTCAddress.toLowerCase()
-        })
+          assetReference: yvBTCAddress.toLowerCase(),
+        }),
       )
     })
 
@@ -76,13 +76,13 @@ describe('yearn market service', () => {
         chainNamespace: CHAIN_NAMESPACE.Ethereum,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
-        assetReference: mockYearnVaultRestData[0].address.toLowerCase()
+        assetReference: mockYearnVaultRestData[0].address.toLowerCase(),
       })
       const yvDaiAssetId = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Ethereum,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
-        assetReference: mockYearnVaultRestData[1].address.toLowerCase()
+        assetReference: mockYearnVaultRestData[1].address.toLowerCase(),
       })
       const [yvDaiKey, yvBtcKey] = Object.keys(result)
       expect(yvDaiKey).toEqual(yvDaiAssetId)
@@ -92,14 +92,14 @@ describe('yearn market service', () => {
 
   describe('findByAssetId', () => {
     const args = {
-      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001' // yvDai
+      assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
     }
     it('should return market data for yvDai', async () => {
       const result = {
         price: '1.084750123794815921',
         marketCap: '3754148.94',
         changePercent24Hr: 0.00467104804294,
-        volume: '100000'
+        volume: '100000',
       }
       expect(await yearnVaultMarketCapService.findByAssetId(args)).toEqual(result)
     })
@@ -108,7 +108,7 @@ describe('yearn market service', () => {
       mockedYearnSdk.vaults.get.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(yearnVaultMarketCapService.findByAssetId(args)).rejects.toEqual(
-        new Error('YearnMarketService(findByAssetId): error fetching market data')
+        new Error('YearnMarketService(findByAssetId): error fetching market data'),
       )
     })
   })
@@ -116,7 +116,7 @@ describe('yearn market service', () => {
   describe('findPriceHistoryByAssetId', () => {
     const args = {
       assetId: 'eip155:1/erc20:0x19d3364a399d251e894ac732651be8b0e4e85001', // yvDai
-      timeframe: HistoryTimeframe.WEEK
+      timeframe: HistoryTimeframe.WEEK,
     }
 
     it('should return market history data for yvDai', async () => {
@@ -125,7 +125,7 @@ describe('yearn market service', () => {
         { date: 1639241453000, price: 1.082124 },
         { date: 1639269839000, price: 1.082084 },
         { date: 1639441831000, price: 1.085204 },
-        { date: 1639530562000, price: 1.085871 }
+        { date: 1639530562000, price: 1.085871 },
       ]
       expect(await yearnVaultMarketCapService.findPriceHistoryByAssetId(args)).toEqual(expected)
     })
@@ -134,7 +134,7 @@ describe('yearn market service', () => {
       mockedYearnSdk.services.subgraph.fetchQuery.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(yearnVaultMarketCapService.findPriceHistoryByAssetId(args)).rejects.toEqual(
-        new Error('YearnMarketService(getPriceHistory): error fetching price history')
+        new Error('YearnMarketService(getPriceHistory): error fetching price history'),
       )
     })
   })

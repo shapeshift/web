@@ -6,7 +6,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
@@ -24,7 +24,7 @@ export class CoinCapMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
-    count: 2500
+    count: 2500,
   }
 
   async findAll(args?: FindAllMarketArgs) {
@@ -40,7 +40,7 @@ export class CoinCapMarketService implements MarketService {
     try {
       const combined = (
         await Promise.all(
-          pageCount.map(async (page) => axios.get<{ data: CoinCapMarketCap[] }>(urlAtPage(page)))
+          pageCount.map(async (page) => axios.get<{ data: CoinCapMarketCap[] }>(urlAtPage(page))),
         )
       ).flat()
 
@@ -60,7 +60,7 @@ export class CoinCapMarketService implements MarketService {
               volume: curWithoutId.volumeUsd24Hr.toString(),
               changePercent24Hr: parseFloat(curWithoutId.changePercent24Hr),
               supply: curWithoutId.supply,
-              maxSupply: curWithoutId.maxSupply?.toString()
+              maxSupply: curWithoutId.maxSupply?.toString(),
             }
 
             return acc
@@ -87,7 +87,7 @@ export class CoinCapMarketService implements MarketService {
         changePercent24Hr: parseFloat(marketData.changePercent24Hr),
         volume: marketData.volumeUsd24Hr,
         supply: marketData.supply,
-        maxSupply: marketData.maxSupply?.toString()
+        maxSupply: marketData.maxSupply?.toString(),
       }
     } catch (e) {
       console.warn(e)
@@ -97,7 +97,7 @@ export class CoinCapMarketService implements MarketService {
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (!adapters.assetIdToCoinCap(assetId)) return []
     const id = adapters.assetIdToCoinCap(assetId)
@@ -145,9 +145,9 @@ export class CoinCapMarketService implements MarketService {
         }[]
       }
       const {
-        data: { data: coincapData }
+        data: { data: coincapData },
       } = await axios.get<CoincapHistoryData>(
-        `${url}?id=${id}&start=${from}&end=${to}&interval=${interval}`
+        `${url}?id=${id}&start=${from}&end=${to}&interval=${interval}`,
       )
 
       return coincapData.reduce<HistoryData[]>((acc, current) => {
@@ -163,7 +163,7 @@ export class CoinCapMarketService implements MarketService {
         }
         acc.push({
           date,
-          price: price.toNumber()
+          price: price.toNumber(),
         })
         return acc
       }, [])

@@ -10,8 +10,8 @@ const foxyMarketService = new FoxyMarketService({
   providerUrls: {
     jsonRpcProviderUrl: 'dummy',
     unchainedEthereumHttpUrl: '',
-    unchainedEthereumWsUrl: ''
-  }
+    unchainedEthereumWsUrl: '',
+  },
 })
 
 jest.mock('axios')
@@ -21,9 +21,9 @@ const mockTvl = jest.fn().mockReturnValue(bn('52018758965754575223841191'))
 jest.mock('@shapeshiftoss/investor-foxy', () => ({
   FoxyApi: jest.fn().mockImplementation(() => ({
     totalSupply: mockTotalSupply,
-    tvl: mockTvl
+    tvl: mockTvl,
   })),
-  foxyAddresses: [{ foxy: '0xAddress' }]
+  foxyAddresses: [{ foxy: '0xAddress' }],
 }))
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
@@ -51,7 +51,7 @@ describe('foxy market service', () => {
 
   describe('findByAssetId', () => {
     const args = {
-      assetId: FOXY_ASSET_ID
+      assetId: FOXY_ASSET_ID,
     }
 
     it('should return market data for FOXy', async () => {
@@ -63,7 +63,7 @@ describe('foxy market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(foxyMarketService.findByAssetId(args)).rejects.toEqual(
-        new Error('FoxyMarketService(findByAssetId): error fetching market data')
+        new Error('FoxyMarketService(findByAssetId): error fetching market data'),
       )
     })
   })
@@ -71,7 +71,7 @@ describe('foxy market service', () => {
   describe('findPriceHistoryByAssetId', () => {
     const args = {
       assetId: FOXY_ASSET_ID,
-      timeframe: HistoryTimeframe.HOUR
+      timeframe: HistoryTimeframe.HOUR,
     }
 
     it('should return market data for FOXy', async () => {
@@ -80,15 +80,15 @@ describe('foxy market service', () => {
           [1631664000000, 0.480621954029937],
           [1631577600000, 0.48541321175453755],
           [1631491200000, 0.4860349080635926],
-          [1631404800000, 0.46897407484696146]
-        ]
+          [1631404800000, 0.46897407484696146],
+        ],
       }
 
       const expected = [
         { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 0.480621954029937 },
         { date: new Date('2021-09-14T00:00:00.000Z').valueOf(), price: 0.48541321175453755 },
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 0.4860349080635926 },
-        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 0.46897407484696146 }
+        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 0.46897407484696146 },
       ]
       mockedAxios.get.mockResolvedValue({ data: mockHistoryData })
       expect(await foxyMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
@@ -98,7 +98,7 @@ describe('foxy market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(foxyMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
-        new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history')
+        new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history'),
       )
     })
   })

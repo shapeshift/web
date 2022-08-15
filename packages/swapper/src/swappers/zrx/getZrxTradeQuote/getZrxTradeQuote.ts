@@ -7,7 +7,7 @@ import {
   SwapError,
   SwapErrorTypes,
   SwapSource,
-  TradeQuote
+  TradeQuote,
 } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
@@ -19,7 +19,7 @@ import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 
 export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
-  input: GetEvmTradeQuoteInput
+  input: GetEvmTradeQuoteInput,
 ): Promise<TradeQuote<T>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber } = input
@@ -28,15 +28,15 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
         '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
         {
           code: SwapErrorTypes.UNSUPPORTED_PAIR,
-          details: { buyAssetChainId: buyAsset.chainId, sellAssetChainId: sellAsset.chainId }
-        }
+          details: { buyAssetChainId: buyAsset.chainId, sellAssetChainId: sellAsset.chainId },
+        },
       )
     }
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
     const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
-      buyAsset.assetId
+      buyAsset.assetId,
     )
 
     const useSellAmount = !!sellAmount
@@ -46,7 +46,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
     const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
 
     const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount : sellAmount
+      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount : sellAmount,
     )
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
     const zrxService = zrxServiceFactory(baseUrl)
@@ -66,9 +66,9 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
         params: {
           sellToken,
           buyToken,
-          sellAmount: normalizedSellAmount
-        }
-      }
+          sellAmount: normalizedSellAmount,
+        },
+      },
     )
 
     const {
@@ -79,8 +79,8 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
         sellAmount: sellAmountResponse,
         buyAmount,
         sources,
-        allowanceTarget
-      }
+        allowanceTarget,
+      },
     } = quoteResponse
 
     const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
@@ -102,9 +102,9 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
           gasPrice,
-          approvalFee
+          approvalFee,
         },
-        tradeFee: '0'
+        tradeFee: '0',
       },
       sellAmount: sellAmountResponse,
       buyAmount,
@@ -112,7 +112,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       allowanceContract: allowanceTarget,
       buyAsset,
       sellAsset,
-      sellAssetAccountNumber
+      sellAssetAccountNumber,
     } as TradeQuote<T>
   } catch (e) {
     if (e instanceof SwapError) throw e

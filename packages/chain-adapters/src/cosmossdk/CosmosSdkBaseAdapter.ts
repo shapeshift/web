@@ -20,14 +20,14 @@ import {
   TxHistoryInput,
   TxHistoryResponse,
   ValidAddressResult,
-  ValidAddressResultType
+  ValidAddressResultType,
 } from '../types'
 import { toRootDerivationPath } from '../utils'
 import { cosmos } from './'
 
 const CHAIN_TO_BECH32_PREFIX_MAPPING = {
   [KnownChainIds.CosmosMainnet]: 'cosmos',
-  [KnownChainIds.OsmosisMainnet]: 'osmo'
+  [KnownChainIds.OsmosisMainnet]: 'osmo',
 }
 
 const transformValidator = (validator: unchained.cosmos.Validator): cosmos.Validator => ({
@@ -35,12 +35,12 @@ const transformValidator = (validator: unchained.cosmos.Validator): cosmos.Valid
   moniker: validator.moniker,
   tokens: validator.tokens,
   commission: validator.commission.rate,
-  apr: validator.apr
+  apr: validator.apr,
 })
 
 export const cosmosSdkChainIds = [
   KnownChainIds.CosmosMainnet,
-  KnownChainIds.OsmosisMainnet
+  KnownChainIds.OsmosisMainnet,
 ] as const
 
 export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
@@ -109,7 +109,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       const delegations = data.delegations.map<cosmos.Delegation>((delegation) => ({
         assetId: this.assetId,
         amount: delegation.balance.amount,
-        validator: transformValidator(delegation.validator)
+        validator: transformValidator(delegation.validator),
       }))
 
       const redelegations = data.redelegations.map<cosmos.Redelegation>((redelegation) => ({
@@ -118,8 +118,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
         entries: redelegation.entries.map<cosmos.RedelegationEntry>((entry) => ({
           assetId: this.assetId,
           completionTime: Number(entry.completionTime),
-          amount: entry.balance
-        }))
+          amount: entry.balance,
+        })),
       }))
 
       const undelegations = data.unbondings.map<cosmos.Undelegation>((undelegation) => ({
@@ -127,16 +127,16 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
         entries: undelegation.entries.map<cosmos.UndelegationEntry>((entry) => ({
           assetId: this.assetId,
           completionTime: Number(entry.completionTime),
-          amount: entry.balance.amount
-        }))
+          amount: entry.balance.amount,
+        })),
       }))
 
       const rewards = data.rewards.map<cosmos.ValidatorReward>((validatorReward) => ({
         validator: transformValidator(validatorReward.validator),
         rewards: validatorReward.rewards.map<cosmos.Reward>((reward) => ({
           assetId: this.assetId,
-          amount: reward.amount
-        }))
+          amount: reward.amount,
+        })),
       }))
 
       return {
@@ -150,9 +150,9 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
           redelegations,
           undelegations,
           rewards,
-          sequence: data.sequence.toString()
+          sequence: data.sequence.toString(),
         },
-        pubkey: data.pubkey
+        pubkey: data.pubkey,
         /* TypeScript can't guarantee the correct type for the chainSpecific field because of the generic return type.
            It is preferable to define and type the return instead of applying the cast below, but that's left as an exercise
            for the reader. */
@@ -167,7 +167,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       const { data } = await this.providers.http.getTxHistory({
         pubkey: input.pubkey,
         pageSize: input.pageSize,
-        cursor: input.cursor
+        cursor: input.cursor,
       })
 
       const txs = await Promise.all(
@@ -191,17 +191,17 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
               from: transfer.from,
               to: transfer.to,
               type: transfer.type,
-              value: transfer.totalValue
+              value: transfer.totalValue,
             })),
-            data: parsedTx.data
+            data: parsedTx.data,
           }
-        })
+        }),
       )
 
       return {
         cursor: data.cursor,
         pubkey: input.pubkey,
-        transactions: txs
+        transactions: txs,
       }
     } catch (err) {
       return ErrorHandler(err)
@@ -228,7 +228,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
       return {
         valid: true,
-        result: ValidAddressResultType.Valid
+        result: ValidAddressResultType.Valid,
       }
     } catch (err) {
       console.error(err)
@@ -239,7 +239,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   async subscribeTxs(
     input: SubscribeTxsInput,
     onMessage: (msg: Transaction) => void,
-    onError: (err: SubscribeError) => void
+    onError: (err: SubscribeError) => void,
   ): Promise<void> {
     const { wallet, bip44Params = this.defaultBIP44Params } = input
 
@@ -267,12 +267,12 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
             from: transfer.from,
             to: transfer.to,
             type: transfer.type,
-            value: transfer.totalValue
+            value: transfer.totalValue,
           })),
-          txid: tx.txid
+          txid: tx.txid,
         })
       },
-      (err) => onError({ message: err.message })
+      (err) => onError({ message: err.message }),
     )
   }
 

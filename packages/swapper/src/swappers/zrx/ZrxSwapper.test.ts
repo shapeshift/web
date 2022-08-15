@@ -17,34 +17,34 @@ import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('../zrx/zrxExecuteTrade/zrxExecuteTrade', () => ({
-  zrxExecuteTrade: jest.fn()
+  zrxExecuteTrade: jest.fn(),
 }))
 
 jest.mock('../zrx/zrxBuildTrade/zrxBuildTrade', () => ({
-  zrxBuildTrade: jest.fn()
+  zrxBuildTrade: jest.fn(),
 }))
 
 jest.mock('./getZrxTradeQuote/getZrxTradeQuote', () => ({
-  getZrxTradeQuote: jest.fn()
+  getZrxTradeQuote: jest.fn(),
 }))
 
 jest.mock('./getZrxMinMax/getZrxMinMax', () => ({
-  getZrxMinMax: jest.fn()
+  getZrxMinMax: jest.fn(),
 }))
 
 jest.mock('./zrxApprovalNeeded/zrxApprovalNeeded', () => ({
-  zrxApprovalNeeded: jest.fn()
+  zrxApprovalNeeded: jest.fn(),
 }))
 
 jest.mock('./zrxApprove/zrxApprove', () => ({
-  zrxApproveInfinite: jest.fn()
+  zrxApproveInfinite: jest.fn(),
 }))
 
 describe('ZrxSwapper', () => {
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapter = <ethereum.ChainAdapter>{
-    getChainId: () => KnownChainIds.EthereumMainnet
+    getChainId: () => KnownChainIds.EthereumMainnet,
   }
   const zrxEthereumSwapperDeps = { web3, adapter }
 

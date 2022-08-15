@@ -5,7 +5,7 @@ import {
   assertIsChainId,
   assertIsChainNamespace,
   assertIsChainReference,
-  assertValidChainPartsPair
+  assertValidChainPartsPair,
 } from '../typeGuards'
 import { Nominal } from '../utils'
 

@@ -14,18 +14,18 @@ import {
   DEFAULT_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
-  ORDER_KIND_SELL
+  ORDER_KIND_SELL,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import {
   CowSwapSellQuoteApiInput,
   getNowPlusThirtyMinutesTimestamp,
-  getUsdRate
+  getUsdRate,
 } from '../utils/helpers/helpers'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
-  input: GetTradeQuoteInput
+  input: GetTradeQuoteInput,
 ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
   try {
     const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
@@ -34,13 +34,13 @@ export async function getCowSwapTradeQuote(
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
     const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-      buyAsset.assetId
+      buyAsset.assetId,
     )
 
     if (sellAssetNamespace !== 'erc20') {
       throw new SwapError('[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap', {
         code: SwapErrorTypes.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace }
+        details: { sellAssetNamespace },
       })
     }
 
@@ -49,8 +49,8 @@ export async function getCowSwapTradeQuote(
         '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
         {
           code: SwapErrorTypes.UNSUPPORTED_PAIR,
-          details: { buyAssetChainId }
-        }
+          details: { buyAssetChainId },
+        },
       )
     }
 
@@ -62,7 +62,7 @@ export async function getCowSwapTradeQuote(
 
     // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
     const normalizedSellAmount = normalizeIntegerAmount(
-      bnOrZero(sellAmount).lt(minQuoteSellAmount) ? minQuoteSellAmount : sellAmount
+      bnOrZero(sellAmount).lt(minQuoteSellAmount) ? minQuoteSellAmount : sellAmount,
     )
 
     const apiInput: CowSwapSellQuoteApiInput = {
@@ -74,7 +74,7 @@ export async function getCowSwapTradeQuote(
       partiallyFillable: false,
       from: DEFAULT_ADDRESS,
       kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: normalizedSellAmount
+      sellAmountBeforeFee: normalizedSellAmount,
     }
 
     /**
@@ -95,7 +95,7 @@ export async function getCowSwapTradeQuote(
       await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, apiInput)
 
     const {
-      data: { quote }
+      data: { quote },
     } = quoteResponse
 
     const buyCryptoAmount = bn(quote.buyAmount).div(bn(10).exponentiatedBy(buyAsset.precision))
@@ -107,16 +107,16 @@ export async function getCowSwapTradeQuote(
     const data = getApproveContractData({
       web3,
       spenderAddress: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      contractAddress: sellAssetErc20Address
+      contractAddress: sellAssetErc20Address,
     })
 
     const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
-        chainSpecific: { from: receiveAddress, contractData: data }
+        chainSpecific: { from: receiveAddress, contractData: data },
       }),
-      getUsdRate(deps, sellAsset)
+      getUsdRate(deps, sellAsset),
     ])
 
     const feeData = feeDataOptions['fast']
@@ -144,9 +144,9 @@ export async function getCowSwapTradeQuote(
           gasPrice: feeData.chainSpecific.gasPrice,
           approvalFee: bnOrZero(feeData.chainSpecific.gasLimit)
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString()
+            .toString(),
         },
-        tradeFee: tradeFeeFiat
+        tradeFee: tradeFeeFiat,
       },
       sellAmount: quoteSellAmount,
       buyAmount: quote.buyAmount,
@@ -154,7 +154,7 @@ export async function getCowSwapTradeQuote(
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
       buyAsset,
       sellAsset,
-      sellAssetAccountNumber
+      sellAssetAccountNumber,
     }
   } catch (e) {
     if (
@@ -165,13 +165,13 @@ export async function getCowSwapTradeQuote(
     ) {
       throw new SwapError('[getCowSwapTradeQuote]', {
         cause: e,
-        code: SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES
+        code: SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
       })
     }
     if (e instanceof SwapError) throw e
     throw new SwapError('[getCowSwapTradeQuote]', {
       cause: e,
-      code: SwapErrorTypes.TRADE_QUOTE_FAILED
+      code: SwapErrorTypes.TRADE_QUOTE_FAILED,
     })
   }
 }

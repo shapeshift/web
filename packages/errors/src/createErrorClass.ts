@@ -6,7 +6,7 @@ export function createErrorClass<
     cause?: unknown
     details?: T
     code?: string
-  }
+  },
 >(name: `${string}Error`) {
   const cls = {
     [name]: class<V extends U> extends ErrorWithDetails<V> {
@@ -15,7 +15,7 @@ export function createErrorClass<
         this.name = name
         this.code = options?.code || `ERR_${name.substring(0, name.indexOf('Error'))}`
       }
-    }
+    },
   }
 
   return cls[name]

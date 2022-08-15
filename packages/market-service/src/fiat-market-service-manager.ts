@@ -4,7 +4,7 @@ import { FiatMarketProviders } from './fiat-market-providers'
 import {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
-  FiatPriceHistoryType
+  FiatPriceHistoryType,
 } from './fiat-market-service-types'
 
 export const findByFiatSymbol = async ({ symbol }: FiatMarketDataArgs) => {
@@ -23,7 +23,7 @@ export const findByFiatSymbol = async ({ symbol }: FiatMarketDataArgs) => {
 
 export const findPriceHistoryByFiatSymbol: FiatPriceHistoryType = async ({
   symbol,
-  timeframe
+  timeframe,
 }: FiatPriceHistoryArgs): Promise<HistoryData[]> => {
   let result: HistoryData[] | null = null
   // Loop through market providers and look for fiat price history data. Once found, exit loop.

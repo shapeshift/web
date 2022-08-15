@@ -17,38 +17,38 @@ const EthAsset: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
   explorer: 'https://etherscan.io/',
   explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/'
+  explorerAddressLink: 'https://etherscan.io/address/',
 }
 
 jest.mock(
   './descriptions',
   () => ({
     en: {
-      'eip155:1/slip44:60': 'overridden en description'
+      'eip155:1/slip44:60': 'overridden en description',
     },
     es: {
-      'eip155:1/slip44:60': 'overridden es description'
+      'eip155:1/slip44:60': 'overridden es description',
     },
     fr: {
-      'eip155:1/slip44:60': 'overridden fr description'
+      'eip155:1/slip44:60': 'overridden fr description',
     },
     id: {
-      'eip155:1/slip44:60': 'overridden id description'
+      'eip155:1/slip44:60': 'overridden id description',
     },
     ko: {
-      'eip155:1/slip44:60': 'overridden ko description'
+      'eip155:1/slip44:60': 'overridden ko description',
     },
     pt: {
-      'eip155:1/slip44:60': 'overridden pt description'
+      'eip155:1/slip44:60': 'overridden pt description',
     },
     ru: {
-      'eip155:1/slip44:60': 'overridden ru description'
+      'eip155:1/slip44:60': 'overridden ru description',
     },
     zh: {
-      'eip155:1/slip44:60': 'overridden zh description'
-    }
+      'eip155:1/slip44:60': 'overridden zh description',
+    },
   }),
-  { virtual: true }
+  { virtual: true },
 )
 
 jest.mock(
@@ -56,10 +56,10 @@ jest.mock(
   () => ({
     'eip155:1/slip44:60': {
       assetId: 'eip155:1/slip44:60',
-      chainId: 'eip155:1'
-    }
+      chainId: 'eip155:1',
+    },
   }),
-  { virtual: true }
+  { virtual: true },
 )
 
 describe('AssetService', () => {
@@ -69,7 +69,7 @@ describe('AssetService', () => {
 
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: 'overridden en description',
-        isTrusted: true
+        isTrusted: true,
       })
     })
 
@@ -78,7 +78,7 @@ describe('AssetService', () => {
 
       await expect(assetService.description(EthAsset.assetId, 'es')).resolves.toEqual({
         description: 'overridden es description',
-        isTrusted: true
+        isTrusted: true,
       })
     })
 
@@ -91,7 +91,7 @@ describe('AssetService', () => {
       const description = { en: 'a blue fox' }
       mockedAxios.get.mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
-        description: description.en
+        description: description.en,
       })
     })
 
@@ -104,7 +104,7 @@ describe('AssetService', () => {
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
       mockedAxios.get.mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
-        description: description.es
+        description: description.es,
       })
     })
 
@@ -121,11 +121,11 @@ describe('AssetService', () => {
         precision: 18,
         color: '#FFFFFF',
         icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
-        symbol: 'TST'
+        symbol: 'TST',
       }
       const expectedErrorMessage = `AssetService:description: no description available for ${tokenData.assetId}`
       await expect(assetService.description(tokenData.assetId)).rejects.toEqual(
-        new Error(expectedErrorMessage)
+        new Error(expectedErrorMessage),
       )
     })
   })

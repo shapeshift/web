@@ -3,7 +3,7 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ChainId,
-  fromChainId
+  fromChainId,
 } from '@shapeshiftoss/caip'
 
 export * from './bip44'
@@ -31,7 +31,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
           return 'litecoin'
         default:
           throw new Error(
-            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`
+            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,
           )
       }
     case CHAIN_NAMESPACE.Ethereum:
@@ -44,7 +44,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
           return 'avalanche'
         default:
           throw new Error(
-            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`
+            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,
           )
       }
     case CHAIN_NAMESPACE.Cosmos:
@@ -57,7 +57,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
           return 'osmosis'
         default:
           throw new Error(
-            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`
+            `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,
           )
       }
     default:

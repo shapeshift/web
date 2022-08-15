@@ -14,7 +14,7 @@ import { DEFAULT_RATE_LIMITER_INTERVAL_IN_MS } from '../config'
 export const rateLimitedAxios = (
   rate: number,
   interval = DEFAULT_RATE_LIMITER_INTERVAL_IN_MS,
-  axiosInstance?: AxiosInstance
+  axiosInstance?: AxiosInstance,
 ) => rateLimit(axiosInstance || axios, { maxRequests: rate, perMilliseconds: interval })
 
 /**
@@ -29,5 +29,5 @@ export const rateLimitedAxios = (
 export const createRateLimiter = (rate: number, interval = DEFAULT_RATE_LIMITER_INTERVAL_IN_MS) =>
   pRateLimit({
     interval,
-    rate
+    rate,
   })

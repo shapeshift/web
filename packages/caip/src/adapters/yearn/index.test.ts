@@ -15,7 +15,7 @@ describe('adapters:yearn', () => {
         chainNamespace,
         chainReference,
         assetNamespace,
-        assetReference: toLower(checksumAddress)
+        assetReference: toLower(checksumAddress),
       })
       expect(yearnToAssetId(checksumAddress)).toEqual(assetId)
     })
@@ -30,7 +30,7 @@ describe('adapters:yearn', () => {
         chainNamespace,
         chainReference,
         assetNamespace,
-        assetReference: toLower(checksumAddress)
+        assetReference: toLower(checksumAddress),
       })
       expect(assetIdToYearn(assetId)).toEqual(checksumAddress)
     })

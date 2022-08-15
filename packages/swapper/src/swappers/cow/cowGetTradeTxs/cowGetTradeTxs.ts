@@ -7,32 +7,32 @@ import { cowService } from '../utils/cowService'
 export async function cowGetTradeTxs(deps: CowSwapperDeps, input: TradeResult): Promise<TradeTxs> {
   try {
     const getOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
-      `${deps.apiUrl}/v1/orders/${input.tradeId}`
+      `${deps.apiUrl}/v1/orders/${input.tradeId}`,
     )
 
     const {
-      data: { status }
+      data: { status },
     } = getOrdersResponse
 
     if (status !== ORDER_STATUS_FULFILLED) {
       return {
-        sellTxid: ''
+        sellTxid: '',
       }
     }
 
     const getTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-      `${deps.apiUrl}/v1/trades/?orderUid=${input.tradeId}`
+      `${deps.apiUrl}/v1/trades/?orderUid=${input.tradeId}`,
     )
 
     return {
       sellTxid: input.tradeId,
-      buyTxid: getTradesResponse.data[0].txHash
+      buyTxid: getTradesResponse.data[0].txHash,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowGetTradeTxs]', {
       cause: e,
-      code: SwapErrorTypes.GET_TRADE_TXS_FAILED
+      code: SwapErrorTypes.GET_TRADE_TXS_FAILED,
     })
   }
 }

@@ -11,7 +11,7 @@ const makeMockOsmosisIbcResponse = () => ({
   volume_24h: 33922555.29363544,
   volume_24h_change: 28440481.922440086,
   name: 'Cosmos',
-  price_24h_change: -6.5244109318
+  price_24h_change: -6.5244109318,
 })
 
 const makeMockOsmosisIonResponse = () => ({
@@ -23,7 +23,7 @@ const makeMockOsmosisIonResponse = () => ({
   volume_24h: 105336.6508543715,
   volume_24h_change: 162210.3355220161,
   name: 'Ion',
-  price_24h_change: -7.3562029115
+  price_24h_change: -7.3562029115,
 })
 
 const makeMockOsmosisNativeResponse = () => ({
@@ -35,13 +35,13 @@ const makeMockOsmosisNativeResponse = () => ({
   volume_24h: 88323103.19323264,
   volume_24h_change: 70196881.25419419,
   name: 'Osmosis',
-  price_24h_change: -5.9792092329
+  price_24h_change: -5.9792092329,
 })
 
 jest.mock('fs', () => ({
   promises: {
-    writeFile: jest.fn(async () => undefined)
-  }
+    writeFile: jest.fn(async () => undefined),
+  },
 }))
 
 describe('parseOsmosisData', () => {
@@ -49,13 +49,13 @@ describe('parseOsmosisData', () => {
     const result = parseOsmosisData([
       makeMockOsmosisNativeResponse(),
       makeMockOsmosisIbcResponse(),
-      makeMockOsmosisIonResponse()
+      makeMockOsmosisIonResponse(),
     ])
     const expected = {
       'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2':
         'ATOM',
       'cosmos:osmosis-1/native:uion': 'ION',
-      'cosmos:osmosis-1/slip44:118': 'OSMO'
+      'cosmos:osmosis-1/slip44:118': 'OSMO',
     }
     expect(result).toEqual(expected)
   })
@@ -66,15 +66,15 @@ describe('parseData', () => {
     const result = parseData([
       makeMockOsmosisIonResponse(),
       makeMockOsmosisIbcResponse(),
-      makeMockOsmosisNativeResponse()
+      makeMockOsmosisNativeResponse(),
     ])
     const expected = {
       'cosmos:osmosis-1': {
         'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2':
           'ATOM',
         'cosmos:osmosis-1/native:uion': 'ION',
-        'cosmos:osmosis-1/slip44:118': 'OSMO'
-      }
+        'cosmos:osmosis-1/slip44:118': 'OSMO',
+      },
     }
     expect(result).toEqual(expected)
   })
@@ -85,12 +85,12 @@ describe('writeFiles', () => {
     const data = {
       foo: {
         assetIdAbc: 'bitcorn',
-        assetIdDef: 'efferium'
+        assetIdDef: 'efferium',
       },
       bar: {
         assetIdGhi: 'fox',
-        assetIdJkl: 'shib'
-      }
+        assetIdJkl: 'shib',
+      },
     }
     const fooAssetIds = JSON.stringify(data.foo)
     const barAssetIds = JSON.stringify(data.bar)
@@ -98,11 +98,11 @@ describe('writeFiles', () => {
     await writeFiles(data)
     expect(realFs.promises.writeFile).toBeCalledWith(
       './src/adapters/osmosis/generated/foo/adapter.json',
-      fooAssetIds
+      fooAssetIds,
     )
     expect(realFs.promises.writeFile).toBeCalledWith(
       './src/adapters/osmosis/generated/bar/adapter.json',
-      barAssetIds
+      barAssetIds,
     )
     expect(console.info).toBeCalledWith('Generated Osmosis AssetId adapter data.')
   })

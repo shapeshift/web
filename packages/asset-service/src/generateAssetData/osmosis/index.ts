@@ -36,7 +36,7 @@ type OsmosisAssetList = {
 
 export const getAssets = async (): Promise<Asset[]> => {
   const { data } = await axios.get<OsmosisAssetList>(
-    'https://raw.githubusercontent.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json'
+    'https://raw.githubusercontent.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json',
   )
 
   return data.assets.reduce<Asset[]>((acc, current) => {
@@ -72,24 +72,24 @@ export const getAssets = async (): Promise<Asset[]> => {
       icon: current.logo_URIs.png,
       explorer: osmosis.explorer,
       explorerAddressLink: osmosis.explorerAddressLink,
-      explorerTxLink: osmosis.explorerTxLink
+      explorerTxLink: osmosis.explorerTxLink,
     }
 
     if (!assetDatum.icon) {
       const options: IdenticonOptions = {
         identiconImage: {
           size: 128,
-          background: [45, 55, 72, 255]
+          background: [45, 55, 72, 255],
         },
         identiconText: {
           symbolScale: 7,
-          enableShadow: true
-        }
+          enableShadow: true,
+        },
       }
       assetDatum.icon = getRenderedIdenticonBase64(
         assetDatum.assetId,
         assetDatum.symbol.substring(0, 3),
-        options
+        options,
       )
     }
 

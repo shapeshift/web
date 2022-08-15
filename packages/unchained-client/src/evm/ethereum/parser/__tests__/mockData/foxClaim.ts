@@ -24,8 +24,8 @@ export default {
         type: 'ERC20',
         from: '0x02FfdC5bfAbe5c66BE067ff79231585082CA5fe2',
         to: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-        value: '1500000000000000000000'
-      }
-    ]
-  }
+        value: '1500000000000000000000',
+      },
+    ],
+  },
 }

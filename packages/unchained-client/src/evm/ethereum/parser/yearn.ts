@@ -26,11 +26,11 @@ export class Parser implements SubParser<Tx> {
     depositSigHash: this.yearnInterface.getSighash('deposit()'),
     depositAmountSigHash: this.yearnInterface.getSighash('deposit(uint256)'),
     depositAmountAndRecipientSigHash: this.yearnInterface.getSighash('deposit(uint256,address)'),
-    withdrawSigHash: this.yearnInterface.getSighash('withdraw(uint256,address)')
+    withdrawSigHash: this.yearnInterface.getSighash('withdraw(uint256,address)'),
   }
 
   readonly supportedShapeShiftFunctions = {
-    depositSigHash: this.shapeShiftInterface.getSighash('deposit(address,address,uint256,uint256)')
+    depositSigHash: this.shapeShiftInterface.getSighash('deposit(address,address,uint256,uint256)'),
   }
 
   constructor(args: ParserArgs) {
@@ -81,8 +81,8 @@ export class Parser implements SubParser<Tx> {
     return {
       data: {
         method: decoded.name,
-        parser: 'yearn'
-      }
+        parser: 'yearn',
+      },
     }
   }
 

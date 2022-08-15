@@ -19,7 +19,7 @@ declare module 'coinselect' {
   declare function coinSelect<T = unknown>(
     utxos: Array<Utxo>,
     outputs: Array<Output>,
-    feeRate: number
+    feeRate: number,
   ): CoinSelectResult<Omit<T, 'value'> & { value: number }>
 
   export = coinSelect
@@ -29,7 +29,7 @@ declare module 'coinselect/split' {
   declare function split<T = unknown>(
     utxos: Array<Utxo>,
     outputs: Array<Output>,
-    feeRate: number
+    feeRate: number,
   ): CoinSelectResult<Omit<T, 'value'> & { value: number }>
 
   export = split

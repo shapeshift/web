@@ -25,12 +25,12 @@ const foxStake = {
       type: 'ERC20',
       from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
       to: UNI_V2_FOX_STAKING_REWARDS_V3,
-      value: '99572547380794318'
-    }
-  ]
+      value: '99572547380794318',
+    },
+  ],
 }
 
 export default {
   tx: foxStake,
-  txMempool: mempoolMock(foxStake)
+  txMempool: mempoolMock(foxStake),
 }

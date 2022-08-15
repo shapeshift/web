@@ -6,7 +6,7 @@ import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
-  SupportedFiatCurrencies
+  SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
 import { bnOrZero } from '../utils/bignumber'
 import { rateLimitedAxios } from '../utils/rateLimiters'
@@ -19,7 +19,7 @@ export const makeExchangeRateRequestUrls = (
   start: Dayjs,
   end: Dayjs,
   symbol: SupportedFiatCurrencies,
-  baseUrl: string
+  baseUrl: string,
 ): string[] => {
   const daysBetween = end.diff(start, 'day')
   /**
@@ -34,7 +34,7 @@ export const makeExchangeRateRequestUrls = (
       const maybeEnd = urlStart.add(maxDaysPerRequest - 1, 'day')
       const urlEnd = maybeEnd.isAfter(end) ? end : maybeEnd
       return `${baseUrl}/timeseries?base=${baseCurrency}&symbols=${symbol}&start_date=${urlStart.format(
-        'YYYY-MM-DD'
+        'YYYY-MM-DD',
       )}&end_date=${urlEnd.format('YYYY-MM-DD')}`
     })
 }
@@ -44,14 +44,14 @@ export class ExchangeRateHostService implements FiatMarketService {
   findByFiatSymbol = async ({ symbol }: FiatMarketDataArgs): Promise<MarketData | null> => {
     try {
       const { data } = await axios.get<ExchangeRateHostRate>(
-        `${this.baseUrl}/latest?base=${baseCurrency}&symbols=${symbol}`
+        `${this.baseUrl}/latest?base=${baseCurrency}&symbols=${symbol}`,
       )
       // we only need the price key in the `web`
       return {
         price: data.rates[symbol].toString(),
         marketCap: '0',
         changePercent24Hr: 0,
-        volume: '0'
+        volume: '0',
       }
     } catch (e) {
       console.warn(e)
@@ -61,7 +61,7 @@ export class ExchangeRateHostService implements FiatMarketService {
 
   findPriceHistoryByFiatSymbol = async ({
     symbol,
-    timeframe
+    timeframe,
   }: FiatPriceHistoryArgs): Promise<HistoryData[]> => {
     const end = dayjs().endOf('day')
     let start
@@ -93,7 +93,7 @@ export class ExchangeRateHostService implements FiatMarketService {
       const urls: string[] = makeExchangeRateRequestUrls(start, end, symbol, this.baseUrl)
 
       const results = await Promise.all(
-        urls.map((url) => axios.get<ExchangeRateHostHistoryData>(url))
+        urls.map((url) => axios.get<ExchangeRateHostHistoryData>(url)),
       )
 
       return results.reduce<HistoryData[]>((acc, { data }) => {
@@ -108,7 +108,7 @@ export class ExchangeRateHostService implements FiatMarketService {
     } catch (e) {
       console.warn(e)
       throw new Error(
-        'ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history'
+        'ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history',
       )
     }
   }

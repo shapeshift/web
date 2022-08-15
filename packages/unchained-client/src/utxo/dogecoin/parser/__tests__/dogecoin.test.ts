@@ -23,7 +23,7 @@ describe('parseTx', () => {
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
-          value: '12050688'
+          value: '12050688',
         },
         transfers: [
           {
@@ -32,9 +32,9 @@ describe('parseTx', () => {
             to: 'DQZkYpyV2YzkyqnZDqekbKuSD6VGq6CqHb',
             assetId: dogeAssetId,
             totalValue: '750000000',
-            components: [{ value: '750000000' }]
-          }
-        ]
+            components: [{ value: '750000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -57,7 +57,7 @@ describe('parseTx', () => {
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
-          value: '12050688'
+          value: '12050688',
         },
         transfers: [
           {
@@ -66,9 +66,9 @@ describe('parseTx', () => {
             to: 'DQZkYpyV2YzkyqnZDqekbKuSD6VGq6CqHb',
             assetId: dogeAssetId,
             totalValue: '750000000',
-            components: [{ value: '750000000' }]
-          }
-        ]
+            components: [{ value: '750000000' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -95,9 +95,9 @@ describe('parseTx', () => {
             to: 'DQZkYpyV2YzkyqnZDqekbKuSD6VGq6CqHb',
             assetId: dogeAssetId,
             totalValue: '737949312',
-            components: [{ value: '737949312' }]
-          }
-        ]
+            components: [{ value: '737949312' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -125,9 +125,9 @@ describe('parseTx', () => {
             to: 'DQZkYpyV2YzkyqnZDqekbKuSD6VGq6CqHb',
             assetId: dogeAssetId,
             totalValue: '737949312',
-            components: [{ value: '737949312' }]
-          }
-        ]
+            components: [{ value: '737949312' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -149,7 +149,7 @@ describe('parseTx', () => {
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
-          value: '125900000'
+          value: '125900000',
         },
         transfers: [
           {
@@ -158,7 +158,7 @@ describe('parseTx', () => {
             from: 'DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N',
             assetId: dogeAssetId,
             totalValue: '70370021036118',
-            components: [{ value: '70370021036118' }]
+            components: [{ value: '70370021036118' }],
           },
           {
             type: TransferType.Receive,
@@ -166,9 +166,9 @@ describe('parseTx', () => {
             from: 'DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N',
             assetId: dogeAssetId,
             totalValue: '70223692253218',
-            components: [{ value: '70223692253218' }]
-          }
-        ]
+            components: [{ value: '70223692253218' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -191,7 +191,7 @@ describe('parseTx', () => {
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
-          value: '125900000'
+          value: '125900000',
         },
         transfers: [
           {
@@ -200,7 +200,7 @@ describe('parseTx', () => {
             from: 'DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N',
             assetId: dogeAssetId,
             totalValue: '70370021036118',
-            components: [{ value: '70370021036118' }]
+            components: [{ value: '70370021036118' }],
           },
           {
             type: TransferType.Receive,
@@ -208,9 +208,9 @@ describe('parseTx', () => {
             from: 'DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N',
             assetId: dogeAssetId,
             totalValue: '70223692253218',
-            components: [{ value: '70223692253218' }]
-          }
-        ]
+            components: [{ value: '70223692253218' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)

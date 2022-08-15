@@ -20,12 +20,12 @@ describe('utxoUtils', () => {
       [ypub, UtxoAccountType.SegwitNative, zpub],
       [zpub, UtxoAccountType.P2pkh, xpub],
       [zpub, UtxoAccountType.SegwitP2sh, ypub],
-      [zpub, UtxoAccountType.SegwitNative, zpub]
+      [zpub, UtxoAccountType.SegwitNative, zpub],
     ])(
       'should convert %s to %s',
       async (input: string, type: UtxoAccountType, expected: string) => {
         expect(convertXpubVersion(input, type)).toBe(expected)
-      }
+      },
     )
   })
 })

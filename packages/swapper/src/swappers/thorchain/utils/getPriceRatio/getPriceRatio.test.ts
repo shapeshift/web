@@ -12,14 +12,14 @@ describe('getPriceRatio', () => {
   const deps: ThorchainSwapperDeps = {
     midgardUrl: 'localhost:3000',
     adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{}
+    web3: <Web3>{},
   }
 
   it('should correctly calculate price ratio of between a given buy and sell asset', async () => {
     const foxId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const ethId = 'eip155:1/slip44:60'
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
     )
 
     const ratio = await getPriceRatio(deps, { buyAssetId: foxId, sellAssetId: ethId })
@@ -33,11 +33,11 @@ describe('getPriceRatio', () => {
     const derpId = 'eip155:1/erc20:derp'
     const ethId = 'eip155:1/slip44:60'
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] })
+      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
     )
 
     await expect(getPriceRatio(deps, { buyAssetId: derpId, sellAssetId: ethId })).rejects.toThrow(
-      `[getPriceRatio]: No thorchain pool found`
+      `[getPriceRatio]: No thorchain pool found`,
     )
   })
 })

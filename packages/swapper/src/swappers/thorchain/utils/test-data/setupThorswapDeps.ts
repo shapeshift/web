@@ -10,8 +10,8 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
     fast: {
       txFee: '1',
       chainSpecific: { approvalFee: '1', gasLimit: '1', gasPrice: '1' },
-      tradeFee: '2'
-    }
+      tradeFee: '2',
+    },
   }
 
   const adapterManager = new Map([
@@ -27,22 +27,22 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
             [FeeDataKey.Slow]: {
               gasPrice: '1',
               maxFeePerGas: '2',
-              maxPriorityFeePerGas: '3'
+              maxPriorityFeePerGas: '3',
             },
             [FeeDataKey.Average]: {
               gasPrice: '4',
               maxFeePerGas: '5',
-              maxPriorityFeePerGas: '6'
+              maxPriorityFeePerGas: '6',
             },
             [FeeDataKey.Fast]: {
               gasPrice: '7',
               maxFeePerGas: '8',
-              maxPriorityFeePerGas: '9'
-            }
-          })
-        )
-      } as unknown as ChainAdapter<'eip155'>
-    ]
+              maxPriorityFeePerGas: '9',
+            },
+          }),
+        ),
+      } as unknown as ChainAdapter<'eip155'>,
+    ],
   ])
 
   const midgardUrl = 'localhost:3000'

@@ -26,7 +26,7 @@ export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
 export const CHAIN_NAMESPACE = {
   Ethereum: 'eip155',
   Bitcoin: 'bip122',
-  Cosmos: 'cosmos'
+  Cosmos: 'cosmos',
 } as const
 
 type ValidChainMap = {
@@ -49,7 +49,7 @@ export const CHAIN_REFERENCE = {
   CosmosHubVega: 'vega-testnet',
   OsmosisMainnet: 'osmosis-1',
   OsmosisTestnet: 'osmo-testnet-1',
-  AvalancheCChain: '43114' // https://docs.avax.network/apis/avalanchego/apis/c-chain
+  AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -58,20 +58,20 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BitcoinTestnet,
     CHAIN_REFERENCE.BitcoinCashMainnet,
     CHAIN_REFERENCE.DogecoinMainnet,
-    CHAIN_REFERENCE.LitecoinMainnet
+    CHAIN_REFERENCE.LitecoinMainnet,
   ],
   [CHAIN_NAMESPACE.Ethereum]: [
     CHAIN_REFERENCE.EthereumMainnet,
     CHAIN_REFERENCE.EthereumRopsten,
     CHAIN_REFERENCE.EthereumRinkeby,
-    CHAIN_REFERENCE.AvalancheCChain
+    CHAIN_REFERENCE.AvalancheCChain,
   ],
   [CHAIN_NAMESPACE.Cosmos]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
     CHAIN_REFERENCE.CosmosHubVega,
     CHAIN_REFERENCE.OsmosisMainnet,
-    CHAIN_REFERENCE.OsmosisTestnet
-  ]
+    CHAIN_REFERENCE.OsmosisTestnet,
+  ],
 })
 
 type ValidAssetNamespace = {
@@ -81,7 +81,7 @@ type ValidAssetNamespace = {
 export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Bitcoin]: ['slip44'],
   [CHAIN_NAMESPACE.Ethereum]: ['slip44', 'erc20', 'erc721'],
-  [CHAIN_NAMESPACE.Cosmos]: ['cw20', 'cw721', 'ibc', 'native', 'slip44']
+  [CHAIN_NAMESPACE.Cosmos]: ['cw20', 'cw721', 'ibc', 'native', 'slip44'],
 })
 
 export const ASSET_NAMESPACE_STRINGS = [
@@ -91,7 +91,7 @@ export const ASSET_NAMESPACE_STRINGS = [
   'erc721',
   'slip44',
   'native',
-  'ibc'
+  'ibc',
 ] as const
 
 export const ASSET_REFERENCE = {
@@ -102,5 +102,5 @@ export const ASSET_REFERENCE = {
   Cosmos: '118',
   Osmosis: '118',
   BitcoinCash: '145',
-  AvalancheC: '9000'
+  AvalancheC: '9000',
 } as const

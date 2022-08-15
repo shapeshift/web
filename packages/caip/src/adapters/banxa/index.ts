@@ -11,7 +11,7 @@ import {
   cosmosAssetId,
   cosmosChainId,
   ethAssetId,
-  ethChainId
+  ethChainId,
 } from '../../constants'
 import { AssetId } from './../../assetId/assetId'
 
@@ -48,7 +48,7 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'usdc',
   'eip155:1/erc20:0x8e870d67f660d95d5be530380d0ec0bd388289e1': 'usdp',
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
-  'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc'
+  'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
 } as Record<AssetId, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>
@@ -64,7 +64,7 @@ export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
 export const getSupportedBanxaAssets = () =>
   entries(AssetIdToBanxaTickerMap).map(([assetId, ticker]) => ({
     assetId,
-    ticker
+    ticker,
   }))
 
 /**
@@ -79,7 +79,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [ethChainId]: 'ETH',
   [btcChainId]: 'BTC',
   [cosmosChainId]: 'COSMOS',
-  [avalancheChainId]: 'AVAX-C' // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
+  [avalancheChainId]: 'AVAX-C', // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
 } as const
 
 /**

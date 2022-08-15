@@ -5,7 +5,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { Yearn } from '@yfi/sdk'
 
@@ -51,7 +51,7 @@ export class MarketServiceManager {
       new YearnVaultMarketCapService({ yearnSdk }),
       new YearnTokenMarketCapService({ yearnSdk }),
       new OsmosisMarketService(),
-      new FoxyMarketService({ coinGeckoAPIKey, providerUrls })
+      new FoxyMarketService({ coinGeckoAPIKey, providerUrls }),
     ]
   }
 
@@ -87,7 +87,7 @@ export class MarketServiceManager {
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     let result: HistoryData[] | null = null
     // Loop through market providers and look for asset price history data. Once found, exit loop.

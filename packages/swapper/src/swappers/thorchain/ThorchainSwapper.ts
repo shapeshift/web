@@ -21,7 +21,7 @@ import {
   TradeQuote,
   TradeResult,
   TradeTxs,
-  UtxoSupportedChainIds
+  UtxoSupportedChainIds,
 } from '../../api'
 import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
@@ -41,7 +41,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.DogecoinMainnet]: true,
     [KnownChainIds.LitecoinMainnet]: true,
     [KnownChainIds.BitcoinCashMainnet]: true,
-    [KnownChainIds.CosmosMainnet]: true
+    [KnownChainIds.CosmosMainnet]: true,
   }
 
   private buySupportedChainIds: Record<ChainId, boolean> = {
@@ -50,7 +50,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.DogecoinMainnet]: true,
     [KnownChainIds.LitecoinMainnet]: true,
     [KnownChainIds.BitcoinCashMainnet]: true,
-    [KnownChainIds.CosmosMainnet]: true
+    [KnownChainIds.CosmosMainnet]: true,
   }
 
   private supportedSellAssetIds: AssetId[] = []
@@ -64,7 +64,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   async initialize() {
     try {
       const { data: responseData } = await thorService.get<PoolResponse[]>(
-        `${this.deps.midgardUrl}/pools`
+        `${this.deps.midgardUrl}/pools`,
       )
 
       this.supportedSellAssetIds = responseData.reduce<AssetId[]>((acc, midgardPool) => {
@@ -83,7 +83,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     } catch (e) {
       throw new SwapError('[thorchainInitialize]: initialize failed to set supportedAssetIds', {
         code: SwapErrorTypes.INITIALIZE_FAILED,
-        cause: e
+        cause: e,
       })
     }
   }
@@ -97,20 +97,20 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   }
 
   async approvalNeeded(
-    input: ApprovalNeededInput<KnownChainIds.EthereumMainnet>
+    input: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
   ): Promise<ApprovalNeededOutput> {
     return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 
   async approveInfinite(
-    input: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
+    input: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>,
   ): Promise<string> {
     return thorTradeApproveInfinite({ deps: this.deps, input })
   }
 
   async approveAmount(): Promise<string> {
     throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
-      code: SwapErrorTypes.RESPONSE_ERROR
+      code: SwapErrorTypes.RESPONSE_ERROR,
     })
   }
 
@@ -118,7 +118,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     const { assetIds = [], sellAssetId } = args
     if (!this.supportedSellAssetIds.includes(sellAssetId)) return []
     return assetIds.filter(
-      (assetId) => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId
+      (assetId) => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId,
     )
   }
 
@@ -143,7 +143,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         throw new SwapError('[executeTrade]: no adapter for sell asset chain id', {
           code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
           details: { chainId: trade.sellAsset.chainId },
-          fn: 'executeTrade'
+          fn: 'executeTrade',
         })
 
       const { chainNamespace } = fromAssetId(trade.sellAsset.assetId)
@@ -153,7 +153,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           adapter as unknown as EvmBaseAdapter<EvmSupportedChainIds>
         ).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.EthereumMainnet>).txData as ETHSignTx,
-          wallet
+          wallet,
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
@@ -162,28 +162,28 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           adapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
         ).signTransaction({
           txToSign: (trade as ThorTrade<UtxoSupportedChainIds>).txData as BTCSignTx,
-          wallet
+          wallet,
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
       } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
         const signedTx = await (adapter as unknown as cosmos.ChainAdapter).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.CosmosMainnet>).txData as CosmosSignTx,
-          wallet
+          wallet,
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
       } else {
         throw new SwapError('[executeTrade]: unsupported trade', {
           code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
-          fn: 'executeTrade'
+          fn: 'executeTrade',
         })
       }
     } catch (e) {
       if (e instanceof SwapError) throw e
       throw new SwapError('[executeTrade]: failed to sign or broadcast', {
         code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
-        cause: e
+        cause: e,
       })
     }
   }
@@ -195,7 +195,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         : tradeResult.tradeId
 
       const { data: responseData } = await thorService.get<MidgardActionsResponse>(
-        `${this.deps.midgardUrl}/actions?txid=${midgardTxid}`
+        `${this.deps.midgardUrl}/actions?txid=${midgardTxid}`,
       )
 
       const buyTxid =
@@ -210,7 +210,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       )
         throw new SwapError('[getTradeTxs]: trade failed', {
           code: SwapErrorTypes.TRADE_FAILED,
-          cause: responseData
+          cause: responseData,
         })
 
       const standardBuyTxid = responseData?.actions[0]?.out[0]?.coins[0]?.asset.startsWith('ETH.')
@@ -219,13 +219,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       return {
         sellTxid: tradeResult.tradeId,
-        buyTxid: standardBuyTxid.toLowerCase()
+        buyTxid: standardBuyTxid.toLowerCase(),
       }
     } catch (e) {
       if (e instanceof SwapError) throw e
       throw new SwapError('[getTradeTxs]: error', {
         code: SwapErrorTypes.GET_TRADE_TXS_FAILED,
-        cause: e
+        cause: e,
       })
     }
   }

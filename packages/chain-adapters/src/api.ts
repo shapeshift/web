@@ -14,7 +14,7 @@ import {
   Transaction,
   TxHistoryInput,
   TxHistoryResponse,
-  ValidAddressResult
+  ValidAddressResult,
 } from './types'
 
 /**
@@ -68,7 +68,7 @@ export type ChainAdapter<T extends ChainId> = {
   subscribeTxs(
     input: SubscribeTxsInput,
     onMessage: (msg: Transaction) => void,
-    onError?: (err: SubscribeError) => void
+    onError?: (err: SubscribeError) => void,
   ): Promise<void>
 
   unsubscribeTxs(input?: SubscribeTxsInput): void

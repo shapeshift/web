@@ -14,10 +14,10 @@ const avaxSelfSend: Tx = {
   fee: '573508559337000',
   gasLimit: '21000',
   gasUsed: '21000',
-  gasPrice: '27309931397'
+  gasPrice: '27309931397',
 }
 
 export default {
   tx: avaxSelfSend,
-  txMempool: mempoolMock(avaxSelfSend)
+  txMempool: mempoolMock(avaxSelfSend),
 }

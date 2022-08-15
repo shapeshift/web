@@ -23,7 +23,7 @@ describe('parseTx', () => {
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
-          value: '100000'
+          value: '100000',
         },
         transfers: [
           {
@@ -32,9 +32,9 @@ describe('parseTx', () => {
             to: 'MVZSZBDqUsvzDZSvupJyPun2fb8UZKhSi7',
             assetId: ltcAssetId,
             totalValue: '340524408',
-            components: [{ value: '340524408' }]
-          }
-        ]
+            components: [{ value: '340524408' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -57,7 +57,7 @@ describe('parseTx', () => {
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
-          value: '100000'
+          value: '100000',
         },
         transfers: [
           {
@@ -66,9 +66,9 @@ describe('parseTx', () => {
             to: 'MVZSZBDqUsvzDZSvupJyPun2fb8UZKhSi7',
             assetId: ltcAssetId,
             totalValue: '340524408',
-            components: [{ value: '340524408' }]
-          }
-        ]
+            components: [{ value: '340524408' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -95,9 +95,9 @@ describe('parseTx', () => {
             to: 'MVZSZBDqUsvzDZSvupJyPun2fb8UZKhSi7',
             assetId: ltcAssetId,
             totalValue: '340424408',
-            components: [{ value: '340424408' }]
-          }
-        ]
+            components: [{ value: '340424408' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -125,9 +125,9 @@ describe('parseTx', () => {
             to: 'MVZSZBDqUsvzDZSvupJyPun2fb8UZKhSi7',
             assetId: ltcAssetId,
             totalValue: '340424408',
-            components: [{ value: '340424408' }]
-          }
-        ]
+            components: [{ value: '340424408' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
@@ -149,7 +149,7 @@ describe('parseTx', () => {
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
-          value: '100000'
+          value: '100000',
         },
         transfers: [
           {
@@ -158,7 +158,7 @@ describe('parseTx', () => {
             from: 'LWvWQ3XMoipFsAqE1EZPQFUovLea7DC1ef',
             assetId: ltcAssetId,
             totalValue: '147680075',
-            components: [{ value: '147680075' }]
+            components: [{ value: '147680075' }],
           },
           {
             type: TransferType.Receive,
@@ -166,9 +166,9 @@ describe('parseTx', () => {
             from: 'LWvWQ3XMoipFsAqE1EZPQFUovLea7DC1ef',
             assetId: ltcAssetId,
             totalValue: '31465800',
-            components: [{ value: '31465800' }]
-          }
-        ]
+            components: [{ value: '31465800' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(txMempool, address)
@@ -191,7 +191,7 @@ describe('parseTx', () => {
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
-          value: '100000'
+          value: '100000',
         },
         transfers: [
           {
@@ -200,7 +200,7 @@ describe('parseTx', () => {
             from: 'LWvWQ3XMoipFsAqE1EZPQFUovLea7DC1ef',
             assetId: ltcAssetId,
             totalValue: '147680075',
-            components: [{ value: '147680075' }]
+            components: [{ value: '147680075' }],
           },
           {
             type: TransferType.Receive,
@@ -208,9 +208,9 @@ describe('parseTx', () => {
             from: 'LWvWQ3XMoipFsAqE1EZPQFUovLea7DC1ef',
             assetId: ltcAssetId,
             totalValue: '31465800',
-            components: [{ value: '31465800' }]
-          }
-        ]
+            components: [{ value: '31465800' }],
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)

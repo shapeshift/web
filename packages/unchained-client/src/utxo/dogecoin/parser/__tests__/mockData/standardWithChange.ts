@@ -15,33 +15,33 @@ const tx: Tx = {
       vout: '1',
       sequence: 4294967295,
       scriptSig: {
-        hex: '47304402204a6d7a74bf46f57715f73671ae83930ca9138f06964acb30c3ac071d08dd3abb022063245d6e6a50c61c2387661355a523af2554dc3f69b10c322ca1eb4e223ef28c012103f0c96a02bac5cd15993028787086a07d548f14b9a06567c274e2bee975bd515d'
+        hex: '47304402204a6d7a74bf46f57715f73671ae83930ca9138f06964acb30c3ac071d08dd3abb022063245d6e6a50c61c2387661355a523af2554dc3f69b10c322ca1eb4e223ef28c012103f0c96a02bac5cd15993028787086a07d548f14b9a06567c274e2bee975bd515d',
       },
       addresses: ['DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N'],
-      value: '70370021036118'
-    }
+      value: '70370021036118',
+    },
   ],
   vout: [
     {
       value: '146202882900',
       n: 0,
       scriptPubKey: {
-        hex: '76a91489763a35f84511f65ceed4e04dcd7aa52115ff4f88ac'
+        hex: '76a91489763a35f84511f65ceed4e04dcd7aa52115ff4f88ac',
       },
-      addresses: ['DHfvk82f2sCqsoUXzTyQSDUoF5YZVYoE1Y']
+      addresses: ['DHfvk82f2sCqsoUXzTyQSDUoF5YZVYoE1Y'],
     },
     {
       value: '70223692253218',
       n: 1,
       scriptPubKey: {
-        hex: '76a9145b7b101880120532e5bcf3a4b8b98bca4ffcb7ee88ac'
+        hex: '76a9145b7b101880120532e5bcf3a4b8b98bca4ffcb7ee88ac',
       },
-      addresses: ['DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N']
-    }
-  ]
+      addresses: ['DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N'],
+    },
+  ],
 }
 
 export default {
   tx,
-  txMempool: { ...tx, blockHash: undefined, blockHeight: -1, confirmations: 0 } as Tx
+  txMempool: { ...tx, blockHash: undefined, blockHeight: -1, confirmations: 0 } as Tx,
 }

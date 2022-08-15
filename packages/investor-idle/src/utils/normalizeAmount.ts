@@ -7,6 +7,6 @@ export const normalizeAmount = (n: number | string, decimals = 18): BigNumber =>
     bnOrZero(n)
       .times(bnOrZero(`1e${decimals}`))
       .integerValue(BigNumber.ROUND_FLOOR)
-      .toFixed(0)
+      .toFixed(0),
   )
 }

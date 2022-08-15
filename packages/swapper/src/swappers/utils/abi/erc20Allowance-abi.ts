@@ -6,22 +6,22 @@ export const erc20AllowanceAbi: AbiItem[] = [
     inputs: [
       {
         name: '_owner',
-        type: 'address'
+        type: 'address',
       },
       {
         name: '_spender',
-        type: 'address'
-      }
+        type: 'address',
+      },
     ],
     name: 'allowance',
     outputs: [
       {
         name: '',
-        type: 'uint256'
-      }
+        type: 'uint256',
+      },
     ],
     payable: false,
     stateMutability: 'view',
-    type: 'function'
-  }
+    type: 'function',
+  },
 ]

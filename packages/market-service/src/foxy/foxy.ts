@@ -5,7 +5,7 @@ import {
   MarketCapResult,
   MarketData,
   MarketDataArgs,
-  PriceHistoryArgs
+  PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -22,7 +22,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
 
   constructor({
     providerUrls,
-    coinGeckoAPIKey
+    coinGeckoAPIKey,
   }: {
     providerUrls: ProviderUrls
     coinGeckoAPIKey: string
@@ -52,7 +52,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
       }
 
       const coinGeckoData = await super.findByAssetId({
-        assetId: FOX_ASSET_ID
+        assetId: FOX_ASSET_ID,
       })
 
       if (!coinGeckoData) return null
@@ -60,22 +60,22 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
       const ethChainAdapter = new ethereum.ChainAdapter({
         providers: {
           ws: new unchained.ws.Client<unchained.ethereum.Tx>(
-            this.providerUrls.unchainedEthereumWsUrl
+            this.providerUrls.unchainedEthereumWsUrl,
           ),
           http: new unchained.ethereum.V1Api(
             new unchained.ethereum.Configuration({
-              basePath: this.providerUrls.unchainedEthereumHttpUrl
-            })
-          )
+              basePath: this.providerUrls.unchainedEthereumHttpUrl,
+            }),
+          ),
         },
-        rpcUrl: this.providerUrls.jsonRpcProviderUrl
+        rpcUrl: this.providerUrls.jsonRpcProviderUrl,
       })
 
       // Make maxSupply as an additional field, effectively EIP-20's totalSupply
       const api = new FoxyApi({
         adapter: ethChainAdapter,
         providerUrl: this.providerUrls.jsonRpcProviderUrl,
-        foxyAddresses
+        foxyAddresses,
       })
 
       const tokenContractAddress = foxyAddresses[0].foxy
@@ -88,7 +88,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
         changePercent24Hr: coinGeckoData.changePercent24Hr,
         volume: '0', // TODO: add volume once able to get foxy volume data
         supply: supply?.div(`1e+${FOXY_ASSET_PRECISION}`).toString(),
-        maxSupply: foxyTotalSupply?.div(`1e+${FOXY_ASSET_PRECISION}`).toString()
+        maxSupply: foxyTotalSupply?.div(`1e+${FOXY_ASSET_PRECISION}`).toString(),
       }
     } catch (e) {
       console.warn(e)
@@ -98,11 +98,11 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
 
   async findPriceHistoryByAssetId({
     assetId,
-    timeframe
+    timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
       console.warn(
-        'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId'
+        'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId',
       )
       return []
     }
@@ -110,7 +110,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
     try {
       const priceHistory = await super.findPriceHistoryByAssetId({
         assetId: FOX_ASSET_ID,
-        timeframe
+        timeframe,
       })
       return priceHistory
     } catch (e) {

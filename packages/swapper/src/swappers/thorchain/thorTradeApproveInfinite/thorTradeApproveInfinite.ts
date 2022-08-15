@@ -10,7 +10,7 @@ import { MAX_ALLOWANCE } from '../utils/constants'
 
 export const thorTradeApproveInfinite = async ({
   deps,
-  input
+  input,
 }: {
   deps: ThorchainSwapperDeps
   input: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>
@@ -28,9 +28,9 @@ export const thorTradeApproveInfinite = async ({
           ...quote.feeData.chainSpecific,
           // Thor approvals are cheaper than trades, but we don't have dynamic quote data for them.
           // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the Thor quote response.
-          estimatedGas: APPROVAL_GAS_LIMIT
-        }
-      }
+          estimatedGas: APPROVAL_GAS_LIMIT,
+        },
+      },
     }
 
     const sellAssetChainId = approvalQuote.sellAsset.chainId
@@ -43,8 +43,8 @@ export const thorTradeApproveInfinite = async ({
         `[thorTradeApproveInfinite] - No chain adapter found for ${sellAssetChainId}.`,
         {
           code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { sellAssetChainId }
-        }
+          details: { sellAssetChainId },
+        },
       )
 
     const allowanceGrantRequired = await grantAllowance<KnownChainIds.EthereumMainnet>({
@@ -52,7 +52,7 @@ export const thorTradeApproveInfinite = async ({
       wallet,
       adapter,
       erc20Abi,
-      web3
+      web3,
     })
 
     return allowanceGrantRequired
@@ -60,7 +60,7 @@ export const thorTradeApproveInfinite = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_INFINITE_FAILED
+      code: SwapErrorTypes.APPROVE_INFINITE_FAILED,
     })
   }
 }

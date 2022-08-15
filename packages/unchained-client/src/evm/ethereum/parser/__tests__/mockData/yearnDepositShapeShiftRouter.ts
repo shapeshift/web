@@ -25,7 +25,7 @@ const yearnDepositShapeShiftRouter = {
       type: 'ERC20',
       from: '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4',
       to: '0x6a1e73f12018D8e5f966ce794aa2921941feB17E',
-      value: '999961394864662132'
+      value: '999961394864662132',
     },
     {
       contract: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
@@ -35,7 +35,7 @@ const yearnDepositShapeShiftRouter = {
       type: 'ERC20',
       from: '0x0000000000000000000000000000000000000000',
       to: '0x1399D13F3A0aaf08f7C5028D81447a311e4760c4',
-      value: '987002304279657611'
+      value: '987002304279657611',
     },
     {
       contract: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
@@ -45,12 +45,12 @@ const yearnDepositShapeShiftRouter = {
       type: 'ERC20',
       from: '0x6a1e73f12018D8e5f966ce794aa2921941feB17E',
       to: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
-      value: '999961394864662132'
-    }
-  ]
+      value: '999961394864662132',
+    },
+  ],
 }
 
 export default {
   tx: yearnDepositShapeShiftRouter,
-  txMempool: mempoolMock(yearnDepositShapeShiftRouter)
+  txMempool: mempoolMock(yearnDepositShapeShiftRouter),
 }

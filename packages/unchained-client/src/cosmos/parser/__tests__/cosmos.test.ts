@@ -27,7 +27,7 @@ describe('parseTx', () => {
       chainId: 'cosmos:cosmoshub-4',
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '2500'
+        value: '2500',
       },
       transfers: [
         {
@@ -36,9 +36,9 @@ describe('parseTx', () => {
           to: 'cosmos14e25lpsedq863vgweqg4m9n0z28c203kfdlzmz',
           assetId: 'cosmos:cosmoshub-4/slip44:118',
           totalValue: '2002965',
-          components: [{ value: '2002965' }]
-        }
-      ]
+          components: [{ value: '2002965' }],
+        },
+      ],
     }
 
     const actual = await txParser.parse(tx, address)
@@ -66,9 +66,9 @@ describe('parseTx', () => {
           to: address,
           assetId: 'cosmos:cosmoshub-4/slip44:118',
           totalValue: '2002965',
-          components: [{ value: '2002965' }]
-        }
-      ]
+          components: [{ value: '2002965' }],
+        },
+      ],
     }
 
     const actual = await txParser.parse(tx, address)
@@ -94,8 +94,8 @@ describe('parseTx', () => {
           from: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
           to: 'cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl',
           totalValue: '1920000',
-          components: [{ value: '1920000' }]
-        }
+          components: [{ value: '1920000' }],
+        },
       ],
       txid: '8136FF781B38919958249308CFABFD253CF371514661119BCD231875968BD06B',
       data: {
@@ -103,12 +103,12 @@ describe('parseTx', () => {
         method: 'delegate',
         delegator: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
         destinationValidator: 'cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl',
-        value: `1920000`
+        value: `1920000`,
       },
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '6250'
-      }
+        value: '6250',
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -129,22 +129,22 @@ describe('parseTx', () => {
       status: TxStatus.Confirmed,
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '6250'
+        value: '6250',
       },
       transfers: [
         {
           assetId: 'cosmos:cosmoshub-4/slip44:118',
           components: [
             {
-              value: '200000'
-            }
+              value: '200000',
+            },
           ],
           from: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
           to: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
           token: undefined,
           totalValue: '200000',
-          type: TransferType.Receive
-        }
+          type: TransferType.Receive,
+        },
       ],
       txid: '1795FE6ED7B5A8C5478CBDE27F35C8FB64FC6229B7B90FA47D4406AA2078BBAB',
       data: {
@@ -152,8 +152,8 @@ describe('parseTx', () => {
         method: 'begin_unbonding',
         delegator: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
         destinationValidator: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
-        value: `200000`
-      }
+        value: `200000`,
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -181,12 +181,12 @@ describe('parseTx', () => {
         delegator: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
         destinationValidator: 'cosmosvaloper156gqf9837u7d4c4678yt3rl4ls9c5vuursrrzf',
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: `500000`
+        value: `500000`,
       },
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '6250'
-      }
+        value: '6250',
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -212,8 +212,8 @@ describe('parseTx', () => {
           from: 'cosmosvaloper1hdrlqvyjfy5sdrseecjrutyws9khtxxaux62l7',
           to: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
           totalValue: '39447',
-          components: [{ value: '39447' }]
-        }
+          components: [{ value: '39447' }],
+        },
       ],
       txid: 'E34AFB3A28198957040073034E16D4A979B403E672859651B41C207538136ABE',
       data: {
@@ -221,12 +221,12 @@ describe('parseTx', () => {
         method: 'withdraw_delegator_reward',
         destinationValidator: 'cosmos179k2lz70rxvjrvvr65cynw9x5c8v3kftg46v05',
         value: '39447',
-        assetId: 'cosmos:cosmoshub-4/slip44:118'
+        assetId: 'cosmos:cosmoshub-4/slip44:118',
       },
       fee: {
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '7000'
-      }
+        value: '7000',
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -255,10 +255,10 @@ describe('parseTx', () => {
           totalValue: '108444',
           components: [
             {
-              value: '108444'
-            }
-          ]
-        }
+              value: '108444',
+            },
+          ],
+        },
       ],
       txid: '51D1916A963DDDC01A507D3323A27D59C88C9EFC0F1666E0FA4F326C451CE4C4',
       data: {
@@ -267,8 +267,8 @@ describe('parseTx', () => {
         ibcDestination: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
         ibcSource: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
         assetId: 'cosmos:cosmoshub-4/slip44:118',
-        value: '108444'
-      }
+        value: '108444',
+      },
     }
 
     const actual = await txParser.parse(tx, address)
@@ -298,10 +298,10 @@ it('should be able to parse an ibc receive tx', async () => {
         totalValue: '3230396',
         components: [
           {
-            value: '3230396'
-          }
-        ]
-      }
+            value: '3230396',
+          },
+        ],
+      },
     ],
     txid: 'D78AB26809244FD2E9D65120285624CB61BCB5B9FBC2164DAC379C2CC7A78DE8',
     data: {
@@ -310,8 +310,8 @@ it('should be able to parse an ibc receive tx', async () => {
       ibcDestination: 'cosmos1fx4jwv3aalxqwmrpymn34l582lnehr3eqwuz9e',
       ibcSource: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
       assetId: 'cosmos:cosmoshub-4/slip44:118',
-      value: '3230396'
-    }
+      value: '3230396',
+    },
   }
 
   const actual = await txParser.parse(tx, address)

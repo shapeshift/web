@@ -43,7 +43,7 @@ export class AssetService {
       const polyglot = new Polyglot({
         phrases: localeDescriptions,
         allowMissing: true,
-        onMissingKey: (key) => assetsDescriptions.en[key] // fallback to English overriden description, which should always be added as a base translation
+        onMissingKey: (key) => assetsDescriptions.en[key], // fallback to English overriden description, which should always be added as a base translation
       })
       const overriddenDescription = polyglot.t(assetId)
 
@@ -72,7 +72,7 @@ export class AssetService {
   async generateAssetIconBase64(
     identity: string,
     text?: string,
-    options?: IdenticonOptions
+    options?: IdenticonOptions,
   ): Promise<string> {
     return getRenderedIdenticonBase64(identity, text, options)
   }

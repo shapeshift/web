@@ -6,7 +6,7 @@ export const coincapUrl = 'https://api.coincap.io/v2/assets?limit=2000'
 
 const generatedAssetIdToCoinCapMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,
-  ...cur
+  ...cur,
 })) as Record<string, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>

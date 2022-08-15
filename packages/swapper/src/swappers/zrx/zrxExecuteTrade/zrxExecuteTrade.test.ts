@@ -10,7 +10,7 @@ describe('ZrxExecuteTrade', () => {
   const { sellAsset, buyAsset } = setupQuote()
   const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
   let wallet = {
-    supportsOfflineSigning: jest.fn(() => true)
+    supportsOfflineSigning: jest.fn(() => true),
   } as unknown as HDWallet
 
   const adapter = {
@@ -18,7 +18,7 @@ describe('ZrxExecuteTrade', () => {
     buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
     signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
     broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
-    signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid))
+    signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid)),
   } as unknown as ChainAdapter<'eip155:1'>
 
   const deps = { adapter } as unknown as ZrxSwapperDeps
@@ -36,34 +36,34 @@ describe('ZrxExecuteTrade', () => {
     feeData: {
       fee: '0',
       chainSpecific: { approvalFee: '123600000', estimatedGas: '1235', gasPrice: '1236' },
-      tradeFee: '0'
+      tradeFee: '0',
     },
-    sources: []
+    sources: [],
   }
 
   const execTradeInput: ZrxExecuteTradeInput<KnownChainIds.EthereumMainnet> = {
     trade,
-    wallet
+    wallet,
   }
 
   it('returns txid if offline signing is supported', async () => {
     expect(
       await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
-        ...execTradeInput
-      })
+        ...execTradeInput,
+      }),
     ).toEqual({ tradeId: txid })
   })
 
   it('returns txid if offline signing is unsupported', async () => {
     wallet = {
       supportsOfflineSigning: jest.fn(() => false),
-      supportsBroadcast: jest.fn(() => true)
+      supportsBroadcast: jest.fn(() => true),
     } as unknown as HDWallet
 
     expect(
       await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
-        ...execTradeInput
-      })
+        ...execTradeInput,
+      }),
     ).toEqual({ tradeId: txid })
   })
 })

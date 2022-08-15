@@ -18,8 +18,8 @@ export default {
       {
         from: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         to: '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839',
-        value: '100000000000000000'
-      }
-    ]
-  }
+        value: '100000000000000000',
+      },
+    ],
+  },
 }

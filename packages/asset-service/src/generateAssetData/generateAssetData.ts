@@ -26,7 +26,7 @@ const generateAssetData = async () => {
     atom,
     ...ethAssets,
     ...osmosisAssets,
-    ...avalancheAssets
+    ...avalancheAssets,
   ]
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)
@@ -53,7 +53,7 @@ const generateAssetData = async () => {
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,
     // beautify the file for github diff.
-    JSON.stringify(generatedAssetData, null, 2)
+    JSON.stringify(generatedAssetData, null, 2),
   )
 }
 

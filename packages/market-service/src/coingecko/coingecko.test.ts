@@ -43,7 +43,7 @@ describe('CoinGecko market service', () => {
       atl_change_percentage: 80934.36893,
       atl_date: '2013-07-06T00:00:00.000Z',
       roi: null,
-      last_updated: '2021-10-10T22:16:39.866Z'
+      last_updated: '2021-10-10T22:16:39.866Z',
     }
 
     const eth: CoinGeckoMarketCap = {
@@ -74,9 +74,9 @@ describe('CoinGecko market service', () => {
       roi: {
         times: 83.32608527170541,
         currency: 'btc',
-        percentage: 8332.60852717054
+        percentage: 8332.60852717054,
       },
-      last_updated: '2021-10-10T22:16:22.950Z'
+      last_updated: '2021-10-10T22:16:22.950Z',
     }
 
     const fox: CoinGeckoMarketCap = {
@@ -107,9 +107,9 @@ describe('CoinGecko market service', () => {
       roi: {
         times: 83.32608527170541,
         currency: 'btc',
-        percentage: 8332.60852717054
+        percentage: 8332.60852717054,
       },
-      last_updated: '2021-10-10T22:16:22.950Z'
+      last_updated: '2021-10-10T22:16:22.950Z',
     }
 
     const usdc: CoinGeckoMarketCap = {
@@ -138,7 +138,7 @@ describe('CoinGecko market service', () => {
       roi: null,
       symbol: 'usdc',
       total_supply: 54494627696.0103,
-      total_volume: 5745233196
+      total_volume: 5745233196,
     }
 
     it('can use free tier with no api key', async () => {
@@ -229,7 +229,7 @@ describe('CoinGecko market service', () => {
         changePercent24Hr: -0.33384,
         volume: '38267223547',
         supply: '18840237',
-        maxSupply: '21000000'
+        maxSupply: '21000000',
       }
 
       const ethResult = {
@@ -237,7 +237,7 @@ describe('CoinGecko market service', () => {
         marketCap: '407989270877',
         changePercent24Hr: -3.74881,
         volume: '17486135198',
-        supply: '117874980.3115'
+        supply: '117874980.3115',
       }
 
       mockedAxios.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
@@ -255,7 +255,7 @@ describe('CoinGecko market service', () => {
         changePercent24Hr: 3.74881,
         volume: '450668',
         supply: '368461498.77715254',
-        maxSupply: '1000001337'
+        maxSupply: '1000001337',
       }
 
       mockedAxios.get.mockResolvedValue({ data: [fox] })
@@ -267,7 +267,7 @@ describe('CoinGecko market service', () => {
 
   describe('findByAssetId', () => {
     const args = {
-      assetId: 'eip155:1/slip44:60'
+      assetId: 'eip155:1/slip44:60',
     }
 
     it('should return market data for ETH', async () => {
@@ -276,22 +276,22 @@ describe('CoinGecko market service', () => {
         marketCap: '424970837706',
         changePercent24Hr: 2.19682,
         volume: '21999495657',
-        supply: '120839129.44'
+        supply: '120839129.44',
       }
       const market_data = {
         current_price: {
-          usd: Number(result.price)
+          usd: Number(result.price),
         },
         market_cap: {
-          usd: Number(result.marketCap)
+          usd: Number(result.marketCap),
         },
         price_change_percentage_24h: result.changePercent24Hr,
         total_volume: {
-          usd: Number(result.volume)
+          usd: Number(result.volume),
         },
         circulating_supply: Number(result.supply),
         max_supply: null,
-        total_supply: null
+        total_supply: null,
       }
       mockedAxios.get.mockResolvedValue({ data: { market_data } })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
@@ -304,22 +304,22 @@ describe('CoinGecko market service', () => {
         changePercent24Hr: -0.33384,
         volume: '38267223547',
         supply: '18840237',
-        maxSupply: '21000000'
+        maxSupply: '21000000',
       }
       const market_data = {
         current_price: {
-          usd: Number(result.price)
+          usd: Number(result.price),
         },
         market_cap: {
-          usd: Number(result.marketCap)
+          usd: Number(result.marketCap),
         },
         price_change_percentage_24h: result.changePercent24Hr,
         total_volume: {
-          usd: Number(result.volume)
+          usd: Number(result.volume),
         },
         circulating_supply: Number(result.supply),
         max_supply: Number(result.maxSupply),
-        total_supply: Number(result.maxSupply)
+        total_supply: Number(result.maxSupply),
       }
       mockedAxios.get.mockResolvedValue({ data: { market_data } })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
@@ -332,22 +332,22 @@ describe('CoinGecko market service', () => {
         changePercent24Hr: 5.45678,
         volume: '1571401',
         supply: '368444695.88',
-        maxSupply: '1000001337'
+        maxSupply: '1000001337',
       }
       const market_data = {
         current_price: {
-          usd: Number(result.price)
+          usd: Number(result.price),
         },
         market_cap: {
-          usd: Number(result.marketCap)
+          usd: Number(result.marketCap),
         },
         price_change_percentage_24h: result.changePercent24Hr,
         total_volume: {
-          usd: Number(result.volume)
+          usd: Number(result.volume),
         },
         circulating_supply: Number(result.supply),
         max_supply: null,
-        total_supply: Number(result.maxSupply)
+        total_supply: Number(result.maxSupply),
       }
       mockedAxios.get.mockResolvedValue({ data: { market_data } })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
@@ -357,7 +357,7 @@ describe('CoinGecko market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinGeckoMarketService.findByAssetId(args)).rejects.toEqual(
-        new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
+        new Error('CoinGeckoMarketService(findByAssetId): error fetching market data'),
       )
     })
   })
@@ -365,7 +365,7 @@ describe('CoinGecko market service', () => {
   describe('findPriceHistoryByAssetId', () => {
     const args = {
       assetId: 'eip155:1/slip44:60',
-      timeframe: HistoryTimeframe.HOUR
+      timeframe: HistoryTimeframe.HOUR,
     }
 
     it('should return market data for ETH', async () => {
@@ -373,14 +373,14 @@ describe('CoinGecko market service', () => {
         [1631664000000, 47135.43199562694],
         [1631577600000, 45139.83396873267],
         [1631491200000, 46195.21830082935],
-        [1631404800000, 45196.488277558245]
+        [1631404800000, 45196.488277558245],
       ]
 
       const expected = [
         { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 47135.43199562694 },
         { date: new Date('2021-09-14T00:00:00.000Z').valueOf(), price: 45139.83396873267 },
         { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 46195.21830082935 },
-        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 }
+        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 },
       ]
       mockedAxios.get.mockResolvedValue({ data: { prices: mockHistoryData } })
       expect(await coinGeckoMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)
@@ -390,7 +390,9 @@ describe('CoinGecko market service', () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinGeckoMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
-        new Error('CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history')
+        new Error(
+          'CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history',
+        ),
       )
     })
   })

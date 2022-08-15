@@ -24,7 +24,7 @@ export default {
         type: 'ERC20',
         from: '0x5bb96c35a68Cba037D0F261C67477416db137F03',
         to: '0x7ce01885a13c652241aE02Ea7369Ee8D466802EB',
-        value: '1000000000000000000000'
+        value: '1000000000000000000000',
       },
       {
         contract: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -34,20 +34,20 @@ export default {
         type: 'ERC20',
         from: '0x7ce01885a13c652241aE02Ea7369Ee8D466802EB',
         to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
-        value: '541566754246167133'
-      }
+        value: '541566754246167133',
+      },
     ],
     internalTxs: [
       {
         from: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
-        value: '541566754246167133'
+        value: '541566754246167133',
       },
       {
         from: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
         to: '0x5bb96c35a68Cba037D0F261C67477416db137F03',
-        value: '541566754246167133'
-      }
-    ]
-  }
+        value: '541566754246167133',
+      },
+    ],
+  },
 }

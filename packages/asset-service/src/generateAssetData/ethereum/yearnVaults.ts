@@ -15,7 +15,7 @@ export const yearnSdk = new Yearn(network, { provider })
 const explorerData = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
-  explorerTxLink: ethereum.explorerTxLink
+  explorerTxLink: ethereum.explorerTxLink,
 }
 
 export const getYearnVaults = async (): Promise<Asset[]> => {
@@ -32,7 +32,7 @@ export const getYearnVaults = async (): Promise<Asset[]> => {
       tokenId: toLower(vault.address),
       chainId,
       assetId,
-      ...explorerData
+      ...explorerData,
     }
   })
 }
@@ -50,7 +50,7 @@ export const getIronBankTokens = async (): Promise<Asset[]> => {
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId,
-      assetId
+      assetId,
     }
   })
 }
@@ -68,7 +68,7 @@ export const getZapperTokens = async (): Promise<Asset[]> => {
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId,
-      assetId
+      assetId,
     }
   })
 }
@@ -86,7 +86,7 @@ export const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId,
-      assetId
+      assetId,
     }
   })
 }

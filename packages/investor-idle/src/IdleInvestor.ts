@@ -42,7 +42,7 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
       contract,
       network,
       dryRun,
-      web3
+      web3,
     })
     this.#opportunities = []
   }
@@ -59,7 +59,7 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
   async findByOpportunityId(opportunityId: string) {
     return find(
       await this.findAll(),
-      (opp: IdleOpportunity) => opp.positionAsset.assetId === opportunityId
+      (opp: IdleOpportunity) => opp.positionAsset.assetId === opportunityId,
     )
   }
 

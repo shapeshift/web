@@ -24,7 +24,7 @@ const assetIdToGemAssetIdMap = {
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'usd-coin',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wrapped-bitcoin',
   'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
-  'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yearn-finance'
+  'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yearn-finance',
 } as Record<string, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>

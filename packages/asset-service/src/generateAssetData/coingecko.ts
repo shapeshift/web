@@ -24,7 +24,7 @@ type TokenList = {
 }
 export async function getAssets(
   chainId: ChainId,
-  overrideAssets: Array<Asset> = []
+  overrideAssets: Array<Asset> = [],
 ): Promise<Asset[]> {
   const { category, explorer, explorerAddressLink, explorerTxLink } = (() => {
     switch (chainId) {
@@ -33,14 +33,14 @@ export async function getAssets(
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: ethereum.explorer,
           explorerAddressLink: ethereum.explorerAddressLink,
-          explorerTxLink: ethereum.explorerTxLink
+          explorerTxLink: ethereum.explorerTxLink,
         }
       case avalancheChainId:
         return {
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: avax.explorer,
           explorerAddressLink: avax.explorerAddressLink,
-          explorerTxLink: avax.explorerTxLink
+          explorerTxLink: avax.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)
@@ -73,7 +73,7 @@ export async function getAssets(
         symbol: token.symbol,
         explorer,
         explorerAddressLink,
-        explorerTxLink
+        explorerTxLink,
       }
       prev.push(asset)
     } catch {

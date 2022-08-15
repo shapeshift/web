@@ -15,24 +15,24 @@ const tx: Tx = {
       vout: '47',
       sequence: 4294967294,
       scriptSig: {
-        hex: '413b2e6eec5c103451d51cbee26720128214b10712030fba50ad28adc20ef9f65dfa34a011e5626f138fc99b6d17ad9c6e6ed4e3f2cb3091b0081676299f6550f641210339afd5be7cc4bfe92ba3097721b29086a72e2fde17c2bd70b40fbf1619cc1d9b'
+        hex: '413b2e6eec5c103451d51cbee26720128214b10712030fba50ad28adc20ef9f65dfa34a011e5626f138fc99b6d17ad9c6e6ed4e3f2cb3091b0081676299f6550f641210339afd5be7cc4bfe92ba3097721b29086a72e2fde17c2bd70b40fbf1619cc1d9b',
       },
       addresses: ['bitcoincash:qq8th24ps88yzgvtdzc0eslufg5w7qjdmv6smzhjmu'],
-      value: '10436903'
-    }
+      value: '10436903',
+    },
   ],
   vout: [
     {
       value: '10436718',
       n: 0,
       scriptPubKey: {
-        hex: '76a91428b4e1bdbafef3518bd659cec48aaff0d32a8a1088ac'
+        hex: '76a91428b4e1bdbafef3518bd659cec48aaff0d32a8a1088ac',
       },
-      addresses: ['bitcoincash:qq5tfcdahtl0x5vt6evua3y24lcdx252zqlhz6safs']
-    }
-  ]
+      addresses: ['bitcoincash:qq5tfcdahtl0x5vt6evua3y24lcdx252zqlhz6safs'],
+    },
+  ],
 }
 export default {
   tx,
-  txMempool: { ...tx, blockHash: undefined, blockHeight: -1, confirmations: 0 } as Tx
+  txMempool: { ...tx, blockHash: undefined, blockHeight: -1, confirmations: 0 } as Tx,
 }

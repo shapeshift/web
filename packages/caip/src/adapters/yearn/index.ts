@@ -4,7 +4,7 @@ import * as adapters from './generated'
 
 const generatedAssedIdToYearnMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,
-  ...cur
+  ...cur,
 })) as Record<string, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>

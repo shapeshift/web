@@ -26,12 +26,12 @@ export const tokenStandard: Tx = {
       type: 'ERC20',
       from: '0x56b5a6c24Cb8Da581125be06361d5Cd95d7EA65b',
       to: '0x64e13a11b87A9025F6F4fcB0c61563984f3D58Df',
-      value: '143199292'
-    }
-  ]
+      value: '143199292',
+    },
+  ],
 }
 
 export default {
   tx: tokenStandard,
-  txMempool: mempoolMock(tokenStandard)
+  txMempool: mempoolMock(tokenStandard),
 }

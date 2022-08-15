@@ -20,7 +20,7 @@ import { ErrorTranslationMap, useErrorHandler } from 'hooks/useErrorToast/useErr
 import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
@@ -83,9 +83,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    feeAsset?.assetId === sellTradeAsset?.asset?.assetId
-      ? bnOrZero(sellTradeAsset.amount)
-      : bnOrZero(0)
+    feeAsset?.assetId === sellTradeAsset?.asset?.assetId ? bnOrZero(sellTradeAsset.amount) : bn(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset?.precision))

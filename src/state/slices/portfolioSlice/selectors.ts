@@ -409,7 +409,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
         })
 
         return acc
-      }, bnOrZero(0))
+      }, bn(0))
       .toString()
 
     return amount
@@ -908,7 +908,7 @@ export const selectUnbondingCryptoAmountByAssetIdAndValidator = createDeepEqualO
     const unbondingCryptoAmountByAssetIdAndValidator = unbondingEntries
       .reduce((acc, current) => {
         return acc.plus(bnOrZero(current.amount))
-      }, bnOrZero(0))
+      }, bn(0))
       .toString()
 
     return unbondingCryptoAmountByAssetIdAndValidator
@@ -972,7 +972,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         .plus(
           undelegatedEntries.reduce<BN>(
             (acc, current) => acc.plus(bnOrZero(current.amount)),
-            bnOrZero(0),
+            bn(0),
           ),
         )
         .toString()

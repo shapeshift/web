@@ -10,7 +10,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -23,6 +23,7 @@ import { WithdrawContext } from '../WithdrawContext'
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const [isExiting, setIsExiting] = useState<boolean>(false)
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
   const opportunity = state?.opportunity
@@ -42,7 +43,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     try {
-      const fee = await getUnstakeGasData(withdraw.cryptoAmount)
+      const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
       if (!fee) return
       return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
     } catch (error) {
@@ -57,7 +58,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
       type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      payload: { lpAmount: formValues.cryptoAmount },
+      payload: { lpAmount: formValues.cryptoAmount, isExiting },
     })
     const lpAllowance = await allowance()
     const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
@@ -100,6 +101,18 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const fiatAmount = bnOrZero(totalFiatBalance).times(percent).toFixed(2)
     setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    // exit if max button was clicked
+    if (percent === 1) setIsExiting(true)
+    else setIsExiting(false)
+  }
+
+  const handleInputChange = (value: string, isFiat?: boolean) => {
+    const percentage = bnOrZero(value).div(
+      bnOrZero(isFiat ? totalFiatBalance : cryptoAmountAvailable),
+    )
+    // exit if widhtrawing total balance
+    if (percentage.eq(1)) setIsExiting(true)
+    else setIsExiting(false)
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -147,6 +160,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
+        onInputChange={handleInputChange}
       />
     </FormProvider>
   )

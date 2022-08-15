@@ -11,7 +11,7 @@ import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { setupExecuteTrade } from './utils/test-data/setupZrxSwapQuote'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
-import { zrxApproveInfinite } from './zrxApprove/zrxApprove'
+import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove/zrxApprove'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
@@ -38,6 +38,7 @@ jest.mock('./zrxApprovalNeeded/zrxApprovalNeeded', () => ({
 
 jest.mock('./zrxApprove/zrxApprove', () => ({
   zrxApproveInfinite: jest.fn(),
+  zrxApproveAmount: jest.fn(),
 }))
 
 describe('ZrxSwapper', () => {
@@ -96,5 +97,13 @@ describe('ZrxSwapper', () => {
     const args = { quote: tradeQuote, wallet }
     await swapper.approveInfinite(args)
     expect(zrxApproveInfinite).toHaveBeenCalled()
+  })
+
+  it('calls zrxApproveAmount on swapper.approveAmount', async () => {
+    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
+    const { tradeQuote } = setupQuote()
+    const args = { quote: tradeQuote, wallet }
+    await swapper.approveAmount(args)
+    expect(zrxApproveAmount).toHaveBeenCalled()
   })
 })

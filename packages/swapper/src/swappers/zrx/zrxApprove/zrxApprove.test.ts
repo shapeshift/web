@@ -4,7 +4,7 @@ import Web3 from 'web3'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { zrxApproveInfinite } from './zrxApprove'
+import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove'
 
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 
@@ -47,5 +47,22 @@ describe('zrxApproveInfinite', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     expect(await zrxApproveInfinite(deps, { quote, wallet })).toEqual('grantAllowanceTxId')
+  })
+})
+
+describe('zrxApproveAmount', () => {
+  const deps = setupDeps()
+  const { tradeQuote } = setupQuote()
+  const wallet = {
+    ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
+    ethSignTx: jest.fn(() => Promise.resolve({})),
+  } as unknown as HDWallet
+
+  it('should return a txid', async () => {
+    const data = { allowanceTarget: '10000' }
+    const quote = { ...tradeQuote }
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+
+    expect(await zrxApproveAmount(deps, { quote, wallet })).toEqual('grantAllowanceTxId')
   })
 })

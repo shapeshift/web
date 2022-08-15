@@ -19,7 +19,6 @@ export const ApproveIcon = ({
   const approvedAsset = useAppSelector(state => selectAssetById(state, assetId))
   const approvedValue = bnOrZero(value)
 
-  // TODO: Abstract at parent component-level and pass it down as a prop?
   const isRevoke = approvedValue.isZero()
 
   return (

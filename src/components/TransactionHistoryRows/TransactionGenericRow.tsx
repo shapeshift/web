@@ -44,7 +44,7 @@ const TransactionIcon = ({
 }: {
   type: string
   txData: Tx['data']
-  compactMode: any
+  compactMode: boolean
 }) => {
   switch (type) {
     case TransferType.Send:

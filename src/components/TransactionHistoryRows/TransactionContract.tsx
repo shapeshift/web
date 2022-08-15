@@ -49,13 +49,13 @@ export const TransactionContract = ({
   )
 
   // TODO: translation
-  const titleSuffix = isRevoke ? 'approval' : ''
+  const titleSuffix = isRevoke ? ' approval' : ''
 
   const asset = useAppSelector(state =>
     selectAssetById(state, isTokenMetadata(txDetails.tx.data) ? txDetails.tx.data.assetId! : ''),
   )
   const symbol = asset?.symbol ?? ''
-  const title = symbol ? `${titlePrefix} ${symbol} ${titleSuffix}` : titlePrefix
+  const title = symbol ? `${titlePrefix} ${symbol}${titleSuffix}` : titlePrefix
 
   return (
     <>

@@ -17,6 +17,8 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   CowSwapper,
   OsmosisSwapper,
+  SwapError,
+  SwapErrorTypes,
   Swapper,
   SwapperManager,
   ThorchainSwapper,
@@ -40,7 +42,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -502,6 +504,12 @@ export const useSwapper = () => {
 
           await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
+          const minSellAmount = toBaseUnit(tradeQuote.minimum, tradeQuote.sellAsset.precision)
+          const isBelowMinSellAmount = bnOrZero(tradeQuote.sellAmount).lt(minSellAmount)
+
+          if (isBelowMinSellAmount) {
+            setValue('quoteError', SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL)
+          }
           setValue('quote', tradeQuote)
           setValue('sellAssetFiatRate', sellAssetUsdRate)
           setValue('buyAssetFiatRate', buyAssetUsdRate)
@@ -512,6 +520,21 @@ export const useSwapper = () => {
           setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
           setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
         } catch (e) {
+          if (
+            e instanceof SwapError &&
+            e.code &&
+            [
+              SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+              SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
+            ].includes(e.code as SwapErrorTypes)
+          ) {
+            // TODO: Abstract me away, current error handling is a mess
+            // We will need a full swapper error refactoring, to have a single source of truth for errors handling, and to be able to either:
+            //   - set a form error field to be consumed as form button states
+            //   - pop an error toast
+            // depending on the error type
+            return setValue('quoteError', SwapErrorTypes[e.code as SwapErrorTypes])
+          }
           showErrorToast(e)
         }
       },
@@ -521,6 +544,8 @@ export const useSwapper = () => {
 
   const updateQuote = useCallback(
     async (args: GetQuoteInput) => {
+      setValue('quoteError', null)
+
       _getQuoteArgs = args
       const {
         amount,

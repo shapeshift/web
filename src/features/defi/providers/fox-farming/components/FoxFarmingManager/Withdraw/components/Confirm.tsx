@@ -70,7 +70,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     try {
       if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
-      const txid = await unstake(state.withdraw.lpAmount)
+      const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)

@@ -12,6 +12,7 @@ type FoxFarmingWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
+    isExiting: boolean
   }
 
 export type FoxFarmingWithdrawState = {

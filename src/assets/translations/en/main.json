@@ -442,8 +442,8 @@
     "errors": {
       "title": "Something went wrong",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
-      "amountTooSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Amount too small. The sell amount for this pair is lower than the fee.",
+      "amountTooSmall": "Minimum: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",

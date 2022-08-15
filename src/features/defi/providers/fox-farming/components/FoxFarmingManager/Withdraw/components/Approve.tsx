@@ -76,7 +76,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const gasData = await getUnstakeGasData(state.withdraw.lpAmount)
+      const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
         .div(`1e${feeAsset.precision}`)

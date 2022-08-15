@@ -162,16 +162,18 @@ export const useFoxFarming = (contractAddress: string) => {
   )
 
   const unstake = useCallback(
-    async (lpAmount: string) => {
+    async (lpAmount: string, isExiting: boolean) => {
       try {
         if (!connectedWalletEthAddress || !foxFarmingContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
           throw new Error(`foxFarmingUnstake: no adapter available for ${ethAsset.chainId}`)
-        const data = foxFarmingContract.interface.encodeFunctionData('withdraw', [
-          bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-        ])
+        const data = isExiting
+          ? foxFarmingContract.interface.encodeFunctionData('exit')
+          : foxFarmingContract.interface.encodeFunctionData('withdraw', [
+              bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+            ])
         const adapterType = adapter.getChainId()
         const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
           to: contractAddress,
@@ -305,11 +307,13 @@ export const useFoxFarming = (contractAddress: string) => {
   )
 
   const getUnstakeGasData = useCallback(
-    async (lpAmount: string) => {
+    async (lpAmount: string, isExiting: boolean) => {
       if (!connectedWalletEthAddress || !uniswapRouterContract) return
-      const data = foxFarmingContract.interface.encodeFunctionData('withdraw', [
-        bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-      ])
+      const data = isExiting
+        ? foxFarmingContract.interface.encodeFunctionData('exit')
+        : foxFarmingContract.interface.encodeFunctionData('withdraw', [
+            bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+          ])
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: contractAddress,
         value: '0',

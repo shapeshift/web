@@ -14,6 +14,7 @@ export const initialState: FoxFarmingWithdrawState = {
     lpAmount: '',
     txStatus: 'pending',
     usedGasFee: '',
+    isExiting: false,
   },
 }
 

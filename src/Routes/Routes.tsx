@@ -33,7 +33,7 @@ export const Routes = () => {
   const { lang } = useQuery()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
-    path: ['/demo/:appRoute(.+)?', '/demo'],
+    path: ['/demo/:appRoute(.+)', '/demo'],
   })
 
   useEffect(() => {

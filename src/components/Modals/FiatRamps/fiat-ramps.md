@@ -16,7 +16,7 @@ Refer to the README in that repo to work with lib packages locally.
 
 This mapping serves two purposes:
 - have a source of truth for the intersection of the assets ShapeShift and the ramp support
-- be able to convert from our internal [`AssetId`](https://github.com/shapeshift/lib/tree/main/packages/caip#assetid-caip19---asset-type-and-asset-id-specification)s to the ramp's ticker / ID so we can build the payload/link to the ramp.
+- be able to convert from our internal [`AssetId`](https://github.com/shapeshift/lib/tree/main/packages/caip#assetid-caip19---asset-type-and-asset-id-specification)s to the ramp's ticker / ID so we can build the payload/link to the ramp
 
 See these commits for reference:
 - [Banxa mapping](https://github.com/shapeshift/lib/commit/f24f9d800041534ae45a5196bb2030bba5f5864a)

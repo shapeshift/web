@@ -7,13 +7,12 @@ import Web3 from 'web3'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
+  ApproveAmountInput,
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
-  SwapError,
-  SwapErrorTypes,
   Swapper,
   SwapperType,
   TradeQuote,
@@ -21,7 +20,7 @@ import {
   TradeTxs,
 } from '../../api'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
-import { cowApproveInfinite } from './cowApproveInfinite/cowApproveInfinite'
+import { cowApproveAmount, cowApproveInfinite } from './cowApprove/cowApprove'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
@@ -78,10 +77,8 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return cowApproveInfinite(this.deps, args)
   }
 
-  async approveAmount(): Promise<string> {
-    throw new SwapError('CowSwapper: approveAmount unimplemented', {
-      code: SwapErrorTypes.RESPONSE_ERROR,
-    })
+  async approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
+    return cowApproveAmount(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

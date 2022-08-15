@@ -3,7 +3,7 @@ import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { cowApproveInfinite } from './/cowApproveInfinite'
+import { cowApproveInfinite } from './cowApprove'
 
 jest.mock('web3')
 jest.mock('../../utils/helpers/helpers', () => ({

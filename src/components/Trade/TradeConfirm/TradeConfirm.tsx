@@ -213,6 +213,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   <Row.Value>
                     {bn(trade.feeAmountInSellToken)
                       .div(bn(10).pow(trade.sellAsset.precision))
+                      .decimalPlaces(6)
                       .toString()}{' '}
                     ≃{' '}
                     {toFiat(

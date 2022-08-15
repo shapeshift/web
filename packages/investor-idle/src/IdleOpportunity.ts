@@ -24,7 +24,7 @@ import {
   referralAddress,
   ssRouterContractAddress
 } from './constants'
-import { bnOrZero, normalizeAmount, toPath } from './utils'
+import { bn, bnOrZero, normalizeAmount, toPath } from './utils'
 
 export type PreparedTransaction = {
   chainId: number
@@ -166,7 +166,7 @@ export class IdleOpportunity
       })
     }
     this.underlyingAsset = {
-      balance: bnOrZero(0),
+      balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
@@ -174,7 +174,7 @@ export class IdleOpportunity
       })
     }
     this.positionAsset = {
-      balance: bnOrZero(0),
+      balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',

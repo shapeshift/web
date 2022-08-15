@@ -18,7 +18,7 @@ import { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
 import { erc20Abi, MAX_ALLOWANCE, ssRouterContractAddress, yv2VaultAbi } from './constants'
-import { toPath } from './utils'
+import { bn, toPath } from './utils'
 import { bnOrZero } from './utils/bignumber'
 
 type YearnOpportunityDeps = {
@@ -118,7 +118,7 @@ export class YearnOpportunity
       })
     }
     this.underlyingAsset = {
-      balance: bnOrZero(0),
+      balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',
@@ -126,7 +126,7 @@ export class YearnOpportunity
       })
     }
     this.positionAsset = {
-      balance: bnOrZero(0),
+      balance: bn(0),
       assetId: toAssetId({
         chainId: 'eip155:1',
         assetNamespace: 'erc20',

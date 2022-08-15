@@ -4,7 +4,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
 import { IdleInvestor } from './IdleInvestor'
-import { bnOrZero } from './utils'
+import { bn } from './utils'
 
 dotenv.config()
 
@@ -56,8 +56,8 @@ const main = async (): Promise<void> => {
 
   const allowance = await opportunity.allowance(address)
   const approvalPreparedTx = await opportunity.prepareApprove(address)
-  const withdrawPreparedTx = await opportunity.prepareDeposit({ address, amount: bnOrZero(1000) })
-  const depositPreparedTx = await opportunity.prepareWithdrawal({ address, amount: bnOrZero(1000) })
+  const withdrawPreparedTx = await opportunity.prepareDeposit({ address, amount: bn(1000) })
+  const depositPreparedTx = await opportunity.prepareWithdrawal({ address, amount: bn(1000) })
 
   const signedTx = await opportunity.signAndBroadcast({
     wallet,

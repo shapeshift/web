@@ -24,7 +24,7 @@ import {
   tokePoolAddress,
   tokeRewardHashAddress
 } from '../constants'
-import { bnOrZero, buildTxToSign } from '../utils'
+import { bn, bnOrZero, buildTxToSign } from '../utils'
 import {
   AllowanceInput,
   ApproveInput,
@@ -950,7 +950,7 @@ export class FoxyApi {
   }
 
   pricePerShare(): BigNumber {
-    return bnOrZero(1).times('1e+18')
+    return bn(1).times('1e+18')
   }
 
   // TODO: use tokemak's api to get apy when they build it
@@ -1128,8 +1128,8 @@ export class FoxyApi {
           } catch (e) {
             console.error(`Failed to get balance of address ${e}`)
             return {
-              preRebaseBalance: bnOrZero(0).toString(),
-              postRebaseBalance: bnOrZero(0).toString()
+              preRebaseBalance: bn(0).toString(),
+              postRebaseBalance: bn(0).toString()
             }
           }
         })()

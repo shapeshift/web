@@ -11,7 +11,6 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -24,7 +23,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { TradeRoutePaths, TS } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -56,7 +55,7 @@ export const Approval = () => {
     setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<KnownChainIds.EthereumMainnet>>()
+  } = useFormContext<TS>()
   const { checkApprovalNeeded, updateTrade, approve } = useSwapper()
   const {
     number: { toCrypto, toFiat },
@@ -67,7 +66,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const [isExactAllowance] = useWatch({ name: ['isExactAllowance'] })
+  const [isExactAllowance] = useWatch({ name: ['isExactAllowance'] }) as [TS['isExactAllowance']]
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)

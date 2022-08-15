@@ -102,6 +102,8 @@ export const Approve = ({
             {translate('modals.approve.learnMore')}
           </Link>
         </Stack>
+        {/* Because isExactAllowance is not used everywhere yet, we need to make it optional and
+        check if it is defined because it's a boolean */}
         {!isUndefined(isExactAllowance) && (
           <Row justifyContent='space-between'>
             <Row.Label display='flex' alignItems='center'>

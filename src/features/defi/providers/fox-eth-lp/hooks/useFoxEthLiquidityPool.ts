@@ -16,7 +16,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -37,7 +37,7 @@ function calculateSlippageMargin(amount: string | null, precision: number) {
   const percentage = 3
   const remainingPercentage = (100 - percentage) / 100
   return bnOrZero(amount)
-    .times(bnOrZero(10).exponentiatedBy(precision))
+    .times(bn(10).exponentiatedBy(precision))
     .times(bnOrZero(remainingPercentage))
     .decimalPlaces(0)
     .toFixed()
@@ -88,11 +88,11 @@ export const useFoxEthLiquidityPool = () => {
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const value = bnOrZero(ethAmount)
-          .times(bnOrZero(10).exponentiatedBy(ethAsset.precision))
+          .times(bn(10).exponentiatedBy(ethAsset.precision))
           .toFixed(0)
         const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          bnOrZero(foxAmount).times(bnOrZero(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
+          bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
           calculateSlippageMargin(foxAmount, foxAsset.precision),
           calculateSlippageMargin(ethAmount, ethAsset.precision),
           connectedWalletEthAddress,
@@ -191,7 +191,7 @@ export const useFoxEthLiquidityPool = () => {
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const data = uniswapRouterContract?.interface.encodeFunctionData('removeLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+          bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
           calculateSlippageMargin(foxAmount, foxAsset.precision),
           calculateSlippageMargin(ethAmount, ethAsset.precision),
           connectedWalletEthAddress,
@@ -352,12 +352,10 @@ export const useFoxEthLiquidityPool = () => {
   const getDepositGasData = useCallback(
     async (foxAmount: string, ethAmount: string) => {
       if (!connectedWalletEthAddress || !uniswapRouterContract) return
-      const value = bnOrZero(ethAmount)
-        .times(bnOrZero(10).exponentiatedBy(ethAsset.precision))
-        .toFixed(0)
+      const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
-        bnOrZero(foxAmount).times(bnOrZero(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
+        bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),
         connectedWalletEthAddress,
@@ -387,7 +385,7 @@ export const useFoxEthLiquidityPool = () => {
       if (!connectedWalletEthAddress || !uniswapRouterContract) return
       const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
-        bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
+        bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),
         connectedWalletEthAddress,

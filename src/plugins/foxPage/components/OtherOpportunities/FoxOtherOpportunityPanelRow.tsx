@@ -4,6 +4,7 @@ import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakr
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -26,9 +27,10 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   const hasActivePosition = bnOrZero(defiOpportunity?.fiatAmount).gt(0) ?? false
   const history = useHistory()
   const location = useLocation()
-  const wrapperLinkProps = defiOpportunity
-    ? {}
-    : { as: Link, isExternal: true, href: opportunity.link }
+  const wrapperLinkProps = useMemo(
+    () => (defiOpportunity ? {} : { as: Link, isExternal: true, href: opportunity.link }),
+    [defiOpportunity, opportunity.link],
+  )
 
   return (
     <Flex

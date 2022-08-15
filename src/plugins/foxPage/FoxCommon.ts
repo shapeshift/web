@@ -20,7 +20,7 @@ export type ExternalOpportunity = {
   isLoaded?: boolean
   isDisabled?: boolean
   opportunityContractAddress?: string
-  opporunityProvider?: DefiProvider
+  opportunityProvider?: DefiProvider
 }
 
 export type OpportunitiesBucket = {

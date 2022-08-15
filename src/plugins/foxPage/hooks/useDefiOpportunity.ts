@@ -1,6 +1,6 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { selectFeatureFlags } from 'state/slices/selectors'
@@ -14,10 +14,10 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const { opportunities: foxFarmingOpportunities } = useFoxFarmingBalances()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
-  useMemo(() => {
-    if (!opportunity.opporunityProvider) return
+  useEffect(() => {
+    if (!opportunity.opportunityProvider) return
     if (!featureFlags.FoxLP && !featureFlags.FoxFarming) return
-    switch (opportunity.opporunityProvider) {
+    switch (opportunity.opportunityProvider) {
       case DefiProvider.FoxFarming:
         if (!featureFlags.FoxFarming) return
         const foxFarmingOpportunity = foxFarmingOpportunities.find(
@@ -40,7 +40,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
     foxEthLpOpportunity,
     foxFarmingOpportunities,
     opportunity.opportunityContractAddress,
-    opportunity.opporunityProvider,
+    opportunity.opportunityProvider,
   ])
   return { defiOpportunity }
 }

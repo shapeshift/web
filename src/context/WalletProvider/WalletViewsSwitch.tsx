@@ -27,7 +27,7 @@ export const WalletViewsSwitch = () => {
   const translate = useTranslate()
   const match = useRouteMatch('/')
   const {
-    state: { wallet, modal, showBackButton, initialRoute, onCloseRoute = '/', type },
+    state: { wallet, modal, showBackButton, initialRoute, onCloseRoute, type },
     dispatch,
   } = useWallet()
 

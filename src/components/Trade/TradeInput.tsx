@@ -342,15 +342,15 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }
                 data-test='trade-form-token-input-row-sell'
               />
-              {shouldShowAccountSelection && (
-                <AssetAccountRow
-                  accountId={accountIds[0]}
-                  assetId={sellTradeAsset?.asset?.assetId}
-                  key={accountIds[0]}
-                  onClick={() => history.push(TradeRoutePaths.AccountSelect)}
-                />
-              )}
             </FormControl>
+            {shouldShowAccountSelection && (
+              <AssetAccountRow
+                accountId={accountIds[0]}
+                assetId={sellTradeAsset?.asset?.assetId}
+                key={accountIds[0]}
+                onClick={() => history.push(TradeRoutePaths.AccountSelect)}
+              />
+            )}
             <FormControl
               rounded=''
               my={6}

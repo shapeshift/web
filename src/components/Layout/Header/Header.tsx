@@ -15,7 +15,6 @@ import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -30,7 +29,7 @@ export const Header = () => {
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
-    state: { walletInfo },
+    state: { isDemoWallet },
     dispatch,
   } = useWallet()
 
@@ -53,7 +52,6 @@ export const Header = () => {
   }, [handleKeyPress])
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const isDemo = walletInfo?.deviceId === DemoConfig.name
 
   return (
     <>
@@ -64,9 +62,9 @@ export const Header = () => {
         position='sticky'
         zIndex='banner'
         top={0}
-        paddingTop={{ base: isDemo ? 0 : 'env(safe-area-inset-top)', md: 0 }}
+        paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        {isDemo && (
+        {isDemoWallet && (
           <Box
             bg='blue.500'
             width='full'

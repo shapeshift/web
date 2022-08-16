@@ -13,6 +13,8 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { PairIcons } from '../PairIcons/PairIcons'
+
 type DepositProps = {
   asset1: Asset
   asset2: Asset
@@ -44,6 +46,7 @@ type DepositProps = {
   onBack?(): void
   onCancel(): void
   syncPair?: boolean
+  icons?: string[]
 }
 
 enum Field {
@@ -79,6 +82,7 @@ export const PairDeposit = ({
   onContinue,
   percentOptions,
   syncPair = true,
+  icons,
 }: DepositProps) => {
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
@@ -238,7 +242,11 @@ export const PairDeposit = ({
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
                 <Stack alignItems='flex-end'>
-                  <AssetIcon size='xs' src={destAsset.icon} />
+                  {icons ? (
+                    <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+                  ) : (
+                    <AssetIcon size='xs' src={destAsset.icon} />
+                  )}
                 </Stack>
               </Stack>
             </Row.Value>

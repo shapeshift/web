@@ -141,10 +141,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
 
   const txLink = useMemo(() => {
-    if (trade.sources[0].name === 'Osmosis') {
-      return `${osmosisAsset?.explorerTxLink}${txid}`
-    } else {
-      return `${trade.sellAsset?.explorerTxLink}${txid}`
+    switch (trade.sources[0].name) {
+      case 'Osmosis':
+        return `${osmosisAsset?.explorerTxLink}${txid}`
+      case 'CowSwap':
+        return `https://explorer.cow.fi/orders/${txid}`
+      default:
+        return `${trade.sellAsset?.explorerTxLink}${txid}`
     }
   }, [trade, osmosisAsset, txid])
 
@@ -210,6 +213,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   <Row.Value>
                     {bn(trade.feeAmountInSellToken)
                       .div(bn(10).pow(trade.sellAsset.precision))
+                      .decimalPlaces(6)
                       .toString()}{' '}
                     ≃{' '}
                     {toFiat(

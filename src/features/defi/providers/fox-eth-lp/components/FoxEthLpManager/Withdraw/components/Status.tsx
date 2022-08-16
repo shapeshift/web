@@ -3,6 +3,7 @@ import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -18,6 +19,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -36,6 +38,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
+  const { opportunity } = useFoxEthLpBalances()
   const {
     state: { wallet },
   } = useWallet()
@@ -94,7 +97,7 @@ export const Status = () => {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='white' />,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
           statusBg: 'green.500',
           statusBody: translate('modals.withdraw.status.success', {
             opportunity: lpAsset.symbol,
@@ -103,13 +106,13 @@ export const Status = () => {
       case 'failed':
         return {
           statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='white' />,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
           statusBg: 'red.500',
           statusBody: translate('modals.withdraw.status.failed'),
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={lpAsset.icon} />,
+          statusIcon: null,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),
@@ -127,6 +130,7 @@ export const Status = () => {
       statusIcon={statusIcon}
       statusBg={statusBg}
       statusBody={statusBody}
+      pairIcons={opportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vertical' p={4}>
@@ -135,7 +139,13 @@ export const Status = () => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={lpAsset.icon} />
+              <PairIcons
+                icons={opportunity.icons!}
+                iconBoxSize='5'
+                h='38px'
+                p={1}
+                borderRadius={8}
+              />
               <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>

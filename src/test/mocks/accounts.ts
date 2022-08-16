@@ -20,7 +20,14 @@ export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 
-export const assetIds = [ethAssetId, foxAssetId, usdcAssetId, yvusdcAssetId, zeroAssetId]
+export const assetIds = [
+  ethAssetId,
+  foxAssetId,
+  usdcAssetId,
+  yvusdcAssetId,
+  zeroAssetId,
+  btcAssetId,
+]
 
 export const btcAccountIds = Object.freeze([
   'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
@@ -326,7 +333,7 @@ export const mockETHandBTCAccounts = ({
 
   const btcAccount = merge(
     mockBtcAccount({
-      balance: '10',
+      balance: '20000',
       chainSpecific: {
         addresses: [mockBtcAddress({ balance: '3' })],
       },
@@ -336,10 +343,21 @@ export const mockETHandBTCAccounts = ({
 
   const btcAccount2 = merge(
     mockBtcAccount({
-      balance: '10',
+      balance: '400000',
       pubkey: btcPubKeys[1],
       chainSpecific: {
         addresses: [mockBtcAddress({ balance: '3', pubkey: btcAddresses[1] })],
+      },
+    }),
+    btcAccount2Obj,
+  )
+
+  const btcAccount3 = merge(
+    mockBtcAccount({
+      balance: '500000',
+      pubkey: btcPubKeys[2],
+      chainSpecific: {
+        addresses: [mockBtcAddress({ balance: '500000', pubkey: btcAddresses[2] })],
       },
     }),
     btcAccount2Obj,
@@ -349,6 +367,7 @@ export const mockETHandBTCAccounts = ({
   const ethAccount2Id = `${ethAccount2.chainId}:${toLower(ethAccount2.pubkey)}`
   const btcAccountId = `${btcAccount.chainId}:${btcAccount.pubkey}`
   const btcAccount2Id = `${btcAccount2.chainId}:${btcAccount2.pubkey}`
+  const btcAccount3Id = `${btcAccount3.chainId}:${btcAccount3.pubkey}`
 
   return {
     ethAccount,
@@ -359,5 +378,7 @@ export const mockETHandBTCAccounts = ({
     ethAccount2Id,
     btcAccountId,
     btcAccount2Id,
+    btcAccount3,
+    btcAccount3Id,
   }
 }

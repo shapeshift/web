@@ -1,3 +1,4 @@
+import { btcAssetId } from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 import {
   assetIds,
@@ -34,6 +35,7 @@ import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlic
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
@@ -451,6 +453,42 @@ describe('portfolioSlice', () => {
 
         const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
         expect(fiatAccountBalance).toEqual(returnValue)
+      })
+    })
+
+    describe('selectHighestFiatBalanceAccountByAssetId', () => {
+      const store = createStore()
+      const { btcAccount, btcAccount2, btcAccount3 } = mockETHandBTCAccounts()
+
+      // dispatch portfolio data
+      store.dispatch(
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([btcAccount, btcAccount2, btcAccount3], assetIds),
+        ),
+      )
+
+      // dispatch market data
+      const btcMarketData = mockMarketData({ price: '10000' })
+
+      store.dispatch(
+        marketDataSlice.actions.setCryptoMarketData({
+          [btcAssetId]: btcMarketData,
+        }),
+      )
+
+      // dispatch asset data
+      const assetData = mockAssetState()
+      store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+      it('can select highest value account by assetId', () => {
+        const state = store.getState()
+        const highestValueAccount = selectHighestFiatBalanceAccountByAssetId(state, {
+          assetId: btcAssetId,
+        })
+
+        const expectedHighestValueAccount =
+          'bip122:000000000019d6689c085ae165831e93:ypub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
+        expect(highestValueAccount).toEqual(expectedHighestValueAccount)
       })
     })
 

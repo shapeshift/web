@@ -26,6 +26,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectAccountIdsByAssetId,
   selectFiatToUsdRate,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -72,6 +73,13 @@ export const TradeInput = ({ history }: RouterProps) => {
   })
 
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
+
+  const highestFiatBalanceAccount =
+    useAppSelector(state =>
+      selectHighestFiatBalanceAccountByAssetId(state, {
+        assetId: sellTradeAsset?.asset?.assetId ?? '',
+      }),
+    ) ?? accountIds[0]
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -345,9 +353,9 @@ export const TradeInput = ({ history }: RouterProps) => {
             </FormControl>
             {shouldShowAccountSelection && (
               <AssetAccountRow
-                accountId={accountIds[0]}
+                accountId={highestFiatBalanceAccount}
                 assetId={sellTradeAsset?.asset?.assetId}
-                key={accountIds[0]}
+                key={highestFiatBalanceAccount}
                 onClick={() => history.push(TradeRoutePaths.AccountSelect)}
               />
             )}

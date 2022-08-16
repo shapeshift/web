@@ -20,7 +20,6 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
-import { getOverrideNameFromAssetId } from './utils'
 
 type AssetCellProps = {
   assetId: AssetId
@@ -33,9 +32,6 @@ type AssetCellProps = {
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
-  const overridenName = getOverrideNameFromAssetId(asset.assetId)
-  if (overridenName) return overridenName
-
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`
   }

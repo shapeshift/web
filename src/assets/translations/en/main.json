@@ -193,6 +193,16 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
+        "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit ETH-FOX LP tokens Now",
+        "foxFarmingBalance": "ETH-FOX LP tokens Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
         "availableRewards": "Available Rewards",
@@ -409,6 +419,8 @@
     "noSupportedAssets": "No supported assets in portfolio."
   },
   "trade": {
+    "allowance": "Allowance",
+    "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
@@ -425,6 +437,8 @@
     "estimatedGasFee": "Estimated Gas Fee",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
+    "unlimited": "Unlimited",
+    "exact": "Exact",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",

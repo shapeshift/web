@@ -99,7 +99,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}
           leftIcon={
-            icons ? <PairIcons icons={icons} isSmall /> : <AssetIcon src={assetIcon} size='xs' />
+            icons ? (
+              <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+            ) : (
+              <AssetIcon src={assetIcon} size='xs' />
+            )
           }
           rightIcon={onAssetClick && <ChevronDownIcon />}
         >

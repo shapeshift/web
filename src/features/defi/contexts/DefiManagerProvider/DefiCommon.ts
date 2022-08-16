@@ -12,6 +12,8 @@ export enum DefiProvider {
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
   FoxEthLP = 'UNI V2',
+  // just to make sure ShapeShift provider (for foxy) is not used
+  FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
 }

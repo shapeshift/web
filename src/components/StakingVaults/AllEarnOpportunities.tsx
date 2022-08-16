@@ -14,6 +14,7 @@ import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnV
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,6 +31,7 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedYearnVaults()
   const { opportunities: foxyRows } = useFoxyBalances()
   const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
+  const { opportunities: foxFarmingOpportunities } = useFoxFarmingBalances()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -48,6 +50,7 @@ export const AllEarnOpportunities = () => {
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
   })
 
   const handleClick = useCallback(

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.16.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.16.1...@shapeshiftoss/swapper-v9.16.2) (2022-08-16)
+
+
+### Bug Fixes
+
+* off-by-one allowance check ([#979](https://github.com/shapeshift/lib/issues/979)) ([50dd012](https://github.com/shapeshift/lib/commit/50dd012b19da4b47d9b48750c708717982dde678))
+
 # [@shapeshiftoss/swapper-v9.16.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.16.0...@shapeshiftoss/swapper-v9.16.1) (2022-08-15)
 
 # [@shapeshiftoss/swapper-v9.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.15.1...@shapeshiftoss/swapper-v9.16.0) (2022-08-15)

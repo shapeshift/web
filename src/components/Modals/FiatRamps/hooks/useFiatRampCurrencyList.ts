@@ -1,3 +1,4 @@
+import { avalancheAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -73,6 +74,15 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
             if (!reduxAsset) {
               return {
                 ...asset,
+                symbol: asset.symbol.toUpperCase(),
+                // TODO: Monkey patch, remove after REACT_APP_FEATURE_AVALANCHE is enabled/removed
+                ...(asset.assetId === avalancheAssetId
+                  ? {
+                      name: 'Avalanche',
+                      imageUrl:
+                        'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/avalanchec/info/logo.png',
+                    }
+                  : {}),
                 disabled: true,
               }
             }

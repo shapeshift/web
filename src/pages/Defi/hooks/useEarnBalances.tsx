@@ -11,6 +11,7 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFoxEthLpBalances } from './useFoxEthLpBalances'
+import { useFoxFarmingBalances } from './useFoxFarmingBalances'
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
 
@@ -39,6 +40,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
   const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
+  const { opportunities: foxFarmingOpportunities, totalBalance: foxFarmingTotalBalance } =
+    useFoxFarmingBalances()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
@@ -48,6 +51,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
       osmosisStakingOpportunities,
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
@@ -55,6 +59,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
     .plus(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
+    .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
     .toString()
   return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
 }

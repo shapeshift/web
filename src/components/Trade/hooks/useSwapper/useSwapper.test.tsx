@@ -138,7 +138,7 @@ describe('useSwapper', () => {
   it('approves infinite', async () => {
     const { result } = setup()
     await act(async () => {
-      const txid = await result.current.approveInfinite()
+      const txid = await result.current.approve()
       expect(txid).toBe('0x023423093248420937')
     })
   })

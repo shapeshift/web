@@ -1,0 +1,1 @@
+export const FOX_FARMING_CONTRACT_ADDRESS = '0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0'

@@ -1,3 +1,5 @@
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+
 import { TradeOpportunitiesBucket } from './components/TradeOpportunities'
 
 export const FOX_ASSET_ID = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -17,6 +19,8 @@ export type ExternalOpportunity = {
   icons: string[]
   isLoaded?: boolean
   isDisabled?: boolean
+  opportunityContractAddress?: string
+  opportunityProvider?: DefiProvider
 }
 
 export type OpportunitiesBucket = {

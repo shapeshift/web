@@ -15,6 +15,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
   asset: Asset
+  rewardAsset?: Asset
   // Estimated apy (Deposit Only)
   apy: string
   // Users available amount
@@ -35,6 +36,7 @@ type DepositProps = {
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
+  inputIcons?: string[]
 }
 
 export enum Field {
@@ -66,6 +68,8 @@ export const Deposit = ({
   isLoading,
   onContinue,
   percentOptions,
+  inputIcons,
+  rewardAsset,
 }: DepositProps) => {
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
@@ -154,6 +158,7 @@ export const Deposit = ({
             fiatBalance={fiatAmountAvailable}
             onMaxClick={value => handlePercentClick(value)}
             percentOptions={percentOptions}
+            icons={inputIcons}
           />
           <Row>
             <Stack flex={1} spacing={0}>
@@ -164,7 +169,7 @@ export const Deposit = ({
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
                 <Stack alignItems='flex-end'>
-                  <AssetIcon size='xs' src={asset.icon} />
+                  <AssetIcon size='xs' src={(rewardAsset ?? asset).icon} />
                 </Stack>
               </Stack>
             </Row.Value>

@@ -29,6 +29,8 @@ export type EarnOpportunityType = {
   showAssetSymbol?: boolean
   isLoaded: boolean
   icons?: Array<string>
+  // overrides any name down the road
+  opportunityName?: string
 }
 
 const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityType[] => {
@@ -152,6 +154,7 @@ type NormalizeOpportunitiesProps = {
   foxyArray: MergedFoxyOpportunity[]
   cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
   foxEthLpOpportunity?: EarnOpportunityType
+  foxFarmingOpportunities?: EarnOpportunityType[]
 }
 
 export const useNormalizeOpportunities = ({
@@ -159,10 +162,12 @@ export const useNormalizeOpportunities = ({
   foxyArray,
   cosmosSdkStakingOpportunities = [],
   foxEthLpOpportunity,
+  foxFarmingOpportunities,
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
     ...transformFoxy(foxyArray),
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
+    ...(foxFarmingOpportunities ? foxFarmingOpportunities : []),
     ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
     ...useTransformVault(vaultArray),
   ]

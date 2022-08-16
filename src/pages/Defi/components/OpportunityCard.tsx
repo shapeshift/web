@@ -56,6 +56,7 @@ export const OpportunityCard = ({
   moniker,
   assetId,
   icons,
+  opportunityName,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
@@ -91,6 +92,7 @@ export const OpportunityCard = ({
   if (!asset) return null
 
   const getOpportunityName = () => {
+    if (opportunityName) return opportunityName
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
     if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))

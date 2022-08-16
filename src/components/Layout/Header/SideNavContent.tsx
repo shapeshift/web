@@ -39,16 +39,13 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
       p={4}
     >
       {!isLargerThanMd && (
-        <IconButton
-          ml='auto'
-          aria-label='Close Nav'
-          icon={<CloseIcon />}
-          onClick={() => handleClick()}
-        />
-      )}
-
-      {!isLargerThanMd && (
         <Flex direction='column' rowGap={2} columnGap={2} width='full'>
+          <IconButton
+            ml='auto'
+            aria-label='Close Nav'
+            icon={<CloseIcon />}
+            onClick={() => handleClick()}
+          />
           <Flex width='full'>
             <ChainMenu />
           </Flex>

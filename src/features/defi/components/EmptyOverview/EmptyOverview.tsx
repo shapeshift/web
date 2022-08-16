@@ -51,7 +51,7 @@ export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, 
               </Fragment>
             ))}
           </Stack>
-          <Stack justifyContent='center' fontWeight='medium'>
+          <Stack justifyContent='center' fontWeight='medium' mb={4}>
             {children}
           </Stack>
         </Stack>

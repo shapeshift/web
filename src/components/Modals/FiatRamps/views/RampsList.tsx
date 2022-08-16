@@ -1,10 +1,18 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  ModalBody,
+  ModalHeader,
+  Stack,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
 import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
@@ -115,20 +123,21 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
   }, [history, setFiatRampProvider, tagColor])
 
   return (
-    <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>
-      <Card boxShadow='none' borderWidth={0}>
-        <Card.Header>
-          <Card.Heading>
-            <Text translation='fiatRamps.title' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body>
-          <Text lineHeight={1.2} color='gray.500' translation='fiatRamps.titleMessage' />
-          <Stack spacing={2} mt={2} mx={-4}>
-            {ramps}
-          </Stack>
-        </Card.Body>
-      </Card>
-    </Flex>
+    <>
+      <ModalHeader>
+        <Text translation='fiatRamps.title' />
+        <Text
+          fontSize='md'
+          fontWeight='medium'
+          color='gray.500'
+          translation='fiatRamps.titleMessage'
+        />
+      </ModalHeader>
+      <ModalBody>
+        <Stack spacing={2} mt={2} mx={-4}>
+          {ramps}
+        </Stack>
+      </ModalBody>
+    </>
   )
 }

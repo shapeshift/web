@@ -16,7 +16,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, isTokenMetadata, parseRelevantAssetFromTx } from './utils'
+import { AssetTypes, getTxMetadataWithAssetId, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionContract = ({
   txDetails,
@@ -55,8 +55,9 @@ export const TransactionContract = ({
   const titleSuffix = isRevoke ? ' approval' : ''
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, isTokenMetadata(txDetails.tx.data) ? txDetails.tx.data.assetId! : ''),
+    selectAssetById(state, getTxMetadataWithAssetId(txDetails.tx.data)?.assetId ?? ''),
   )
+
   const symbol = asset?.symbol ?? ''
   const title = symbol ? `${titlePrefix} ${symbol}${titleSuffix}` : titlePrefix
 

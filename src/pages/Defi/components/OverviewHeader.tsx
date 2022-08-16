@@ -2,6 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useLpHoldingsValue } from 'context/LpHoldingsValueProvider/LpHoldingsValueProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
@@ -31,12 +32,11 @@ function EarnStat({ label, value }: EarnStatProps) {
 export const OverviewHeader = ({
   earnBalance,
   netWorth,
-  lpBalance,
 }: {
   earnBalance: UseEarnBalancesReturn
   netWorth: string
-  lpBalance: string
 }) => {
+  const { totalBalance: lpBalance } = useLpHoldingsValue()
   if (earnBalance.loading) return null
 
   const walletBalanceWithoutEarn = bnOrZero(netWorth)
@@ -63,7 +63,10 @@ export const OverviewHeader = ({
           gridGap={{ base: 0, lg: 6 }}
         >
           <EarnStat label='defi.walletBalance' value={walletBalanceWithoutEarn} />
-          <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
+          <EarnStat
+            label='defi.earnBalance'
+            value={bnOrZero(earnBalance.totalEarningBalance).plus(bnOrZero(lpBalance)).toString()}
+          />
         </SimpleGrid>
       </Card.Footer>
     </Card>

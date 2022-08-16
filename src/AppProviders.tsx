@@ -14,6 +14,7 @@ import { Zendesk } from 'components/Zendesk/Zendesk'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
+import { LpHoldingsValueProvider } from 'context/LpHoldingsValueProvider/LpHoldingsValueProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
@@ -48,7 +49,9 @@ export function AppProviders({ children }: ProvidersProps) {
                       <ModalProvider>
                         <TransactionsProvider>
                           <AppProvider>
-                            <DefiManagerProvider>{children}</DefiManagerProvider>
+                            <LpHoldingsValueProvider>
+                              <DefiManagerProvider>{children}</DefiManagerProvider>
+                            </LpHoldingsValueProvider>
                           </AppProvider>
                         </TransactionsProvider>
                       </ModalProvider>

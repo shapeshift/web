@@ -38,7 +38,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { opportunity } = useFoxEthLpBalances()
+  const { opportunity, getOpportunityData } = useFoxEthLpBalances()
   const {
     state: { wallet },
   } = useWallet()
@@ -79,8 +79,9 @@ export const Status = () => {
             : '0',
         },
       })
+      getOpportunityData()
     }
-  }, [confirmedTransaction, dispatch, ethAsset.precision])
+  }, [confirmedTransaction, dispatch, ethAsset.precision, getOpportunityData])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

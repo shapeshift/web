@@ -14,6 +14,8 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -33,6 +35,8 @@ export const Status = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
+  const { getOpportunitiesData: reloadFarmingOpportunities } = useFoxFarmingBalances()
+  const { getOpportunityData: reloadLpOpportunity } = useFoxEthLpBalances()
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
@@ -72,8 +76,18 @@ export const Status = () => {
             : '0',
         },
       })
+      if (confirmedTransaction.status === 'Confirmed') {
+        reloadFarmingOpportunities()
+        reloadLpOpportunity()
+      }
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    reloadFarmingOpportunities,
+    reloadLpOpportunity,
+  ])
 
   if (!state) return null
 

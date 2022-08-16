@@ -40,8 +40,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
   const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
-  const { opportunities: foxFarmingOpportunities, totalBalance: foxFarmingTotalBalance } =
-    useFoxFarmingBalances()
+  const { opportunities: foxFarmingOpportunities } = useFoxFarmingBalances()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
@@ -58,8 +57,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(totalFoxyBalance)
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
-    .plus(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
-    .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
     .toString()
   return {
     opportunities,

@@ -14,6 +14,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
+import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -82,6 +84,9 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const { getOpportunitiesData: reloadFarmingOpportunities } = useFoxFarmingBalances()
+  const { getOpportunityData: reloadLpOpportunity } = useFoxEthLpBalances()
+
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
@@ -100,8 +105,12 @@ export const ClaimStatus = () => {
           ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
           : '0',
       })
+      if (confirmedTransaction.status === 'Confirmed') {
+        reloadFarmingOpportunities()
+        reloadLpOpportunity()
+      }
     }
-  }, [confirmedTransaction, feeAsset.precision])
+  }, [confirmedTransaction, feeAsset.precision, reloadFarmingOpportunities, reloadLpOpportunity])
 
   return (
     <SlideTransition>

@@ -8,7 +8,7 @@ import {
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -20,6 +20,7 @@ export type UseFoxEthLpBalancesReturn = {
   foxBalance: string | null
   ethBalance: string | null
   loading: boolean
+  getOpportunityData: () => Promise<void>
 }
 
 const defaultOpportunity: EarnOpportunityType = {
@@ -55,38 +56,34 @@ export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {
     selectAssetById(state, opportunity.assetId),
   ).precision
 
-  useEffect(() => {
-    if (!wallet) return
-    ;(async () => {
-      setLoading(true)
-      try {
-        const balances = await calculateHoldings()
-        if (balances) {
-          const { lpBalance, foxBalance, ethBalance } = balances
-          setFoxBalance(foxBalance.toString())
-          setEthBalance(ethBalance.toString())
-          const totalLpBalance = bnOrZero(lpBalance).div(`1e${lpAssetPrecision}`)
-          const ethValue = ethBalance.times(ethMarketData.price)
-          const foxValue = foxBalance.times(foxMarketData.price)
-          const fiatAmount = ethValue.plus(foxValue).toFixed(2)
-          const totalSupply = await getLpTVL()
-          setOpportunity({
-            ...defaultOpportunity,
-            cryptoAmount: totalLpBalance?.toString() ?? '0',
-            fiatAmount,
-            isLoaded: true,
-            apy: lpApr ?? undefined,
-            tvl: totalSupply ?? '',
-          })
-        }
-      } catch (error) {
-        console.error('error', error)
-      } finally {
-        setLoading(false)
+  const getOpportunityData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const balances = await calculateHoldings()
+      if (balances) {
+        const { lpBalance, foxBalance, ethBalance } = balances
+        setFoxBalance(foxBalance.toString())
+        setEthBalance(ethBalance.toString())
+        const totalLpBalance = bnOrZero(lpBalance).div(`1e${lpAssetPrecision}`)
+        const ethValue = ethBalance.times(ethMarketData.price)
+        const foxValue = foxBalance.times(foxMarketData.price)
+        const fiatAmount = ethValue.plus(foxValue).toFixed(2)
+        const totalSupply = await getLpTVL()
+        setOpportunity({
+          ...defaultOpportunity,
+          cryptoAmount: totalLpBalance?.toString() ?? '0',
+          fiatAmount,
+          isLoaded: true,
+          apy: lpApr ?? undefined,
+          tvl: totalSupply ?? '',
+        })
       }
-    })()
+    } catch (error) {
+      console.error('error', error)
+    } finally {
+      setLoading(false)
+    }
   }, [
-    wallet,
     calculateHoldings,
     lpApr,
     getLpTVL,
@@ -95,11 +92,17 @@ export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {
     lpAssetPrecision,
   ])
 
+  useEffect(() => {
+    if (!wallet) return
+    getOpportunityData()
+  }, [getOpportunityData, wallet])
+
   return {
     opportunity,
     balance: opportunity.cryptoAmount,
     loading: loading || !opportunity.apy,
     foxBalance,
     ethBalance,
+    getOpportunityData,
   }
 }

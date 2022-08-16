@@ -9,7 +9,7 @@ import { getOpportunityData } from 'features/defi/providers/fox-farming/api'
 import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -24,6 +24,7 @@ export type UseFoxFarmingBalancesReturn = {
   opportunities: FoxFarmingEarnOpportunityType[]
   loading: boolean
   totalBalance: string
+  getOpportunitiesData: () => Promise<void>
 }
 
 const defaultOpportunity: FoxFarmingEarnOpportunityType = {
@@ -77,58 +78,73 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
     selectAssetById(state, foxEthLpAssetId),
   ).precision
 
-  useMemo(() => {
+  const getOpportunitiesData = useCallback(async () => {
+    if (!connectedWalletEthAddress) return
+    setLoading(true)
+    try {
+      const newOpportunities = await Promise.all(
+        opportunities.map(async opportunity => {
+          const data = await getOpportunityData({
+            contractAddress: opportunity.contractAddress,
+            ethAssetPrecision: ethAsset.precision,
+            ethPrice: ethMarketData.price,
+            lpAssetPrecision,
+            address: connectedWalletEthAddress,
+            foxPrice: foxMarketData.price,
+            foxAssetPrecision,
+          })
+          if (!data) return opportunity
+          const { tvl, apr, balances, expired } = data
+          return {
+            ...opportunity,
+            cryptoAmount: balances.cryptoBalance,
+            fiatAmount: balances.fiatBalance,
+            isLoaded: isLpAprLoaded,
+            unclaimedRewards: balances.unclaimedRewards,
+            expired,
+            apy: lpApr
+              ? bnOrZero(apr)
+                  .plus(lpApr ?? 0)
+                  .toString()
+              : undefined,
+            tvl,
+          }
+        }),
+      )
+      const totalOpBalances = newOpportunities.reduce(
+        (acc, cur) => acc.plus(bnOrZero(cur.fiatAmount)),
+        bnOrZero(0),
+      )
+      setTotalBalance(totalOpBalances.toFixed(2))
+      setOpportunities(newOpportunities)
+    } catch (error) {
+      console.error('error', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [
+    opportunities,
+    ethAsset.precision,
+    ethMarketData.price,
+    lpAssetPrecision,
+    connectedWalletEthAddress,
+    foxMarketData.price,
+    foxAssetPrecision,
+    isLpAprLoaded,
+    lpApr,
+  ])
+
+  useEffect(() => {
     if (!(wallet && connectedWalletEthAddress && lpApr)) return
     ;(async () => {
-      setLoading(true)
-      try {
-        const newOpportunities = await Promise.all(
-          opportunities.map(async opportunity => {
-            const data = await getOpportunityData({
-              contractAddress: opportunity.contractAddress,
-              ethAssetPrecision: ethAsset.precision,
-              ethPrice: ethMarketData.price,
-              lpAssetPrecision,
-              address: connectedWalletEthAddress,
-              foxPrice: foxMarketData.price,
-              foxAssetPrecision,
-            })
-            if (!data) return opportunity
-            const { tvl, apr, balances, expired } = data
-            return {
-              ...opportunity,
-              cryptoAmount: balances.cryptoBalance,
-              fiatAmount: balances.fiatBalance,
-              isLoaded: isLpAprLoaded,
-              unclaimedRewards: balances.unclaimedRewards,
-              expired,
-              apy: lpApr
-                ? bnOrZero(apr)
-                    .plus(lpApr ?? 0)
-                    .toString()
-                : undefined,
-              tvl,
-            }
-          }),
-        )
-        const totalOpBalances = newOpportunities.reduce(
-          (acc, cur) => acc.plus(bnOrZero(cur.fiatAmount)),
-          bnOrZero(0),
-        )
-        setTotalBalance(totalOpBalances.toFixed(2))
-        setOpportunities(newOpportunities)
-      } catch (error) {
-        console.error('error', error)
-      } finally {
-        setLoading(false)
-      }
+      getOpportunitiesData()
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, connectedWalletEthAddress, lpApr])
+  }, [connectedWalletEthAddress, getOpportunitiesData, lpApr, wallet])
 
   return {
     opportunities,
     loading,
     totalBalance,
+    getOpportunitiesData,
   }
 }

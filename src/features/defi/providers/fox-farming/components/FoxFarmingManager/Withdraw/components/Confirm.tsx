@@ -15,6 +15,7 @@ import { Amount } from 'components/Amount/Amount'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -40,6 +41,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = state?.opportunity
   const { unstake } = useFoxFarming(contractAddress)
+  const { setTxToWatch } = useFoxEth()
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -64,7 +66,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleConfirm = async () => {
     try {
@@ -73,6 +75,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
+      setTxToWatch(txid)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {

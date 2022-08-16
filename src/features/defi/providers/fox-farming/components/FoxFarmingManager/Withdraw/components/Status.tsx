@@ -14,8 +14,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -33,8 +31,6 @@ export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const history = useHistory()
-  const { getOpportunitiesData: reloadFarmingOpportunities } = useFoxFarmingBalances()
-  const { getOpportunityData: reloadLpOpportunity } = useFoxEthLpBalances()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const assetNamespace = 'erc20'
@@ -76,20 +72,10 @@ export const Status = () => {
             : '0',
         },
       })
-      if (confirmedTransaction.status === 'Confirmed') {
-        reloadFarmingOpportunities()
-        reloadLpOpportunity()
-      }
     }
-  }, [
-    confirmedTransaction,
-    dispatch,
-    feeAsset.precision,
-    reloadFarmingOpportunities,
-    reloadLpOpportunity,
-  ])
+  }, [confirmedTransaction, dispatch, feeAsset.precision])
 
-  if (!state) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {

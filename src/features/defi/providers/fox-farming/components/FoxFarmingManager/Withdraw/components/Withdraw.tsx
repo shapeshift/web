@@ -39,7 +39,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
   const totalFiatBalance = opportunity?.fiatAmount
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     try {

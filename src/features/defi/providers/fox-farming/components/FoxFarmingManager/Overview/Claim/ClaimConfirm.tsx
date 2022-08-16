@@ -20,6 +20,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -54,6 +55,7 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
+  const { setTxToWatch } = useFoxEth()
 
   const chainAdapterManager = getChainAdapterManager()
 
@@ -74,6 +76,8 @@ export const ClaimConfirm = ({
     setLoading(true)
     try {
       const txid = await claimRewards()
+      if (!txid) throw new Error(`Transaction failed`)
+      setTxToWatch(txid)
       history.push('/status', {
         txid,
         assetId,

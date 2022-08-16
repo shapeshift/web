@@ -16,9 +16,9 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,7 +32,12 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { opportunity, foxBalance, ethBalance, loading } = useFoxEthLpBalances()
+  const {
+    foxEthLpOpportunity: opportunity,
+    lpFoxBalance: foxBalance,
+    lpEthBalance: ethBalance,
+    lpLoading: loading,
+  } = useFoxEth()
 
   const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
   const [foxAmount, setFoxAmount] = useState('0')

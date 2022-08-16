@@ -13,11 +13,11 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { selectPortfolioLoading } from 'state/slices/selectors'
 
 import { Approve } from './components/Approve'
@@ -41,10 +41,10 @@ export const FoxFarmingWithdraw = () => {
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const { opportunities, loading: foxFarmingLoading } = useFoxFarmingBalances()
+  const { foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
   const opportunity = useMemo(
-    () => opportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, opportunities],
+    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, foxFarmingOpportunities],
   )
 
   // user info

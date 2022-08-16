@@ -8,7 +8,7 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
-import { useLpHoldingsValue } from 'context/LpHoldingsValueProvider/LpHoldingsValueProvider'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioAssetIds,
@@ -24,7 +24,7 @@ export const Portfolio = () => {
 
   const assetIds = useSelector(selectPortfolioAssetIds)
   const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const { totalBalance: lpHoldingsBalance } = useLpHoldingsValue()
+  const { totalBalance: lpHoldingsBalance } = useFoxEth()
   const totalBalancePlusLpHoldings = bnOrZero(totalBalance)
     .plus(bnOrZero(lpHoldingsBalance))
     .toFixed(2)

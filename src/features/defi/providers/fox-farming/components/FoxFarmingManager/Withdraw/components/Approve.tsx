@@ -58,7 +58,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     state: { wallet },
   } = useWallet()
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleApprove = async () => {
     if (!opportunity || !wallet || !supportsETH(wallet)) return

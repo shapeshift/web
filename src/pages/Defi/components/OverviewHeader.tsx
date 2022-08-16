@@ -2,7 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useLpHoldingsValue } from 'context/LpHoldingsValueProvider/LpHoldingsValueProvider'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
@@ -36,7 +36,7 @@ export const OverviewHeader = ({
   earnBalance: UseEarnBalancesReturn
   netWorth: string
 }) => {
-  const { totalBalance: lpBalance } = useLpHoldingsValue()
+  const { totalBalance: lpBalance } = useFoxEth()
   if (earnBalance.loading) return null
 
   const walletBalanceWithoutEarn = bnOrZero(netWorth)

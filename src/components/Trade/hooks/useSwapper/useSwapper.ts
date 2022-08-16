@@ -162,12 +162,13 @@ export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, sellTradeAsset, trade] = useWatch({
-    name: ['quote', 'sellAsset', 'trade'],
+  const [quote, sellTradeAsset, trade, isExactAllowance] = useWatch({
+    name: ['quote', 'sellAsset', 'trade', 'isExactAllowance'],
   }) as [
     TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
+    boolean,
   ]
 
   // This will instantiate a manager with no swappers
@@ -692,7 +693,7 @@ export const useSwapper = () => {
     return approvalNeeded
   }
 
-  const approveInfinite = async (): Promise<string> => {
+  const approve = async (): Promise<string> => {
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: quote.buyAsset.assetId,
       sellAssetId: quote.sellAsset.assetId,
@@ -700,7 +701,9 @@ export const useSwapper = () => {
 
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
-    const txid = await swapper.approveInfinite({ quote, wallet })
+    const txid = isExactAllowance
+      ? await swapper.approveAmount({ amount: quote.sellAmount, quote, wallet })
+      : await swapper.approveInfinite({ quote, wallet })
     return txid
   }
 
@@ -720,7 +723,7 @@ export const useSwapper = () => {
     getSupportedSellableAssets,
     getDefaultPair,
     checkApprovalNeeded,
-    approveInfinite,
+    approve,
     getSendMaxAmount,
     reset,
     feeAsset,

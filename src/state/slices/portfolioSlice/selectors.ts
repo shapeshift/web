@@ -184,8 +184,8 @@ export const selectPortfolioFiatAccountBalances = createSelector(
             const precision = assetsById[assetId]?.precision
             const price = marketData[assetId]?.price ?? 0
             const cryptoValue = fromBaseUnit(cryptoBalance, precision)
-            const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatbalance
+            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+            acc[assetId] = fiatBalance
 
             return acc
           },

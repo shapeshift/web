@@ -16,7 +16,7 @@ import {
   mockCosmosAccountWithOnlyUndelegations,
   mockCosmosAccountWithStakingData,
   mockEthAccount,
-  mockETHandBTCAccounts,
+  mockEthAndBtcAccounts,
   mockEthToken,
   unknown1AssetId,
   unknown2AssetId,
@@ -148,7 +148,7 @@ describe('portfolioSlice', () => {
       describe('Ethereum and bitcoin', () => {
         it('should update state', () => {
           const store = createStore()
-          const { ethAccount, ethAccount2, btcAccount } = mockETHandBTCAccounts({
+          const { ethAccount, ethAccount2, btcAccount } = mockEthAndBtcAccounts({
             ethAccountObj: {
               balance: '27803816548287370',
               chainSpecific: {
@@ -197,7 +197,7 @@ describe('portfolioSlice', () => {
 
         it('should update state and exclude unknown asset ids', () => {
           const store = createStore()
-          const { ethAccount, btcAccount } = mockETHandBTCAccounts({
+          const { ethAccount, btcAccount } = mockEthAndBtcAccounts({
             ethAccountObj: {
               balance: '23803816548287371',
               chainSpecific: {
@@ -243,7 +243,7 @@ describe('portfolioSlice', () => {
     describe('selectPortfolioAssetAccounts', () => {
       it('can get accounts containing an asset', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts()
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
@@ -260,7 +260,7 @@ describe('portfolioSlice', () => {
 
     describe('selectAccountIdByAddress', () => {
       const store = createStore()
-      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockETHandBTCAccounts()
+      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockEthAndBtcAccounts()
 
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -298,7 +298,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
       const store = createStore()
-      const { ethAccount, btcAccount } = mockETHandBTCAccounts()
+      const { ethAccount, btcAccount } = mockEthAndBtcAccounts()
 
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -318,7 +318,7 @@ describe('portfolioSlice', () => {
     describe('selectPortfolioAllocationPercentByFilter', () => {
       it('can select fiat allocation by accountId', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockEthAndBtcAccounts()
 
         // dispatch portfolio data
         store.dispatch(
@@ -353,7 +353,7 @@ describe('portfolioSlice', () => {
 
       it('should return 0 for allocation if no market data is available', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockEthAndBtcAccounts()
 
         // dispatch portfolio data
         store.dispatch(
@@ -388,7 +388,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioFiatAccountBalance', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000000000000000000' },
         ethAccount2Obj: { balance: '200000000000000000' },
       })
@@ -458,7 +458,7 @@ describe('portfolioSlice', () => {
 
     describe('selectHighestFiatBalanceAccountByAssetId', () => {
       const store = createStore()
-      const { btcAccount, btcAccount2, btcAccount3 } = mockETHandBTCAccounts()
+      const { btcAccount, btcAccount2, btcAccount3 } = mockEthAndBtcAccounts()
 
       // dispatch portfolio data
       store.dispatch(
@@ -494,7 +494,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioFiatBalanceByFilter', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
         ethAccount2Obj: { balance: '200000000000000000' },
       })
@@ -542,7 +542,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioCryptoHumanBalancesByFilter', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
         ethAccount2Obj: {
           balance: '200000000000000000',
@@ -595,7 +595,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioTotalFiatBalanceByAccount', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -646,7 +646,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioTokenIdsByAccountId', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -693,7 +693,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAccountIdsSortedFiat', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -741,7 +741,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -793,7 +793,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAccountRows', () => {
       const store = createStore()
-      const { ethAccount } = mockETHandBTCAccounts({
+      const { ethAccount } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '0',
           chainSpecific: {

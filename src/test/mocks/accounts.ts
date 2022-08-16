@@ -295,7 +295,7 @@ export const mockBtcAccount = (
     obj,
   )
 
-export const mockETHandBTCAccounts = ({
+export const mockEthAndBtcAccounts = ({
   ethAccountObj,
   ethAccount2Obj,
   btcAccountObj,

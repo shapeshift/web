@@ -27,7 +27,7 @@ export const WalletViewsSwitch = () => {
   const translate = useTranslate()
   const match = useRouteMatch('/')
   const {
-    state: { wallet, modal, showBackButton, initialRoute, onCloseRoute, type },
+    state: { wallet, modal, showBackButton, initialRoute, shouldResetOnClose, type },
     dispatch,
   } = useWallet()
 
@@ -44,8 +44,12 @@ export const WalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const onClose = async () => {
-    history.replace(onCloseRoute)
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    history.replace('/')
+    if (shouldResetOnClose) {
+      dispatch({ type: WalletActions.RESET_STATE })
+    } else {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    }
     await cancelWalletRequests()
   }
 

@@ -73,7 +73,7 @@ export interface InitialState {
   wallet: HDWallet | null
   type: KeyManager | null
   initialRoute: string | null
-  onCloseRoute: string
+  shouldResetOnClose: boolean
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
@@ -92,7 +92,7 @@ const initialState: InitialState = {
   wallet: null,
   type: null,
   initialRoute: null,
-  onCloseRoute: '/',
+  shouldResetOnClose: false,
   walletInfo: null,
   isConnected: false,
   isDemoWallet: false,
@@ -217,7 +217,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         showBackButton: false,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        onCloseRoute: '/connect-wallet',
+        shouldResetOnClose: true,
         initialRoute: KeepKeyRoutes.FactoryState,
       }
     case WalletActions.OPEN_KEEPKEY_RECOVERY:

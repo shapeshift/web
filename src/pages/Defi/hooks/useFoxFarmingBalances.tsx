@@ -139,7 +139,8 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
     ;(async () => {
       getOpportunitiesData()
     })()
-  }, [connectedWalletEthAddress, getOpportunitiesData, lpApr, wallet])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedWalletEthAddress, lpApr, wallet])
 
   return {
     opportunities,

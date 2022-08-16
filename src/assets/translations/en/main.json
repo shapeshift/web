@@ -408,7 +408,7 @@
   },
   "trade": {
     "allowance": "Allowance",
-    "allowanceTooltip": "Lorem ipsum sit dolor amet",
+    "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
     "rate": "Rate",

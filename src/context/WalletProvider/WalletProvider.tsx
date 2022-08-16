@@ -218,7 +218,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         onCloseRoute: '/connect-wallet',
-        initialRoute: KeepKeyRoutes.WipeSuccessful,
+        initialRoute: KeepKeyRoutes.FactoryState,
       }
     case WalletActions.OPEN_KEEPKEY_RECOVERY:
       return {

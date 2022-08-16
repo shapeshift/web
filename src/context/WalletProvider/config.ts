@@ -79,7 +79,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
-      { path: KeepKeyRoutes.WipeSuccessful, component: FactoryState },
+      { path: KeepKeyRoutes.FactoryState, component: FactoryState },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
       { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
       { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },

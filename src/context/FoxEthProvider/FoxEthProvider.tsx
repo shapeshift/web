@@ -91,16 +91,9 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   setTxToWatch: (_txid: string) => Promise.resolve(),
 })
 
-export type FoxFarmingEarnOpportunityType = {
+type FoxFarmingEarnOpportunityType = {
   unclaimedRewards: string
 } & EarnOpportunityType
-
-export type UseFoxFarmingBalancesReturn = {
-  opportunities: FoxFarmingEarnOpportunityType[]
-  loading: boolean
-  totalBalance: string
-  getOpportunitiesData: () => Promise<void>
-}
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element => {
   const {

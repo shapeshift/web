@@ -2,7 +2,6 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -39,7 +38,6 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
 
   return (
     <SlideTransition>
-      <RouteSteps routes={routes} location={location} />
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>

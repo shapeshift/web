@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, ButtonProps, Tooltip } from '@chakra-ui/react'
+import { Box, Button, ButtonProps, Stack, Tooltip } from '@chakra-ui/react'
 import {
   DefiAction,
   DefiParams,
@@ -55,5 +55,9 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
     ))
   }, [handleClick, menu, translate])
 
-  return <ButtonGroup width='full'>{renderMenu}</ButtonGroup>
+  return (
+    <Stack width='full' direction={{ base: 'column', md: 'row' }}>
+      {renderMenu}
+    </Stack>
+  )
 }

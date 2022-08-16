@@ -8171,18 +8171,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x1a7981d87e3b6a95c1516eb820e223fe979896b3": {
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/",
-    "color": "#DDB4BF",
-    "icon": "https://assets.yearn.network/tokens/ethereum/0x1a7981d87e3b6a95c1516eb820e223fe979896b3.png",
-    "name": "MCC",
-    "precision": 9,
-    "symbol": "MCC",
-    "chainId": "eip155:1",
-    "assetId": "eip155:1/erc20:0x1a7981d87e3b6a95c1516eb820e223fe979896b3"
-  },
   "eip155:1/erc20:0x1a7a8bd9106f2b8d977e08582dc7d24c723ab0db": {
     "assetId": "eip155:1/erc20:0x1a7a8bd9106f2b8d977e08582dc7d24c723ab0db",
     "chainId": "eip155:1",
@@ -9542,18 +9530,6 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
-  "eip155:1/erc20:0x1fa9f1cbf8c9a4fb3431a5809f31723038ed291b": {
-    "assetId": "eip155:1/erc20:0x1fa9f1cbf8c9a4fb3431a5809f31723038ed291b",
-    "chainId": "eip155:1",
-    "name": "Honey SWEET",
-    "precision": 18,
-    "color": "#10100D",
-    "icon": "https://assets.coingecko.com/coins/images/18123/thumb/Honey_Token_with_Trademark_and_png.png?1646930091",
-    "symbol": "SWEET",
-    "explorer": "https://etherscan.io",
-    "explorerAddressLink": "https://etherscan.io/address/",
-    "explorerTxLink": "https://etherscan.io/tx/"
-  },
   "eip155:1/erc20:0x1fbd3df007eb8a7477a1eab2c63483dcc24effd6": {
     "assetId": "eip155:1/erc20:0x1fbd3df007eb8a7477a1eab2c63483dcc24effd6",
     "chainId": "eip155:1",
@@ -9745,6 +9721,18 @@
     "symbol": "FLASH",
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0x20398ad62bb2d930646d45a6d4292baa0b860c1f"
+  },
+  "eip155:1/erc20:0x205ed31c867bf715e4182137af95afe9177cd8e7": {
+    "assetId": "eip155:1/erc20:0x205ed31c867bf715e4182137af95afe9177cd8e7",
+    "chainId": "eip155:1",
+    "name": "DEFY",
+    "precision": 18,
+    "color": "#20372B",
+    "icon": "https://assets.coingecko.com/coins/images/26877/thumb/8ybr83fb0ca45cm1yvrcaclwbvcp.jpeg?1660622066",
+    "symbol": "DEFY",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
   },
   "eip155:1/erc20:0x20910e5b5f087f6439dfcb0dda4e27d1014ac2b8": {
     "assetId": "eip155:1/erc20:0x20910e5b5f087f6439dfcb0dda4e27d1014ac2b8",
@@ -12771,6 +12759,18 @@
     "color": "#FC6940",
     "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39/logo.png",
     "symbol": "HEX",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
+  "eip155:1/erc20:0x2b645a57e82123796c3ea7d78de27c3e3ff7f016": {
+    "assetId": "eip155:1/erc20:0x2b645a57e82123796c3ea7d78de27c3e3ff7f016",
+    "chainId": "eip155:1",
+    "name": "Meta Miner",
+    "precision": 18,
+    "color": "#FFFFFF",
+    "icon": "https://assets.coingecko.com/coins/images/26876/thumb/200x200.png?1660620947",
+    "symbol": "MINER",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
@@ -18698,8 +18698,8 @@
     "chainId": "eip155:1",
     "name": "KumaDex Token",
     "precision": 18,
-    "color": "#E78A51",
-    "icon": "https://assets.coingecko.com/coins/images/26693/thumb/dkumaOG02.png?1659606359",
+    "color": "#E27E43",
+    "icon": "https://assets.coingecko.com/coins/images/26693/thumb/dkumaOG02_CoinGecko.png?1660618296",
     "symbol": "DKUMA",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -21134,7 +21134,7 @@
   "eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c": {
     "assetId": "eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c",
     "chainId": "eip155:1",
-    "name": "FOX/WETH Pool",
+    "name": "ETH/FOX Pool",
     "precision": 18,
     "color": "#FC047C",
     "icon": "https://assets.coincap.io/assets/icons/256/uni.png",
@@ -33579,6 +33579,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0x73a058da53220d25bcb2c4cb8ff8520626ea26e7": {
+    "assetId": "eip155:1/erc20:0x73a058da53220d25bcb2c4cb8ff8520626ea26e7",
+    "chainId": "eip155:1",
+    "name": "Scro",
+    "precision": 18,
+    "color": "#062224",
+    "icon": "https://assets.coingecko.com/coins/images/26882/thumb/SCRO.png?1660646485",
+    "symbol": "SCROH",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0x73a83269b9bbafc427e76be0a2c1a1db2a26f4c2": {
     "assetId": "eip155:1/erc20:0x73a83269b9bbafc427e76be0a2c1a1db2a26f4c2",
     "chainId": "eip155:1",
@@ -41888,10 +41900,10 @@
   "eip155:1/erc20:0x92e187a03b6cd19cb6af293ba17f2745fd2357d5": {
     "assetId": "eip155:1/erc20:0x92e187a03b6cd19cb6af293ba17f2745fd2357d5",
     "chainId": "eip155:1",
-    "name": "Unit Protocol New",
+    "name": "Unit Protocol",
     "precision": 18,
     "color": "#FB9CCC",
-    "icon": "https://assets.coingecko.com/coins/images/13359/thumb/unit_telegram.png?1607878022",
+    "icon": "https://assets.coingecko.com/coins/images/13359/thumb/6f38719f-fe83-44ff-af30-7965fd23ac06.png?1660612730",
     "symbol": "DUCK",
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -54323,6 +54335,18 @@
     "explorerAddressLink": "https://etherscan.io/address/",
     "explorerTxLink": "https://etherscan.io/tx/"
   },
+  "eip155:1/erc20:0xc08515d77c8e20d5957df9ad492e426020be64fe": {
+    "assetId": "eip155:1/erc20:0xc08515d77c8e20d5957df9ad492e426020be64fe",
+    "chainId": "eip155:1",
+    "name": "Non Fungible Media Token",
+    "precision": 9,
+    "color": "#6D4CA3",
+    "icon": "https://assets.coingecko.com/coins/images/26880/thumb/6mZw77As_400x400.jpeg?1660636409",
+    "symbol": "NFMT",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xc0a25a24cce412e2fb407c08e3785437fee9ad1d": {
     "explorer": "https://etherscan.io",
     "explorerAddressLink": "https://etherscan.io/address/",
@@ -66176,6 +66200,18 @@
     "chainId": "eip155:1",
     "assetId": "eip155:1/erc20:0xecd5e75afb02efa118af914515d6521aabd189f1"
   },
+  "eip155:1/erc20:0xece8531550fc599ccb2c7734494fbc358d0a9483": {
+    "assetId": "eip155:1/erc20:0xece8531550fc599ccb2c7734494fbc358d0a9483",
+    "chainId": "eip155:1",
+    "name": "Phoenix Protocol",
+    "precision": 18,
+    "color": "#7F2492",
+    "icon": "https://assets.coingecko.com/coins/images/26883/thumb/photo_2022-05-03_11-27-19.jpg?1660647442",
+    "symbol": "PP",
+    "explorer": "https://etherscan.io",
+    "explorerAddressLink": "https://etherscan.io/address/",
+    "explorerTxLink": "https://etherscan.io/tx/"
+  },
   "eip155:1/erc20:0xed025a9fe4b30bcd68460bca42583090c2266468": {
     "assetId": "eip155:1/erc20:0xed025a9fe4b30bcd68460bca42583090c2266468",
     "chainId": "eip155:1",
@@ -74784,18 +74820,6 @@
     "color": "#C958EE",
     "icon": "https://assets.coingecko.com/coins/images/26165/thumb/Untitled_%28200_%C3%97_200_px%29.png?1657245976",
     "symbol": "CHRO",
-    "explorer": "https://snowtrace.io",
-    "explorerAddressLink": "https://snowtrace.io/address/",
-    "explorerTxLink": "https://snowtrace.io/tx/"
-  },
-  "eip155:43114/erc20:0xbfb8dd604b903f30da21354ab41b91de3f1c94e5": {
-    "assetId": "eip155:43114/erc20:0xbfb8dd604b903f30da21354ab41b91de3f1c94e5",
-    "chainId": "eip155:43114",
-    "name": "Zilla Finance 2 0",
-    "precision": 18,
-    "color": "#565C6B",
-    "icon": "https://assets.coingecko.com/coins/images/23655/thumb/bI__xpt8_400x400.jpg?1644924231",
-    "symbol": "ZILLA",
     "explorer": "https://snowtrace.io",
     "explorerAddressLink": "https://snowtrace.io/address/",
     "explorerTxLink": "https://snowtrace.io/tx/"

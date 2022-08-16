@@ -621,7 +621,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createSelector(
       const assetValue = v[assetId]
       return assetValue ? acc.set(k, assetValue) : acc
     }, new Map<AccountSpecifier, string>())
-    const highestBalanceAccount = maxBy([...accountValueMap], ([_, v]) => v)
+    const highestBalanceAccount = maxBy([...accountValueMap], ([_, v]) => bnOrZero(v).toNumber())
     return highestBalanceAccount ? highestBalanceAccount[0] : undefined
   },
 )

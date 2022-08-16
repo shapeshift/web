@@ -44,7 +44,11 @@ export const WalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const onClose = async () => {
-    history.replace('/')
+    //checks if the user is on the route for new keepkey wipe
+
+    if(history.location.pathname.includes('/keepkey')) {
+      window.location.href = '/'
+    }
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     await cancelWalletRequests()
   }

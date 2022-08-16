@@ -16,7 +16,14 @@ export const useHasAppUpdated = () => {
     async (url: string): Promise<unknown> => {
       // don't ever try to fetch on localhost - we don't care
       if (isLocalhost) return {} // need to return dummy value
-      return await axios.get(`${url}?${new Date().valueOf()}`)
+      try {
+        // dummy query param to bypass the browser cache.
+        const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+        return data
+      } catch (e) {
+        console.error(`useHasAppUpdated: error fetching data from URL: ${url}`, e)
+        return null
+      }
     },
     [isLocalhost],
   )
@@ -43,19 +50,16 @@ export const useHasAppUpdated = () => {
 
   useInterval(async () => {
     if (isLocalhost) return
-    try {
-      const [currentManifestJs, currentEnvJs] = await Promise.all([
-        fetchData(assetManifestUrl),
-        fetchData(envUrl),
-      ])
-
+    const [currentManifestJs, currentEnvJs] = await Promise.all([
+      fetchData(assetManifestUrl),
+      fetchData(envUrl),
+    ])
+    if (currentEnvJs && currentManifestJs) {
       const isExactAssetManifest = isEqual(initialManifestMainJs, currentManifestJs)
       const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
 
       const eitherHasChanged = !isExactAssetManifest || !isExactEnv
       setHasUpdated(eitherHasChanged)
-    } catch (e) {
-      console.error('useHasAppUpdated: error fetching data from URL:', e)
     }
   }, APP_UPDATE_CHECK_INTERVAL)
 

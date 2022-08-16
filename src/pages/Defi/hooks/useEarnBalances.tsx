@@ -61,5 +61,9 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
     .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
     .toString()
-  return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
+  return {
+    opportunities,
+    totalEarningBalance,
+    loading: vaultsLoading || foxyLoading,
+  }
 }

@@ -2,7 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
@@ -30,15 +30,17 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  walletBalance,
+  netWorth,
+  lpBalance,
 }: {
   earnBalance: UseEarnBalancesReturn
-  walletBalance: string
+  netWorth: string
+  lpBalance: string
 }) => {
   if (earnBalance.loading) return null
 
-  const walletBalanceWithoutEarn = bn(walletBalance)
-    .minus(bn(earnBalance.totalEarningBalance))
+  const walletBalanceWithoutEarn = bnOrZero(netWorth)
+    .minus(bnOrZero(earnBalance.totalEarningBalance))
     .toString()
 
   return (
@@ -50,7 +52,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={walletBalance} />
+              <Amount.Fiat value={bnOrZero(netWorth).plus(bnOrZero(lpBalance)).toString()} />
             </StatNumber>
           </Stat>
         </StatGroup>

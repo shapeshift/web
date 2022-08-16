@@ -7,6 +7,7 @@ import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/sel
 import { OpportunityCardList } from '../components/OpportunityCardList'
 import { OverviewHeader } from '../components/OverviewHeader'
 import { useEarnBalances } from '../hooks/useEarnBalances'
+import { useLpHoldingBalance } from '../hooks/useLpHoldingBalance'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -19,10 +20,11 @@ const DefiHeader = () => {
 
 export const Overview = () => {
   const balances = useEarnBalances()
-  const walletBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const { lpHoldingsBalance } = useLpHoldingBalance()
+  const netWorth = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   return (
     <Main titleComponent={<DefiHeader />}>
-      <OverviewHeader earnBalance={balances} walletBalance={walletBalance} />
+      <OverviewHeader earnBalance={balances} netWorth={netWorth} lpBalance={lpHoldingsBalance} />
       <Stack spacing={4} divider={<Divider marginTop={0} />}>
         <OpportunityCardList balances={balances} />
       </Stack>

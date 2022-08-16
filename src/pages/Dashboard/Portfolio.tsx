@@ -8,6 +8,8 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useLpHoldingBalance } from 'pages/Defi/hooks/useLpHoldingBalance'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -22,6 +24,10 @@ export const Portfolio = () => {
 
   const assetIds = useSelector(selectPortfolioAssetIds)
   const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const { lpHoldingsBalance } = useLpHoldingBalance()
+  const totalBalancePlusLpHoldings = bnOrZero(totalBalance)
+    .plus(bnOrZero(lpHoldingsBalance))
+    .toFixed(2)
 
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
@@ -46,7 +52,7 @@ export const Portfolio = () => {
 
             <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
               <Skeleton isLoaded={isLoaded}>
-                <Amount.Fiat value={totalBalance} />
+                <Amount.Fiat value={totalBalancePlusLpHoldings} />
               </Skeleton>
             </Card.Heading>
             {isFinite(percentChange) && (

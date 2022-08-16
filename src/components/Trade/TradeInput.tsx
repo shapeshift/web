@@ -24,11 +24,13 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
+  selectAccountIdsByAssetId,
   selectFiatToUsdRate,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AssetAccountRow } from './AssetAccountRow'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
 type TS = TradeState<KnownChainIds>
@@ -63,6 +65,13 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
+
+  const accountIds = useAppSelector(state => {
+    const assetId = sellTradeAsset?.asset?.assetId
+    return assetId ? selectAccountIdsByAssetId(state, { assetId }) : []
+  })
+
+  const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -333,6 +342,14 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }
                 data-test='trade-form-token-input-row-sell'
               />
+              {shouldShowAccountSelection && (
+                <AssetAccountRow
+                  accountId={accountIds[0]}
+                  assetId={sellTradeAsset?.asset?.assetId}
+                  key={accountIds[0]}
+                  onClick={() => history.push(TradeRoutePaths.AccountSelect)}
+                />
+              )}
             </FormControl>
             <FormControl
               rounded=''

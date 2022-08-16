@@ -1,7 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
-import { CowTrade } from '@shapeshiftoss/swapper'
+import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 
 export enum TradeAmountInputField {
   BUY = 'BUY',
@@ -40,4 +39,5 @@ export enum TradeRoutePaths {
   Approval = '/trade/approval',
   SellSelect = '/trade/select/sell',
   BuySelect = '/trade/select/buy',
+  AccountSelect = '/trade/select/account',
 }

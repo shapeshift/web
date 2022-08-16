@@ -1,0 +1,57 @@
+import { Stack } from '@chakra-ui/react'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { useFormContext } from 'react-hook-form'
+import { RouteComponentProps } from 'react-router-dom'
+import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
+import { Card } from 'components/Card/Card'
+import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
+import { TradeRoutePaths, TradeState } from 'components/Trade/types'
+import { WithBackButton } from 'components/Trade/WithBackButton'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+export const SelectAccount = ({ history }: RouteComponentProps) => {
+  const { getValues } = useFormContext<TradeState<KnownChainIds>>()
+  const assetId = getValues('sellAsset')?.asset?.assetId
+  const accountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
+  )
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
+  const handleBack = () => {
+    history.push(TradeRoutePaths.Input)
+  }
+
+  const onClick = () => {
+    // TODO: Set 'account'
+    history.push(TradeRoutePaths.Input)
+  }
+
+  return (
+    <SlideTransition>
+      <Card variant='unstyled'>
+        <Card.Header px={0} pt={0}>
+          <WithBackButton handleBack={handleBack}>
+            <Card.Heading textAlign='center'>
+              <Text translation='accounts.selectAccount' />
+            </Card.Heading>
+          </WithBackButton>
+        </Card.Header>
+        <Card.Body p={0} height='400px' display='flex' flexDir='column'>
+          <Stack>
+            {accountIds.map(accountId => (
+              <AssetAccountRow
+                accountId={accountId}
+                assetId={asset.assetId}
+                key={accountId}
+                isCompact
+                onClick={onClick}
+              />
+            ))}
+          </Stack>
+        </Card.Body>
+      </Card>
+    </SlideTransition>
+  )
+}

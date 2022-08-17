@@ -23,7 +23,7 @@ export const useHasAppUpdated = () => {
         const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
         return data
       } catch (e) {
-        moduleLogger.error(e,`useHasAppUpdated: error fetching data from URL: ${url}`)
+        moduleLogger.error(e, `useHasAppUpdated: error fetching data from URL: ${url}`)
         return null
       }
     },

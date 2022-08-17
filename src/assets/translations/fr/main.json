@@ -703,7 +703,7 @@
       "xDays": "%{unbondingDays} jours",
       "estimatedReturns": "Rendements annuels estimés*",
       "estimatedGas": "Estimation des frais de carburant",
-      "notEnoughGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
+      "notEnoughGas": "Solde en %{assetSymbol} insuffisant pour couvrir le carburant",
       "preFooter": "Les récompenses s'accumulent automatiquement",
       "signBroadcast": "Signer & diffuser",
       "cancel": "Annuler"

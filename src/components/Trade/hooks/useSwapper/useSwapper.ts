@@ -36,7 +36,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import {
+  DisplayFeeData,
+  TradeAmountInputField,
+  TradeAsset,
+  TradeState,
+} from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -50,7 +55,7 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -162,12 +167,13 @@ export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, sellTradeAsset, trade] = useWatch({
-    name: ['quote', 'sellAsset', 'trade'],
+  const [quote, sellTradeAsset, trade, sellAssetAccount] = useWatch({
+    name: ['quote', 'sellAsset', 'trade', 'sellAssetAccount'],
   }) as [
     TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
+    TradeState<KnownChainIds>['sellAssetAccount'],
   ]
 
   // This will instantiate a manager with no swappers
@@ -236,7 +242,8 @@ export const useSwapper = () => {
   )
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, {
+    selectPortfolioCryptoBalanceByFilter(state, {
+      accountId: sellAssetAccount,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )

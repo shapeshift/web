@@ -10777,11 +10777,6 @@ eslint-plugin-react@^7.27.1:
     semver "^6.3.0"
     string.prototype.matchall "^4.0.6"
 
-eslint-plugin-shapeshiftoss-logger@../eslint-plugin-shapeshiftoss-logger:
-  version "1.0.0"
-  dependencies:
-    eslint-scope "^7.1.1"
-
 eslint-plugin-simple-import-sort@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-simple-import-sort/-/eslint-plugin-simple-import-sort-7.0.0.tgz#a1dad262f46d2184a90095a60c66fef74727f0f8"

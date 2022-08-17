@@ -2,10 +2,8 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
-import { logger } from 'lib/logger'
 
 import env from './env'
-const moduleLogger = logger.child({ namespace: ['config'] })
 
 const { cleanEnv, str, url } = envalid
 
@@ -93,7 +91,9 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
     err.message = key
-    moduleLogger.error({ key, err }, 'Invalid Config')
+    // Can't use logger in src/config in tests
+    // eslint-disable-next-line no-console
+    console.error(err, key, 'Invalid Config')
   })
 }
 

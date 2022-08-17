@@ -220,7 +220,7 @@ export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) =>
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
-        <Box m={4} width={'24rem'}>
+        <Box p={4}>
           <Switch>
             <Route
               path='/'

@@ -3,4 +3,4 @@ export const UNISWAP_V2_WETH_FOX_POOL_ADDRESS = '0x470e8de2ebaef52014a47cb5e6af8
 export const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const foxEthLpAssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 export const MAX_ALLOWANCE = '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
-export const foxEthLpOpportunityName = 'ETH-FOX UNI V2'
+export const foxEthLpOpportunityName = 'ETH/FOX Pool'

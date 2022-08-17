@@ -20,7 +20,14 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
   return (
     <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
       <ModalOverlay />
-      <ModalContent>{children}</ModalContent>
+      <ModalContent
+        width='full'
+        borderRadius={{ base: 0, md: 'xl' }}
+        minWidth={{ base: '100%', md: '500px' }}
+        maxWidth={{ base: 'full', md: '500px' }}
+      >
+        {children}
+      </ModalContent>
     </Modal>
   )
 }

@@ -40,7 +40,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const { stake } = useFoxFarming(contractAddress)
-  const { setTxToWatch } = useFoxEth()
+  const { onOngoingTxIdChange } = useFoxEth()
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const opportunity = state?.opportunity
@@ -68,7 +68,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       const txid = await stake(state.deposit.cryptoAmount)
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
-      setTxToWatch(txid)
+      onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')

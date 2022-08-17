@@ -37,7 +37,7 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { setTxToWatch } = useFoxEth()
+  const { onOngoingTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { addLiquidity } = useFoxEthLiquidityPool()
   const opportunity = useMemo(() => state?.opportunity, [state])
@@ -74,7 +74,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
       const txid = await addLiquidity(state.deposit.foxCryptoAmount, state.deposit.ethCryptoAmount)
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
-      setTxToWatch(txid)
+      onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')

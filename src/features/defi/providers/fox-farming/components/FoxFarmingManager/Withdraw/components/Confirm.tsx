@@ -41,7 +41,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = state?.opportunity
   const { unstake } = useFoxFarming(contractAddress)
-  const { setTxToWatch } = useFoxEth()
+  const { onOngoingTxIdChange } = useFoxEth()
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -75,7 +75,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
-      setTxToWatch(txid)
+      onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {

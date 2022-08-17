@@ -55,7 +55,7 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
-  const { setTxToWatch } = useFoxEth()
+  const { onOngoingTxIdChange } = useFoxEth()
 
   const chainAdapterManager = getChainAdapterManager()
 
@@ -77,7 +77,7 @@ export const ClaimConfirm = ({
     try {
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
-      setTxToWatch(txid)
+      onOngoingTxIdChange(txid)
       history.push('/status', {
         txid,
         assetId,

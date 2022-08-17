@@ -3,7 +3,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
@@ -39,8 +39,8 @@ export const OverviewHeader = ({
   const { totalBalance: lpBalance } = useFoxEth()
   if (earnBalance.loading) return null
 
-  const walletBalanceWithoutEarn = bnOrZero(netWorth)
-    .minus(bnOrZero(earnBalance.totalEarningBalance))
+  const walletBalanceWithoutEarn = bn(netWorth)
+    .minus(bn(earnBalance.totalEarningBalance))
     .toString()
 
   return (
@@ -52,7 +52,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={bnOrZero(netWorth).plus(bnOrZero(lpBalance)).toString()} />
+              <Amount.Fiat value={bn(netWorth).plus(bn(lpBalance)).toString()} />
             </StatNumber>
           </Stat>
         </StatGroup>
@@ -65,7 +65,7 @@ export const OverviewHeader = ({
           <EarnStat label='defi.walletBalance' value={walletBalanceWithoutEarn} />
           <EarnStat
             label='defi.earnBalance'
-            value={bnOrZero(earnBalance.totalEarningBalance).plus(bnOrZero(lpBalance)).toString()}
+            value={bn(earnBalance.totalEarningBalance).plus(bn(lpBalance)).toString()}
           />
         </SimpleGrid>
       </Card.Footer>

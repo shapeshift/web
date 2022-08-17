@@ -18,7 +18,8 @@ import React, { createContext, useContext, useMemo } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import {
   selectAssetById,
@@ -28,6 +29,8 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 const lpOpportunity: EarnOpportunityType = {
   provider: DefiProvider.FoxEthLP,
@@ -77,7 +80,7 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpLoading: boolean
   farmingLoading: boolean
-  setTxToWatch: (txid: string) => Promise<void>
+  onOngoingTxIdChange: (txid: string) => Promise<void>
 }
 
 const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpportunitiesContext>({
@@ -88,21 +91,23 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   foxFarmingOpportunities: [v4FarmingOpportunity],
   lpLoading: true,
   farmingLoading: true,
-  setTxToWatch: (_txid: string) => Promise.resolve(),
+  onOngoingTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
 type FoxFarmingEarnOpportunityType = {
   unclaimedRewards: string
 } & EarnOpportunityType
 
-export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element => {
+export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
     state: { wallet },
   } = useWallet()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
   const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+  const adapter = chainAdapterManager.get(
+    ethAsset.chainId,
+  ) as ChainAdapter<KnownChainIds.EthereumMainnet>
 
   const [lpLoading, setLpLoading] = useState<boolean>(true)
   const [lpFoxBalance, setLpFoxBalance] = useState<string | null>(null)
@@ -124,6 +129,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
   const lpAssetPrecision = useAppSelector(state =>
     selectAssetById(state, foxEthLpAssetId),
   ).precision
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   useEffect(() => {
     if (wallet && adapter) {
@@ -134,7 +140,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
     }
   }, [adapter, wallet])
 
-  const reloadFarmingOpportunities = useCallback(async () => {
+  const fetchFarmingOpportunities = useCallback(async () => {
+    moduleLogger.info('fetching farming opportunities')
     if (!connectedWalletEthAddress) return
     try {
       const newOpportunities = await Promise.all(
@@ -157,23 +164,19 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
             isLoaded: isLpAprLoaded,
             unclaimedRewards: balances.unclaimedRewards,
             expired,
-            apy: lpApr
-              ? bnOrZero(apr)
-                  .plus(lpApr ?? 0)
-                  .toString()
-              : undefined,
+            apy: lpApr ? bnOrZero(apr).plus(lpApr).toString() : '0',
             tvl,
           }
         }),
       )
       const totalOpBalances = newOpportunities.reduce(
-        (acc, cur) => acc.plus(bnOrZero(cur.fiatAmount)),
+        (acc, newOpportunity) => acc.plus(bnOrZero(newOpportunity.fiatAmount)),
         bnOrZero(0),
       )
       setFoxFarmingTotalBalance(totalOpBalances.toFixed(2))
       setFoxFarmingOpportunities(newOpportunities)
     } catch (error) {
-      console.error('error', error)
+      moduleLogger.error(error, 'fetchFarmingOpportunities failed')
     } finally {
       setFarmingLoading(false)
     }
@@ -189,21 +192,22 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
     lpApr,
   ])
 
-  const reloadLpOpportunity = useCallback(async () => {
+  const fetchLpOpportunity = useCallback(async () => {
+    moduleLogger.info('fetching LP pportunity')
     try {
       const balances = await calculateHoldings()
       if (balances) {
         const { lpBalance, foxBalance, ethBalance } = balances
         setLpFoxBalance(foxBalance.toString())
         setLpEthBalance(ethBalance.toString())
-        const totalLpBalance = bnOrZero(lpBalance).div(`1e${lpAssetPrecision}`)
+        const totalLpBalance = bn(lpBalance).div(bn(10).pow(lpAssetPrecision))
         const ethValue = ethBalance.times(ethMarketData.price)
         const foxValue = foxBalance.times(foxMarketData.price)
         const fiatAmount = ethValue.plus(foxValue).toFixed(2)
         const totalSupply = await getLpTVL()
         setFoxEthLpOpportunity({
           ...lpOpportunity,
-          cryptoAmount: totalLpBalance?.toString() ?? '0',
+          cryptoAmount: totalLpBalance.toString(),
           fiatAmount,
           isLoaded: true,
           apy: lpApr ?? undefined,
@@ -211,7 +215,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
         })
       }
     } catch (error) {
-      console.error('error', error)
+      moduleLogger.error(error, 'fetchLpOpportunity failed')
     } finally {
       setLpLoading(false)
     }
@@ -228,9 +232,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
   useEffect(() => {
     if (!(connectedWalletEthAddress && lpApr)) return
     ;(async () => {
-      reloadFarmingOpportunities()
-      reloadLpOpportunity()
+      fetchFarmingOpportunities()
+      fetchLpOpportunity()
     })()
+    // to avoid refetching when the callback functions signatures change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedWalletEthAddress, lpApr])
 
@@ -241,7 +246,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
-  const setTxToWatch = useCallback(
+  const handleOngoingTxIdChange = useCallback(
     async (txid: string) => {
       if (!connectedWalletEthAddress) return
       setOngoingTxId(serializeTxIndex(accountSpecifier, txid, connectedWalletEthAddress))
@@ -252,17 +257,15 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
   useEffect(() => {
     if (transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
-        reloadFarmingOpportunities()
-        reloadLpOpportunity()
+        fetchFarmingOpportunities()
+        fetchLpOpportunity()
         setOngoingTxId(null)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transaction])
+  }, [fetchFarmingOpportunities, fetchLpOpportunity, transaction])
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
-  const value = useMemo(() => {
-    return {
+  const value = useMemo(
+    () => ({
       totalBalance: bnOrZero(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
         .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
         .toString(),
@@ -272,20 +275,21 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps): JSX.Element =
       foxFarmingOpportunities,
       lpLoading,
       farmingLoading,
-      setTxToWatch,
-    }
-  }, [
-    featureFlags.FoxLP,
-    featureFlags.FoxFarming,
-    foxEthLpOpportunity,
-    foxFarmingTotalBalance,
-    lpFoxBalance,
-    lpEthBalance,
-    foxFarmingOpportunities,
-    lpLoading,
-    farmingLoading,
-    setTxToWatch,
-  ])
+      onOngoingTxIdChange: handleOngoingTxIdChange,
+    }),
+    [
+      featureFlags.FoxLP,
+      featureFlags.FoxFarming,
+      foxEthLpOpportunity,
+      foxFarmingTotalBalance,
+      lpFoxBalance,
+      lpEthBalance,
+      foxFarmingOpportunities,
+      lpLoading,
+      farmingLoading,
+      handleOngoingTxIdChange,
+    ],
+  )
 
   return (
     <FoxLpAndFarmingOpportunitiesContext.Provider value={value}>

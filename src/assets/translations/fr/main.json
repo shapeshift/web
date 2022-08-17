@@ -452,7 +452,7 @@
       "sellAssetRequired": "Impossible d'exécuter un devis sans un actif à vendre",
       "sellAmountRequired": "Impossible d'exécuter un devis sans un montant à vendre",
       "depositAddressRequired": "Impossible d'exécuter un devis ETH sans une adresse de DEX",
-      "sellAssetNetworkAndSymbolRequired": "Le réseau de l'actifs et son symbole sont tous deux nécessaires pour exécuter un devis",
+      "sellAssetNetworkAndSymbolRequired": "Le réseau de l'actif et son symbole sont tous deux nécessaires pour exécuter un devis",
       "hdwalletInvalidConfig": "Une erreur s'est produite lors de la communication avec votre porte-monnaie matériel",
       "allowanceRequiredFailed": "Une erreur s'est produite lors de l'approbation de l'allocation requise pour l'échange.",
       "checkApprovalNeededFailed": "Une erreur s'est produite lors de la vérification de l'approbation de votre échange.",

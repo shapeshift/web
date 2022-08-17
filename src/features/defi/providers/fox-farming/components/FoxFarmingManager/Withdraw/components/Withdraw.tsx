@@ -15,11 +15,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -48,7 +50,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('FoxFarmingWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(error, 'FoxFarmingWithdraw:getWithdrawGasEstimate error:')
     }
   }
 

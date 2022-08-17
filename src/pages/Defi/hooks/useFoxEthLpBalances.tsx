@@ -11,8 +11,10 @@ import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+const moduleLogger = logger.child({ namespace: ['useFoxEthLpBalances'] })
 
 export type UseFoxEthLpBalancesReturn = {
   opportunity: EarnOpportunityType
@@ -80,7 +82,7 @@ export function useFoxEthLpBalances(): UseFoxEthLpBalancesReturn {
           })
         }
       } catch (error) {
-        console.error('error', error)
+        moduleLogger.error(error, 'error')
       } finally {
         setLoading(false)
       }

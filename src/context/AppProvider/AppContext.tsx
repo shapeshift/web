@@ -222,7 +222,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
       } catch (e) {
-        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+        moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
   }, [

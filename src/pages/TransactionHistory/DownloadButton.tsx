@@ -12,11 +12,13 @@ import {
   isSupportedContract,
 } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
+const moduleLogger = logger.child({ namespace: ['DownloadButton'] })
 
 type ReportRow = {
   txid: TxId
@@ -121,7 +123,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       )}.csv`
       fileDownload(data, filename)
     } catch (error) {
-      console.error(error)
+      moduleLogger.error(error, 'DownloadButton:generateCSV error')
     } finally {
       setIsLoading(false)
     }

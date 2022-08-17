@@ -4,9 +4,11 @@ import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { PortisConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface PortisSetupProps
   extends RouteComponentProps<
@@ -46,7 +48,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Portis, 'test')
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        console.error('Portis Connect: There was an error initializing the wallet', e)
+        moduleLogger.error(e, 'Portis Connect: There was an error initializing the wallet')
         setErrorLoading('walletProvider.portis.errors.unknown')
         history.push('/portis/failure')
       }

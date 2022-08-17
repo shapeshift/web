@@ -142,7 +142,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
         setOpportunities(foxyOpportunities)
       } catch (error) {
-        console.error('error', error)
+        moduleLogger.error(error, 'error')
       } finally {
         setLoading(false)
       }

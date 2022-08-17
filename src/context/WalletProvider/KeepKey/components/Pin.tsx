@@ -19,6 +19,8 @@ import {
   PinMatrixRequestType,
 } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['Pin'] })
 
 export const KeepKeyPin = () => {
   const [error, setError] = useState<string | null>(null)
@@ -67,7 +69,7 @@ export const KeepKeyPin = () => {
             break
         }
       } catch (e) {
-        console.error('KeepKey PIN Submit error: ', e)
+        moduleLogger.error(e, 'KeepKey PIN Submit error: ')
       } finally {
         if (pinFieldRef?.current) {
           pinFieldRef.current.value = ''

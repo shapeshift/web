@@ -10,8 +10,10 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['useNativeSuccess'] })
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 
@@ -51,7 +53,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
       } catch (error) {
-        console.error('Failed to load device', error)
+        moduleLogger.error(error, 'Failed to load device')
         setIsSuccessful(false)
       }
     })()

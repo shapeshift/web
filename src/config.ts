@@ -2,8 +2,10 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
+import { logger } from 'lib/logger'
 
 import env from './env'
+const moduleLogger = logger.child({ namespace: ['config'] })
 
 const { cleanEnv, str, url } = envalid
 
@@ -91,7 +93,7 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
     err.message = key
-    console.error(err, key, 'Invalid Config')
+    moduleLogger.error({ key, err }, 'Invalid Config')
   })
 }
 

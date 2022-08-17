@@ -4,6 +4,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['FoxyProvider'] })
 
 type FoxyContextProps = {
   loading: boolean
@@ -37,7 +39,7 @@ export const FoxyProvider: React.FC<PropsWithChildren> = ({ children }) => {
         })
         setFoxy(api)
       } catch (error) {
-        console.error('FoxyManager: error', error)
+        moduleLogger.error(error, 'FoxyManager: error')
       } finally {
         setLoading(false)
       }

@@ -8,13 +8,15 @@
   "plugins": [
     "jest",
     "prettier",
-    "simple-import-sort"
+    "simple-import-sort",
+    "shapeshiftoss-logger"
   ],
   "env": {
     "browser": true,
     "jest/globals": true
   },
   "rules": {
+    "shapeshiftoss-logger/no-native-console": "error",
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/no-autofocus": "off",
     "no-console": [

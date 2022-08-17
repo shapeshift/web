@@ -18,6 +18,7 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
@@ -28,6 +29,7 @@ import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -67,7 +69,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('FoxEthLpWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(error, 'FoxEthLpWithdraw:getWithdrawGasEstimate error:')
     }
   }
 

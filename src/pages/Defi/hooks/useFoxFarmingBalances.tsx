@@ -13,8 +13,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+const moduleLogger = logger.child({ namespace: ['useFoxFarmingBalances'] })
 
 export type FoxFarmingEarnOpportunityType = {
   unclaimedRewards: string
@@ -118,7 +120,7 @@ export function useFoxFarmingBalances(): UseFoxFarmingBalancesReturn {
         setTotalBalance(totalOpBalances.toFixed(2))
         setOpportunities(newOpportunities)
       } catch (error) {
-        console.error('error', error)
+        moduleLogger.error(error, 'error')
       } finally {
         setLoading(false)
       }

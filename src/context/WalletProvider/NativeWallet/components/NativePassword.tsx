@@ -17,8 +17,10 @@ import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import { logger } from 'lib/logger'
 
 import { NativeSetupProps, NativeWalletValues } from '../types'
+const moduleLogger = logger.child({ namespace: ['NativePassword'] })
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -35,7 +37,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       vault.meta.set('name', values.name)
       history.push('/native/success', { vault })
     } catch (e) {
-      console.error('WalletProvider:NativeWallet:Password - Error setting password', e)
+      moduleLogger.error(e, 'WalletProvider:NativeWallet:Password - Error setting password')
       setError('password', {
         type: 'manual',
         message: translate('modal.shapeShift.password.error.invalid'),

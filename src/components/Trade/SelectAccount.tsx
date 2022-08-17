@@ -25,7 +25,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
   }
 
   const onClick = (accountId: AccountSpecifier) => {
-    setValue('sellAssetAccount', accountId)
+    setValue('selectedAssetAccount', accountId)
     history.push(TradeRoutePaths.Input)
   }
 

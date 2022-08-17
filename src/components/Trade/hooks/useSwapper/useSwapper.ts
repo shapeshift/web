@@ -338,7 +338,8 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-        const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
+        const { accountType, utxoParams } = getUtxoParams()
+        console.log('xxx tradeQuote', { accountType, utxoParams, accountSpecifiersList, sellAsset })
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -378,7 +379,9 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    return swapper.executeTrade({ trade, wallet })
+    console.log('executeQuote trade', { sellAssetAccount, trade })
+
+    // return swapper.executeTrade({ trade, wallet })
   }
 
   type GetFirstReceiveAddressArgs = {
@@ -413,23 +416,12 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  // TODO accountSpecifier must come from dropdown during asset selection
-  // We are defaulting temporarily for development
-  const getUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
-    const accountSpecifiers = accountSpecifiersList.find(
-      specifiers => specifiers[sellAsset.chainId],
-    )
+  const getUtxoParams = () => {
+    console.log('getUtxoParams sellAssetAccount', sellAssetAccount)
+    if (!sellAssetAccount) throw new Error('No UTXO account specifier')
 
-    if (!accountSpecifiers)
-      throw new Error(`No UTXO account specifiers for chainId: ${sellAsset.chainId}`)
-    const accountSpecifier = accountSpecifiers[sellAsset.chainId]
-    if (!accountSpecifier) throw new Error('No UTXO account specifier')
-
-    const accountId = toAccountId({
-      chainId: sellAsset.chainId,
-      account: accountSpecifier,
-    })
-    return accountIdToUtxoParams(accountId, 0)
+    console.log('xxx accountId', sellAssetAccount)
+    return accountIdToUtxoParams(sellAssetAccount, 0)
   }
 
   const updateQuoteDebounced = useRef(
@@ -490,7 +482,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-              const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
+              const { accountType, utxoParams } = getUtxoParams()
 
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({

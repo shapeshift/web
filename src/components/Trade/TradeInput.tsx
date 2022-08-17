@@ -2,7 +2,7 @@ import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-
 import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { InterpolationOptions } from 'node-polyglot'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -50,24 +50,33 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate, quoteError, sellAssetAccount] =
-    useWatch({
-      name: [
-        'quote',
-        'buyAsset',
-        'sellAsset',
-        'feeAssetFiatRate',
-        'quoteError',
-        'sellAssetAccount',
-      ],
-    }) as [
-      TS['quote'],
-      TS['buyAsset'],
-      TS['sellAsset'],
-      TS['feeAssetFiatRate'],
-      TS['quoteError'],
-      TS['sellAssetAccount'],
-    ]
+  const [
+    quote,
+    buyTradeAsset,
+    sellTradeAsset,
+    feeAssetFiatRate,
+    quoteError,
+    sellAssetAccount,
+    selectedAssetAccount,
+  ] = useWatch({
+    name: [
+      'quote',
+      'buyAsset',
+      'sellAsset',
+      'feeAssetFiatRate',
+      'quoteError',
+      'sellAssetAccount',
+      'selectedAssetAccount',
+    ],
+  }) as [
+    TS['quote'],
+    TS['buyAsset'],
+    TS['sellAsset'],
+    TS['feeAssetFiatRate'],
+    TS['quoteError'],
+    TS['sellAssetAccount'],
+    TS['selectedAssetAccount'],
+  ]
   const {
     updateQuote,
     checkApprovalNeeded,
@@ -89,14 +98,19 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
 
-  const highestFiatBalanceAccount =
-    useAppSelector(state =>
-      selectHighestFiatBalanceAccountByAssetId(state, {
-        assetId: sellTradeAsset?.asset?.assetId ?? '',
-      }),
-    ) ?? accountIds[0]
+  const sellAssetId = sellTradeAsset?.asset?.assetId
+  const highestFiatBalanceAccount = useAppSelector(state => {
+    return selectHighestFiatBalanceAccountByAssetId(state, {
+      assetId: sellAssetId ?? '',
+    })
+  })
 
-  const assetAccount = sellAssetAccount ?? highestFiatBalanceAccount
+  useEffect(() => {
+    setValue(
+      'sellAssetAccount',
+      selectedAssetAccount ? selectedAssetAccount : highestFiatBalanceAccount,
+    )
+  }, [highestFiatBalanceAccount, selectedAssetAccount, setValue])
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -200,13 +214,16 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
   }
 
-  const toggleAssets = () => {
+  const toggleAssets = useCallback(() => {
     try {
-      const currentSellAsset = getValues('sellAsset')
-      const currentBuyAsset = getValues('buyAsset')
+      const currentSellAsset = sellTradeAsset
+      const currentBuyAsset = buyTradeAsset
       if (!(currentSellAsset?.asset && currentBuyAsset?.asset)) return
       setValue('sellAsset', currentBuyAsset)
       setValue('buyAsset', currentSellAsset)
+      setValue('selectedAssetAccount', undefined)
+      // Todo: need to get new selectedAssetAccount here and pass into update quote
+      console.log('toggleAssets data', { sellAssetAccount })
       updateQuote({
         forceQuote: true,
         amount: bnOrZero(currentBuyAsset.amount).toString(),
@@ -219,7 +236,15 @@ export const TradeInput = ({ history }: RouterProps) => {
     } catch (e) {
       showErrorToast(e)
     }
-  }
+  }, [
+    buyTradeAsset,
+    feeAsset,
+    selectedCurrencyToUsdRate,
+    sellTradeAsset,
+    setValue,
+    showErrorToast,
+    updateQuote,
+  ])
 
   const getTranslationKey = () => {
     if (!wallet) {
@@ -368,11 +393,11 @@ export const TradeInput = ({ history }: RouterProps) => {
                 data-test='trade-form-token-input-row-sell'
               />
             </FormControl>
-            {shouldShowAccountSelection && (
+            {shouldShowAccountSelection && sellAssetAccount && (
               <AssetAccountRow
-                accountId={assetAccount}
+                accountId={sellAssetAccount}
                 assetId={sellTradeAsset?.asset?.assetId}
-                key={assetAccount}
+                key={sellAssetAccount}
                 onClick={() => history.push(TradeRoutePaths.AccountSelect)}
               />
             )}

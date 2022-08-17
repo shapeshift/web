@@ -316,7 +316,7 @@
   "staking": {
     "staking": "Mises actuelles",
     "itWillTake": "Cela prendra",
-    "toUnlock": "pour déverrouiller vos %{assetSymbol} après les avoir démisé. Les récompenses de la mise devront être retirées séparément.",
+    "toUnlock": "pour déverrouiller vos %{assetSymbol} après les avoir démisés. Les récompenses de la mise devront être retirées séparément.",
     "assetStakingBalance": "Solde des mises en %{assetName}"
   },
   "navBar": {

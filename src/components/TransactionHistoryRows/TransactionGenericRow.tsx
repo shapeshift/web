@@ -3,7 +3,6 @@ import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
@@ -13,6 +12,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
+
+import { TransactionAsset, TransactionRowAsset } from './TransactionAsset'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -49,14 +50,6 @@ const TransactionIcon = ({ type }: { type: string }) => {
     default:
       return <FaStickyNote />
   }
-}
-
-type TransactionRowAsset = {
-  symbol: string
-  amount: string
-  precision: number
-  currentPrice?: string
-  icon?: string
 }
 
 type TransactionGenericRowProps = {
@@ -162,31 +155,12 @@ export const TransactionGenericRow = ({
                   md: compactMode ? (index === 0 ? 'left' : 'right') : 'left',
                 }}
               >
-                <AssetIcon
-                  src={asset.icon}
-                  boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
+                <TransactionAsset
+                  asset={asset}
+                  compactMode={compactMode}
+                  index={index}
+                  isFirstAssetOutgoing={isFirstAssetOutgoing}
                 />
-                <Box flex={1}>
-                  <Amount.Crypto
-                    color='inherit'
-                    fontWeight='medium'
-                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                    value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
-                    symbol={asset.symbol}
-                    maximumFractionDigits={4}
-                  />
-                  {asset.currentPrice && (
-                    <Amount.Fiat
-                      color='gray.500'
-                      fontSize='sm'
-                      lineHeight='1'
-                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
-                        .times(asset.currentPrice)
-                        .toString()}
-                    />
-                  )}
-                </Box>
               </Stack>
             ))}
           </Stack>

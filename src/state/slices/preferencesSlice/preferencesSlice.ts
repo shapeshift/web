@@ -18,6 +18,7 @@ export type FeatureFlags = {
   Pendo: boolean
   Litecoin: boolean
   BitcoinCash: boolean
+  Yat: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -47,6 +48,7 @@ const initialState: Preferences = {
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
     BitcoinCash: getConfig().REACT_APP_FEATURE_BITCOINCASH,
+    Yat: getConfig().REACT_APP_FEATURE_YAT,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

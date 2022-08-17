@@ -59,6 +59,7 @@ export const mockStore: ReduxState = {
       Pendo: false,
       Litecoin: false,
       BitcoinCash: false,
+      Yat: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -309,6 +309,7 @@
         "title": "Confirmar"
       },
       "status": {
+        "title": "Status"
       }
     }
   },
@@ -670,6 +671,7 @@
     },
     "approve": {
       "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
+      "routerName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
       "depositFee": "Haverá incidência de taxa ao depositar.",
@@ -698,6 +700,7 @@
       "withdrawFee": "Taxa de saque",
       "withdrawInstantTime": "Instantâneo",
       "withdrawDelayedTime": "7 a 14 dias",
+      "xDays": "%{unbondingDays} dias",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
       "estimatedGas": "Taxa Estimada da Rede",
       "notEnoughGas": "Insuficiente %{assetSymbol} para pagar o gas",
@@ -1224,6 +1227,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Compre %{assetSymbol} na Coinbase",
       "totalFoxValue": "Valor total de FOX",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Desde 2019, nosso token FOX oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",

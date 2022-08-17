@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, Icon, SimpleGridProps, Stack } from '@chakra-ui/react'
+import { Button, Icon, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { capitalize, words } from 'lodash'
 import { useMemo } from 'react'
@@ -20,7 +20,7 @@ type AssetAccountRowProps = {
   accountId: AccountSpecifier
   onClick: () => void
   assetId?: AssetId
-} & SimpleGridProps
+}
 
 export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRowProps) => {
   const feeAssetId = accountIdToFeeAssetId(accountId)

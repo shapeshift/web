@@ -1,6 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY = 'BUY',
@@ -21,6 +22,7 @@ export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSour
 
 export type TradeState<C extends ChainId> = {
   sellAsset: TradeAsset | undefined
+  sellAssetAccount: AccountSpecifier
   buyAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
   sellAssetFiatRate: string

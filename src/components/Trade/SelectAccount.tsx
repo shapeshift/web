@@ -8,11 +8,12 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { WithBackButton } from 'components/Trade/WithBackButton'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const SelectAccount = ({ history }: RouteComponentProps) => {
-  const { getValues } = useFormContext<TradeState<KnownChainIds>>()
+  const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const assetId = getValues('sellAsset')?.asset?.assetId
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
@@ -23,8 +24,8 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const onClick = () => {
-    // TODO: Set 'account'
+  const onClick = (accountId: AccountSpecifier) => {
+    setValue('sellAssetAccount', accountId)
     history.push(TradeRoutePaths.Input)
   }
 
@@ -46,7 +47,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
                 assetId={asset.assetId}
                 key={accountId}
                 isCompact
-                onClick={onClick}
+                onClick={() => onClick(accountId)}
               />
             ))}
           </Stack>

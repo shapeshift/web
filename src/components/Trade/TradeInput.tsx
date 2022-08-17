@@ -50,9 +50,24 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate, quoteError] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate', 'quoteError'],
-  }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate'], TS['quoteError']]
+  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate, quoteError, sellAssetAccount] =
+    useWatch({
+      name: [
+        'quote',
+        'buyAsset',
+        'sellAsset',
+        'feeAssetFiatRate',
+        'quoteError',
+        'sellAssetAccount',
+      ],
+    }) as [
+      TS['quote'],
+      TS['buyAsset'],
+      TS['sellAsset'],
+      TS['feeAssetFiatRate'],
+      TS['quoteError'],
+      TS['sellAssetAccount'],
+    ]
   const {
     updateQuote,
     checkApprovalNeeded,
@@ -80,6 +95,8 @@ export const TradeInput = ({ history }: RouterProps) => {
         assetId: sellTradeAsset?.asset?.assetId ?? '',
       }),
     ) ?? accountIds[0]
+
+  const assetAccount = sellAssetAccount ?? highestFiatBalanceAccount
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -353,9 +370,9 @@ export const TradeInput = ({ history }: RouterProps) => {
             </FormControl>
             {shouldShowAccountSelection && (
               <AssetAccountRow
-                accountId={highestFiatBalanceAccount}
+                accountId={assetAccount}
                 assetId={sellTradeAsset?.asset?.assetId}
-                key={highestFiatBalanceAccount}
+                key={assetAccount}
                 onClick={() => history.push(TradeRoutePaths.AccountSelect)}
               />
             )}

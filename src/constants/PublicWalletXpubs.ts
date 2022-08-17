@@ -37,7 +37,11 @@ export const PublicWalletXpubs = [
   'xpub684Yh5UsSGwgUnc8AK4oW8fxHk2kZwTFRxJzBcjkBwrVWfz9o3H8ea1QybTFVx5vsEQ9unAe7BGyF88B7cX5cPNnuPt3N67BwZwcevaRgTA', // demo seed m/49'
   'xpub6AZXdxfsqHn5H6LQvBxccTJ5r9QgStDQdzWFNhQ2hqmFRJ1sQNqYadpBW5kAbKafyctiQMjwvGecj2LcM4G2JL5uK1uuHa8RsYzTtuo1d2C', // demo seed m/49'/0'
   'xpub6DWMWccyXpfe5FNxzoG97qMQU8Aq49aF3ZBgHesxxMP5r4aNtNwYwzf3zcK5mr6ctb3TWArU8nnohrAzzq2AU8JUdtaZn62CxkMWp1qU81U', // demo seed m/49'/0'/0'
+  'Ltub2Wze6bsuij65baGDug4kPo2mLucLKFFeJ71qQbmSkC2i67MTo4KhyirwTXgSaPaVYE3SKqWXppxJ4Vca8Smhohh3dGWJ8JVBXFpx6ykw6GJ', // demo seed m/49'/2'    LTC
+  'Ltub2YTMx9wboXVKD198go3yHY6NmBsHYoerquZgTxFFvYTZ5QZhvazgKXKLDE4K5XuU8fZW4XkPtpGzBormPsoc7FP5bMEcwufseQx5QwWgAaA', // demo seed m/49'/2'/0'
   'xpub684Yh5UsSGwhygS4yN3MGaCZwCMV9ySKfKuyWEXwP2bJXAVVFStNRWcmHQ4y5WGygPs5g1235K6RUFwTdJpudiAoPpZ47MB4vnfonCHU4HE', // demo seed m/84'
   'xpub6B94qLDcHdP2oDupbSfrab4T17WfGTg2uBrfQ2CZwAqXUE9Yu3LuBjXCpFNZYCYkv6tagKVSNsfdJwbJuA3afL5zCD8dNKTWrYBLpH2G8t8', // demo seed m/84'/0'
   'xpub6DUX2TRPEj9PtfTsTvHY5phz4tMBL9kWSae98V72FaEwatQVU88vXveYZmFwJLjMhvFTXghhVAymSG2vCbaWm8ky7WurHaN59wiVvPaATDz', // demo seed m/84'/0'/0'
+  'Ltub2XaBHyReB4h3AMi851LDSeivFzLw4dx9Wns18jbFWoNBsXVx6ePeGknvqVzMjibJBZ5DBwGV77pXVWEzETwyVrru8fam72jnE7LDuVrHVdD', // demo seed m/84'/2'    LTC
+  'Ltub2Zt5KL32tkFAqQ9PvUMY5hcaMQTfnvESWmvdZ9d21LxTkTJxDSX8qHhot84fR6VZYPY9LikAA1xm6qVFNy56wg4a8HpG9TvKQVf9wMsiT2U', // demo seed m/84'/2/0'
 ].join(' ')

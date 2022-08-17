@@ -20,7 +20,6 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'
-import { getOverrideNameFromAssetId } from './utils'
 
 type AssetCellProps = {
   assetId: AssetId
@@ -29,12 +28,10 @@ type AssetCellProps = {
   showTeaser?: boolean
   showAssetSymbol?: boolean
   icons?: Array<string>
+  opportunityName?: string
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
-  const overridenName = getOverrideNameFromAssetId(asset.assetId)
-  if (overridenName) return overridenName
-
   if (showAssetSymbol && postFix) {
     return `${asset.symbol} ${postFix}`
   }
@@ -57,6 +54,7 @@ export const AssetCell = ({
   showAssetSymbol,
   postFix,
   icons,
+  opportunityName,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -66,7 +64,7 @@ export const AssetCell = ({
 
   if (!asset) return null
 
-  const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
+  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row'>

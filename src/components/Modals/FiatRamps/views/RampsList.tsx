@@ -1,10 +1,18 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  ModalBody,
+  ModalHeader,
+  Stack,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
 import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
@@ -16,6 +24,7 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
+  const tagColor = useColorModeValue('gray.600', 'gray.400')
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
     const initial: ReactElement[] = []
@@ -52,6 +61,16 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
                   <Box textAlign='left' ml={2}>
                     <Text fontWeight='bold' translation={fiatRampConfig.label} />
                     <Text translation={fiatRampConfig.info ?? ''} />
+                    {fiatRampConfig.tags?.map(tag => (
+                      <Tag key={tag} colorScheme='gray' size='xs' mr={2} py={1} px={2} mt={1}>
+                        <Text
+                          color={tagColor}
+                          fontSize='12px'
+                          translation={tag}
+                          style={{ textTransform: 'uppercase' }}
+                        />
+                      </Tag>
+                    ))}
                   </Box>
                 </Flex>
                 <Box display={['none', 'block']}>
@@ -101,23 +120,24 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider])
+  }, [history, setFiatRampProvider, tagColor])
 
   return (
-    <Flex justifyContent='center' alignItems='center' width={['100%', '32rem']}>
-      <Card boxShadow='none' borderWidth={0}>
-        <Card.Header>
-          <Card.Heading>
-            <Text translation='fiatRamps.title' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body>
-          <Text lineHeight={1.2} color='gray.500' translation='fiatRamps.titleMessage' />
-          <Stack spacing={2} mt={2} mx={-4}>
-            {ramps}
-          </Stack>
-        </Card.Body>
-      </Card>
-    </Flex>
+    <>
+      <ModalHeader>
+        <Text translation='fiatRamps.title' />
+        <Text
+          fontSize='md'
+          fontWeight='medium'
+          color='gray.500'
+          translation='fiatRamps.titleMessage'
+        />
+      </ModalHeader>
+      <ModalBody>
+        <Stack spacing={2} mt={2} mx={-4}>
+          {ramps}
+        </Stack>
+      </ModalBody>
+    </>
   )
 }

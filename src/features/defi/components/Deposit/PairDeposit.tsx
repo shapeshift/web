@@ -243,7 +243,7 @@ export const PairDeposit = ({
                 <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
                 <Stack alignItems='flex-end'>
                   {icons ? (
-                    <PairIcons icons={icons} isSmall />
+                    <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
                   ) : (
                     <AssetIcon size='xs' src={destAsset.icon} />
                   )}

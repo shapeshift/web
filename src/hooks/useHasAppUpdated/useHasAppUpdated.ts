@@ -22,6 +22,7 @@ export const useHasAppUpdated = () => {
         return data
       } catch (e) {
         console.error(`useHasAppUpdated: error fetching data from URL: ${url}`, e)
+        return null
       }
     },
     [isLocalhost],
@@ -53,12 +54,13 @@ export const useHasAppUpdated = () => {
       fetchData(assetManifestUrl),
       fetchData(envUrl),
     ])
+    if (currentEnvJs && currentManifestJs) {
+      const isExactAssetManifest = isEqual(initialManifestMainJs, currentManifestJs)
+      const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
 
-    const isExactAssetManifest = isEqual(initialManifestMainJs, currentManifestJs)
-    const isExactEnv = isEqual(initialEnvMainJs, currentEnvJs)
-
-    const eitherHasChanged = !isExactAssetManifest || !isExactEnv
-    setHasUpdated(eitherHasChanged)
+      const eitherHasChanged = !isExactAssetManifest || !isExactEnv
+      setHasUpdated(eitherHasChanged)
+    }
   }, APP_UPDATE_CHECK_INTERVAL)
 
   if (isLocalhost) return false // never return true on localhost

@@ -96,7 +96,14 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
         size='sm'
         onClick={handlePrevClick}
       />
-      <Box pt='36px' pb='20px' px='24px'>
+      <Box
+        pt='36px'
+        pb='20px'
+        px='24px'
+        width='full'
+        minWidth={{ base: '100%', md: '500px' }}
+        maxWidth={{ base: 'full', md: '500px' }}
+      >
         <Flex
           direction='column'
           maxWidth='395px'

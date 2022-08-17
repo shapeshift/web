@@ -1,6 +1,11 @@
 import { Box } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsEthSwitchChain,
+} from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
@@ -64,12 +69,14 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const [dogeAddress, setDogeAddress] = useState<string>('')
   const [ltcAddress, setLtcAddress] = useState<string>('')
   const [ethAddress, setEthAddress] = useState<string>('')
+  const [avalancheAddress, setAvalancheAddress] = useState<string>('')
   const [cosmosAddress, setCosmosAddress] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string>('')
 
   const chainAdapterManager = getChainAdapterManager()
   const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+  const avalancheChainAdapter = chainAdapterManager.get(KnownChainIds.AvalancheMainnet)
   const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
   const bitcoinCashChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinCashMainnet)
   const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)
@@ -90,6 +97,9 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
       try {
         if (supportsETH(wallet) && ethereumChainAdapter) {
           setEthAddress(await ethereumChainAdapter.getAddress(payload))
+        }
+        if (supportsEthSwitchChain(wallet) && avalancheChainAdapter) {
+          setAvalancheAddress(await avalancheChainAdapter.getAddress(payload))
         }
         if (supportsBTC(wallet) && bitcoinChainAdapter) {
           setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
@@ -117,6 +127,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     dogecoinChainAdapter,
     litecoinChainAdapter,
     ethereumChainAdapter,
+    avalancheChainAdapter,
     cosmosChainAdapter,
   ])
 
@@ -184,6 +195,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             ltcAddress={ltcAddress}
             cosmosAddress={cosmosAddress}
             ethAddress={ethAddress}
+            avalancheAddress={avalancheAddress}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}
             chainAdapterManager={chainAdapterManager}
@@ -208,7 +220,7 @@ export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) =>
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
-        <Box m={4} width={'24rem'}>
+        <Box p={4}>
           <Switch>
             <Route
               path='/'

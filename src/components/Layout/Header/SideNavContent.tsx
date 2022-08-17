@@ -1,6 +1,7 @@
-import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
+import { Box, Flex, FlexProps, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
@@ -39,6 +40,12 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
     >
       {!isLargerThanMd && (
         <Flex direction='column' rowGap={2} columnGap={2} width='full'>
+          <IconButton
+            ml='auto'
+            aria-label='Close Nav'
+            icon={<CloseIcon />}
+            onClick={() => handleClick()}
+          />
           <Flex width='full'>
             <ChainMenu />
           </Flex>
@@ -63,6 +70,16 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
+        />
+        <MainNavLink
+          variant='ghost'
+          isCompact={isCompact}
+          as={Link}
+          isExternal
+          href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
+          label={translate('common.joinDiscord')}
+          leftIcon={<DiscordIcon />}
+          data-test='navigation-join-discord-button'
         />
         <MainNavLink
           leftIcon={<ChatIcon />}

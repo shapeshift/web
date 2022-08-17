@@ -3,7 +3,7 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
-import { BN, bnOrZero } from 'lib/bignumber/bignumber'
+import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
@@ -46,13 +46,13 @@ export const getToken0Volume24Hr = async ({
   )
 
   const token0SwapAmounts = events.map(event => {
-    if (!event?.args) return bnOrZero(0)
+    if (!event?.args) return bn(0)
     const { amount0In, amount0Out } = event.args
 
     return Number(amount0In)
       ? bnOrZero(amount0In.toString())
       : bnOrZero(amount0Out.toString())
-          .div(bnOrZero(1).minus(TRADING_FEE_RATE)) // Since these are outbound txs, this corrects the value to include trading fees taken out.
+          .div(bn(1).minus(TRADING_FEE_RATE)) // Since these are outbound txs, this corrects the value to include trading fees taken out.
           .decimalPlaces(0)
   })
 
@@ -79,7 +79,7 @@ export const calculateAPRFromToken0 = memoize(
 
     const token0PoolReservesEquivalent = bnOrZero(token0Reserves.toFixed())
       .times(2) // Double to get equivalent of both sides of pool
-      .times(bnOrZero(10).pow(token0Decimals))
+      .times(bn(10).pow(token0Decimals))
 
     const estimatedAPR = bnOrZero(token0Volume24Hr) // 24hr volume in terms of token0
       .div(token0PoolReservesEquivalent) // Total value (both sides) of pool reserves in terms of token0

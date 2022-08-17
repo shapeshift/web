@@ -53,6 +53,7 @@
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
     "settings": "Settings",
+    "joinDiscord": "Join Discord",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
@@ -121,7 +122,8 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
+    "usOnly": "US-Only"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -191,6 +193,16 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
+        "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit ETH-FOX LP tokens Now",
+        "foxFarmingBalance": "ETH-FOX LP tokens Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
         "availableRewards": "Available Rewards",
@@ -206,7 +218,7 @@
         "rewardAmount": "Reward Amount",
         "claimingRewards": "Claiming Rewards",
         "claimAmount": "Claim Amount",
-        "claimToAddress": "Claim To Address",
+        "claimToAddress": "Claim To",
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
@@ -405,6 +417,8 @@
     "noSupportedAssets": "No supported assets in portfolio."
   },
   "trade": {
+    "allowance": "Allowance",
+    "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
@@ -421,6 +435,8 @@
     "estimatedGasFee": "Estimated Gas Fee",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
+    "unlimited": "Unlimited",
+    "exact": "Exact",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
@@ -430,8 +446,8 @@
     "errors": {
       "title": "Something went wrong",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
-      "amountTooSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Amount too small. The sell amount for this pair is lower than the fee.",
+      "amountTooSmall": "Minimum: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
@@ -461,7 +477,7 @@
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
-      "rateError": "An error occurred getting trade rates",
+      "rateError": "We're not able to get a quote for this pair",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -1123,7 +1139,8 @@
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
-        "availableSupply": "Available Supply"
+        "availableSupply": "Available Supply",
+        "marketData": "Market Data"
       },
       "assetDescription": {
         "showMore": "Show More",

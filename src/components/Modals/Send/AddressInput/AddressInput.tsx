@@ -29,7 +29,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             autoFocus
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
-            placeholder={translate('modals.send.tokenAddress')}
+            placeholder={translate('modals.send.addressInput')}
             size='lg'
             value={value}
             variant='filled'

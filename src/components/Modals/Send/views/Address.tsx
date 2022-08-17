@@ -84,7 +84,7 @@ export const Address = () => {
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  return address ? true : 'common.invalidAddress'
+                  return address ? true : 'common.invalidAddressOrYat'
                 },
               },
             }}

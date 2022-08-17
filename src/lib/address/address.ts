@@ -6,6 +6,7 @@ import {
   reverseLookupUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
+import { resolveYat, validateYat } from 'lib/address/yat'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -118,6 +119,19 @@ export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   }
 }
 
+// validate a yat
+type ValidateYatArgs = {
+  value: string
+}
+type ValidateYatReturn = boolean
+export type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
+
+type ResolveYatArgs = {
+  value: string
+}
+type ResolveYatReturn = string
+export type ResolveYat = (args: ResolveYatArgs) => Promise<ResolveYatReturn>
+
 /**
  * given a value, which may be invalid input, a valid address, or a variety of vanity domains
  * and a chainId, return an object containing and address and vanityAddress
@@ -134,6 +148,15 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async args => {
+  const isYat = await validateYat(args)
+  if (isYat) {
+    const address = await resolveYat(args)
+    const vanityAddress = await reverseLookupVanityAddress({
+      chainId: args.chainId,
+      value: address,
+    })
+    return { address, vanityAddress }
+  }
   const isValidAddress = await validateAddress(args)
   // we're dealing with a valid address
   if (isValidAddress) {
@@ -143,9 +166,11 @@ export const parseAddressInput: ParseAddressInput = async args => {
   }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(args)
-  // it's neither a valid address nor a vanity address
-  if (!isVanityAddress) return { address: '', vanityAddress: '' }
   // at this point it's a valid vanity address, let's resolve it
-  const address = await resolveVanityAddress(args)
-  return { address, vanityAddress: args.value }
+  if (isVanityAddress) {
+    const address = await resolveVanityAddress(args)
+    return { address, vanityAddress: args.value }
+  }
+  // it's neither a valid address nor a vanity address
+  return { address: '', vanityAddress: '' }
 }

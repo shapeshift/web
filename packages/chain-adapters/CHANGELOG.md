@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.3...@shapeshiftoss/chain-adapters-v7.16.0) (2022-08-18)
+
+
+### Features
+
+* **unchained-client:** parse approval amount ([#971](https://github.com/shapeshift/lib/issues/971)) ([27b5a51](https://github.com/shapeshift/lib/commit/27b5a5168edb92aecd863b678152cb2164fcc10e))
+
 # [@shapeshiftoss/chain-adapters-v7.15.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.2...@shapeshiftoss/chain-adapters-v7.15.3) (2022-08-15)
 
 # [@shapeshiftoss/chain-adapters-v7.15.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.1...@shapeshiftoss/chain-adapters-v7.15.2) (2022-08-12)

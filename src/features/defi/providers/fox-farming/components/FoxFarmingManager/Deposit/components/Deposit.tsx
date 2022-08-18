@@ -16,7 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -77,7 +77,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return
-          return bnOrZero(gasData.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+          return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
         } catch (error) {
           moduleLogger.error(
             { fn: 'getDepositGasEstimate', error },
@@ -98,7 +98,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       try {
         // Check if approval is required for user address
         const _allowance = await foxFarmingAllowance()
-        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+        const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -117,7 +117,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
               estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-                .div(`1e${ethAsset.precision}`)
+                .div(bn(10).pow(ethAsset.precision))
                 .toPrecision(),
             },
           })
@@ -156,7 +156,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -164,7 +164,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -172,7 +172,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const handleBack = () => {

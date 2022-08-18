@@ -70,7 +70,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
   const handlePercentClick = useCallback(
@@ -169,7 +169,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           userAddress: state.userAddress,
         })
 
-        const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
+        const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -229,7 +229,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -237,7 +237,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

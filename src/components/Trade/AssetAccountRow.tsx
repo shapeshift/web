@@ -45,10 +45,12 @@ export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRow
     <Button
       variant='ghost'
       size='lg'
+      width='full'
       justifyContent='space-between'
       fontSize='sm'
       rightIcon={<ChevronRightIcon boxSize={6} />}
       onClick={onClick}
+      backgroundColor={'gray.850'}
     >
       <Stack direction='row' alignItems='center' width='full'>
         <Icon as={FaWallet} color='whiteAlpha.500' />

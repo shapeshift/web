@@ -63,29 +63,27 @@ import { calculateAmounts } from './calculateAmounts'
 
 const debounceTime = 1000
 
-type GetQuoteInput = {
+type GetQuoteCommon = {
   amount: string
   sellAsset: Asset
   buyAsset: Asset
   feeAsset: Asset
   action: TradeAmountInputField
-  forceQuote?: boolean
   selectedCurrencyToUsdRate: BigNumber
 }
+
+type GetQuoteInput = {
+  forceQuote?: boolean
+} & GetQuoteCommon
 
 let _getQuoteArgs: GetQuoteInput
 
 type DebouncedQuoteInput = {
   swapper: Swapper<ChainId>
-  amount: string
-  sellAsset: Asset
-  buyAsset: Asset
-  feeAsset: Asset
-  action: TradeAmountInputField
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
-  selectedCurrencyToUsdRate: BigNumber
-}
+  sellAssetAccount: string
+} & GetQuoteCommon
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
@@ -311,6 +309,7 @@ export const useSwapper = () => {
 
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
+    if (!sellAssetAccount) throw new Error('no sellAssetAccount available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
     const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -338,7 +337,7 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-        const { accountType, utxoParams } = getUtxoParams()
+        const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -413,9 +412,8 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  const getUtxoParams = () => {
+  const getUtxoParams = (sellAssetAccount: string) => {
     if (!sellAssetAccount) throw new Error('No UTXO account specifier')
-
     return accountIdToUtxoParams(sellAssetAccount, 0)
   }
 
@@ -431,6 +429,7 @@ export const useSwapper = () => {
         wallet,
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
+        sellAssetAccount,
       }: DebouncedQuoteInput) => {
         try {
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
@@ -477,7 +476,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-              const { accountType, utxoParams } = getUtxoParams()
+              const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
 
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
@@ -551,6 +550,7 @@ export const useSwapper = () => {
         selectedCurrencyToUsdRate,
       } = args
       if (!wallet || !accountSpecifiersList.length) return
+      if (!sellAssetAccount) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
       setValue('quote', undefined)
@@ -586,15 +586,17 @@ export const useSwapper = () => {
           wallet,
           accountSpecifiersList,
           selectedCurrencyToUsdRate,
+          sellAssetAccount,
         })
       }
     },
     [
+      setValue,
+      sellAssetAccount,
       wallet,
       accountSpecifiersList,
-      setValue,
-      clearErrors,
       swapperManager,
+      clearErrors,
       setError,
       toast,
       translate,

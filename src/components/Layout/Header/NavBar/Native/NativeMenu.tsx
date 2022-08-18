@@ -27,9 +27,8 @@ export const NativeMenu = () => {
         </Flex>
         <MenuDivider />
         <MenuItem onClick={() => backupNativePassphrase.open({})}>
-          <Text translation='walletProvider.keepKey.settings.menuLabels.pin' />
+          <Text translation='modals.shapeShift.backupPassphrase.menuItem' />
         </MenuItem>
-        <MenuDivider />
       </MenuGroup>
     </SubMenuContainer>
   )

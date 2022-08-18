@@ -27,6 +27,7 @@ export const TransactionContract = ({
   parentWidth,
 }: TransactionRowProps) => {
   let assets = []
+  const txMetadata = getTxMetadataWithAssetId(txDetails.tx.data)
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
   const translate = useTranslate()
@@ -38,10 +39,7 @@ export const TransactionContract = ({
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
   // TODO: Move to a better place at component-level to be passed down?
-  const isRevoke =
-    i18n === 'approve' &&
-    isTokenMetadata(txDetails.tx.data) &&
-    bnOrZero(txDetails.tx.data?.value).isZero()
+  const isRevoke = Boolean(i18n === 'approve' && txMetadata && bnOrZero(txMetadata?.value).isZero())
   const titlePrefix = translate(
     (() => {
       if (txDetails.tx.data?.parser) {
@@ -83,12 +81,12 @@ export const TransactionContract = ({
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
         <TxGrid compactMode={compactMode}>
           {txDetails.direction === Direction.InPlace &&
-          isTokenMetadata(txDetails.tx.data) &&
-          txDetails.tx.data?.assetId &&
-          txDetails.tx.data?.value ? (
+          txMetadata &&
+          txMetadata?.assetId &&
+          txMetadata?.value ? (
             <ApprovalAmount
-              assetId={txDetails.tx.data.assetId}
-              value={txDetails.tx.data.value}
+              assetId={txMetadata.assetId}
+              value={txMetadata.value}
               isRevoke={isRevoke}
             />
           ) : null}

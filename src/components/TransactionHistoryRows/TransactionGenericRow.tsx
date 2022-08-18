@@ -15,7 +15,7 @@ import { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
 import { ApproveIcon } from './components/ApproveIcon'
-import { isTokenMetadata } from './utils'
+import { getTxMetadataWithAssetId } from './utils'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -56,9 +56,14 @@ const TransactionIcon = ({
     case TradeType.Trade:
       return <FaExchangeAlt />
     case Direction.InPlace: {
-      if (isTokenMetadata(txData) && txData?.assetId && txData?.value) {
+      const txMetadata = getTxMetadataWithAssetId(txData)
+      if (txMetadata && txMetadata?.assetId && txMetadata?.value) {
         return (
-          <ApproveIcon assetId={txData.assetId} value={txData.value} compactMode={compactMode} />
+          <ApproveIcon
+            assetId={txMetadata.assetId}
+            value={txMetadata.value}
+            compactMode={compactMode}
+          />
         )
       }
       return <FaThumbsUp />

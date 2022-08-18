@@ -84,14 +84,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     TS['action'],
     TS['amount'],
   ]
-  const {
-    updateQuote,
-    checkApprovalNeeded,
-    getSendMaxAmount,
-    updateTrade,
-    feeAsset,
-    refreshQuote,
-  } = useSwapper()
+  const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {
@@ -117,8 +110,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     [selectedAssetAccount, highestFiatBalanceAccount, setValue, sellTradeAsset, buyTradeAsset],
   )
 
-  // Refresh quote
-  useEffect(() => {
+  const updateQuoteClosure = useCallback(() => {
     const sellAssetChainId = sellAssetAccount ? fromAccountId(sellAssetAccount).chainId : undefined
     if (
       buyTradeAsset?.asset &&
@@ -137,18 +129,23 @@ export const TradeInput = ({ history }: RouterProps) => {
       })
     }
   }, [
-    buyTradeAsset,
-    sellTradeAsset,
     action,
-    updateQuote,
+    amount,
+    buyTradeAsset?.asset,
     feeAsset,
     selectedCurrencyToUsdRate,
     sellAssetAccount,
-    amount,
-    setValue,
-    selectedAssetAccount,
-    highestFiatBalanceAccount,
+    sellTradeAsset?.asset,
+    updateQuote,
   ])
+
+  // Refresh quote
+  useEffect(() => {
+    updateQuoteClosure()
+  }, [updateQuoteClosure])
+
+  // Update the quote every 30 seconds
+  useInterval(async () => await updateQuoteClosure(), 1000 * 30)
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -298,9 +295,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('action', action)
     setValue('amount', amount)
   }
-
-  // Update the quote every 30 seconds
-  useInterval(async () => await refreshQuote(), 1000 * 30)
 
   return (
     <SlideTransition>

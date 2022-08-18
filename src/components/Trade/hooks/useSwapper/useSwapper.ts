@@ -76,8 +76,6 @@ type GetQuoteInput = {
   forceQuote?: boolean
 } & GetQuoteCommon
 
-let _getQuoteArgs: GetQuoteInput
-
 type DebouncedQuoteInput = {
   swapper: Swapper<ChainId>
   wallet: HDWallet
@@ -536,19 +534,16 @@ export const useSwapper = () => {
   )
 
   const updateQuote = useCallback(
-    async (args: GetQuoteInput) => {
+    async ({
+      amount,
+      sellAsset,
+      buyAsset,
+      feeAsset,
+      action,
+      forceQuote,
+      selectedCurrencyToUsdRate,
+    }: GetQuoteInput) => {
       setValue('quoteError', null)
-
-      _getQuoteArgs = args
-      const {
-        amount,
-        sellAsset,
-        buyAsset,
-        feeAsset,
-        action,
-        forceQuote,
-        selectedCurrencyToUsdRate,
-      } = args
       if (!wallet || !accountSpecifiersList.length) return
       if (!sellAssetAccount) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
@@ -602,10 +597,6 @@ export const useSwapper = () => {
       translate,
     ],
   )
-
-  const refreshQuote = useCallback(async () => {
-    if (_getQuoteArgs) await updateQuote(_getQuoteArgs)
-  }, [updateQuote])
 
   const setFormFees = async ({
     trade,
@@ -710,7 +701,6 @@ export const useSwapper = () => {
     swapperManager,
     updateQuote,
     updateTrade,
-    refreshQuote,
     executeQuote,
     getSupportedBuyAssetsFromSellAsset,
     getSupportedSellableAssets,

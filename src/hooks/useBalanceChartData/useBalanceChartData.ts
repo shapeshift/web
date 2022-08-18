@@ -397,7 +397,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
         ...cryptoPriceHistoryData,
         // TODO: this should be removed when defi opportunity abstractions were completed.
         // this is an ugly hack to overcome missing lp token price for charts
-        [foxEthLpAssetId]: [{ price: lpTokenPrice, date: 0 }],
+        [foxEthLpAssetId]: [{ price: bnOrZero(lpTokenPrice).toNumber(), date: 0 }],
       },
       fiatPriceHistoryData,
       portfolioAssets,

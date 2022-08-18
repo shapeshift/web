@@ -77,7 +77,7 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   totalBalance: string
   lpFoxBalance: string | null
   lpEthBalance: string | null
-  lpTokenPrice: number
+  lpTokenPrice: string | null
   foxFarmingTotalBalanceInBaseUnit: string | null
   foxEthLpOpportunity: EarnOpportunityType
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
@@ -90,7 +90,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   totalBalance: '0',
   lpFoxBalance: null,
   lpEthBalance: null,
-  lpTokenPrice: 0,
+  lpTokenPrice: null,
   foxFarmingTotalBalanceInBaseUnit: null,
   foxEthLpOpportunity: lpOpportunity,
   foxFarmingOpportunities: [v4FarmingOpportunity],
@@ -114,7 +114,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     ethAsset.chainId,
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
 
-  const [isMarketDataReady, setIsMarketDataReady] = useState<boolean>(false)
   const [lpLoading, setLpLoading] = useState<boolean>(true)
   const [lpFoxBalance, setLpFoxBalance] = useState<string | null>(null)
   const [lpEthBalance, setLpEthBalance] = useState<string | null>(null)
@@ -146,12 +145,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ethAssetPrecision &&
       ethMarketData.price &&
       lpAssetPrecision
-    )
-      getLpTokenPrice(ethAssetPrecision, ethMarketData.price, lpAssetPrecision).then(
-        lpTokenPrice => {
-          setLpTokenPrice(lpTokenPrice.toString())
-        },
-      )
+    ) {
+      ;(async () => {
+        const lpTokenPrice = await getLpTokenPrice(
+          ethAssetPrecision,
+          ethMarketData.price,
+          lpAssetPrecision,
+        )
+        setLpTokenPrice(lpTokenPrice)
+      })()
+    }
   }, [
     ethAssetPrecision,
     ethMarketData.price,
@@ -257,9 +260,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     lpAssetPrecision,
   ])
 
-  useEffect(() => {
-    if (!isMarketDataReady && ethMarketData.price && foxMarketData.price) setIsMarketDataReady(true)
-  }, [ethMarketData.price, foxMarketData.price, isMarketDataReady])
+  const isMarketDataReady = useMemo(() => {
+    return !!ethMarketData.price && !!foxMarketData.price
+  }, [ethMarketData.price, foxMarketData.price])
 
   // reload opportunities when wallet changes
   useEffect(() => {
@@ -277,7 +280,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       fetchFarmingOpportunities()
       fetchLpOpportunity()
     })()
-    // market data causes fetch callback function to create a new signature
+    // market data causes fetch callback function to create a new reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedWalletEthAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
 
@@ -306,9 +309,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     }
   }, [fetchFarmingOpportunities, fetchLpOpportunity, transaction])
 
-  const foxFarmingTotalCryptoAmount = foxFarmingOpportunities.reduce((acc, opportunity) => {
-    return acc.plus(bnOrZero(opportunity.cryptoAmount))
-  }, bnOrZero(0))
+  const foxFarmingTotalCryptoAmount = foxFarmingOpportunities
+    .reduce((acc, opportunity) => {
+      return acc.plus(bnOrZero(opportunity.cryptoAmount))
+    }, bnOrZero(0))
+    .toString()
 
   const value = useMemo(
     () => ({
@@ -325,7 +330,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         .times(bn(10).pow(lpAssetPrecision))
         .toString(),
       onOngoingTxIdChange: handleOngoingTxIdChange,
-      lpTokenPrice: bnOrZero(lpTokenPrice).toNumber(),
+      lpTokenPrice,
     }),
     [
       featureFlags.FoxLP,

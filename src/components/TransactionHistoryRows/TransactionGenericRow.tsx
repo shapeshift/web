@@ -12,7 +12,7 @@ import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTi
 import { Direction } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
 import { ApproveIcon } from './components/ApproveIcon'
@@ -44,7 +44,7 @@ const TransactionIcon = ({
   compactMode,
 }: {
   type: string
-  txData: Tx['data']
+  txData: TxMetadata
   compactMode: boolean
 }) => {
   switch (type) {

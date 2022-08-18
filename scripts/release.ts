@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
 import { exec } from 'child_process'
-import conventionalChangelogPresetLoader from 'conventional-changelog-preset-loader'
 import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import pify from 'pify'
@@ -54,14 +53,16 @@ const inquireProceedWithCommits = async (commits: string[]) => {
   if (!shouldProceed) exit('Release cancelled.')
 }
 
-export const createDraftPR = async (): Promise<void> => {
+const createDraftPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
-  const nextVersion = await getNextReleaseVersion('patch')
+  const nextVersion = await getNextReleaseVersion('minor')
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
   await pify(exec)(command)
+  console.log(chalk.green('Draft PR created.'))
+  exit(chalk.green(`Release ${nextVersion} created.`))
 }
 
 type GetCommitMessagesArgs = 'develop' | 'release'
@@ -147,24 +148,26 @@ const isReleaseInProgress = async (): Promise<boolean> => {
   return Boolean(total)
 }
 
-const parseConventionalCommits = async () => {
-  const commits = `
-feat: foo
-chore: blah
-`
-}
-
 const createRelease = async () => {
   const releaseType = await inquireReleaseType()
   releaseType === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
 }
 
 const mergeRelease = async () => {
-  console.log(chalk.green('Checking out main...'))
-  await git().checkout(['main'])
-  console.log(chalk.green('Pulling main...'))
-  await git().pull()
-  exit(chalk.red('Unimplemented - merge release'))
+  // console.log(chalk.green('Checking out main...'))
+  // await git().checkout(['main'])
+  // console.log(chalk.green('Pulling main...'))
+  // await git().pull()
+  // console.log(chalk.green('Merging release...'))
+  // await git().merge(['release'])
+
+  const nextVersion = await getNextReleaseVersion('minor')
+
+  console.log(chalk.green(`Tagging main with version ${nextVersion}`))
+  await git().tag(['-a', nextVersion, '-m', nextVersion])
+
+  // console.log(chalk.green('Pushing main...'))
+  // await git().push(['--dry-run', 'origin', 'main', '--tags'])
 }
 
 const main = async () => {

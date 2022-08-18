@@ -18,7 +18,7 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -61,7 +61,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
   )
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
   if (!state || !dispatch) return null
 
@@ -69,7 +69,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       const fee = await getWithdrawGasData(withdraw.cryptoAmount, foxAmount, ethAmount)
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('FoxEthLpWithdraw:getWithdrawGasEstimate error:', error)
@@ -107,7 +107,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         type: FoxEthLpWithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(`1e${ethAsset.precision}`)
+            .div(bn(10).pow(ethAsset.precision))
             .toPrecision(),
         },
       })

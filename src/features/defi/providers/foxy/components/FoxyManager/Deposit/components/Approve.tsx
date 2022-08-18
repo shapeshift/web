@@ -15,7 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -100,7 +100,7 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
             userAddress: state.userAddress!,
           }),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
           return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
@@ -133,11 +133,11 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
       asset={asset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disableAction
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

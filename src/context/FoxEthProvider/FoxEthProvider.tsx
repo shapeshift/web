@@ -147,12 +147,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       lpAssetPrecision
     ) {
       ;(async () => {
-        const lpTokenPrice = await getLpTokenPrice(
-          ethAssetPrecision,
-          ethMarketData.price,
-          lpAssetPrecision,
-        )
-        setLpTokenPrice(lpTokenPrice)
+        try {
+          const lpTokenPrice = await getLpTokenPrice(
+            ethAssetPrecision,
+            ethMarketData.price,
+            lpAssetPrecision,
+          )
+          setLpTokenPrice(lpTokenPrice)
+        } catch (error) {
+          moduleLogger.error(error, 'getLpTokenPrice failed')
+        }
       })()
     }
   }, [

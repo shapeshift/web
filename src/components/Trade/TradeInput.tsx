@@ -106,11 +106,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   })
 
   useEffect(() => {
-    setValue(
-      'sellAssetAccount',
-      selectedAssetAccount ? selectedAssetAccount : highestFiatBalanceAccount,
-    )
-  }, [highestFiatBalanceAccount, selectedAssetAccount, setValue])
+    setValue('sellAssetAccount', selectedAssetAccount ?? highestFiatBalanceAccount)
+  }, [highestFiatBalanceAccount, selectedAssetAccount, setValue, sellTradeAsset])
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -216,19 +213,17 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const toggleAssets = useCallback(() => {
     try {
-      const currentSellAsset = sellTradeAsset
-      const currentBuyAsset = buyTradeAsset
-      if (!(currentSellAsset?.asset && currentBuyAsset?.asset)) return
-      setValue('sellAsset', currentBuyAsset)
-      setValue('buyAsset', currentSellAsset)
+      if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
+      setValue('sellAsset', buyTradeAsset)
+      setValue('buyAsset', sellTradeAsset)
       setValue('selectedAssetAccount', undefined)
+      setValue('sellAssetAccount', undefined)
       // Todo: need to get new selectedAssetAccount here and pass into update quote
-      console.log('toggleAssets data', { sellAssetAccount })
       updateQuote({
         forceQuote: true,
-        amount: bnOrZero(currentBuyAsset.amount).toString(),
-        sellAsset: currentBuyAsset.asset,
-        buyAsset: currentSellAsset.asset,
+        amount: bnOrZero(buyTradeAsset.amount).toString(),
+        sellAsset: buyTradeAsset.asset,
+        buyAsset: sellTradeAsset.asset,
         feeAsset,
         action: TradeAmountInputField.SELL,
         selectedCurrencyToUsdRate,

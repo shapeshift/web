@@ -11,10 +11,10 @@ import {
   ModalFooter,
   ModalHeader,
   Tag,
+  useColorModeValue,
   Wrap,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-// import * as native from '@shapeshiftoss/hdwallet-native'
 import range from 'lodash/range'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
@@ -25,8 +25,6 @@ import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
-// const Revocable = native.crypto.Isolation.Engines.Default.Revocable
-// const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 const moduleLogger = logger.child({
   namespace: ['Layout', 'Header', 'NavBar', 'Native', 'BackupNativePassphrase'],
@@ -35,12 +33,12 @@ const moduleLogger = logger.child({
 export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
   const history = useHistory()
-  // const [revoker] = useState(new (Revocable(class {}))())
   const [revealed, setRevealed] = useState<boolean>(false)
   const handleShow = () => {
     setRevealed(!revealed)
   }
   const [words, setWords] = useState<ReactNode[] | null>(null)
+  const alertColor = useColorModeValue('blue.500', 'blue.200')
   useEffect(() => {
     if (!vault) return
     ;(async () => {
@@ -61,14 +59,10 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
           )),
         )
       } catch (e) {
-        moduleLogger.error(e, 'failed to get Secret Recovery Phrase:')
+        moduleLogger.error(e, 'failed to get Secret Recovery Phrase')
         setWords(null)
       }
     })()
-
-    // return () => {
-    //   revoker.revoke()
-    // }
   }, [setWords, vault])
 
   const placeholders = useMemo(() => {
@@ -111,7 +105,10 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
         <Alert status='info'>
           <AlertIcon />
           <AlertDescription>
-            <Text translation={'modals.shapeShift.backupPassphrase.info.warning'} />
+            <Text
+              color={alertColor}
+              translation={'modals.shapeShift.backupPassphrase.info.warning'}
+            />
           </AlertDescription>
         </Alert>
 

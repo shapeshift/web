@@ -116,7 +116,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
         onClick={history.goBack}
       />
       <ModalHeader pt={4}>
-        <Text translation={'walletProvider.shapeShift.testPhrase.header'} />
+        <Text translation={'modals.shapeShift.backupPassphrase.testTitle'} />
       </ModalHeader>
       <ModalCloseButton />
       <ModalBody>

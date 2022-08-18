@@ -1,4 +1,5 @@
-import { Box, ModalBody, ModalCloseButton } from '@chakra-ui/react'
+import { CheckIcon } from '@chakra-ui/icons'
+import { Box, Center, Circle, ModalBody, ModalCloseButton } from '@chakra-ui/react'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
@@ -6,12 +7,20 @@ export const BackupPassphraseSuccess = () => (
   <SlideTransition>
     <ModalCloseButton />
     <ModalBody>
-      <Box>
-        <Text translation={'modals.shapeShift.backupPassphrase.success.title'} />
-      </Box>
-      <Box color='gray.500'>
-        <Text translation={'modals.shapeShift.backupPassphrase.success.description'} />
-      </Box>
+      <Center flexDir='column' my={8}>
+        <Circle bg='green.500' size='50px'>
+          <CheckIcon color='gray.900' fontSize='2xl' />
+        </Circle>
+        <Box mt={4}>
+          <Text
+            fontWeight='bold'
+            translation={'modals.shapeShift.backupPassphrase.success.title'}
+          />
+        </Box>
+        <Box color='gray.500'>
+          <Text translation={'modals.shapeShift.backupPassphrase.success.description'} />
+        </Box>
+      </Center>
     </ModalBody>
   </SlideTransition>
 )

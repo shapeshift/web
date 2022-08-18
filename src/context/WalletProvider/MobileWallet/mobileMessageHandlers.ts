@@ -1,14 +1,31 @@
 import { logger } from 'lib/logger'
 
-type Command = 'getKey' | 'deleteKey' | 'setKey' | 'hasKey'
+type Command =
+  | 'getWallet'
+  | 'deleteWallet'
+  | 'setWallet'
+  | 'hasWallet'
+  | 'addWallet'
+  | 'listWallets'
 
 type Message =
   | {
       cmd: Command
+      key: string
     }
   | {
-      cmd: 'setKey'
+      cmd: 'setWallet'
       key: string
+      label: string
+      mnemonic: string
+    }
+  | {
+      cmd: 'addWallet'
+      label: string
+      mnemonic: string
+    }
+  | {
+      cmd: 'listWallets'
     }
 
 export type MessageFromMobileApp = {
@@ -43,22 +60,32 @@ const postMessage = async <T extends string | boolean>(msg: Message): Promise<T>
 
 const moduleLogger = logger.child({ namespace: ['lib', 'mobileWallet'] })
 
-export const getMnemonic = () => {
-  moduleLogger.trace({ fn: 'getMnemonic' }, 'Get Mnemonic')
-  return postMessage<string>({ cmd: 'getKey' })
+export const listWallets = () => {
+  moduleLogger.trace({ fn: 'listWallets' }, 'List Wallets')
+  return postMessage<string>({ cmd: 'listWallets' })
 }
 
-export const hasMnemonic = () => {
-  moduleLogger.trace({ fn: 'hasMnemonic' }, 'Has Mnemonic')
-  return postMessage<boolean>({ cmd: 'hasKey' })
+export const getWallet = (key: string) => {
+  moduleLogger.trace({ fn: 'getWallet', key }, 'Get Wallet')
+  return postMessage<string>({ cmd: 'getWallet', key })
 }
 
-export const setMnemonic = (mnemonic: string) => {
-  moduleLogger.trace({ fn: 'setMnemonic' }, 'Set Mnemonic')
-  return postMessage<boolean>({ cmd: 'setKey', key: mnemonic })
+export const hasWallet = (key: string) => {
+  moduleLogger.trace({ fn: 'hasWallet', key }, 'Has Wallet')
+  return postMessage<boolean>({ cmd: 'hasWallet', key })
 }
 
-export const clearMnemonic = () => {
-  moduleLogger.trace({ fn: 'clearMnemonic' }, 'Clear Mnemonic')
-  return postMessage<boolean>({ cmd: 'deleteKey' })
+export const setWallet = (key: string, wallet: { label: string; mnemonic: string }) => {
+  moduleLogger.trace({ fn: 'setWallet', key }, 'Set Wallet')
+  return postMessage<boolean>({ cmd: 'setWallet', key, ...wallet })
+}
+
+export const addWallet = (wallet: { label: string; mnemonic: string }) => {
+  moduleLogger.trace({ fn: 'addWallet' }, 'Add Wallet')
+  return postMessage<boolean>({ cmd: 'addWallet', ...wallet })
+}
+
+export const deleteWallet = (key: string) => {
+  moduleLogger.trace({ fn: 'deleteWallet', key }, 'Delete Wallet')
+  return postMessage<boolean>({ cmd: 'deleteWallet', key })
 }

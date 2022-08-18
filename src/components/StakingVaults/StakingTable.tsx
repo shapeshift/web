@@ -23,6 +23,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     () => [
       {
         Header: '#',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         ),
@@ -51,7 +52,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize'>{value?.replace('_', ' ')}</Tag>
+            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              {value?.replace('_', ' ')}
+            </Tag>
           </Skeleton>
         ),
       },
@@ -59,10 +62,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'APY',
         accessor: 'apy',
         isNumeric: true,
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+            <Tag
+              colorScheme={row.original.expired ? 'red' : 'green'}
+              size={{ base: 'sm', md: 'md' }}
+            >
               <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>

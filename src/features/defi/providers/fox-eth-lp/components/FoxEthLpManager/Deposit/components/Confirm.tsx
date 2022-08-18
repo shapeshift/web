@@ -17,6 +17,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -36,6 +37,7 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const { onOngoingTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { addLiquidity } = useFoxEthLiquidityPool()
   const opportunity = useMemo(() => state?.opportunity, [state])
@@ -72,6 +74,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
       const txid = await addLiquidity(state.deposit.foxCryptoAmount, state.deposit.ethCryptoAmount)
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
+      onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')

@@ -75,7 +75,7 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
 
-  if (!state) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.deposit.txStatus) {

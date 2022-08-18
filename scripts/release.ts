@@ -51,36 +51,37 @@ const inquireProceedWithCommits = async (): Promise<boolean> => {
   return (await inquirer.prompt(questions)).shouldProceed
 }
 
-const createDraftPR = async (): Promise<void> => {
+export const createDraftPR = async (): Promise<void> => {
+  // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('patch')
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
-  const { commitMessages } = await getCommitMessages()
-  const command = `gh pr create --draft --base "main" --title "${title}" --body "${commitMessages}"`
+  const { messages } = await getCommits('develop')
+  const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.yellow(command))
 }
 
+type GetCommitMessagesArgs = 'develop' | 'release'
 type GetCommitMessagesReturn = {
-  commitMessages: string[]
+  messages: string[]
   total: number
 }
-type GetCommitMessages = () => Promise<GetCommitMessagesReturn>
-const getCommitMessages: GetCommitMessages = async () => {
+type GetCommitMessages = (args: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
+const getCommits: GetCommitMessages = async branch => {
   const { all, total } = await simpleGit().log([
     '--oneline',
     '--first-parent',
     '--pretty=format:%s', // no hash, just conventional commit style
-    'origin/main..origin/develop',
+    `origin/main..origin/${branch}`,
   ])
 
-  if (total === 0) exit(chalk.red('No commits to release.'))
-
-  const commitMessages = all.map(({ hash }) => hash)
-  return { commitMessages, total }
+  const messages = all.map(({ hash }) => hash)
+  return { messages, total }
 }
 const doRegularRelease = async () => {
   await fetch()
-  const { commitMessages } = await getCommitMessages()
-  console.log(chalk.blue(['', commitMessages, ''].join('\n')))
+  const { messages, total } = await getCommits('develop')
+  if (total === 0) exit(chalk.red('No commits to release.'))
+  console.log(chalk.blue(['', messages, ''].join('\n')))
   const shouldProceed = await inquireProceedWithCommits()
   if (!shouldProceed) exit('Release cancelled.')
   console.log(chalk.green('Checking out develop...'))
@@ -134,10 +135,17 @@ const assertGhInstalled = async () => {
   }
 }
 
+const isReleaseInProgress = async (): Promise<boolean> => {
+  const { total } = await getCommits('release')
+  const result = Boolean(total)
+  console.log(result)
+  return result
+}
+
 const main = async () => {
   // await assertIsCleanRepo()
   await assertGhInstalled()
-  await createDraftPR()
+  await isReleaseInProgress()
   exit('remove')
   const releaseType = await inquireReleaseType()
   switch (releaseType) {

@@ -4,6 +4,7 @@ import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -41,6 +42,7 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
+import { useLpTokenPriceHack } from './useLpTokenPriceHack'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -319,6 +321,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const {
     state: { walletInfo },
   } = useWallet()
+  const lpTokenPrice = useLpTokenPriceHack()
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
 
@@ -374,7 +377,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
-      cryptoPriceHistoryData,
+      cryptoPriceHistoryData: {
+        ...cryptoPriceHistoryData,
+        // TODO: this should be removed when defi opportunity abstractions were completed.
+        // this is an ugly hack to overcome missing lp token price for charts
+        [foxEthLpAssetId]: [{ price: lpTokenPrice, date: 0 }],
+      },
       fiatPriceHistoryData,
       portfolioAssets,
     })
@@ -401,6 +409,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     walletInfo?.deviceId,
     rebases,
     txHistoryStatus,
+    lpTokenPrice,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

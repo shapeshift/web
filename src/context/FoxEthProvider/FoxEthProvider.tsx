@@ -109,6 +109,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     ethAsset.chainId,
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
 
+  const [isMarketDataReady, setIsMarketDataReady] = useState<boolean>(false)
   const [lpLoading, setLpLoading] = useState<boolean>(true)
   const [lpFoxBalance, setLpFoxBalance] = useState<string | null>(null)
   const [lpEthBalance, setLpEthBalance] = useState<string | null>(null)
@@ -210,7 +211,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           cryptoAmount: totalLpBalance.toString(),
           fiatAmount,
           isLoaded: true,
-          apy: lpApr ?? undefined,
+          apy: lpApr ?? '0',
           tvl: totalSupply ?? '',
         })
       }
@@ -228,16 +229,29 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     lpAssetPrecision,
   ])
 
+  useEffect(() => {
+    if (!isMarketDataReady && ethMarketData.price && foxMarketData.price) setIsMarketDataReady(true)
+  }, [ethMarketData.price, foxMarketData.price, isMarketDataReady])
+
   // reload opportunities when wallet changes
   useEffect(() => {
-    if (!(connectedWalletEthAddress && lpApr)) return
+    if (
+      !(
+        connectedWalletEthAddress &&
+        lpApr &&
+        isMarketDataReady &&
+        lpAssetPrecision &&
+        foxAssetPrecision
+      )
+    )
+      return
     ;(async () => {
       fetchFarmingOpportunities()
       fetchLpOpportunity()
     })()
-    // to avoid refetching when the callback functions signatures change
+    // market data causes fetch callback function to create a new signature
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedWalletEthAddress, lpApr])
+  }, [connectedWalletEthAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
 
   // watch tx to reload opportunities if it got confirmed
   const accountSpecifier = useAppSelector(state =>

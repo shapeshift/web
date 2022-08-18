@@ -60,7 +60,6 @@ export const createDraftPR = async (): Promise<void> => {
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
-  console.log(chalk.yellow(command))
   await pify(exec)(command)
 }
 
@@ -98,7 +97,7 @@ const doRegularRelease = async () => {
   console.log(chalk.green('Resetting release to develop...'))
   await git().checkout(['-B', 'release']) // reset release to develop
   console.log(chalk.green('Force pushing release branch...'))
-  await git().push([/**'--dry-run', */ '--force', 'origin', 'release'])
+  await git().push(['--dry-run', '--force', 'origin', 'release'])
   await createDraftPR()
   exit()
 }

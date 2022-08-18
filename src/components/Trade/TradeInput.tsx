@@ -94,9 +94,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     state: { wallet },
   } = useWallet()
 
-  const assetId = sellTradeAsset?.asset?.assetId
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
+    selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
   )
 
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1

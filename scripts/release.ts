@@ -5,18 +5,18 @@ import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import pify from 'pify'
 import semver from 'semver'
-import { simpleGit } from 'simple-git'
+import { simpleGit as git } from 'simple-git'
 const { exec } = require('child_process')
 
 const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
 
 const fetch = async () => {
   console.log(chalk.green('Fetching...'))
-  await simpleGit().fetch('origin')
+  await git().fetch('origin')
 }
 
 export const assertIsCleanRepo = async () => {
-  const gitStatus = await simpleGit().status()
+  const gitStatus = await git().status()
   if (!gitStatus.isClean()) {
     console.log(chalk.red('Your repository is not clean. Please commit or stash your changes.'))
     exit()
@@ -38,7 +38,8 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
-const inquireProceedWithCommits = async (): Promise<boolean> => {
+const inquireProceedWithCommits = async (commits: string[]) => {
+  console.log(chalk.blue(['', commits, ''].join('\n')))
   const questions: inquirer.QuestionCollection<{ shouldProceed: boolean }> = [
     {
       type: 'confirm',
@@ -48,7 +49,8 @@ const inquireProceedWithCommits = async (): Promise<boolean> => {
       choices: ['y', 'n'],
     },
   ]
-  return (await inquirer.prompt(questions)).shouldProceed
+  const { shouldProceed } = await inquirer.prompt(questions)
+  if (!shouldProceed) exit('Release cancelled.')
 }
 
 export const createDraftPR = async (): Promise<void> => {
@@ -65,9 +67,9 @@ type GetCommitMessagesReturn = {
   messages: string[]
   total: number
 }
-type GetCommitMessages = (args: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
+type GetCommitMessages = (branch: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
 const getCommits: GetCommitMessages = async branch => {
-  const { all, total } = await simpleGit().log([
+  const { all, total } = await git().log([
     '--oneline',
     '--first-parent',
     '--pretty=format:%s', // no hash, just conventional commit style
@@ -77,21 +79,26 @@ const getCommits: GetCommitMessages = async branch => {
   const messages = all.map(({ hash }) => hash)
   return { messages, total }
 }
+
+const assertCommitsToRelease = (total: number) => {
+  if (!total) exit(chalk.red('No commits to release.'))
+}
+
 const doRegularRelease = async () => {
   await fetch()
   const { messages, total } = await getCommits('develop')
-  if (total === 0) exit(chalk.red('No commits to release.'))
-  console.log(chalk.blue(['', messages, ''].join('\n')))
-  const shouldProceed = await inquireProceedWithCommits()
-  if (!shouldProceed) exit('Release cancelled.')
+  assertCommitsToRelease(total)
+  await inquireProceedWithCommits(messages)
+  exit('remove')
   console.log(chalk.green('Checking out develop...'))
-  await simpleGit().checkout(['develop'])
+  await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
-  await simpleGit().pull()
+  await git().pull()
   console.log(chalk.green('Resetting release to develop...'))
-  await simpleGit().checkout(['-B', 'release']) // reset release to develop
+  await git().checkout(['-B', 'release']) // reset release to develop
   console.log(chalk.green('Force pushing release...'))
-  const result = await simpleGit().push(['--dry-run', '--force', 'origin', 'release'])
+  // TODO(0xdef1cafe): remove --dry-run
+  const result = await git().push(['--dry-run', '--force', 'origin', 'release'])
   console.log(JSON.stringify(result, null, 2))
   exit()
 }
@@ -137,16 +144,10 @@ const assertGhInstalled = async () => {
 
 const isReleaseInProgress = async (): Promise<boolean> => {
   const { total } = await getCommits('release')
-  const result = Boolean(total)
-  console.log(result)
-  return result
+  return !Boolean(total)
 }
 
-const main = async () => {
-  // await assertIsCleanRepo()
-  await assertGhInstalled()
-  await isReleaseInProgress()
-  exit('remove')
+const createRelease = async () => {
   const releaseType = await inquireReleaseType()
   switch (releaseType) {
     case 'Regular': {
@@ -161,6 +162,30 @@ const main = async () => {
       exit()
     }
   }
+}
+
+const mergeRelease = async () => {
+  exit(chalk.red('Unimplemented - merge release'))
+}
+
+const main = async () => {
+  // await assertIsCleanRepo()
+  await assertGhInstalled()
+  switch (await isReleaseInProgress()) {
+    case true: {
+      await mergeRelease()
+      break
+    }
+    case false: {
+      await createRelease()
+      break
+    }
+    default: {
+      exit()
+    }
+  }
+
+  exit('Unreachable')
 }
 
 main()

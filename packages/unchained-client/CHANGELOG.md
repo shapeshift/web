@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v9.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.8.3...@shapeshiftoss/unchained-client-v9.9.0) (2022-08-18)
+
+
+### Features
+
+* **unchained-client:** parse approval amount ([#971](https://github.com/shapeshift/lib/issues/971)) ([27b5a51](https://github.com/shapeshift/lib/commit/27b5a5168edb92aecd863b678152cb2164fcc10e))
+
 # [@shapeshiftoss/unchained-client-v9.8.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.8.2...@shapeshiftoss/unchained-client-v9.8.3) (2022-08-15)
 
 # [@shapeshiftoss/unchained-client-v9.8.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v9.8.1...@shapeshiftoss/unchained-client-v9.8.2) (2022-08-11)

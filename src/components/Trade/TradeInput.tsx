@@ -101,6 +101,13 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
 
+  useEffect(() => {
+    if (!shouldShowAccountSelection) {
+      // Cleanup selectedAssetAccount on component unmount when not in the context of a sell asset with multiple accounts
+      setValue('selectedAssetAccount', undefined)
+    }
+  }, [setValue, shouldShowAccountSelection])
+
   const sellAssetId = sellTradeAsset?.asset?.assetId
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
   const highestFiatBalanceAccount = useAppSelector(state =>

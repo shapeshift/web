@@ -57,7 +57,7 @@ export const createDraftPR = async (): Promise<void> => {
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('patch')
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
-  const { messages } = await getCommits('develop')
+  const { messages } = await getCommits('release')
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.yellow(command))
 }
@@ -89,7 +89,6 @@ const doRegularRelease = async () => {
   const { messages, total } = await getCommits('develop')
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages)
-  exit('remove')
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
@@ -97,8 +96,7 @@ const doRegularRelease = async () => {
   console.log(chalk.green('Resetting release to develop...'))
   await git().checkout(['-B', 'release']) // reset release to develop
   console.log(chalk.green('Force pushing release...'))
-  // TODO(0xdef1cafe): remove --dry-run
-  const result = await git().push(['--dry-run', '--force', 'origin', 'release'])
+  const result = await git().push([/**'--dry-run', */ '--force', 'origin', 'release'])
   console.log(JSON.stringify(result, null, 2))
   exit()
 }

@@ -2,6 +2,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 export enum TradeAmountInputField {
   BUY = 'BUY',
@@ -31,11 +32,14 @@ export type TradeState<C extends ChainId> = {
   feeAssetFiatRate: string
   fees?: DisplayFeeData<C>
   action: TradeAmountInputField | undefined
+  isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
   quoteError: string | null
   amount: string | null
 }
+
+export type TS = TradeState<KnownChainIds.EthereumMainnet>
 
 export enum TradeRoutePaths {
   Input = '/trade/input',

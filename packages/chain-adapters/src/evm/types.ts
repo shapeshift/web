@@ -37,4 +37,4 @@ export type GetFeeDataInput = {
   contractData?: string
 }
 
-export type TransactionMetadata = unchained.evm.ERC20TxMetadata
+export type TransactionMetadata = unchained.evm.TxMetadata

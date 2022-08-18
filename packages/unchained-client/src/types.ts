@@ -54,24 +54,9 @@ export enum TransferType {
   Contract = 'Contract',
 }
 
-export enum TxParser {
-  Cosmos = 'cosmos',
-  Yearn = 'yearn',
-  UniV2 = 'uniV2',
-  ZRX = 'zrx',
-  Thor = 'thor',
-  Foxy = 'foxy',
-  WETH = 'weth',
-  CowSwap = 'cowswap',
-}
-
 export interface BaseTxMetadata {
   method?: string
   parser: string
-}
-
-export interface StandardTxMetadata extends BaseTxMetadata {
-  parser: `${TxParser}`
 }
 
 export interface StandardTx {

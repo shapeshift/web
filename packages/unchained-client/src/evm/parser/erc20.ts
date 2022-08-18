@@ -1,9 +1,16 @@
 import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 
+import { BaseTxMetadata } from '../../types'
 import erc20 from './abi/erc20'
-import { SubParser, Tx, TxParser, TxSpecific } from './types'
+import { SubParser, Tx, TxSpecific } from './types'
 import { getSigHash } from './utils'
+
+export interface TxMetadata extends BaseTxMetadata {
+  parser: 'erc20'
+  assetId: string
+  value?: string
+}
 
 interface ParserArgs {
   chainId: ChainId
@@ -37,16 +44,21 @@ export class Parser<T extends Tx> implements SubParser<T> {
     // failed to decode input data
     if (!decoded) return
 
-    return {
-      data: {
-        assetId: toAssetId({
-          ...fromChainId(this.chainId),
-          assetNamespace: 'erc20',
-          assetReference: tx.to,
-        }),
-        method: decoded.name,
-        parser: TxParser.ERC20,
-      },
+    const data: TxMetadata = {
+      assetId: toAssetId({
+        ...fromChainId(this.chainId),
+        assetNamespace: 'erc20',
+        assetReference: tx.to,
+      }),
+      method: decoded.name,
+      parser: 'erc20',
+    }
+
+    switch (txSigHash) {
+      case this.supportedFunctions.approveSigHash:
+        return { data: { ...data, value: (decoded?.args.amount as BigNumber).toString() } }
+      default:
+        return { data }
     }
   }
 }

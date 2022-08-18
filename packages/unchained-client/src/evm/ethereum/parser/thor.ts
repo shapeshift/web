@@ -2,18 +2,16 @@ import { ChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { Dex, TradeType } from '../../../types'
-import {
-  getSigHash,
-  SubParser,
-  txInteractsWithContract,
-  TxMetadata,
-  TxSpecific,
-} from '../../parser'
+import { BaseTxMetadata, Dex, TradeType } from '../../../types'
+import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import THOR_ABI from './abi/thor'
 import { THOR_ROUTER_CONTRACT_MAINNET, THOR_ROUTER_CONTRACT_ROPSTEN } from './constants'
 
 const SWAP_TYPES = ['SWAP', '=', 's']
+
+export interface TxMetadata extends BaseTxMetadata {
+  parser: 'thor'
+}
 
 export interface ParserArgs {
   chainId: ChainId

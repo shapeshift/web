@@ -1,7 +1,11 @@
 import { Tx } from '../../../generated/ethereum'
-import { Dex, TradeType } from '../../../types'
+import { BaseTxMetadata, Dex, TradeType } from '../../../types'
 import { SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import { COWSWAP_CONTRACT_MAINNET } from './constants'
+
+export interface TxMetadata extends BaseTxMetadata {
+  parser: 'cowswap'
+}
 
 export class Parser implements SubParser<Tx> {
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

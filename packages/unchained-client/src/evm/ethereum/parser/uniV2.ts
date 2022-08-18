@@ -2,7 +2,7 @@ import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
-import { TransferType } from '../../../types'
+import { BaseTxMetadata, TransferType } from '../../../types'
 import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
 import ERC20_ABI from '../../parser/abi/erc20'
 import UNIV2_ABI from './abi/uniV2'
@@ -13,6 +13,10 @@ import {
   WETH_CONTRACT_MAINNET,
   WETH_CONTRACT_ROPSTEN,
 } from './constants'
+
+export interface TxMetadata extends BaseTxMetadata {
+  parser: 'uniV2'
+}
 
 export interface ParserArgs {
   chainId: ChainId

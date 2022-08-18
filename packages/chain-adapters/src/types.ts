@@ -88,17 +88,12 @@ export type SubscribeTxsInput = {
 export type TransferType = unchained.TransferType
 export type TradeType = unchained.TradeType
 
-type TransactionData =
-  | unchained.StandardTxMetadata
-  | unchained.evm.TxMetadata
-  | unchained.cosmos.TxMetadata
+export type TxMetadata = unchained.evm.TxMetadata | unchained.cosmos.TxMetadata
 
 export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
   transfers: Array<TxTransfer>
-  data?: TransactionData
+  data?: TxMetadata
 }
-
-export type TransactionMetadata = unchained.StandardTxMetadata
 
 export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue' | 'token'> & {
   value: string

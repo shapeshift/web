@@ -83,7 +83,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(bn(10).pow(asset.precision))
+            .div(bn(10).pow(ethAsset.precision))
             .toPrecision(),
         },
       })

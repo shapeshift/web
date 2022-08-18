@@ -151,7 +151,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     ],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleCancel = browserHistory.goBack
 

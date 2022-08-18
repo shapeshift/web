@@ -54,7 +54,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleApprove = async () => {
     if (!opportunity || !wallet || !supportsETH(wallet)) return

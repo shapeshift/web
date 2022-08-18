@@ -1,7 +1,9 @@
 // CLI dev tool, we need dat console
 /* eslint-disable no-console */
 import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
+import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
+import pify from 'pify'
 import { simpleGit } from 'simple-git'
 
 const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
@@ -75,6 +77,17 @@ const doRegularRelease = async () => {
 
 const doHotfixRelease = async () => {
   exit(chalk.yellow('Unimplemented. PRs welcome!'))
+}
+
+const getSemverTags = async (): Promise<string[]> => {
+  const tags = await pify(gitSemverTags)()
+  if (!tags.length) exit(chalk.red('No semver release tags found.'))
+  return tags
+}
+
+const getLatestSemverTag = async (): Promise<string> => {
+  const tags = await getSemverTags()
+  return tags[0]
 }
 
 const main = async () => {

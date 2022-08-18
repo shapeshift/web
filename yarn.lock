@@ -5419,6 +5419,11 @@
   resolved "https://registry.yarnpkg.com/@types/fast-text-encoding/-/fast-text-encoding-1.0.1.tgz#7a9e6d8dd2ac1fa70772b500a307c2620cec1fe3"
   integrity sha512-DRFqoqjXfvuX3f5jIQKAQr/QzuFdNoHOtou0KQ9bzUJOreCciO7T/kFJHgEote7QusmgE1fTxsQSqNvXVR0GBw==
 
+"@types/git-semver-tags@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@types/git-semver-tags/-/git-semver-tags-4.1.1.tgz#8bc8e506e7fa14028f9d5a8b9bb53ac7298eb5d4"
+  integrity sha512-6RrosMDOX0rU233ldLAuF4WbF61S44GeQV56D+sV7SG4ZGEXd43LjIgr87NFsD9cE1Kr+n5NMHFRTFpk4MeNxw==
+
 "@types/glob@*", "@types/glob@^7.1.1":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.2.0.tgz#bc1b5bf3aa92f25bd5dd39f35c57361bdce5b2eb"
@@ -5657,6 +5662,11 @@
   integrity sha512-Cf63Rv7jCQ0LaL8tNXmEyqTHuIJxRdlS5vMh1mj5voN4+QFhVZnlZruezqpWYDiJ8UTzhP0VmeLXCmBk66YrMQ==
   dependencies:
     "@types/node" "*"
+
+"@types/pify@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@types/pify/-/pify-5.0.1.tgz#10e398a89e3740dd5c316c502acad9ea5e444d3f"
+  integrity sha512-UYcJBAqWLyg+eITXGIu9DR7RXJFvSupz+Hf+RqJYHzDJedvDMTsB1JmDV6Qfna2g62VIxUKvoWqTxGHy6U/bLA==
 
 "@types/prettier@^2.1.5":
   version "2.4.4"
@@ -12244,6 +12254,14 @@ git-raw-commits@^2.0.0:
     meow "^8.0.0"
     split2 "^3.0.0"
     through2 "^4.0.0"
+
+git-semver-tags@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/git-semver-tags/-/git-semver-tags-4.1.1.tgz#63191bcd809b0ec3e151ba4751c16c444e5b5780"
+  integrity sha512-OWyMt5zBe7xFs8vglMmhM9lRQzCWL3WjHtxNNfJTMngGym7pC1kh8sP6jevfydJ6LP3ZvGxfb6ABYgPUM0mtsA==
+  dependencies:
+    meow "^8.0.0"
+    semver "^6.0.0"
 
 github-slugger@^1.0.0:
   version "1.4.0"

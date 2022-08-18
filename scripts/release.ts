@@ -105,7 +105,7 @@ const getNextReleaseVersion = async (versionBump: WebReleaseType): Promise<strin
 
 const assertGhInstalled = async () => {
   try {
-    await pify(exec)('hash foo') // will throw if gh is not installed
+    await pify(exec)('hash gh') // will throw if gh is not installed
   } catch (e) {
     exit(chalk.red('Please install GitHub CLI https://github.com/cli/cli#installation'))
   }

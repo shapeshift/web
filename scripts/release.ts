@@ -54,12 +54,14 @@ const inquireProceedWithCommits = async (commits: string[]) => {
 }
 
 export const createDraftPR = async (): Promise<void> => {
+  const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('patch')
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
-  const { messages } = await getCommits('release')
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
+  console.log(chalk.green('Creating draft PR...'))
   console.log(chalk.yellow(command))
+  await pify(exec)(command)
 }
 
 type GetCommitMessagesArgs = 'develop' | 'release'
@@ -95,9 +97,9 @@ const doRegularRelease = async () => {
   await git().pull()
   console.log(chalk.green('Resetting release to develop...'))
   await git().checkout(['-B', 'release']) // reset release to develop
-  console.log(chalk.green('Force pushing release...'))
-  const result = await git().push([/**'--dry-run', */ '--force', 'origin', 'release'])
-  console.log(JSON.stringify(result, null, 2))
+  console.log(chalk.green('Force pushing release branch...'))
+  await git().push([/**'--dry-run', */ '--force', 'origin', 'release'])
+  await createDraftPR()
   exit()
 }
 
@@ -142,7 +144,7 @@ const assertGhInstalled = async () => {
 
 const isReleaseInProgress = async (): Promise<boolean> => {
   const { total } = await getCommits('release')
-  return !Boolean(total)
+  return Boolean(total)
 }
 
 const createRelease = async () => {

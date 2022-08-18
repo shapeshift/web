@@ -3,7 +3,7 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { FaBan, FaCheck } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +17,7 @@ export const ApproveIcon = ({
   compactMode: boolean
 }) => {
   const approvedAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const approvedValue = bnOrZero(value)
+  const approvedValue = bn(value)
 
   const isRevoke = approvedValue.isZero()
 

@@ -1,7 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
 import { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -40,11 +42,13 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
 const TransactionIcon = ({
   type,
-  txData,
+  assetId,
+  value,
   compactMode,
 }: {
   type: string
-  txData: TxMetadata | undefined
+  assetId: AssetId | undefined
+  value: string | undefined
   compactMode: boolean
 }) => {
   switch (type) {
@@ -57,17 +61,11 @@ const TransactionIcon = ({
     case TradeType.Trade:
       return <FaExchangeAlt />
     case Direction.InPlace: {
-      const txMetadata = getTxMetadataWithAssetId(txData)
-      if (txMetadata && txMetadata?.assetId && txMetadata?.value) {
-        return (
-          <ApproveIcon
-            assetId={txMetadata.assetId}
-            value={txMetadata.value}
-            compactMode={compactMode}
-          />
-        )
-      }
-      return <FaThumbsUp />
+      return assetId && value ? (
+        <ApproveIcon assetId={assetId} value={value} compactMode={compactMode} />
+      ) : (
+        <FaThumbsUp />
+      )
     }
     default:
       return <FaStickyNote />
@@ -118,6 +116,9 @@ export const TransactionGenericRow = ({
     dateFormat,
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
+
+  const txMetadata = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
+
   return (
     <Button
       height='auto'
@@ -136,7 +137,12 @@ export const TransactionGenericRow = ({
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
             <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
-              <TransactionIcon type={type} txData={txData} compactMode={compactMode} />
+              <TransactionIcon
+                type={type}
+                assetId={txMetadata?.assetId}
+                value={txMetadata?.value}
+                compactMode={compactMode}
+              />
             </IconCircle>
             <Stack
               direction={{ base: 'row', md: compactMode ? 'row' : 'column' }}

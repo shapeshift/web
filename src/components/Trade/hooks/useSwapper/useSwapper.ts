@@ -321,7 +321,7 @@ export const useSwapper = () => {
       wallet,
     })
 
-    const tradeQuote = await (async () => {
+    const trade: Trade<KnownChainIds> = await (async () => {
       const { chainNamespace } = fromAssetId(sellAsset.assetId)
       if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
@@ -353,8 +353,8 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
-    setValue('trade', tradeQuote)
+    await setFormFees({ trade, sellAsset, tradeFeeSource: swapper.name })
+    setValue('trade', trade)
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
@@ -459,9 +459,8 @@ export const useSwapper = () => {
             wallet,
           })
 
-          const { chainNamespace } = fromAssetId(sellAsset.assetId)
-
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
+            const { chainNamespace } = fromAssetId(sellAsset.assetId)
             if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId,
@@ -475,7 +474,6 @@ export const useSwapper = () => {
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
               const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
-
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,

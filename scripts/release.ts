@@ -4,7 +4,9 @@ import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
 import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import pify from 'pify'
+import semver from 'semver'
 import { simpleGit } from 'simple-git'
+const { exec } = require('child_process')
 
 const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
 
@@ -87,11 +89,31 @@ const getSemverTags = async (): Promise<string[]> => {
 
 const getLatestSemverTag = async (): Promise<string> => {
   const tags = await getSemverTags()
+  const tag = tags[0]
+  semver.valid(tag) || exit(chalk.red(`${tag} is not a valid semver tag.`))
   return tags[0]
+}
+
+type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
+
+const getNextReleaseVersion = async (versionBump: WebReleaseType): Promise<string> => {
+  const latestTag = await getLatestSemverTag()
+  const nextVersion = semver.inc(latestTag, versionBump)
+  if (!nextVersion) exit(chalk.red(`Could not bump version to ${nextVersion}`))
+  return nextVersion!
+}
+
+const assertGhInstalled = async () => {
+  try {
+    await pify(exec)('hash foo') // will throw if gh is not installed
+  } catch (e) {
+    exit(chalk.red('Please install GitHub CLI https://github.com/cli/cli#installation'))
+  }
 }
 
 const main = async () => {
   // await assertIsCleanRepo()
+  await assertGhInstalled()
   const releaseType = await inquireReleaseType()
   switch (releaseType) {
     case 'Regular': {

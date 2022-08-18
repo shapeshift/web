@@ -1,9 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
-import { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
-import { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -89,7 +87,7 @@ type TransactionGenericRowProps = {
   assets: TransactionRowAsset[]
   fee?: TransactionRowAsset
   txid: TxId
-  txData?: TxMetadata
+  txData?: ReturnType<typeof getTxMetadataWithAssetId>
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
@@ -117,8 +115,6 @@ export const TransactionGenericRow = ({
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
 
-  const txMetadata = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
-
   return (
     <Button
       height='auto'
@@ -139,8 +135,8 @@ export const TransactionGenericRow = ({
             <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
               <TransactionIcon
                 type={type}
-                assetId={txMetadata?.assetId}
-                value={txMetadata?.value}
+                assetId={txData?.assetId}
+                value={txData?.value}
                 compactMode={compactMode}
               />
             </IconCircle>

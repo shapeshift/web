@@ -61,7 +61,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
   )
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset.precision))
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
   if (!state || !dispatch) return null
 

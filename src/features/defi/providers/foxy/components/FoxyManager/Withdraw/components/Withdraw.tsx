@@ -70,7 +70,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   // user info
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
   const handlePercentClick = useCallback(

@@ -2,26 +2,50 @@ import { mode } from '@chakra-ui/theme-tools'
 export const TableStyle = {
   parts: ['table', 'tr', 'tbody', 'td', 'thead', 'th'],
   // Styles for the base style
-  baseStyle: {
-    thead: {
-      tr: {
-        th: {
-          paddingLeft: 4,
-          paddingRight: 4,
+  baseStyle: {},
+  // Styles for the size variations
+  sizes: {
+    md: {
+      thead: {
+        tr: {
+          th: {
+            paddingLeft: 4,
+            paddingRight: 4,
+          },
+        },
+      },
+      tbody: {
+        tr: {
+          td: {
+            paddingLeft: 4,
+            paddingRight: 4,
+          },
         },
       },
     },
-    tbody: {
-      tr: {
-        td: {
-          paddingLeft: 4,
-          paddingRight: 4,
+    sm: {
+      thead: {
+        tr: {
+          th: {
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingTop: 4,
+            paddingBottom: 4,
+          },
+        },
+      },
+      tbody: {
+        tr: {
+          td: {
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingTop: 4,
+            paddingBottom: 4,
+          },
         },
       },
     },
   },
-  // Styles for the size variations
-  sizes: {},
   // Styles for the visual style variations
   variants: {
     clickable: (props: Record<string, any>) => {
@@ -66,5 +90,7 @@ export const TableStyle = {
     },
   },
   // The default `size` or `variant` values
-  defaultProps: {},
+  defaultProps: {
+    size: 'md',
+  },
 }

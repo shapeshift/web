@@ -14,9 +14,9 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -55,7 +55,7 @@ export const FoxEthLpWithdraw = () => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const { opportunity } = useFoxEthLpBalances()
+  const { foxEthLpOpportunity: opportunity } = useFoxEth()
 
   // user info
   const { state: walletState } = useWallet()

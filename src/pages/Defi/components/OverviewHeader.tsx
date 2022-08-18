@@ -2,6 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
@@ -30,14 +31,15 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  walletBalance,
+  netWorth,
 }: {
   earnBalance: UseEarnBalancesReturn
-  walletBalance: string
+  netWorth: string
 }) => {
+  const { totalBalance: lpBalance } = useFoxEth()
   if (earnBalance.loading) return null
 
-  const walletBalanceWithoutEarn = bn(walletBalance)
+  const walletBalanceWithoutEarn = bn(netWorth)
     .minus(bn(earnBalance.totalEarningBalance))
     .toString()
 
@@ -50,7 +52,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={walletBalance} />
+              <Amount.Fiat value={bn(netWorth).plus(bn(lpBalance)).toString()} />
             </StatNumber>
           </Stat>
         </StatGroup>
@@ -61,7 +63,10 @@ export const OverviewHeader = ({
           gridGap={{ base: 0, lg: 6 }}
         >
           <EarnStat label='defi.walletBalance' value={walletBalanceWithoutEarn} />
-          <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
+          <EarnStat
+            label='defi.earnBalance'
+            value={bn(earnBalance.totalEarningBalance).plus(bn(lpBalance)).toString()}
+          />
         </SimpleGrid>
       </Card.Footer>
     </Card>

@@ -24,7 +24,7 @@ export const assertIsCleanRepo = async () => {
 }
 
 const releaseType = ['Regular', 'Hotfix'] as const
-type ReleaseType = keyof typeof releaseType
+type ReleaseType = typeof releaseType[number]
 
 const inquireReleaseType = async (): Promise<ReleaseType> => {
   const questions: inquirer.QuestionCollection<{ releaseType: ReleaseType }> = [
@@ -149,19 +149,7 @@ const isReleaseInProgress = async (): Promise<boolean> => {
 
 const createRelease = async () => {
   const releaseType = await inquireReleaseType()
-  switch (releaseType) {
-    case 'Regular': {
-      await doRegularRelease()
-      break
-    }
-    case 'Hotfix': {
-      await doHotfixRelease()
-      break
-    }
-    default: {
-      exit()
-    }
-  }
+  releaseType === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
 }
 
 const mergeRelease = async () => {
@@ -171,21 +159,7 @@ const mergeRelease = async () => {
 const main = async () => {
   // await assertIsCleanRepo()
   await assertGhInstalled()
-  switch (await isReleaseInProgress()) {
-    case true: {
-      await mergeRelease()
-      break
-    }
-    case false: {
-      await createRelease()
-      break
-    }
-    default: {
-      exit()
-    }
-  }
-
-  exit('Unreachable')
+  ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 
 main()

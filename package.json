@@ -27,8 +27,6 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "create-release": "./scripts/release.sh create",
-    "merge-release": "./scripts/release.sh merge",
     "release": "ts-node --skipProject ./scripts/release.ts"
   },
   "eslintConfig": {
@@ -192,7 +190,6 @@
     "@testing-library/user-event": "^14.2.1",
     "@types/bignumber.js": "^5.0.0",
     "@types/circular-dependency-plugin": "^5.0.5",
-    "@types/conventional-changelog-preset-loader": "^2.3.1",
     "@types/crypto-js": "^4.0.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-time-format": "^4.0.0",
@@ -220,7 +217,6 @@
     "@types/ssri": "^7.1.1",
     "chalk": "4.1.2",
     "circular-dependency-plugin": "^5.2.2",
-    "conventional-changelog-preset-loader": "^2.3.4",
     "cypress": "^10.4.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",

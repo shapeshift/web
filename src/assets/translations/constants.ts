@@ -9,7 +9,7 @@ export const locales = [
   },
   {
     key: 'de',
-    label: 'German',
+    label: 'Deutsch',
   },
   {
     key: 'fr',

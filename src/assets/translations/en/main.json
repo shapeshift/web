@@ -376,6 +376,7 @@
         "deposit": "Deposit",
         "approve": "Approve",
         "revoke": "Revoke",
+        "infinite": "Infinite ∞",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -396,7 +397,8 @@
       },
       "erc20": {
         "approve": "Approve",
-        "revoke": "Revoke"
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞"
       }
     },
     "unknown": "Transaction"

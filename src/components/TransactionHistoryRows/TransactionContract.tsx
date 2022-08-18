@@ -1,7 +1,8 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ContractMethod, Direction } from 'hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,7 +28,7 @@ export const TransactionContract = ({
   parentWidth,
 }: TransactionRowProps) => {
   let assets = []
-  const txMetadata = getTxMetadataWithAssetId(txDetails.tx.data)
+  const txMetadata = useMemo(() => getTxMetadataWithAssetId(txDetails.tx.data), [txDetails.tx.data])
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
   if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
   const translate = useTranslate()
@@ -38,8 +39,13 @@ export const TransactionContract = ({
     isReceive && !txDetails.tx.data?.method ? txDetails.tradeTx?.type : txDetails.tx.data?.method
   const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
-  // TODO: Move to a better place at component-level to be passed down?
-  const isRevoke = Boolean(i18n === 'approve' && txMetadata && bnOrZero(txMetadata?.value).isZero())
+  const isRevoke = useMemo(
+    () =>
+      Boolean(
+        txMetadata?.method === 'approve' && txMetadata.value && bn(txMetadata.value).isZero(),
+      ),
+    [txMetadata],
+  )
   const titlePrefix = translate(
     (() => {
       if (txDetails.tx.data?.parser) {
@@ -88,6 +94,7 @@ export const TransactionContract = ({
               assetId={txMetadata.assetId}
               value={txMetadata.value}
               isRevoke={isRevoke}
+              parser={txDetails.tx.data?.parser}
             />
           ) : null}
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />

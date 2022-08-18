@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-// import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import {
@@ -15,9 +14,9 @@ import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,13 +25,13 @@ import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxFarmingOverview = () => {
-  const { opportunities, loading } = useFoxFarmingBalances()
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
   const opportunity = useMemo(
-    () => opportunities.find(e => e.contractAddress === contractAddress),
-    [opportunities, contractAddress],
+    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, foxFarmingOpportunities],
   )
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
@@ -63,7 +62,7 @@ export const FoxFarmingOverview = () => {
   if (cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity.icons! }, rewardAsset]}
+        assets={[{ icons: opportunity?.icons! }, rewardAsset]}
         apy={opportunity.apy.toString() ?? ''}
         opportunityName={opportunity.opportunityName || ''}
         onClick={() =>

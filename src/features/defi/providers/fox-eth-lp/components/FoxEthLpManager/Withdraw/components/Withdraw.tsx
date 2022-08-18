@@ -16,9 +16,9 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,7 +32,12 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { opportunity, foxBalance, ethBalance, loading } = useFoxEthLpBalances()
+  const {
+    foxEthLpOpportunity: opportunity,
+    lpFoxBalance: foxBalance,
+    lpEthBalance: ethBalance,
+    lpLoading: loading,
+  } = useFoxEth()
 
   const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
   const [foxAmount, setFoxAmount] = useState('0')
@@ -56,7 +61,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
   )
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
   if (!state || !dispatch) return null
 
@@ -64,7 +69,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       const fee = await getWithdrawGasData(withdraw.cryptoAmount, foxAmount, ethAmount)
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('FoxEthLpWithdraw:getWithdrawGasEstimate error:', error)
@@ -82,8 +87,8 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const lpAllowance = await allowance(true)
     const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
 
-    // Skip approval step if user allowance is greater than requested deposit amount
-    if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount))) {
+    // Skip approval step if user allowance is greater than or equal requested deposit amount
+    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
       const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
       if (!estimatedGasCrypto) {
         dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
@@ -102,7 +107,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         type: FoxEthLpWithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(`1e${ethAsset.precision}`)
+            .div(bn(10).pow(ethAsset.precision))
             .toPrecision(),
         },
       })

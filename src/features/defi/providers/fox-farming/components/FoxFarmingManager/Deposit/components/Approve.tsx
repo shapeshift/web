@@ -12,7 +12,7 @@ import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -54,7 +54,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleApprove = async () => {
     if (!opportunity || !wallet || !supportsETH(wallet)) return
@@ -65,8 +65,8 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(bnOrZero(state.deposit.cryptoAmount))
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
+          return bnOrZero(allowance).gte(bnOrZero(state.deposit.cryptoAmount))
         },
         interval: 15000,
         maxAttempts: 30,
@@ -75,7 +75,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
       const gasData = await getStakeGasData(state.deposit.cryptoAmount)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
-        .div(`1e${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,

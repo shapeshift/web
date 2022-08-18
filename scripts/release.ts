@@ -1,12 +1,13 @@
 // CLI dev tool, we need dat console
 /* eslint-disable no-console */
 import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
+import { exec } from 'child_process'
+import conventionalChangelogPresetLoader from 'conventional-changelog-preset-loader'
 import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import pify from 'pify'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'
-const { exec } = require('child_process')
 
 const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
 
@@ -146,19 +147,31 @@ const isReleaseInProgress = async (): Promise<boolean> => {
   return Boolean(total)
 }
 
+const parseConventionalCommits = async () => {
+  const commits = `
+feat: foo
+chore: blah
+`
+}
+
 const createRelease = async () => {
   const releaseType = await inquireReleaseType()
   releaseType === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
 }
 
 const mergeRelease = async () => {
+  console.log(chalk.green('Checking out main...'))
+  await git().checkout(['main'])
+  console.log(chalk.green('Pulling main...'))
+  await git().pull()
   exit(chalk.red('Unimplemented - merge release'))
 }
 
 const main = async () => {
   // await assertIsCleanRepo()
   await assertGhInstalled()
-  ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
+  // ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
+  await mergeRelease()
 }
 
 main()

@@ -5,10 +5,10 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { RawText, Text } from 'components/Text'
 import {
-  clearMnemonic,
-  getMnemonic,
-  hasMnemonic,
-  setMnemonic,
+  addWallet,
+  deleteWallet,
+  getWallet,
+  listWallets,
 } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
@@ -16,10 +16,10 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
   // const [error, setError] = useState<string | null>(null)
   // const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
-  const [hasWallet, setHasWallet] = useState<boolean | null>(null)
+  const [walletExists, setWalletExists] = useState<boolean | null>(null)
 
   useEffect(() => {
-    ;(async () => setHasWallet(await hasMnemonic()))()
+    ;(async () => setWalletExists(Boolean((await listWallets()).length)))()
   })
 
   return (
@@ -39,9 +39,9 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!hasWallet}
+            disabled={!walletExists}
             onClick={async () => {
-              console.warn('mnemonic', await getMnemonic())
+              console.warn('mnemonic', await getWallet('1'))
             }}
             data-test='wallet-native-load-button'
           >
@@ -60,7 +60,10 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             onClick={async () => {
               console.warn(
                 'save',
-                await setMnemonic('all all all all all all all all all all all all'),
+                await addWallet({
+                  label: 'All',
+                  mnemonic: 'all all all all all all all all all all all all',
+                }),
               )
             }}
             data-test='wallet-native-create-button'
@@ -77,11 +80,11 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
             onClick={async () => {
-              console.warn('clear', await clearMnemonic())
+              console.warn('clear', await deleteWallet('*'))
             }}
             data-test='wallet-native-import-button'
           >
-            <RawText>Clear Local Wallet</RawText>
+            <RawText>Delete Wallet</RawText>
           </Button>
           <Divider mt={4} />
           <Flex

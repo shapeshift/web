@@ -156,7 +156,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }, [updateQuoteClosure])
 
   // Update the quote every 30 seconds
-  useInterval(() => updateQuoteClosure(), 1000 * 8)
+  useInterval(() => updateQuoteClosure(), 1000 * 30)
 
   const sellAssetAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),

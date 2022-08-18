@@ -3,7 +3,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -26,9 +26,12 @@ import { logger } from 'lib/logger'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectAccountIdsByAssetId,
+  selectAssetById,
   selectFiatToUsdRate,
+  selectFirstAccountSpecifierByChainId,
   selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -99,6 +102,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
 
   const sellAssetId = sellTradeAsset?.asset?.assetId
+  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
   const highestFiatBalanceAccount = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',
@@ -147,11 +151,21 @@ export const TradeInput = ({ history }: RouterProps) => {
   // Update the quote every 30 seconds
   useInterval(async () => await updateQuoteClosure(), 1000 * 30)
 
-  const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, {
-      assetId: sellTradeAsset?.asset?.assetId ?? '',
-    }),
+  const sellAssetAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
   )
+  const filter = useMemo(
+    () => ({
+      assetId: sellAssetId ?? '',
+      accountId: sellAssetAccount ?? '',
+      accountSpecifier: sellAssetAccountSpecifier,
+    }),
+    [sellAssetAccountSpecifier, sellAssetAccount, sellAssetId],
+  )
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
+  )
+
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)

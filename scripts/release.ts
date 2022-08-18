@@ -4,7 +4,7 @@ import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import { simpleGit } from 'simple-git'
 
-const exit = () => process.exit(0)
+const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
 
 const fetch = async () => {
   console.log(chalk.green('Fetching...'))
@@ -34,23 +34,42 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
+const inquireProceedWithCommits = async (): Promise<boolean> => {
+  const questions: inquirer.QuestionCollection<{ shouldProceed: boolean }> = [
+    {
+      type: 'confirm',
+      default: 'y',
+      name: 'shouldProceed',
+      message: 'Do you want to create a release with these commits?',
+      choices: ['y', 'n'],
+    },
+  ]
+  return (await inquirer.prompt(questions)).shouldProceed
+}
+
 const doRegularRelease = async () => {
-  // git log --oneline --first-parent "origin/main".."origin/releases/$2"
-  const mergedPRs = await simpleGit().log([
+  const { all, total } = await simpleGit().log([
     '--oneline',
     '--first-parent',
     'origin/main..origin/develop',
   ])
-  console.log(chalk.white(mergedPRs))
-  // console.log(chalk.green('Checking out develop...'))
-  // await simpleGit().checkout('develop')
-  // await simpleGit().checkout(['-B', 'release']) // reset release to develop
+
+  if (total === 0) exit(chalk.red('No commits to release.'))
+
+  console.log(chalk.green(`Found ${total} commit${total > 1 ? 's' : ''} to release:`))
+  const commitMessages = all.map(({ hash }) => hash).join('\n')
+  console.log(chalk.blue(commitMessages))
+  const shouldProceed = await inquireProceedWithCommits()
+  if (!shouldProceed) exit('Release cancelled.')
+  console.log(chalk.green('Checking out develop...'))
+  await simpleGit().checkout('develop')
+  console.log(chalk.green('Resetting release to develop...'))
+  await simpleGit().checkout(['-B', 'release']) // reset release to develop
   exit()
 }
 
 const doHotfixRelease = async () => {
-  console.log(chalk.yellow('Unimplemented. PRs welcome!'))
-  exit()
+  exit(chalk.yellow('Unimplemented. PRs welcome!'))
 }
 
 const main = async () => {

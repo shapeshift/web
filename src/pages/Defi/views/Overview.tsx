@@ -19,10 +19,10 @@ const DefiHeader = () => {
 
 export const Overview = () => {
   const balances = useEarnBalances()
-  const walletBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const netWorth = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   return (
     <Main titleComponent={<DefiHeader />}>
-      <OverviewHeader earnBalance={balances} walletBalance={walletBalance} />
+      <OverviewHeader earnBalance={balances} netWorth={netWorth} />
       <Stack spacing={4} divider={<Divider marginTop={0} />}>
         <OpportunityCardList balances={balances} />
       </Stack>

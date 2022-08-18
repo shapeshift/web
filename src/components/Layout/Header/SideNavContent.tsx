@@ -1,5 +1,5 @@
-import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
+import { Box, Flex, FlexProps, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
@@ -40,6 +40,12 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
     >
       {!isLargerThanMd && (
         <Flex direction='column' rowGap={2} columnGap={2} width='full'>
+          <IconButton
+            ml='auto'
+            aria-label='Close Nav'
+            icon={<CloseIcon />}
+            onClick={() => handleClick()}
+          />
           <Flex width='full'>
             <ChainMenu />
           </Flex>

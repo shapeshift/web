@@ -218,7 +218,7 @@
         "rewardAmount": "Reward Amount",
         "claimingRewards": "Claiming Rewards",
         "claimAmount": "Claim Amount",
-        "claimToAddress": "Claim To Address",
+        "claimToAddress": "Claim To",
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"

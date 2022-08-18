@@ -56,6 +56,7 @@ import {
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
+  selectSelectedLocale,
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -104,6 +105,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
+
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  useEffect(() => {
+    require(`dayjs/locale/${selectedLocale}.js`)
+  }, [selectedLocale])
 
   /**
    * handle wallet disconnect/switch logic

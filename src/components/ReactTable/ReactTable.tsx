@@ -48,7 +48,7 @@ export const ReactTable = <T extends {}>({
   }, [prepareRow, rows, onRowClick])
 
   return (
-    <Table variant='clickable' {...getTableProps()}>
+    <Table variant='clickable' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (

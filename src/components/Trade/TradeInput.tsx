@@ -1,4 +1,5 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { InterpolationOptions } from 'node-polyglot'
@@ -111,13 +112,20 @@ export const TradeInput = ({ history }: RouterProps) => {
     }),
   )
 
-  useEffect(() => {
-    setValue('sellAssetAccount', selectedAssetAccount ?? highestFiatBalanceAccount)
-  }, [selectedAssetAccount, highestFiatBalanceAccount, setValue])
+  useEffect(
+    () => setValue('sellAssetAccount', selectedAssetAccount ?? highestFiatBalanceAccount),
+    [selectedAssetAccount, highestFiatBalanceAccount, setValue, sellTradeAsset, buyTradeAsset],
+  )
 
   // Refresh quote
   useEffect(() => {
-    if (buyTradeAsset?.asset && sellTradeAsset?.asset && sellAssetAccount) {
+    const sellAssetChainId = sellAssetAccount ? fromAccountId(sellAssetAccount).chainId : undefined
+    if (
+      buyTradeAsset?.asset &&
+      sellTradeAsset?.asset &&
+      sellAssetAccount &&
+      sellAssetChainId === sellTradeAsset.asset.chainId
+    ) {
       updateQuote({
         forceQuote: true,
         amount: amount ?? '0',
@@ -130,7 +138,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
   }, [
     buyTradeAsset,
-    selectedAssetAccount,
     sellTradeAsset,
     action,
     updateQuote,
@@ -138,7 +145,9 @@ export const TradeInput = ({ history }: RouterProps) => {
     selectedCurrencyToUsdRate,
     sellAssetAccount,
     amount,
-    sellAssetId,
+    setValue,
+    selectedAssetAccount,
+    highestFiatBalanceAccount,
   ])
 
   const sellAssetBalance = useAppSelector(state =>
@@ -245,7 +254,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       setValue('sellAsset', currentBuyAsset)
       setValue('buyAsset', currentSellAsset)
       setValue('selectedAssetAccount', undefined)
-      // setValue('sellAssetAccount', undefined)
+      setValue('sellAssetAccount', undefined)
       setValue('action', TradeAmountInputField.SELL)
       setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
@@ -289,29 +298,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('action', action)
     setValue('amount', amount)
   }
-
-  // force update quote when the fiat currency changes
-  useEffect(() => {
-    if (
-      sellTradeAsset?.asset &&
-      buyTradeAsset?.asset &&
-      bnOrZero(sellTradeAsset.amount).gt(0) &&
-      sellAssetAccount
-    ) {
-      // TODO
-      updateQuote({
-        forceQuote: true,
-        amount: bnOrZero(sellTradeAsset.amount).toString(),
-        sellAsset: sellTradeAsset.asset,
-        buyAsset: buyTradeAsset.asset,
-        feeAsset,
-        action: TradeAmountInputField.SELL,
-        selectedCurrencyToUsdRate,
-      })
-    }
-    // only dependency of this hook is the fiat currency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCurrencyToUsdRate])
 
   // Update the quote every 30 seconds
   useInterval(async () => await refreshQuote(), 1000 * 30)

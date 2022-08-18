@@ -4,6 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { getLpTokenPrice } from 'features/defi/providers/fox-eth-lp/api'
 import {
   foxAssetId,
   foxEthLpAssetId,
@@ -76,6 +77,8 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   totalBalance: string
   lpFoxBalance: string | null
   lpEthBalance: string | null
+  lpTokenPrice: number
+  foxFarmingTotalBalanceInBaseUnit: string | null
   foxEthLpOpportunity: EarnOpportunityType
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpLoading: boolean
@@ -87,6 +90,8 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   totalBalance: '0',
   lpFoxBalance: null,
   lpEthBalance: null,
+  lpTokenPrice: 0,
+  foxFarmingTotalBalanceInBaseUnit: null,
   foxEthLpOpportunity: lpOpportunity,
   foxFarmingOpportunities: [v4FarmingOpportunity],
   lpLoading: true,
@@ -127,10 +132,33 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const foxAssetPrecision = useAppSelector(state => selectAssetById(state, foxAssetId)).precision
+  const ethAssetPrecision = useAppSelector(state => selectAssetById(state, ethAssetId)).precision
   const lpAssetPrecision = useAppSelector(state =>
     selectAssetById(state, foxEthLpAssetId),
   ).precision
+  const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
+
+  useEffect(() => {
+    if (
+      // get price if at least one of lp or farming were on
+      (featureFlags.FoxLP || featureFlags.FoxFarming) &&
+      ethAssetPrecision &&
+      ethMarketData.price &&
+      lpAssetPrecision
+    )
+      getLpTokenPrice(ethAssetPrecision, ethMarketData.price, lpAssetPrecision).then(
+        lpTokenPrice => {
+          setLpTokenPrice(lpTokenPrice.toString())
+        },
+      )
+  }, [
+    ethAssetPrecision,
+    ethMarketData.price,
+    featureFlags.FoxFarming,
+    featureFlags.FoxLP,
+    lpAssetPrecision,
+  ])
 
   useEffect(() => {
     if (wallet && adapter) {
@@ -278,6 +306,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     }
   }, [fetchFarmingOpportunities, fetchLpOpportunity, transaction])
 
+  const foxFarmingTotalCryptoAmount = foxFarmingOpportunities.reduce((acc, opportunity) => {
+    return acc.plus(bnOrZero(opportunity.cryptoAmount))
+  }, bnOrZero(0))
+
   const value = useMemo(
     () => ({
       totalBalance: bnOrZero(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
@@ -289,19 +321,26 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       foxFarmingOpportunities,
       lpLoading,
       farmingLoading,
+      foxFarmingTotalBalanceInBaseUnit: bnOrZero(foxFarmingTotalCryptoAmount)
+        .times(bn(10).pow(lpAssetPrecision))
+        .toString(),
       onOngoingTxIdChange: handleOngoingTxIdChange,
+      lpTokenPrice: bnOrZero(lpTokenPrice).toNumber(),
     }),
     [
       featureFlags.FoxLP,
       featureFlags.FoxFarming,
       foxEthLpOpportunity,
       foxFarmingTotalBalance,
+      foxFarmingTotalCryptoAmount,
       lpFoxBalance,
       lpEthBalance,
       foxFarmingOpportunities,
       lpLoading,
       farmingLoading,
       handleOngoingTxIdChange,
+      lpTokenPrice,
+      lpAssetPrecision,
     ],
   )
 

@@ -60,7 +60,10 @@ const createDraftPR = async (): Promise<void> => {
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
-  await pify(exec)(command)
+  // TODO(0xdef1cafe): remove logging
+  console.log(chalk.yellow(command))
+  // TODO(0xdef1cafe): uncomment
+  // await pify(exec)(command)
   console.log(chalk.green('Draft PR created.'))
   exit(chalk.green(`Release ${nextVersion} created.`))
 }

@@ -51,17 +51,35 @@ const inquireProceedWithCommits = async (): Promise<boolean> => {
   return (await inquirer.prompt(questions)).shouldProceed
 }
 
-const doRegularRelease = async () => {
-  await fetch()
+const createDraftPR = async (): Promise<void> => {
+  const nextVersion = await getNextReleaseVersion('patch')
+  const title = `chore: release v${nextVersion} [DO NOT MERGE]`
+  const { commitMessages } = await getCommitMessages()
+  const command = `gh pr create --draft --base "main" --title "${title}" --body "${commitMessages}"`
+  console.log(chalk.yellow(command))
+}
+
+type GetCommitMessagesReturn = {
+  commitMessages: string[]
+  total: number
+}
+type GetCommitMessages = () => Promise<GetCommitMessagesReturn>
+const getCommitMessages: GetCommitMessages = async () => {
   const { all, total } = await simpleGit().log([
     '--oneline',
     '--first-parent',
+    '--pretty=format:%s', // no hash, just conventional commit style
     'origin/main..origin/develop',
   ])
 
   if (total === 0) exit(chalk.red('No commits to release.'))
 
   const commitMessages = all.map(({ hash }) => hash)
+  return { commitMessages, total }
+}
+const doRegularRelease = async () => {
+  await fetch()
+  const { commitMessages } = await getCommitMessages()
   console.log(chalk.blue(['', commitMessages, ''].join('\n')))
   const shouldProceed = await inquireProceedWithCommits()
   if (!shouldProceed) exit('Release cancelled.')
@@ -79,6 +97,11 @@ const doRegularRelease = async () => {
 
 const doHotfixRelease = async () => {
   exit(chalk.yellow('Unimplemented. PRs welcome!'))
+  // TODO(0xdef1cafe): implement hotfix release
+  // 1. ask if we want to merge currently checked out branch to main
+  // 2. set release to current branch
+  // 3. force push release to origin
+  // 4. create draft PR
 }
 
 const getSemverTags = async (): Promise<string[]> => {
@@ -114,6 +137,8 @@ const assertGhInstalled = async () => {
 const main = async () => {
   // await assertIsCleanRepo()
   await assertGhInstalled()
+  await createDraftPR()
+  exit('remove')
   const releaseType = await inquireReleaseType()
   switch (releaseType) {
     case 'Regular': {

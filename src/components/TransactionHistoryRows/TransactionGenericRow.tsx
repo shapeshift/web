@@ -44,7 +44,7 @@ const TransactionIcon = ({
   compactMode,
 }: {
   type: string
-  txData: TxMetadata
+  txData: TxMetadata | undefined
   compactMode: boolean
 }) => {
   switch (type) {

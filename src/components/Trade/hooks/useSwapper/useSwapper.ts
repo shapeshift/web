@@ -339,7 +339,6 @@ export const useSwapper = () => {
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
         const { accountType, utxoParams } = getUtxoParams()
-        console.log('xxx tradeQuote', { accountType, utxoParams, accountSpecifiersList, sellAsset })
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -379,9 +378,7 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
 
-    console.log('executeQuote trade', { sellAssetAccount, trade })
-
-    // return swapper.executeTrade({ trade, wallet })
+    return swapper.executeTrade({ trade, wallet })
   }
 
   type GetFirstReceiveAddressArgs = {
@@ -417,10 +414,8 @@ export const useSwapper = () => {
   }
 
   const getUtxoParams = () => {
-    console.log('getUtxoParams sellAssetAccount', sellAssetAccount)
     if (!sellAssetAccount) throw new Error('No UTXO account specifier')
 
-    console.log('xxx accountId', sellAssetAccount)
     return accountIdToUtxoParams(sellAssetAccount, 0)
   }
 

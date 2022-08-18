@@ -30,10 +30,11 @@ export type TradeState<C extends ChainId> = {
   buyAssetFiatRate: string
   feeAssetFiatRate: string
   fees?: DisplayFeeData<C>
-  action?: TradeAmountInputField
+  action: TradeAmountInputField | undefined
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
   quoteError: string | null
+  amount: string | null
 }
 
 export enum TradeRoutePaths {

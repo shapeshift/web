@@ -58,6 +58,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     quoteError,
     sellAssetAccount,
     selectedAssetAccount,
+    action,
+    amount,
   ] = useWatch({
     name: [
       'quote',
@@ -67,6 +69,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       'quoteError',
       'sellAssetAccount',
       'selectedAssetAccount',
+      'action',
+      'amount',
     ],
   }) as [
     TS['quote'],
@@ -76,6 +80,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     TS['quoteError'],
     TS['sellAssetAccount'],
     TS['selectedAssetAccount'],
+    TS['action'],
+    TS['amount'],
   ]
   const {
     updateQuote,
@@ -99,15 +105,41 @@ export const TradeInput = ({ history }: RouterProps) => {
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
 
   const sellAssetId = sellTradeAsset?.asset?.assetId
-  const highestFiatBalanceAccount = useAppSelector(state => {
-    return selectHighestFiatBalanceAccountByAssetId(state, {
+  const highestFiatBalanceAccount = useAppSelector(state =>
+    selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',
-    })
-  })
+    }),
+  )
 
   useEffect(() => {
     setValue('sellAssetAccount', selectedAssetAccount ?? highestFiatBalanceAccount)
-  }, [highestFiatBalanceAccount, selectedAssetAccount, setValue, sellTradeAsset])
+  }, [selectedAssetAccount, highestFiatBalanceAccount, setValue])
+
+  // Refresh quote
+  useEffect(() => {
+    if (buyTradeAsset?.asset && sellTradeAsset?.asset && sellAssetAccount) {
+      updateQuote({
+        forceQuote: true,
+        amount: amount ?? '0',
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action: action ?? TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
+      })
+    }
+  }, [
+    buyTradeAsset,
+    selectedAssetAccount,
+    sellTradeAsset,
+    action,
+    updateQuote,
+    feeAsset,
+    selectedCurrencyToUsdRate,
+    sellAssetAccount,
+    amount,
+    sellAssetId,
+  ])
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, {
@@ -136,7 +168,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
+    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -184,14 +216,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       const currentBuyAsset = getValues('buyAsset')
 
       if (currentSellAsset?.asset && currentBuyAsset?.asset) {
-        await updateQuote({
-          sellAsset: currentSellAsset.asset,
-          buyAsset: currentBuyAsset.asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-          amount: maxSendAmount,
-          selectedCurrencyToUsdRate,
-        })
+        setValue('action', TradeAmountInputField.SELL)
+        setValue('amount', maxSendAmount)
       } else {
         fnLogger.error(
           {
@@ -212,34 +238,20 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const toggleAssets = useCallback(() => {
+    const currentSellAsset = sellTradeAsset
+    const currentBuyAsset = buyTradeAsset
     try {
       if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
-      setValue('sellAsset', buyTradeAsset)
-      setValue('buyAsset', sellTradeAsset)
+      setValue('sellAsset', currentBuyAsset)
+      setValue('buyAsset', currentSellAsset)
       setValue('selectedAssetAccount', undefined)
-      setValue('sellAssetAccount', undefined)
-      // Todo: need to get new selectedAssetAccount here and pass into update quote
-      updateQuote({
-        forceQuote: true,
-        amount: bnOrZero(buyTradeAsset.amount).toString(),
-        sellAsset: buyTradeAsset.asset,
-        buyAsset: sellTradeAsset.asset,
-        feeAsset,
-        action: TradeAmountInputField.SELL,
-        selectedCurrencyToUsdRate,
-      })
+      // setValue('sellAssetAccount', undefined)
+      setValue('action', TradeAmountInputField.SELL)
+      setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
       showErrorToast(e)
     }
-  }, [
-    buyTradeAsset,
-    feeAsset,
-    selectedCurrencyToUsdRate,
-    sellTradeAsset,
-    setValue,
-    showErrorToast,
-    updateQuote,
-  ])
+  }, [buyTradeAsset, sellTradeAsset, setValue, showErrorToast])
 
   const getTranslationKey = () => {
     if (!wallet) {
@@ -274,21 +286,19 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onTokenRowInputChange = (action: TradeAmountInputField) => (amount: string) => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-      updateQuote({
-        amount,
-        sellAsset: sellTradeAsset.asset,
-        buyAsset: buyTradeAsset.asset,
-        feeAsset,
-        action,
-        selectedCurrencyToUsdRate,
-      })
-    }
+    setValue('action', action)
+    setValue('amount', amount)
   }
 
   // force update quote when the fiat currency changes
   useEffect(() => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset && bnOrZero(sellTradeAsset.amount).gt(0)) {
+    if (
+      sellTradeAsset?.asset &&
+      buyTradeAsset?.asset &&
+      bnOrZero(sellTradeAsset.amount).gt(0) &&
+      sellAssetAccount
+    ) {
+      // TODO
       updateQuote({
         forceQuote: true,
         amount: bnOrZero(sellTradeAsset.amount).toString(),
@@ -331,14 +341,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value && sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                        updateQuote({
-                          amount: e.value,
-                          sellAsset: sellTradeAsset.asset,
-                          buyAsset: buyTradeAsset.asset,
-                          feeAsset,
-                          action: TradeAmountInputField.FIAT,
-                          selectedCurrencyToUsdRate,
-                        })
+                        setValue('action', TradeAmountInputField.FIAT)
+                        setValue('amount', e.value)
                       }
                     }}
                   />

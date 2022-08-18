@@ -12,7 +12,7 @@ const exit = (reason?: string) => Boolean(reason && console.log(reason)) || proc
 
 const fetch = async () => {
   console.log(chalk.green('Fetching...'))
-  await git().fetch('origin')
+  await git().fetch(['origin', '--tags', '--force'])
 }
 
 export const assertIsCleanRepo = async () => {
@@ -121,6 +121,7 @@ const getSemverTags = async (): Promise<string[]> => {
 
 const getLatestSemverTag = async (): Promise<string> => {
   const tags = await getSemverTags()
+  console.info('tags', JSON.stringify(tags, null, 2))
   const tag = tags[0]
   semver.valid(tag) || exit(chalk.red(`${tag} is not a valid semver tag.`))
   return tags[0]
@@ -130,6 +131,7 @@ type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
 
 const getNextReleaseVersion = async (versionBump: WebReleaseType): Promise<string> => {
   const latestTag = await getLatestSemverTag()
+  console.info(chalk.green(`Latest tag: ${latestTag}`))
   const nextVersion = semver.inc(latestTag, versionBump)
   if (!nextVersion) exit(chalk.red(`Could not bump version to ${nextVersion}`))
   return nextVersion!
@@ -154,6 +156,7 @@ const createRelease = async () => {
 }
 
 const mergeRelease = async () => {
+  await fetch()
   // console.log(chalk.green('Checking out main...'))
   // await git().checkout(['main'])
   // console.log(chalk.green('Pulling main...'))
@@ -164,7 +167,7 @@ const mergeRelease = async () => {
   const nextVersion = await getNextReleaseVersion('minor')
 
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
-  await git().tag(['-a', nextVersion, '-m', nextVersion])
+  // await git().tag(['-a', nextVersion, '-m', nextVersion])
 
   // console.log(chalk.green('Pushing main...'))
   // await git().push(['--dry-run', 'origin', 'main', '--tags'])

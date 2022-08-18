@@ -66,7 +66,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(bnOrZero(state.deposit.cryptoAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state.deposit.cryptoAmount))
         },
         interval: 15000,
         maxAttempts: 30,

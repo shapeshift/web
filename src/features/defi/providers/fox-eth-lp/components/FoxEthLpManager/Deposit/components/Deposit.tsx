@@ -96,8 +96,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       const lpAllowance = await allowance()
       const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${foxAsset.precision}`)
 
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount1))) {
+      // Skip approval step if user allowance is greater than or equal requested deposit amount
+      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))) {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({

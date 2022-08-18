@@ -64,7 +64,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
 
     // Skip approval step if user allowance is greater than requested deposit amount
-    if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount))) {
+    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
       const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
       if (!estimatedGasCrypto) {
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })

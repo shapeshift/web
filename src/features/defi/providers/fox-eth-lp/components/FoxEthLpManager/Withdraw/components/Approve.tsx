@@ -56,7 +56,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
         fn: () => allowance(true),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${foxAsset.precision}`)
-          return bnOrZero(allowance).gt(bnOrZero(state.withdraw.lpAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,

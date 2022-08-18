@@ -101,7 +101,7 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 60,

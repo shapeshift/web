@@ -171,7 +171,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
         const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
 
-        // Skip approval step if user allowance is greater than requested deposit amount
+        // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
           const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
           if (!estimatedGasCrypto) return

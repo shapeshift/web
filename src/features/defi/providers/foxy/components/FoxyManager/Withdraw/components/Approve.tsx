@@ -108,7 +108,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(bn(result).div(`1e+${asset.precision}`))
-          return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
+          return bnOrZero(allowance).gte(state.withdraw.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 60,

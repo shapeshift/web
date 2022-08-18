@@ -48,6 +48,7 @@ const inquireProceedWithCommits = async (): Promise<boolean> => {
 }
 
 const doRegularRelease = async () => {
+  await fetch()
   const { all, total } = await simpleGit().log([
     '--oneline',
     '--first-parent',
@@ -56,15 +57,19 @@ const doRegularRelease = async () => {
 
   if (total === 0) exit(chalk.red('No commits to release.'))
 
-  console.log(chalk.green(`Found ${total} commit${total > 1 ? 's' : ''} to release:`))
-  const commitMessages = all.map(({ hash }) => hash).join('\n')
-  console.log(chalk.blue(commitMessages))
+  const commitMessages = all.map(({ hash }) => hash)
+  console.log(chalk.blue(['', commitMessages, ''].join('\n')))
   const shouldProceed = await inquireProceedWithCommits()
   if (!shouldProceed) exit('Release cancelled.')
   console.log(chalk.green('Checking out develop...'))
-  await simpleGit().checkout('develop')
+  await simpleGit().checkout(['develop'])
+  console.log(chalk.green('Pulling develop...'))
+  await simpleGit().pull()
   console.log(chalk.green('Resetting release to develop...'))
   await simpleGit().checkout(['-B', 'release']) // reset release to develop
+  console.log(chalk.green('Force pushing release...'))
+  const result = await simpleGit().push(['--dry-run', '--force', 'origin', 'release'])
+  console.log(JSON.stringify(result, null, 2))
   exit()
 }
 
@@ -75,7 +80,6 @@ const doHotfixRelease = async () => {
 const main = async () => {
   // await assertIsCleanRepo()
   const releaseType = await inquireReleaseType()
-  await fetch()
   switch (releaseType) {
     case 'Regular': {
       await doRegularRelease()

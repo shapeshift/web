@@ -154,6 +154,8 @@ export const useTradeRoutes = (
           const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
           setValue('action', TradeAmountInputField.FIAT)
           setValue('amount', fiatSellAmount)
+          setValue('selectedAssetAccount', undefined)
+          setValue('sellAssetAccount', undefined)
         }
       } catch (e) {
         console.warn(e)

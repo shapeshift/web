@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# dirty repo comment
+
 red=`tput setaf 1`
 cyan=`tput setaf 6`
 reset=`tput sgr0`

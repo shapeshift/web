@@ -24,7 +24,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const onClick = (accountId: AccountSpecifier) => {
+  const handleClick = (accountId: AccountSpecifier) => {
     setValue('selectedAssetAccount', accountId)
     history.push(TradeRoutePaths.Input)
   }
@@ -47,7 +47,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
                 assetId={asset.assetId}
                 key={accountId}
                 isCompact
-                onClick={() => onClick(accountId)}
+                onClick={() => handleClick(accountId)}
               />
             ))}
           </Stack>

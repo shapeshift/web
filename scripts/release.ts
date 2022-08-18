@@ -99,6 +99,7 @@ const doRegularRelease = async () => {
   console.log(chalk.green('Resetting release to develop...'))
   await git().checkout(['-B', 'release']) // reset release to develop
   console.log(chalk.green('Force pushing release branch...'))
+  // TODO(0xdef1cafe): remove --dry-run
   await git().push(['--dry-run', '--force', 'origin', 'release'])
   await createDraftPR()
   exit()
@@ -121,7 +122,6 @@ const getSemverTags = async (): Promise<string[]> => {
 
 const getLatestSemverTag = async (): Promise<string> => {
   const tags = await getSemverTags()
-  console.info('tags', JSON.stringify(tags, null, 2))
   const tag = tags[0]
   semver.valid(tag) || exit(chalk.red(`${tag} is not a valid semver tag.`))
   return tags[0]
@@ -131,7 +131,6 @@ type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
 
 const getNextReleaseVersion = async (versionBump: WebReleaseType): Promise<string> => {
   const latestTag = await getLatestSemverTag()
-  console.info(chalk.green(`Latest tag: ${latestTag}`))
   const nextVersion = semver.inc(latestTag, versionBump)
   if (!nextVersion) exit(chalk.red(`Could not bump version to ${nextVersion}`))
   return nextVersion!
@@ -151,33 +150,39 @@ const isReleaseInProgress = async (): Promise<boolean> => {
 }
 
 const createRelease = async () => {
-  const releaseType = await inquireReleaseType()
-  releaseType === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
+  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
 }
 
 const mergeRelease = async () => {
   await fetch()
-  // console.log(chalk.green('Checking out main...'))
-  // await git().checkout(['main'])
-  // console.log(chalk.green('Pulling main...'))
-  // await git().pull()
-  // console.log(chalk.green('Merging release...'))
-  // await git().merge(['release'])
-
+  console.log(chalk.green('Checking out main...'))
+  await git().checkout(['main'])
+  console.log(chalk.green('Pulling main...'))
+  await git().pull()
+  console.log(chalk.green('Merging release...'))
+  await git().merge(['release'])
   const nextVersion = await getNextReleaseVersion('minor')
-
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
-  // await git().tag(['-a', nextVersion, '-m', nextVersion])
-
-  // console.log(chalk.green('Pushing main...'))
-  // await git().push(['--dry-run', 'origin', 'main', '--tags'])
+  await git().tag(['-a', nextVersion, '-m', nextVersion])
+  console.log(chalk.green('Pushing main...'))
+  // TODO(0xdef1cafe): remove --dry-run
+  await git().push(['--dry-run', 'origin', 'main', '--tags'])
+  console.log(chalk.green('Checking out develop...'))
+  await git().checkout(['develop'])
+  console.log(chalk.green('Pulling develop...'))
+  await git().pull()
+  console.log(chalk.green('Merging main back into develop...'))
+  await git().merge(['main'])
+  console.log(chalk.green('Pushing develop...'))
+  // TODO(0xdef1cafe): remove --dry-run
+  await git().push(['--dry-run', 'origin', 'develop'])
+  exit(chalk.green(`Release ${nextVersion} completed successfully.`))
 }
 
 const main = async () => {
-  // await assertIsCleanRepo()
+  await assertIsCleanRepo()
   await assertGhInstalled()
-  // ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
-  await mergeRelease()
+  ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 
 main()

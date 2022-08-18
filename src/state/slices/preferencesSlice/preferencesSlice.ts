@@ -69,8 +69,6 @@ export const preferences = createSlice({
       state.featureFlags[payload.flag] = payload.value
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
-      require(`dayjs/locale/${payload.locale}.js`)
-
       state.selectedLocale = payload.locale
     },
     setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {

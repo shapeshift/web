@@ -125,7 +125,7 @@ export const Header = () => {
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent paddingTop='env(safe-area-inset-top)'>
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>

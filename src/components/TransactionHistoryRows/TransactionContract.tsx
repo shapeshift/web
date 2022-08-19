@@ -92,7 +92,6 @@ export const TransactionContract = ({
             <ApprovalAmount
               assetId={txMetadata.assetId}
               value={txMetadata.value}
-              isRevoke={isRevoke}
               parser={txDetails.tx.data?.parser}
             />
           ) : null}

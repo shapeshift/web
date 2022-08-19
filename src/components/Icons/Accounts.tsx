@@ -1,7 +1,7 @@
 import { createIcon } from '@chakra-ui/react'
 
 export const AccountsIcon = createIcon({
-  displayName: 'CircularGraphIcon',
+  displayName: 'AccountsIcon',
   path: (
     <g fill='currentColor' fillRule='nonzero'>
       <g>

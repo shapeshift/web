@@ -61,7 +61,7 @@ const createDraftPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('minor')
-  const title = `chore: release v${nextVersion} [DO NOT MERGE]`
+  const title = `chore: release ${nextVersion} [DO NOT MERGE]`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
   await pify(exec)(command)
@@ -140,7 +140,7 @@ const getNextReleaseVersion = async (versionBump: WebReleaseType): Promise<strin
   const latestTag = await getLatestSemverTag()
   const nextVersion = semver.inc(latestTag, versionBump)
   if (!nextVersion) exit(chalk.red(`Could not bump version to ${nextVersion}`))
-  return nextVersion!
+  return `v${nextVersion}`
 }
 
 const assertGhInstalled = async () => {
@@ -174,18 +174,16 @@ const mergeRelease = async () => {
   const nextVersion = await getNextReleaseVersion('minor')
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
   await git().tag(['-a', nextVersion, '-m', nextVersion])
-  console.log(chalk.green('NOT Pushing main...'))
-  // TODO(0xdef1cafe): remove --dry-run
-  // await git().push(['--dry-run', 'origin', 'main', '--tags'])
+  console.log(chalk.green('Pushing main...'))
+  await git().push(['origin', 'main', '--tags'])
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
   console.log(chalk.green('Merging main back into develop...'))
   await git().merge(['main'])
-  console.log(chalk.green('NOT Pushing develop...'))
-  // TODO(0xdef1cafe): remove --dry-run
-  // await git().push(['--dry-run', 'origin', 'develop'])
+  console.log(chalk.green('Pushing develop...'))
+  await git().push(['origin', 'develop'])
   exit(chalk.green(`Release ${nextVersion} completed successfully.`))
 }
 

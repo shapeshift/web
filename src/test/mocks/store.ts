@@ -25,6 +25,7 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
+  swapperApi: mockApiFactory('swapperApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -55,7 +56,7 @@ export const mockStore: ReduxState = {
       Avalanche: false,
       Thor: false,
       CowSwap: false,
-      JunoPay: false,
+      JunoPay: true,
       Pendo: false,
       Litecoin: false,
       BitcoinCash: false,

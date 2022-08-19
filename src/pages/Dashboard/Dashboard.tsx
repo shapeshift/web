@@ -1,5 +1,7 @@
 import { Stack } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { Main } from 'components/Layout/Main'
+import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 
 import { DashboardSidebar } from './DashboardSidebar'
 import { Portfolio } from './Portfolio'
@@ -9,6 +11,9 @@ export type MatchParams = {
 }
 
 export const Dashboard = () => {
+  const hookReturn = useGetUsdRateQuery({ assetId: ethAssetId })
+  console.info(JSON.stringify(hookReturn, null, 2))
+
   return (
     <Main>
       <Stack

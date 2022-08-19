@@ -167,18 +167,18 @@ const mergeRelease = async () => {
   const nextVersion = await getNextReleaseVersion('minor')
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
   await git().tag(['-a', nextVersion, '-m', nextVersion])
-  console.log(chalk.green('Pushing main...'))
+  console.log(chalk.green('NOT Pushing main...'))
   // TODO(0xdef1cafe): remove --dry-run
-  await git().push(['--dry-run', 'origin', 'main', '--tags'])
+  // await git().push(['--dry-run', 'origin', 'main', '--tags'])
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
   console.log(chalk.green('Merging main back into develop...'))
   await git().merge(['main'])
-  console.log(chalk.green('Pushing develop...'))
+  console.log(chalk.green('NOT Pushing develop...'))
   // TODO(0xdef1cafe): remove --dry-run
-  await git().push(['--dry-run', 'origin', 'develop'])
+  // await git().push(['--dry-run', 'origin', 'develop'])
   exit(chalk.green(`Release ${nextVersion} completed successfully.`))
 }
 

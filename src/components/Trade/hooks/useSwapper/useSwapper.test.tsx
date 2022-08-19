@@ -35,6 +35,7 @@ const getBestSwapper = jest.fn()
 const getQuote = () => ETHCHAIN_QUOTE
 const approvalNeeded = jest.fn()
 const wallet = {} as HDWallet
+const sellAssetAccount = 'eip155:1:0x8a65ac0e23f31979db06ec62af62b132a6df4741'
 const selectedCurrencyToUsdRate = bn(1)
 const sellAsset: TradeAsset = {
   amount: '20',
@@ -51,7 +52,12 @@ function setup({
   },
 } = {}) {
   approvalNeeded.mockReturnValue({ approvalNeeded: approvalNeededBoolean })
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [quote, sellAsset, action])
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
+    quote,
+    sellAsset,
+    action,
+    sellAssetAccount,
+  ])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     setError,
@@ -60,7 +66,7 @@ function setup({
       buyAsset: { amount: '20', asset: USDC },
       sellAsset,
       fiatAmount: '20',
-      sellAssetAccount: 'eip155:1:0x8a65ac0e23f31979db06ec62af62b132a6df4741',
+      sellAssetAccount,
     }),
     clearErrors,
   }))

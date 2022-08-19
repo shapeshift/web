@@ -1,5 +1,6 @@
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -170,6 +171,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   useEffect(() => {
     if (wallet && adapter) {
       ;(async () => {
+        if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet })
         setConnectedWalletEthAddress(address)
       })()

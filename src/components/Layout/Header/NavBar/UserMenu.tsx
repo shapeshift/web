@@ -108,7 +108,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       }
     >
       <Flex>
-        {walletLabel && shouldShorten ? (
+        {walletLabel ? (
           <MiddleEllipsis
             rounded='lg'
             fontSize='sm'

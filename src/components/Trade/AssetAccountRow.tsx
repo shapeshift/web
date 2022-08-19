@@ -23,7 +23,7 @@ type AssetAccountRowProps = {
 }
 
 export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRowProps) => {
-  const backgroundColor = useColorModeValue('gray.50', 'whiteAlpha.800')
+  const backgroundColor = useColorModeValue('whiteAlpha.800', 'gray.850')
   const textColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.800')
   const iconColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.500')
   const feeAssetId = accountIdToFeeAssetId(accountId)

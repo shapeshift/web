@@ -72,6 +72,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
+      setWalletLabel('')
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {

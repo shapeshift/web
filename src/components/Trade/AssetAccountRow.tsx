@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, Icon, Stack } from '@chakra-ui/react'
+import { Button, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { capitalize, words } from 'lodash'
 import { useMemo } from 'react'
@@ -23,6 +23,9 @@ type AssetAccountRowProps = {
 }
 
 export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRowProps) => {
+  const backgroundColor = useColorModeValue('gray.50', 'whiteAlpha.800')
+  const textColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.800')
+  const iconColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.500')
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
@@ -50,16 +53,16 @@ export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRow
       fontSize='sm'
       rightIcon={<ChevronRightIcon boxSize={6} />}
       onClick={onClick}
-      backgroundColor={'gray.850'}
+      backgroundColor={backgroundColor}
     >
       <Stack direction='row' alignItems='center' width='full'>
-        <Icon as={FaWallet} color='whiteAlpha.500' />
+        <Icon as={FaWallet} color={iconColor} />
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
-          <RawText color='whiteAlpha.800'>Account #0</RawText>
+          <RawText color={textColor}>Account #0</RawText>
           <RawText>{words(label).map(capitalize).join(' ')}</RawText>
         </Stack>
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
-          <Amount.Fiat color='whiteAlpha.800' value={fiatBalance} />
+          <Amount.Fiat color={textColor} value={fiatBalance} />
           <Amount.Crypto value={cryptoHumanBalance} symbol={asset?.symbol} />
         </Stack>
       </Stack>

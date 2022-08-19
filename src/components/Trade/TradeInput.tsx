@@ -115,9 +115,35 @@ export const TradeInput = ({ history }: RouterProps) => {
     }),
   )
 
+  const sellAssetAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
+  )
+  const filter = useMemo(
+    () => ({
+      assetId: sellAssetId ?? '',
+      accountId: sellAssetAccount ?? '',
+      accountSpecifier: sellAssetAccountSpecifier,
+    }),
+    [sellAssetAccountSpecifier, sellAssetAccount, sellAssetId],
+  )
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
+  )
+
   useEffect(
-    () => setValue('sellAssetAccount', selectedAssetAccount ?? highestFiatBalanceAccount),
-    [selectedAssetAccount, highestFiatBalanceAccount, setValue, sellTradeAsset, buyTradeAsset],
+    () =>
+      setValue(
+        'sellAssetAccount',
+        selectedAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
+      ),
+    [
+      selectedAssetAccount,
+      highestFiatBalanceAccount,
+      setValue,
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetAccountSpecifier,
+    ],
   )
 
   const updateQuoteClosure = useCallback(() => {
@@ -156,21 +182,6 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   // Update the quote every 30 seconds
   useInterval(() => updateQuoteClosure(), 1000 * 30)
-
-  const sellAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
-  )
-  const filter = useMemo(
-    () => ({
-      assetId: sellAssetId ?? '',
-      accountId: sellAssetAccount ?? '',
-      accountSpecifier: sellAssetAccountSpecifier,
-    }),
-    [sellAssetAccountSpecifier, sellAssetAccount, sellAssetId],
-  )
-  const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
-  )
 
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)

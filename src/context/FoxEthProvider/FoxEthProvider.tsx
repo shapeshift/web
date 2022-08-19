@@ -120,7 +120,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   onOngoingTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
-type FoxFarmingEarnOpportunityType = {
+export type FoxFarmingEarnOpportunityType = {
   unclaimedRewards: string
 } & EarnOpportunityType
 
@@ -195,12 +195,17 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           }
         }),
       )
-      const totalOpBalances = newOpportunities.reduce(
+      // show opportunities that are not expired or expired but user have balance in them
+      const visibleOpportunities = newOpportunities.filter(
+        opportunity =>
+          !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+      )
+      const totalOpBalances = visibleOpportunities.reduce(
         (acc, newOpportunity) => acc.plus(bnOrZero(newOpportunity.fiatAmount)),
         bnOrZero(0),
       )
       setFoxFarmingTotalBalance(totalOpBalances.toFixed(2))
-      setFoxFarmingOpportunities(newOpportunities)
+      setFoxFarmingOpportunities(visibleOpportunities)
     } catch (error) {
       moduleLogger.error(error, 'fetchFarmingOpportunities failed')
     } finally {

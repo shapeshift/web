@@ -91,7 +91,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             {bnOrZero(value).gt(0) ? (
-              <Amount.Fiat value={value} color='green.500' />
+              <Amount.Fiat value={value} color={row.original.expired ? 'red.500' : 'green.500'} />
             ) : (
               <RawText>-</RawText>
             )}

@@ -311,7 +311,9 @@
         "info": {
           "title": "Withdraw Info",
           "description": "Enter the amount of %{asset} you would like to withdraw.",
-          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time."
+          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time.",
+          "farmingExpiredDescription": "This farming rewards contract has ended. You must withdraw your entire balance.",
+          "rewardsInfo": "Rewards you'll receive"
         }
       },
       "approve": {

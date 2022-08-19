@@ -1,5 +1,4 @@
-import { curveCardinal } from '@visx/curve'
-import { LinearGradient } from '@visx/gradient'
+import { curveLinear } from '@visx/curve'
 import { ScaleSVG } from '@visx/responsive'
 import { AreaSeries, AreaStack, Axis, XYChart } from '@visx/xychart'
 import { omit } from 'lodash'
@@ -33,49 +32,28 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
   const xScale = { type: 'band', paddingInner: 0.0 } as const
   const yScale = { type: 'linear' } as const
 
-  const gradients = useMemo(() => {
-    return assetIds.map(assetId => {
-      const color = assets[assetId].color
-      const from = color
-      const toOpacity = 0.7
-      const id = `${assetId}`
-      const fromOffset = '30%'
-      return (
-        <LinearGradient
-          id={id}
-          from={from}
-          to={color}
-          strokeWidth={0}
-          strokeOpacity={0}
-          toOpacity={toOpacity}
-          fromOffset={fromOffset}
-        />
-      )
-    })
-  }, [assets, assetIds])
-
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
         <AreaSeries
           data={data}
           dataKey={assetId}
-          strokeWidth={0}
-          strokeOpacity={0}
-          fill={`url('#${assetId}')`}
+          stroke={assets[assetId].color}
+          strokeWidth={2}
+          fill={assets[assetId].color}
+          fillOpacity={0.1}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
         />
       )),
-    [accessors, assetIds, data],
+    [assets, accessors, assetIds, data],
   )
 
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
         <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-          {gradients}
-          <AreaStack curve={curveCardinal}>{areaLines}</AreaStack>
+          <AreaStack curve={curveLinear}>{areaLines}</AreaStack>
           <Axis key={'date'} orientation={'bottom'} />
         </XYChart>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}

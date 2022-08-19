@@ -4,8 +4,10 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import { routes } from 'Routes/RoutesCommon'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { MainNavLink } from './MainNavLink'
+import { YatBanner } from './YatBanner'
 
 type NavBarProps = {
   isCompact?: boolean
@@ -14,6 +16,7 @@ type NavBarProps = {
 export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   return (
     <Stack width='full' flex='1 1 0%' {...rest}>
@@ -34,6 +37,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
             />
           )
         })}
+      {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
     </Stack>
   )
 }

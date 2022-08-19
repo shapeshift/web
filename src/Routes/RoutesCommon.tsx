@@ -1,14 +1,5 @@
 import { getConfig } from 'config'
-import {
-  FaFlag,
-  FaHistory,
-  FaLock,
-  FaRocket,
-  FaTable,
-  FaTractor,
-  FaWallet,
-  FaWater,
-} from 'react-icons/fa'
+import { FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'

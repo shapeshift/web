@@ -1,6 +1,9 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
+  Checkbox,
+  Divider,
   IconButton,
   ModalBody,
   ModalCloseButton,
@@ -46,6 +49,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [, setError] = useState<string | null>(null)
+  const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
   const shuffleMnemonic = useCallback(async () => {
@@ -103,7 +107,12 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
       setTestCount(testCount + 1)
     } else {
       setInvalidTries([...invalidTries, index])
+      shuffleMnemonic()
     }
+  }
+
+  const onCheckBoxClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHasAlreadySaved(e.target.checked)
   }
 
   return (
@@ -161,6 +170,37 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
               ),
             )}
         </Wrap>
+        <Box>
+          <Box position='relative' mb={8} mt={10}>
+            <Divider />
+            <Text
+              translation={'common.or'}
+              transform='translate(-50%, -50%)'
+              left='50%'
+              position='absolute'
+              color='gray.500'
+            />
+          </Box>
+          <Checkbox mb={4} spacing={4} onChange={onCheckBoxClick} isChecked={hasAlreadySaved}>
+            <Text
+              fontSize='sm'
+              fontWeight='bold'
+              translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
+            />
+          </Checkbox>
+          <Button
+            colorScheme='blue'
+            width='full'
+            size='md'
+            isDisabled={!hasAlreadySaved}
+            onClick={() => {
+              vault?.seal()
+              history.push(BackupPassphraseRoutes.Success)
+            }}
+          >
+            <Text translation={'common.skip'} />
+          </Button>
+        </Box>
       </ModalBody>
     </SlideTransition>
   )

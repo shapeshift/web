@@ -18,7 +18,10 @@ export const BackupPassphraseSuccess = () => (
           />
         </Box>
         <Box color='gray.500'>
-          <Text translation={'modals.shapeShift.backupPassphrase.success.description'} />
+          <Text
+            translation={'modals.shapeShift.backupPassphrase.success.description'}
+            textAlign='center'
+          />
         </Box>
       </Center>
     </ModalBody>

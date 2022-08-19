@@ -19,7 +19,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const { routes: pluginRoutes } = usePlugins()
   const groupColor = useColorModeValue('gray.300', 'gray.600')
 
-  const groupArray = useMemo(() => {
+  const navItemGroups = useMemo(() => {
     const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
     const groups = allRoutes.reduce(
       (entryMap, e) => entryMap.set(e.category, [...(entryMap.get(e.category) || []), e]),
@@ -30,9 +30,8 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
 
   return (
     <Stack width='full' flex='1 1 0%' spacing={6} {...rest}>
-      {groupArray.map((group, id) => {
-        const name = group[0]
-        const values = group[1]
+      {navItemGroups.map((group, id) => {
+        const [name, values] = group
         return (
           <Stack key={id}>
             {name && (
@@ -47,11 +46,11 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
                 translation={`navBar.${name}`}
               />
             )}
-            {values.map((item: Route, idx: number) => (
+            {values.map((item: Route, id: number) => (
               <MainNavLink
                 isCompact={isCompact}
                 as={ReactRouterLink}
-                key={idx}
+                key={id}
                 leftIcon={item.icon}
                 href={item.path}
                 to={item.path}

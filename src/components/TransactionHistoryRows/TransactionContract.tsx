@@ -47,12 +47,9 @@ export const TransactionContract = ({
     [txMetadata],
   )
   const titlePrefix = translate(
-    (() => {
-      if (txDetails.tx.data?.parser) {
-        return `transactionRow.parser.${txDetails.tx.data?.parser}.${isRevoke ? 'revoke' : i18n}`
-      }
-      return 'transactionRow.unknown'
-    })(),
+    txDetails.tx.data?.parser
+      ? `transactionRow.parser.${txDetails.tx.data?.parser}.${isRevoke ? 'revoke' : i18n}`
+      : 'transactionRow.unknown',
   )
 
   // TODO: translation

@@ -38,14 +38,18 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
-const inquireProceedWithCommits = async (commits: string[]) => {
+const inquireProceedWithCommits = async (commits: string[], action: 'create' | 'merge') => {
   console.log(chalk.blue(['', commits, ''].join('\n')))
+  const message =
+    action === 'create'
+      ? 'Do you want to create a release with these commits?'
+      : 'Do you want to merge these commits into main?'
   const questions: inquirer.QuestionCollection<{ shouldProceed: boolean }> = [
     {
       type: 'confirm',
       default: 'y',
       name: 'shouldProceed',
-      message: 'Do you want to create a release with these commits?',
+      message,
       choices: ['y', 'n'],
     },
   ]
@@ -91,7 +95,7 @@ const doRegularRelease = async () => {
   await fetch()
   const { messages, total } = await getCommits('develop')
   assertCommitsToRelease(total)
-  await inquireProceedWithCommits(messages)
+  await inquireProceedWithCommits(messages, 'create')
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
@@ -158,6 +162,9 @@ const createRelease = async () => {
 
 const mergeRelease = async () => {
   await fetch()
+  const { messages, total } = await getCommits('release')
+  assertCommitsToRelease(total)
+  await inquireProceedWithCommits(messages, 'merge')
   console.log(chalk.green('Checking out main...'))
   await git().checkout(['main'])
   console.log(chalk.green('Pulling main...'))

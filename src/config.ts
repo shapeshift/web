@@ -50,6 +50,7 @@ const validators = {
   REACT_APP_FEATURE_MULTI_CURRENCY: bool({ default: false }),
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
+  REACT_APP_FEATURE_CONSIDER_FOX_FARMING_V4_EXPIRED_FOR_TESTING: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_LITECOIN: bool({ default: false }),

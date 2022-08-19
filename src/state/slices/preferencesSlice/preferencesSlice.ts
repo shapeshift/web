@@ -12,6 +12,7 @@ export type FeatureFlags = {
   MultiCurrency: boolean
   FoxLP: boolean
   FoxFarming: boolean
+  ConsiderFoxFarmingV4ExpiredForTesting: boolean
   Avalanche: boolean
   Thor: boolean
   CowSwap: boolean
@@ -43,6 +44,8 @@ const initialState: Preferences = {
     MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
+    ConsiderFoxFarmingV4ExpiredForTesting:
+      getConfig().REACT_APP_FEATURE_CONSIDER_FOX_FARMING_V4_EXPIRED_FOR_TESTING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

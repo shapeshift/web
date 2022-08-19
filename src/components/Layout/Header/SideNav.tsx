@@ -4,7 +4,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { SideNavContent } from './SideNavContent'
 
 export const SideNav = () => {
-  const bg = useColorModeValue('white', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
     state: { isDemoWallet },
@@ -14,7 +13,6 @@ export const SideNav = () => {
     <>
       <chakra.header
         paddingTop={`env(safe-area-inset-top)`}
-        bg={bg}
         borderRightWidth={1}
         borderColor={borderColor}
         left='0'

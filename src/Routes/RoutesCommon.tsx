@@ -21,7 +21,7 @@ import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { Route as NestedRoute } from './helpers'
+import { Route as NestedRoute, RouteCategory } from './helpers'
 
 export const routes: Array<NestedRoute> = [
   {
@@ -29,12 +29,14 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
     main: Dashboard,
+    category: RouteCategory.Wallet,
   },
   {
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
     icon: <AssetsIcon />,
+    category: RouteCategory.Explore,
     routes: [
       {
         path: '/:chainId/:assetSubId',
@@ -62,6 +64,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.accounts',
     main: Accounts,
     icon: <AccountsIcon />,
+    category: RouteCategory.Wallet,
     routes: [
       {
         path: '/:accountId',
@@ -106,6 +109,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.defi',
     icon: <DefiIcon />,
     main: null,
+    category: RouteCategory.Explore,
     routes: [
       {
         path: '/',
@@ -140,6 +144,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.transactionHistory',
     icon: <TxHistoryIcon />,
     main: TransactionHistory,
+    category: RouteCategory.Wallet,
   },
   {
     path: '/flags',

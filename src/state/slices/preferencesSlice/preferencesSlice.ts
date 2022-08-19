@@ -16,7 +16,6 @@ export type FeatureFlags = {
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
-  Litecoin: boolean
   Axelar: boolean
   Zendesk: boolean
 }
@@ -46,7 +45,6 @@ const initialState: Preferences = {
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
-    Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
   },

@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
+import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
@@ -20,6 +21,7 @@ const MODALS = {
   settings: SettingsModal,
   keepKeyWipe: WipeModal,
   consentOptin: OptInModal,
+  backupNativePassphrase: BackupPassphraseModal,
 }
 
 // state

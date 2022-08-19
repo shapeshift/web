@@ -43,12 +43,12 @@ export const routes: Array<NestedRoute> = [
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
-    icon: <AssetsIcon color='inherit' />,
+    icon: <AssetsIcon />,
     routes: [
       {
         path: '/:chainId/:assetSubId',
         label: 'Overview',
-        icon: <AssetsIcon color='inherit' />,
+        icon: <AssetsIcon />,
         main: null,
         hide: true,
         routes: [

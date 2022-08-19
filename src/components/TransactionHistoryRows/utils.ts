@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { cosmos, evm, TransactionMetadata } from '@shapeshiftoss/chain-adapters'
+import { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { memoize } from 'lodash'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -17,16 +17,9 @@ const fallback = {
   precision: 18,
 }
 
-export const isTokenMetadata = (
-  txMetadata:
-    | TransactionMetadata
-    | evm.TransactionMetadata
-    | cosmos.TransactionMetadata
-    | undefined,
-): txMetadata is evm.TransactionMetadata | cosmos.TransactionMetadata =>
-  Boolean(
-    txMetadata && (txMetadata as evm.TransactionMetadata | cosmos.TransactionMetadata).assetId,
-  )
+export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
+  if (txMetadata && 'assetId' in txMetadata) return txMetadata
+}
 
 export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetTypes | null) => {
   switch (assetType) {

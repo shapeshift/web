@@ -15,11 +15,11 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -38,7 +38,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { opportunity } = useFoxEthLpBalances()
+  const { foxEthLpOpportunity: opportunity } = useFoxEth()
   const {
     state: { wallet },
   } = useWallet()
@@ -139,7 +139,13 @@ export const Status = () => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <PairIcons icons={opportunity.icons!} isSmall />
+              <PairIcons
+                icons={opportunity.icons!}
+                iconBoxSize='5'
+                h='38px'
+                p={1}
+                borderRadius={8}
+              />
               <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>

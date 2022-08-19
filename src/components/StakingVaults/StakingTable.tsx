@@ -8,6 +8,7 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetCell } from './Cells'
+import { makeProviderName } from './utils'
 
 type StakingTableProps = {
   data: EarnOpportunityType[]
@@ -22,6 +23,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     () => [
       {
         Header: '#',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         ),
@@ -33,8 +35,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
               assetId={row.original.assetId}
-              subText={row.original.provider}
+              subText={makeProviderName(row.original.provider)}
               icons={row.original.icons}
+              opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
               postFix={row.original.version && `(${row.original.version})`}
@@ -49,7 +52,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize'>{value?.replace('_', ' ')}</Tag>
+            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              {value?.replace('_', ' ')}
+            </Tag>
           </Skeleton>
         ),
       },
@@ -57,10 +62,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'APY',
         accessor: 'apy',
         isNumeric: true,
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+            <Tag
+              colorScheme={row.original.expired ? 'red' : 'green'}
+              size={{ base: 'sm', md: 'md' }}
+            >
               <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>

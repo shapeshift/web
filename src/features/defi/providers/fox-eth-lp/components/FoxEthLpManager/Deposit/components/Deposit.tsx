@@ -15,7 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -63,7 +63,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       const gasData = await getDepositGasData(deposit.cryptoAmount1, deposit.cryptoAmount2)
       if (!gasData) return
-      return bnOrZero(gasData.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+      return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositGasEstimate', error },
@@ -94,10 +94,10 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       // Check if approval is required for user address
       const lpAllowance = await allowance()
-      const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${foxAsset.precision}`)
+      const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(foxAsset.precision))
 
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount1))) {
+      // Skip approval step if user allowance is greater than or equal requested deposit amount
+      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))) {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
@@ -113,7 +113,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
           type: FoxEthLpDepositActionType.SET_APPROVE,
           payload: {
             estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-              .div(`1e${ethAsset.precision}`)
+              .div(bn(10).pow(ethAsset.precision))
               .toPrecision(),
           },
         })
@@ -157,9 +157,9 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const foxCryptoAmountAvailable = bnOrZero(foxBalance).div(`1e${foxAsset.precision}`)
+  const foxCryptoAmountAvailable = bnOrZero(foxBalance).div(bn(10).pow(foxAsset.precision))
   const foxFiatAmountAvailable = bnOrZero(foxCryptoAmountAvailable).times(foxMarketData.price)
-  const ethCryptoAmountAvailable = bnOrZero(ethBalance).div(`1e${ethAsset.precision}`)
+  const ethCryptoAmountAvailable = bnOrZero(ethBalance).div(bn(10).pow(ethAsset.precision))
   const ethFiatAmountAvailable = bnOrZero(ethCryptoAmountAvailable).times(ethMarketData.price)
 
   const handleBack = () => {

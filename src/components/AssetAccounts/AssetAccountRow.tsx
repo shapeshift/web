@@ -116,7 +116,12 @@ export const AssetAccountRow = ({
               {feeAsset.name}
             </RawText>
           )}
-          <Stack direction='row' alignContent='center' alignItems='center' gridGap={1}>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            alignContent='center'
+            alignItems='flex-start'
+            spacing={{ base: 2, md: 4 }}
+          >
             <RawText
               fontWeight='medium'
               lineHeight='short'
@@ -153,7 +158,7 @@ export const AssetAccountRow = ({
         </Flex>
       )}
 
-      <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
+      <Flex justifyContent='flex-end'>
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={fiatBalance} />
           {(isCompact || !isLargerThanMd) && (

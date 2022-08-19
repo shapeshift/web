@@ -15,6 +15,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     mode: 'onChange',
     defaultValues: {
       fiatSellAmount: undefined,
+      isExactAllowance: false,
     },
   })
 

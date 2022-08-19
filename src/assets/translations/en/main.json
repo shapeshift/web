@@ -345,7 +345,9 @@
     "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
-    "clickToConnect": "Click to connect a wallet"
+    "clickToConnect": "Click to connect a wallet",
+    "wallet": "Wallet",
+    "explore": "Explore"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",

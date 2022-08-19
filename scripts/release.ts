@@ -43,7 +43,7 @@ const inquireProceedWithCommits = async (commits: string[], action: 'create' | '
   const message =
     action === 'create'
       ? 'Do you want to create a release with these commits?'
-      : 'Do you want to merge these commits into main?'
+      : 'Do you want to merge and push these commits into main?'
   const questions: inquirer.QuestionCollection<{ shouldProceed: boolean }> = [
     {
       type: 'confirm',

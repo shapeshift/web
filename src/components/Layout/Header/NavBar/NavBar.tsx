@@ -22,7 +22,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const navItemGroups = useMemo(() => {
     const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
     const groups = allRoutes.reduce(
-      (entryMap, e) => entryMap.set(e.category, [...(entryMap.get(e.category) || []), e]),
+      (entryMap, currentRoute) => entryMap.set(e.category, [...(entryMap.get(currentRoute.category) || []), currentRoute]),
       new Map(),
     )
     return Array.from(groups.entries())

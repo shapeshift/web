@@ -52,7 +52,8 @@ export const TransactionContract = ({
       : 'transactionRow.unknown',
   )
 
-  // TODO: translation
+  // TODO(gomes): translation - we will need to revamp the prefix-suffix logic
+  // to accomodate for different languages and their syntax
   const titleSuffix = isRevoke ? ' approval' : ''
 
   const asset = useAppSelector(state =>
@@ -84,6 +85,7 @@ export const TransactionContract = ({
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
         <TxGrid compactMode={compactMode}>
           {txDetails.direction === Direction.InPlace &&
+          // TODO(gomes): add isTransactionMetadata type guard
           txMetadata &&
           txMetadata?.assetId &&
           txMetadata?.value ? (

@@ -36,7 +36,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import {
+  DisplayFeeData,
+  TradeAmountInputField,
+  TradeAsset,
+  TradeState,
+} from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -50,7 +55,7 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -58,29 +63,25 @@ import { calculateAmounts } from './calculateAmounts'
 
 const debounceTime = 1000
 
-type GetQuoteInput = {
+type GetQuoteCommon = {
   amount: string
   sellAsset: Asset
   buyAsset: Asset
   feeAsset: Asset
   action: TradeAmountInputField
-  forceQuote?: boolean
   selectedCurrencyToUsdRate: BigNumber
 }
 
-let _getQuoteArgs: GetQuoteInput
+type GetQuoteInput = {
+  forceQuote?: boolean
+} & GetQuoteCommon
 
 type DebouncedQuoteInput = {
   swapper: Swapper<ChainId>
-  amount: string
-  sellAsset: Asset
-  buyAsset: Asset
-  feeAsset: Asset
-  action: TradeAmountInputField
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
-  selectedCurrencyToUsdRate: BigNumber
-}
+  sellAssetAccount: string
+} & GetQuoteCommon
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
@@ -162,12 +163,13 @@ export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, sellTradeAsset, trade, isExactAllowance] = useWatch({
-    name: ['quote', 'sellAsset', 'trade', 'isExactAllowance'],
+  const [quote, sellTradeAsset, trade, sellAssetAccount, isExactAllowance] = useWatch({
+    name: ['quote', 'sellAsset', 'trade', 'sellAssetAccount', 'isExactAllowance'],
   }) as [
     TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
+    TradeState<KnownChainIds>['sellAssetAccount'],
     boolean,
   ]
 
@@ -237,7 +239,8 @@ export const useSwapper = () => {
   )
 
   const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, {
+    selectPortfolioCryptoBalanceByFilter(state, {
+      accountId: sellAssetAccount,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
@@ -305,6 +308,7 @@ export const useSwapper = () => {
 
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
+    if (!sellAssetAccount) throw new Error('no sellAssetAccount available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
     const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -318,7 +322,7 @@ export const useSwapper = () => {
       wallet,
     })
 
-    const tradeQuote = await (async () => {
+    const trade: Trade<KnownChainIds> = await (async () => {
       const { chainNamespace } = fromAssetId(sellAsset.assetId)
       if (isSupportedSwappingChain(sellAsset.chainId)) {
         return swapper.buildTrade({
@@ -332,7 +336,7 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-        const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
+        const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -350,8 +354,8 @@ export const useSwapper = () => {
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
     })()
 
-    await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
-    setValue('trade', tradeQuote)
+    await setFormFees({ trade, sellAsset, tradeFeeSource: swapper.name })
+    setValue('trade', trade)
   }
 
   const getTradeTxs = async (tradeResult: TradeResult): Promise<TradeTxs> => {
@@ -407,23 +411,9 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  // TODO accountSpecifier must come from dropdown during asset selection
-  // We are defaulting temporarily for development
-  const getUtxoParams = (accountSpecifiersList: AccountSpecifierMap[], sellAsset: Asset) => {
-    const accountSpecifiers = accountSpecifiersList.find(
-      specifiers => specifiers[sellAsset.chainId],
-    )
-
-    if (!accountSpecifiers)
-      throw new Error(`No UTXO account specifiers for chainId: ${sellAsset.chainId}`)
-    const accountSpecifier = accountSpecifiers[sellAsset.chainId]
-    if (!accountSpecifier) throw new Error('No UTXO account specifier')
-
-    const accountId = toAccountId({
-      chainId: sellAsset.chainId,
-      account: accountSpecifier,
-    })
-    return accountIdToUtxoParams(accountId, 0)
+  const getUtxoParams = (sellAssetAccount: string) => {
+    if (!sellAssetAccount) throw new Error('No UTXO account specifier')
+    return accountIdToUtxoParams(sellAssetAccount, 0)
   }
 
   const updateQuoteDebounced = useRef(
@@ -438,6 +428,7 @@ export const useSwapper = () => {
         wallet,
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
+        sellAssetAccount,
       }: DebouncedQuoteInput) => {
         try {
           const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
@@ -469,9 +460,8 @@ export const useSwapper = () => {
             wallet,
           })
 
-          const { chainNamespace } = fromAssetId(sellAsset.assetId)
-
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
+            const { chainNamespace } = fromAssetId(sellAsset.assetId)
             if (isSupportedSwappingChain(sellAsset.chainId)) {
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId,
@@ -484,8 +474,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
-              const { accountType, utxoParams } = getUtxoParams(accountSpecifiersList, sellAsset)
-
+              const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -544,20 +533,18 @@ export const useSwapper = () => {
   )
 
   const updateQuote = useCallback(
-    async (args: GetQuoteInput) => {
+    async ({
+      amount,
+      sellAsset,
+      buyAsset,
+      feeAsset,
+      action,
+      forceQuote,
+      selectedCurrencyToUsdRate,
+    }: GetQuoteInput) => {
       setValue('quoteError', null)
-
-      _getQuoteArgs = args
-      const {
-        amount,
-        sellAsset,
-        buyAsset,
-        feeAsset,
-        action,
-        forceQuote,
-        selectedCurrencyToUsdRate,
-      } = args
       if (!wallet || !accountSpecifiersList.length) return
+      if (!sellAssetAccount) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
       setValue('quote', undefined)
@@ -593,24 +580,22 @@ export const useSwapper = () => {
           wallet,
           accountSpecifiersList,
           selectedCurrencyToUsdRate,
+          sellAssetAccount,
         })
       }
     },
     [
+      setValue,
+      sellAssetAccount,
       wallet,
       accountSpecifiersList,
-      setValue,
-      clearErrors,
       swapperManager,
+      clearErrors,
       setError,
       toast,
       translate,
     ],
   )
-
-  const refreshQuote = useCallback(async () => {
-    if (_getQuoteArgs) await updateQuote(_getQuoteArgs)
-  }, [updateQuote])
 
   const setFormFees = async ({
     trade,
@@ -717,7 +702,6 @@ export const useSwapper = () => {
     swapperManager,
     updateQuote,
     updateTrade,
-    refreshQuote,
     executeQuote,
     getSupportedBuyAssetsFromSellAsset,
     getSupportedSellableAssets,

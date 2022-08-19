@@ -40,7 +40,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
                 textTransform='uppercase'
                 fontWeight='bold'
                 letterSpacing='wider'
-                display={{ base: 'none', xl: 'block' }}
+                display={{ base: 'none', '2xl': 'block' }}
                 translation={`navBar.${name}`}
               />
             )}

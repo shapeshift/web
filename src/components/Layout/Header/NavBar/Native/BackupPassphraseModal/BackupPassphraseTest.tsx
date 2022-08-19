@@ -45,7 +45,6 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
   const history = useHistory()
   const [testState, setTestState] = useState<TestState | null>(null)
-  const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [, setError] = useState<string | null>(null)
@@ -103,10 +102,8 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
-      setInvalidTries([])
       setTestCount(testCount + 1)
     } else {
-      setInvalidTries([...invalidTries, index])
       shuffleMnemonic()
     }
   }
@@ -160,8 +157,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
                   flex='1'
                   minW='30%'
                   variant='ghost-filled'
-                  colorScheme={invalidTries.includes(index) ? 'gray' : 'blue'}
-                  isDisabled={invalidTries.includes(index)}
+                  colorScheme='blue'
                   onClick={() => handleClick(index)}
                 >
                   {word}

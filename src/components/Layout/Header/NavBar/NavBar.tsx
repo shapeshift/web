@@ -1,5 +1,6 @@
 import { Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
@@ -18,12 +19,14 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const { routes: pluginRoutes } = usePlugins()
   const groupColor = useColorModeValue('gray.300', 'gray.600')
 
-  const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
-  const groups = allRoutes.reduce(
-    (entryMap, e) => entryMap.set(e.category, [...(entryMap.get(e.category) || []), e]),
-    new Map(),
-  )
-  const groupArray = Array.from(groups.entries())
+  const groupArray = useMemo(() => {
+    const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
+    const groups = allRoutes.reduce(
+      (entryMap, e) => entryMap.set(e.category, [...(entryMap.get(e.category) || []), e]),
+      new Map(),
+    )
+    return Array.from(groups.entries())
+  }, [pluginRoutes])
 
   return (
     <Stack width='full' flex='1 1 0%' spacing={6} {...rest}>

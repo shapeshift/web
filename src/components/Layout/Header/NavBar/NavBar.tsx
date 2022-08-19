@@ -24,7 +24,6 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
     new Map(),
   )
   const groupArray = Array.from(groups.entries())
-  console.info(groupArray)
 
   return (
     <Stack width='full' flex='1 1 0%' spacing={6} {...rest}>

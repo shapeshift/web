@@ -1,4 +1,4 @@
-import { Stack, StackProps } from '@chakra-ui/react'
+import { Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
@@ -16,6 +16,7 @@ type NavBarProps = {
 export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
+  const groupColor = useColorModeValue('gray.300', 'gray.600')
 
   const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
   const groups = allRoutes.reduce(
@@ -35,7 +36,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
             {name && (
               <Text
                 px={4}
-                color='gray.500'
+                color={groupColor}
                 fontSize='xs'
                 textTransform='uppercase'
                 fontWeight='bold'

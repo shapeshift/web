@@ -7,7 +7,7 @@ export const BackupPassphraseSuccess = () => (
   <SlideTransition>
     <ModalCloseButton />
     <ModalBody>
-      <Center flexDir='column' my={8}>
+      <Center flexDir='column' mt={8}>
         <Circle bg='green.500' size='50px'>
           <CheckIcon color='gray.900' fontSize='2xl' />
         </Circle>

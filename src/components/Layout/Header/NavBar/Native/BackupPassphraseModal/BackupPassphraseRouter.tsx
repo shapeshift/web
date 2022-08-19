@@ -17,18 +17,15 @@ export const BackupPassphraseRouter = ({ vault, setVault }: BackupPassphraseRout
   return (
     <AnimatePresence exitBeforeEnter>
       <Switch location={location} key={location.key}>
-        <Route
-          path={BackupPassphraseRoutes.Info}
-          render={() => <BackupPassphraseInfo vault={vault} />}
-        />
-        <Route
-          path={BackupPassphraseRoutes.Password}
-          render={() => <BackupPassphrasePassword setVault={setVault} />}
-        />
-        <Route
-          path={BackupPassphraseRoutes.Test}
-          render={() => <BackupPassphraseTest vault={vault} />}
-        />
+        <Route path={BackupPassphraseRoutes.Info}>
+          <BackupPassphraseInfo vault={vault} />
+        </Route>
+        <Route path={BackupPassphraseRoutes.Password}>
+          <BackupPassphrasePassword setVault={setVault} />
+        </Route>
+        <Route path={BackupPassphraseRoutes.Test}>
+          <BackupPassphraseTest vault={vault} />
+        </Route>
         <Route path={BackupPassphraseRoutes.Success} component={BackupPassphraseSuccess} />
         <Redirect to={BackupPassphraseRoutes.Password} />
       </Switch>

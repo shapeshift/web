@@ -50,7 +50,7 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
               flexBasis='31%'
               justifyContent='flex-start'
               fontSize='md'
-              key={word}
+              key={index}
               colorScheme='blue'
             >
               <Code mr={2}>{index + 1}</Code>

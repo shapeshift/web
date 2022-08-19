@@ -15,7 +15,7 @@ import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
@@ -28,7 +28,7 @@ const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
-const ordinalSuffix = (n: number) => {
+const makeOrdinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
 }
 
@@ -45,8 +45,8 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
-  const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
+  const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
@@ -95,6 +95,8 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
     }
   }, [testCount, history, revoker, vault])
 
+  if (!testState) return null
+
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
       setInvalidTries([])
@@ -104,7 +106,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
     }
   }
 
-  return !testState ? null : (
+  return (
     <SlideTransition>
       <IconButton
         variant='ghost'
@@ -128,9 +130,9 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
           />{' '}
           <Tag colorScheme='green'>
             {translate(
-              `walletProvider.shapeShift.testPhrase.${testState.targetWordIndex + 1}${ordinalSuffix(
-                testState.targetWordIndex + 1,
-              )}`,
+              `walletProvider.shapeShift.testPhrase.${
+                testState.targetWordIndex + 1
+              }${makeOrdinalSuffix(testState.targetWordIndex + 1)}`,
             )}
             <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
           </Tag>{' '}

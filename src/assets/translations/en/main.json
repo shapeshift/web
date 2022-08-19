@@ -571,6 +571,20 @@
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
+      },
+      "backupPassphrase": {
+        "menuItem": "Back up my wallet",
+        "enterPassword": "Enter your password to continue",
+        "testTitle": "Verify Your Secret Recovery Phrase",
+        "info": {
+          "title": "Your Secret Recovery Phrase",
+          "description": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
+          "warning": "Note: if you lose your Secret Recovery Phrase, ShapeShift can't help you recover your wallet and your funds will be lost forever."
+        },
+        "success": {
+          "title": "Success",
+          "description": "You have backed up your wallet. Remember to store your Secret Recovery Phrase somewhere safe."
+        }
       }
     },
     "stake": {

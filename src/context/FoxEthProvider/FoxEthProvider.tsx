@@ -11,7 +11,12 @@ import {
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { getOpportunityData } from 'features/defi/providers/fox-farming/api'
-import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
+import {
+  FOX_FARMING_V1_CONTRACT_ADDRESS,
+  FOX_FARMING_V2_CONTRACT_ADDRESS,
+  FOX_FARMING_V3_CONTRACT_ADDRESS,
+  FOX_FARMING_V4_CONTRACT_ADDRESS,
+} from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import React, { createContext, useContext, useMemo } from 'react'
@@ -32,6 +37,11 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
+const icons = [
+  'https://assets.coincap.io/assets/icons/eth@2x.png',
+  'https://assets.coincap.io/assets/icons/fox@2x.png',
+]
+
 const lpOpportunity: EarnOpportunityType = {
   provider: DefiProvider.FoxEthLP,
   contractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -43,15 +53,11 @@ const lpOpportunity: EarnOpportunityType = {
   chainId: ethChainId,
   isLoaded: false,
   type: DefiType.LiquidityPool,
-  icons: [
-    'https://assets.coincap.io/assets/icons/eth@2x.png',
-    'https://assets.coincap.io/assets/icons/fox@2x.png',
-  ],
+  icons,
 }
 
-const v4FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+const baseFarmingOpportunity = {
   provider: DefiProvider.FoxFarming,
-  contractAddress: FOX_FARMING_CONTRACT_ADDRESS,
   rewardAddress: FOX_TOKEN_CONTRACT_ADDRESS,
   tvl: '',
   assetId: foxEthLpAssetId,
@@ -61,11 +67,31 @@ const v4FarmingOpportunity: FoxFarmingEarnOpportunityType = {
   chainId: ethChainId,
   isLoaded: false,
   type: DefiType.Farming,
-  icons: [
-    'https://assets.coincap.io/assets/icons/eth@2x.png',
-    'https://assets.coincap.io/assets/icons/fox@2x.png',
-  ],
+  icons,
+}
+
+const v4FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+  ...baseFarmingOpportunity,
+  contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
   opportunityName: 'Fox Farming V4',
+}
+
+const v3FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+  ...baseFarmingOpportunity,
+  contractAddress: FOX_FARMING_V3_CONTRACT_ADDRESS,
+  opportunityName: 'Fox Farming V3',
+}
+
+const v2FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+  ...baseFarmingOpportunity,
+  contractAddress: FOX_FARMING_V2_CONTRACT_ADDRESS,
+  opportunityName: 'Fox Farming V2',
+}
+
+const v1FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+  ...baseFarmingOpportunity,
+  contractAddress: FOX_FARMING_V1_CONTRACT_ADDRESS,
+  opportunityName: 'Fox Farming V1',
 }
 
 type FoxEthProviderProps = {
@@ -121,8 +147,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
     FoxFarmingEarnOpportunityType[]
-  >([v4FarmingOpportunity])
-  const { isLpAprLoaded, lpApr } = useLpApr()
+  >([v4FarmingOpportunity, v3FarmingOpportunity, v2FarmingOpportunity, v1FarmingOpportunity])
+  const { lpApr } = useLpApr()
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const foxAssetPrecision = useAppSelector(state => selectAssetById(state, foxAssetId)).precision
@@ -161,10 +187,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             ...opportunity,
             cryptoAmount: balances.cryptoBalance,
             fiatAmount: balances.fiatBalance,
-            isLoaded: isLpAprLoaded,
+            isLoaded: true,
             unclaimedRewards: balances.unclaimedRewards,
             expired,
-            apy: lpApr ? bnOrZero(apr).plus(lpApr).toString() : '0',
+            apy: lpApr && !expired ? bnOrZero(apr).plus(lpApr).toString() : '0',
             tvl,
           }
         }),
@@ -188,7 +214,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     lpAssetPrecision,
     foxMarketData.price,
     foxAssetPrecision,
-    isLpAprLoaded,
     lpApr,
   ])
 

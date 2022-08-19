@@ -1,16 +1,10 @@
 import { getConfig } from 'config'
-import {
-  FaFlag,
-  FaHistory,
-  FaLock,
-  FaRocket,
-  FaTable,
-  FaTractor,
-  FaWallet,
-  FaWater,
-} from 'react-icons/fa'
+import { FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
+import { DefiIcon } from 'components/Icons/DeFi'
+import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -40,12 +34,12 @@ export const routes: Array<NestedRoute> = [
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
-    icon: <AssetsIcon color='inherit' />,
+    icon: <AssetsIcon />,
     routes: [
       {
         path: '/:chainId/:assetSubId',
         label: 'Overview',
-        icon: <AssetsIcon color='inherit' />,
+        icon: <AssetsIcon />,
         main: null,
         hide: true,
         routes: [
@@ -67,7 +61,7 @@ export const routes: Array<NestedRoute> = [
     path: '/accounts',
     label: 'navBar.accounts',
     main: Accounts,
-    icon: <FaWallet color='inherit' />,
+    icon: <AccountsIcon />,
     routes: [
       {
         path: '/:accountId',
@@ -110,7 +104,7 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/defi',
     label: 'navBar.defi',
-    icon: <FaRocket />,
+    icon: <DefiIcon />,
     main: null,
     routes: [
       {
@@ -144,7 +138,7 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
-    icon: <FaHistory />,
+    icon: <TxHistoryIcon />,
     main: TransactionHistory,
   },
   {

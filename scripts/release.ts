@@ -60,10 +60,7 @@ const createDraftPR = async (): Promise<void> => {
   const title = `chore: release v${nextVersion} [DO NOT MERGE]`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
-  // TODO(0xdef1cafe): remove logging
-  console.log(chalk.yellow(command))
-  // TODO(0xdef1cafe): uncomment
-  // await pify(exec)(command)
+  await pify(exec)(command)
   console.log(chalk.green('Draft PR created.'))
   exit(chalk.green(`Release ${nextVersion} created.`))
 }
@@ -106,8 +103,7 @@ const doRegularRelease = async () => {
   // this is required as the fleek environment is pointed at this specific branch
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
-  // TODO(0xdef1cafe): remove --dry-run
-  await git().push(['--dry-run', '--force', 'origin', 'release'])
+  await git().push(['--force', 'origin', 'release'])
   await createDraftPR()
   exit()
 }

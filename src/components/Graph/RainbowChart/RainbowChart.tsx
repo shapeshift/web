@@ -23,11 +23,16 @@ export type RainbowChartProps = {
 }
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
-export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height }) => {
+export const RainbowChart: React.FC<RainbowChartProps> = ({
+  data,
+  width,
+  height,
+  margin = { top: 0, right: 0, bottom: 0, left: 0 },
+}) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
-  const margin = { top: 20, right: 0, bottom: 37, left: 0 }
+  const magicXAxisOffset = 37
 
   type Accessor = (d: RainbowData) => number
   const accessors = useMemo(() => {
@@ -54,23 +59,24 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
     fill: labelColor,
     letterSpacing: 0,
   }
-  const minY = Math.min(...data.map(d => d.total))
-  const maxY = Math.max(...data.map(d => d.total))
-  console.info(`minY: ${minY} maxY: ${maxY}`)
+
+  const totals = useMemo(() => data.map(d => d.total), [data])
   const yScale = {
     type: 'linear' as const,
-    range: [height, 0],
-    domain: [minY, maxY],
+    range: [height - 44, 0], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+    domain: [Math.min(...totals), Math.max(...totals)],
+    nice: true,
   }
 
-  const tooltipBg = useColorModeValue('white', colors.gray[800])
-  const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
+  const tooltipBg = useColorModeValue('white', colors.gray[700])
+  const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[600])
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
         <AreaSeries
+          key={assetId}
           data={data}
           dataKey={assetId}
           fill={assets[assetId].color}
@@ -86,10 +92,13 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
         <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-          <AreaStack curve={curveLinear}>{areaLines}</AreaStack>
+          <AreaStack order='reverse' curve={curveLinear}>
+            {areaLines}
+          </AreaStack>
           <Axis
             key={'date'}
             orientation={'bottom'}
+            top={height - magicXAxisOffset}
             hideTicks
             hideAxisLine
             numTicks={5}

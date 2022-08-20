@@ -1,11 +1,14 @@
+import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import { ScaleSVG } from '@visx/responsive'
 import { AreaSeries, AreaStack, Axis, XYChart } from '@visx/xychart'
-import { omit } from 'lodash'
+import { extent, Numeric } from 'd3-array'
+import omit from 'lodash/omit'
 import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { RainbowData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { selectAssets } from 'state/slices/selectors'
+import { colors } from 'theme/colors'
 
 export type RainbowChartProps = {
   data: RainbowData[]
@@ -29,7 +32,20 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
     }, initial)
   }, [assetIds])
 
-  const xScale = { type: 'band', paddingInner: 0.0 } as const
+  const xScale = {
+    type: 'time' as const,
+    range: [0, width] as [Numeric, Numeric],
+    domain: extent(data, d => new Date(d.date)) as [Date, Date],
+  }
+
+  const labelColor = useColorModeValue(colors.gray[300], colors.gray[700])
+  const tickLabelProps = {
+    textAnchor: 'middle' as const,
+    verticalAnchor: 'middle' as const,
+    fontSize: 12,
+    fontWeight: 'bold',
+    fill: labelColor,
+  }
   const yScale = { type: 'linear' } as const
 
   const areaLines = useMemo(
@@ -54,7 +70,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, he
       <ScaleSVG width={width} height={height}>
         <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
           <AreaStack curve={curveLinear}>{areaLines}</AreaStack>
-          <Axis key={'date'} orientation={'bottom'} />
+          <Axis
+            key={'date'}
+            orientation={'bottom'}
+            hideTicks
+            hideAxisLine
+            numTicks={5}
+            tickLabelProps={() => tickLabelProps}
+          />
         </XYChart>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         {/* <Bar

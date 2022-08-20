@@ -34,7 +34,7 @@ export const Portfolio = () => {
   const isLoaded = !loading
 
   const isRainbowChartsEnabled = useFeatureFlag('RainbowCharts')
-  const [isRainbowChart, setIsRainbowChart] = useState(true)
+  const [isRainbowChart, setIsRainbowChart] = useState(isRainbowChartsEnabled)
   const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
 
   return (

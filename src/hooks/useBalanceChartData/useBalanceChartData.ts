@@ -297,17 +297,18 @@ export const bucketsToChartData: BucketsToChartData = buckets => {
 
   const result = buckets.reduce((acc, bucket) => {
     const date = bucket.end.valueOf()
-    const emptyBucket: Record<AssetId, number> = {}
-    const bucketFiatNumber = Object.entries(bucket.balance.fiat).reduce(
+    const initial: Record<'total' | AssetId, number> = { total: 0 }
+    const bucketByAssetIdAndTotal = Object.entries(bucket.balance.fiat).reduce(
       (acc, [assetId, fiatBalance]) => {
-        acc[assetId] = fiatBalance.decimalPlaces(2).toNumber()
+        const assetFiatBalance = fiatBalance.decimalPlaces(2).toNumber()
+        acc[assetId] = assetFiatBalance
+        acc.total += assetFiatBalance
         return acc
       },
-      emptyBucket,
+      initial,
     )
-    const price = 0
-    const totalData = { date, price }
-    const rainbowData = { date, ...bucketFiatNumber }
+    const totalData = { date, price: bucketByAssetIdAndTotal.total }
+    const rainbowData = { date, ...bucketByAssetIdAndTotal }
     acc.total.push(totalData)
     acc.rainbow.push(rainbowData)
     return acc

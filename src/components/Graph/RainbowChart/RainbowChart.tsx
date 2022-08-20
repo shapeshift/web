@@ -16,7 +16,7 @@ export type RainbowChartProps = {
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
 export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width = 10, height, margin }) => {
-  const assetIds = useMemo(() => Object.keys(omit(data[0], 'date')), [data])
+  const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
 
   type Accessor = (d: RainbowData) => number

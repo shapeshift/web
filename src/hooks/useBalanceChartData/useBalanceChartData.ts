@@ -319,6 +319,7 @@ export const bucketsToChartData: BucketsToChartData = buckets => {
 
 export type RainbowData = {
   date: number
+  total: number
   [k: AssetId]: number
 }
 

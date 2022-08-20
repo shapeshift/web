@@ -118,7 +118,7 @@ const WalletButton: FC<WalletButtonProps> = ({
             pr='2'
             shouldShorten={shouldShorten}
             bgColor={bgColor}
-            address={walletLabel}
+            value={walletLabel}
           />
         ) : (
           <RawText>{walletInfo?.name}</RawText>

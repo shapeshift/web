@@ -128,7 +128,7 @@ export const ClaimStatus = () => {
               <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
               <Row.Value>
                 <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
-                  <MiddleEllipsis address={txid} />
+                  <MiddleEllipsis value={txid} />
                 </Link>
               </Row.Value>
             </Row>
@@ -150,7 +150,7 @@ export const ClaimStatus = () => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
-                <MiddleEllipsis address={userAddress} />
+                <MiddleEllipsis value={userAddress} />
               </Link>
             </Row.Value>
           </Row>

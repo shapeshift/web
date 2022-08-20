@@ -1,7 +1,7 @@
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import { ScaleSVG } from '@visx/responsive'
-import { AreaSeries, AreaStack, Axis, XYChart } from '@visx/xychart'
+import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
 import { extent, Numeric } from 'd3-array'
 import omit from 'lodash/omit'
 import React, { useMemo } from 'react'
@@ -78,6 +78,19 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
             numTicks={5}
             tickLabelProps={() => tickLabelProps}
           />
+          <Tooltip<RainbowData>
+            showVerticalCrosshair
+            verticalCrosshairStyle={{
+              stroke: colors.blue[500],
+              strokeWidth: 2,
+              opacity: 0.5,
+              strokeDasharray: '5,2',
+              pointerEvents: 'none',
+            }}
+            renderTooltip={({ tooltipData }) => {
+              return 'unimplemented'
+            }}
+          ></Tooltip>
         </XYChart>
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         {/* <Bar

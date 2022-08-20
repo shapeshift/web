@@ -54,7 +54,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
     fill: labelColor,
     letterSpacing: 0,
   }
-  const yScale = { type: 'linear' } as const
+  const minY = Math.min(...data.map(d => d.total))
+  const maxY = Math.max(...data.map(d => d.total))
+  console.info(`minY: ${minY} maxY: ${maxY}`)
+  const yScale = {
+    type: 'linear' as const,
+    range: [height, 0],
+    domain: [minY, maxY],
+  }
 
   const tooltipBg = useColorModeValue('white', colors.gray[800])
   const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[700])

@@ -1,7 +1,7 @@
-import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
+import { Box, Button, Skeleton, Stack, Stat, StatArrow, StatNumber, Switch } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
@@ -9,6 +9,7 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioAssetIds,
@@ -32,6 +33,10 @@ export const Portfolio = () => {
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
+  const isRainbowChartsEnabled = useFeatureFlag('RainbowCharts')
+  const [isRainbowChart, setIsRainbowChart] = useState(true)
+  const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
+
   return (
     <Stack spacing={6} width='full'>
       <Card variant='footer-stub'>
@@ -49,6 +54,19 @@ export const Portfolio = () => {
                 <Text translation='dashboard.portfolio.portfolioBalance' />
               </Skeleton>
             </Card.Heading>
+            {isRainbowChartsEnabled && (
+              <Button
+                size={'sm'}
+                flexDirection='row'
+                onClick={toggleChartType}
+                variant='outline'
+                mt={2}
+              >
+                <Text translation='dashboard.portfolio.totalChart' />
+                <Switch isChecked={isRainbowChart} pointerEvents='none' ml={2} mr={2} />
+                <Text translation='dashboard.portfolio.rainbowChart' />
+              </Button>
+            )}
 
             <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
               <Skeleton isLoaded={isLoaded}>

@@ -86,6 +86,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "Rainbow 🌈",
+      "totalChart": "💰 Total",
       "addAsset": "Add Asset",
       "yourAssets": "Your Assets",
       "asset": "Asset",

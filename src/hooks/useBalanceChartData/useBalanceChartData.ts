@@ -354,6 +354,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     makeEmptyBalanceChartData(),
   )
 
+  // TODO(0xdef1cafe): use object keys of balances if we want to hide assets below balance threshold from rainbow charts
   const balances = useAppSelector(state =>
     selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
   )

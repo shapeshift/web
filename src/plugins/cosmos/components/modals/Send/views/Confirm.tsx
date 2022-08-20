@@ -86,7 +86,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis address={address} />
+              <MiddleEllipsis value={address} />
             </Row.Value>
           </Row>
           <Row>

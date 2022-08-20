@@ -23,7 +23,7 @@ const EditControls: React.FC<{ value: string }> = ({ value }) => {
     </ButtonGroup>
   ) : (
     <Stack direction='row'>
-      <MiddleEllipsis address={value} />
+      <MiddleEllipsis value={value} />
       <IconButton
         size='sm'
         aria-label='Edit Address'

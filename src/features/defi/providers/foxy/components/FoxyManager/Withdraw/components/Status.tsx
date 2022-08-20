@@ -129,7 +129,7 @@ export const Status = () => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis address={state.userAddress || ''} />
+            <MiddleEllipsis value={state.userAddress || ''} />
           </Row.Value>
         </Row>
         <Row variant='gutter'>

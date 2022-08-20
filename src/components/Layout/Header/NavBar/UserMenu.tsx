@@ -72,6 +72,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
+      setWalletLabel('')
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {
@@ -117,7 +118,7 @@ const WalletButton: FC<WalletButtonProps> = ({
             pr='2'
             shouldShorten={shouldShorten}
             bgColor={bgColor}
-            address={walletLabel}
+            value={walletLabel}
           />
         ) : (
           <RawText>{walletInfo?.name}</RawText>

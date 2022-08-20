@@ -16,6 +16,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import { getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -120,7 +121,8 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsBuy: true,
     supportsSell: true,
     getBuyAndSellList: async () => {
-      return [[], []]
+      const mtPelerinAssets = await getMtPelerinAssets()
+      return [mtPelerinAssets, mtPelerinAssets]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       moduleLogger.error({ fn: 'MtPelerin onSubmit' }, 'Not implemented')

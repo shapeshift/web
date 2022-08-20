@@ -86,7 +86,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.8.2",
     "@shapeshiftoss/asset-service": "^7.2.0",
-    "@shapeshiftoss/caip": "^6.12.0",
+    "@shapeshiftoss/caip": "file:/Users/johnmurphy/Documents/Mac-Programming/lib/packages/caip",
     "@shapeshiftoss/chain-adapters": "^7.15.1",
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.29.0",

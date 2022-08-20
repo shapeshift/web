@@ -1,13 +1,18 @@
+import { Stack, Text } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import { ScaleSVG } from '@visx/responsive'
 import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
 import { extent, Numeric } from 'd3-array'
+import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
+import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { RainbowData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets, selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 export type RainbowChartProps = {
@@ -19,6 +24,7 @@ export type RainbowChartProps = {
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
 export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height }) => {
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
   const margin = { top: 20, right: 0, bottom: 37, left: 0 }
@@ -50,6 +56,10 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
   }
   const yScale = { type: 'linear' } as const
 
+  const tooltipBg = useColorModeValue('white', colors.gray[800])
+  const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
+  const tooltipColor = useColorModeValue(colors.gray[800], 'white')
+
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
@@ -79,6 +89,8 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
             tickLabelProps={() => tickLabelProps}
           />
           <Tooltip<RainbowData>
+            applyPositionStyle
+            unstyled
             showVerticalCrosshair
             verticalCrosshairStyle={{
               stroke: colors.blue[500],
@@ -88,7 +100,32 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
               pointerEvents: 'none',
             }}
             renderTooltip={({ tooltipData }) => {
-              return 'unimplemented'
+              const { datum, key: assetId } = tooltipData?.nearestDatum!
+              const price = datum[assetId]
+              const { date } = datum
+              const asset = assets[assetId]!
+              const { symbol } = asset
+              return (
+                <Stack
+                  borderRadius={'lg'}
+                  borderColor={tooltipBorder}
+                  borderWidth={1}
+                  color={tooltipColor}
+                  bgColor={tooltipBg}
+                  direction='column'
+                  spacing={0}
+                  p={2}
+                >
+                  <Stack direction='row' alignItems={'center'}>
+                    <AssetIcon assetId={assetId} size='2xs' />
+                    <Text fontWeight='bold'>{symbol}</Text>
+                  </Stack>
+                  <Amount.Fiat value={price} fontWeight='bold' />
+                  <Text fontSize={'xs'} color={colors.gray[500]}>
+                    {dayjs(date).locale(selectedLocale).format('LLL')}
+                  </Text>
+                </Stack>
+              )
             }}
           ></Tooltip>
         </XYChart>
@@ -127,31 +164,6 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
           />
         </Group> */}
       </ScaleSVG>
-      {/* {tooltipData && (
-        <div>
-          <TooltipWithBounds
-            key={Math.random()}
-            top={tooltipTop - 12}
-            left={tooltipLeft}
-            style={{
-              ...defaultTooltipStyles,
-              background: tooltipBg,
-              padding: '0.5rem',
-              border: `1px solid ${tooltipBorder}`,
-              color: tooltipColor,
-            }}
-          >
-            <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>
-              <li>
-                <Amount.Fiat fontWeight='bold' fontSize='lg' my={2} value={tooltipData.price} />
-              </li>
-              <li style={{ paddingBottom: '0.25rem', fontSize: '12px', color: colors.gray[500] }}>
-                {dayjs(getDate(tooltipData)).locale(selectedLocale).format('LLL')}
-              </li>
-            </ul>
-          </TooltipWithBounds>
-        </div>
-      )} */}
     </div>
   )
 }

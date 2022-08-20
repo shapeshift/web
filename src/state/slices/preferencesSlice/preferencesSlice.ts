@@ -9,7 +9,6 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
-  MultiCurrency: boolean
   FoxLP: boolean
   FoxFarming: boolean
   Avalanche: boolean
@@ -38,7 +37,6 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,

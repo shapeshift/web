@@ -15,6 +15,7 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
@@ -183,8 +184,8 @@ export const selectPortfolioFiatAccountBalances = createSelector(
             const precision = assetsById[assetId]?.precision
             const price = marketData[assetId]?.price ?? 0
             const cryptoValue = fromBaseUnit(cryptoBalance, precision)
-            const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatbalance
+            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+            acc[assetId] = fiatBalance
 
             return acc
           },
@@ -609,6 +610,21 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
       acc[accountId] = sortedAssetsByFiatBalances
       return acc
     }, {})
+  },
+)
+
+export const selectHighestFiatBalanceAccountByAssetId = createSelector(
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectAssetIdParamFromFilter,
+  (accountSpecifierAssetValues, assetId): AccountSpecifier | undefined => {
+    const accountValueMap = Object.entries(accountSpecifierAssetValues).reduce((acc, [k, v]) => {
+      const assetValue = v[assetId]
+      return assetValue ? acc.set(k, assetValue) : acc
+    }, new Map<AccountSpecifier, string>())
+    const highestBalanceAccountToAmount = maxBy([...accountValueMap], ([_, v]) =>
+      bnOrZero(v).toNumber(),
+    )
+    return highestBalanceAccountToAmount?.[0]
   },
 )
 

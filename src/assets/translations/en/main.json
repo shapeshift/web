@@ -377,6 +377,8 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -396,7 +398,9 @@
         "claimWithdraw": "Claim Withdraw"
       },
       "erc20": {
-        "approve": "Approve"
+        "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞"
       }
     },
     "unknown": "Transaction"
@@ -1200,7 +1204,8 @@
     }
   },
   "accounts": {
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "selectAccount": "Select an Account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1254,6 +1259,7 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
+    "approvalAmount": "Approval Amount",
     "unknownType": "Transaction",
     "from": "From",
     "to": "To",

@@ -1,8 +1,8 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
-import { CowTrade } from '@shapeshiftoss/swapper'
+import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY = 'BUY',
@@ -23,17 +23,20 @@ export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSour
 
 export type TradeState<C extends ChainId> = {
   sellAsset: TradeAsset | undefined
+  sellAssetAccount: AccountSpecifier | undefined
+  selectedAssetAccount: AccountSpecifier | undefined
   buyAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
   sellAssetFiatRate: string
   buyAssetFiatRate: string
   feeAssetFiatRate: string
   fees?: DisplayFeeData<C>
-  action?: TradeAmountInputField
+  action: TradeAmountInputField | undefined
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
   quoteError: string | null
+  amount: string | null
 }
 
 export type TS = TradeState<KnownChainIds.EthereumMainnet>
@@ -44,4 +47,5 @@ export enum TradeRoutePaths {
   Approval = '/trade/approval',
   SellSelect = '/trade/select/sell',
   BuySelect = '/trade/select/buy',
+  AccountSelect = '/trade/select/account',
 }

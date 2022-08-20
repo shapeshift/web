@@ -12,7 +12,6 @@ export default function register(): Plugins {
       'litecoinChainAdapter',
       {
         name: 'litecoinChainAdapter',
-        featureFlag: 'Litecoin',
         providers: {
           chainAdapters: [
             [

@@ -8,6 +8,7 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
@@ -36,19 +37,30 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   // fetch price history for this asset
   useFetchPriceHistories({ assetIds, timeframe })
 
-  const data = useAppSelector(state =>
+  const priceData = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
   )
 
-  useEffect(() => setPercentChange(calculatePercentChange(data)), [data, setPercentChange])
+  useEffect(
+    () => setPercentChange(calculatePercentChange(priceData)),
+    [priceData, setPercentChange],
+  )
 
   const loading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
 
+  const data = useMemo(
+    (): BalanceChartData => ({
+      total: priceData,
+      rainbow: [],
+    }),
+    [priceData],
+  )
+
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  if (!loading && !data.length)
+  if (!loading && !priceData.length)
     return (
       <Box p={8}>
         <Alert status='info' variant='subtle' borderRadius='lg' pl={2}>

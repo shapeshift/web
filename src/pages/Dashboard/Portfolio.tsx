@@ -93,6 +93,7 @@ export const Portfolio = () => {
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
+          isRainbowChart={isRainbowChart}
         />
       </Card>
       <Card>

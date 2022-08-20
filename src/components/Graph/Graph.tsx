@@ -1,27 +1,28 @@
 import { Center, Fade, SlideFade } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/types'
 import { ParentSize } from '@visx/responsive'
+import { isEmpty } from 'lodash'
 import { useMemo } from 'react'
+import { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 import { RainbowChart } from './RainbowChart/RainbowChart'
 
 type GraphProps = {
-  data: HistoryData[] | null
+  data: BalanceChartData
   isLoaded?: boolean
   loading?: boolean
   color?: string
-  rainbow?: boolean
+  isRainbowChart?: boolean
 }
 
-export const Graph = ({ data, isLoaded, loading, color, rainbow }: GraphProps) => {
+export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, isRainbowChart }) => {
   return useMemo(() => {
+    const { total, rainbow } = data
     return (
       <ParentSize debounceTime={10}>
         {parent => {
           const primaryChartProps = {
-            data: data ?? [],
             height: parent.height,
             width: parent.width,
             color,
@@ -38,17 +39,17 @@ export const Graph = ({ data, isLoaded, loading, color, rainbow }: GraphProps) =
                 <GraphLoading />
               </Center>
             </Fade>
-          ) : data?.length ? (
+          ) : !isEmpty(data) ? (
             <SlideFade in={!loading}>
-              {rainbow ? (
-                <RainbowChart {...primaryChartProps} />
+              {isRainbowChart ? (
+                <RainbowChart {...primaryChartProps} data={rainbow} />
               ) : (
-                <PrimaryChart {...primaryChartProps} />
+                <PrimaryChart {...primaryChartProps} data={total} />
               )}
             </SlideFade>
           ) : null
         }}
       </ParentSize>
     )
-  }, [color, data, isLoaded, loading, rainbow])
+  }, [color, data, isLoaded, loading, isRainbowChart])
 }

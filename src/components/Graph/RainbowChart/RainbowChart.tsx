@@ -56,8 +56,6 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({ data, width, height 
         <AreaSeries
           data={data}
           dataKey={assetId}
-          stroke={assets[assetId].color}
-          strokeWidth={2}
           fill={assets[assetId].color}
           fillOpacity={0.1}
           xAccessor={accessors.x[assetId]}

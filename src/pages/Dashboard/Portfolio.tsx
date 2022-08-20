@@ -84,7 +84,7 @@ export const Portfolio = () => {
               </Skeleton>
             )}
           </Box>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
@@ -95,6 +95,19 @@ export const Portfolio = () => {
           setPercentChange={setPercentChange}
           isRainbowChart={isRainbowChart}
         />
+        <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
+          <TimeControls
+            onChange={setTimeframe}
+            defaultTime={timeframe}
+            buttonGroupProps={{
+              display: 'flex',
+              width: 'full',
+              justifyContent: 'space-between',
+              px: 6,
+              py: 4,
+            }}
+          />
+        </Skeleton>
       </Card>
       <Card>
         <Card.Header>

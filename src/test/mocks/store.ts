@@ -58,7 +58,6 @@ export const mockStore: ReduxState = {
       JunoPay: false,
       Pendo: false,
       Litecoin: false,
-      BitcoinCash: false,
       Axelar: false,
       Zendesk: false,
     },

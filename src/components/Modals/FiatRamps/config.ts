@@ -16,7 +16,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
-import { getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
+import { getMtPelerinAssets, getMtPelerinLink } from './fiatRampProviders/mtpelerin'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -126,7 +126,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return [mtPelerinAssets, mtPelerinAssets]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
-      moduleLogger.error({ fn: 'MtPelerin onSubmit' }, 'Not implemented')
+      try {
+        const ticker = adapters.AssetIdToMtPelerinTicker(assetId)
+        if(!ticker) throw new Error('Asset not supported by MtPelerin')
+        const mtPelerinCheckoutUrl = getMtPelerinLink(action, ticker, address)
+        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+      } catch(err) {
+        moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
+      }
     },
   }
 }

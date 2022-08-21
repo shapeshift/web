@@ -26,10 +26,10 @@ export async function getMtPelerinAssets()  {
     return fiatRampAssets;
 }
 
-export async function getMtPelerinLink(
+export function getMtPelerinLink(
     buyOrSell: string, 
     destinationCurrency: string,
     address: string
-): Promise<string> {
+): string {
     return `https://${buyOrSell}.mtpelerin.com/?type=direct-link&bdr=${destinationCurrency}&addr=${address}`;
 }

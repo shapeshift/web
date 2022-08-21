@@ -1,7 +1,7 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useEffect } from 'react'
+import { useContext, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -13,11 +13,10 @@ import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { CosmosClaimActionType, TxStatus } from '../ClaimCommon'
+import { TxStatus } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
 
 const StatusInfo = {
@@ -37,10 +36,6 @@ const StatusInfo = {
   },
 }
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'ClaimStatus'],
-})
-
 export const Status = () => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
@@ -51,24 +46,10 @@ export const Status = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
-
-  useEffect(() => {
-    ;(async () => {
-      if (!state || !dispatch) return
-      try {
-        dispatch({
-          type: CosmosClaimActionType.SET_CLAIM,
-          payload: { txStatus: state.txid ? TxStatus.SUCCESS : TxStatus.FAILED },
-        })
-      } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
-        dispatch({
-          type: CosmosClaimActionType.SET_CLAIM,
-          payload: { txStatus: TxStatus.FAILED },
-        })
-      }
-    })()
-  }, [dispatch, state])
+  const txStatus = useMemo(
+    () => (!state ? TxStatus.PENDING : state.txid ? TxStatus.SUCCESS : TxStatus.FAILED),
+    [state],
+  )
 
   if (!state || !opportunity || !dispatch) return null
 
@@ -79,21 +60,21 @@ export const Status = () => {
           size='24'
           position='relative'
           thickness='4px'
-          isIndeterminate={state.claim.txStatus === TxStatus.PENDING}
+          isIndeterminate={txStatus === TxStatus.PENDING}
         >
           <Box position='absolute' top='50%' left='50%' transform='translate(-50%, -50%)'>
-            {state.claim.txStatus === TxStatus.PENDING ? (
+            {txStatus === TxStatus.PENDING ? (
               <AssetIcon src={asset?.icon} boxSize='16' />
             ) : (
-              <IconCircle bg={StatusInfo[state.claim.txStatus].color} boxSize='16' color='white'>
-                {StatusInfo[state.claim.txStatus].icon}
+              <IconCircle bg={StatusInfo[txStatus].color} boxSize='16' color='white'>
+                {StatusInfo[txStatus].icon}
               </IconCircle>
             )}
           </Box>
         </CircularProgress>
         <RawText mt={6} fontWeight='medium'>
           {translate(
-            state.claim.txStatus === TxStatus.PENDING
+            txStatus === TxStatus.PENDING
               ? 'defi.broadcastingTransaction'
               : 'defi.transactionComplete',
           )}
@@ -127,7 +108,7 @@ export const Status = () => {
               color='blue.500'
               href={`${asset?.explorerAddressLink}${state.userAddress}`}
             >
-              <MiddleEllipsis address={state.userAddress!} />
+              {state.userAddress && <MiddleEllipsis address={state.userAddress} />}
             </Link>
           </Row.Value>
         </Row>

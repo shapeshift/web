@@ -121,7 +121,7 @@ export const CosmosClaim = () => {
             opportunity: `${asset.name}`,
           })}
         />
-        <Steps steps={StepConfig} initialStep={DefiStep.Confirm} />
+        <Steps steps={StepConfig} initialStep={DefiStep.Confirm} keepStatusInTheStepper />
       </DefiModalContent>
     </ClaimContext.Provider>
   )

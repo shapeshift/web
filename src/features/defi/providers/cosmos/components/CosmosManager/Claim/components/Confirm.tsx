@@ -58,7 +58,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !dispatch) return
+        if (!walletState.wallet || !dispatch || !asset) return
 
         const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
         const estimatedGasCrypto = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
@@ -79,7 +79,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     dispatch,
   ])
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !asset) return null
 
   const handleConfirm = async () => {
     if (!walletState.wallet || !contractAddress || !state?.userAddress || !dispatch) return
@@ -141,7 +141,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${state.userAddress}`}
               >
-                <MiddleEllipsis address={state.userAddress!} />
+                {state.userAddress && <MiddleEllipsis address={state.userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>

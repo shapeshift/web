@@ -12,7 +12,7 @@ export async function getMtPelerinAssets()  {
     Object.keys(assets).forEach(key => {
         const asset = assets[key];
         const fiatRampAsset:FiatRampAsset = {
-            assetId: asset.symbol,
+            assetId: adapters.MtPelerinTickerToAssetId(asset.symbol),
             name: `${asset.symbol}`,
             symbol: asset.symbol,
         }

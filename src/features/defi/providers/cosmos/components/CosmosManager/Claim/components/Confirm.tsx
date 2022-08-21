@@ -153,7 +153,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           <Row.Value>
             <SkeletonText
               noOfLines={2}
-              isLoaded={!!bnOrZero(state.claim.estimatedGasCrypto).gt(0)}
+              isLoaded={bnOrZero(state.claim.estimatedGasCrypto).gt(0)}
               fontSize='md'
               display='flex'
               flexDir='column'

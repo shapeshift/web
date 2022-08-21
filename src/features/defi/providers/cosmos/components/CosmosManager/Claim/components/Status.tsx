@@ -46,10 +46,11 @@ export const Status = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
-  const txStatus = useMemo(
-    () => (!state ? TxStatus.PENDING : state.txid ? TxStatus.SUCCESS : TxStatus.FAILED),
-    [state],
-  )
+  const txStatus = useMemo(() => {
+    if (!state) return TxStatus.PENDING
+    if (state.txid) return TxStatus.SUCCESS
+    return TxStatus.FAILED
+  }, [state])
 
   if (!state || !opportunity || !dispatch) return null
 

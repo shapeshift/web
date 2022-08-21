@@ -95,6 +95,14 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     }
   }
 
+  const validateCryptoAmount = (value: string) => {
+    const crypto = bnOrZero(cryptoAmountAvailable)
+    const _value = bnOrZero(value)
+    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    if (_value.isEqualTo(0)) return ''
+    return hasValidBalance || 'common.insufficientFunds'
+  }
+
   const handleCancel = browserHistory.goBack
 
   return (
@@ -104,6 +112,10 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         disableInput
         icons={opportunity?.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoInputValidation={{
+          required: true,
+          validate: { validateCryptoAmount },
+        }}
         fiatAmountAvailable={totalFiatBalance}
         marketData={{
           // The LP token doesnt have market data.

@@ -38,6 +38,11 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
+export type FoxFarmingEarnOpportunityType = {
+  unclaimedRewards: string
+  isVisible?: boolean
+} & EarnOpportunityType
+
 const icons = [
   'https://assets.coincap.io/assets/icons/eth@2x.png',
   'https://assets.coincap.io/assets/icons/fox@2x.png',
@@ -105,6 +110,7 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   lpEthBalance: string | null
   foxEthLpOpportunity: EarnOpportunityType
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
+  onlyVisibleFoxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpLoading: boolean
   farmingLoading: boolean
   onOngoingTxIdChange: (txid: string) => Promise<void>
@@ -116,14 +122,11 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   lpEthBalance: null,
   foxEthLpOpportunity: lpOpportunity,
   foxFarmingOpportunities: [v4FarmingOpportunity],
+  onlyVisibleFoxFarmingOpportunities: [v4FarmingOpportunity],
   lpLoading: true,
   farmingLoading: true,
   onOngoingTxIdChange: (_txid: string) => Promise.resolve(),
 })
-
-export type FoxFarmingEarnOpportunityType = {
-  unclaimedRewards: string
-} & EarnOpportunityType
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
@@ -186,7 +189,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           if (!data) return opportunity
           const { tvl, apr, balances, expired } = data
           // just for ops testing needs to be removed alongside the flag totally
-          // and isOpportunityExpired be changed to expired
+          // and `isOpportunityExpired` be changed to `expired`
           const isOpportunityExpired = featureFlags.ConsiderFoxFarmingV4ExpiredForTesting
             ? true
             : expired
@@ -199,20 +202,19 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             expired: isOpportunityExpired,
             apy: lpApr && !isOpportunityExpired ? bnOrZero(apr).plus(lpApr).toString() : '0',
             tvl,
+            // show opportunities that are not expired or ended but user have balance in them
+            isVisible:
+              !isOpportunityExpired ||
+              (isOpportunityExpired && bnOrZero(balances.cryptoBalance).gt(0)),
           }
         }),
       )
-      // show opportunities that are not expired or expired but user have balance in them
-      const visibleOpportunities = newOpportunities.filter(
-        opportunity =>
-          !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
-      )
-      const totalOpBalances = visibleOpportunities.reduce(
+      const totalOportunitiesBalances = newOpportunities.reduce(
         (acc, newOpportunity) => acc.plus(bnOrZero(newOpportunity.fiatAmount)),
         bnOrZero(0),
       )
-      setFoxFarmingTotalBalance(totalOpBalances.toFixed(2))
-      setFoxFarmingOpportunities(visibleOpportunities)
+      setFoxFarmingTotalBalance(totalOportunitiesBalances.toFixed(2))
+      setFoxFarmingOpportunities(newOpportunities)
     } catch (error) {
       moduleLogger.error(error, 'fetchFarmingOpportunities failed')
     } finally {
@@ -311,6 +313,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       lpEthBalance,
       foxEthLpOpportunity,
       foxFarmingOpportunities,
+      onlyVisibleFoxFarmingOpportunities: foxFarmingOpportunities.filter(
+        opportunity => opportunity.isVisible,
+      ),
       lpLoading,
       farmingLoading,
       onOngoingTxIdChange: handleOngoingTxIdChange,

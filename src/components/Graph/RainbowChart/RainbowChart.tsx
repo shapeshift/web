@@ -106,7 +106,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
           />
           <Tooltip<RainbowData>
             applyPositionStyle
-            unstyled
+            style={{ zIndex: 10 }} // render over swapper TokenButton component
             showVerticalCrosshair
             verticalCrosshairStyle={{
               stroke: colors.blue[500],

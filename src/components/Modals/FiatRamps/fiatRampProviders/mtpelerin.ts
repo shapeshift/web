@@ -8,22 +8,28 @@ const assetList = require("./mtpelerinAssets.json");
 
 export async function getMtPelerinAssets()  {
     const assets = assetList;
-    console.log(assets);
-
     const fiatRampAssets:FiatRampAsset[] = [];
-
     Object.keys(assets).forEach(key => {
         const asset = assets[key];
         const fiatRampAsset:FiatRampAsset = {
             assetId: asset.symbol,
-            name: asset.symbol,
+            name: `${asset.symbol}`,
             symbol: asset.symbol,
-            disabled: false
+        }
+        for(const fiatRampAssetKey in fiatRampAssets) {
+            if(fiatRampAssets[fiatRampAssetKey].assetId === fiatRampAsset.assetId) {
+                return;
+            }
         }
         fiatRampAssets.push(fiatRampAsset);
     })
-
-
-    console.log(fiatRampAssets)
     return fiatRampAssets;
+}
+
+export async function getMtPelerinLink(
+    buyOrSell: string, 
+    destinationCurrency: string,
+    address: string
+): Promise<string> {
+    return `https://${buyOrSell}.mtpelerin.com/?type=direct-link&bdr=${destinationCurrency}&addr=${address}`;
 }

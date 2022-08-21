@@ -101,6 +101,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsSell: false,
     getBuyAndSellList: async () => {
       const buyAssets = await getJunoPayAssets()
+      console.log(buyAssets);
       return [buyAssets, []]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {

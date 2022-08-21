@@ -191,7 +191,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       _active={{ color: 'blue.800' }}
                       cursor='pointer'
                     >
-                      <MiddleEllipsis address={receiveAddress} data-test='receive-address-label' />
+                      <MiddleEllipsis value={receiveAddress} data-test='receive-address-label' />
                     </Flex>
                   </Skeleton>
                 </Card.Body>

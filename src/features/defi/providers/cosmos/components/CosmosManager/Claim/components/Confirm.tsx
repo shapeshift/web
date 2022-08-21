@@ -141,7 +141,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${state.userAddress}`}
               >
-                {state.userAddress && <MiddleEllipsis address={state.userAddress} />}
+                {state.userAddress && <MiddleEllipsis value={state.userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>

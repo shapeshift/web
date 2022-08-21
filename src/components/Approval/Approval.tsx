@@ -191,7 +191,7 @@ export const Approval = () => {
                       color='blue.500'
                       href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
-                      <MiddleEllipsis address={approvalTxId} />
+                      <MiddleEllipsis value={approvalTxId} />
                     </Link>
                   </Row.Value>
                 </Row>

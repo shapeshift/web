@@ -86,7 +86,7 @@ export const Status = () => {
             <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
             <Row.Value>
               <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${state.txid}`}>
-                <MiddleEllipsis address={state.txid} />
+                <MiddleEllipsis value={state.txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -108,7 +108,7 @@ export const Status = () => {
               color='blue.500'
               href={`${asset?.explorerAddressLink}${state.userAddress}`}
             >
-              {state.userAddress && <MiddleEllipsis address={state.userAddress} />}
+              {state.userAddress && <MiddleEllipsis value={state.userAddress} />}
             </Link>
           </Row.Value>
         </Row>

@@ -22,7 +22,7 @@ export const MainNavLink = memo(
         <Button
           width='full'
           justifyContent='flex-start'
-          variant='ghost'
+          variant='nav-link'
           isActive={href ? active : false}
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}

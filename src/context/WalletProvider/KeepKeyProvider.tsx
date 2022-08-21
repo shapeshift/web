@@ -23,7 +23,6 @@ import React, {
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { RadioOption } from 'components/Radio/Radio'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
@@ -126,7 +125,6 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [state, dispatch] = useReducer(reducer, initialState)
   const toastRef = useRef<ToastId | undefined>()
-  const isLitecoinEnabled = useFeatureFlag('Litecoin')
 
   const onClose = useCallback(() => {
     if (toastRef.current) {
@@ -180,7 +178,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                   <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
                   <AlertDescription>
                     <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
-                    {isLitecoinEnabled && !isLTCSupportedFirmwareVersion ? (
+                    {!isLTCSupportedFirmwareVersion ? (
                       <Text>
                         {translate('updateToast.keepKey.updateRequiredForFeature', {
                           feature: 'Litecoin',
@@ -210,7 +208,6 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       }
     })()
   }, [
-    isLitecoinEnabled,
     isLTCSupportedFirmwareVersion,
     keepKeyWallet,
     toast,

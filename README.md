@@ -166,21 +166,7 @@ If your changes only touch `web` these steps are not necessary.
 4. (optional) Return to the `develop` branch to get ready to start another task.
 
 ## Releases
-The script `./scripts/release.sh` helps to automate the release process.
 
-### Create a release branch
+The command `yarn release` helps to automate the release process.
 
-`yarn create-release v1.1.1`
-or
-`./scripts/release.sh release v1.1.1`
-
-This creates a `releases/v1.1.1` branch based on `origin/develop` and pushes it to origin
-
-### Merge a release into main
-
-`yarn merge-release v1.1.1`
-or
-`./scripts/release.sh main v1.1.1`
-
-This does a checkout of `origin/releases/v1.1.1` then merges that to `main`. After a confirmation prompt, it pushes that to `origin/main`.
-
+Run the command and follow the prompts.

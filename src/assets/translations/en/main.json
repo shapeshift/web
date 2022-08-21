@@ -349,7 +349,9 @@
     "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
-    "clickToConnect": "Click to connect a wallet"
+    "clickToConnect": "Click to connect a wallet",
+    "wallet": "Wallet",
+    "explore": "Explore"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",
@@ -379,6 +381,8 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -398,7 +402,9 @@
         "claimWithdraw": "Claim Withdraw"
       },
       "erc20": {
-        "approve": "Approve"
+        "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞"
       }
     },
     "unknown": "Transaction"
@@ -574,6 +580,20 @@
           "required": "Password confirmation is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Back up my wallet",
+        "enterPassword": "Enter your password to continue",
+        "testTitle": "Verify Your Secret Recovery Phrase",
+        "info": {
+          "title": "Your Secret Recovery Phrase",
+          "description": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
+          "warning": "Note: if you lose your Secret Recovery Phrase, ShapeShift can't help you recover your wallet and your funds will be lost forever."
+        },
+        "success": {
+          "title": "Success",
+          "description": "You have backed up your wallet. Remember to store your Secret Recovery Phrase somewhere safe."
         }
       }
     },
@@ -1188,7 +1208,8 @@
     }
   },
   "accounts": {
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "selectAccount": "Select an Account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1242,6 +1263,7 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
+    "approvalAmount": "Approval Amount",
     "unknownType": "Transaction",
     "from": "From",
     "to": "To",

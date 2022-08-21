@@ -89,43 +89,52 @@ export const Header = () => {
           </Box>
         )}
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
-          <Box flex={1} display={{ base: 'block', md: 'none' }}>
-            <IconButton
-              aria-label='Open menu'
-              variant='ghost'
-              onClick={onToggle}
-              icon={<HamburgerIcon />}
-            />
-          </Box>
-          <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-            <Link to='/'>
-              <FoxIcon boxSize='7' />
-            </Link>
-          </Flex>
           <HStack
-            width='100%'
-            flex={1}
-            justifyContent='center'
-            display={{ base: 'none', md: 'block' }}
+            width='full'
+            margin='0 auto'
+            maxW='container.3xl'
+            px={{ base: 0, md: 4 }}
+            spacing={0}
+            columnGap={4}
           >
-            <AutoCompleteSearch />
+            <Box flex={1} display={{ base: 'block', md: 'none' }}>
+              <IconButton
+                aria-label='Open menu'
+                variant='ghost'
+                onClick={onToggle}
+                icon={<HamburgerIcon />}
+              />
+            </Box>
+            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
+              <Link to='/'>
+                <FoxIcon ml={{ base: 0, md: 4 }} boxSize='7' />
+              </Link>
+            </Flex>
+            <HStack
+              width='100%'
+              flex={1}
+              justifyContent='center'
+              display={{ base: 'none', md: 'block' }}
+            >
+              <AutoCompleteSearch />
+            </HStack>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <FiatRamps />
+              </Box>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <ChainMenu />
+              </Box>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
+            </Flex>
           </HStack>
-          <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FiatRamps />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <ChainMenu />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <UserMenu />
-            </Box>
-          </Flex>
         </HStack>
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent paddingTop='env(safe-area-inset-top)'>
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>

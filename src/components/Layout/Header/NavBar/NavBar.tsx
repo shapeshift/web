@@ -36,7 +36,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   }, [pluginRoutes])
 
   return (
-    <Stack width='full' flex='1 1 0%' spacing={6} {...rest}>
+    <Stack width='full' flex='1 1 0%' spacing={6} mb={2} {...rest}>
       {navItemGroups.map((group, id) => {
         const [name, values] = group
         return (

@@ -35,6 +35,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
       justifyContent='flex-start'
       data-test='full-width-header'
       flexDir='column'
+      overflowY='auto'
       paddingTop={`calc(1.5rem + env(safe-area-inset-top))`}
       p={4}
     >

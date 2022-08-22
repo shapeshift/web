@@ -221,6 +221,7 @@ export const foxyBalancesApi = createApi({
         }
       },
     }),
+    getFoxyApr: build.query<OutputArgs, InputArgs>({}),
   }),
 })
 

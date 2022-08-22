@@ -26,7 +26,6 @@ import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyOverview = () => {
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
-  console.log({ foxyBalancesData })
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query

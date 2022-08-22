@@ -11,6 +11,7 @@ import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 import { getFoxyApi } from './foxyApiSingleton'
@@ -170,8 +171,6 @@ export const foxyBalancesApi = createApi({
         const { getState } = injected
         const state: any = getState() // ReduxState causes circular dependency
 
-        // const balancesLoading = selectPortfolioLoading(state)
-
         if (!supportsEthereumChain || !userAddress || !foxyApr) {
           return {
             error: {
@@ -180,6 +179,16 @@ export const foxyBalancesApi = createApi({
             },
           }
         }
+
+        const balancesLoading = selectPortfolioLoading(state)
+
+        if (balancesLoading)
+          return {
+            error: {
+              data: 'Portfolio balances not loaded',
+              status: '400',
+            },
+          }
 
         const foxy = getFoxyApi()
 

@@ -175,7 +175,6 @@ export const foxyBalancesApi = createApi({
           return {
             error: {
               data: 'Not ready args',
-              status: '400',
             },
           }
         }
@@ -186,7 +185,6 @@ export const foxyBalancesApi = createApi({
           return {
             error: {
               data: 'Portfolio balances not loaded',
-              status: '400',
             },
           }
 
@@ -208,7 +206,6 @@ export const foxyBalancesApi = createApi({
           const mergedOpportunities = makeMergedOpportunities(foxyOpportunities, assets, marketData)
 
           return {
-            error: null,
             data: {
               opportunities: mergedOpportunities,
               totalBalance: totalBalance.toString(),
@@ -219,7 +216,6 @@ export const foxyBalancesApi = createApi({
           return {
             error: {
               data: `foxyBalancesAPI Error`,
-              status: 400,
             },
           }
         }

@@ -17,7 +17,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -43,7 +43,7 @@ export const useFormSend = () => {
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
 
         const value = bnOrZero(data.cryptoAmount)
-          .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
+          .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
         const chainId = adapter.getChainId()
@@ -177,6 +177,7 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
+        throw new Error('useFormSend: transaction rejected')
       } finally {
         send.close()
       }

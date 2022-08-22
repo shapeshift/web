@@ -352,7 +352,7 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    await result.current.handleSend(formData)
+    await expect(result.current.handleSend(formData)).rejects.toThrow()
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
   })

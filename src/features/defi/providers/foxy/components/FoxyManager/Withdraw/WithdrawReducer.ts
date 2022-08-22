@@ -1,6 +1,6 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { FoxyWithdrawActions, FoxyWithdrawActionType, FoxyWithdrawState } from './WithdrawCommon'
 
@@ -15,7 +15,7 @@ export const initialState: FoxyWithdrawState = {
     expired: false,
     version: '',
     rewardToken: '',
-    tvl: bnOrZero(0),
+    tvl: bn(0),
     apy: '',
   },
   userAddress: null,

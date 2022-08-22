@@ -21,6 +21,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
+import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -54,6 +55,8 @@ export const OpportunityCard = ({
   expired,
   moniker,
   assetId,
+  icons,
+  opportunityName,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
@@ -88,26 +91,46 @@ export const OpportunityCard = ({
 
   if (!asset) return null
 
+  const getOpportunityName = () => {
+    if (opportunityName) return opportunityName
+    const overridenName = getOverrideNameFromAssetId(assetId)
+    if (overridenName) return overridenName
+    if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))
+      return `${asset.symbol} ${type?.replace('_', ' ')}`
+    if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) return moniker
+  }
+
   return (
     <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
       <Card.Body>
         <Flex alignItems='center'>
           <Flex>
             <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon
-                src={getOverrideIconFromAssetId(assetId, assets)}
-                boxSize='10'
-                zIndex={2}
-              />
+              {icons ? (
+                <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+                  {icons.map((iconSrc, i) => (
+                    <AssetIcon
+                      key={iconSrc}
+                      src={iconSrc}
+                      boxSize='9'
+                      mr={i === icons.length - 1 ? 2 : 0}
+                      ml={i === 0 ? '0' : '-4'}
+                    />
+                  ))}
+                </Flex>
+              ) : (
+                <AssetIcon
+                  src={getOverrideIconFromAssetId(assetId, assets)}
+                  boxSize='10'
+                  zIndex={2}
+                />
+              )}
             </SkeletonCircle>
           </Flex>
-          <Box ml={4}>
+          <Box ml={icons ? 6 : 4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosChainId(chainId) &&
-                  !isOsmosisChainId(chainId) &&
-                  `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {(isCosmosChainId(chainId) || isOsmosisChainId(chainId)) && `${moniker}`}
+                {getOpportunityName()}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

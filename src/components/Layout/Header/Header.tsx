@@ -15,7 +15,6 @@ import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -30,7 +29,7 @@ export const Header = () => {
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
-    state: { walletInfo },
+    state: { isDemoWallet },
     dispatch,
   } = useWallet()
 
@@ -53,7 +52,6 @@ export const Header = () => {
   }, [handleKeyPress])
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const isDemo = walletInfo?.deviceId === DemoConfig.name
 
   return (
     <>
@@ -64,9 +62,9 @@ export const Header = () => {
         position='sticky'
         zIndex='banner'
         top={0}
-        paddingTop={{ base: isDemo ? 0 : 'env(safe-area-inset-top)', md: 0 }}
+        paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        {isDemo && (
+        {isDemoWallet && (
           <Box
             bg='blue.500'
             width='full'
@@ -91,43 +89,52 @@ export const Header = () => {
           </Box>
         )}
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
-          <Box flex={1} display={{ base: 'block', md: 'none' }}>
-            <IconButton
-              aria-label='Open menu'
-              variant='ghost'
-              onClick={onToggle}
-              icon={<HamburgerIcon />}
-            />
-          </Box>
-          <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-            <Link to='/'>
-              <FoxIcon boxSize='7' />
-            </Link>
-          </Flex>
           <HStack
-            width='100%'
-            flex={1}
-            justifyContent='center'
-            display={{ base: 'none', md: 'block' }}
+            width='full'
+            margin='0 auto'
+            maxW='container.3xl'
+            px={{ base: 0, md: 4 }}
+            spacing={0}
+            columnGap={4}
           >
-            <AutoCompleteSearch />
+            <Box flex={1} display={{ base: 'block', md: 'none' }}>
+              <IconButton
+                aria-label='Open menu'
+                variant='ghost'
+                onClick={onToggle}
+                icon={<HamburgerIcon />}
+              />
+            </Box>
+            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
+              <Link to='/'>
+                <FoxIcon ml={{ base: 0, md: 4 }} boxSize='7' />
+              </Link>
+            </Flex>
+            <HStack
+              width='100%'
+              flex={1}
+              justifyContent='center'
+              display={{ base: 'none', md: 'block' }}
+            >
+              <AutoCompleteSearch />
+            </HStack>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <FiatRamps />
+              </Box>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <ChainMenu />
+              </Box>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
+            </Flex>
           </HStack>
-          <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FiatRamps />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <ChainMenu />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <UserMenu />
-            </Box>
-          </Flex>
         </HStack>
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent paddingTop='env(safe-area-inset-top)'>
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>

@@ -15,6 +15,7 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
@@ -25,6 +26,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -182,8 +184,8 @@ export const selectPortfolioFiatAccountBalances = createSelector(
             const precision = assetsById[assetId]?.precision
             const price = marketData[assetId]?.price ?? 0
             const cryptoValue = fromBaseUnit(cryptoBalance, precision)
-            const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatbalance
+            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+            acc[assetId] = fiatBalance
 
             return acc
           },
@@ -408,7 +410,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
         })
 
         return acc
-      }, bnOrZero(0))
+      }, bn(0))
       .toString()
 
     return amount
@@ -608,6 +610,21 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
       acc[accountId] = sortedAssetsByFiatBalances
       return acc
     }, {})
+  },
+)
+
+export const selectHighestFiatBalanceAccountByAssetId = createSelector(
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectAssetIdParamFromFilter,
+  (accountSpecifierAssetValues, assetId): AccountSpecifier | undefined => {
+    const accountValueMap = Object.entries(accountSpecifierAssetValues).reduce((acc, [k, v]) => {
+      const assetValue = v[assetId]
+      return assetValue ? acc.set(k, assetValue) : acc
+    }, new Map<AccountSpecifier, string>())
+    const highestBalanceAccountToAmount = maxBy([...accountValueMap], ([_, v]) =>
+      bnOrZero(v).toNumber(),
+    )
+    return highestBalanceAccountToAmount?.[0]
   },
 )
 
@@ -843,6 +860,24 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   },
 )
 
+export const selectPortfolioBridgeAssets = createSelector(
+  selectPortfolioAccountRows,
+  (portfolioAssets): BridgeAsset[] => {
+    return Object.entries(portfolioAssets).map(([_, v]) => {
+      const implementations = undefined // TODO: implement here
+      return {
+        assetId: v.assetId,
+        symbol: v.symbol,
+        icon: v.icon,
+        name: v.name,
+        cryptoAmount: v.cryptoAmount,
+        fiatAmount: v.fiatAmount,
+        implementations,
+      }
+    })
+  },
+)
+
 export type ActiveStakingOpportunity = {
   address: PubKey
   moniker: string
@@ -889,7 +924,7 @@ export const selectUnbondingCryptoAmountByAssetIdAndValidator = createDeepEqualO
     const unbondingCryptoAmountByAssetIdAndValidator = unbondingEntries
       .reduce((acc, current) => {
         return acc.plus(bnOrZero(current.amount))
-      }, bnOrZero(0))
+      }, bn(0))
       .toString()
 
     return unbondingCryptoAmountByAssetIdAndValidator
@@ -953,7 +988,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         .plus(
           undelegatedEntries.reduce<BN>(
             (acc, current) => acc.plus(bnOrZero(current.amount)),
-            bnOrZero(0),
+            bn(0),
           ),
         )
         .toString()

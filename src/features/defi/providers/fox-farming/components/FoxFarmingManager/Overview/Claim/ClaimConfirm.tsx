@@ -9,10 +9,8 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFormFees } from 'plugins/cosmos/utils'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -22,6 +20,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -31,14 +30,14 @@ import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
   assetId: AssetId
-  amount?: string
+  amount: string
   contractAddress: string
   chainId: ChainId
   onBack: () => void
 }
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'ClaimConfirm'],
+  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Overview', 'ClaimConfirm'],
 })
 
 export const ClaimConfirm = ({
@@ -51,45 +50,36 @@ export const ClaimConfirm = ({
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
-  const chainAdapterManager = getChainAdapterManager()
+  const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
+  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
-  const claimAmount = bnOrZero(amount).toString()
   const history = useHistory()
+  const { onOngoingTxIdChange } = useFoxEth()
+
+  const chainAdapterManager = getChainAdapterManager()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Cosmos, // TODO: Programmatic
+    assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const toast = useToast()
 
-  const { handleStakingAction } = useStakingAction()
-
   const handleConfirm = async () => {
     if (!walletState.wallet || !contractAddress || !userAddress) return
     setLoading(true)
-
-    const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
-
     try {
-      const broadcastTxId = await handleStakingAction({
-        asset,
-        validator: contractAddress,
-        chainSpecific: {
-          gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
-        },
-        value: bnOrZero(claimAmount).times(`1e+${asset.precision}`).toString(),
-        action: StakingAction.Claim,
-      })
+      const txid = await claimRewards()
+      if (!txid) throw new Error(`Transaction failed`)
+      onOngoingTxIdChange(txid)
       history.push('/status', {
-        txid: broadcastTxId,
+        txid,
         assetId,
         amount,
         userAddress,
@@ -97,7 +87,7 @@ export const ClaimConfirm = ({
         chainId,
       })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      moduleLogger.error(error, 'ClaimWithdraw error')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -112,30 +102,43 @@ export const ClaimConfirm = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet) return
-
-        const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
-
-        const chainAdapter = chainAdapterManager.get(chainId) as unknown as
-          | cosmossdk.cosmos.ChainAdapter
-          | cosmossdk.osmosis.ChainAdapter
+        const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        if (!(walletState.wallet && chainAdapter)) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        setEstimatedGas(gasEstimate)
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'ClaimConfirm error')
+        moduleLogger.error(error, 'FoxFarmingClaim error')
+      }
+    })()
+  }, [chainAdapterManager, walletState.wallet])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && userAddress))
+          return
+        const gasEstimate = await getClaimGasData(userAddress)
+        if (!gasEstimate) throw new Error('Gas estimation failed')
+        const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
+          .div(`1e${feeAsset.precision}`)
+          .toPrecision()
+        setCanClaim(true)
+        setEstimatedGas(estimatedGasCrypto)
+      } catch (error) {
+        // TODO: handle client side errors
+        moduleLogger.error(error, 'FoxFarmingClaim error')
       }
     })()
   }, [
-    chainId,
-    asset,
-    chainAdapterManager,
-    contractAddress,
+    userAddress,
+    feeAsset,
     feeAsset.precision,
+    feeMarketData,
     feeMarketData.price,
+    getClaimGasData,
     walletState.wallet,
+    foxFarmingContract,
   ])
 
   return (
@@ -145,12 +148,14 @@ export const ClaimConfirm = ({
           <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
-            <Amount.Crypto
-              fontSize='3xl'
-              fontWeight='medium'
-              value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
-              symbol={asset?.symbol}
-            />
+            <Skeleton minWidth='100px' isLoaded={!!amount}>
+              <Amount.Crypto
+                fontSize='3xl'
+                fontWeight='medium'
+                value={amount}
+                symbol={asset?.symbol}
+              />
+            </Skeleton>
           </Stack>
         </Stack>
       </ModalBody>
@@ -167,7 +172,7 @@ export const ClaimConfirm = ({
                   color='blue.500'
                   href={`${asset?.explorerAddressLink}${userAddress}`}
                 >
-                  <MiddleEllipsis address={userAddress} />
+                  <MiddleEllipsis value={userAddress} />
                 </Link>
               </Skeleton>
             </Row.Value>
@@ -187,14 +192,11 @@ export const ClaimConfirm = ({
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas)
-                      .div(`1e+${feeAsset.precision}`)
-                      .times(feeMarketData.price)
-                      .toFixed(2)}
+                    value={bnOrZero(estimatedGas).times(feeMarketData.price).toFixed(2)}
                   />
                   <Amount.Crypto
                     color='gray.500'
-                    value={bnOrZero(estimatedGas).div(`1e+${feeAsset.precision}`).toFixed(5)}
+                    value={bnOrZero(estimatedGas).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />
                 </Stack>
@@ -205,7 +207,13 @@ export const ClaimConfirm = ({
             <Button size='lg' onClick={onBack}>
               {translate('common.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={handleConfirm} isLoading={loading}>
+            <Button
+              size='lg'
+              colorScheme='blue'
+              isDisabled={!canClaim}
+              onClick={handleConfirm}
+              isLoading={loading}
+            >
               {translate('defi.modals.claim.confirmClaim')}
             </Button>
           </Stack>

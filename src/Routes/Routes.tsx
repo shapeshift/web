@@ -1,14 +1,19 @@
+import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
 
@@ -19,27 +24,34 @@ function useLocationBackground() {
 }
 
 export const Routes = () => {
+  const dispatch = useDispatch()
   const { background, location } = useLocationBackground()
   const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
+  const { lang } = useQuery()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
     path: ['/demo/:appRoute(.+)', '/demo'],
   })
 
   useEffect(() => {
+    if (lang && LanguageTypeEnum[lang as LanguageTypeEnum] && selectedLocale !== lang) {
+      dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
+    }
+  }, [lang, dispatch, selectedLocale])
+
+  useEffect(() => {
     if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
     if (!matchDemoPath || state.isLoadingLocalWallet) return
 
-    state.walletInfo?.deviceId === DemoConfig.name
-      ? setShouldRedirectDemoRoute(true)
-      : connectDemo()
+    state.isDemoWallet ? setShouldRedirectDemoRoute(true) : connectDemo()
   }, [
     matchDemoPath,
     shouldRedirectDemoRoute,
     location.pathname,
-    state.walletInfo?.deviceId,
+    state.isDemoWallet,
     state.isLoadingLocalWallet,
     connectDemo,
   ])

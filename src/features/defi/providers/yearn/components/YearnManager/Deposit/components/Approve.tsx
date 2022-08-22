@@ -14,7 +14,7 @@ import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -101,7 +101,12 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const tx = await yearnOpportunity.prepareApprove(state.userAddress)
+      const tx = await yearnOpportunity.prepareApprove(
+        state.userAddress,
+        state.isExactAllowance
+          ? bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString()
+          : undefined,
+      )
       await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -112,8 +117,8 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
       await poll({
         fn: () => yearnOpportunity.allowance(address),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,
@@ -145,14 +150,21 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
       asset={asset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disableAction
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
+      isExactAllowance={state.isExactAllowance}
+      onToggle={() =>
+        dispatch({
+          type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
+          payload: !state.isExactAllowance,
+        })
+      }
       loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'

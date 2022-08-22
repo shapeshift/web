@@ -28,6 +28,8 @@ export interface SupportedFiatRampConfig {
   label: string
   // key of translation jsons, will be used to show the provider info in the list
   info?: string
+  // array of keys of translation jsons, will be used to show the tags in the list
+  tags?: string[]
   logo: string
   isImplemented: boolean
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
@@ -93,6 +95,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
   },
   JunoPay: {
     label: 'fiatRamps.junoPay',
+    tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
     isImplemented: true,
     supportsBuy: true,

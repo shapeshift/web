@@ -125,13 +125,27 @@ export const useKeepKeyEventHandler = (
               setDeviceState({ awaitingDeviceInteraction: false })
               break
             case FailureType.NOTINITIALIZED:
-              fnLogger.warn('Device not initialized')
-              dispatch({
-                type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
-                payload: {
-                  deviceId,
-                },
-              })
+              ;(async () => {
+                const id = keyring.getAlias(deviceId)
+                const wallet = keyring.get(id)
+                const walletFeatures = await wallet?.getFeatures()
+
+                // In case this event happens and passphraseProtection is on, it means that the keepkey
+                // has been initialized already but the passphrase has been cancelled by the user
+                if (walletFeatures?.passphraseProtection) {
+                  fnLogger.warn('Passphrase canceled')
+                  setDeviceState({ awaitingDeviceInteraction: false })
+                  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+                } else {
+                  fnLogger.warn('Device not initialized')
+                  dispatch({
+                    type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
+                    payload: {
+                      deviceId,
+                    },
+                  })
+                }
+              })()
               break
             case FailureType.SYNTAXERROR:
               console.warn('KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?')
@@ -185,6 +199,7 @@ export const useKeepKeyEventHandler = (
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
+          dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
       } catch (e) {

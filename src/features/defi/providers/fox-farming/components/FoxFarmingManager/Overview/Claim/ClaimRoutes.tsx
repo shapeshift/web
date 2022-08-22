@@ -1,12 +1,11 @@
-import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { AnimatePresence } from 'framer-motion'
-import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -27,24 +26,13 @@ type ClaimRouteProps = {
 
 export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
-  const assetNamespace = 'slip44'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-
-  const opportunities = useCosmosSdkStakingBalances({ assetId: stakingAssetId })
-  const opportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
-  )
+  const { contractAddress, chainId } = query
+  const { foxFarmingOpportunities } = useFoxEth()
+  const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
   const location = useLocation()
+
   if (!opportunity) return null
+  const rewardAmount = opportunity.unclaimedRewards
 
   return (
     <SlideTransition>
@@ -53,11 +41,11 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              assetId={stakingAssetId}
+              assetId={foxAssetId}
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={opportunity.rewards}
+              amount={rewardAmount!}
             />
           </Route>
           <Route exact path='/status' component={ClaimStatus} />

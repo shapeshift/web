@@ -11,7 +11,6 @@ import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
@@ -55,12 +54,14 @@ export const WalletConnected = (props: WalletConnectedProps) => {
 
 type WalletButtonProps = {
   isConnected: boolean
+  isDemoWallet: boolean
   isLoadingLocalWallet: boolean
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
 const WalletButton: FC<WalletButtonProps> = ({
   isConnected,
+  isDemoWallet,
   walletInfo,
   onConnect,
   isLoadingLocalWallet,
@@ -71,6 +72,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
+      setWalletLabel('')
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {
@@ -99,7 +101,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
-          {!(isConnected || walletInfo?.deviceId === DemoConfig.name) && (
+          {!(isConnected || isDemoWallet) && (
             <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />
           )}
           <WalletImage walletInfo={walletInfo} />
@@ -107,7 +109,7 @@ const WalletButton: FC<WalletButtonProps> = ({
       }
     >
       <Flex>
-        {walletLabel && shouldShorten ? (
+        {walletLabel ? (
           <MiddleEllipsis
             rounded='lg'
             fontSize='sm'
@@ -116,7 +118,7 @@ const WalletButton: FC<WalletButtonProps> = ({
             pr='2'
             shouldShorten={shouldShorten}
             bgColor={bgColor}
-            address={walletLabel}
+            value={walletLabel}
           />
         ) : (
           <RawText>{walletInfo?.name}</RawText>
@@ -132,7 +134,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, walletInfo, type, isLocked } = state
+  const { isConnected, isDemoWallet, walletInfo, type, isLocked } = state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -146,6 +148,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
         onConnect={handleConnect}
         walletInfo={walletInfo}
         isConnected={isConnected}
+        isDemoWallet={isDemoWallet}
         isLoadingLocalWallet={state.isLoadingLocalWallet}
       />
       <Menu>
@@ -164,7 +167,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
         >
           {hasWallet ? (
             <WalletConnected
-              isConnected={isConnected || walletInfo?.deviceId === DemoConfig.name}
+              isConnected={isConnected || isDemoWallet}
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}

@@ -2,6 +2,7 @@ import { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
+import { SelectAccount } from 'components/Trade/SelectAccount'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
@@ -47,6 +48,7 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
         <Route path={TradeRoutePaths.Input} component={TradeInput} />
         <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
         <Route path={TradeRoutePaths.Approval} component={Approval} />
+        <Route path={TradeRoutePaths.AccountSelect} component={SelectAccount} />
         <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>

@@ -1,5 +1,6 @@
 import {
   Box,
+  Flex,
   HStack,
   Popover,
   PopoverTrigger,
@@ -26,6 +27,8 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
+  icons?: Array<string>
+  opportunityName?: string
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -50,6 +53,8 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
+  icons,
+  opportunityName,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -59,7 +64,7 @@ export const AssetCell = ({
 
   if (!asset) return null
 
-  const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
+  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row'>
@@ -75,7 +80,21 @@ export const AssetCell = ({
       )}
       <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset}>
-          <AssetIcon src={asset.icon} boxSize='8' />
+          {icons ? (
+            <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+              {icons.map((iconSrc, i) => (
+                <AssetIcon
+                  key={iconSrc}
+                  src={iconSrc}
+                  boxSize='8'
+                  mr={i === icons.length - 1 ? 2 : 0}
+                  ml={i === 0 ? '-3.5' : '-4'}
+                />
+              ))}
+            </Flex>
+          ) : (
+            <AssetIcon src={asset.icon} boxSize='8' />
+          )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
           <Stack spacing={0} flex={1}>

@@ -36,5 +36,5 @@ export function getMtPelerinLink(
     } else if(buyOrSell === FiatRampAction.Sell) {
         operation = "sell";
     }
-    return `https://${operation}.mtpelerin.com/?type=direct-link&bdc=${destinationCurrency}&addr=${address}`;
+    return `https://${operation}.mtpelerin.com/?type=direct-link&bdc=${destinationCurrency}&addr=${address}&tab=${operation}&ssc=${destinationCurrency}`;
 }

@@ -64,6 +64,8 @@ type WithdrawProps = {
   handlePercentClick: (arg: number) => void
   onContinue(values: FieldValues): void
   onCancel(): void
+  onInputChange?: (value: string, isFiat?: boolean) => void
+  icons?: string[]
 } & PropsWithChildren
 
 export enum Field {
@@ -95,6 +97,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   isLoading,
   percentOptions,
   children,
+  onInputChange,
+  icons,
 }) => {
   const translate = useTranslate()
   const {
@@ -142,6 +146,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         shouldValidate: true,
       })
     }
+    if (onInputChange) onInputChange(value, isFiat)
   }
 
   const handleSlippageChange = (value: string | number) => {
@@ -171,6 +176,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           onMaxClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}
           isReadOnly={disableInput}
+          icons={icons}
         />
       </FormField>
       {children}

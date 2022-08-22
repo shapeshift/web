@@ -1,6 +1,6 @@
 import { AddressZero } from '@ethersproject/constants'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
@@ -9,7 +9,6 @@ export const EthSend: Tx = {
   blockHeight: 13468273,
   blockTime: 1634917507,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 875,
   txid: '0xb8c6eef6bfa02a60b5e00f5c84994084065efeb3bee0259dfc133e28f760a58b',
   fee: { value: '2234067070809000', assetId: 'eip155:1/slip44:60' },
@@ -31,7 +30,6 @@ export const EthReceive: Tx = {
   blockHeight: 13468273,
   blockTime: 1634917507,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 875,
   txid: '0xc8c6eef6bfa02a60b5e00f5c84994084065efeb3bee0259dfc133e28f760a58b',
   fee: { value: '2234067070809000', assetId: 'eip155:1/slip44:60' },
@@ -54,7 +52,6 @@ export const BtcSend: Tx = {
   blockHeight: 13468273,
   blockTime: 1634917507,
   chainId: 'bip122:000000000019d6689c085ae165831e93',
-  chain: KnownChainIds.BitcoinMainnet,
   confirmations: 875,
   txid: 'e12cb64834058bb785b7b8932f079deafc3633f999f722779ee9de351273af65',
   fee: { value: '2234067070809000', assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0' },
@@ -91,7 +88,6 @@ export const FOXSend: Tx = {
     value: '1625777000000000',
   },
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -109,15 +105,14 @@ export const TradeTx: Tx = {
   blockHeight: 13730189,
   blockTime: 1638487560,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 84026,
   fee: {
     assetId: 'eip155:1/slip44:60',
     value: '9099683709794574',
   },
   status: TxStatus.Confirmed,
-  tradeDetails: {
-    dexName: '',
+  trade: {
+    dexName: Dex.Zrx,
     type: TradeType.Trade,
   },
   transfers: [
@@ -153,7 +148,6 @@ const test1: Tx = {
     value: '3192000000000000',
   },
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -178,7 +172,6 @@ const test2: Tx = {
     value: '3440289843249000',
   },
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -199,7 +192,6 @@ const test3: Tx = {
   chainId: 'eip155:1',
   txid: '0x62b16b9ca0526bea116917c4a563f6e47d4b8108adde2888a1d76d14fd261348',
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -224,7 +216,6 @@ const test4: Tx = {
     value: '3633000000000000',
   },
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -245,7 +236,6 @@ const test5: Tx = {
   chainId: 'eip155:1',
   txid: '0x7c7ba2815df596209c99fb79776f6935bd6d17f3ad5b3500d8705f8d01e2d79e',
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -266,7 +256,6 @@ const test6: Tx = {
   chainId: 'eip155:1',
   txid: '0x88bd4c0860a141b7d7e3675adfb50900a4e5ff5a5e8c7b80f66249b67f582872',
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -292,7 +281,6 @@ const test7: Tx = {
     value: '5886777000000000',
   },
   status: TxStatus.Confirmed,
-  chain: KnownChainIds.EthereumMainnet,
   transfers: [
     {
       assetId: 'eip155:1/slip44:60',
@@ -317,7 +305,6 @@ export const yearnVaultDeposit: Tx = {
   blockHeight: 13730189,
   blockTime: 1638487560,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 84026,
   fee: {
     assetId: 'eip155:1/slip44:60',
@@ -349,11 +336,10 @@ export const uniswapUsdcFox: Tx = {
   blockHeight: 14303074,
   blockTime: 1646163896,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 135709,
   fee: { assetId: 'eip155:1/slip44:60', value: '10652333620222860' },
   status: TxStatus.Confirmed,
-  tradeDetails: undefined,
+  trade: undefined,
   transfers: [
     {
       assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -379,11 +365,10 @@ export const cow: Tx = {
   blockHeight: 14432191,
   blockTime: 1647899121,
   chainId: 'eip155:1',
-  chain: KnownChainIds.EthereumMainnet,
   confirmations: 6592,
   fee: undefined,
   status: TxStatus.Confirmed,
-  tradeDetails: undefined,
+  trade: undefined,
   transfers: [
     {
       assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -411,11 +396,10 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHeight: 14393924,
     blockTime: 1647384181,
     chainId: 'eip155:1',
-    chain: KnownChainIds.EthereumMainnet,
     confirmations: 12405,
     fee: { assetId: 'eip155:1/slip44:60', value: '5842562180464795' },
     status: TxStatus.Confirmed,
-    tradeDetails: undefined,
+    trade: undefined,
     transfers: [
       {
         assetId: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
@@ -443,11 +427,10 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHeight: 14400000,
     blockTime: 1647816181,
     chainId: 'eip155:1',
-    chain: KnownChainIds.EthereumMainnet,
     confirmations: 9001,
     fee: { assetId: 'eip155:1/slip44:60', value: '5842562180464795' },
     status: TxStatus.Confirmed,
-    tradeDetails: undefined,
+    trade: undefined,
     transfers: [
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
@@ -475,11 +458,10 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHeight: 13730260,
     blockTime: 1638488447,
     chainId: 'eip155:1',
-    chain: KnownChainIds.EthereumMainnet,
     confirmations: 729180,
     fee: { assetId: 'eip155:1/slip44:60', value: '5898012646352596' },
     status: TxStatus.Confirmed,
-    tradeDetails: undefined,
+    trade: undefined,
     transfers: [
       {
         assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
@@ -507,11 +489,10 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHeight: 13730189,
     blockTime: 1638487560,
     chainId: 'eip155:1',
-    chain: KnownChainIds.EthereumMainnet,
     confirmations: 729251,
     fee: { assetId: 'eip155:1/slip44:60', value: '9099683709794574' },
     status: TxStatus.Confirmed,
-    tradeDetails: undefined,
+    trade: undefined,
     transfers: [
       {
         assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',

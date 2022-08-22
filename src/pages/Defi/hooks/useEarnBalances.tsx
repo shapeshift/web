@@ -5,8 +5,11 @@ import {
 } from 'features/defi/helpers/normalizeOpportunity'
 import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
 import { useVaultBalances } from './useVaultBalances'
@@ -35,6 +38,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
+  const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
@@ -42,6 +47,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),
+    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
@@ -49,5 +56,9 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
     .toString()
-  return { opportunities, totalEarningBalance, loading: vaultsLoading || foxyLoading }
+  return {
+    opportunities,
+    totalEarningBalance,
+    loading: vaultsLoading || foxyLoading,
+  }
 }

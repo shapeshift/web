@@ -119,7 +119,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
-  const { versions, updaterUrl } = useKeepKeyVersions()
+  const { versions, updaterUrl, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
@@ -178,6 +178,13 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                   <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
                   <AlertDescription>
                     <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
+                    {!isLTCSupportedFirmwareVersion ? (
+                      <Text>
+                        {translate('updateToast.keepKey.updateRequiredForFeature', {
+                          feature: 'Litecoin',
+                        })}
+                      </Text>
+                    ) : null}
                   </AlertDescription>
                   <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
                     {translate('updateToast.keepKey.downloadCta')}
@@ -200,7 +207,15 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         })
       }
     })()
-  }, [keepKeyWallet, toast, translate, versions, onClose, updaterUrl])
+  }, [
+    isLTCSupportedFirmwareVersion,
+    keepKeyWallet,
+    toast,
+    translate,
+    versions,
+    onClose,
+    updaterUrl,
+  ])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

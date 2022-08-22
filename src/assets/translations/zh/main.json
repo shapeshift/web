@@ -341,7 +341,7 @@
     "errors": {
       "title": "出现问题",
       "notEnoughEth": "以太坊余额不足支付此交易的 gas 费用。",
-      "amountToSmall": "金额过小。此交易对交易最低金额为%{minLimit}。",
+      "amountTooSmall": "金额过小。此交易对交易最低金额为%{minLimit}。",
       "negativeMax": "资金余额不足支付此交易的矿工费用。预估矿工费为 %{estimatedMinerFee}",
       "invalidMax": "无效金额。此交易对最大交易金额为%{maxLimit}。",
       "insufficientFunds": "资金余额不足支付矿工费用及交易金额",

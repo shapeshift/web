@@ -20,10 +20,12 @@ import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
+import { PairIcons } from '../PairIcons/PairIcons'
 
 type AssetWithBalance = {
   cryptoBalance: string
   allocationPercentage?: string
+  icons?: string[]
 } & Asset
 
 type OverviewProps = {
@@ -36,6 +38,7 @@ type OverviewProps = {
   provider: string
   tvl?: string
   apy?: string
+  icons?: string[]
 } & DefiActionButtonProps &
   PropsWithChildren
 
@@ -48,6 +51,7 @@ export const Overview: React.FC<OverviewProps> = ({
   provider,
   tvl,
   apy,
+  icons,
   description,
   menu,
   children,
@@ -56,7 +60,11 @@ export const Overview: React.FC<OverviewProps> = ({
     return underlyingAssets.map(asset => {
       return (
         <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
-          <AssetIcon src={asset.icon} size='2xs' />
+          {asset.icons ? (
+            <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
+          ) : (
+            <AssetIcon src={asset.icon} size='2xs' />
+          )}
           <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
           {asset.allocationPercentage && (
             <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
@@ -92,7 +100,11 @@ export const Overview: React.FC<OverviewProps> = ({
           <Stack p={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <Stack direction='row' alignItems='center' spacing={2}>
-                <AssetIcon src={asset.icon} size='md' />
+                {icons ? (
+                  <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
+                ) : (
+                  <AssetIcon src={asset.icon} size='md' />
+                )}
                 <Stack spacing={0}>
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}

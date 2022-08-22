@@ -1,6 +1,9 @@
-import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
@@ -14,18 +17,25 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { ErrorTranslationMap, useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useInterval } from 'hooks/useInterval/useInterval'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
+  selectAccountIdsByAssetId,
+  selectAssetById,
   selectFiatToUsdRate,
+  selectFirstAccountSpecifierByChainId,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AssetAccountRow } from './AssetAccountRow'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
 type TS = TradeState<KnownChainIds>
@@ -44,22 +54,135 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, buyTradeAsset, sellTradeAsset, feeAssetFiatRate] = useWatch({
-    name: ['quote', 'buyAsset', 'sellAsset', 'feeAssetFiatRate'],
-  }) as [TS['quote'], TS['buyAsset'], TS['sellAsset'], TS['feeAssetFiatRate']]
+  const [
+    quote,
+    buyTradeAsset,
+    sellTradeAsset,
+    feeAssetFiatRate,
+    quoteError,
+    sellAssetAccount,
+    selectedAssetAccount,
+    action,
+    amount,
+  ] = useWatch({
+    name: [
+      'quote',
+      'buyAsset',
+      'sellAsset',
+      'feeAssetFiatRate',
+      'quoteError',
+      'sellAssetAccount',
+      'selectedAssetAccount',
+      'action',
+      'amount',
+    ],
+  }) as [
+    TS['quote'],
+    TS['buyAsset'],
+    TS['sellAsset'],
+    TS['feeAssetFiatRate'],
+    TS['quoteError'],
+    TS['sellAssetAccount'],
+    TS['selectedAssetAccount'],
+    TS['action'],
+    TS['amount'],
+  ]
   const { updateQuote, checkApprovalNeeded, getSendMaxAmount, updateTrade, feeAsset } = useSwapper()
-  const toast = useToast()
   const translate = useTranslate()
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const {
     state: { wallet },
   } = useWallet()
 
-  const sellAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, {
-      assetId: sellTradeAsset?.asset?.assetId ?? '',
+  const accountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
+  )
+
+  const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1
+
+  useEffect(() => {
+    if (!shouldShowAccountSelection) {
+      // Cleanup selectedAssetAccount on component unmount when not in the context of a sell asset with multiple accounts
+      setValue('selectedAssetAccount', undefined)
+    }
+  }, [setValue, shouldShowAccountSelection])
+
+  const sellAssetId = sellTradeAsset?.asset?.assetId
+  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
+  const highestFiatBalanceAccount = useAppSelector(state =>
+    selectHighestFiatBalanceAccountByAssetId(state, {
+      assetId: sellAssetId ?? '',
     }),
   )
+
+  const sellAssetAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
+  )
+  const filter = useMemo(
+    () => ({
+      assetId: sellAssetId ?? '',
+      accountId: sellAssetAccount ?? '',
+      accountSpecifier: sellAssetAccountSpecifier,
+    }),
+    [sellAssetAccountSpecifier, sellAssetAccount, sellAssetId],
+  )
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
+  )
+
+  useEffect(
+    () =>
+      setValue(
+        'sellAssetAccount',
+        selectedAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
+      ),
+    [
+      selectedAssetAccount,
+      highestFiatBalanceAccount,
+      setValue,
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetAccountSpecifier,
+    ],
+  )
+
+  const updateQuoteClosure = useCallback(() => {
+    const sellAssetChainId = sellAssetAccount ? fromAccountId(sellAssetAccount).chainId : undefined
+    if (
+      buyTradeAsset?.asset &&
+      sellTradeAsset?.asset &&
+      sellAssetAccount &&
+      sellAssetChainId === sellTradeAsset.asset.chainId
+    ) {
+      updateQuote({
+        forceQuote: true,
+        amount: amount ?? '0',
+        sellAsset: sellTradeAsset.asset,
+        buyAsset: buyTradeAsset.asset,
+        feeAsset,
+        action: action ?? TradeAmountInputField.SELL,
+        selectedCurrencyToUsdRate,
+      })
+    }
+  }, [
+    action,
+    amount,
+    buyTradeAsset?.asset,
+    feeAsset,
+    selectedCurrencyToUsdRate,
+    sellAssetAccount,
+    sellTradeAsset?.asset,
+    updateQuote,
+  ])
+
+  // Refresh quote
+  useEffect(() => {
+    updateQuoteClosure()
+  }, [updateQuoteClosure])
+
+  // Update the quote every 30 seconds
+  useInterval(() => updateQuoteClosure(), 1000 * 30)
+
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellTradeAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
@@ -74,9 +197,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
-    feeAsset?.assetId === sellTradeAsset?.asset?.assetId
-      ? bnOrZero(sellTradeAsset.amount)
-      : bnOrZero(0)
+    feeAsset?.assetId === sellTradeAsset?.asset?.assetId ? bnOrZero(sellTradeAsset.amount) : bn(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset?.precision))
@@ -84,22 +205,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount)) return
-
-    const minSellAmount = toBaseUnit(quote.minimum, quote.sellAsset.precision)
-
-    if (bnOrZero(quote.sellAmount).lt(minSellAmount)) {
-      toast({
-        description: translate('trade.errors.amountToSmall', {
-          minLimit: `${quote.minimum} ${quote.sellAsset.symbol}`,
-        }),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
-      return
-    }
+    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -147,14 +253,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       const currentBuyAsset = getValues('buyAsset')
 
       if (currentSellAsset?.asset && currentBuyAsset?.asset) {
-        await updateQuote({
-          sellAsset: currentSellAsset.asset,
-          buyAsset: currentBuyAsset.asset,
-          feeAsset,
-          action: TradeAmountInputField.SELL,
-          amount: maxSendAmount,
-          selectedCurrencyToUsdRate,
-        })
+        setValue('action', TradeAmountInputField.SELL)
+        setValue('amount', maxSendAmount)
       } else {
         fnLogger.error(
           {
@@ -174,26 +274,21 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
   }
 
-  const toggleAssets = () => {
+  const toggleAssets = useCallback(() => {
+    const currentSellAsset = sellTradeAsset
+    const currentBuyAsset = buyTradeAsset
     try {
-      const currentSellAsset = getValues('sellAsset')
-      const currentBuyAsset = getValues('buyAsset')
-      if (!(currentSellAsset?.asset && currentBuyAsset?.asset)) return
+      if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
       setValue('sellAsset', currentBuyAsset)
       setValue('buyAsset', currentSellAsset)
-      updateQuote({
-        forceQuote: true,
-        amount: bnOrZero(currentBuyAsset.amount).toString(),
-        sellAsset: currentBuyAsset.asset,
-        buyAsset: currentSellAsset.asset,
-        feeAsset,
-        action: TradeAmountInputField.SELL,
-        selectedCurrencyToUsdRate,
-      })
+      setValue('selectedAssetAccount', undefined)
+      setValue('sellAssetAccount', undefined)
+      setValue('action', TradeAmountInputField.SELL)
+      setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
       showErrorToast(e)
     }
-  }
+  }, [buyTradeAsset, sellTradeAsset, setValue, showErrorToast])
 
   const getTranslationKey = () => {
     if (!wallet) {
@@ -212,51 +307,30 @@ export const TradeInput = ({ history }: RouterProps) => {
       return 'common.insufficientAmountForGas'
     }
 
-    return error ?? 'trade.previewTrade'
-  }
+    if (Boolean(quoteError)) {
+      // Make interpolation arguments to cover all quote error translations that need interpolation
+      const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
+      const interpolationArgs = { minLimit }
 
-  // TODO:(ryankk) fix error handling
-  const error = null
+      const translation: [string, InterpolationOptions] = [
+        ErrorTranslationMap[quoteError as SwapErrorTypes],
+        interpolationArgs,
+      ]
+      return translation
+    }
+
+    return 'trade.previewTrade'
+  }
 
   const onTokenRowInputChange = (action: TradeAmountInputField) => (amount: string) => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-      updateQuote({
-        amount,
-        sellAsset: sellTradeAsset.asset,
-        buyAsset: buyTradeAsset.asset,
-        feeAsset,
-        action,
-        selectedCurrencyToUsdRate,
-      })
-    }
+    setValue('action', action)
+    setValue('amount', amount)
   }
-
-  // force update quote when the fiat currency changes
-  useEffect(() => {
-    if (sellTradeAsset?.asset && buyTradeAsset?.asset && bnOrZero(sellTradeAsset.amount).gt(0)) {
-      updateQuote({
-        forceQuote: true,
-        amount: bnOrZero(sellTradeAsset.amount).toString(),
-        sellAsset: sellTradeAsset.asset,
-        buyAsset: buyTradeAsset.asset,
-        feeAsset,
-        action: TradeAmountInputField.SELL,
-        selectedCurrencyToUsdRate,
-      })
-    }
-    // only dependency of this hook is the fiat currency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCurrencyToUsdRate])
 
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
         <Card variant='unstyled'>
-          <Card.Header textAlign='center' px={0} pt={0}>
-            <Card.Heading>
-              <Text translation='assets.assetCards.assetActions.trade' />
-            </Card.Heading>
-          </Card.Header>
           <Card.Body pb={0} px={0}>
             <FormControl isInvalid={!!errors.fiatSellAmount}>
               <Controller
@@ -278,14 +352,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value && sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                        updateQuote({
-                          amount: e.value,
-                          sellAsset: sellTradeAsset.asset,
-                          buyAsset: buyTradeAsset.asset,
-                          feeAsset,
-                          action: TradeAmountInputField.FIAT,
-                          selectedCurrencyToUsdRate,
-                        })
+                        setValue('action', TradeAmountInputField.FIAT)
+                        setValue('amount', e.value)
                       }
                     }}
                   />
@@ -335,6 +403,14 @@ export const TradeInput = ({ history }: RouterProps) => {
                 data-test='trade-form-token-input-row-sell'
               />
             </FormControl>
+            {shouldShowAccountSelection && sellAssetAccount && (
+              <AssetAccountRow
+                accountId={sellAssetAccount}
+                assetId={sellTradeAsset?.asset?.assetId}
+                key={sellAssetAccount}
+                onClick={() => history.push(TradeRoutePaths.AccountSelect)}
+              />
+            )}
             <FormControl
               rounded=''
               my={6}
@@ -349,7 +425,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 aria-label='Switch'
                 isRound
                 icon={<FaArrowsAltV />}
-                isLoading={!!(!quote || error)}
+                isLoading={!quote}
                 _loading={{ color: 'blue.500' }}
                 data-test='swap-assets-button'
               />
@@ -360,8 +436,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fontSize='sm'
                 data-test='trade-rate-quote'
               >
-                {!quote || error ? (
-                  <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
+                {!quote ? (
+                  <Text translation={'trade.searchingRate'} />
                 ) : (
                   <>
                     <RawText whiteSpace={'pre'}>{`1 ${sellTradeAsset?.asset?.symbol} = `}</RawText>
@@ -400,9 +476,8 @@ export const TradeInput = ({ history }: RouterProps) => {
               width='full'
               colorScheme={
                 errors.quote ||
-                error ||
                 (isValid &&
-                  (!hasEnoughBalanceForGas || !hasValidTradeBalance) &&
+                  (!hasEnoughBalanceForGas || !hasValidTradeBalance || Boolean(quoteError)) &&
                   hasValidSellAmount)
                   ? 'red'
                   : 'blue'
@@ -416,7 +491,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 !hasEnoughBalanceForGas ||
                 !quote ||
                 !hasValidSellAmount ||
-                !!errors.quote
+                !!errors.quote ||
+                Boolean(quoteError)
               }
               style={{
                 whiteSpace: 'normal',

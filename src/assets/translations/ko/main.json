@@ -352,7 +352,7 @@
     "errors": {
       "title": "문제가 발생했습니다.",
       "notEnoughEth": "거래하기 위해 내야 하는 가스 비용으로 변환할 ETH가 충분하지 않습니다.",
-      "amountToSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
+      "amountTooSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
       "negativeMax": "채굴 수수료로 지불할 자금이 부족합니다. 추정 채굴 수수료는 %{estimatedMinerFee} 입니다.",
       "invalidMax": "잘못된 값입니다. 이 페어에 예치할 수 있는 최대 거래 금액은 %{maxLimit} 입니다.",
       "insufficientFunds": "채굴 수수료 및 금액에 대한 자금이 부족합니다.",

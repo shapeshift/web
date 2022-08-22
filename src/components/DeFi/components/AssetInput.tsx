@@ -8,6 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
@@ -51,6 +52,7 @@ export type AssetInputProps = {
   fiatBalance?: string
   errors?: FieldError
   percentOptions: number[]
+  icons?: string[]
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -67,6 +69,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   fiatBalance,
   errors,
   percentOptions = [0.25, 0.5, 0.75, 1],
+  icons,
   children,
 }) => {
   const {
@@ -93,8 +96,15 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       <Stack direction='row' alignItems='center' px={4}>
         <Button
           onClick={onAssetClick}
+          size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}
-          leftIcon={<AssetIcon src={assetIcon} size='xs' />}
+          leftIcon={
+            icons ? (
+              <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+            ) : (
+              <AssetIcon src={assetIcon} size='xs' />
+            )
+          }
           rightIcon={onAssetClick && <ChevronDownIcon />}
         >
           {assetSymbol}
@@ -156,7 +166,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack px={4} py={2} mt={2} borderTopWidth={1} borderColor={borderColor}>
+        <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>
           {children}
         </Stack>
       )}

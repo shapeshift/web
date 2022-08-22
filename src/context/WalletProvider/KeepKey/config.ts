@@ -1,9 +1,9 @@
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const KeepKeyConfig = {
+export const KeepKeyConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: WebUSBKeepKeyAdapter,
-  mobileEnabled: false,
   icon: KeepKeyIcon,
   name: 'KeepKey',
 }

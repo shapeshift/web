@@ -54,7 +54,12 @@ export const FiatRampsModal = () => {
     <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
       <ModalOverlay />
       <MemoryRouter initialEntries={entries}>
-        <ModalContent>
+        <ModalContent
+          width='full'
+          borderRadius={{ base: 0, md: 'xl' }}
+          minWidth={{ base: '100%', md: '500px' }}
+          maxWidth={{ base: 'full', md: '500px' }}
+        >
           <FiatRampsContent />
         </ModalContent>
       </MemoryRouter>

@@ -35,6 +35,7 @@ const getBestSwapper = jest.fn()
 const getQuote = () => ETHCHAIN_QUOTE
 const approvalNeeded = jest.fn()
 const wallet = {} as HDWallet
+const sellAssetAccount = 'eip155:1:0x8a65ac0e23f31979db06ec62af62b132a6df4741'
 const selectedCurrencyToUsdRate = bn(1)
 const sellAsset: TradeAsset = {
   amount: '20',
@@ -51,7 +52,12 @@ function setup({
   },
 } = {}) {
   approvalNeeded.mockReturnValue({ approvalNeeded: approvalNeededBoolean })
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [quote, sellAsset, action])
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
+    quote,
+    sellAsset,
+    action,
+    sellAssetAccount,
+  ])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     setError,
@@ -60,6 +66,7 @@ function setup({
       buyAsset: { amount: '20', asset: USDC },
       sellAsset,
       fiatAmount: '20',
+      sellAssetAccount,
     }),
     clearErrors,
   }))
@@ -78,6 +85,11 @@ function setup({
     },
     portfolio: {
       assetBalances: {
+        byId: {
+          [ETH.assetId]: '0',
+        },
+      },
+      accountBalances: {
         byId: {
           [ETH.assetId]: '0',
         },
@@ -138,7 +150,7 @@ describe('useSwapper', () => {
   it('approves infinite', async () => {
     const { result } = setup()
     await act(async () => {
-      const txid = await result.current.approveInfinite()
+      const txid = await result.current.approve()
       expect(txid).toBe('0x023423093248420937')
     })
   })
@@ -186,15 +198,16 @@ describe('useSwapper', () => {
         selectedCurrencyToUsdRate,
       })
     })
-    expect(setValue).toHaveBeenNthCalledWith(1, 'quote', undefined)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20.00')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(1, 'quoteError', null)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'fiatSellAmount', '20.00')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(10, 'sellAsset.amount', '20')
   })
   it('getQuote gets quote with buyAmount', async () => {
     const { localMockState } = setup()
@@ -212,15 +225,16 @@ describe('useSwapper', () => {
         selectedCurrencyToUsdRate,
       })
     })
-    expect(setValue).toHaveBeenNthCalledWith(1, 'quote', undefined)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20.00')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(1, 'quoteError', null)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'fiatSellAmount', '20.00')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(10, 'sellAsset.amount', '20')
   })
   it('getQuote gets quote with fiatAmount', async () => {
     const { localMockState } = setup()
@@ -239,15 +253,16 @@ describe('useSwapper', () => {
       })
     })
 
-    expect(setValue).toHaveBeenNthCalledWith(1, 'quote', undefined)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'fees', ETHCHAIN_QUOTE_FEES)
-    expect(setValue).toHaveBeenNthCalledWith(3, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(6, 'feeAssetFiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'fiatSellAmount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(8, 'buyAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(9, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(1, 'quoteError', null)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', undefined)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(6, 'buyAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'feeAssetFiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(8, 'fiatSellAmount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(9, 'buyAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(10, 'sellAsset.amount', '20')
   })
   it('reset resets', async () => {
     const { result, setValue } = setup()

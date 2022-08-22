@@ -1,6 +1,6 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { useEffect, useState } from 'react'
+import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -14,8 +14,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountSpecifierByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
@@ -57,40 +62,46 @@ const StatusInfo = {
   },
 }
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'ClaimStatus'],
-})
-
 export const ClaimStatus = () => {
   const { history: browserHistory } = useBrowserRouter()
   const translate = useTranslate()
   const {
-    state: { txid, amount, assetId, userAddress },
+    state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.PENDING,
   })
 
   // Asset Info
-  const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAssetId = toAssetId({
+    chainId,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
+  })
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  const accountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, chainId),
+  )
+
+  const serializedTxIndex = useMemo(() => {
+    if (!(txid && userAddress)) return ''
+    return serializeTxIndex(accountSpecifier, txid, userAddress)
+  }, [txid, userAddress, accountSpecifier])
+  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    ;(async () => {
-      if (!txid) return
-      try {
-        setState({
-          ...state,
-          txStatus: txid ? TxStatus.SUCCESS : TxStatus.FAILED,
-        })
-      } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
-        setState({
-          ...state,
-          txStatus: TxStatus.FAILED,
-        })
-      }
-    })()
-  }, [state, txid])
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending') {
+      setState({
+        txStatus: confirmedTransaction.status === 'Confirmed' ? TxStatus.SUCCESS : TxStatus.FAILED,
+        usedGasFee: confirmedTransaction.fee
+          ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
+          : '0',
+      })
+    }
+  }, [confirmedTransaction, feeAsset.precision])
 
   return (
     <SlideTransition>
@@ -123,23 +134,18 @@ export const ClaimStatus = () => {
       </ModalBody>
       <ModalFooter>
         <Stack width='full' spacing={4}>
-          {txid && (
-            <Row>
-              <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
-              <Row.Value>
-                <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
-                  <MiddleEllipsis address={txid} />
-                </Link>
-              </Row.Value>
-            </Row>
-          )}
+          <Row>
+            <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
+            <Row.Value>
+              <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
+                <MiddleEllipsis value={txid} />
+              </Link>
+            </Row.Value>
+          </Row>
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto
-                value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
-                symbol={asset?.symbol}
-              />
+              <Amount.Crypto value={amount} symbol={asset?.symbol} />
             </Row.Value>
           </Row>
           <Row>
@@ -150,8 +156,36 @@ export const ClaimStatus = () => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
-                <MiddleEllipsis address={userAddress} />
+                <MiddleEllipsis value={userAddress} />
               </Link>
+            </Row.Value>
+          </Row>
+          <Row>
+            <Row.Label>
+              {translate(
+                state.txStatus === TxStatus.PENDING
+                  ? 'modals.status.estimatedGas'
+                  : 'modals.status.gasUsed',
+              )}
+            </Row.Label>
+            <Row.Value>
+              <Stack textAlign='right' spacing={0}>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bnOrZero(
+                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                  )
+                    .times(feeMarketData.price)
+                    .toFixed(2)}
+                />
+                <Amount.Crypto
+                  color='gray.500'
+                  value={bnOrZero(
+                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                  ).toFixed(5)}
+                  symbol='ETH'
+                />
+              </Stack>
             </Row.Value>
           </Row>
           <Button width='full' size='lg' onClick={() => browserHistory.goBack()}>

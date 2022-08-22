@@ -15,6 +15,7 @@
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
+    "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "invalidAddressOrYat": "Invalid Address or Yat",
@@ -53,6 +54,7 @@
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
     "settings": "Settings",
+    "joinDiscord": "Join Discord",
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet",
     "confirmOnWallet": "Confirm On Wallet",
@@ -63,7 +65,8 @@
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
-    "walletSupportsETHOnly": "Ethereum Only"
+    "walletSupportsETHOnly": "Ethereum Only",
+    "loadingText": "Loading..."
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -71,7 +74,8 @@
     "keepKey": {
       "title": "KeepKey Update Available",
       "newUpdateAvailable": "A new KeepKey update is available.",
-      "downloadCta": "Download Update"
+      "downloadCta": "Download Update",
+      "updateRequiredForFeature": "This update is required to support %{feature}"
     }
   },
   "multiCurrency": {
@@ -119,7 +123,8 @@
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
-    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}"
+    "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
+    "usOnly": "US-Only"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -189,6 +194,16 @@
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
+        "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit ETH-FOX LP tokens Now",
+        "foxFarmingBalance": "ETH-FOX LP tokens Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
         "availableRewards": "Available Rewards",
@@ -204,7 +219,7 @@
         "rewardAmount": "Reward Amount",
         "claimingRewards": "Claiming Rewards",
         "claimAmount": "Claim Amount",
-        "claimToAddress": "Claim To Address",
+        "claimToAddress": "Claim To",
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
@@ -331,7 +346,9 @@
     "foxToken": "FOX Opportunities",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
-    "clickToConnect": "Click to connect a wallet"
+    "clickToConnect": "Click to connect a wallet",
+    "wallet": "Wallet",
+    "explore": "Explore"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",
@@ -361,6 +378,8 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -380,16 +399,38 @@
         "claimWithdraw": "Claim Withdraw"
       },
       "erc20": {
-        "approve": "Approve"
+        "approve": "Approve",
+        "revoke": "Revoke",
+        "infinite": "Infinite ∞"
       }
     },
     "unknown": "Transaction"
   },
+  "bridge": {
+    "confirm": "Confirm Bridge",
+    "selectChain": "Select Chain",
+    "selectAsset": "Select Asset",
+    "startBridge": "Start Bridge",
+    "confirmBridge": "Confirm Bridge",
+    "preview": "Preview Bridge",
+    "transferring": "Transferring",
+    "transferComplete": "Transfer Complete",
+    "bridgeAnother": "Bridge another asset",
+    "feeExceedsSend": "Fee exceeds send amount",
+    "receiveAddress": "Receive Address",
+    "route": "Route",
+    "waitTimeLabel": "Approx. Wait Time",
+    "waitTimeValue": "~5-10 minutes",
+    "noSupportedAssets": "No supported assets in portfolio."
+  },
   "trade": {
+    "allowance": "Allowance",
+    "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "minerFee": "Miner Fee",
+    "protocolFee": "Protocol Fee",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
@@ -401,15 +442,19 @@
     "estimatedGasFee": "Estimated Gas Fee",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
+    "unlimited": "Unlimited",
+    "exact": "Exact",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
     "errors": {
       "title": "Something went wrong",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
-      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+      "amountTooSmall": "Minimum: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
@@ -439,7 +484,7 @@
       "executeTradeFailed": "An error occurred executing your trade.",
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
-      "rateError": "An error occurred getting trade rates",
+      "rateError": "We're not able to get a quote for this pair",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -532,6 +577,20 @@
           "required": "Password confirmation is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Back up my wallet",
+        "enterPassword": "Enter your password to continue",
+        "testTitle": "Verify Your Secret Recovery Phrase",
+        "info": {
+          "title": "Your Secret Recovery Phrase",
+          "description": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
+          "warning": "Note: if you lose your Secret Recovery Phrase, ShapeShift can't help you recover your wallet and your funds will be lost forever."
+        },
+        "success": {
+          "title": "Success",
+          "description": "You have backed up your wallet. Remember to store your Secret Recovery Phrase somewhere safe."
         }
       }
     },
@@ -776,7 +835,6 @@
         "button": "Save PIN"
       },
       "settings": {
-        "loadingText": "Loading...",
         "menuLabels": {
           "bootloader": "Bootloader",
           "firmware": "Firmware",
@@ -1103,7 +1161,8 @@
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
-        "availableSupply": "Available Supply"
+        "availableSupply": "Available Supply",
+        "marketData": "Market Data"
       },
       "assetDescription": {
         "showMore": "Show More",
@@ -1147,7 +1206,8 @@
     }
   },
   "accounts": {
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "selectAccount": "Select an Account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1201,6 +1261,7 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
+    "approvalAmount": "Approval Amount",
     "unknownType": "Transaction",
     "from": "From",
     "to": "To",

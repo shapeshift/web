@@ -59,13 +59,6 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
       )}
       {moreAssetIds && moreAssetIds.length > 0 && (
         <>
-          <Collapse in={isOpen}>
-            <Stack mx={-4}>
-              {moreAssetIds.map(assetId => (
-                <AssetAccountRow assetId={assetId} key={assetId} accountId={accountId} />
-              ))}
-            </Stack>
-          </Collapse>
           <Box mx={-6} width='auto' mb={-4}>
             <Button
               variant='link'
@@ -81,6 +74,13 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
               })}
             </Button>
           </Box>
+          <Collapse in={isOpen}>
+            <Stack mx={-4}>
+              {moreAssetIds.map(assetId => (
+                <AssetAccountRow assetId={assetId} key={assetId} accountId={accountId} />
+              ))}
+            </Stack>
+          </Collapse>
         </>
       )}
     </>

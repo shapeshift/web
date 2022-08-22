@@ -94,7 +94,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              {vanityAddress ? vanityAddress : <MiddleEllipsis address={address} />}
+              {vanityAddress ? vanityAddress : <MiddleEllipsis value={address} />}
             </Row.Value>
           </Row>
           <FormControl mt={4}>

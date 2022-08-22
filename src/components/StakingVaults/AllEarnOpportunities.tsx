@@ -28,7 +28,7 @@ export const AllEarnOpportunities = () => {
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances()
   const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
@@ -42,7 +42,7 @@ export const AllEarnOpportunities = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: foxyRows,
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],

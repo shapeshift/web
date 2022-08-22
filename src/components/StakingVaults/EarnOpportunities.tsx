@@ -37,14 +37,14 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const vaults = useYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances()
   const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const featureFlags = useAppSelector(selectFeatureFlags)
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: foxyRows,
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
     foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,

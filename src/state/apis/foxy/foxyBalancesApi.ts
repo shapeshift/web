@@ -5,11 +5,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
 import { getFoxyApi } from './foxyApiSingleton'
@@ -32,14 +33,14 @@ export type FoxyOpportunity = {
   rewardToken: string
   stakingToken: string
   chainId: ChainId
-  tvl?: BigNumber
+  tvl?: string
   expired?: boolean
   apy?: string
   balance: string
   contractAssetId: AssetId
   tokenAssetId: AssetId
   rewardTokenAssetId: AssetId
-  pricePerShare: BigNumber
+  pricePerShare: string
   withdrawInfo: WithdrawInfo
 }
 
@@ -62,13 +63,21 @@ const makeFiatAmount = (opportunity: FoxyOpportunity, assets: any, marketData: a
     .times(bnOrZero(marketPrice))
 }
 
-const makeTotalBalance = (opportunities: any, assets: any, marketData: any): BN =>
+const makeTotalBalance = (
+  opportunities: Record<string, FoxyOpportunity>,
+  assets: AssetsById,
+  marketData: any,
+): BN =>
   Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
     const amount = makeFiatAmount(opportunity, assets, marketData)
     return acc.plus(bnOrZero(amount))
   }, bn(0))
 
-const makeMergedOpportunities = (opportunities: any, assets: any, marketData: any) =>
+const makeMergedOpportunities = (
+  opportunities: Record<string, FoxyOpportunity>,
+  assets: AssetsById,
+  marketData: any,
+) =>
   Object.values(opportunities).map(opportunity => {
     const asset = assets[opportunity.tokenAssetId]
     const fiatAmount = makeFiatAmount(opportunity, assets, marketData)
@@ -87,7 +96,7 @@ const makeMergedOpportunities = (opportunities: any, assets: any, marketData: an
   })
 
 async function getFoxyOpportunities(
-  balances: any, // PortfolioBalancesById,
+  balances: PortfolioBalancesById,
   api: FoxyApi,
   userAddress: string,
   foxyApr: string,
@@ -122,6 +131,7 @@ async function getFoxyOpportunities(
       const pricePerShare = api.pricePerShare()
       acc[opportunity.contractAddress] = {
         ...opportunity,
+        tvl: opportunity.tvl.toString(),
         apy: foxyApr,
         chainId: opportunity.chain,
         balance: bnOrZero(balance).toString(),
@@ -135,6 +145,7 @@ async function getFoxyOpportunities(
     return acc
   } catch (e) {
     moduleLogger.error(e, { fn: 'getFoxyOpportunities' }, 'Error getting opportunities')
+    return acc
   }
 }
 
@@ -148,9 +159,13 @@ export const foxyBalancesApi = createApi({
     getFoxyBalances: build.query<OutputArgs, InputArgs>({
       queryFn: async ({ supportsEthereumChain, userAddress, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
-        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
-
-        console.info('########### foxyBalancesAPI requesting ##########')
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
+          return {
+            error: {
+              data: `EthereumChainAdapter not found in chainAdapterManager`,
+              status: 400,
+            },
+          }
 
         const { getState } = injected
         const state: any = getState() // ReduxState causes circular dependency
@@ -160,12 +175,8 @@ export const foxyBalancesApi = createApi({
         if (!supportsEthereumChain || !userAddress || !foxyApr) {
           return {
             error: {
-              data: {
-                supportsEthereumChain,
-                userAddress,
-                foxyApr,
-              },
-              status: 'Not ready args',
+              data: 'Not ready args',
+              status: '400',
             },
           }
         }
@@ -183,18 +194,17 @@ export const foxyBalancesApi = createApi({
             userAddress,
             foxyApr ?? '',
           )
-          if (!foxyOpportunities) return
 
           const totalBalance = makeTotalBalance(foxyOpportunities, assets, marketData)
           const mergedOpportunities = makeMergedOpportunities(foxyOpportunities, assets, marketData)
 
           return {
+            error: null,
             data: {
               opportunities: mergedOpportunities,
               totalBalance: totalBalance.toString(),
             },
           }
-          // TODO: mid-fn error handling
         } catch (error) {
           console.error('error', error)
           return {

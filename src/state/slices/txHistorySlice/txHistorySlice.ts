@@ -1,14 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import { Transaction } from '@shapeshiftoss/chain-adapters'
+import { foxyAddresses, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
@@ -284,10 +284,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = adapters.get(chainId) as ChainAdapter<KnownChainIds.EthereumMainnet>
-        const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
-        const foxyArgs = { adapter, foxyAddresses, providerUrl }
-        const foxyApi = new FoxyApi(foxyArgs)
+        const foxyApi = getFoxyApi()
 
         await Promise.all(
           foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {

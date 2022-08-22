@@ -1,8 +1,10 @@
 import { Box, Flex, Heading, Link } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'
 
 export const YatBanner = () => {
+  const translate = useTranslate()
   return (
     <Link href='https://y.at' isExternal>
       <Flex w='100%' position='relative' mt='9' p='3' gap='3' overflow='hidden' borderRadius='lg'>
@@ -29,10 +31,10 @@ export const YatBanner = () => {
         <YatIcon w='29px' h='36px' />
         <Flex flexDir='column' gap='1.5'>
           <Heading as='h2' size='24px' lineHeight='24px' fontWeight='semibold'>
-            Get a Yat
+            {translate('features.yat.banner.title')}
           </Heading>
           <Text
-            translation='Your Yat is your universal emoji username, website&nbsp;URL, payment address, and more.'
+            translation={translate('features.yat.banner.description')}
             fontSize='12px'
             lineHeight='18px'
             fontWeight='medium'

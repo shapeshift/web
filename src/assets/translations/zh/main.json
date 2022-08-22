@@ -999,5 +999,13 @@
     "for": "为了",
     "transfers": "转移",
     "viewOnChain": "链上查看"
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Get a Yat",
+        "description": "Your Yat is your universal emoji username, website&nbsp;URL, payment address, and more."
+      }
+    }
   }
 }

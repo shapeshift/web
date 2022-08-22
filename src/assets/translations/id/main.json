@@ -1007,5 +1007,13 @@
     "to": "Untuk ",
     "for": "Untuk ",
     "transfers": "Transfer"
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Get a Yat",
+        "description": "Your Yat is your universal emoji username, website&nbsp;URL, payment address, and more."
+      }
+    }
   }
 }

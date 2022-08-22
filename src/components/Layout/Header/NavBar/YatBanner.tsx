@@ -1,4 +1,5 @@
 import { Box, Flex, Heading, Link, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'
@@ -9,12 +10,13 @@ type YatBannerProps = {
 
 export const YatBanner = ({ isCompact }: YatBannerProps) => {
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
+  const translate = useTranslate()
 
   const isBig = isLargerThan2xl || !isCompact
 
   return (
-    <Tooltip label='Get a Yat' isDisabled={isBig} placement='right'>
-      <Link href='https://y.at' isExternal aria-label='Get a Yat'>
+    <Tooltip label={translate('features.yat.banner.title')} isDisabled={isBig} placement='right'>
+      <Link href='https://y.at' isExternal aria-label={translate('features.yat.banner.title')}>
         <Flex
           w='100%'
           position='relative'
@@ -48,10 +50,10 @@ export const YatBanner = ({ isCompact }: YatBannerProps) => {
           {isBig && (
             <Flex flexDir='column' gap='1'>
               <Heading as='h2' size='24px' lineHeight='24px' fontWeight='semibold'>
-                Get a Yat
+                {translate('features.yat.banner.title')}
               </Heading>
               <Text
-                translation='Your Yat is your universal emoji username, website&nbsp;URL, payment address, and more.'
+                translation={translate('features.yat.banner.description')}
                 fontSize='10px'
                 lineHeight='14px'
                 fontWeight='medium'

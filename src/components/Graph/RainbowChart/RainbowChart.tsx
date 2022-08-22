@@ -2,7 +2,7 @@ import { Stack, Text } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import { ScaleSVG } from '@visx/responsive'
-import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
+import { AreaSeries, AreaStack, Axis, Margin, Tooltip, XYChart } from '@visx/xychart'
 import { extent, Numeric } from 'd3-array'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
@@ -19,7 +19,7 @@ export type RainbowChartProps = {
   data: RainbowData[]
   width: number
   height: number
-  margin?: { top: number; right: number; bottom: number; left: number }
+  margin?: Margin
 }
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280

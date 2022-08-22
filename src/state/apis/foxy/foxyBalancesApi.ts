@@ -16,11 +16,11 @@ import {
 
 import { getFoxyApi } from './foxyApiSingleton'
 
-type InputArgs = {
+type GetFoxyBalancesInput = {
   userAddress: string
   foxyApr: string
 }
-type OutputArgs = {
+type GetFoxyBalancesOutput = {
   opportunities: MergedFoxyOpportunity[]
   totalBalance: string
 }
@@ -162,7 +162,7 @@ export const foxyBalancesApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getFoxyBalances: build.query<OutputArgs, InputArgs>({
+    getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
       queryFn: async ({ userAddress, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
@@ -221,7 +221,6 @@ export const foxyBalancesApi = createApi({
         }
       },
     }),
-    getFoxyApr: build.query<OutputArgs, InputArgs>({}),
   }),
 })
 

@@ -17,7 +17,7 @@ type VanityAddressValidatorsByChainId = {
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
 const vanityAddressValidatorsByChain: VanityAddressValidatorsByChainId = {
   [btcChainId]: [validateUnstoppableDomain],
-  [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
+  [ethChainId]: [validateYat, validateEnsDomain, validateUnstoppableDomain],
 }
 
 type ValidateVanityAddressArgs = {
@@ -58,7 +58,7 @@ type VanityAddressResolversByChainId = {
 
 const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
-  [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
+  [ethChainId]: [resolveYat, resolveEnsDomain, resolveUnstoppableDomain],
 }
 
 export const resolveVanityAddress: ResolveVanityAddress = async args => {
@@ -148,15 +148,6 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async args => {
-  const isYat = await validateYat(args)
-  if (isYat) {
-    const address = await resolveYat(args)
-    const vanityAddress = await reverseLookupVanityAddress({
-      chainId: args.chainId,
-      value: address,
-    })
-    return { address, vanityAddress }
-  }
   const isValidAddress = await validateAddress(args)
   // we're dealing with a valid address
   if (isValidAddress) {

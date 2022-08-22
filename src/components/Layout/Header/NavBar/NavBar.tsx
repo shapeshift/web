@@ -1,4 +1,4 @@
-import { Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
+import { Divider, Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -33,7 +33,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   }, [pluginRoutes])
 
   return (
-    <Stack width='full' flex='1 1 0%' spacing={6} {...rest}>
+    <Stack width='full' flex='1 1 0%' spacing={6} divider={<Divider />} {...rest}>
       {navItemGroups.map((group, id) => {
         const [name, values] = group
         return (
@@ -46,7 +46,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
                 textTransform='uppercase'
                 fontWeight='bold'
                 letterSpacing='wider'
-                display={{ base: 'none', '2xl': 'block' }}
+                display={{ base: isCompact ? 'none' : 'block', '2xl': 'block' }}
                 translation={`navBar.${name}`}
               />
             )}

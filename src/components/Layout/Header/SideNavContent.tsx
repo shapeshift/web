@@ -85,7 +85,6 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           leftIcon={<ChatIcon />}
           isCompact={isCompact}
           as={Link}
-          justifyContent='flex-start'
           variant='ghost'
           onClick={() => handleClick()}
           label={translate('common.submitFeedback')}

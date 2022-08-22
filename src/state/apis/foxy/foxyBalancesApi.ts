@@ -17,9 +17,8 @@ import {
 import { getFoxyApi } from './foxyApiSingleton'
 
 type InputArgs = {
-  supportsEthereumChain: boolean
-  userAddress: string | null
-  foxyApr: string | null
+  userAddress: string
+  foxyApr: string
 }
 type OutputArgs = {
   opportunities: MergedFoxyOpportunity[]
@@ -164,7 +163,7 @@ export const foxyBalancesApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyBalances: build.query<OutputArgs, InputArgs>({
-      queryFn: async ({ supportsEthereumChain, userAddress, foxyApr }, injected) => {
+      queryFn: async ({ userAddress, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {
@@ -176,15 +175,6 @@ export const foxyBalancesApi = createApi({
 
         const { getState } = injected
         const state: any = getState() // ReduxState causes circular dependency
-
-        if (!supportsEthereumChain || !userAddress || !foxyApr) {
-          return {
-            error: {
-              error: 'Not ready args',
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
 
         const balancesLoading = selectPortfolioLoading(state)
 

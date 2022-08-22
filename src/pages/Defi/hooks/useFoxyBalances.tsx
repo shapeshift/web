@@ -33,11 +33,13 @@ export function useFoxyBalances() {
 
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
-  const foxyBalances = useGetFoxyBalancesQuery({
-    supportsEthereumChain,
-    userAddress,
-    foxyApr,
-  })
+  const foxyBalances = useGetFoxyBalancesQuery(
+    {
+      userAddress: userAddress as string,
+      foxyApr: foxyApr as string,
+    },
+    { skip: !supportsEthereumChain || !userAddress || !foxyApr },
+  )
 
   return foxyBalances
 }

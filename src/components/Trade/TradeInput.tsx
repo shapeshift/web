@@ -159,7 +159,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: amount ?? '0',
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
-        feeAsset,
         action: action ?? TradeAmountInputField.SELL,
         selectedCurrencyToUsdRate,
       })
@@ -168,7 +167,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     action,
     amount,
     buyTradeAsset?.asset,
-    feeAsset,
     selectedCurrencyToUsdRate,
     sellAssetAccount,
     sellTradeAsset?.asset,

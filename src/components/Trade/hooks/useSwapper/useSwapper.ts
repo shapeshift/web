@@ -2,40 +2,34 @@ import { useToast } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import {
   avalancheAssetId,
-  avalancheChainId,
   CHAIN_NAMESPACE,
   ChainId,
   cosmosAssetId,
   ethAssetId,
-  ethChainId,
   fromAssetId,
   osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { avalanche, ChainAdapter, ethereum, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  CowSwapper,
-  OsmosisSwapper,
   SwapError,
   SwapErrorTypes,
   Swapper,
   SwapperManager,
-  ThorchainSwapper,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   UtxoSupportedChainIds,
-  ZrxSwapper,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   DisplayFeeData,
   TradeAmountInputField,
@@ -48,16 +42,17 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
+  selectFeatureFlags,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { calculateAmounts } from './calculateAmounts'
 
@@ -67,7 +62,6 @@ type GetQuoteCommon = {
   amount: string
   sellAsset: Asset
   buyAsset: Asset
-  feeAsset: Asset
   action: TradeAmountInputField
   selectedCurrencyToUsdRate: BigNumber
 }
@@ -81,107 +75,64 @@ type DebouncedQuoteInput = {
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
   sellAssetAccount: string
+  sellAssetUsdRate: string
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 } & GetQuoteCommon
-
-// singleton - do not export me, use getSwapperManager
-let _swapperManager: SwapperManager | null = null
-// singleton - do not export me
-// Used to short circuit calls to getSwapperManager if flags have not changed
-let previousFlags: string = ''
-
-const getSwapperManager = async (): Promise<SwapperManager> => {
-  const flags = store.getState().preferences.featureFlags
-  const flagsChanged = previousFlags !== JSON.stringify(flags)
-  if (_swapperManager && !flagsChanged) return _swapperManager
-  previousFlags = JSON.stringify(flags)
-
-  // instantiate if it doesn't already exist
-  _swapperManager = new SwapperManager()
-
-  const adapterManager = getChainAdapterManager()
-  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
-  const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
-
-  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
-
-  if (flags.Thor) {
-    await (async () => {
-      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      const thorSwapper = new ThorchainSwapper({
-        midgardUrl,
-        adapterManager,
-        web3: ethWeb3,
-      })
-      await thorSwapper.initialize()
-      _swapperManager.addSwapper(thorSwapper)
-    })()
-  }
-
-  const ethereumChainAdapter = adapterManager.get(
-    KnownChainIds.EthereumMainnet,
-  ) as unknown as ethereum.ChainAdapter
-
-  if (flags.CowSwap) {
-    const cowSwapper = new CowSwapper({
-      adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-      web3: ethWeb3,
-    })
-
-    _swapperManager.addSwapper(cowSwapper)
-  }
-
-  const zrxEthereumSwapper = new ZrxSwapper({
-    web3: ethWeb3,
-    adapter: ethereumChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxEthereumSwapper)
-
-  if (flags.Avalanche) {
-    const avalancheChainAdapter = adapterManager.get(
-      KnownChainIds.AvalancheMainnet,
-    ) as unknown as avalanche.ChainAdapter
-
-    const zrxAvalancheSwapper = new ZrxSwapper({
-      web3: avaxWeb3,
-      adapter: avalancheChainAdapter,
-    })
-    _swapperManager.addSwapper(zrxAvalancheSwapper)
-  }
-
-  if (flags.Osmosis) {
-    const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
-    const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
-    const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
-    _swapperManager.addSwapper(osmoSwapper)
-  }
-
-  return _swapperManager
-}
 
 export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, sellTradeAsset, trade, sellAssetAccount, isExactAllowance] = useWatch({
-    name: ['quote', 'sellAsset', 'trade', 'sellAssetAccount', 'isExactAllowance'],
-  }) as [
-    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-    TradeAsset | undefined,
-    Trade<KnownChainIds>,
-    TradeState<KnownChainIds>['sellAssetAccount'],
-    boolean,
-  ]
+  const [quote, sellTradeAsset, buyTradeAsset, trade, sellAssetAccount, isExactAllowance] =
+    useWatch({
+      name: ['quote', 'sellAsset', 'buyAsset', 'trade', 'sellAssetAccount', 'isExactAllowance'],
+    }) as [
+      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+      TradeAsset | undefined,
+      TradeAsset | undefined,
+      Trade<KnownChainIds>,
+      TradeState<KnownChainIds>['sellAssetAccount'],
+      boolean,
+    ]
 
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
+  const flags = useSelector(selectFeatureFlags)
+
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager())
+      setSwapperManager(await getSwapperManager(flags))
     })()
-  }, [])
+  }, [buyTradeAsset?.asset?.assetId, flags, sellTradeAsset?.asset?.assetId, swapperManager])
+
+  const sellTradeAssetId = sellTradeAsset?.asset?.assetId
+  const buyTradeAssetId = buyTradeAsset?.asset?.assetId
+
+  // TODO: rename to sellFeeAsset
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
+  )
+
+  const sellAssetUsdRate = useGetUsdRateQuery({
+    rateAssetId: sellTradeAssetId,
+    buyAssetId: buyTradeAssetId,
+    sellAssetId: sellTradeAssetId,
+  }).data?.usdRate
+
+  const buyAssetUsdRate = useGetUsdRateQuery({
+    rateAssetId: buyTradeAssetId,
+    buyAssetId: buyTradeAssetId,
+    sellAssetId: sellTradeAssetId,
+  }).data?.usdRate
+
+  const feeAssetUsdRate = useGetUsdRateQuery({
+    rateAssetId: feeAsset?.assetId,
+    buyAssetId: buyTradeAssetId,
+    sellAssetId: sellTradeAssetId,
+  }).data?.usdRate
 
   const {
     state: { wallet },
@@ -245,10 +196,6 @@ export const useSwapper = () => {
     }),
   )
 
-  // TODO: rename to sellFeeAsset
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
-  )
   const { showErrorToast } = useErrorHandler()
 
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
@@ -422,21 +369,17 @@ export const useSwapper = () => {
         amount,
         swapper,
         sellAsset,
-        feeAsset,
         buyAsset,
         action,
         wallet,
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
         sellAssetAccount,
+        sellAssetUsdRate,
+        buyAssetUsdRate,
+        feeAssetUsdRate,
       }: DebouncedQuoteInput) => {
         try {
-          const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = await Promise.all([
-            swapper.getUsdRate({ ...sellAsset }),
-            swapper.getUsdRate({ ...buyAsset }),
-            swapper.getUsdRate({ ...feeAsset }),
-          ])
-
           const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
             amount,
             buyAsset,
@@ -537,7 +480,6 @@ export const useSwapper = () => {
       amount,
       sellAsset,
       buyAsset,
-      feeAsset,
       action,
       forceQuote,
       selectedCurrencyToUsdRate,
@@ -545,6 +487,7 @@ export const useSwapper = () => {
       setValue('quoteError', null)
       if (!wallet || !accountSpecifiersList.length) return
       if (!sellAssetAccount) return
+      if (!sellAssetUsdRate || !buyAssetUsdRate || !feeAssetUsdRate) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
       setValue('quote', undefined)
@@ -573,7 +516,6 @@ export const useSwapper = () => {
         await updateQuoteDebounced.current({
           swapper,
           amount,
-          feeAsset,
           sellAsset,
           action,
           buyAsset,
@@ -581,14 +523,20 @@ export const useSwapper = () => {
           accountSpecifiersList,
           selectedCurrencyToUsdRate,
           sellAssetAccount,
+          sellAssetUsdRate,
+          buyAssetUsdRate,
+          feeAssetUsdRate,
         })
       }
     },
     [
       setValue,
-      sellAssetAccount,
       wallet,
       accountSpecifiersList,
+      sellAssetAccount,
+      sellAssetUsdRate,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
       swapperManager,
       clearErrors,
       setError,

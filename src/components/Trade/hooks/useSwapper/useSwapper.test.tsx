@@ -50,6 +50,7 @@ function setup({
     buyAsset: USDC,
     sellAsset: WETH,
   },
+  feeAsset = ETH,
 } = {}) {
   approvalNeeded.mockReturnValue({ approvalNeeded: approvalNeededBoolean })
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
@@ -57,6 +58,7 @@ function setup({
     sellAsset,
     action,
     sellAssetAccount,
+    feeAsset,
   ])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
@@ -67,6 +69,7 @@ function setup({
       sellAsset,
       fiatAmount: '20',
       sellAssetAccount,
+      feeAsset,
     }),
     clearErrors,
   }))
@@ -193,7 +196,6 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        feeAsset: ETH,
         action: TradeAmountInputField.SELL,
         selectedCurrencyToUsdRate,
       })
@@ -220,7 +222,6 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        feeAsset: ETH,
         action: TradeAmountInputField.BUY,
         selectedCurrencyToUsdRate,
       })
@@ -247,7 +248,6 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        feeAsset: ETH,
         action: TradeAmountInputField.FIAT,
         selectedCurrencyToUsdRate,
       })

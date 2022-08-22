@@ -107,7 +107,7 @@ export const Header = () => {
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
-                <FoxIcon ml={{ base: 0, md: 4 }} boxSize='7' />
+                <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
               </Link>
             </Flex>
             <HStack

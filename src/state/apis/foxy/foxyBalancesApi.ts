@@ -1,23 +1,28 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 
+import { getFoxyApi } from './foxyApiSingleton'
+
 type InputArgs = {
-  wallet: any
-  foxy: any
-  foxyApr: any
+  supportsEthereumChain: boolean
+  userAddress: string | null
+  foxyApr: string | null
 }
-type OutputArgs = Record<string, FoxyOpportunity>
+type OutputArgs = {
+  opportunities: MergedFoxyOpportunity[]
+  totalBalance: string
+}
 
 export type FoxyOpportunity = {
   type: DefiType
@@ -43,13 +48,6 @@ export type MergedFoxyOpportunity = FoxyOpportunity & {
   fiatAmount: string
 }
 
-// DITCHME: We don't use a hook anymore
-export type UseFoxyBalancesReturn = {
-  opportunities: MergedFoxyOpportunity[]
-  totalBalance: string
-  loading: boolean
-}
-
 const moduleLogger = logger.child({
   namespace: ['state', 'apis', 'foxy', 'UseFoxyBalances'],
 })
@@ -64,7 +62,7 @@ const makeFiatAmount = (opportunity: FoxyOpportunity, assets: any, marketData: a
     .times(bnOrZero(marketPrice))
 }
 
-const makeTotalBalance = (opportunities: any, assets: any, marketData: any) =>
+const makeTotalBalance = (opportunities: any, assets: any, marketData: any): BN =>
   Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
     const amount = makeFiatAmount(opportunity, assets, marketData)
     return acc.plus(bnOrZero(amount))
@@ -75,7 +73,10 @@ const makeMergedOpportunities = (opportunities: any, assets: any, marketData: an
     const asset = assets[opportunity.tokenAssetId]
     const fiatAmount = makeFiatAmount(opportunity, assets, marketData)
     const marketPrice = marketData[opportunity.tokenAssetId]?.price ?? 0
-    const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
+    const tvl = bnOrZero(opportunity.tvl)
+      .div(`1e+${asset?.precision}`)
+      .times(marketPrice)
+      .toString()
     const data = {
       ...opportunity,
       tvl,
@@ -127,7 +128,7 @@ async function getFoxyOpportunities(
         contractAssetId,
         tokenAssetId,
         rewardTokenAssetId,
-        pricePerShare: bnOrZero(pricePerShare),
+        pricePerShare: bnOrZero(pricePerShare).toString(),
         withdrawInfo,
       }
     }
@@ -145,31 +146,37 @@ export const foxyBalancesApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyBalances: build.query<OutputArgs, InputArgs>({
-      queryFn: async ({ wallet, foxy, foxyApr }, injected) => {
-        debugger
-        const supportsEthereumChain = supportsETH(wallet)
+      queryFn: async ({ supportsEthereumChain, userAddress, foxyApr }, injected) => {
+        const chainAdapterManager = getChainAdapterManager()
+        if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
 
-        if (!wallet || !supportsEthereumChain || !foxy || !foxyApr) {
+        console.info('########### foxyBalancesAPI requesting ##########')
+
+        const { getState } = injected
+        const state: any = getState() // ReduxState causes circular dependency
+
+        // const balancesLoading = selectPortfolioLoading(state)
+
+        if (!supportsEthereumChain || !userAddress || !foxyApr) {
           return {
             error: {
-              data: '',
+              data: {
+                supportsEthereumChain,
+                userAddress,
+                foxyApr,
+              },
               status: 'Not ready args',
             },
           }
         }
 
-        console.info('########### foxyBalancesAPI requesting ##########')
-        const { getState } = injected
-        const state: any = getState() // ReduxState causes circular dependency
+        const foxy = getFoxyApi()
+
         const marketData = selectMarketData(state)
         const assets = selectAssets(state)
-        const chainAdapterManager = getChainAdapterManager()
         const balances = selectPortfolioAssetBalances(state)
 
         try {
-          const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-          if (!chainAdapter) return
-          const userAddress = await chainAdapter.getAddress({ wallet })
           const foxyOpportunities = await getFoxyOpportunities(
             balances,
             foxy,
@@ -178,9 +185,8 @@ export const foxyBalancesApi = createApi({
           )
           if (!foxyOpportunities) return
 
-          opportunities = foxyOpportunities
-          const totalBalance = makeTotalBalance(opportunities, assets, marketData)
-          const mergedOpportunities = makeMergedOpportunities(opportunities, assets, marketData)
+          const totalBalance = makeTotalBalance(foxyOpportunities, assets, marketData)
+          const mergedOpportunities = makeMergedOpportunities(foxyOpportunities, assets, marketData)
 
           return {
             data: {

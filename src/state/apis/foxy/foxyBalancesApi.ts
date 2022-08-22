@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -54,7 +54,13 @@ const moduleLogger = logger.child({
   namespace: ['state', 'apis', 'foxy', 'UseFoxyBalances'],
 })
 
-const makeFiatAmount = (opportunity: FoxyOpportunity, assets: any, marketData: any) => {
+type MaybeMarketCapData = Record<AssetId, MarketData | undefined>
+
+const makeFiatAmount = (
+  opportunity: FoxyOpportunity,
+  assets: AssetsById,
+  marketData: MaybeMarketCapData,
+) => {
   const asset = assets[opportunity.tokenAssetId]
   const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
   const marketPrice = marketData[opportunity.tokenAssetId]?.price
@@ -67,7 +73,7 @@ const makeFiatAmount = (opportunity: FoxyOpportunity, assets: any, marketData: a
 const makeTotalBalance = (
   opportunities: Record<string, FoxyOpportunity>,
   assets: AssetsById,
-  marketData: any,
+  marketData: MaybeMarketCapData,
 ): BN =>
   Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
     const amount = makeFiatAmount(opportunity, assets, marketData)
@@ -77,7 +83,7 @@ const makeTotalBalance = (
 const makeMergedOpportunities = (
   opportunities: Record<string, FoxyOpportunity>,
   assets: AssetsById,
-  marketData: any,
+  marketData: MaybeMarketCapData,
 ) =>
   Object.values(opportunities).map(opportunity => {
     const asset = assets[opportunity.tokenAssetId]
@@ -163,8 +169,8 @@ export const foxyBalancesApi = createApi({
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {
             error: {
-              data: `EthereumChainAdapter not found in chainAdapterManager`,
-              status: 400,
+              error: `EthereumChainAdapter not found in chainAdapterManager`,
+              status: 'CUSTOM_ERROR',
             },
           }
 
@@ -174,7 +180,8 @@ export const foxyBalancesApi = createApi({
         if (!supportsEthereumChain || !userAddress || !foxyApr) {
           return {
             error: {
-              data: 'Not ready args',
+              error: 'Not ready args',
+              status: 'CUSTOM_ERROR',
             },
           }
         }
@@ -184,13 +191,15 @@ export const foxyBalancesApi = createApi({
         if (balancesLoading)
           return {
             error: {
-              data: 'Portfolio balances not loaded',
+              error: 'Portfolio balances not loaded',
+              status: 'CUSTOM_ERROR',
             },
           }
 
         const foxy = getFoxyApi()
 
         const marketData = selectMarketData(state)
+
         const assets = selectAssets(state)
         const balances = selectPortfolioAssetBalances(state)
 
@@ -215,7 +224,8 @@ export const foxyBalancesApi = createApi({
           console.error('error', error)
           return {
             error: {
-              data: `foxyBalancesAPI Error`,
+              error: `foxyBalancesAPI Error`,
+              status: 'CUSTOM_ERROR',
             },
           }
         }

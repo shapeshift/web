@@ -1,7 +1,9 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { Swapper } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type GetUsdRateArgs = {
   rateAssetId: AssetId | undefined
@@ -13,34 +15,47 @@ type GetUsdRateReturn = {
   usdRate: string
 }
 
+type State = {
+  assets: AssetsState
+  preferences: Preferences
+}
+
+const getBestSwapperFromArgs = async (
+  buyAssetId: AssetId | undefined,
+  sellAssetId: AssetId | undefined,
+  featureFlags: FeatureFlags,
+): Promise<Swapper<ChainId>> => {
+  if (!buyAssetId) throw new Error('buyAssetId is undefined')
+  if (!sellAssetId) throw new Error('sellAssetId is undefined')
+  const swapperManager = await getSwapperManager(featureFlags)
+  const swapper = await swapperManager.getBestSwapper({
+    buyAssetId,
+    sellAssetId,
+  })
+  if (!swapper) throw new Error('swapper is undefined')
+  return swapper
+}
+
 export const swapperApi = createApi({
-  reducerPath: 'swapperApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
+  // reducerPath: 'swapperApi',
+  baseQuery: fakeBaseQuery(),
+  // refetch if network connection i  s dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    // TODO: maybe return rates as an object of rates. Or have a second endpoint that returns results from the first?
-    // Could move the logic into a pure function
-    // getUsdRateByAssetId() and getUsdRates()
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
       queryFn: async (args, injected) => {
         console.info('########### swapperAPI requesting ##########', args)
         const { rateAssetId, buyAssetId, sellAssetId } = args
+        const { getState } = injected
+        const state: State = getState() as unknown as State // ReduxState causes circular dependency
+        const {
+          assets,
+          preferences: { featureFlags },
+        } = state
         try {
-          if (!buyAssetId) throw new Error('buyAssetId is undefined')
-          if (!sellAssetId) throw new Error('sellAssetId is undefined')
           if (!rateAssetId) throw new Error('rateAssetId is undefined')
-          const { getState } = injected
-          const state: any = getState() // ReduxState causes circular dependency
-          const { featureFlags } = state.preferences as Preferences
-          const swapperManager = await getSwapperManager(featureFlags)
-          const swapper = await swapperManager.getBestSwapper({
-            buyAssetId,
-            sellAssetId,
-          })
+          const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
           if (!swapper) throw new Error('swapper is undefined')
-          const { assets } = state
           const rateAsset = assets.byId[rateAssetId]
           const usdRate = await swapper.getUsdRate(rateAsset)
           const data = { usdRate }

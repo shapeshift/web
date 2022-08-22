@@ -104,7 +104,7 @@ export const useSwapper = () => {
 
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager(flags))
+      flags && setSwapperManager(await getSwapperManager(flags))
     })()
   }, [buyTradeAsset?.asset?.assetId, flags, sellTradeAsset?.asset?.assetId, swapperManager])
 

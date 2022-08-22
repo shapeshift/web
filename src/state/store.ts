@@ -3,6 +3,7 @@ import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -22,6 +23,7 @@ const apiMiddleware = [
   portfolioApi.middleware,
   marketApi.middleware,
   assetApi.middleware,
+  swapperApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
 ]

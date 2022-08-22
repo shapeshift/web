@@ -192,7 +192,7 @@ describe('useSwapper', () => {
     })
     const { result, setValue } = setup({ action: TradeAmountInputField.SELL })
     await act(async () => {
-      result.current.updateQuote({
+      await result.current.updateQuote({
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
@@ -218,7 +218,7 @@ describe('useSwapper', () => {
     })
     const { result, setValue } = setup({ action: TradeAmountInputField.BUY })
     await act(async () => {
-      result.current.updateQuote({
+      await result.current.updateQuote({
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
@@ -244,7 +244,7 @@ describe('useSwapper', () => {
     })
     const { result, setValue } = setup({ action: TradeAmountInputField.FIAT })
     await act(async () => {
-      result.current.updateQuote({
+      await result.current.updateQuote({
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,

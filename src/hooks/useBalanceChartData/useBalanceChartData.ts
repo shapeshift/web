@@ -6,6 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
+import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
@@ -346,7 +347,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   balances and fiat prices for each time interval (bucket) of the chart
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds, accountId, timeframe } = args
+  const { assetIds: inputAssetIds, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
@@ -354,9 +355,20 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     makeEmptyBalanceChartData(),
   )
 
-  // TODO(0xdef1cafe): use object keys of balances if we want to hide assets below balance threshold from rainbow charts
   const balances = useAppSelector(state =>
     selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+  )
+
+  const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])
+
+  /**
+   * for rainbow charts on the dashboard, we want the chart to match the AccountTable below
+   * and respect the balance threshold, i.e. we don't want to render zero balances chart lines
+   * for assets with a current balance that falls below the user's specified balance threshold
+   */
+  const assetIds = useMemo(
+    () => intersection(assetIdsWithBalancesAboveThreshold, inputAssetIds),
+    [assetIdsWithBalancesAboveThreshold, inputAssetIds],
   )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)

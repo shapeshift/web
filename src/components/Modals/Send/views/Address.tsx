@@ -87,7 +87,10 @@ export const Address = () => {
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  return address ? true : 'common.invalidAddressOrYat'
+                  const invalidMessage = isYatFeatureEnabled
+                    ? 'common.invalidAddressOrYat'
+                    : 'common.invalidAddress'
+                  return address ? true : invalidMessage
                 },
               },
             }}

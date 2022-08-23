@@ -118,9 +118,8 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     )
   }, [state.claim, feeAssetBalance, feeAsset])
 
-  if (!state || !dispatch) return null
-
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
+    if (!dispatch) return
     try {
       if (
         !(
@@ -151,7 +150,18 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    dispatch,
+    state.userAddress,
+    state.opportunity,
+    idleInvestor,
+    assetReference,
+    walletState.wallet,
+    opportunity,
+    onNext,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm

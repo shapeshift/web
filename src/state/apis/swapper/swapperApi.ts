@@ -37,15 +37,18 @@ const getBestSwapperFromArgs = async (
 }
 
 export const swapperApi = createApi({
-  // reducerPath: 'swapperApi',
+  reducerPath: 'swapperApi',
   baseQuery: fakeBaseQuery(),
-  // refetch if network connection i  s dropped, useful for mobile
+  // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
-      queryFn: async (args, injected) => {
-        console.info('########### swapperAPI requesting ##########', args)
-        const { rateAssetId, buyAssetId, sellAssetId } = args
+      queryFn: async ({ rateAssetId, buyAssetId, sellAssetId }, injected) => {
+        console.info('########### swapperAPI requesting ##########', {
+          rateAssetId,
+          buyAssetId,
+          sellAssetId,
+        })
         const { getState } = injected
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
@@ -55,7 +58,6 @@ export const swapperApi = createApi({
         try {
           if (!rateAssetId) throw new Error('rateAssetId is undefined')
           const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
-          if (!swapper) throw new Error('swapper is undefined')
           const rateAsset = assets.byId[rateAssetId]
           const usdRate = await swapper.getUsdRate(rateAsset)
           const data = { usdRate }
@@ -68,6 +70,11 @@ export const swapperApi = createApi({
         }
       },
     }),
+    // getTradeQuote: build.query<TradeQuote<T>, GetTradeQuoteInput>({
+    //   queryFn: async (args, injected) => {
+    //     const {}
+    //   },
+    // }),
   }),
 })
 

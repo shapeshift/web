@@ -84,17 +84,39 @@ export const useSwapper = () => {
   const toast = useToast()
   const translate = useTranslate()
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, sellTradeAsset, buyTradeAsset, trade, sellAssetAccount, isExactAllowance] =
-    useWatch({
-      name: ['quote', 'sellAsset', 'buyAsset', 'trade', 'sellAssetAccount', 'isExactAllowance'],
-    }) as [
-      TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
-      TradeAsset | undefined,
-      TradeAsset | undefined,
-      Trade<KnownChainIds>,
-      TradeState<KnownChainIds>['sellAssetAccount'],
-      boolean,
-    ]
+  const [
+    quote,
+    sellTradeAsset,
+    buyTradeAsset,
+    trade,
+    sellAssetAccount,
+    isExactAllowance,
+    sellAssetUsdRate,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+  ] = useWatch({
+    name: [
+      'quote',
+      'sellAsset',
+      'buyAsset',
+      'trade',
+      'sellAssetAccount',
+      'isExactAllowance',
+      'sellAssetUsdRate',
+      'buyAssetUsdRate',
+      'feeAssetUsdRate',
+    ],
+  }) as [
+    TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
+    TradeAsset | undefined,
+    TradeAsset | undefined,
+    Trade<KnownChainIds>,
+    TradeState<KnownChainIds>['sellAssetAccount'],
+    boolean,
+    string,
+    string,
+    string,
+  ]
 
   // This will instantiate a manager with no swappers
   // Swappers will be added in the useEffect below
@@ -116,23 +138,37 @@ export const useSwapper = () => {
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   )
 
-  const sellAssetUsdRate = useGetUsdRateQuery({
+  const sellAssetUsdRateResponse = useGetUsdRateQuery({
     rateAssetId: sellTradeAssetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
-  }).data?.usdRate
+  })
 
-  const buyAssetUsdRate = useGetUsdRateQuery({
+  const buyAssetUsdRateResponse = useGetUsdRateQuery({
     rateAssetId: buyTradeAssetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
-  }).data?.usdRate
+  })
 
-  const feeAssetUsdRate = useGetUsdRateQuery({
+  const feeAssetUsdRateResponse = useGetUsdRateQuery({
     rateAssetId: feeAsset?.assetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
-  }).data?.usdRate
+  })
+
+  useEffect(() => {
+    buyAssetUsdRateResponse?.data &&
+      setValue('buyAssetUsdRate', buyAssetUsdRateResponse?.data?.usdRate)
+    sellAssetUsdRateResponse?.data &&
+      setValue('sellAssetUsdRate', sellAssetUsdRateResponse?.data?.usdRate)
+    feeAssetUsdRateResponse?.data &&
+      setValue('feeAssetUsdRate', feeAssetUsdRateResponse?.data?.usdRate)
+  }, [
+    setValue,
+    buyAssetUsdRateResponse?.data,
+    sellAssetUsdRateResponse?.data,
+    feeAssetUsdRateResponse?.data,
+  ])
 
   const {
     state: { wallet },

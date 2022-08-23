@@ -41,43 +41,48 @@ const sellAsset: TradeAsset = {
   amount: '20',
   asset: WETH,
 }
+const buyAsset: TradeAsset = {
+  amount: '20',
+  asset: USDC,
+}
+const trade = undefined
+const isExactAllowance = true
+const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = Array(3).fill('1')
 
 function setup({
-  action = TradeAmountInputField.SELL,
   approvalNeededBoolean = false,
   quote = {
     rate: '1.2',
     buyAsset: USDC,
     sellAsset: WETH,
   },
-  feeAsset = ETH,
 } = {}) {
   approvalNeeded.mockReturnValue({ approvalNeeded: approvalNeededBoolean })
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
     quote,
     sellAsset,
-    action,
+    buyAsset,
+    trade,
     sellAssetAccount,
-    feeAsset,
+    isExactAllowance,
+    sellAssetUsdRate,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
   ])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     setError,
-    getValues: () => ({
-      action,
-      buyAsset: { amount: '20', asset: USDC },
-      sellAsset,
-      fiatAmount: '20',
-      sellAssetAccount,
-      feeAsset,
-    }),
     clearErrors,
   }))
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
   )
+
   const { result } = renderHook(() => useSwapper(), { wrapper })
   const localMockState = {
+    swapperApi: {
+      subscriptions: {},
+    },
     assets: {
       ids: {
         [ETH.assetId]: ETH,
@@ -126,6 +131,7 @@ describe('useSwapper', () => {
         getUsdRate: () => '1',
         approvalNeeded,
         approveInfinite: () => '0x023423093248420937',
+        approveAmount: () => '0x023423093248420937',
         getQuote,
         getTradeQuote: getQuote,
       }),
@@ -190,7 +196,7 @@ describe('useSwapper', () => {
     ;(useSelector as jest.Mock).mockImplementation(callback => {
       return callback(localMockState)
     })
-    const { result, setValue } = setup({ action: TradeAmountInputField.SELL })
+    const { result, setValue } = setup()
     await act(async () => {
       await result.current.updateQuote({
         amount: '20',
@@ -216,7 +222,7 @@ describe('useSwapper', () => {
     ;(useSelector as jest.Mock).mockImplementation(callback => {
       return callback(localMockState)
     })
-    const { result, setValue } = setup({ action: TradeAmountInputField.BUY })
+    const { result, setValue } = setup()
     await act(async () => {
       await result.current.updateQuote({
         amount: '20',
@@ -242,7 +248,7 @@ describe('useSwapper', () => {
     ;(useSelector as jest.Mock).mockImplementation(callback => {
       return callback(localMockState)
     })
-    const { result, setValue } = setup({ action: TradeAmountInputField.FIAT })
+    const { result, setValue } = setup()
     await act(async () => {
       await result.current.updateQuote({
         amount: '20',

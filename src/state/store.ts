@@ -23,9 +23,9 @@ const apiMiddleware = [
   portfolioApi.middleware,
   marketApi.middleware,
   assetApi.middleware,
-  swapperApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
+  swapperApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -43,6 +43,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
+  store.dispatch(apiSlices.swapperApi.util.resetApiState())
 }
 
 /**

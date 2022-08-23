@@ -51,7 +51,6 @@ export const mockStore: ReduxState = {
       Osmosis: false,
       FoxLP: false,
       FoxFarming: false,
-      ConsiderFoxFarmingV4ExpiredForTesting: false,
       Avalanche: false,
       Thor: false,
       CowSwap: false,

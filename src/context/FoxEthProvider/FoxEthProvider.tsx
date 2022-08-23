@@ -188,24 +188,17 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           })
           if (!data) return opportunity
           const { tvl, apr, balances, expired } = data
-          // just for ops testing needs to be removed alongside the flag totally
-          // and `isOpportunityExpired` be changed to `expired`
-          const isOpportunityExpired = featureFlags.ConsiderFoxFarmingV4ExpiredForTesting
-            ? true
-            : expired
           return {
             ...opportunity,
             cryptoAmount: balances.cryptoBalance,
             fiatAmount: balances.fiatBalance,
             isLoaded: true,
             unclaimedRewards: balances.unclaimedRewards,
-            expired: isOpportunityExpired,
-            apy: lpApr && !isOpportunityExpired ? bnOrZero(apr).plus(lpApr).toString() : '0',
+            expired,
+            apy: lpApr && !expired ? bnOrZero(apr).plus(lpApr).toString() : '0',
             tvl,
             // show opportunities that are not expired or ended but user have balance in them
-            isVisible:
-              !isOpportunityExpired ||
-              (isOpportunityExpired && bnOrZero(balances.cryptoBalance).gt(0)),
+            isVisible: !expired || (expired && bnOrZero(balances.cryptoBalance).gt(0)),
           }
         }),
       )
@@ -228,7 +221,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     lpAssetPrecision,
     foxMarketData.price,
     foxAssetPrecision,
-    featureFlags.ConsiderFoxFarmingV4ExpiredForTesting,
     lpApr,
   ])
 

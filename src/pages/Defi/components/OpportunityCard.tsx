@@ -143,7 +143,7 @@ export const OpportunityCard = ({
           </Box>
           {expired && (
             <Flex flex={1} justifyContent='flex-end'>
-              <Tag colorScheme='red'>
+              <Tag colorScheme='yellow'>
                 <Text translation='defi.ended' />
               </Tag>
             </Flex>
@@ -160,7 +160,7 @@ export const OpportunityCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'yellow.500' : ''} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>
@@ -171,8 +171,8 @@ export const OpportunityCard = ({
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
-              <StatNumber color={expired ? 'red.500' : 'green.500'}>
-                <Amount.Percent value={String(apy)} />
+              <StatNumber>
+                <Amount.Percent autoColor value={String(apy)} />
               </StatNumber>
             </Skeleton>
           </Stat>

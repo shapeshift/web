@@ -60,7 +60,16 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
           textAlign='left'
           py={2}
           onClick={
-            !expired ? () => (isConnected ? handleClick() : handleWalletModalOpen()) : () => {}
+            !expired
+              ? () => (isConnected ? handleClick() : handleWalletModalOpen())
+              : () =>
+                  history.push({
+                    pathname: location.pathname,
+                    search: qs.stringify({
+                      ...query,
+                      modal: DefiAction.Withdraw,
+                    }),
+                  })
           }
           leftIcon={
             <IconCircle>

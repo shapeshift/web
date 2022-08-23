@@ -163,7 +163,7 @@ export const Overview: React.FC<OverviewProps> = ({
 
                   {expired && (
                     <Stat fontWeight='medium'>
-                      <Tag colorScheme='red'>
+                      <Tag colorScheme='yellow'>
                         <Text translation='defi.ended' />
                       </Tag>
                     </Stat>

@@ -1,7 +1,19 @@
 import axios from 'axios'
 import { toChecksumAddress } from 'web3-utils'
 
-import { ResolveYat, ValidateYat } from './address'
+// validate a yat
+type ValidateYatArgs = {
+  value: string
+}
+type ValidateYatReturn = boolean
+type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
+
+// resolve a yat
+type ResolveYatArgs = {
+  value: string
+}
+type ResolveYatReturn = string
+type ResolveYat = (args: ResolveYatArgs) => Promise<ResolveYatReturn>
 
 type YatResponse = {
   result: {

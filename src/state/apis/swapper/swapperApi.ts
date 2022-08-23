@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { Swapper } from '@shapeshiftoss/swapper'
+import { GetTradeQuoteInput, Swapper, TradeQuote } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -41,15 +41,10 @@ export const swapperApi = createApi({
   baseQuery: fakeBaseQuery(),
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
+  keepUnusedDataFor: 60,
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
-      queryFn: async ({ rateAssetId, buyAssetId, sellAssetId }, injected) => {
-        console.info('########### swapperAPI requesting ##########', {
-          rateAssetId,
-          buyAssetId,
-          sellAssetId,
-        })
-        const { getState } = injected
+      queryFn: async ({ rateAssetId, buyAssetId, sellAssetId }, { getState }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           assets,
@@ -70,12 +65,29 @@ export const swapperApi = createApi({
         }
       },
     }),
-    // getTradeQuote: build.query<TradeQuote<T>, GetTradeQuoteInput>({
-    //   queryFn: async (args, injected) => {
-    //     const {}
-    //   },
-    // }),
+    getTradeQuote: build.query<TradeQuote<ChainId>, GetTradeQuoteInput>({
+      queryFn: async (args, { getState }) => {
+        const state: State = getState() as unknown as State // ReduxState causes circular dependency
+        const {
+          preferences: { featureFlags },
+        } = state
+        try {
+          const swapper = await getBestSwapperFromArgs(
+            args.sellAsset.assetId,
+            args.buyAsset.assetId,
+            featureFlags,
+          )
+          const tradeQuote = await swapper.getTradeQuote(args)
+          return { data: tradeQuote }
+        } catch (e) {
+          const data = 'getTradeQuote: error fetching trade quote'
+          const status = 400
+          const error = { data, status }
+          return { error }
+        }
+      },
+    }),
   }),
 })
 
-export const { useGetUsdRateQuery } = swapperApi
+export const { useGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi

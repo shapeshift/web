@@ -26,6 +26,7 @@ import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyBalancesApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
@@ -51,7 +52,6 @@ import {
   FOXY_ASSET_ID,
   foxyTradeOpportunitiesBuckets,
 } from './FoxCommon'
-import { useFoxyApr } from './hooks/useFoxyApr'
 import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 
 export enum FoxPageRoutes {
@@ -119,7 +119,7 @@ export const FoxPage = () => {
     [cryptoBalanceFox, cryptoBalanceFoxy],
   )
 
-  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
+  const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
 
   const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
 
@@ -227,9 +227,9 @@ export const FoxPage = () => {
               <Stack spacing={4} flex='1 1 0%' width='full'>
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
-                  apy={foxyApr ?? ''}
+                  apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyBalancesData.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!isFoxyBalancesLoading && isFoxyAprLoaded}
+                  isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
                   balance={cryptoBalances[selectedAssetIndex]}
                   onClick={() => {
                     history.push({

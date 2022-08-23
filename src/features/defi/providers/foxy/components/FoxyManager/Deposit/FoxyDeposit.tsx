@@ -10,7 +10,6 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,6 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyBalancesApi'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -55,14 +55,14 @@ export const FoxyDeposit = () => {
   // user info
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
-  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
+  const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && isFoxyAprLoaded && chainAdapter && api))
+        if (!(walletState.wallet && contractAddress && !isFoxyAprLoading && chainAdapter && api))
           return
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
@@ -71,14 +71,21 @@ export const FoxyDeposit = () => {
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: FoxyDepositActionType.SET_OPPORTUNITY,
-          payload: { ...foxyOpportunity, apy: foxyApr ?? '' },
+          payload: { ...foxyOpportunity, apy: foxyAprData?.foxyApr ?? '' },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxyDeposit error')
       }
     })()
-  }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])
+  }, [
+    api,
+    chainAdapterManager,
+    contractAddress,
+    walletState.wallet,
+    foxyAprData?.foxyApr,
+    isFoxyAprLoading,
+  ])
 
   const handleBack = () => {
     history.push({

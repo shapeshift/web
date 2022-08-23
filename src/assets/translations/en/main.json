@@ -112,6 +112,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -123,7 +124,9 @@
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
     "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
-    "usOnly": "US-Only"
+    "usOnly": "US-Only",
+    "noKYC": "NO KYC",
+    "nonUS": "NON-US"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

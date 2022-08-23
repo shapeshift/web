@@ -14,6 +14,8 @@ import { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
 import { FiatRampsRoutes } from '../FiatRampsCommon'
@@ -24,6 +26,7 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const tagColor = useColorModeValue('gray.600', 'gray.400')
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
@@ -31,6 +34,8 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
+        // TODO: remove before merging to develop
+        if (fiatRamp === 'MtPelerin' && !featureFlags.MtPelerinFiatRamp) return acc
         if (fiatRampConfig.isImplemented) {
           acc.unshift(
             <Button
@@ -120,7 +125,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, setFiatRampProvider, tagColor])
+  }, [featureFlags.MtPelerinFiatRamp, history, setFiatRampProvider, tagColor])
 
   return (
     <>

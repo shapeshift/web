@@ -42,6 +42,9 @@ const validators = {
   REACT_APP_GEM_ASSET_LOGO: url(),
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
+  REACT_APP_MTPELERIN_ASSETS_API: str(),
+  REACT_APP_MTPELERIN_BUY_URL: str(),
+  REACT_APP_MTPELERIN_SELL_URL: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_ZENDESK_KEY: str({ default: '' }),
   REACT_APP_FEATURE_ZENDESK: bool({ default: false }),
@@ -53,6 +56,7 @@ const validators = {
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
+  REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),

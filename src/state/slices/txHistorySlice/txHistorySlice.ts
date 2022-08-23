@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Transaction } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, RebaseHistory } from '@shapeshiftoss/investor-foxy'
@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   AccountSpecifier,
@@ -243,11 +244,8 @@ type RebaseTxHistoryArgs = {
 }
 
 export const txHistoryApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {

@@ -1,4 +1,4 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, CHAIN_REFERENCE, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, MarketData } from '@shapeshiftoss/types'
@@ -17,6 +17,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 
+import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getFoxyApi } from './foxyApiSingleton'
 
 const TOKEMAK_STATS_URL = getConfig().REACT_APP_TOKEMAK_STATS_URL
@@ -177,11 +178,8 @@ async function getFoxyOpportunities(
 }
 
 export const foxyBalancesApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'foxyBalancesApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fakeBaseQuery(),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
       queryFn: async ({ userAddress, foxyApr }, injected) => {

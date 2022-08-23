@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.4.3...@shapeshiftoss/asset-service-v7.5.0) (2022-08-23)
+
+
+### Features
+
+* asset service overrides ([#985](https://github.com/shapeshift/lib/issues/985)) ([f655235](https://github.com/shapeshift/lib/commit/f65523540b553a360bbdf72448e0367f38da4f36))
+
 # [@shapeshiftoss/asset-service-v7.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.4.2...@shapeshiftoss/asset-service-v7.4.3) (2022-08-16)
 
 # [@shapeshiftoss/asset-service-v7.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v7.4.1...@shapeshiftoss/asset-service-v7.4.2) (2022-08-15)

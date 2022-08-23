@@ -50,10 +50,10 @@ export const YatBanner = ({ isCompact }: YatBannerProps) => {
           {isBig && (
             <Flex flexDir='column' gap='1'>
               <Heading as='h2' size='24px' lineHeight='24px' fontWeight='semibold'>
-                {translate('features.yat.banner.title')}
+                <Text translation='features.yat.banner.title' />
               </Heading>
               <Text
-                translation={translate('features.yat.banner.description')}
+                translation='features.yat.banner.description'
                 fontSize='10px'
                 lineHeight='14px'
                 fontWeight='medium'

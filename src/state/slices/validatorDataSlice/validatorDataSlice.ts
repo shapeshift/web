@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import {
@@ -9,6 +9,7 @@ import {
 // @ts-ignore this will fail at 'file differs in casing' error
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -65,14 +66,11 @@ export const validatorData = createSlice({
 })
 
 export const validatorDataApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'validatorDataApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   // 5 minutes caching against overfetching. The only thing that can change on new Tx is effectively TVL and APR
   // The first won't noticeably change given the Million fiat precision we use, and the former effectively won't noticeably change either in such timeframe
   keepUnusedDataFor: 300,
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getValidatorData: build.query<cosmos.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ accountSpecifier, chainId }, { dispatch, getState }) => {

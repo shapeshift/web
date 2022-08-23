@@ -11,7 +11,7 @@ const moduleLogger = logger.child({
 })
 
 type MtPelerinResponse = {
-  [k: string]: {
+  [identifier: string]: {
     symbol: string
     network: string
     decimals: number
@@ -82,18 +82,26 @@ export const createMtPelerinUrl = (
   const params = new URLSearchParams()
 
   params.set('type', 'direct-link')
+  // Default display tab
   params.set('tab', action === FiatRampAction.Sell ? 'sell' : 'buy')
+  // Allows to only display the "Buy" or the "Sell" tab
   params.set('tabs', action === FiatRampAction.Sell ? 'sell' : 'buy')
   if (action === FiatRampAction.Sell) {
+    // Default sell tab source currency
     params.set('ssc', mtPelerinSymbol)
+    // Default sell tab destination currency
     params.set('sdc', 'EUR')
   } else {
+    // Default buy tab destination currency
     params.set('bdc', mtPelerinSymbol)
+    // Default buy tab source currency
     params.set('bsc', 'EUR')
   }
   const network = adapters.getMtPelerinNetFromAssetId(assetId)
   if (!network) throw new Error('Network not supported by MtPelerin')
+  // Default network
   params.set('net', network)
+  // List of authorized networks
   params.set('nets', network)
   params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
   params.set('addr', address)

@@ -125,8 +125,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
-    // 50 CHS is currently equivalent to 51.72 USD, maybe get the actual rate from redux fiat market data?
-    minimumSellThreshold: 52,
+    // 50 CHF is currently equivalent to 51.72 USD
+    // note that Mt Pelerin has a minimum of 50 CHF, and our fiat balance is denoted in USD
+    minimumSellThreshold: 55,
     getBuyAndSellList: async () => {
       const mtPelerinAssets = await getMtPelerinAssets()
       return [mtPelerinAssets, mtPelerinAssets]

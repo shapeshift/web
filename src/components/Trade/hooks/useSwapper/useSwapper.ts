@@ -30,12 +30,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import {
-  DisplayFeeData,
-  TradeAmountInputField,
-  TradeAsset,
-  TradeState,
-} from 'components/Trade/types'
+import { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -111,11 +106,11 @@ export const useSwapper = () => {
     TradeAsset | undefined,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
-    TradeState<KnownChainIds>['sellAssetAccount'],
-    boolean,
-    string,
-    string,
-    string,
+    TS['sellAssetAccount'],
+    TS['isExactAllowance'],
+    TS['sellAssetFiatRate'],
+    TS['buyAssetFiatRate'],
+    TS['feeAssetFiatRate'],
   ]
 
   // This will instantiate a manager with no swappers

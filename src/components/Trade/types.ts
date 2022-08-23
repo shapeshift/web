@@ -39,7 +39,7 @@ export type TradeState<C extends ChainId> = {
   amount: string | null
 }
 
-export type TS = TradeState<KnownChainIds.EthereumMainnet>
+export type TS = TradeState<KnownChainIds>
 
 export enum TradeRoutePaths {
   Input = '/trade/input',

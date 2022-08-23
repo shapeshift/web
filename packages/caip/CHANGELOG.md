@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v6.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.15.1...@shapeshiftoss/caip-v6.16.0) (2022-08-23)
+
+
+### Features
+
+* **caip:** add mt pelerin asset map ([#986](https://github.com/shapeshift/lib/issues/986)) ([c0d73bb](https://github.com/shapeshift/lib/commit/c0d73bbdb97e0fe96aa4c3b6da3778412e8c5016))
+
 # [@shapeshiftoss/caip-v6.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.15.0...@shapeshiftoss/caip-v6.15.1) (2022-08-15)
 
 # [@shapeshiftoss/caip-v6.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.14.0...@shapeshiftoss/caip-v6.15.0) (2022-08-12)

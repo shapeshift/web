@@ -27,10 +27,24 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const defaultMenu: DefiButtonProps[] = [
+  {
+    label: 'common.deposit',
+    icon: <ArrowUpIcon />,
+    action: DefiAction.Deposit,
+  },
+  {
+    label: 'common.withdraw',
+    icon: <ArrowDownIcon />,
+    action: DefiAction.Withdraw,
+  },
+]
+
 export const IdleOverview = () => {
   const { idle: api } = useIdle()
   const translate = useTranslate()
   const toast = useToast()
+  const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [opportunity, setOpportunity] = useState<IdleOpportunity | null>(null)
   const [claimableTokens, setClaimableTokens] = useState<ClaimableToken[]>([])
@@ -80,6 +94,30 @@ export const IdleOverview = () => {
 
         const claimableTokens = await opportunity.getClaimableTokens(walletAddress)
         setClaimableTokens(claimableTokens)
+
+        if (!opportunity.metadata.cdoAddress) {
+          const totalClaimableRewards = claimableTokens
+            ? claimableTokens.reduce((totalRewards, token) => {
+                totalRewards = totalRewards.plus(token.amount)
+                return totalRewards
+              }, bnOrZero(0))
+            : bnOrZero(0)
+
+          const claimDisabled = !totalClaimableRewards || totalClaimableRewards.lte(0)
+
+          setMenu([
+            ...defaultMenu,
+            {
+              icon: <FaGift />,
+              colorScheme: 'green',
+              label: 'common.claim',
+              variant: 'ghost-filled',
+              action: DefiAction.Claim,
+              isDisabled: claimDisabled,
+              toolTip: translate('defi.modals.overview.noWithdrawals'),
+            },
+          ])
+        }
       } catch (error) {
         // TODO: handle client side errors
         console.error('IdleOverview error:', error)
@@ -87,34 +125,28 @@ export const IdleOverview = () => {
     })()
   }, [api, vaultAddress, chainId, toast, translate, walletAddress])
 
-  const additionalParams: Record<string, any> = {}
+  const assets = useAppSelector(selectorState => selectorState.assets.byId)
 
-  useAppSelector(selectorState => {
-    if (claimableTokens && claimableTokens.length > 0) {
-      let rewardAssets: any[] = []
-      claimableTokens.forEach(token => {
-        const rewardAsset = selectAssetById(selectorState, token.assetId)
-        if (rewardAsset) {
-          rewardAssets.push({
-            ...rewardAsset,
-            cryptoBalance: bnOrZero(token.amount).div(`1e+${asset.precision}`).toPrecision(),
-          })
+  const rewardAssets = useMemo(() => {
+    if (!claimableTokens || !claimableTokens.length) return undefined
+    return claimableTokens
+      .map(token => {
+        const rewardAsset = assets[token.assetId]
+        if (!rewardAsset) return undefined
+        return {
+          ...rewardAsset,
+          cryptoBalance: bnOrZero(token.amount).div(`1e+${rewardAsset.precision}`).toPrecision(),
         }
       })
+      .filter(asset => !!asset)
+  }, [assets, claimableTokens])
 
-      additionalParams.rewardAssets = rewardAssets
-    }
-  })
-
-  const totalClaimableRewards = useMemo(() => {
-    if (!claimableTokens) return bnOrZero(0)
-    return claimableTokens.reduce((totalRewards, token) => {
-      totalRewards = totalRewards.plus(token.amount)
-      return totalRewards
-    }, bnOrZero(0))
-  }, [claimableTokens])
-
-  const claimDisabled = !totalClaimableRewards || totalClaimableRewards.lte(0)
+  const additionalParams: Record<string, any> =
+    rewardAssets && rewardAssets.length
+      ? {
+          rewardAssets,
+        }
+      : {}
 
   if (!opportunity) {
     return (
@@ -122,31 +154,6 @@ export const IdleOverview = () => {
         <CircularProgress />
       </Center>
     )
-  }
-
-  const menu: DefiButtonProps[] = [
-    {
-      label: 'common.deposit',
-      icon: <ArrowUpIcon />,
-      action: DefiAction.Deposit,
-    },
-    {
-      label: 'common.withdraw',
-      icon: <ArrowDownIcon />,
-      action: DefiAction.Withdraw,
-    },
-  ]
-
-  if (!opportunity.metadata.cdoAddress) {
-    menu.push({
-      label: 'common.claim',
-      icon: <FaGift />,
-      action: DefiAction.Claim,
-      variant: 'ghost-filled',
-      colorScheme: 'green',
-      isDisabled: claimDisabled,
-      toolTip: translate('defi.modals.overview.noWithdrawals'),
-    })
   }
 
   return (

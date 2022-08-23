@@ -32,6 +32,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { foxEthApi } from 'state/apis/foxEth/foxEthApi'
 import {
   AccountSpecifierMap,
   accountSpecifiers,
@@ -337,6 +338,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!routeAssetId) return
     dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
+
+  // getting fox-eth lp token market data
+  useEffect(() => {
+    if (!isPortfolioLoaded) return
+    dispatch(foxEthApi.endpoints.getFoxEthLpMarketData.initiate())
+  })
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

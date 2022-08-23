@@ -413,8 +413,7 @@ export const useSwapper = () => {
         sellAssetAccount,
         sellAssetFiatRate,
         buyAssetFiatRate,
-      }: // feeAssetFiatRate,
-      DebouncedQuoteInput) => {
+      }: DebouncedQuoteInput) => {
         try {
           const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
             amount,
@@ -480,9 +479,6 @@ export const useSwapper = () => {
             setValue('quoteError', SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL)
           }
           setValue('quote', tradeQuote)
-          setValue('sellAssetFiatRate', sellAssetUsdRate)
-          setValue('buyAssetFiatRate', buyAssetUsdRate)
-          setValue('feeAssetFiatRate', feeAssetUsdRate)
 
           // Update trade input form fields to new calculated amount
           setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount

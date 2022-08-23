@@ -239,7 +239,7 @@ export const foxyBalancesApi = createApi({
         }
       },
     }),
-    getFoxyApr: build.query<GetFoxyAprOutput, {}>({
+    getFoxyApr: build.query<GetFoxyAprOutput, void>({
       queryFn: async () => {
         const response = await axios.get<{ chains: TokemakChainData[] }>(TOKEMAK_STATS_URL)
         const tokemakData = response?.data

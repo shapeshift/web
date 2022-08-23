@@ -66,8 +66,8 @@ export const createMtPelerinUrl = (
   assetId: AssetId,
   address: string,
 ): string => {
-  const mtPeleringSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
-  if (!mtPeleringSymbol) throw new Error('Asset not supported by MtPelerin')
+  const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
+  if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
    * url usage:
    *   https://developers.mtpelerin.com/integration-guides/web-integration
@@ -85,17 +85,17 @@ export const createMtPelerinUrl = (
   params.set('tab', action === FiatRampAction.Sell ? 'sell' : 'buy')
   params.set('tabs', action === FiatRampAction.Sell ? 'sell' : 'buy')
   if (action === FiatRampAction.Sell) {
-    params.set('ssc', mtPeleringSymbol)
+    params.set('ssc', mtPelerinSymbol)
     params.set('sdc', 'EUR')
   } else {
-    params.set('bdc', mtPeleringSymbol)
+    params.set('bdc', mtPelerinSymbol)
     params.set('bsc', 'EUR')
   }
-  const network = adapters.getMtPelerinNetFromMtPelerinAssetSymbol(assetId)
+  const network = adapters.getMtPelerinNetFromAssetId(assetId)
+  if (!network) throw new Error('Network not supported by MtPelerin')
   params.set('net', network)
   params.set('nets', network)
-  // TODO(stackedq): get the real referral code
-  params.set('rfr', 'shapeshift')
+  params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
   params.set('addr', address)
 
   return `${baseUrl.toString()}?${params.toString()}`

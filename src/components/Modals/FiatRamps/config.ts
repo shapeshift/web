@@ -125,7 +125,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
-    // 50 CHS is currently equivalent to 51.72 USD
+    // 50 CHS is currently equivalent to 51.72 USD, maybe get the actual rate from redux fiat market data?
     minimumSellThreshold: 52,
     getBuyAndSellList: async () => {
       const mtPelerinAssets = await getMtPelerinAssets()
@@ -133,9 +133,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       try {
-        const ticker = adapters.assetIdToMtPelerinTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by MtPelerin')
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, ticker, address)
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')

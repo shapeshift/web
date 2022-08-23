@@ -1,7 +1,8 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, AssetId, avalancheChainId, fromAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
+import { store } from 'state/store'
 
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
@@ -33,6 +34,9 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
+  // TODO: this line and its usages should be removed when Avalanche flag got removed.
+  const avalancheFlag = store.getState().preferences.featureFlags.Avalanche
+
   const mtPelerinAssets = Object.values(data)
 
   const assets = mtPelerinAssets.reduce<FiatRampAsset[]>((acc, asset) => {
@@ -40,10 +44,17 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
     // MtPelerin supports multiple networks for a given asset,
     // so if the asset is already proccessed, skip to the next one
     if (acc.find(asset => asset.symbol === symbol)) return acc
-    const assetId = adapters.mtPelerinTickerToAssetId(symbol)
-    if (!assetId) return acc
-    const mapped = { assetId, symbol, name: '' } // name will be set in useFiatRampCurrencyList hook
-    acc.push(mapped)
+
+    const assetIds = adapters.mtPelerinSymbolToAssetIds(symbol)
+    if (!assetIds || !assetIds.length) return acc
+    // if an asset is supported on multiple networks, we need to add them all
+    assetIds.forEach(assetId => {
+      const { chainId } = fromAssetId(assetId)
+      // ignore avalanche assets while avalanche featureFlag is off
+      if (chainId === avalancheChainId && !avalancheFlag) return
+      const mapped = { assetId, symbol, name: '' } // name will be set in useFiatRampCurrencyList hook
+      acc.push(mapped)
+    })
     return acc
   }, [])
 
@@ -52,9 +63,11 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
 
 export const createMtPelerinUrl = (
   action: FiatRampAction,
-  asset: string,
+  assetId: AssetId,
   address: string,
 ): string => {
+  const mtPeleringSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
+  if (!mtPeleringSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
    * url usage:
    *   https://developers.mtpelerin.com/integration-guides/web-integration
@@ -71,10 +84,16 @@ export const createMtPelerinUrl = (
   params.set('type', 'direct-link')
   params.set('tab', action === FiatRampAction.Sell ? 'sell' : 'buy')
   params.set('tabs', action === FiatRampAction.Sell ? 'sell' : 'buy')
-  if (action === FiatRampAction.Sell) params.set('ssc', asset)
-  else params.set('bdc', asset)
-  params.set('net', adapters.getMtPelerinNetFromMtPelerinAssetTicker(asset))
-  params.set('nets', adapters.getMtPelerinNetFromMtPelerinAssetTicker(asset))
+  if (action === FiatRampAction.Sell) {
+    params.set('ssc', mtPeleringSymbol)
+    params.set('sdc', 'EUR')
+  } else {
+    params.set('bdc', mtPeleringSymbol)
+    params.set('bsc', 'EUR')
+  }
+  const network = adapters.getMtPelerinNetFromMtPelerinAssetSymbol(assetId)
+  params.set('net', network)
+  params.set('nets', network)
   // TODO(stackedq): get the real referral code
   params.set('rfr', 'shapeshift')
   params.set('addr', address)

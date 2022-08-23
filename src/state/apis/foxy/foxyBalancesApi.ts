@@ -110,9 +110,8 @@ async function getFoxyOpportunities(
   const acc: Record<string, FoxyOpportunity> = {}
   try {
     const opportunities = await api.getFoxyOpportunities()
-    for (let index = 0; index < opportunities.length; index++) {
+    const getFoxyOpportunitiesPromises = opportunities.map(async opportunity => {
       // TODO: assetIds in vaults
-      const opportunity = opportunities[index]
       const withdrawInfo = await api.getWithdrawInfo({
         contractAddress: opportunity.contractAddress,
         userAddress,
@@ -147,7 +146,9 @@ async function getFoxyOpportunities(
         pricePerShare: bnOrZero(pricePerShare).toString(),
         withdrawInfo,
       }
-    }
+    })
+
+    await Promise.all(getFoxyOpportunitiesPromises)
     return acc
   } catch (e) {
     moduleLogger.error(e, { fn: 'getFoxyOpportunities' }, 'Error getting opportunities')

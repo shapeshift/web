@@ -30,7 +30,8 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   return (
     <Flex
       width='full'
-      height='full'
+      height='auto'
+      flex={1}
       alignItems='flex-start'
       justifyContent='flex-start'
       data-test='full-width-header'
@@ -63,7 +64,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
       )}
 
       <NavBar isCompact={isCompact} mt={6} />
-      <Stack width='full'>
+      <Stack width='full' mt={6}>
         <MainNavLink
           variant='ghost'
           isCompact={isCompact}
@@ -86,7 +87,6 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           leftIcon={<ChatIcon />}
           isCompact={isCompact}
           as={Link}
-          justifyContent='flex-start'
           variant='ghost'
           onClick={() => handleClick()}
           label={translate('common.submitFeedback')}

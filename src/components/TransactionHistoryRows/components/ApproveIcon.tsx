@@ -28,10 +28,11 @@ export const ApproveIcon = ({
         right='0px'
         top='0px'
         zIndex='1'
-        boxSize={'18px'}
+        padding={0}
+        boxSize='50%'
         bg={isRevoke ? 'red.500' : 'green.500'}
       >
-        <Icon as={isRevoke ? FaBan : FaCheck} width='10px' color='black' />
+        <Icon as={isRevoke ? FaBan : FaCheck} width='50%' color='black' />
       </IconCircle>
       <AssetIcon
         src={approvedAsset?.icon}

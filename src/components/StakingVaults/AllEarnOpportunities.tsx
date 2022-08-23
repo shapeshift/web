@@ -28,8 +28,8 @@ export const AllEarnOpportunities = () => {
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
-  const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const { data: foxyBalancesData } = useFoxyBalances()
+  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -42,13 +42,15 @@ export const AllEarnOpportunities = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: foxyRows,
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming
+      ? onlyVisibleFoxFarmingOpportunities
+      : undefined,
   })
 
   const handleClick = useCallback(

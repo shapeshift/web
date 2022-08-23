@@ -25,13 +25,13 @@ import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyOverview = () => {
-  const { opportunities, loading } = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = useMemo(
-    () => opportunities.find(e => e.contractAddress === contractAddress),
-    [opportunities, contractAddress],
+    () => (foxyBalancesData?.opportunities || []).find(e => e.contractAddress === contractAddress),
+    [foxyBalancesData?.opportunities, contractAddress],
   )
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
@@ -59,7 +59,7 @@ export const FoxyOverview = () => {
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   const apy = opportunity?.apy
-  if (loading || !opportunity) {
+  if (isFoxyBalancesLoading || !opportunity) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -126,7 +126,7 @@ export const FoxyOverview = () => {
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: stakingAsset.isTrustedDescription,
       }}
-      tvl={opportunity.tvl?.toFixed(2)}
+      tvl={bnOrZero(opportunity?.tvl).toFixed(2)}
       apy={opportunity.apy?.toString()}
     >
       <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />

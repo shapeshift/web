@@ -4,8 +4,8 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { MergedFoxyOpportunity } from 'state/apis/foxy/foxyBalancesApi'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiProvider, DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
@@ -85,8 +85,8 @@ const useTransformVault = (vaults: SerializableOpportunity[]): EarnOpportunityTy
   }, [])
 }
 
-const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] => {
-  return foxies.map(foxy => {
+const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =>
+  foxies.map(foxy => {
     const {
       provider,
       contractAddress,
@@ -117,7 +117,6 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       isLoaded: true,
     }
   })
-}
 
 const useTransformCosmosStaking = (
   cosmosStakingOpportunities: MergedActiveStakingOpportunity[],

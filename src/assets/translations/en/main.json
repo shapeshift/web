@@ -22,6 +22,7 @@
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
     "claim": "Claim",
+    "withdrawAndClaim": "Withdraw & Claim",
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
@@ -112,6 +113,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -123,7 +125,9 @@
     "fundsFrom": "Funds will be sent from",
     "headerLabel": "Buy/Sell Crypto",
     "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
-    "usOnly": "US-Only"
+    "usOnly": "US-Only",
+    "noKYC": "NO KYC",
+    "nonUS": "NON-US"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +264,7 @@
     "tvl": "TVL",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Ended",
     "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
@@ -309,7 +314,9 @@
         "info": {
           "title": "Withdraw Info",
           "description": "Enter the amount of %{asset} you would like to withdraw.",
-          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time."
+          "yieldyDescription": "Enter the amount of %{asset} you would like to withdraw. Subsequent withdrawals will be combined and reset the withdrawal time.",
+          "farmingExpiredDescription": "This farming rewards contract has ended. You must withdraw your entire balance.",
+          "rewardsInfo": "Rewards you'll receive"
         }
       },
       "approve": {

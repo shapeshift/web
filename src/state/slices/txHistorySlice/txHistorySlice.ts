@@ -1,14 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import { Transaction } from '@shapeshiftoss/chain-adapters'
+import { foxyAddresses, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   AccountSpecifier,
   AccountSpecifierMap,
@@ -243,11 +244,8 @@ type RebaseTxHistoryArgs = {
 }
 
 export const txHistoryApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {
@@ -284,10 +282,7 @@ export const txHistoryApi = createApi({
         }
 
         // setup foxy api
-        const adapter = adapters.get(chainId) as ChainAdapter<KnownChainIds.EthereumMainnet>
-        const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
-        const foxyArgs = { adapter, foxyAddresses, providerUrl }
-        const foxyApi = new FoxyApi(foxyArgs)
+        const foxyApi = getFoxyApi()
 
         await Promise.all(
           foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {

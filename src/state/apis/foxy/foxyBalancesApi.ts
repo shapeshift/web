@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, MarketData } from '@shapeshiftoss/types'
@@ -158,7 +158,7 @@ async function getFoxyOpportunities(
 export const foxyBalancesApi = createApi({
   reducerPath: 'foxyBalancesApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  baseQuery: fakeBaseQuery(),
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({

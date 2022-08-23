@@ -18,15 +18,15 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 type WithdrawCardProps = {
   asset: Asset
   amount: string
+  expired: boolean | undefined
 }
 
-export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { amount } = rest
   const hasClaim = bnOrZero(amount).gt(0)
   const textColor = useColorModeValue('black', 'white')
   const successColor = useColorModeValue('green.500', 'green.200')
@@ -59,7 +59,18 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           justifyContent='flex-start'
           textAlign='left'
           py={2}
-          onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
+          onClick={
+            !expired
+              ? () => (isConnected ? handleClick() : handleWalletModalOpen())
+              : () =>
+                  history.push({
+                    pathname: location.pathname,
+                    search: qs.stringify({
+                      ...query,
+                      modal: DefiAction.Withdraw,
+                    }),
+                  })
+          }
           leftIcon={
             <IconCircle>
               <FaArrowDown />
@@ -77,10 +88,12 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           </Stack>
           <Stack spacing={0} ml='auto' textAlign='right'>
             <Amount.Crypto color={textColor} value={amount} symbol={asset.symbol} />
-            <Stack direction='row' alignItems='center' color='blue.500'>
-              <Text translation='defi.modals.claim.claimNow' />
-              <FaArrowRight />
-            </Stack>
+            {!expired && (
+              <Stack direction='row' alignItems='center' color='blue.500'>
+                <Text translation='defi.modals.claim.claimNow' />
+                <FaArrowRight />
+              </Stack>
+            )}
           </Stack>
         </Button>
       )}

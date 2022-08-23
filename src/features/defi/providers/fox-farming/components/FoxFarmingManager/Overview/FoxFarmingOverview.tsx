@@ -59,7 +59,7 @@ export const FoxFarmingOverview = () => {
     )
   }
 
-  if (cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
+  if (!opportunity.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
         assets={[{ icons: opportunity?.icons! }, rewardAsset]}
@@ -93,27 +93,37 @@ export const FoxFarmingOverview = () => {
         },
       ]}
       provider='ShapeShift'
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-        {
-          label: 'common.claim',
-          icon: <FaGift />,
-          action: DefiAction.Claim,
-          variant: 'ghost-filled',
-          colorScheme: 'green',
-          isDisabled: !hasClaim,
-          toolTip: translate('defi.modals.overview.noWithdrawals'),
-        },
-      ]}
+      menu={
+        opportunity.expired
+          ? [
+              {
+                label: 'common.withdrawAndClaim',
+                icon: <ArrowDownIcon />,
+                action: DefiAction.Withdraw,
+              },
+            ]
+          : [
+              {
+                label: 'common.deposit',
+                icon: <ArrowUpIcon />,
+                action: DefiAction.Deposit,
+              },
+              {
+                label: 'common.withdraw',
+                icon: <ArrowDownIcon />,
+                action: DefiAction.Withdraw,
+              },
+              {
+                label: 'common.claim',
+                icon: <FaGift />,
+                action: DefiAction.Claim,
+                variant: 'ghost-filled',
+                colorScheme: 'green',
+                isDisabled: !hasClaim,
+                toolTip: translate('defi.modals.overview.noWithdrawals'),
+              },
+            ]
+      }
       description={{
         description: stakingAsset.description,
         isLoaded: !descriptionQuery.isLoading,
@@ -121,8 +131,13 @@ export const FoxFarmingOverview = () => {
       }}
       tvl={opportunity.tvl}
       apy={opportunity.apy?.toString()}
+      expired={opportunity.expired}
     >
-      <WithdrawCard asset={rewardAsset} amount={rewardAmountAvailable.toString()} />
+      <WithdrawCard
+        asset={rewardAsset}
+        amount={rewardAmountAvailable.toString()}
+        expired={opportunity.expired}
+      />
     </Overview>
   )
 }

@@ -119,19 +119,6 @@ export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
   }
 }
 
-// validate a yat
-type ValidateYatArgs = {
-  value: string
-}
-type ValidateYatReturn = boolean
-export type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
-
-type ResolveYatArgs = {
-  value: string
-}
-type ResolveYatReturn = string
-export type ResolveYat = (args: ResolveYatArgs) => Promise<ResolveYatReturn>
-
 /**
  * given a value, which may be invalid input, a valid address, or a variety of vanity domains
  * and a chainId, return an object containing and address and vanityAddress
@@ -157,11 +144,9 @@ export const parseAddressInput: ParseAddressInput = async args => {
   }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(args)
-  // at this point it's a valid vanity address, let's resolve it
-  if (isVanityAddress) {
-    const address = await resolveVanityAddress(args)
-    return { address, vanityAddress: args.value }
-  }
   // it's neither a valid address nor a vanity address
-  return { address: '', vanityAddress: '' }
+  if (!isVanityAddress) return { address: '', vanityAddress: '' }
+  // at this point it's a valid vanity address, let's resolve it
+  const address = await resolveVanityAddress(args)
+  return { address, vanityAddress: args.value }
 }

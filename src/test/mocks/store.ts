@@ -59,6 +59,7 @@ export const mockStore: ReduxState = {
       Pendo: false,
       Axelar: false,
       Zendesk: false,
+      Yat: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

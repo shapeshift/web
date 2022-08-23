@@ -17,6 +17,7 @@ export type FeatureFlags = {
   Pendo: boolean
   Axelar: boolean
   Zendesk: boolean
+  Yat: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -45,6 +46,7 @@ const initialState: Preferences = {
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
+    Yat: getConfig().REACT_APP_FEATURE_YAT,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

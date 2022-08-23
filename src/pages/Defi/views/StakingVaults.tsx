@@ -11,7 +11,7 @@ import {
 import { ethChainId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
-import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
+import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
@@ -63,7 +63,7 @@ const FoxFarmCTA = () => {
       search: qs.stringify({
         provider: DefiProvider.FoxFarming,
         chainId: ethChainId,
-        contractAddress: FOX_FARMING_CONTRACT_ADDRESS,
+        contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
         assetReference: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
         rewardId: FOX_TOKEN_CONTRACT_ADDRESS,
         modal: 'overview',

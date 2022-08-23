@@ -16,7 +16,12 @@ export const YatBanner = ({ isCompact }: YatBannerProps) => {
 
   return (
     <Tooltip label={translate('features.yat.banner.title')} isDisabled={isBig} placement='right'>
-      <Link href='https://y.at' isExternal aria-label={translate('features.yat.banner.title')}>
+      <Link
+        href='https://y.at'
+        isExternal
+        aria-label={translate('features.yat.banner.title')}
+        _hover={{ '[id^="yat-banner-gradient"]': { filter: `blur(${isBig ? 30 : 4}px)` } }}
+      >
         <Flex
           w='100%'
           position='relative'
@@ -27,6 +32,7 @@ export const YatBanner = ({ isCompact }: YatBannerProps) => {
           justifyContent='center'
         >
           <Box
+            id='yat-banner-gradient-1'
             left='-10px'
             top='28px'
             w={isBig ? '91px' : '29px'}
@@ -37,6 +43,7 @@ export const YatBanner = ({ isCompact }: YatBannerProps) => {
             bgImage='radial-gradient(circle at center,#00C1C1, transparent)'
           />
           <Box
+            id='yat-banner-gradient-2'
             left={isBig ? '179px' : '24px'}
             top={isBig ? '-44px' : '0px'}
             w={isBig ? '100px' : '24px'}

@@ -4,9 +4,15 @@ import { Text } from 'components/Text'
 
 export const YatBanner = () => {
   return (
-    <Link href='https://y.at' isExternal>
-      <Flex w='100%' position='relative' mt='9' p='3' gap='3' overflow='hidden' borderRadius='lg'>
+    <Link
+      href='https://y.at'
+      isExternal
+      mt='9'
+      _hover={{ '[id^="yat-banner-gradient"]': { filter: 'blur(30px)' } }}
+    >
+      <Flex w='100%' position='relative' p='3' gap='3' overflow='hidden' borderRadius='lg'>
         <Box
+          id='yat-banner-gradient-1'
           left='-33px'
           top='45px'
           w='214px'
@@ -17,6 +23,7 @@ export const YatBanner = () => {
           bgImage='radial-gradient(circle at center,#00C1C1, transparent)'
         />
         <Box
+          id='yat-banner-gradient-2'
           left='256px'
           top='-26px'
           w='211px'

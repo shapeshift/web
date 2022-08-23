@@ -1,7 +1,8 @@
 import 'dotenv/config'
 
-import { CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
 import fs from 'fs'
+import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 
 import { Asset, AssetsById } from '../service/AssetService'
@@ -9,8 +10,14 @@ import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin } from './baseAssets'
 import * as ethereum from './ethereum'
 import * as osmosis from './osmosis'
+import assetOverrides from './overrides.json'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
+
+export type AssetOverrides = Record<
+  AssetId,
+  Partial<Omit<Asset, 'assetId' | 'chainId' | 'precision'>> // fields that can't be overridden
+>
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -50,10 +57,13 @@ const generateAssetData = async () => {
     return acc
   }, {})
 
+  // do this last such that manual overrides take priority
+  const assetsWithOverridesApplied = merge(generatedAssetData, assetOverrides)
+
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,
     // beautify the file for github diff.
-    JSON.stringify(generatedAssetData, null, 2),
+    JSON.stringify(assetsWithOverridesApplied, null, 2),
   )
 }
 

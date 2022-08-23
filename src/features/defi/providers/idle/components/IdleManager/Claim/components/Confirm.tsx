@@ -11,7 +11,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -99,6 +99,25 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     ))
   }, [state.claimableTokens])
 
+  const handleCancel = useCallback(() => {
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        ...query,
+        modal: DefiAction.Overview,
+      }),
+    })
+  }, [history, location, query])
+
+  const hasEnoughBalanceForGas = useMemo(() => {
+    return (
+      state.claim.estimatedGasCrypto &&
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state.claim.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0)
+    )
+  }, [state.claim, feeAssetBalance, feeAsset])
+
   if (!state || !dispatch) return null
 
   const handleConfirm = async () => {
@@ -133,22 +152,6 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
     }
   }
-
-  const handleCancel = () => {
-    history.push({
-      pathname: location.pathname,
-      search: qs.stringify({
-        ...query,
-        modal: DefiAction.Overview,
-      }),
-    })
-  }
-
-  const hasEnoughBalanceForGas =
-    state.claim.estimatedGasCrypto &&
-    bnOrZero(feeAssetBalance)
-      .minus(bnOrZero(state.claim.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-      .gte(0)
 
   return (
     <ReusableConfirm

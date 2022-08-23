@@ -4,7 +4,7 @@ import {
   foxEthLpOpportunityName,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
-import { FOX_FARMING_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
+import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
@@ -38,7 +38,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 'https://assets.coincap.io/assets/icons/fox@2x.png',
               ],
               opportunityProvider: DefiProvider.FoxFarming,
-              opportunityContractAddress: FOX_FARMING_CONTRACT_ADDRESS,
+              opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
             },
           ],
         },

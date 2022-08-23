@@ -1,11 +1,14 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import { useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { MergedFoxyOpportunity, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyBalancesApi'
+import {
+  MergedFoxyOpportunity,
+  useGetFoxyAprQuery,
+  useGetFoxyBalancesQuery,
+} from 'state/apis/foxy/foxyBalancesApi'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]
@@ -29,16 +32,16 @@ export function useFoxyBalances() {
     })()
   }, [wallet])
 
-  const { foxyApr } = useFoxyApr()
+  const { data: foxyAprData } = useGetFoxyAprQuery()
 
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
   const foxyBalances = useGetFoxyBalancesQuery(
     {
       userAddress: userAddress as string,
-      foxyApr: foxyApr as string,
+      foxyApr: foxyAprData?.foxyApr as string,
     },
-    { skip: !supportsEthereumChain || !userAddress || !foxyApr },
+    { skip: !foxyAprData || !supportsEthereumChain || !userAddress },
   )
 
   return foxyBalances

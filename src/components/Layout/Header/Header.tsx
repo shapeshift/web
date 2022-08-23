@@ -107,7 +107,7 @@ export const Header = () => {
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
-                <FoxIcon ml={{ base: 0, md: 4 }} boxSize='7' />
+                <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
               </Link>
             </Flex>
             <HStack
@@ -134,7 +134,11 @@ export const Header = () => {
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent paddingTop='env(safe-area-inset-top)'>
+        <DrawerContent
+          paddingTop='env(safe-area-inset-top)'
+          paddingBottom='max(1rem, env(safe-area-inset-top))'
+          overflowY='auto'
+        >
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>

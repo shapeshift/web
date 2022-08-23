@@ -14,11 +14,6 @@
 # misc
 .DS_Store
 .env
-.base.env
-.develop.env
-.release.env
-.app.env
-.private.env
 
 npm-debug.log*
 yarn-debug.log*

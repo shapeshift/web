@@ -189,7 +189,6 @@ export const foxyBalancesApi = createApi({
         const foxy = getFoxyApi()
 
         const marketData = selectMarketData(state)
-
         const assets = selectAssets(state)
         const balances = selectPortfolioAssetBalances(state)
 

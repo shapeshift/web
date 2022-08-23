@@ -3,6 +3,7 @@ import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -15,6 +16,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
   const { control } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const handleQrClick = () => {
     history.push(SendRoutes.Scan)
@@ -29,7 +31,9 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             autoFocus
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
-            placeholder={translate('modals.send.addressInput')}
+            placeholder={translate(
+              isYatFeatureEnabled ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
             size='lg'
             value={value}
             variant='filled'

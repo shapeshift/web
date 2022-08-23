@@ -7,8 +7,11 @@ import {
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 import { resolveYat, validateYat } from 'lib/address/yat'
+import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
+
+const flags = store.getState().preferences.featureFlags
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -17,7 +20,7 @@ type VanityAddressValidatorsByChainId = {
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
 const vanityAddressValidatorsByChain: VanityAddressValidatorsByChainId = {
   [btcChainId]: [validateUnstoppableDomain],
-  [ethChainId]: [validateYat, validateEnsDomain, validateUnstoppableDomain],
+  [ethChainId]: [...(flags.Yat ? [validateYat] : []), validateEnsDomain, validateUnstoppableDomain],
 }
 
 type ValidateVanityAddressArgs = {
@@ -58,7 +61,7 @@ type VanityAddressResolversByChainId = {
 
 const vanityResolversByChainId: VanityAddressResolversByChainId = {
   [btcChainId]: [resolveUnstoppableDomain],
-  [ethChainId]: [resolveYat, resolveEnsDomain, resolveUnstoppableDomain],
+  [ethChainId]: [...(flags.Yat ? [resolveYat] : []), resolveEnsDomain, resolveUnstoppableDomain],
 }
 
 export const resolveVanityAddress: ResolveVanityAddress = async args => {

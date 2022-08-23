@@ -25,6 +25,7 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
+  foxyBalancesApi: mockApiFactory('foxyBalancesApi' as const),
   portfolio: {
     accounts: {
       byId: {},

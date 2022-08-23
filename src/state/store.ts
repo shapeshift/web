@@ -4,6 +4,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
+import { foxyBalancesApi } from './apis/foxy/foxyBalancesApi'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
@@ -24,6 +25,7 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
+  foxyBalancesApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

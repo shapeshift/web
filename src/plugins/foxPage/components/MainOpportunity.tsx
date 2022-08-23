@@ -31,8 +31,8 @@ export const MainOpportunity = ({
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const { opportunities: foxyOpportunities, loading: isFoxyBalancesLoading } = useFoxyBalances()
-  const hasActiveStaking = bnOrZero(foxyOpportunities?.[0]?.balance).gt(0)
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
 
   return (
     <Card display='block' width='full'>

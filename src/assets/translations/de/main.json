@@ -1272,5 +1272,13 @@
         "neverSellData": "Niemals Ihre Daten zwecks Profit verkaufen"
       }
     }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Get a Yat",
+        "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
+      }
+    }
   }
 }

@@ -76,7 +76,7 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch])
 
-  const renderAssets = useMemo(() => {
+  const claimableAssetsToRender = useMemo(() => {
     if (!state.claimableTokens) return null
     return state.claimableTokens.map((token, index) => (
       <ClaimableAsset key={`asset_${index}`} token={token} />
@@ -145,7 +145,7 @@ export const Status = () => {
               justifyContent='center'
               as='form'
             >
-              {renderAssets}
+              {claimableAssetsToRender}
             </Stack>
           </Row>
         </Row>

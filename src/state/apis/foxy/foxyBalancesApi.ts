@@ -2,6 +2,7 @@ import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, CHAIN_REFERENCE, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -241,35 +242,54 @@ export const foxyBalancesApi = createApi({
     }),
     getFoxyApr: build.query<GetFoxyAprOutput, void>({
       queryFn: async () => {
-        const response = await axios.get<{ chains: TokemakChainData[] }>(TOKEMAK_STATS_URL)
-        const tokemakData = response?.data
-        // Tokemak only supports mainnet for now, so we could just access chains[0], but this keeps things more declarative
-        const tokemakChainData = tokemakData.chains.find(
-          ({ chainId }) => chainId === CHAIN_REFERENCE.EthereumMainnet,
-        )
+        try {
+          const response = await axios.get<{ chains: TokemakChainData[] }>(TOKEMAK_STATS_URL)
+          const tokemakData = response?.data
+          // Tokemak only supports mainnet for now, so we could just access chains[0], but this keeps things more declarative
+          const tokemakChainData = tokemakData.chains.find(
+            ({ chainId }) => chainId === CHAIN_REFERENCE.EthereumMainnet,
+          )
 
-        if (!tokemakChainData?.pools) {
-          return {
-            error: {
-              error: 'Cannot get Tokemak pools data',
-              status: 'CUSTOM_ERROR',
-            },
+          if (!tokemakChainData?.pools) {
+            return {
+              error: {
+                error: 'Cannot get Tokemak pools data',
+                status: 'CUSTOM_ERROR',
+              },
+            }
           }
-        }
 
-        const { pools } = tokemakChainData
-        const tFoxPool = pools.find(({ address }) => address === TOKEMAK_TFOX_POOL_ADDRESS)
+          const { pools } = tokemakChainData
+          const tFoxPool = pools.find(({ address }) => address === TOKEMAK_TFOX_POOL_ADDRESS)
 
-        if (!tFoxPool) {
+          if (!tFoxPool) {
+            return {
+              error: {
+                error: 'Cannot get Tokemak TFOX pool data',
+                status: 'CUSTOM_ERROR',
+              },
+            }
+          }
+
+          return { data: { foxyApr: tFoxPool.liquidityProviderApr } }
+        } catch (e) {
+          if ((e as AxiosError).isAxiosError) {
+            return {
+              error: {
+                error:
+                  (e as AxiosError).response?.statusText ?? 'Cannot get Tokemak TFOX pool data',
+                status: (e as AxiosError).response?.status ?? 400,
+              },
+            }
+          }
+
           return {
             error: {
               error: 'Cannot get Tokemak TFOX pool data',
-              status: 'CUSTOM_ERROR',
+              status: 'PARSING_ERROR',
             },
           }
         }
-
-        return { data: { foxyApr: tFoxPool.liquidityProviderApr } }
       },
     }),
   }),

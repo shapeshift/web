@@ -92,7 +92,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     }, bnOrZero(0))
   }, [state.claimableTokens])
 
-  const renderAssets = useMemo(() => {
+  const claimableAssetsToRender = useMemo(() => {
     if (!state.claimableTokens) return null
     return state.claimableTokens.map((token, index) => (
       <ClaimableAsset key={`asset_${index}`} token={token} />
@@ -185,7 +185,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
               justifyContent='center'
               as='form'
             >
-              {renderAssets}
+              {claimableAssetsToRender}
             </Stack>
           </Row>
         </Row>

@@ -48,6 +48,7 @@ import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
+  selectFeatureFlags,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -121,11 +122,13 @@ export const useSwapper = () => {
   // Swappers will be added in the useEffect below
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
 
+  const flags = useSelector(selectFeatureFlags)
+
   useEffect(() => {
     ;(async () => {
-      setSwapperManager(await getSwapperManager())
+      flags && setSwapperManager(await getSwapperManager(flags))
     })()
-  }, [buyTradeAsset?.asset?.assetId, sellTradeAsset?.asset?.assetId, swapperManager])
+  }, [buyTradeAsset?.asset?.assetId, flags, sellTradeAsset?.asset?.assetId, swapperManager])
 
   const sellTradeAssetId = sellTradeAsset?.asset?.assetId
   const buyTradeAssetId = buyTradeAsset?.asset?.assetId

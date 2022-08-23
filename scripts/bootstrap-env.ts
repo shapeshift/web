@@ -1,6 +1,5 @@
 // build tool
 /* eslint-disable no-console */
-
 import assert from 'assert'
 import dotenv from 'dotenv'
 import { readFileSync, writeFileSync } from 'fs'
@@ -17,6 +16,7 @@ const getSerializedEnvVars = (environment: Environment) => {
     dotenv.parse(readFileSync('.env.base')), // always load the base config first, path is relative to root of repo
     dotenv.parse(readFileSync(`.env.${environment}`)), // load the environment specific .env file, stomp on base
   )
+
   return Object.entries(envVars)
     .map(([k, v]) => `${k}=${v}`) // back to .env style
     .join('\n')
@@ -32,7 +32,7 @@ const getSpecifiedEnvironment = (): Environment => {
 
 const exportDotEnvFile = (serialiazedEnvVars: string) => {
   console.log(serialiazedEnvVars)
-  writeFileSync('.env', serialiazedEnvVars)
+  writeFileSync('.env', serialiazedEnvVars) // write out new .env
 }
 
 const main = () => exportDotEnvFile(getSerializedEnvVars(getSpecifiedEnvironment()))

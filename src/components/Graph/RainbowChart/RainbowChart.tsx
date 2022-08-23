@@ -92,7 +92,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
         <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-          <AreaStack order='reverse' curve={curveLinear}>
+          <AreaStack order='ascending' curve={curveLinear}>
             {areaLines}
           </AreaStack>
           <Axis

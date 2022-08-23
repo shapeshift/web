@@ -13,7 +13,7 @@ import dotenv from 'dotenv'
 import { reactAppEnvVars } from '../src/env'
 
 // the release environment uses the app configuration
-const VALID_ENVIRONMENTS = ['develop', 'app', 'private'] as const
+const VALID_ENVIRONMENTS = ['local', 'develop', 'app', 'private'] as const
 type ValidEnvironment = typeof VALID_ENVIRONMENTS[number]
 
 const args = process.argv.slice(2)
@@ -35,10 +35,10 @@ assert(
  */
 
 // always load the base config first
-dotenv.config({ path: `.base.env` }) // relative to root of repo
+dotenv.config({ path: `.env.base` }) // relative to root of repo
 
 // load the environment specific .env file
-dotenv.config({ path: `.${specifiedEnvironment}.env` })
+dotenv.config({ path: `.env.${specifiedEnvironment}` })
 
 console.log('Loaded environment variables')
 console.log(reactAppEnvVars(process.env))

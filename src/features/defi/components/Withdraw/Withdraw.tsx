@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { MarketData } from '@shapeshiftoss/types'
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, ReactNode } from 'react'
 import {
   ControllerProps,
   ControllerRenderProps,
@@ -38,6 +38,11 @@ export type FlexFieldProps = {
   fiatAmount: ControllerRenderProps<WithdrawValues, 'fiatAmount'>
   handlePercentClick: (args: number) => void
   setDisableInput: (args: boolean) => void
+}
+
+type InputDefaultValue = {
+  cryptoAmount: string
+  fiatAmount: string
 }
 
 type WithdrawProps = {
@@ -66,6 +71,8 @@ type WithdrawProps = {
   onCancel(): void
   onInputChange?: (value: string, isFiat?: boolean) => void
   icons?: string[]
+  inputDefaultValue?: InputDefaultValue
+  inputChildren?: ReactNode
 } & PropsWithChildren
 
 export enum Field {
@@ -99,6 +106,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   children,
   onInputChange,
   icons,
+  inputDefaultValue,
+  inputChildren,
 }) => {
   const translate = useTranslate()
   const {
@@ -114,13 +123,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     name: 'cryptoAmount',
     control,
     rules: cryptoInputValidation,
-    defaultValue: '',
+    defaultValue: inputDefaultValue?.cryptoAmount ?? '',
   })
   const { field: fiatAmount } = useController({
     name: 'fiatAmount',
     control,
     rules: fiatInputValidation,
-    defaultValue: '',
+    defaultValue: inputDefaultValue?.fiatAmount ?? '',
   })
 
   const {
@@ -177,7 +186,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           percentOptions={percentOptions}
           isReadOnly={disableInput}
           icons={icons}
-        />
+        >
+          {!!inputChildren && inputChildren}
+        </AssetInput>
       </FormField>
       {children}
       {enableSlippage && (

@@ -56,6 +56,7 @@ const validators = {
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
+  REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),

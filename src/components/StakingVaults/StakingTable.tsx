@@ -64,11 +64,8 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag
-              colorScheme={row.original.expired ? 'red' : 'green'}
-              size={{ base: 'sm', md: 'md' }}
-            >
-              <Amount.Percent value={value ?? ''} />
+            <Tag size={{ base: 'sm', md: 'md' }}>
+              <Amount.Percent autoColor value={value ?? ''} />
             </Tag>
           </Skeleton>
         ),
@@ -91,7 +88,10 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             {bnOrZero(value).gt(0) ? (
-              <Amount.Fiat value={value} color='green.500' />
+              <Amount.Fiat
+                value={value}
+                color={row.original.expired ? 'yellow.500' : 'green.500'}
+              />
             ) : (
               <RawText>-</RawText>
             )}

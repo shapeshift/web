@@ -75,9 +75,9 @@ type DebouncedQuoteInput = {
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
   sellAssetAccount: string
-  sellAssetUsdRate: string
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
+  sellAssetFiatRate: string
+  buyAssetFiatRate: string
+  feeAssetFiatRate: string
 } & GetQuoteCommon
 
 export const useSwapper = () => {
@@ -91,9 +91,9 @@ export const useSwapper = () => {
     trade,
     sellAssetAccount,
     isExactAllowance,
-    sellAssetUsdRate,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    feeAssetFiatRate,
   ] = useWatch({
     name: [
       'quote',
@@ -102,9 +102,9 @@ export const useSwapper = () => {
       'trade',
       'sellAssetAccount',
       'isExactAllowance',
-      'sellAssetUsdRate',
-      'buyAssetUsdRate',
-      'feeAssetUsdRate',
+      'sellAssetFiatRate',
+      'buyAssetFiatRate',
+      'feeAssetFiatRate',
     ],
   }) as [
     TradeQuote<KnownChainIds> & Trade<KnownChainIds>,
@@ -138,36 +138,36 @@ export const useSwapper = () => {
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   )
 
-  const sellAssetUsdRateResponse = useGetUsdRateQuery({
+  const sellAssetFiatRateResponse = useGetUsdRateQuery({
     rateAssetId: sellTradeAssetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
   })
 
-  const buyAssetUsdRateResponse = useGetUsdRateQuery({
+  const buyAssetFiatRateResponse = useGetUsdRateQuery({
     rateAssetId: buyTradeAssetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
   })
 
-  const feeAssetUsdRateResponse = useGetUsdRateQuery({
+  const feeAssetFiatRateResponse = useGetUsdRateQuery({
     rateAssetId: feeAsset?.assetId,
     buyAssetId: buyTradeAssetId,
     sellAssetId: sellTradeAssetId,
   })
 
   useEffect(() => {
-    buyAssetUsdRateResponse?.data &&
-      setValue('buyAssetUsdRate', buyAssetUsdRateResponse?.data?.usdRate)
-    sellAssetUsdRateResponse?.data &&
-      setValue('sellAssetUsdRate', sellAssetUsdRateResponse?.data?.usdRate)
-    feeAssetUsdRateResponse?.data &&
-      setValue('feeAssetUsdRate', feeAssetUsdRateResponse?.data?.usdRate)
+    buyAssetFiatRateResponse?.data &&
+      setValue('buyAssetFiatRate', buyAssetFiatRateResponse?.data?.usdRate)
+    sellAssetFiatRateResponse?.data &&
+      setValue('sellAssetFiatRate', sellAssetFiatRateResponse?.data?.usdRate)
+    feeAssetFiatRateResponse?.data &&
+      setValue('feeAssetFiatRate', feeAssetFiatRateResponse?.data?.usdRate)
   }, [
     setValue,
-    buyAssetUsdRateResponse?.data,
-    sellAssetUsdRateResponse?.data,
-    feeAssetUsdRateResponse?.data,
+    buyAssetFiatRateResponse?.data,
+    sellAssetFiatRateResponse?.data,
+    feeAssetFiatRateResponse?.data,
   ])
 
   const {
@@ -411,17 +411,17 @@ export const useSwapper = () => {
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
         sellAssetAccount,
-        sellAssetUsdRate,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
-      }: DebouncedQuoteInput) => {
+        sellAssetFiatRate,
+        buyAssetFiatRate,
+      }: // feeAssetFiatRate,
+      DebouncedQuoteInput) => {
         try {
           const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
             amount,
             buyAsset,
             sellAsset,
-            buyAssetUsdRate,
-            sellAssetUsdRate,
+            buyAssetUsdRate: buyAssetFiatRate,
+            sellAssetUsdRate: sellAssetFiatRate,
             action,
             selectedCurrencyToUsdRate,
           })
@@ -523,7 +523,7 @@ export const useSwapper = () => {
       setValue('quoteError', null)
       if (!wallet || !accountSpecifiersList.length) return
       if (!sellAssetAccount) return
-      if (!sellAssetUsdRate || !buyAssetUsdRate || !feeAssetUsdRate) return
+      if (!sellAssetFiatRate || !buyAssetFiatRate || !feeAssetFiatRate) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
       setValue('quote', undefined)
@@ -559,9 +559,9 @@ export const useSwapper = () => {
           accountSpecifiersList,
           selectedCurrencyToUsdRate,
           sellAssetAccount,
-          sellAssetUsdRate,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
+          sellAssetFiatRate,
+          buyAssetFiatRate,
+          feeAssetFiatRate,
         })
       }
     },
@@ -570,9 +570,9 @@ export const useSwapper = () => {
       wallet,
       accountSpecifiersList,
       sellAssetAccount,
-      sellAssetUsdRate,
-      buyAssetUsdRate,
-      feeAssetUsdRate,
+      sellAssetFiatRate,
+      buyAssetFiatRate,
+      feeAssetFiatRate,
       swapperManager,
       clearErrors,
       setError,

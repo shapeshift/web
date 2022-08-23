@@ -12,7 +12,6 @@ import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-// import { store } from 'state/store'
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null

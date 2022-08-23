@@ -1,4 +1,4 @@
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { FoxFarmingEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -16,7 +16,7 @@ type FoxFarmingWithdrawValues = WithdrawValues &
   }
 
 export type FoxFarmingWithdrawState = {
-  opportunity: EarnOpportunityType | null
+  opportunity: FoxFarmingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxFarmingWithdrawValues
@@ -36,7 +36,7 @@ export enum FoxFarmingWithdrawActionType {
 
 type SetOpportunityAction = {
   type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY
-  payload: EarnOpportunityType
+  payload: FoxFarmingEarnOpportunityType
 }
 
 type SetWithdraw = {

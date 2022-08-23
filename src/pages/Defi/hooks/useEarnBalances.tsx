@@ -38,7 +38,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
-  const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
@@ -48,7 +48,9 @@ export function useEarnBalances(): UseEarnBalancesReturn {
       osmosisStakingOpportunities,
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming
+      ? onlyVisibleFoxFarmingOpportunities
+      : undefined,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)

@@ -3,25 +3,38 @@
 
 import assert from 'assert'
 import dotenv from 'dotenv'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 
 // the release environment uses the app configuration
-const VALID_ENVIRONMENTS = ['local', 'develop', 'app', 'private']
+const VALID_ENVIRONMENTS = ['local', 'develop', 'app', 'private'] as const
+type Environment = typeof VALID_ENVIRONMENTS[number]
 
-const args = process.argv.slice(2)
+const getSerializedEnvVars = (environment: Environment) => {
+  console.log(`Using environment variables for ${environment} environment`)
 
-assert(args.length === 1, 'yarn env must be called with exactly one environment argument')
-const specifiedEnvironment = args[0]
-assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), 'invalid environment')
+  const envVars = Object.assign(
+    {},
+    dotenv.parse(readFileSync('.env.base')), // always load the base config first, path is relative to root of repo
+    dotenv.parse(readFileSync(`.env.${environment}`)), // load the environment specific .env file, stomp on base
+  )
+  return Object.entries(envVars)
+    .map(([k, v]) => `${k}=${v}`) // back to .env style
+    .join('\n')
+}
 
-const envVars = Object.assign(
-  {},
-  dotenv.parse(readFileSync('.env.base')), // always load the base config first, path is relative to root of repo
-  dotenv.parse(readFileSync(`.env.${specifiedEnvironment}`)), // load the environment specific .env file
-)
+const getSpecifiedEnvironment = (): Environment => {
+  const args = process.argv.slice(2)
+  assert(args.length === 1, 'yarn env must be called with exactly one environment argument')
+  const specifiedEnvironment = args[0] as Environment
+  assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), 'invalid environment')
+  return specifiedEnvironment
+}
 
-const exportString = Object.entries(envVars)
-  .map(([k, v]) => `${k}=${v}`)
-  .join(' ')
+const exportDotEnvFile = (serialiazedEnvVars: string) => {
+  console.log(serialiazedEnvVars)
+  writeFileSync('.env', serialiazedEnvVars)
+}
 
-console.log(exportString)
+const main = () => exportDotEnvFile(getSerializedEnvVars(getSpecifiedEnvironment()))
+
+main()

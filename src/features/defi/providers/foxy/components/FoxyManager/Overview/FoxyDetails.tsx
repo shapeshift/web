@@ -16,7 +16,7 @@ import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyDetails = () => {
-  const { opportunities, loading } = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const {
     query,
     history: browserHistory,
@@ -27,7 +27,9 @@ export const FoxyDetails = () => {
     exact: true,
   })
   const { chainId, contractAddress, assetReference, rewardId } = query
-  const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const opportunity = (foxyBalancesData?.opportunities || []).find(
+    e => e.contractAddress === contractAddress,
+  )
   const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
   const assetNamespace = 'erc20'
@@ -44,7 +46,7 @@ export const FoxyDetails = () => {
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const apy = opportunity?.apy
-  if (loading || !opportunity) {
+  if (isFoxyBalancesLoading || !opportunity) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress isIndeterminate />

@@ -32,8 +32,10 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
     assetNamespace,
     assetReference,
   })
-  const { opportunities } = useFoxyBalances()
-  const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const { data: foxyBalancesData } = useFoxyBalances()
+  const opportunity = (foxyBalancesData?.opportunities || []).find(
+    e => e.contractAddress === contractAddress,
+  )
   const location = useLocation()
 
   return (

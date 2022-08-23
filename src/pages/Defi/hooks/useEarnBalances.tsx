@@ -21,11 +21,7 @@ export type UseEarnBalancesReturn = {
 }
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const {
-    opportunities: foxyArray,
-    totalBalance: totalFoxyBalance,
-    loading: foxyLoading,
-  } = useFoxyBalances()
+  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
@@ -43,7 +39,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
-    foxyArray,
+    foxyArray: foxyBalancesData?.opportunities || [],
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),
@@ -54,13 +50,14 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
-    .plus(totalFoxyBalance)
+    .plus(foxyBalancesData?.totalBalance ?? '0')
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
     .toString()
+
   return {
     opportunities,
     totalEarningBalance,
-    loading: vaultsLoading || foxyLoading,
+    loading: vaultsLoading || isFoxyBalancesLoading,
   }
 }

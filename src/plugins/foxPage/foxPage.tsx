@@ -78,7 +78,7 @@ export const FoxPage = () => {
   // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
   const assetFox = useAppSelector(state => selectAssetById(state, FOX_ASSET_ID))
   const assetFoxy = useAppSelector(state => selectAssetById(state, FOXY_ASSET_ID))
-  const foxyBalances = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
@@ -147,6 +147,7 @@ export const FoxPage = () => {
   }
 
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
+  if (isFoxyBalancesLoading || !foxyBalancesData) return null
 
   return (
     <Layout
@@ -227,8 +228,8 @@ export const FoxPage = () => {
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
                   apy={foxyApr ?? ''}
-                  tvl={bnOrZero(foxyBalances.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!foxyBalances.loading && isFoxyAprLoaded}
+                  tvl={bnOrZero(foxyBalancesData.opportunities?.[0]?.tvl).toString()}
+                  isLoaded={!isFoxyBalancesLoading && isFoxyAprLoaded}
                   balance={cryptoBalances[selectedAssetIndex]}
                   onClick={() => {
                     history.push({

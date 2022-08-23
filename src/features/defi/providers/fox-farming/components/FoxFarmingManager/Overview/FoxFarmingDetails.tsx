@@ -87,7 +87,11 @@ export const FoxFarmingDetails = () => {
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>
         <Stack width='full'>
           <Text fontWeight='medium' translation='defi.modals.FoxFarmingOverview.withdrawals' />
-          <WithdrawCard asset={rewardAsset} amount={rewardBalance.toString()} />
+          <WithdrawCard
+            asset={rewardAsset}
+            amount={rewardBalance.toString()}
+            expired={opportunity.expired}
+          />
         </Stack>
       </ModalFooter>
     </Flex>

@@ -11,7 +11,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { store } from 'state/store'
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
@@ -19,7 +20,9 @@ let _swapperManager: SwapperManager | null = null
 // Used to short circuit calls to getSwapperManager if flags have not changed
 let previousFlags: string = ''
 
-export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperManager> => {
+export const getSwapperManager = async (): Promise<SwapperManager> => {
+  const state = store.getState()
+  const flags = selectFeatureFlags(state)
   const flagsChanged = previousFlags !== JSON.stringify(flags)
   if (_swapperManager && !flagsChanged) return _swapperManager
   previousFlags = JSON.stringify(flags)

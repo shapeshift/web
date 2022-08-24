@@ -11,6 +11,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -55,7 +56,7 @@ export const Approval = () => {
     setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useFormContext<TS>()
+  } = useFormContext<TS<KnownChainIds.EthereumMainnet>>()
   const { checkApprovalNeeded, updateTrade, approve } = useSwapper()
   const {
     number: { toCrypto, toFiat },

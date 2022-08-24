@@ -3,6 +3,7 @@ import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { foxyBalancesApi } from './apis/foxy/foxyBalancesApi'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
@@ -26,6 +27,7 @@ const apiMiddleware = [
   txHistoryApi.middleware,
   validatorDataApi.middleware,
   foxyBalancesApi.middleware,
+  swapperApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -43,6 +45,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
+  store.dispatch(apiSlices.swapperApi.util.resetApiState())
 }
 
 /**

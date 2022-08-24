@@ -213,7 +213,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           [assetId]: ethAccount.balance,
         }
 
-        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
+        // portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           if (!args.assetIds.includes(token.assetId)) {
@@ -240,11 +240,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         break
       }
       case CHAIN_NAMESPACE.Bitcoin: {
-        const btcAccount = account as Account<KnownChainIds.BitcoinMainnet>
+        // const btcAccount = account as Account<KnownChainIds.BitcoinMainnet>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountSpecifier = `${chainId}:${pubkey}`
-        const addresses = btcAccount.chainSpecific.addresses ?? []
+        // const addresses = btcAccount.chainSpecific.addresses ?? []
 
         portfolio.assetBalances.ids.push(assetId)
         portfolio.accountBalances.ids.push(accountSpecifier)
@@ -277,14 +277,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         // For tx history, we need to have AccountIds of addresses that may have 0 balances
         // for accountSpecifier to AccountId mapping
-        addresses.forEach(({ pubkey }) => {
-          const accountId = toAccountId({ chainId, account: pubkey })
-          if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
-            portfolio.accountSpecifiers.byId[accountSpecifier] = []
-          }
+        // addresses.forEach(({ pubkey }) => {
+        //   const accountId = toAccountId({ chainId, account: pubkey })
+        //   if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
+        //     portfolio.accountSpecifiers.byId[accountSpecifier] = []
+        //   }
 
-          portfolio.accountSpecifiers.byId[accountSpecifier].push(accountId)
-        })
+        //   portfolio.accountSpecifiers.byId[accountSpecifier].push(accountId)
+        // })
 
         break
       }
@@ -292,7 +292,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`
-        const accountId = toAccountId({ chainId, account: _xpubOrAccount })
+        // const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
@@ -384,7 +384,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           [assetId]: account.balance,
         }
 
-        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
+        // portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         break
       }

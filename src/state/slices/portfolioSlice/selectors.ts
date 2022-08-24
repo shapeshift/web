@@ -129,8 +129,8 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 )
 export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
-export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
-  state.portfolio.accountSpecifiers.byId
+export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['ids'] =>
+  state.portfolio.accountSpecifiers.ids
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
@@ -753,10 +753,10 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
 export const selectAccountIdByAddress = createSelector(
   selectAccountIds,
   selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, filterAccountId): string => {
+  (portfolioAccounts: AccountId[], filterAccountId): string => {
     let accountSpecifier = ''
     for (const portfolioAccount in portfolioAccounts) {
-      const isAccountSpecifier = !!portfolioAccounts[portfolioAccount].find(
+      const isAccountSpecifier = !!portfolioAccounts.find(
         accountId => toLower(accountId) === toLower(filterAccountId),
       )
       if (isAccountSpecifier) {

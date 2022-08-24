@@ -1,6 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { BIP44Params } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
@@ -79,10 +80,7 @@ export type PortfolioAccountBalances = {
 
 export type PortfolioAccountSpecifiers = {
   byId: {
-    // this maps an account identifier to a list of addresses
-    // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
-    // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: AccountSpecifier]: AccountId[]
+    [k: AccountSpecifier]: BIP44Params
   }
   ids: AccountSpecifier[]
 }

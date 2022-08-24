@@ -7,8 +7,10 @@ import { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { MainNavLink } from './MainNavLink'
+import { YatBanner } from './YatBanner'
 
 type NavBarProps = {
   isCompact?: boolean
@@ -17,6 +19,7 @@ type NavBarProps = {
 export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
   const groupColor = useColorModeValue('gray.300', 'gray.600')
 
   const navItemGroups = useMemo(() => {
@@ -66,6 +69,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
           </Stack>
         )
       })}
+      {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
     </Stack>
   )
 }

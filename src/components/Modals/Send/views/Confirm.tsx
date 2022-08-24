@@ -22,12 +22,14 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
+import { YatBanner } from '../YatBanner'
 
 export type FeePrice = {
   [key in FeeDataKey]: {
@@ -48,6 +50,7 @@ export const Confirm = () => {
       control,
     })
   const { fees } = useSendFees()
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
@@ -147,6 +150,7 @@ export const Confirm = () => {
         >
           <Text translation='common.confirm' />
         </Button>
+        {isYatFeatureEnabled && <YatBanner />}
       </ModalFooter>
     </SlideTransition>
   )

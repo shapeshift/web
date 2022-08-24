@@ -108,6 +108,8 @@ const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpec
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
+const selectSupportsCosmosSdkParamFromFilterOptional =
+  selectParamFromFilterOptional('supportsCosmosSdk')
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -977,13 +979,11 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 )
 
 const selectDefaultStakingDataByValidatorId = createSelector(
-  (_state: ReduxState, { assetId, supportsCosmosSdk }: OptionalParamFilter) => ({
-    assetId,
-    supportsCosmosSdk,
-  }),
+  selectAssetIdParamFromFilterOptional,
+  selectSupportsCosmosSdkParamFromFilterOptional,
   selectValidators,
-  ({ assetId, supportsCosmosSdk = true }, stakingDataByValidator) => {
-    if (supportsCosmosSdk) return null
+  (assetId, supportsCosmosSdk = true, stakingDataByValidator) => {
+    if (supportsCosmosSdk || !assetId) return null
 
     const { chainId } = fromAssetId(assetId)
 

@@ -14,13 +14,13 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectFoxFarmingOpportunityByContractAddress,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -50,8 +50,9 @@ export const FoxFarmingDeposit = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const { foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
+  )
 
   // user info
   const chainAdapter = chainAdapterManager.get(chainId)
@@ -108,7 +109,7 @@ export const FoxFarmingDeposit = () => {
     }
   }, [translate, asset.symbol, contractAddress])
 
-  if (loading || foxFarmingLoading || !asset || !marketData || !opportunity) {
+  if (loading || !asset || !marketData || !opportunity || !opportunity.isLoaded) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

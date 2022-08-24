@@ -10,15 +10,17 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
-import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFoxFarmingOpportunityByContractAddress,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
@@ -28,10 +30,8 @@ export const FoxFarmingOverview = () => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
-  const opportunity = useMemo(
-    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, foxFarmingOpportunities],
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
@@ -49,7 +49,7 @@ export const FoxFarmingOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  if (loading || !opportunity || !opportunity.apy) {
+  if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>

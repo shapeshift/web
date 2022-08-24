@@ -13,10 +13,10 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import {
   selectAssetById,
+  selectFoxEthLpOpportunity,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -35,7 +35,7 @@ export const FoxEthLpDeposit = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
+  const opportunity = useAppSelector(selectFoxEthLpOpportunity)
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, opportunity.assetId))

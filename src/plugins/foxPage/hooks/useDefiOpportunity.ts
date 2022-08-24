@@ -1,15 +1,19 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useEffect, useState } from 'react'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { selectFeatureFlags } from 'state/slices/selectors'
+import {
+  selectFeatureFlags,
+  selectFoxEthLpOpportunity,
+  selectFoxFarmingOpportunities,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ExternalOpportunity } from '../FoxCommon'
 
 export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)
-  const { foxEthLpOpportunity, foxFarmingOpportunities } = useFoxEth()
+  const foxFarmingOpportunities = useAppSelector(selectFoxFarmingOpportunities)
+  const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   useEffect(() => {

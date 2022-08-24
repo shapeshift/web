@@ -5,10 +5,10 @@ import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
-import { foxEthApi } from './apis/foxEth/foxEthApi'
 import { foxyBalancesApi } from './apis/foxy/foxyBalancesApi'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
+import { foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
@@ -48,6 +48,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
   store.dispatch(apiSlices.swapperApi.util.resetApiState())
+  store.dispatch(apiSlices.foxEthApi.util.resetApiState())
 }
 
 /**

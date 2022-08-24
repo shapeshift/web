@@ -7,6 +7,7 @@ import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
@@ -14,6 +15,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -29,6 +31,7 @@ import { DepositContext } from '../DepositContext'
 export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
+  const reduxDispatch = useDispatch()
   const opportunity = state?.opportunity
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -62,7 +65,13 @@ export const Status = () => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (
+      confirmedTransaction &&
+      confirmedTransaction.status !== 'Pending' &&
+      dispatch &&
+      opportunity &&
+      state?.userAddress
+    ) {
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
@@ -72,8 +81,25 @@ export const Status = () => {
             : '0',
         },
       })
+      const { contractAddress } = opportunity
+      reduxDispatch(
+        foxEthApi.endpoints.getFoxFarmingContractWalletData.initiate(
+          {
+            contractAddress,
+            ethWalletAddress: state.userAddress,
+          },
+          { forceRefetch: true },
+        ),
+      )
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    opportunity,
+    reduxDispatch,
+    state?.userAddress,
+  ])
 
   if (!state || !dispatch || !opportunity) return null
 

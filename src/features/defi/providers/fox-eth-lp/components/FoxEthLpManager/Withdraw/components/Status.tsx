@@ -10,16 +10,17 @@ import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerP
 import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -36,9 +37,10 @@ export const Status = () => {
   const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
+  const opportunity = state?.opportunity
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
+  const reduxDispatch = useDispatch()
   const {
     state: { wallet },
   } = useWallet()
@@ -69,7 +71,12 @@ export const Status = () => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (
+      confirmedTransaction &&
+      confirmedTransaction.status !== 'Pending' &&
+      dispatch &&
+      userAddress
+    ) {
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: {
@@ -79,8 +86,14 @@ export const Status = () => {
             : '0',
         },
       })
+      reduxDispatch(
+        foxEthApi.endpoints.getFoxEthLpWalletData.initiate(
+          { ethWalletAddress: userAddress },
+          { forceRefetch: true },
+        ),
+      )
     }
-  }, [confirmedTransaction, dispatch, ethAsset.precision])
+  }, [confirmedTransaction, dispatch, ethAsset.precision, reduxDispatch, userAddress])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
@@ -90,7 +103,7 @@ export const Status = () => {
     browserHistory.goBack()
   }
 
-  if (!state) return null
+  if (!state || !opportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {

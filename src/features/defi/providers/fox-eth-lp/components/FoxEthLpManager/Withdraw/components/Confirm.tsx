@@ -14,7 +14,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -30,9 +29,8 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { foxEthLpOpportunity: opportunity, onOngoingTxIdChange } = useFoxEth()
   const { removeLiquidity } = useFoxEthLiquidityPool()
-
+  const opportunity = state?.opportunity
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -45,7 +43,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: ethAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleConfirm = async () => {
     try {
@@ -59,7 +57,6 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       )
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
-      onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
       console.error('FoxEthLpWithdraw:handleConfirm error', error)

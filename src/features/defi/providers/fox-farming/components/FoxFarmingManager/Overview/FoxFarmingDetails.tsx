@@ -1,16 +1,17 @@
 import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { useMemo } from 'react'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFoxFarmingOpportunityByContractAddress,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
@@ -27,16 +28,14 @@ export const FoxFarmingDetails = () => {
     exact: true,
   })
   const { contractAddress } = query
-  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
-  const opportunity = useMemo(
-    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, foxFarmingOpportunities],
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
   const rewardBalance = bnOrZero(opportunity?.unclaimedRewards)
   const foxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const apy = opportunity?.apy?.toString()
-  if (loading || !opportunity) {
+  if (!opportunity || !opportunity.isLoaded) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress isIndeterminate />

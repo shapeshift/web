@@ -4,21 +4,19 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
+import { foxAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
+import {
+  selectAssetById,
+  selectFoxEthLpOpportunity,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { foxAssetId, foxEthLpOpportunityName } from '../../../constants'
-
 export const FoxEthLpOverview = () => {
-  const {
-    foxEthLpOpportunity: opportunity,
-    lpFoxBalance: foxBalance,
-    lpEthBalance: ethBalance,
-    lpLoading: loading,
-  } = useFoxEth()
-
+  const opportunity = useAppSelector(selectFoxEthLpOpportunity)
+  const { underlyingFoxAmount, underlyingEthAmount } = opportunity
+  console.info(underlyingFoxAmount, underlyingEthAmount)
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -26,7 +24,7 @@ export const FoxEthLpOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: lpAsset.assetId, selectedLocale })
 
-  if (loading || !opportunity) {
+  if (!opportunity || !opportunity.isLoaded) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -43,8 +41,8 @@ export const FoxEthLpOverview = () => {
       name={foxEthLpOpportunityName}
       opportunityFiatBalance={opportunity.fiatAmount}
       underlyingAssets={[
-        { ...foxAsset, cryptoBalance: foxBalance ?? '0', allocationPercentage: '0.50' },
-        { ...ethAsset, cryptoBalance: ethBalance ?? '0', allocationPercentage: '0.50' },
+        { ...foxAsset, cryptoBalance: underlyingFoxAmount ?? '0', allocationPercentage: '0.50' },
+        { ...ethAsset, cryptoBalance: underlyingEthAmount ?? '0', allocationPercentage: '0.50' },
       ]}
       provider='UNI V2'
       description={{

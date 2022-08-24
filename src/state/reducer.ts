@@ -3,10 +3,10 @@ import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
-import { foxEthApi } from './apis/foxEth/foxEthApi'
 import { foxyBalancesApi } from './apis/foxy/foxyBalancesApi'
 import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
+import { foxEth, foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
@@ -21,6 +21,7 @@ export const slices = {
   portfolio,
   preferences,
   accountSpecifiers,
+  foxEth,
 }
 
 const preferencesPersistConfig = {
@@ -37,6 +38,7 @@ export const sliceReducers = {
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   accountSpecifiers: accountSpecifiers.reducer,
   validatorData: validatorData.reducer,
+  foxEth: foxEth.reducer,
 }
 
 export const apiSlices = {

@@ -13,7 +13,6 @@ import { ScrollToTop } from 'Routes/ScrollToTop'
 import { Zendesk } from 'components/Zendesk/Zendesk'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
-import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PluginProvider } from 'context/PluginProvider/PluginProvider'
@@ -49,9 +48,7 @@ export function AppProviders({ children }: ProvidersProps) {
                       <ModalProvider>
                         <TransactionsProvider>
                           <AppProvider>
-                            <FoxEthProvider>
-                              <DefiManagerProvider>{children}</DefiManagerProvider>
-                            </FoxEthProvider>
+                            <DefiManagerProvider>{children}</DefiManagerProvider>
                           </AppProvider>
                         </TransactionsProvider>
                       </ModalProvider>

@@ -1,3 +1,4 @@
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { ReduxState } from 'state/reducer'
 import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -107,5 +108,9 @@ export const mockStore: ReduxState = {
   validatorData: {
     byValidator: {},
     validatorIds: [],
+  },
+  foxEth: {
+    farmOpportunities: [],
+    lpOpportunity: {} as EarnOpportunityType,
   },
 }

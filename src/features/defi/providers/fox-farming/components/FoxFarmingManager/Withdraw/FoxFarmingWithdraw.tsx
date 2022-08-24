@@ -13,12 +13,15 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectPortfolioLoading } from 'state/slices/selectors'
+import {
+  selectFoxFarmingOpportunityByContractAddress,
+  selectPortfolioLoading,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -42,10 +45,8 @@ export const FoxFarmingWithdraw = () => {
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const { foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = useMemo(
-    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, foxFarmingOpportunities],
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
 
   // user info
@@ -107,7 +108,7 @@ export const FoxFarmingWithdraw = () => {
     }
   }, [opportunity?.expired, opportunity?.opportunityName, translate])
 
-  if (loading || !opportunity || foxFarmingLoading)
+  if (loading || !opportunity || !opportunity.isLoaded)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

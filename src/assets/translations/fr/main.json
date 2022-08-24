@@ -348,7 +348,7 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie"
   },
   "transactionRow": {
-    "send": "Envoyé %{symbol}",
+    "send": "%{symbol} envoyés",
     "receive": "%{symbol} reçus",
     "moreDetails": "Plus de détails",
     "date": "Date",

@@ -63,10 +63,9 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   )
 
   useEffect(() => {
+    if (!dispatch || !idleInvestor) return
     ;(async () => {
-      if (!dispatch || !state.userAddress || !idleInvestor) {
-        return
-      }
+      if (!state.userAddress) return
 
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
 

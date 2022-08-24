@@ -10,8 +10,8 @@ import {
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
 import {
-  ZERO_COSMOS_ADDRESS,
-  ZERO_OSMOSIS_ADDRESS,
+  EMPTY_COSMOS_ADDRESS,
+  EMPTY_OSMOSIS_ADDRESS,
 } from 'state/slices/validatorDataSlice/constants'
 import { useAppSelector } from 'state/store'
 
@@ -53,8 +53,8 @@ export function useCosmosSdkStakingBalances({
 
   // Default account specifiers to fetch Cosmos SDK staking data without any cosmos account
   // Created and private key burned, guaranteed to be empty
-  const defaultCosmosAccountSpecifier = `${cosmosChainId}:${ZERO_COSMOS_ADDRESS}`
-  const defaultOsmosisAccountSpecifier = `${osmosisChainId}:${ZERO_OSMOSIS_ADDRESS}`
+  const defaultCosmosAccountSpecifier = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+  const defaultOsmosisAccountSpecifier = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
   const { chainId } = fromAssetId(assetId)
 
   const defaultAccountSpecifier = (() => {

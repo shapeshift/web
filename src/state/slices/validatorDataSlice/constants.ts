@@ -3,3 +3,4 @@ export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
 export const SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS =
   'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5'
 export const ZERO_COSMOS_ADDRESS = 'cosmos1n89secc5fgu4cje3jw6c3pu264vy2yav2q5xpt'
+export const ZERO_OSMOSIS_ADDRESS = 'osmo1n89secc5fgu4cje3jw6c3pu264vy2yavzm8khe'

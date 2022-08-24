@@ -57,7 +57,10 @@ import {
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { ZERO_COSMOS_ADDRESS } from 'state/slices/validatorDataSlice/constants'
+import {
+  ZERO_COSMOS_ADDRESS,
+  ZERO_OSMOSIS_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -247,10 +250,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
     const options = { forceRefetch: true }
 
+    // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
+    // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId
+    // Since the accountSpecifier is a zero-like address (generated and private keys burned) and isn't actually in state
     if (!(wallet && supportsCosmos(wallet))) {
       const accountSpecifier = `${cosmosChainId}:${ZERO_COSMOS_ADDRESS}`
       dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
     }
+    if (!(wallet && supportsOsmosis(wallet))) {
+      const accountSpecifier = `${osmosisChainId}:${ZERO_OSMOSIS_ADDRESS}`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: osmosisChainId }, options))
+    }
+
     accountSpecifiersList.forEach(accountSpecifierMap => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
         switch (chainId) {

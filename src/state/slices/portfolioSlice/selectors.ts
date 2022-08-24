@@ -44,7 +44,7 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from '../validatorDataSlice/constants'
-import { selectValidators } from '../validatorDataSlice/selectors'
+import { selectValidatorByAddress, selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
@@ -972,13 +972,36 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
   },
 )
 
+const selectDefaultStakingDataByValidatorId = createSelector(
+  state => {
+    console.log({ state })
+    return selectValidatorByAddress(state, 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf')
+  },
+  defaultValidatorData => defaultValidatorData,
+)
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
   selectValidators,
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
-  (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>
-    validatorIds.map(validatorId => {
+  selectDefaultStakingDataByValidatorId,
+  (
+    validatorIds,
+    validatorsData,
+    stakingDataByValidator,
+    assetId,
+    defaultStakingData,
+  ): OpportunitiesDataFull[] => {
+    if (defaultStakingData && !validatorIds.length)
+      return [
+        {
+          isLoaded: true,
+          rewards: '0',
+          totalDelegations: '0',
+          ...defaultStakingData,
+        },
+      ]
+    return validatorIds.map(validatorId => {
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()
@@ -1000,7 +1023,8 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         rewards: stakingDataByValidator?.[validatorId]?.[assetId]?.rewards?.[0]?.amount ?? '0',
         isLoaded: Boolean(validatorsData[validatorId]),
       }
-    }),
+    })
+  },
 )
 
 export const selectHasActiveStakingOpportunity = createSelector(

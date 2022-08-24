@@ -246,6 +246,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
     const options = { forceRefetch: true }
 
+    if (!(wallet && supportsCosmos(wallet))) {
+      const accountSpecifier = `${cosmosChainId}:cosmos1n89secc5fgu4cje3jw6c3pu264vy2yav2q5xpt`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
+    }
     accountSpecifiersList.forEach(accountSpecifierMap => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
         switch (chainId) {

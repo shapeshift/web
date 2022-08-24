@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -24,15 +25,17 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
   const { data: foxyBalancesData } = useFoxyBalances()
   const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const supportsCosmosSdk = wallet && supportsCosmos(wallet)
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
+      supportsCosmosSdk: supportsCosmos,
     },
   )
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =

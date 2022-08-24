@@ -37,6 +37,7 @@ export type MergedStakingOpportunity = cosmos.Validator & {
 
 export function useCosmosSdkStakingBalances({
   assetId,
+  supportsCosmosSdk,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -45,11 +46,19 @@ export function useCosmosSdkStakingBalances({
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
+  // Default account specifier to fetch Cosmos SDK staking data without any cosmos account
+  // Created and private key burned, guaranteed to be empty
+  const defaultAccountSpecifier = 'cosmos:cosmoshub-4:cosmos1n89secc5fgu4cje3jw6c3pu264vy2yav2q5xpt'
+
   const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
+    selectStakingOpportunitiesDataFull(state, {
+      accountSpecifier: accountSpecifier ?? defaultAccountSpecifier,
+      assetId,
+    }),
   )
 
   const mergedActiveStakingOpportunities = useMemo(() => {
+    if (!asset) return []
     if (!marketData?.price) return []
 
     return Object.values(stakingOpportunities).map(opportunity => {

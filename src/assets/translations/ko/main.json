@@ -1158,13 +1158,5 @@
         "neverSellData": "이익을 위해 데이터를 판매하지 않습니다"
       }
     }
-  },
-  "features": {
-    "yat": {
-      "banner": {
-        "title": "Get a Yat",
-        "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
-      }
-    }
   }
 }

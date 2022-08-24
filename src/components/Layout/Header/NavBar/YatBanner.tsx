@@ -8,7 +8,7 @@ type YatBannerProps = {
   isCompact?: boolean
 }
 
-export const YatBanner = ({ isCompact }: YatBannerProps) => {
+export const YatBanner: React.FC<YatBannerProps> = ({ isCompact }) => {
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
   const translate = useTranslate()
 

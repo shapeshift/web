@@ -193,6 +193,8 @@
         "emptyWithdraws": "Saques pendentes ou em processo de pagamento serão exibidos aqui.",
         "availableDate": "Disponível %{date}"
       },
+      "foxFarmingOverview": {
+      },
       "overview": {
         "underlyingTokens": "Tokens Subjacentes",
         "availableRewards": "Recompensas Disponíveis",

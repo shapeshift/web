@@ -91,4 +91,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi
+export const { useGetUsdRateQuery, useLazyGetTradeQuoteQuery } = swapperApi

@@ -92,8 +92,8 @@ export const useSwapper = () => {
   ] = useWatch({
     name: [
       'quote',
-      'sellAsset',
-      'buyAsset',
+      'sellTradeAsset',
+      'buyTradeAsset',
       'trade',
       'sellAssetAccount',
       'isExactAllowance',
@@ -260,7 +260,7 @@ export const useSwapper = () => {
       sellAsset.precision,
     )
 
-    setValue('sellAsset.amount', maxAmount)
+    setValue('sellTradeAsset.amount', maxAmount)
     return maxAmount
   }
 

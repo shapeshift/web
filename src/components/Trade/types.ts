@@ -23,10 +23,10 @@ export type TradeProps = {
 export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }
 
 export type TradeState<C extends ChainId> = {
-  sellAsset: TradeAsset | undefined
+  sellTradeAsset: TradeAsset | undefined
   sellAssetAccount: AccountSpecifier | undefined
   selectedAssetAccount: AccountSpecifier | undefined
-  buyAsset: TradeAsset | undefined
+  buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
   sellAssetFiatRate: string
   buyAssetFiatRate: string
@@ -36,8 +36,9 @@ export type TradeState<C extends ChainId> = {
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
-  quoteError: string | null
+  quoteError: string | null // Deprecate
   amount: string | null
+  receiveAddress: string | null // Implement
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

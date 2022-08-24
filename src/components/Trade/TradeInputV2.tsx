@@ -1,6 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
@@ -26,11 +25,18 @@ export const TradeInput = () => {
     handleSubmit,
     formState: { isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
-  const { sellAsset, buyAsset, quote, feeAssetFiatRate, fees } = useWatch({ control })
+
+  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
+  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const quote = useWatch({ control, name: 'quote' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+  const fees = useWatch({ control, name: 'fees' })
+
   const { updateQuote, updateTrade, checkApprovalNeeded } = useSwapper()
+
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const { field: sellCryptoAmount } = useController({
-    name: 'sellAsset.amount',
+    name: 'sellTradeAsset.amount',
     control,
     rules: { required: true },
   })
@@ -41,30 +47,23 @@ export const TradeInput = () => {
   })
 
   const { field: buyCryptoAmount } = useController({
-    name: 'buyAsset.amount',
+    name: 'buyTradeAsset.amount',
     control,
     rules: { required: true },
   })
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
-    if (sellAsset?.asset && buyAsset?.asset) {
-      updateQuote({
-        amount,
-        sellAsset: sellAsset.asset as Asset,
-        buyAsset: buyAsset.asset as Asset,
-        action,
-        selectedCurrencyToUsdRate,
-      })
-    }
+    setValue('amount', amount)
+    setValue('action', action)
   }
 
   const handleToggle = () => {
     try {
-      const currentSellAsset = getValues('sellAsset')
-      const currentBuyAsset = getValues('buyAsset')
+      const currentSellAsset = getValues('sellTradeAsset')
+      const currentBuyAsset = getValues('buyTradeAsset')
       if (!(currentSellAsset?.asset && currentBuyAsset?.asset)) return
-      setValue('sellAsset', currentBuyAsset)
-      setValue('buyAsset', currentSellAsset)
+      setValue('sellTradeAsset', currentBuyAsset)
+      setValue('buyTradeAsset', currentSellAsset)
       updateQuote({
         forceQuote: true,
         amount: bnOrZero(currentBuyAsset.amount).toString(),
@@ -102,9 +101,9 @@ export const TradeInput = () => {
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={0}>
           <TradeAssetInput
-            assetId={sellAsset?.asset?.assetId as AssetId}
-            assetSymbol={sellAsset?.asset?.symbol ?? ''}
-            assetIcon={sellAsset?.asset?.icon ?? ''}
+            assetId={sellTradeAsset?.asset?.assetId as AssetId}
+            assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
+            assetIcon={sellTradeAsset?.asset?.icon ?? ''}
             cryptoAmount={sellCryptoAmount?.value}
             fiatAmount={sellFiatAmount.value}
             onChange={value => {
@@ -135,9 +134,9 @@ export const TradeInput = () => {
             />
           </Stack>
           <TradeAssetInput
-            assetId={buyAsset?.asset?.assetId as AssetId}
-            assetSymbol={buyAsset?.asset?.symbol ?? ''}
-            assetIcon={buyAsset?.asset?.icon ?? ''}
+            assetId={buyTradeAsset?.asset?.assetId as AssetId}
+            assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
+            assetIcon={buyTradeAsset?.asset?.icon ?? ''}
             cryptoAmount={buyCryptoAmount?.value}
             onChange={value => {
               buyCryptoAmount.onChange(value)
@@ -149,14 +148,14 @@ export const TradeInput = () => {
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
           <RateGasRow
-            sellSymbol={sellAsset?.asset?.symbol}
-            buySymbol={buyAsset?.asset?.symbol}
+            sellSymbol={sellTradeAsset?.asset?.symbol}
+            buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
             rate={quote?.rate}
           />
           <ReceiveSummary
             isLoading={!quote}
-            symbol={buyAsset?.asset?.symbol ?? ''}
+            symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={buyCryptoAmount?.value ?? ''}
             beforeFees='100'
             protocolFee='10'

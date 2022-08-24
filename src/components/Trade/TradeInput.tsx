@@ -67,8 +67,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   ] = useWatch({
     name: [
       'quote',
-      'buyAsset',
-      'sellAsset',
+      'buyTradeAsset',
+      'sellTradeAsset',
       'feeAssetFiatRate',
       'quoteError',
       'sellAssetAccount',
@@ -78,8 +78,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     ],
   }) as [
     TS['quote'],
-    TS['buyAsset'],
-    TS['sellAsset'],
+    TS['buyTradeAsset'],
+    TS['sellTradeAsset'],
     TS['feeAssetFiatRate'],
     TS['quoteError'],
     TS['sellAssetAccount'],
@@ -247,8 +247,8 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: buyTradeAsset.asset,
         feeAsset,
       })
-      const currentSellAsset = getValues('sellAsset')
-      const currentBuyAsset = getValues('buyAsset')
+      const currentSellAsset = getValues('sellTradeAsset')
+      const currentBuyAsset = getValues('buyTradeAsset')
 
       if (currentSellAsset?.asset && currentBuyAsset?.asset) {
         setValue('action', TradeAmountInputField.SELL)
@@ -277,8 +277,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentBuyAsset = buyTradeAsset
     try {
       if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
-      setValue('sellAsset', currentBuyAsset)
-      setValue('buyAsset', currentSellAsset)
+      setValue('sellTradeAsset', currentBuyAsset)
+      setValue('buyTradeAsset', currentSellAsset)
       setValue('selectedAssetAccount', undefined)
       setValue('sellAssetAccount', undefined)
       setValue('action', TradeAmountInputField.SELL)
@@ -371,7 +371,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             <FormControl>
               <TokenRow<TradeState<KnownChainIds>>
                 control={control}
-                fieldName='sellAsset.amount'
+                fieldName='sellTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL)}
@@ -453,7 +453,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             <FormControl mb={6}>
               <TokenRow<TradeState<KnownChainIds>>
                 control={control}
-                fieldName='buyAsset.amount'
+                fieldName='buyTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY)}

@@ -46,7 +46,7 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from '../validatorDataSlice/constants'
-import { selectValidatorByAddress, selectValidators } from '../validatorDataSlice/selectors'
+import { selectValidators } from '../validatorDataSlice/selectors'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
@@ -977,12 +977,12 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 )
 
 const selectDefaultStakingDataByValidatorId = createSelector(
-  (state: ReduxState) => state,
   (_state: ReduxState, { assetId, supportsCosmosSdk }: OptionalParamFilter) => ({
     assetId,
     supportsCosmosSdk,
   }),
-  (state, { assetId, supportsCosmosSdk = true }) => {
+  selectValidators,
+  ({ assetId, supportsCosmosSdk = true }, stakingDataByValidator) => {
     if (supportsCosmosSdk) return null
 
     const { chainId } = fromAssetId(assetId)
@@ -998,7 +998,7 @@ const selectDefaultStakingDataByValidatorId = createSelector(
       }
     })()
 
-    return selectValidatorByAddress(state, defaultValidatorAddress)
+    return stakingDataByValidator[defaultValidatorAddress]
   },
 )
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(

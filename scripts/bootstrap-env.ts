@@ -4,8 +4,12 @@ import assert from 'assert'
 import dotenv from 'dotenv'
 import { readFileSync, writeFileSync } from 'fs'
 
-// the release environment uses the app configuration
-const VALID_ENVIRONMENTS = ['local', 'develop', 'app', 'private'] as const
+/**
+ * please note!
+ * - dev is the local environment. .env.local automatically gets picked up by dotenv
+ * - the release environment uses the app configuration
+ */
+const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private'] as const
 type Environment = typeof VALID_ENVIRONMENTS[number]
 
 const getSerializedEnvVars = (environment: Environment) => {

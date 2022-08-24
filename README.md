@@ -59,7 +59,7 @@ On Linux and MacOS it works out of the box following the steps.<br/>
   yarn
   ```
 
-- Run `yarn env local` to generate a `.env` file
+- Run `yarn env dev` to generate a `.env` file
 
 ### Commands
 

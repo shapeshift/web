@@ -1,7 +1,8 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { GetTradeQuoteInput, Swapper, TradeQuote } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -39,11 +40,8 @@ const getBestSwapperFromArgs = async (
 }
 
 export const swapperApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
-  baseQuery: fakeBaseQuery(),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
-  keepUnusedDataFor: 60,
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
       queryFn: async ({ rateAssetId, buyAssetId, sellAssetId }, { getState }) => {
@@ -60,10 +58,12 @@ export const swapperApi = createApi({
           const data = { usdRate }
           return { data }
         } catch (e) {
-          const data = `getAssetDescription: error fetching usd rate for ${rateAssetId}`
-          const status = 400
-          const error = { data, status }
-          return { error }
+          return {
+            error: {
+              error: 'getUsdRate: error fetching usd rate',
+              status: 'CUSTOM_ERROR',
+            },
+          }
         }
       },
     }),
@@ -82,10 +82,12 @@ export const swapperApi = createApi({
           const tradeQuote = await swapper.getTradeQuote(args)
           return { data: tradeQuote }
         } catch (e) {
-          const data = 'getTradeQuote: error fetching trade quote'
-          const status = 400
-          const error = { data, status }
-          return { error }
+          return {
+            error: {
+              error: 'getTradeQuote: error fetching trade quote',
+              status: 'CUSTOM_ERROR',
+            },
+          }
         }
       },
     }),

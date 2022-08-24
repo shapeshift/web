@@ -23,7 +23,6 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -31,13 +30,11 @@ import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
-import { YatBanner } from '../YatBanner'
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
     control,
@@ -185,8 +182,8 @@ export const Details = () => {
           )}
         </FormControl>
       </ModalBody>
-      <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
-        <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
+      <ModalFooter>
+        <Stack flex={1}>
           <Button
             width='full'
             isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
@@ -202,7 +199,6 @@ export const Details = () => {
             <Text translation='common.cancel' />
           </Button>
         </Stack>
-        {isYatFeatureEnabled && <YatBanner />}
       </ModalFooter>
     </SlideTransition>
   )

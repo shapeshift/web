@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { YatBanner } from 'components/Banners/YatBanner'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -25,7 +26,6 @@ import { parseAddressInput } from 'lib/address/address'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
-import { YatBanner } from '../YatBanner'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)

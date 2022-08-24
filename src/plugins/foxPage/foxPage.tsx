@@ -26,7 +26,7 @@ import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
+import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyBalancesApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,

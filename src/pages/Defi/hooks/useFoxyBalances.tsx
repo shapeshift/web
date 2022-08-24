@@ -8,7 +8,7 @@ import {
   MergedFoxyOpportunity,
   useGetFoxyAprQuery,
   useGetFoxyBalancesQuery,
-} from 'state/apis/foxy/foxyApi'
+} from 'state/apis/foxy/foxyBalancesApi'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]

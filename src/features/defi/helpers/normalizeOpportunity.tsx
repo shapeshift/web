@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
+import { MergedFoxyOpportunity } from 'state/apis/foxy/foxyBalancesApi'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiProvider, DefiType } from '../contexts/DefiManagerProvider/DefiCommon'

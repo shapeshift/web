@@ -177,9 +177,9 @@ async function getFoxyOpportunities(
   }
 }
 
-export const foxyApi = createApi({
+export const foxyBalancesApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'foxyApi',
+  reducerPath: 'foxyBalancesApi',
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
       queryFn: async ({ userAddress, foxyApr }, injected) => {
@@ -232,7 +232,7 @@ export const foxyApi = createApi({
           console.error('error', error)
           return {
             error: {
-              error: `foxyApi Error`,
+              error: `foxyBalancesAPI Error`,
               status: 'CUSTOM_ERROR',
             },
           }
@@ -294,4 +294,4 @@ export const foxyApi = createApi({
   }),
 })
 
-export const { useGetFoxyBalancesQuery, useGetFoxyAprQuery } = foxyApi
+export const { useGetFoxyBalancesQuery, useGetFoxyAprQuery } = foxyBalancesApi

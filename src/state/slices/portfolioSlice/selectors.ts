@@ -68,6 +68,7 @@ type ParamFilter = {
   accountId: AccountSpecifier
   accountSpecifier: string
   validatorAddress: PubKey
+  supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
   assetId: AssetId
@@ -81,11 +82,11 @@ type OptionalParamFilterKey = keyof OptionalParamFilter
 
 const selectParamFromFilter =
   <T extends ParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] =>
+  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
     filter?.[param] ?? ''
 const selectParamFromFilterOptional =
   <T extends OptionalParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] =>
+  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
     filter?.[param] ?? ''
 
 // We should prob change this once we add more chains

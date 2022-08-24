@@ -3,6 +3,7 @@
 import assert from 'assert'
 import dotenv from 'dotenv'
 import { readFileSync, writeFileSync } from 'fs'
+import flow from 'lodash/flow'
 
 /**
  * please note!
@@ -39,6 +40,6 @@ const exportDotEnvFile = (serialiazedEnvVars: string) => {
   writeFileSync('.env', serialiazedEnvVars) // write out new .env
 }
 
-const main = () => exportDotEnvFile(getSerializedEnvVars(getSpecifiedEnvironment()))
+const main = flow([getSpecifiedEnvironment, getSerializedEnvVars, exportDotEnvFile])
 
 main()

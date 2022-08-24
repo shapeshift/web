@@ -133,23 +133,32 @@ export const useSwapper = () => {
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   )
 
-  const sellAssetFiatRateResponse = useGetUsdRateQuery({
-    rateAssetId: sellTradeAssetId,
-    buyAssetId: buyTradeAssetId,
-    sellAssetId: sellTradeAssetId,
-  })
+  const sellAssetFiatRateResponse = useGetUsdRateQuery(
+    {
+      rateAssetId: sellTradeAssetId!,
+      buyAssetId: buyTradeAssetId!,
+      sellAssetId: sellTradeAssetId!,
+    },
+    { skip: !sellTradeAssetId || !buyTradeAssetId },
+  )
 
-  const buyAssetFiatRateResponse = useGetUsdRateQuery({
-    rateAssetId: buyTradeAssetId,
-    buyAssetId: buyTradeAssetId,
-    sellAssetId: sellTradeAssetId,
-  })
+  const buyAssetFiatRateResponse = useGetUsdRateQuery(
+    {
+      rateAssetId: buyTradeAssetId!,
+      buyAssetId: buyTradeAssetId!,
+      sellAssetId: sellTradeAssetId!,
+    },
+    { skip: !sellTradeAssetId || !buyTradeAssetId },
+  )
 
-  const feeAssetFiatRateResponse = useGetUsdRateQuery({
-    rateAssetId: feeAsset?.assetId,
-    buyAssetId: buyTradeAssetId,
-    sellAssetId: sellTradeAssetId,
-  })
+  const feeAssetFiatRateResponse = useGetUsdRateQuery(
+    {
+      rateAssetId: feeAsset?.assetId,
+      buyAssetId: buyTradeAssetId!,
+      sellAssetId: sellTradeAssetId!,
+    },
+    { skip: !sellTradeAssetId || !buyTradeAssetId || !feeAsset?.assetId },
+  )
 
   useEffect(() => {
     buyAssetFiatRateResponse?.data &&

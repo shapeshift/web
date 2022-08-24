@@ -7,9 +7,9 @@ import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type GetUsdRateArgs = {
-  rateAssetId: AssetId | undefined
-  buyAssetId: AssetId | undefined
-  sellAssetId: AssetId | undefined
+  rateAssetId: AssetId
+  buyAssetId: AssetId
+  sellAssetId: AssetId
 }
 
 type GetUsdRateReturn = {
@@ -24,12 +24,10 @@ type State = {
 type GetTradeQuoteOutput = TradeQuote<ChainId>
 
 const getBestSwapperFromArgs = async (
-  buyAssetId: AssetId | undefined,
-  sellAssetId: AssetId | undefined,
+  buyAssetId: AssetId,
+  sellAssetId: AssetId,
   featureFlags: FeatureFlags,
 ): Promise<Swapper<ChainId>> => {
-  if (!buyAssetId) throw new Error('buyAssetId is undefined')
-  if (!sellAssetId) throw new Error('sellAssetId is undefined')
   const swapperManager = await getSwapperManager(featureFlags)
   const swapper = await swapperManager.getBestSwapper({
     buyAssetId,
@@ -51,7 +49,6 @@ export const swapperApi = createApi({
           preferences: { featureFlags },
         } = state
         try {
-          if (!rateAssetId) throw new Error('rateAssetId is undefined')
           const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
           const rateAsset = assets.byId[rateAssetId]
           const usdRate = await swapper.getUsdRate(rateAsset)

@@ -3,6 +3,7 @@ import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
+import MtPelerinLogo from 'assets/mtpelerin.png'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -14,6 +15,7 @@ import {
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
+import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -39,7 +41,7 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay'
+export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay' | 'MtPelerin'
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -112,6 +114,30 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         window.open(junoPayCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
+      }
+    },
+  },
+  MtPelerin: {
+    label: 'fiatRamps.mtPelerin',
+    tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
+    logo: MtPelerinLogo,
+    isImplemented: true,
+    supportsBuy: true,
+    supportsSell: true,
+    // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
+    // 50 CHF is currently equivalent to 51.72 USD
+    // note that Mt Pelerin has a minimum of 50 CHF, and our fiat balance is denoted in USD
+    minimumSellThreshold: 55,
+    getBuyAndSellList: async () => {
+      const mtPelerinAssets = await getMtPelerinAssets()
+      return [mtPelerinAssets, mtPelerinAssets]
+    },
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      try {
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address)
+        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
       }
     },
   },

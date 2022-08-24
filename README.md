@@ -59,38 +59,13 @@ On Linux and MacOS it works out of the box following the steps.<br/>
   yarn
   ```
 
-- Copy `sample.env` to `.env`, and configure it according to the [.env section](#.env) below.
-
-  ```sh
-  cp sample.env .env
-  ```
-
-### .env
-
-The `.env` file contains environment variables that the program needs to function properly. 
-
-- `REACT_APP_PORTIS_DAPP_ID`
-
-  Allows you to connect a Portis wallet. Without this the program will hang after choosing Portis and clicking the "Pair" button. Portis Dapp IDs aren't secret, but they are domain-specific.
-
-- `REACT_APP_ETHEREUM_NODE_URL`
-
-  Needed for certain Defi integrations such as Yearn; the app will malfunction when connecting a wallet without it.
-
-  Any Ethereum node should do, but you can get your own node URL for testing by doing the following:
-
-  1. Go to https://infura.io/dashboard
-  2. Set up a free account
-  3. Make a new project
-
-      Your key should use "JSON-RPC over HTTPS" and look like this: `https://mainnet.infura.io/v3/<your project id>`
+- Run `yarn env dev` to generate a `.env` file
 
 ### Commands
 
-Runs the app in the development mode.<br /> Open
-[http://localhost:3000](http://localhost:3000) to view it in the browser.
+Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br /> You will also see any lint errors
+The page will reload if you make edits. You will also see any lint errors
 in the console.
 
 ```sh

@@ -27,7 +27,8 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "release": "ts-node --skipProject ./scripts/release.ts"
+    "release": "ts-node --skipProject ./scripts/release.ts",
+    "env": "ts-node --skipProject ./scripts/bootstrap-env.ts"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -86,7 +87,7 @@
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.8.2",
     "@shapeshiftoss/asset-service": "^7.5.0",
-    "@shapeshiftoss/caip": "^6.15.0",
+    "@shapeshiftoss/caip": "^6.16.0",
     "@shapeshiftoss/chain-adapters": "^7.16.0",
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.29.0",
@@ -220,6 +221,7 @@
     "chalk": "4.1.2",
     "circular-dependency-plugin": "^5.2.2",
     "cypress": "^10.4.0",
+    "dotenv": "^16.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",

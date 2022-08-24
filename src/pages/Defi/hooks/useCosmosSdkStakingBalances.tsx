@@ -58,6 +58,8 @@ export function useCosmosSdkStakingBalances({
   const { chainId } = fromAssetId(assetId)
 
   const defaultAccountSpecifier = (() => {
+    if (supportsCosmosSdk) return ''
+
     switch (chainId) {
       case cosmosChainId:
         return defaultCosmosAccountSpecifier

@@ -42,11 +42,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
 
-  const {
-    getValues,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useFormContext<TradeState<KnownChainIds>>()
+  const { getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
@@ -77,6 +73,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     try {
+      setSellTxid('pending')
       if (!isConnected) {
         /**
          * call handleBack to reset current form state
@@ -278,7 +275,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Card.Footer px={0} py={0}>
             {!sellTxid && (
               <Button
-                isLoading={isSubmitting}
                 colorScheme='blue'
                 size='lg'
                 width='full'

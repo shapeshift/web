@@ -57,6 +57,7 @@ import {
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { ZERO_COSMOS_ADDRESS } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -247,7 +248,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const options = { forceRefetch: true }
 
     if (!(wallet && supportsCosmos(wallet))) {
-      const accountSpecifier = `${cosmosChainId}:cosmos1n89secc5fgu4cje3jw6c3pu264vy2yav2q5xpt`
+      const accountSpecifier = `${cosmosChainId}:${ZERO_COSMOS_ADDRESS}`
       dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
     }
     accountSpecifiersList.forEach(accountSpecifierMap => {

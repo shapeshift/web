@@ -9,10 +9,12 @@ import {
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
+import { ZERO_COSMOS_ADDRESS } from 'state/slices/validatorDataSlice/constants'
 import { useAppSelector } from 'state/store'
 
 type UseCosmosStakingBalancesProps = {
   assetId: AssetId
+  supportsCosmosSdk?: boolean
 }
 
 export type UseCosmosStakingBalancesReturn = {
@@ -37,7 +39,7 @@ export type MergedStakingOpportunity = cosmos.Validator & {
 
 export function useCosmosSdkStakingBalances({
   assetId,
-  supportsCosmosSdk,
+  supportsCosmosSdk = true,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -48,11 +50,11 @@ export function useCosmosSdkStakingBalances({
 
   // Default account specifier to fetch Cosmos SDK staking data without any cosmos account
   // Created and private key burned, guaranteed to be empty
-  const defaultAccountSpecifier = 'cosmos:cosmoshub-4:cosmos1n89secc5fgu4cje3jw6c3pu264vy2yav2q5xpt'
+  const defaultAccountSpecifier = `cosmos:cosmoshub-4:${ZERO_COSMOS_ADDRESS}`
 
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, {
-      accountSpecifier: accountSpecifier ?? defaultAccountSpecifier,
+      accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,
       assetId,
     }),
   )

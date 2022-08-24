@@ -973,10 +973,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 )
 
 const selectDefaultStakingDataByValidatorId = createSelector(
-  state => {
-    console.log({ state })
-    return selectValidatorByAddress(state, 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf')
-  },
+  (state: ReduxState) => selectValidatorByAddress(state, SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS),
   defaultValidatorData => defaultValidatorData,
 )
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(

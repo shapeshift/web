@@ -31,11 +31,11 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedYearnVaults()
   const { data: foxyBalancesData } = useFoxyBalances()
   const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
-  const supportsCosmosSdk = wallet && supportsCosmos(wallet)
+  const supportsCosmosSdk = Boolean(wallet && supportsCosmos(wallet))
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
-      supportsCosmosSdk: supportsCosmos,
+      supportsCosmosSdk,
     },
   )
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =

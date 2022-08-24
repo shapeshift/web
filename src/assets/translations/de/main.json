@@ -425,7 +425,7 @@
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
     "tradeFeeSource": "%{tradeFeeSource} Gebühr",
-    "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percent}% des Handelsbetrags",
+    "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
     "confirmAndTrade": "Bestätigen und Handeln",
     "complete": "Handel abgeschlossen",

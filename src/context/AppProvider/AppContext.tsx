@@ -253,11 +253,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
     // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId
     // Since the accountSpecifier is a zero-like address (generated and private keys burned) and isn't actually in state
-    if (!(wallet && supportsCosmos(wallet))) {
+    if (wallet && !supportsCosmos(wallet)) {
       const accountSpecifier = `${cosmosChainId}:${ZERO_COSMOS_ADDRESS}`
       dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
     }
-    if (!(wallet && supportsOsmosis(wallet))) {
+    if (wallet && !supportsOsmosis(wallet)) {
       const accountSpecifier = `${osmosisChainId}:${ZERO_OSMOSIS_ADDRESS}`
       dispatch(getValidatorData.initiate({ accountSpecifier, chainId: osmosisChainId }, options))
     }

@@ -72,6 +72,7 @@ export function useCosmosSdkStakingBalances({
     selectStakingOpportunitiesDataFull(state, {
       accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,
       assetId,
+      supportsCosmosSdk,
     }),
   )
 

@@ -74,6 +74,7 @@ type OptionalParamFilter = {
   accountId?: AccountSpecifier
   accountSpecifier?: string
   validatorAddress?: PubKey
+  supportsCosmosSdk?: boolean
 }
 type ParamFilterKey = keyof ParamFilter
 type OptionalParamFilterKey = keyof OptionalParamFilter
@@ -976,8 +977,13 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 
 const selectDefaultStakingDataByValidatorId = createSelector(
   (state: ReduxState) => state,
-  (_state: ReduxState, { assetId }: OptionalParamFilter) => assetId,
-  (state, assetId) => {
+  (_state: ReduxState, { assetId, supportsCosmosSdk }: OptionalParamFilter) => ({
+    assetId,
+    supportsCosmosSdk,
+  }),
+  (state, { assetId, supportsCosmosSdk = true }) => {
+    if (supportsCosmosSdk) return null
+
     const { chainId } = fromAssetId(assetId)
 
     const defaultValidatorAddress = (() => {

@@ -1,5 +1,14 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Link,
+  Stack,
+  StackDivider,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { osmosisAssetId } from '@shapeshiftoss/caip'
 import { isCowTrade, TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -8,6 +17,7 @@ import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
+import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -33,12 +43,14 @@ import { useAppSelector } from 'state/store'
 import { TradeRoutePaths, TradeState } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
+import { ReceiveSummary } from './ReceiveSummary'
 
 type TradeConfirmParams = {
   fiatRate: string
 }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [txid, setTxid] = useState('')
   const {
     getValues,
@@ -47,7 +59,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
+  const { trade, fees, sellAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { fiatRate } = location.state
@@ -165,109 +177,129 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 />
               </Card.Heading>
             </WithBackButton>
-            <AssetToAsset
-              buyIcon={trade.buyAsset.icon}
-              tradeFiatAmount={tradeFiatAmount}
-              trade={trade}
-              mt={6}
-              status={txid ? status : undefined}
-            />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>
-            <Stack spacing={4}>
-              {txid && (
+            <Stack
+              spacing={4}
+              borderColor={borderColor}
+              divider={<StackDivider />}
+              fontSize='sm'
+              fontWeight='medium'
+            >
+              <AssetToAsset
+                buyIcon={trade.buyAsset.icon}
+                tradeFiatAmount={tradeFiatAmount}
+                trade={trade}
+                status={txid ? status : undefined}
+              />
+              <Stack spacing={4}>
                 <Row>
-                  <Row.Label>
-                    <RawText>Tx ID</RawText>
-                  </Row.Label>
+                  <Row.Label>Send</Row.Label>
+                  <Row.Value textAlign='right'>
+                    <Amount.Crypto
+                      value={Number(
+                        fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset?.precision ?? 0),
+                      ).toString()}
+                      symbol={trade.sellAsset.symbol}
+                    />
+                    <Amount.Fiat color='gray.500' value={tradeFiatAmount} prefix='≈' />
+                  </Row.Value>
+                </Row>
+                <ReceiveSummary
+                  symbol={trade.buyAsset.symbol ?? ''}
+                  amount={Number(
+                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
+                  ).toString()}
+                  fiatAmount={tradeFiatAmount}
+                  beforeFees='100'
+                  protocolFee='10'
+                  shapeShiftFee='0'
+                  minAmountAfterSlippage={Number(
+                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
+                  ).toString()}
+                />
+              </Stack>
+              <Stack spacing={4}>
+                {txid && (
+                  <Row>
+                    <Row.Label>
+                      <RawText>Tx ID</RawText>
+                    </Row.Label>
+                    <Box textAlign='right'>
+                      <Link isExternal color='blue.500' href={txLink}>
+                        <Text translation='trade.viewTransaction' />
+                      </Link>
+                    </Box>
+                  </Row>
+                )}
+                <Row>
+                  <HelperTooltip label={translate('trade.tooltip.rate')}>
+                    <Row.Label>
+                      <Text translation='trade.rate' />
+                    </Row.Label>
+                  </HelperTooltip>
                   <Box textAlign='right'>
-                    <Link isExternal color='blue.500' href={txLink}>
-                      <Text translation='trade.viewTransaction' />
-                    </Link>
+                    <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
+                      bnOrZero(trade?.rate),
+                    )} ${trade?.buyAsset?.symbol}`}</RawText>
+                    {!!fees?.tradeFeeSource && (
+                      <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
+                    )}
                   </Box>
                 </Row>
-              )}
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.rate')}>
-                  <Row.Label>
-                    <Text translation='trade.rate' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Box textAlign='right'>
-                  <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                    bnOrZero(trade?.rate),
-                  )} ${trade?.buyAsset?.symbol}`}</RawText>
-                  {!!fees?.tradeFeeSource && (
-                    <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
-                  )}
-                </Box>
-              </Row>
-              {isCowTrade(trade) && (
+                {isCowTrade(trade) && (
+                  <Row>
+                    <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+                      <Row.Label>
+                        <Text translation='trade.protocolFee' />
+                      </Row.Label>
+                    </HelperTooltip>
+                    <Row.Value>
+                      {bn(trade.feeAmountInSellToken)
+                        .div(bn(10).pow(trade.sellAsset.precision))
+                        .decimalPlaces(6)
+                        .toString()}{' '}
+                      ≃{' '}
+                      {toFiat(
+                        bn(trade.feeAmountInSellToken)
+                          .div(bn(10).pow(trade.sellAsset.precision))
+                          .times(sellAssetFiatRate)
+                          .times(selectedCurrencyToUsdRate)
+                          .toString(),
+                      )}
+                    </Row.Value>
+                  </Row>
+                )}
                 <Row>
-                  <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+                  <HelperTooltip label={translate('trade.tooltip.minerFee')}>
                     <Row.Label>
-                      <Text translation='trade.protocolFee' />
+                      <Text translation='trade.minerFee' />
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bn(trade.feeAmountInSellToken)
-                      .div(bn(10).pow(trade.sellAsset.precision))
-                      .decimalPlaces(6)
-                      .toString()}{' '}
-                    ≃{' '}
+                    {bnOrZero(fees?.fee).toNumber()} ≃{' '}
                     {toFiat(
-                      bn(trade.feeAmountInSellToken)
-                        .div(bn(10).pow(trade.sellAsset.precision))
-                        .times(sellAssetFiatRate)
+                      bnOrZero(fees?.fee)
+                        .times(fiatRate)
                         .times(selectedCurrencyToUsdRate)
-                        .toString(),
+                        .toNumber(),
                     )}
                   </Row.Value>
                 </Row>
-              )}
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.minerFee')}>
-                  <Row.Label>
-                    <Text translation='trade.minerFee' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  {bnOrZero(fees?.fee).toNumber()} ≃{' '}
-                  {toFiat(
-                    bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
-                  )}
-                </Row.Value>
-              </Row>
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
-                  <Row.Label>
+                {isFeeRatioOverThreshold && (
+                  <Flex justifyContent='space-evenly' alignItems='center'>
+                    <WarningTwoIcon w={5} h={5} color='red.400' />
                     <Text
-                      translation={['trade.tradeFeeSource', { tradeFeeSource: 'ShapeShift' }]}
+                      color='red.400'
+                      translation={[
+                        'trade.gasFeeExceedsTradeAmountThreshold',
+                        { percentage: gasFeeToTradeRatioPercentage.toFixed(0) },
+                      ]}
                     />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  {toFiat(
-                    bnOrZero(fees?.tradeFee)
-                      .times(buyAssetFiatRate)
-                      .times(selectedCurrencyToUsdRate)
-                      .toNumber(),
-                  )}
-                </Row.Value>
-              </Row>
-              {isFeeRatioOverThreshold && (
-                <Flex justifyContent='space-evenly' alignItems='center'>
-                  <WarningTwoIcon w={5} h={5} color='red.400' />
-                  <Text
-                    color='red.400'
-                    translation={[
-                      'trade.gasFeeExceedsTradeAmountThreshold',
-                      { percentage: gasFeeToTradeRatioPercentage.toFixed(0) },
-                    ]}
-                  />
-                </Flex>
-              )}
+                  </Flex>
+                )}
+              </Stack>
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>

@@ -8,7 +8,7 @@ import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
-import { TradeInput } from '../TradeInput'
+import { TradeInput } from '../TradeInputV2'
 import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']

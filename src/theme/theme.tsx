@@ -16,6 +16,7 @@ import { ProgressStyle as Progress } from 'components/Progres/Progress.theme'
 import { RowStyle as Row } from 'components/Row/Row.theme'
 import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
 import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
+import { StackDividerStyle as StackDivider } from 'components/StackDivider/StackDivider.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
 import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
@@ -39,6 +40,7 @@ const styles = {
     body: {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
+      'font-feature-settings': "'zero' on;",
     },
     html: {
       scrollBehavior: 'smooth',
@@ -122,6 +124,7 @@ export const theme = extendTheme({
     Tooltip,
     Table,
     Tag,
+    StackDivider,
     Skeleton,
     Steps: CustomSteps,
     Popover,

@@ -13,6 +13,7 @@ export enum TradeAmountInputField {
 export type TradeAsset = {
   asset?: Asset
   amount?: string
+  fiatAmount?: string
 }
 
 export type TradeProps = {

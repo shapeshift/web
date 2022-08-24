@@ -232,7 +232,7 @@ export const foxyApi = createApi({
           console.error('error', error)
           return {
             error: {
-              error: `foxyApi Error`,
+              error: `getFoxyBalances Error`,
               status: 'CUSTOM_ERROR',
             },
           }

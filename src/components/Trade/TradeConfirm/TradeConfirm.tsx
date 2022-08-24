@@ -176,7 +176,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Divider />
           <Card.Body pb={0} px={0}>
             <Stack spacing={4}>
-              {sellTxid && (
+              {sellTxid && sellTxid !== 'pending' && (
                 <Row>
                   <Row.Label>
                     <RawText>Tx ID</RawText>

@@ -20,7 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyBalancesApi'
+import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import {
   selectAssetById,
   selectMarketDataById,

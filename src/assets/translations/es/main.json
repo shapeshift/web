@@ -193,6 +193,16 @@
         "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
         "availableDate": "disponible %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Deposite tokens LP ETH-FOX en %{opportunity} para ganar",
+        "body": "Aprueba y Stake tus tokens de liquidez para ganar recompensas adicionales en FOX.",
+        "rewards": "Las recompensas se acumulan automáticamente.",
+        "cta": "Deposite tokens LP ETH-FOX  ahora",
+        "foxFarmingBalance": "Balance de tokens LP ETH-FOX",
+        "withdrawals": "Retiros",
+        "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
+        "availableDate": "disponible %{date}"
+      },
       "overview": {
         "underlyingTokens": "Tokens Subyacentes",
         "availableRewards": "Recompensas disponibles",
@@ -407,6 +417,8 @@
     "noSupportedAssets": "No hay activos soportados en la billetera."
   },
   "trade": {
+    "allowance": "Tolerancia",
+    "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
@@ -423,6 +435,8 @@
     "estimatedGasFee": "Tarifa estimada de gas",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
+    "unlimited": "Ilimitado",
+    "exact": "Exacto",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",

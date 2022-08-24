@@ -8,11 +8,13 @@ import {
   btcAssetId,
   ChainId,
   cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
   ethAssetId,
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
+  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { maxBy } from 'lodash'
@@ -973,8 +975,24 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
 )
 
 const selectDefaultStakingDataByValidatorId = createSelector(
-  (state: ReduxState) => selectValidatorByAddress(state, SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS),
-  defaultValidatorData => defaultValidatorData,
+  (state: ReduxState) => state,
+  (_state: ReduxState, { assetId }: OptionalParamFilter) => assetId,
+  (state, assetId) => {
+    const { chainId } = fromAssetId(assetId)
+
+    const defaultValidatorAddress = (() => {
+      switch (chainId) {
+        case cosmosChainId:
+          return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+        case osmosisChainId:
+          return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+        default:
+          return ''
+      }
+    })()
+
+    return selectValidatorByAddress(state, defaultValidatorAddress)
+  },
 )
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,

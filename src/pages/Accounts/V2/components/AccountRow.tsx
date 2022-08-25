@@ -63,6 +63,7 @@ export const AccountRow: React.FC<AccountRowProps> = ({
         <IconButton
           size='sm'
           variant='ghost'
+          isActive={isOpen}
           aria-label='Expand Account'
           icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
           onClick={onToggle}

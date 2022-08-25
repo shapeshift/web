@@ -28,6 +28,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ color, title }) => {
           <IconButton
             size='sm'
             variant='ghost'
+            isActive={isOpen}
             aria-label='Expand Accounts'
             onClick={onToggle}
             icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}

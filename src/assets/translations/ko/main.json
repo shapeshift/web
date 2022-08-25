@@ -276,8 +276,8 @@
     "clickToConnect": "여기를 눌러 지갑 연결하기"
   },
   "transactionRow": {
-    "send": "%{symbol} 송신",
-    "receive": "%{symbol} 수신",
+    "send": "송신",
+    "receive": "수신",
     "moreDetails": "자세한 정보",
     "date": "날짜",
     "txid": "거래 아이디",

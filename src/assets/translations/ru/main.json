@@ -126,8 +126,8 @@
     "foxToken": "FOX возможности"
   },
   "transactionRow": {
-    "send": "Отправлено %{symbol}",
-    "receive": "Получено %{symbol}",
+    "send": "Отправлено",
+    "receive": "Получено",
     "moreDetails": "Больше информации",
     "date": "Дата",
     "txid": "ID транзакции",

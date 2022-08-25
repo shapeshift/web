@@ -1,8 +1,6 @@
 import { ChevronDownIcon, CopyIcon } from '@chakra-ui/icons'
 import {
   Button,
-  Heading,
-  HStack,
   IconButton,
   Menu,
   MenuButton,

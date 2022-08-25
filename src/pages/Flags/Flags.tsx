@@ -1,21 +1,10 @@
 import { Alert } from '@chakra-ui/alert'
-import { CopyIcon } from '@chakra-ui/icons'
-import {
-  AlertIcon,
-  Button,
-  Heading,
-  HStack,
-  IconButton,
-  Stack,
-  StackDivider,
-} from '@chakra-ui/react'
-import { Summary } from 'features/defi/components/Summary'
-import { useEffect, useState } from 'react'
+import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
-import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
@@ -45,7 +34,6 @@ export const Flags = () => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
-  const [visitorId, setVisitorId] = useState<string | null>(null)
 
   const handleApply = async () => {
     try {
@@ -68,22 +56,6 @@ export const Flags = () => {
       setError(String((e as Error)?.message))
     }
   }
-
-  const handleCopyClick = async () => {
-    try {
-      await navigator.clipboard.writeText(visitorId ?? '')
-      alert('Visitor ID copied!')
-    } catch (e) {
-      alert('Something went wrong')
-    }
-  }
-  useEffect(() => {
-    const pendoData = window.localStorage.getItem('visitorData')
-    if (pendoData) {
-      const value = JSON.parse(pendoData)
-      setVisitorId(value.visitorId.id)
-    }
-  }, [])
 
   return (
     <Main titleComponent={<FlagHeader />}>

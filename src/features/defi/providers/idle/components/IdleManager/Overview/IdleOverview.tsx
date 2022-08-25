@@ -2,9 +2,10 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
-import { Overview } from 'features/defi/components/Overview/Overview'
+import { AssetWithBalance, Overview } from 'features/defi/components/Overview/Overview'
 import {
   DefiAction,
   DefiParams,
@@ -15,8 +16,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWalletAddress } from 'hooks/useWalletAddress/useWalletAddress'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -41,7 +43,7 @@ const defaultMenu: DefiButtonProps[] = [
 ]
 
 export const IdleOverview = () => {
-  const { idle: api } = useIdle()
+  const { idleInvestor } = useIdle()
   const translate = useTranslate()
   const toast = useToast()
   const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
@@ -49,6 +51,9 @@ export const IdleOverview = () => {
   const [opportunity, setOpportunity] = useState<IdleOpportunity | null>(null)
   const [claimableTokens, setClaimableTokens] = useState<ClaimableToken[]>([])
   const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const [walletAddress, setWalletAddress] = useState<string>(
+    '0x0000000000000000000000000000000000000000',
+  )
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -71,17 +76,26 @@ export const IdleOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
 
-  const walletAddress = useWalletAddress('0x0000000000000000000000000000000000000000')
+  const chainAdapterManager = getChainAdapterManager()
+  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+  const { state: walletState } = useWallet()
 
   useEffect(() => {
     ;(async () => {
+      if (!(walletState.wallet && chainAdapter)) return
+      const walletAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
+      setWalletAddress(walletAddress)
+    })()
+  }, [chainAdapter, walletState])
+
+  useEffect(() => {
+    if (!(vaultAddress && idleInvestor)) return
+    ;(async () => {
       try {
-        if (!(vaultAddress && api)) return
-        const [opportunity] = await Promise.all([
-          api.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
+        const opportunity = await idleInvestor.findByOpportunityId(
+          toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+        )
+
         if (!opportunity) {
           return toast({
             position: 'top-right',
@@ -96,12 +110,10 @@ export const IdleOverview = () => {
         setClaimableTokens(claimableTokens)
 
         if (!opportunity.metadata.cdoAddress) {
-          const totalClaimableRewards = claimableTokens
-            ? claimableTokens.reduce((totalRewards, token) => {
-                totalRewards = totalRewards.plus(token.amount)
-                return totalRewards
-              }, bnOrZero(0))
-            : bnOrZero(0)
+          const totalClaimableRewards = claimableTokens.reduce((totalRewards, token) => {
+            totalRewards = totalRewards.plus(token.amount)
+            return totalRewards
+          }, bnOrZero(0))
 
           const claimDisabled = !totalClaimableRewards || totalClaimableRewards.lte(0)
 
@@ -123,30 +135,23 @@ export const IdleOverview = () => {
         console.error('IdleOverview error:', error)
       }
     })()
-  }, [api, vaultAddress, chainId, toast, translate, walletAddress])
+  }, [idleInvestor, vaultAddress, chainId, toast, translate, walletAddress])
 
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 
-  const rewardAssets = useMemo(() => {
-    if (!claimableTokens || !claimableTokens.length) return undefined
-    return claimableTokens
-      .map(token => {
-        const rewardAsset = assets[token.assetId]
-        if (!rewardAsset) return undefined
-        return {
+  const rewardAssets = useMemo((): AssetWithBalance[] => {
+    if (!claimableTokens || !claimableTokens.length) return []
+    return claimableTokens.reduce((rewardAssets: AssetWithBalance[], token) => {
+      const rewardAsset = assets[token.assetId]
+      if (rewardAsset) {
+        rewardAssets.push({
           ...rewardAsset,
           cryptoBalance: bnOrZero(token.amount).div(`1e+${rewardAsset.precision}`).toPrecision(),
-        }
-      })
-      .filter(asset => !!asset)
+        })
+      }
+      return rewardAssets
+    }, [])
   }, [assets, claimableTokens])
-
-  const additionalParams: Record<string, any> =
-    rewardAssets && rewardAssets.length
-      ? {
-          rewardAssets,
-        }
-      : {}
 
   if (!opportunity) {
     return (
@@ -177,7 +182,7 @@ export const IdleOverview = () => {
       tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toFixed(2)}
       apy={opportunity.apy.toString()}
       menu={menu}
-      {...additionalParams}
+      {...(rewardAssets.length && { rewardAssets })}
     />
   )
 }

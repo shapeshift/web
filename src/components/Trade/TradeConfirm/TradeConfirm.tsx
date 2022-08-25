@@ -74,7 +74,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     try {
-      setSellTxid('pending')
       if (!isConnected) {
         /**
          * call handleBack to reset current form state
@@ -169,13 +168,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               tradeFiatAmount={tradeFiatAmount}
               trade={trade}
               mt={6}
-              status={sellTxid ? status : undefined}
+              status={sellTxid || isSubmitting ? status : undefined}
             />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>
             <Stack spacing={4}>
-              {sellTxid && !isSubmitting && (
+              {sellTxid && (
                 <Row>
                   <Row.Label>
                     <RawText>Tx ID</RawText>
@@ -270,7 +269,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>
-            {!sellTxid && (
+            {!sellTxid && !isSubmitting && (
               <Button
                 colorScheme='blue'
                 size='lg'

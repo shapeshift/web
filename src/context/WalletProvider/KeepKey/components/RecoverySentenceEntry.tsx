@@ -43,7 +43,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
-  const [passphrase, setPassphrase] = useState<Array<Array<string | undefined>>>()
+  const [passphrase, setPassphrase] = useState<(string | undefined)[][]>()
   const [awaitingKeepKeyResponse, setAwaitingKeepKeyResponse] = useState(true)
 
   const inputField1 = useRef<HTMLInputElement>(null)

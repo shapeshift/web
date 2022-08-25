@@ -72,7 +72,7 @@ export const Debugging = () => {
           </Row>
           <Row alignItems='center'>
             <Row.Label>Pendo visitor ID</Row.Label>
-            <Row.Value display='flex' gap={4}>
+            <Row.Value display='flex' gap={4} alignItems='center'>
               <RawText>{visitorId}</RawText>
               <IconButton
                 aria-label='Copy'

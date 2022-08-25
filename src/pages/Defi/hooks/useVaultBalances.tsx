@@ -67,10 +67,10 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
   return acc
 }
 
-async function getIdleVaults(balances: PortfolioBalancesById, idle: IdleInvestor | null) {
+async function getIdleVaults(balances: PortfolioBalancesById, idleInvestor: IdleInvestor | null) {
   const acc: Record<string, IdleEarnVault> = {}
-  if (!idle) return acc
-  const opportunities = await idle.findAll()
+  if (!idleInvestor) return acc
+  const opportunities = await idleInvestor.findAll()
   for (let index = 0; index < opportunities.length; index++) {
     const vault = opportunities[index]
     const vaultAssetId = vault.positionAsset.assetId
@@ -117,7 +117,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
-  const { idle, loading: idleLoading } = useIdle()
+  const { idleInvestor, loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
 
   const balances = useSelector(selectPortfolioAssetBalances)
@@ -129,7 +129,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       setLoading(true)
       try {
         const [idleVaults, yearnVaults] = await Promise.all([
-          getIdleVaults(balances, idle),
+          getIdleVaults(balances, idleInvestor),
           getYearnVaults(balances, yearn),
         ])
 
@@ -142,7 +142,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idle])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idleInvestor])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

@@ -10,11 +10,10 @@ import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
@@ -38,18 +37,19 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const vaults = useYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
-  const { opportunity: foxEthLpOpportunity } = useFoxEthLpBalances()
-  const { opportunities: foxFarmingOpportunities } = useFoxFarmingBalances()
+  const { data: foxyBalancesData } = useFoxyBalances()
+  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const featureFlags = useAppSelector(selectFeatureFlags)
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: foxyRows,
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities,
+    foxFarmingOpportunities: featureFlags.FoxFarming
+      ? onlyVisibleFoxFarmingOpportunities
+      : undefined,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

@@ -14,11 +14,11 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxEthLpBalances } from 'pages/Defi/hooks/useFoxEthLpBalances'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -37,7 +37,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { opportunity } = useFoxEthLpBalances()
+  const { foxEthLpOpportunity } = useFoxEth()
   const {
     state: { wallet },
   } = useWallet()
@@ -133,7 +133,7 @@ export const Status = () => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
-      pairIcons={opportunity.icons}
+      pairIcons={foxEthLpOpportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>

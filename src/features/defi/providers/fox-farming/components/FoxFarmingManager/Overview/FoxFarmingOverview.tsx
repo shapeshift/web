@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-// import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import {
@@ -15,9 +14,9 @@ import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,13 +25,13 @@ import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxFarmingOverview = () => {
-  const { opportunities, loading } = useFoxFarmingBalances()
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
   const opportunity = useMemo(
-    () => opportunities.find(e => e.contractAddress === contractAddress),
-    [opportunities, contractAddress],
+    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, foxFarmingOpportunities],
   )
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
@@ -60,10 +59,10 @@ export const FoxFarmingOverview = () => {
     )
   }
 
-  if (cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
+  if (!opportunity.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity.icons! }, rewardAsset]}
+        assets={[{ icons: opportunity?.icons! }, rewardAsset]}
         apy={opportunity.apy.toString() ?? ''}
         opportunityName={opportunity.opportunityName || ''}
         onClick={() =>
@@ -94,27 +93,37 @@ export const FoxFarmingOverview = () => {
         },
       ]}
       provider='ShapeShift'
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-        {
-          label: 'common.claim',
-          icon: <FaGift />,
-          action: DefiAction.Claim,
-          variant: 'ghost-filled',
-          colorScheme: 'green',
-          isDisabled: !hasClaim,
-          toolTip: translate('defi.modals.overview.noWithdrawals'),
-        },
-      ]}
+      menu={
+        opportunity.expired
+          ? [
+              {
+                label: 'common.withdrawAndClaim',
+                icon: <ArrowDownIcon />,
+                action: DefiAction.Withdraw,
+              },
+            ]
+          : [
+              {
+                label: 'common.deposit',
+                icon: <ArrowUpIcon />,
+                action: DefiAction.Deposit,
+              },
+              {
+                label: 'common.withdraw',
+                icon: <ArrowDownIcon />,
+                action: DefiAction.Withdraw,
+              },
+              {
+                label: 'common.claim',
+                icon: <FaGift />,
+                action: DefiAction.Claim,
+                variant: 'ghost-filled',
+                colorScheme: 'green',
+                isDisabled: !hasClaim,
+                toolTip: translate('defi.modals.overview.noWithdrawals'),
+              },
+            ]
+      }
       description={{
         description: stakingAsset.description,
         isLoaded: !descriptionQuery.isLoading,
@@ -122,8 +131,13 @@ export const FoxFarmingOverview = () => {
       }}
       tvl={opportunity.tvl}
       apy={opportunity.apy?.toString()}
+      expired={opportunity.expired}
     >
-      <WithdrawCard asset={rewardAsset} amount={rewardAmountAvailable.toString()} />
+      <WithdrawCard
+        asset={rewardAsset}
+        amount={rewardAmountAvailable.toString()}
+        expired={opportunity.expired}
+      />
     </Overview>
   )
 }

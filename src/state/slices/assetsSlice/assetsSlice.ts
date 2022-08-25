@@ -1,15 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  AssetId,
-  avalancheChainId,
-  bchChainId,
-  ltcChainId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import { AssetId, avalancheChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
@@ -50,26 +45,19 @@ export const assets = createSlice({
 })
 
 export const assetApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'assetApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: async (_, { getState }) => {
-        const { Avalanche, BitcoinCash, Osmosis, Litecoin } = selectFeatureFlags(
-          getState() as ReduxState,
-        )
+        const { Avalanche, Osmosis } = selectFeatureFlags(getState() as ReduxState)
 
         const service = await getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!Avalanche && asset.chainId === avalancheChainId) return prev
-            if (!BitcoinCash && asset.chainId === bchChainId) return prev
             if (!Osmosis && asset.chainId === osmosisChainId) return prev
-            if (!Litecoin && asset.chainId === ltcChainId) return prev
             prev[assetId] = asset
             return prev
           },

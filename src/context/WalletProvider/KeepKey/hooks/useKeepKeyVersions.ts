@@ -5,7 +5,6 @@ import { getConfig } from 'config'
 import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN } from 'constants/Config'
 import { useEffect, useState } from 'react'
 import semverGte from 'semver/functions/gte'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 interface VersionUrl {
@@ -44,7 +43,6 @@ export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
   const [updaterUrl, setUpdaterUrl] = useState<string>()
   const [isLTCSupportedFirmwareVersion, setIsLTCSupportedFirmwareVersion] = useState<boolean>(false)
-  const isLitecoinEnabled = useFeatureFlag('Litecoin')
   const {
     state: { wallet },
   } = useWallet()
@@ -78,10 +76,8 @@ export const useKeepKeyVersions = () => {
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await wallet.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
-      if (isLitecoinEnabled) {
-        if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
-          setIsLTCSupportedFirmwareVersion(true)
-      }
+      if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
+        setIsLTCSupportedFirmwareVersion(true)
 
       const versions: Versions = {
         bootloader: {
@@ -98,7 +94,7 @@ export const useKeepKeyVersions = () => {
       setVersions(versions)
       setUpdaterUrl(releases.links.updater)
     })()
-  }, [isLitecoinEnabled, wallet])
+  }, [wallet])
 
   return { versions, updaterUrl, isLTCSupportedFirmwareVersion }
 }

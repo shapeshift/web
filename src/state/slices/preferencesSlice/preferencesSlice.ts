@@ -9,17 +9,16 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
-  MultiCurrency: boolean
   FoxLP: boolean
   FoxFarming: boolean
   Avalanche: boolean
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
-  Litecoin: boolean
-  BitcoinCash: boolean
   Axelar: boolean
   Zendesk: boolean
+  MtPelerinFiatRamp: boolean
+  Yat: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -40,17 +39,16 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    MultiCurrency: getConfig().REACT_APP_FEATURE_MULTI_CURRENCY,
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
-    Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
-    BitcoinCash: getConfig().REACT_APP_FEATURE_BITCOINCASH,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
+    MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
+    Yat: getConfig().REACT_APP_FEATURE_YAT,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -69,8 +67,6 @@ export const preferences = createSlice({
       state.featureFlags[payload.flag] = payload.value
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
-      require(`dayjs/locale/${payload.locale}.js`)
-
       state.selectedLocale = payload.locale
     },
     setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {

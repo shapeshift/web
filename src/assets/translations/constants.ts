@@ -8,6 +8,10 @@ export const locales = [
     label: 'Español',
   },
   {
+    key: 'de',
+    label: 'Deutsch',
+  },
+  {
     key: 'fr',
     label: 'Français',
   },

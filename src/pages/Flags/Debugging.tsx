@@ -84,7 +84,7 @@ export const Debugging = () => {
           </Row>
         </Card.Body>
         <Card.Footer>
-          <Button onClick={() => window.location.reload()} colorScheme='blue'>
+          <Button onClick={window.location.reload} colorScheme='blue'>
             Reload
           </Button>
         </Card.Footer>

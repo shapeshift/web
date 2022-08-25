@@ -21,7 +21,7 @@ export const getDefaultValidatorAddressFromChainId = (chainId: ChainId) => {
     case osmosisChainId:
       return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
     default:
-      return ''
+      throw new Error(`chainId ${chainId} is not a valid Cosmos SDK chainId`)
   }
 }
 export const getDefaultValidatorAddressFromAssetId = flow([

@@ -33,11 +33,8 @@ describe('validatorDataSlice/utils', () => {
 
       expect(actual).toEqual(expected)
     })
-    it('returns empty string from non Cosmos SDK chainId', () => {
-      const actual = getDefaultValidatorAddressFromChainId(ethChainId)
-      const expected = ''
-
-      expect(actual).toEqual(expected)
+    it('throws from non Cosmos SDK chainId', () => {
+      expect(() => getDefaultValidatorAddressFromChainId(ethChainId)).toThrow()
     })
   })
   describe('getDefaultValidatorAddressFromAssetId', () => {
@@ -53,11 +50,8 @@ describe('validatorDataSlice/utils', () => {
 
       expect(actual).toEqual(expected)
     })
-    it('returns empty string from non Cosmos SDK assetId', () => {
-      const actual = getDefaultValidatorAddressFromAssetId(ethAssetId)
-      const expected = ''
-
-      expect(actual).toEqual(expected)
+    it('throws from non Cosmos SDK assetId', () => {
+      expect(() => getDefaultValidatorAddressFromAssetId(ethAssetId)).toThrow()
     })
   })
   describe('getDefaultValidatorAddressFromAccountId', () => {
@@ -75,12 +69,9 @@ describe('validatorDataSlice/utils', () => {
 
       expect(actual).toEqual(expected)
     })
-    it('returns empty string from non Cosmos SDK AccountId', () => {
+    it('throws from non Cosmos SDK AccountId', () => {
       const mockAccountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-      const actual = getDefaultValidatorAddressFromAccountId(mockAccountId)
-      const expected = ''
-
-      expect(actual).toEqual(expected)
+      expect(() => getDefaultValidatorAddressFromAccountId(mockAccountId)).toThrow()
     })
   })
 })

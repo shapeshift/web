@@ -28,16 +28,20 @@ export const validateYat: ValidateYat = async ({ value }) =>
   /^\p{Extended_Pictographic}{1,5}$/u.test(value)
 
 export const resolveYat: ResolveYat = async args => {
-  const { data } = await axios.get<YatResponse>(
-    `${process.env.REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
-  )
-  if (data.error) return ''
+  try {
+    const { data } = await axios.get<YatResponse>(
+      `${process.env.REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
+    )
+    if (data.error) return ''
 
-  const found = data.result.find(
-    emoji => emoji.tag === '0x1004', // 0x1004 is eth address
-  )
+    const found = data.result.find(
+      emoji => emoji.tag === '0x1004', // 0x1004 is eth address
+    )
 
-  if (!found) return ''
-  // data format: address|description|signature|default
-  return toChecksumAddress(found.data.split('|')[0])
+    if (!found) return ''
+    // data format: address|description|signature|default
+    return toChecksumAddress(found.data.split('|')[0])
+  } catch (e) {
+    return ''
+  }
 }

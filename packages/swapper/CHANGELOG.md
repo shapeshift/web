@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.16.2...@shapeshiftoss/swapper-v9.17.0) (2022-08-25)
+
+
+### Features
+
+* **swapper:** serialize `GetTradeQuoteInput` type args ([#989](https://github.com/shapeshift/lib/issues/989)) ([40ec11f](https://github.com/shapeshift/lib/commit/40ec11f6b9dbee9d2d13c809aaca9c3e62a1899f))
+
 # [@shapeshiftoss/swapper-v9.16.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.16.1...@shapeshiftoss/swapper-v9.16.2) (2022-08-16)
 
 

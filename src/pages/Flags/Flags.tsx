@@ -1,10 +1,21 @@
 import { Alert } from '@chakra-ui/alert'
-import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
-import { useState } from 'react'
+import { CopyIcon } from '@chakra-ui/icons'
+import {
+  AlertIcon,
+  Button,
+  Heading,
+  HStack,
+  IconButton,
+  Stack,
+  StackDivider,
+} from '@chakra-ui/react'
+import { Summary } from 'features/defi/components/Summary'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
+import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
@@ -34,6 +45,7 @@ export const Flags = () => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
+  const [visitorId, setVisitorId] = useState<string | null>(null)
 
   const handleApply = async () => {
     try {
@@ -57,27 +69,45 @@ export const Flags = () => {
     }
   }
 
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(visitorId ?? '')
+      alert('Visitor ID copied!')
+    } catch (e) {
+      alert('Something went wrong')
+    }
+  }
+  useEffect(() => {
+    const pendoData = window.localStorage.getItem('visitorData')
+    if (pendoData) {
+      const value = JSON.parse(pendoData)
+      setVisitorId(value.visitorId.id)
+    }
+  }, [])
+
   return (
     <Main titleComponent={<FlagHeader />}>
-      <Card>
-        <Card.Body>
-          <Stack divider={<StackDivider />}>
-            {Object.keys(featureFlags).map((flag, idx) => (
-              <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
-            ))}
-          </Stack>
-        </Card.Body>
-      </Card>
+      <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
+        <Card flex={1}>
+          <Card.Body>
+            <Stack divider={<StackDivider />}>
+              {Object.keys(featureFlags).map((flag, idx) => (
+                <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
+              ))}
+            </Stack>
+          </Card.Body>
+          <Card.Footer>
+            <HStack my={4} width='full'>
+              <Button onClick={handleApply} colorScheme='blue'>
+                Apply
+              </Button>
+              <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
+            </HStack>
+          </Card.Footer>
+        </Card>
 
-      <HStack my={4} width='full'>
-        <Button onClick={handleApply} colorScheme='blue'>
-          Apply
-        </Button>
-        <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
-      </HStack>
-
-      <Debugging />
-
+        <Debugging />
+      </Stack>
       {error && (
         <Alert status='error'>
           <AlertIcon />

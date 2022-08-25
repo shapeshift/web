@@ -1,28 +1,9 @@
-import { Heading, Stack } from '@chakra-ui/react'
-import { useSelector } from 'react-redux'
-import { Main } from 'components/Layout/Main'
-import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { AccountRowWithTokens } from './AccountRowWithTokens'
-
-const AccountHeader = () => {
-  return (
-    <Heading pb={6}>
-      <Text translation='accounts.accounts' />
-    </Heading>
-  )
-}
+import { Accounts as AccountsV1 } from './V1/Accounts'
+import { Accounts as AccountsV2 } from './V2/Accounts'
 
 export const Accounts = () => {
-  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
-  return (
-    <Main titleComponent={<AccountHeader />}>
-      <Stack>
-        {sortedAccountIds.map(accountId => (
-          <AccountRowWithTokens accountId={accountId} key={accountId} />
-        ))}
-      </Stack>
-    </Main>
-  )
+  const multiAccountEnabled = useFeatureFlag('MultiAccounts')
+  return multiAccountEnabled ? <AccountsV2 /> : <AccountsV1 />
 }

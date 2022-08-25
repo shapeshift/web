@@ -16,6 +16,7 @@ export const isValidInput = (
   // KeepKey sets character index to 4 when word is complete, and we are awaiting a space
   const hasFilledAllInputs = recoveryCharacterIndex === maxInputLength
   const hasEnoughCharactersForWordMatch = recoveryCharacterIndex >= minInputLength
+  const isFirstWord = recoveryWordIndex === 0
   const isLastWord = recoveryWordIndex === wordEntropy - 1
   const noCharactersEntered = recoveryCharacterIndex === 0
 
@@ -25,8 +26,8 @@ export const isValidInput = (
   if (!hasEnoughCharactersForWordMatch && (isSpace || isEnter)) return false
   // We can't do space on last word
   if (isLastWord && isSpace) return false
-  // The UI doesn't currently support returning to a previous word
-  if (noCharactersEntered && isBackspace) return false
+  // We can't get previous word while on first word
+  if (isFirstWord && isBackspace && noCharactersEntered) return false
 
   // If we haven't early exited yet, the input is valid
   return true

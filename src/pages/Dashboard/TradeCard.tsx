@@ -15,10 +15,13 @@ export const TradeCard = ({ defaultBuyAssetId }: TradeCardProps) => {
   return (
     <Card flex={1} variant='outline'>
       <Tabs isFitted variant='enclosed'>
-        <TabList>
-          <Tab>Trade</Tab>
-          {Axelar && <Tab>Bridge</Tab>}
-        </TabList>
+        {Axelar && (
+          <TabList>
+            <Tab>Trade</Tab>
+            <Tab>Bridge</Tab>
+          </TabList>
+        )}
+
         <TabPanels>
           <TabPanel py={4} px={6}>
             <Trade defaultBuyAssetId={defaultBuyAssetId} />

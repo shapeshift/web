@@ -29,7 +29,7 @@ export const validateYat: ValidateYat = async ({ value }) =>
 
 export const resolveYat: ResolveYat = async args => {
   const { data } = await axios.get<YatResponse>(
-    `https://octopus-app-mkjlj.ondigitalocean.app/emoji_id/${args.value}`,
+    `${process.env.REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
   )
   if (data.error) return ''
 

@@ -5,6 +5,7 @@ import {
   ethChainId,
   osmosisAssetId,
   osmosisChainId,
+  toAccountId,
 } from '@shapeshiftoss/caip'
 import { cosmosPubKeys, osmoPubKeys } from 'test/mocks/accounts'
 
@@ -61,14 +62,14 @@ describe('validatorDataSlice/utils', () => {
   })
   describe('getDefaultValidatorAddressFromAccountId', () => {
     it('gets default Cosmos ShapeShift Validator address from a cosmos AccountId', () => {
-      const mockAccountId = `${cosmosChainId}:${cosmosPubKeys[0]}`
+      const mockAccountId = toAccountId({ chainId: cosmosChainId, account: cosmosPubKeys[0] })
       const actual = getDefaultValidatorAddressFromAccountId(mockAccountId)
       const expected = SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
 
       expect(actual).toEqual(expected)
     })
     it('gets default Osmosis ShapeShift Validator address from a osmo AccountId', () => {
-      const mockAccountId = `${osmosisChainId}:${osmoPubKeys[0]}`
+      const mockAccountId = toAccountId({ chainId: osmosisChainId, account: osmoPubKeys[0] })
       const actual = getDefaultValidatorAddressFromAccountId(mockAccountId)
       const expected = SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
 

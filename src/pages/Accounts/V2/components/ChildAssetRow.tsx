@@ -37,11 +37,17 @@ export const ChildAssetRow: React.FC<ChildAssetRowProps> = ({
             {subtitle}
           </RawText>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end'>
+        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }}>
           <Amount.Crypto value={cryptoBalance} symbol={symbol} />
         </Flex>
-        <Flex flex={1} justifyContent='flex-end'>
+        <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
           <Amount.Fiat value={fiatBalance} />
+          <Amount.Crypto
+            value={cryptoBalance}
+            symbol={symbol}
+            fontSize='sm'
+            display={{ base: 'block', md: 'none' }}
+          />
         </Flex>
       </Button>
     </ListItem>

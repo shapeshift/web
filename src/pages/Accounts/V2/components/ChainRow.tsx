@@ -18,7 +18,13 @@ export const ChainRow: React.FC<ChainRowProps> = ({ color, title }) => {
   const history = useHistory()
   return (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold'>
-      <Stack direction='row' justifyContent='space-between' alignItems='center' px={4} py={2}>
+      <Stack
+        direction='row'
+        justifyContent='space-between'
+        alignItems='center'
+        px={{ base: 2, md: 4 }}
+        py={2}
+      >
         <Stack direction='row' fontSize='md' alignItems='center' spacing={4}>
           <Circle size={8} borderWidth={2} borderColor={color} />
           <RawText>{title}</RawText>

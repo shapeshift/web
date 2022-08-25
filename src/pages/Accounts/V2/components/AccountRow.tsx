@@ -70,7 +70,7 @@ export const AccountRow: React.FC<AccountRowProps> = ({
         />
       </Flex>
 
-      <NestedList as={Collapse} in={isOpen}>
+      <NestedList as={Collapse} in={isOpen} pr={0}>
         <ListItem>
           <ChildAssetRow
             title='Asset Name'

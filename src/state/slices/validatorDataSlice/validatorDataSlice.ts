@@ -79,10 +79,6 @@ export const validatorDataApi = createApi({
 
         const portfolioAccount = byId[accountSpecifier]
 
-        if (!portfolioAccount) {
-          return { error: { data: `No portfolio data found for ${accountSpecifier}`, status: 404 } }
-        }
-
         let validatorAddress = ''
 
         if (isCosmosChainId(chainId)) {
@@ -92,7 +88,7 @@ export const validatorDataApi = createApi({
           validatorAddress = SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
         }
 
-        const validatorIds = portfolioAccount.validatorIds?.length
+        const validatorIds = portfolioAccount?.validatorIds?.length
           ? portfolioAccount.validatorIds
           : [validatorAddress]
 

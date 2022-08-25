@@ -27,7 +27,8 @@
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
-    "release": "ts-node --skipProject ./scripts/release.ts"
+    "release": "ts-node --skipProject ./scripts/release.ts",
+    "env": "ts-node --skipProject ./scripts/bootstrap-env.ts"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -103,7 +104,7 @@
     "@shapeshiftoss/investor-yearn": "^4.1.0",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^6.5.0",
-    "@shapeshiftoss/swapper": "^9.16.2",
+    "@shapeshiftoss/swapper": "^9.17.0",
     "@shapeshiftoss/types": "^8.2.0",
     "@shapeshiftoss/unchained-client": "^9.9.0",
     "@uniswap/sdk": "^3.0.3",
@@ -218,6 +219,7 @@
     "chalk": "4.1.2",
     "circular-dependency-plugin": "^5.2.2",
     "cypress": "^10.4.0",
+    "dotenv": "^16.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",

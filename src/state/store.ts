@@ -5,7 +5,7 @@ import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
-import { foxyBalancesApi } from './apis/foxy/foxyBalancesApi'
+import { foxyApi } from './apis/foxy/foxyApi'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { foxEthApi } from './slices/foxEthSlice/foxEthSlice'
@@ -27,9 +27,10 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
-  foxyBalancesApi.middleware,
   swapperApi.middleware,
   foxEthApi.middleware,
+  foxyApi.middleware,
+  swapperApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

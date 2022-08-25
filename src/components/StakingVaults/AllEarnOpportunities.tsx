@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -27,7 +28,7 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
@@ -37,11 +38,13 @@ export const AllEarnOpportunities = () => {
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
+      supportsCosmosSdk: wallet ? supportsCosmos(wallet) : undefined,
     },
   )
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
+      supportsCosmosSdk: wallet ? supportsOsmosis(wallet) : undefined,
     })
   const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({

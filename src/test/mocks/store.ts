@@ -27,8 +27,8 @@ export const mockStore: ReduxState = {
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
-  foxyBalancesApi: mockApiFactory('foxyBalancesApi' as const),
   foxEthApi: mockApiFactory('foxEthApi' as const),
+  foxyApi: mockApiFactory('foxyApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -63,6 +63,7 @@ export const mockStore: ReduxState = {
       Zendesk: false,
       MtPelerinFiatRamp: false,
       Yat: false,
+      MultiAccounts: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

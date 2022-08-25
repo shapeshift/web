@@ -8,11 +8,13 @@ import {
   btcAssetId,
   ChainId,
   cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
   ethAssetId,
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
+  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { maxBy } from 'lodash'
@@ -66,23 +68,25 @@ type ParamFilter = {
   accountId: AccountSpecifier
   accountSpecifier: string
   validatorAddress: PubKey
+  supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
   assetId: AssetId
   accountId?: AccountSpecifier
   accountSpecifier?: string
   validatorAddress?: PubKey
+  supportsCosmosSdk?: boolean
 }
 type ParamFilterKey = keyof ParamFilter
 type OptionalParamFilterKey = keyof OptionalParamFilter
 
 const selectParamFromFilter =
   <T extends ParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] =>
+  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
     filter?.[param] ?? ''
 const selectParamFromFilterOptional =
   <T extends OptionalParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] =>
+  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
     filter?.[param] ?? ''
 
 // We should prob change this once we add more chains
@@ -104,6 +108,8 @@ const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpec
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
+const selectSupportsCosmosSdkParamFromFilterOptional =
+  selectParamFromFilterOptional('supportsCosmosSdk')
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -972,13 +978,52 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
   },
 )
 
+const selectDefaultStakingDataByValidatorId = createSelector(
+  selectAssetIdParamFromFilterOptional,
+  selectSupportsCosmosSdkParamFromFilterOptional,
+  selectValidators,
+  (assetId, supportsCosmosSdk = true, stakingDataByValidator) => {
+    if (supportsCosmosSdk || !assetId) return null
+
+    const { chainId } = fromAssetId(assetId)
+
+    const defaultValidatorAddress = (() => {
+      switch (chainId) {
+        case cosmosChainId:
+          return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+        case osmosisChainId:
+          return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+        default:
+          return ''
+      }
+    })()
+
+    return stakingDataByValidator[defaultValidatorAddress]
+  },
+)
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
   selectValidatorIds,
   selectValidators,
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
-  (validatorIds, validatorsData, stakingDataByValidator, assetId): OpportunitiesDataFull[] =>
-    validatorIds.map(validatorId => {
+  selectDefaultStakingDataByValidatorId,
+  (
+    validatorIds,
+    validatorsData,
+    stakingDataByValidator,
+    assetId,
+    defaultStakingData,
+  ): OpportunitiesDataFull[] => {
+    if (defaultStakingData && !validatorIds.length)
+      return [
+        {
+          isLoaded: true,
+          rewards: '0',
+          totalDelegations: '0',
+          ...defaultStakingData,
+        },
+      ]
+    return validatorIds.map(validatorId => {
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()
@@ -1000,7 +1045,8 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         rewards: stakingDataByValidator?.[validatorId]?.[assetId]?.rewards?.[0]?.amount ?? '0',
         isLoaded: Boolean(validatorsData[validatorId]),
       }
-    }),
+    })
+  },
 )
 
 export const selectHasActiveStakingOpportunity = createSelector(

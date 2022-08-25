@@ -19,6 +19,7 @@ export type FeatureFlags = {
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
   Yat: boolean
+  MultiAccounts: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -39,8 +40,8 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    FoxLP: true,
-    FoxFarming: true,
+    FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
+    FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
@@ -49,6 +50,7 @@ const initialState: Preferences = {
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
+    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

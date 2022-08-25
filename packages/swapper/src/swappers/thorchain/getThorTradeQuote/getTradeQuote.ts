@@ -33,20 +33,7 @@ type GetThorTradeQuoteReturn = Promise<TradeQuote<ChainId>>
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
 export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmount,
-    sellAssetAccountNumber,
-    wallet,
-    chainId,
-    receiveAddress,
-  } = input
-
-  if (!wallet)
-    throw new SwapError('[getThorTradeQuote] - wallet is required', {
-      code: SwapErrorTypes.VALIDATION_FAILED,
-    })
+  const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, chainId, receiveAddress } = input
 
   try {
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
@@ -120,9 +107,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             sellAmount,
             slippageTolerance: DEFAULT_SLIPPAGE,
             destinationAddress: receiveAddress,
-            wallet,
-            bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
-            accountType: (input as GetUtxoTradeQuoteInput).accountType,
+            xpub: (input as GetUtxoTradeQuoteInput).xpub,
             tradeFee,
           })
 

@@ -1,9 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorTypes, UtxoSupportedChainIds } from '../../../../../api'
+import { SwapError, SwapErrorTypes } from '../../../../../api'
 import { InboundResponse, ThorchainSwapperDeps } from '../../../types'
 import { getLimit } from '../../getLimit/getLimit'
 import { makeSwapMemo } from '../../makeSwapMemo/makeSwapMemo'
@@ -16,9 +13,7 @@ type GetBtcThorTxInfoArgs = {
   sellAmount: string
   slippageTolerance: string
   destinationAddress: string
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  accountType: UtxoAccountType
+  xpub: string
   tradeFee: string
 }
 type GetBtcThorTxInfoReturn = Promise<{
@@ -35,9 +30,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   sellAmount,
   slippageTolerance,
   destinationAddress,
-  wallet,
-  bip44Params,
-  accountType,
+  xpub,
   tradeFee,
 }) => {
   try {
@@ -74,16 +67,10 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       limit,
     })
 
-    const adapter = deps.adapterManager.get(
-      sellAsset.chainId,
-    ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
-
-    const pubkey = await adapter.getPublicKey(wallet, bip44Params, accountType)
-
     return {
       opReturnData: memo,
       vault,
-      pubkey: pubkey.xpub,
+      pubkey: xpub,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

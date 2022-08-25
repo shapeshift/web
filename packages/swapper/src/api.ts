@@ -69,7 +69,6 @@ type CommonTradeInput = {
   sellAmount: string
   sendMax: boolean
   sellAssetAccountNumber: number
-  wallet: HDWallet
   receiveAddress: string
 }
 
@@ -99,7 +98,7 @@ export type GetUtxoTradeQuoteInput = CommonTradeInput & {
   chainId: UtxoSupportedChainIds
   accountType: UtxoAccountType
   bip44Params: BIP44Params
-  wallet: HDWallet
+  xpub: string
 }
 
 export type GetTradeQuoteInput =

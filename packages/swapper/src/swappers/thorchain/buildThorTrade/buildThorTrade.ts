@@ -84,9 +84,7 @@ export const buildTrade = async ({
         sellAmount,
         slippageTolerance,
         destinationAddress,
-        wallet,
-        bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
-        accountType: (input as GetUtxoTradeQuoteInput).accountType,
+        xpub: (input as GetUtxoTradeQuoteInput).xpub,
         tradeFee: quote.feeData.tradeFee,
       })
 

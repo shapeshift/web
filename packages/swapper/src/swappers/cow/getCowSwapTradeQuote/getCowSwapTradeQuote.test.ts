@@ -1,6 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
@@ -202,7 +201,6 @@ describe('getCowTradeQuote', () => {
       sellAmount: '11111',
       sendMax: true,
       sellAssetAccountNumber: 1,
-      wallet: <HDWallet>{},
       receiveAddress: '',
     }
 
@@ -219,7 +217,6 @@ describe('getCowTradeQuote', () => {
       sellAmount: '1000000000000000000',
       sendMax: true,
       sellAssetAccountNumber: 0,
-      wallet: <HDWallet>{},
       receiveAddress: '',
     }
 
@@ -256,7 +253,6 @@ describe('getCowTradeQuote', () => {
       sellAmount: '1000000000000000000000',
       sendMax: true,
       sellAssetAccountNumber: 0,
-      wallet: <HDWallet>{},
       receiveAddress: '',
     }
 
@@ -293,7 +289,6 @@ describe('getCowTradeQuote', () => {
       sellAmount: '1000000000000',
       sendMax: true,
       sellAssetAccountNumber: 0,
-      wallet: <HDWallet>{},
       receiveAddress: '',
     }
 

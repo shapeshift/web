@@ -28,7 +28,7 @@ export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
+    const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, receiveAddress } = input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -101,8 +101,6 @@ export async function getCowSwapTradeQuote(
     const buyCryptoAmount = bn(quote.buyAmount).div(bn(10).exponentiatedBy(buyAsset.precision))
     const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(sellAsset.precision))
     const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
-
-    const receiveAddress = wallet ? await adapter.getAddress({ wallet }) : DEFAULT_ADDRESS
 
     const data = getApproveContractData({
       web3,

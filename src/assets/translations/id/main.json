@@ -280,8 +280,8 @@
     "featureFlags": "Fitur Bendera"
   },
   "transactionRow": {
-    "send": "Kirim %{symbol}",
-    "receive": "Menerima %{symbol}",
+    "send": "Kirim",
+    "receive": "Menerima",
     "moreDetails": "Lebih Detail",
     "date": "Tanggal",
     "txid": "ID Transaksi",

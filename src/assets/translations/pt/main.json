@@ -348,8 +348,8 @@
     "clickToConnect": "Clique para conectar uma carteira"
   },
   "transactionRow": {
-    "send": "Enviado %{symbol}",
-    "receive": "Recebido %{symbol}",
+    "send": "Enviado",
+    "receive": "Recebido",
     "moreDetails": "Mais Detalhes",
     "date": "Data",
     "txid": "ID da Transação",

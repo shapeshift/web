@@ -357,8 +357,8 @@
     "explore": "Explore"
   },
   "transactionRow": {
-    "send": "Sent %{symbol}",
-    "receive": "Received %{symbol}",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",

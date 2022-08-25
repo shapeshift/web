@@ -348,8 +348,8 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie"
   },
   "transactionRow": {
-    "send": "%{symbol} envoyés",
-    "receive": "%{symbol} reçus",
+    "send": "envoyé",
+    "receive": "reçu",
     "moreDetails": "Plus de détails",
     "date": "Date",
     "txid": "ID de transaction",

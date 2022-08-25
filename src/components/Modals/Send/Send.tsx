@@ -31,7 +31,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxW='500px'>
         <MemoryRouter initialEntries={entries}>
           <Switch>
             <Route

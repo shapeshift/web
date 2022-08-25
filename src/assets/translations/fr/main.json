@@ -193,6 +193,16 @@
         "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
         "availableDate": "disponible %{date}"
       },
+      "foxFarmingOverview": {
+        "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
+        "body": "Approuvez et misez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
+        "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
+        "cta": "Déposer des jetons LP ETH-FOX maintenant",
+        "foxFarmingBalance": "Solde de jetons LP ETH-FOX",
+        "withdrawals": "Retraits",
+        "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
+        "availableDate": "disponible %{date}"
+      },
       "overview": {
         "underlyingTokens": "Jetons sous-jacents",
         "availableRewards": "Récompenses disponibles",
@@ -338,7 +348,7 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie"
   },
   "transactionRow": {
-    "send": "%{symbol} envoyé",
+    "send": "%{symbol} envoyés",
     "receive": "%{symbol} reçus",
     "moreDetails": "Plus de détails",
     "date": "Date",
@@ -407,6 +417,8 @@
     "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
   },
   "trade": {
+    "allowance": "Allocation",
+    "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
@@ -423,6 +435,8 @@
     "estimatedGasFee": "Estimation des frais de carburant",
     "approvingAsset": "Approbation de %{symbol}",
     "viewTransaction": "Voir la transaction",
+    "unlimited": "Illimitée",
+    "exact": "Exacte",
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",

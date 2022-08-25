@@ -1,5 +1,6 @@
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, Flex, Link, Stack } from '@chakra-ui/react'
+import { osmosisAssetId } from '@shapeshiftoss/caip'
 import { isCowTrade, TradeTxs } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -21,6 +22,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
+  selectAssetById,
   selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
@@ -46,6 +48,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting },
   } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
+  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -142,12 +145,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const txLink = useMemo(() => {
     switch (trade.sources[0].name) {
+      case 'Osmosis':
+        return `${osmosisAsset?.explorerTxLink}${buyTxid}`
       case 'CowSwap':
         return `https://explorer.cow.fi/orders/${sellTxid}`
       default:
         return `${trade.sellAsset?.explorerTxLink}${sellTxid}`
     }
-  }, [trade, sellTxid])
+  }, [trade, sellTxid, osmosisAsset, buyTxid])
 
   return (
     <SlideTransition>

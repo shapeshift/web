@@ -16,7 +16,6 @@ import { logger } from 'lib/logger'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
   selectIsPortfolioLoaded,
@@ -25,7 +24,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
@@ -95,11 +94,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                   return adapter?.subscribeTxs(
                     { wallet, accountType, ...accountParams },
                     msg => {
-                      const state = store.getState()
-                      const accountId = selectAccountIdByAddress(state, {
-                        accountSpecifier: `${msg.chainId}:${msg.address}`,
-                      })
-
+                      const { accountId } = msg
                       const { getAccount } = portfolioApi.endpoints
                       const { getValidatorData } = validatorDataApi.endpoints
 

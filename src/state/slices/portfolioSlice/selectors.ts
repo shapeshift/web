@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { Asset } from '@shapeshiftoss/asset-service'
 import {
-  AccountId,
   AssetId,
   avalancheAssetId,
   bchAssetId,
@@ -24,7 +23,6 @@ import keys from 'lodash/keys'
 import map from 'lodash/map'
 import reduce from 'lodash/reduce'
 import size from 'lodash/size'
-import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
 import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -747,24 +745,6 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
           bnOrZero(assetFiatBalance).gte(bnOrZero(balanceThreshold)),
       )
       .map(([assetId]) => assetId)
-  },
-)
-
-export const selectAccountIdByAddress = createSelector(
-  selectAccountIds,
-  selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, filterAccountId): string => {
-    let accountSpecifier = ''
-    for (const portfolioAccount in portfolioAccounts) {
-      const isAccountSpecifier = !!portfolioAccounts[portfolioAccount].find(
-        accountId => toLower(accountId) === toLower(filterAccountId),
-      )
-      if (isAccountSpecifier) {
-        accountSpecifier = portfolioAccount
-        break
-      }
-    }
-    return accountSpecifier
   },
 )
 

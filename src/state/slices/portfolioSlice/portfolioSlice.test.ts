@@ -2,11 +2,9 @@ import { btcAssetId } from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 import {
   assetIds,
-  btcAccountIds,
   btcAddresses,
   btcPubKeys,
   cosmosAssetId,
-  ethAccountIds,
   ethAssetId,
   ethPubKeys,
   foxAssetId,
@@ -34,7 +32,6 @@ import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  selectAccountIdByAddress,
   selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAccountRows,
@@ -255,44 +252,6 @@ describe('portfolioSlice', () => {
         const selected = selectPortfolioAssetAccounts(state, ethAssetId)
         const expected = [ethAccountId, ethAccount2Id]
         expect(selected).toEqual(expected)
-      })
-    })
-
-    describe('selectAccountIdByAddress', () => {
-      const store = createStore()
-      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockEthAndBtcAccounts()
-
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, btcAccount], assetIds),
-        ),
-      )
-      const state = store.getState()
-
-      it('can select account id by address (accountId)', () => {
-        const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
-        })
-        const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0],
-        })
-
-        expect(btcAccSpecifier).toEqual(btcAccountId)
-        expect(ethAccSpecifier).toEqual(ethAccountId)
-      })
-
-      it('can select account id with address in non checksum format', () => {
-        // AccountIds in state in non checksum format
-        const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
-        })
-        expect(btcAccSpecifier).toEqual(btcAccountId)
-
-        // AccountId argument in non checksum format
-        const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0].toUpperCase(),
-        })
-        expect(ethAccSpecifier).toEqual(ethAccountId)
       })
     })
 

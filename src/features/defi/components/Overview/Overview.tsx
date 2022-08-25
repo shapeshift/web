@@ -22,7 +22,7 @@ import { RawText, Text } from 'components/Text'
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 
-type AssetWithBalance = {
+export type AssetWithBalance = {
   cryptoBalance: string
   allocationPercentage?: string
   icons?: string[]

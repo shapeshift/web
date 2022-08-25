@@ -99,7 +99,7 @@ export const OpportunityCard = ({
     if (version) {
       const providerExp = new RegExp('^' + provider, 'i')
       if (!providerExp.test(version)) {
-        version = `${provider} ${version}`
+        return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
       }
       return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
     }

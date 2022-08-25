@@ -8,13 +8,11 @@ import {
   btcAssetId,
   ChainId,
   cosmosAssetId,
-  cosmosChainId,
   dogeAssetId,
   ethAssetId,
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
-  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { maxBy } from 'lodash'
@@ -35,10 +33,7 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import {
-  accountIdToFeeAssetId,
-  getShapeshiftValidatorFromAccountSpecifier,
-} from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -47,6 +42,10 @@ import {
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from '../validatorDataSlice/constants'
 import { selectValidators } from '../validatorDataSlice/selectors'
+import {
+  getDefaultValidatorAddressFromAccountId,
+  getDefaultValidatorAddressFromAssetId,
+} from '../validatorDataSlice/utils'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
@@ -972,7 +971,7 @@ export const selectValidatorIds = createDeepEqualOutputSelector(
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
     if (!portfolioAccount?.validatorIds?.length)
-      return [getShapeshiftValidatorFromAccountSpecifier(accountSpecifier)]
+      return [getDefaultValidatorAddressFromAccountId(accountSpecifier)]
 
     return portfolioAccount.validatorIds
   },
@@ -985,18 +984,7 @@ const selectDefaultStakingDataByValidatorId = createSelector(
   (assetId, supportsCosmosSdk = true, stakingDataByValidator) => {
     if (supportsCosmosSdk || !assetId) return null
 
-    const { chainId } = fromAssetId(assetId)
-
-    const defaultValidatorAddress = (() => {
-      switch (chainId) {
-        case cosmosChainId:
-          return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-        case osmosisChainId:
-          return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-        default:
-          return ''
-      }
-    })()
+    const defaultValidatorAddress = getDefaultValidatorAddressFromAssetId(assetId)
 
     return stakingDataByValidator[defaultValidatorAddress]
   },

@@ -9,10 +9,6 @@ import {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  isCosmosAssetId,
-  isOsmosisAssetId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -31,10 +27,7 @@ import {
   selectTotalBondingsBalanceByAssetId,
   selectValidatorByAddress,
 } from 'state/slices/selectors'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
+import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosEmpty } from './CosmosEmpty'
@@ -99,12 +92,10 @@ export const CosmosOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const defaultValidatorAddress = useMemo(() => {
-    if (isCosmosAssetId(stakingAssetId)) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-    if (isOsmosisAssetId(stakingAssetId)) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-
-    return ''
-  }, [stakingAssetId])
+  const defaultValidatorAddress = useMemo(
+    () => getDefaultValidatorAddressFromAssetId(stakingAssetId),
+    [stakingAssetId],
+  )
   const validatorData = useAppSelector(state =>
     selectValidatorByAddress(state, defaultValidatorAddress),
   )

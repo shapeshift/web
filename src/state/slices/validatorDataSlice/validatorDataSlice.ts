@@ -2,20 +2,12 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-// @ts-ignore this will fail at 'file differs in casing' error
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
 
 import { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
+import { getDefaultValidatorAddressFromChainId } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })
 
@@ -79,14 +71,7 @@ export const validatorDataApi = createApi({
 
         const portfolioAccount = byId[accountSpecifier]
 
-        let validatorAddress = ''
-
-        if (isCosmosChainId(chainId)) {
-          validatorAddress = SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-        }
-        if (isOsmosisChainId(chainId)) {
-          validatorAddress = SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-        }
+        const validatorAddress = getDefaultValidatorAddressFromChainId(chainId)
 
         const validatorIds = portfolioAccount?.validatorIds?.length
           ? portfolioAccount.validatorIds

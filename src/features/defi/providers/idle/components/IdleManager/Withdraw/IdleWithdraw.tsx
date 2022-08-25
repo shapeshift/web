@@ -11,7 +11,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -34,7 +34,7 @@ import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
 export const IdleWithdraw = () => {
-  const { idle: api } = useIdle()
+  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -66,10 +66,10 @@ export const IdleWithdraw = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByOpportunityId(
+          idleInvestor.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -88,9 +88,9 @@ export const IdleWithdraw = () => {
         console.error('IdleWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -98,7 +98,7 @@ export const IdleWithdraw = () => {
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

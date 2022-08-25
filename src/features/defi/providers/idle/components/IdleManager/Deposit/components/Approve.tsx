@@ -34,7 +34,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
 
   const assetNamespace = 'erc20'

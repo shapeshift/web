@@ -28,7 +28,7 @@ import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 
 export const IdleClaim = () => {
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()

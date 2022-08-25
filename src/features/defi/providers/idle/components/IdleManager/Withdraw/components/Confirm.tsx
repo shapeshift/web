@@ -33,7 +33,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 

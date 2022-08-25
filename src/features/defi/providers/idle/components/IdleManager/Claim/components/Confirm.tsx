@@ -20,6 +20,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -31,10 +32,12 @@ import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
 import { ClaimableAsset } from './ClaimableAsset'
 
+const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
+
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
@@ -65,21 +68,25 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   useEffect(() => {
     if (!dispatch || !idleInvestor) return
     ;(async () => {
-      if (!state.userAddress) return
+      try {
+        if (!state.userAddress) return
 
-      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
+        dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
 
-      const idleOpportunity = await idleInvestor.findByOpportunityId(assetId)
-      if (!idleOpportunity) throw new Error('No opportunity')
+        const idleOpportunity = await idleInvestor.findByOpportunityId(assetId)
+        if (!idleOpportunity) throw new Error('No opportunity')
 
-      const preparedTx = await idleOpportunity.prepareClaimTokens(state.userAddress)
-      const estimatedGasCrypto = bnOrZero(preparedTx.gasPrice)
-        .times(preparedTx.estimatedGas)
-        .integerValue()
-        .toString()
+        const preparedTx = await idleOpportunity.prepareClaimTokens(state.userAddress)
+        const estimatedGasCrypto = bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
 
-      dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
-      dispatch({ type: IdleClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
+        dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
+        dispatch({ type: IdleClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
+      }
     })()
   }, [state.userAddress, dispatch, idleInvestor, assetId])
 

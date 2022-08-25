@@ -34,7 +34,7 @@ import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
 export const IdleDeposit = () => {
-  const { idle: api } = useIdle()
+  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -55,10 +55,10 @@ export const IdleDeposit = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByOpportunityId(
+          idleInvestor.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
         ])
@@ -78,7 +78,7 @@ export const IdleDeposit = () => {
         console.error('IdleDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
   const handleBack = () => {
     history.push({
@@ -113,7 +113,7 @@ export const IdleDeposit = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [asset.symbol])
 
-  if (loading || !asset || !marketData || !api) {
+  if (loading || !asset || !marketData || !idleInvestor) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

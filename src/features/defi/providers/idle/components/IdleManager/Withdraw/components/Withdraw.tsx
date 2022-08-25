@@ -10,7 +10,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -28,7 +28,7 @@ import { WithdrawContext } from '../WithdrawContext'
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
@@ -55,74 +55,96 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
-  if (!state || !dispatch) return null
+  const pricePerShare = useMemo(() => {
+    if (!state?.opportunity) return bnOrZero(0)
+    return bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
+      `1e+${asset?.precision}`,
+    )
+  }, [state?.opportunity, asset])
 
-  const pricePerShare = bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
-    `1e+${asset?.precision}`,
-  )
   const vaultTokenPrice = pricePerShare.times(marketData.price)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
-  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!(state.userAddress && opportunity && assetReference)) return
-    try {
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        opportunity?.positionAsset.assetId,
-      )
-      if (!idleOpportunity) throw new Error('No opportunity')
-      const preparedTx = await idleOpportunity.prepareWithdrawal({
-        amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
+  const getWithdrawGasEstimate = useCallback(
+    async (withdraw: WithdrawValues) => {
+      if (!(state?.userAddress && opportunity && assetReference)) return
+      try {
+        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+          opportunity?.positionAsset.assetId,
+        )
+        if (!idleOpportunity) throw new Error('No opportunity')
+        const preparedTx = await idleOpportunity.prepareWithdrawal({
+          amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          address: state.userAddress,
+        })
+        return bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
+      } catch (error) {
+        // TODO: handle client side errors maybe add a toast?
+        console.error('IdleWithdraw:getWithdrawGasEstimate error:', error)
+      }
+    },
+    [state?.userAddress, opportunity, assetReference, idleInvestor, asset],
+  )
+
+  const handleContinue = useCallback(
+    async (formValues: WithdrawValues) => {
+      if (!(state?.userAddress && opportunity && dispatch)) return
+      // set withdraw state for future use
+      dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
+      dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
+      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+      if (!estimatedGasCrypto) return
+      dispatch({
+        type: IdleWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto },
       })
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
-      console.error('IdleWithdraw:getWithdrawGasEstimate error:', error)
-    }
-  }
+      onNext(DefiStep.Confirm)
+      dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
+    },
+    [state?.userAddress, getWithdrawGasEstimate, onNext, opportunity, dispatch],
+  )
 
-  const handleContinue = async (formValues: WithdrawValues) => {
-    if (!(state.userAddress && opportunity)) return
-    // set withdraw state for future use
-    dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
-    dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-    const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-    if (!estimatedGasCrypto) return
-    dispatch({
-      type: IdleWithdrawActionType.SET_WITHDRAW,
-      payload: { estimatedGasCrypto },
-    })
-    onNext(DefiStep.Confirm)
-    dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-  }
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(vaultTokenPrice)
-    setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-  }
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(vaultTokenPrice)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    },
+    [cryptoAmountAvailable, vaultTokenPrice, setValue],
+  )
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [balance, asset],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const fiat = crypto.times(vaultTokenPrice)
-    const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const fiat = crypto.times(vaultTokenPrice)
+      const _value = bnOrZero(value)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [balance, asset, vaultTokenPrice],
+  )
+
+  if (!state) return null
 
   return (
     <FormProvider {...methods}>

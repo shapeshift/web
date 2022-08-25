@@ -33,7 +33,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
 

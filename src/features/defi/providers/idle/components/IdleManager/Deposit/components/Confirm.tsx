@@ -36,7 +36,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idle: idleInvestor } = useIdle()
+  const { idleInvestor } = useIdle()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query

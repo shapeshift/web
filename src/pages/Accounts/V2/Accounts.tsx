@@ -12,7 +12,7 @@ const AccountHeader = () => {
         <Text translation='accounts.accounts' />
       </Heading>
       <Button leftIcon={<AddIcon />} colorScheme='blue'>
-        Add Account
+        <Text translation='accounts.addAccount' />
       </Button>
     </Stack>
   )

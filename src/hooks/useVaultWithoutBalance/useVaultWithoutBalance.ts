@@ -27,18 +27,19 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
-  const { idle, loading: idleLoading, enabled: idleEnabled } = useIdle()
+  const { idleInvestor, loading: idleLoading, enabled: isIdleEnabled } = useIdle()
 
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!(wallet && yearn && (idle || !idleEnabled)) || yearnLoading || idleLoading) return
+    if (!(wallet && yearn && (idleInvestor || !isIdleEnabled)) || yearnLoading || idleLoading)
+      return
     ;(async () => {
       setLoading(true)
       try {
         const providers = {
-          [DefiProvider.Idle]: idle,
+          [DefiProvider.Idle]: idleInvestor,
           [DefiProvider.Yearn]: yearn,
         }
 
@@ -77,8 +78,8 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
     yearnLoading,
     yearn,
     idleLoading,
-    idle,
-    idleEnabled,
+    idleInvestor,
+    isIdleEnabled,
   ])
 
   const mergedVaults = useMemo(() => {

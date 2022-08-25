@@ -21,7 +21,7 @@ type State = {
   preferences: Preferences
 }
 
-type GetTradeQuoteOutput = TradeQuote<ChainId>
+export type GetTradeQuoteOutput = TradeQuote<ChainId>
 
 const getBestSwapperFromArgs = async (
   buyAssetId: AssetId,
@@ -91,4 +91,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetUsdRateQuery, useLazyGetUsdRateQuery, useLazyGetTradeQuoteQuery } = swapperApi
+export const { useGetUsdRateQuery, useLazyGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi

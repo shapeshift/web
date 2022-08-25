@@ -45,7 +45,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
-  store.dispatch(apiSlices.swapperApi.util.resetApiState())
 }
 
 /**

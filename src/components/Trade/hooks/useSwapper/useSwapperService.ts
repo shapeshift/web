@@ -1,3 +1,4 @@
+import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -16,13 +17,13 @@ import {
 import { type TradeState, TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useLazyGetTradeQuoteQuery, useLazyGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
+import { useGetTradeQuoteQuery, useLazyGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useSwapperV2 = () => {
+export const useSwapperService = () => {
   // Form
   const { control, setValue, getValues } = useFormContext<TradeState<KnownChainIds>>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -36,11 +37,17 @@ export const useSwapperV2 = () => {
   // debug
   console.log('xxx getValues', getValues())
 
+  // Types
+  type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
+  type TradeQuoteInputArg = TradeQuoteQueryInput[0]
+  type TradeQuoteInputOptions = TradeQuoteQueryInput[1]
+
   // State
   const {
     state: { wallet },
   } = useWallet()
   const [tradeAmounts, setTradeAmounts] = useState<Amounts | undefined>()
+  const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -58,12 +65,12 @@ export const useSwapperV2 = () => {
   const feeAssetId = sellAssetFeeAsset?.assetId
 
   // API
-  const getTradeQuoteTriggerOptions: Parameters<typeof useLazyGetTradeQuoteQuery>[0] = {
-    pollingInterval: 30,
+  const tradeQuoteOptions: TradeQuoteInputOptions = {
+    pollingInterval: 30000,
     refetchOnReconnect: true,
   }
-  const [getTradeQuoteTrigger, getTradeQuoteResult, getTradeQuoteLastInfo] =
-    useLazyGetTradeQuoteQuery(getTradeQuoteTriggerOptions)
+
+  const { data: tradeQuoteData } = useGetTradeQuoteQuery(tradeQuoteArgs, tradeQuoteOptions)
 
   const [buyAssetFiatRateTrigger, buyAssetFiatRateResult] = useLazyGetUsdRateQuery()
   const [sellAssetFiatRateTrigger, sellAssetFiatRateResult] = useLazyGetUsdRateQuery()
@@ -185,8 +192,7 @@ export const useSwapperV2 = () => {
             }
           }
         })()
-        tradeQuoteInputArgs && getTradeQuoteTrigger(tradeQuoteInputArgs)
-        getTradeQuoteResult.data && setValue('quote', getTradeQuoteResult.data)
+        tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
     }
   }, [
@@ -195,8 +201,6 @@ export const useSwapperV2 = () => {
     amount,
     buyAsset,
     buyTradeAsset,
-    getTradeQuoteResult.data,
-    getTradeQuoteTrigger,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellAssetAccount,
@@ -208,8 +212,7 @@ export const useSwapperV2 = () => {
 
   // Set trade quote
   useEffect(() => {
-    console.log('xxx trade quote result', getTradeQuoteResult)
-    const tradeQuote = getTradeQuoteResult.data
-    tradeQuote && setValue('quote', tradeQuote)
-  }, [getTradeQuoteResult, setValue])
+    console.log('xxx trade quote result', tradeQuoteData)
+    tradeQuoteData?.data && setValue('quote', tradeQuoteData.data)
+  }, [tradeQuoteData, setValue])
 }

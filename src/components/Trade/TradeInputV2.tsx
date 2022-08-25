@@ -5,7 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { useSwapperV2 } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapperService } from 'components/Trade/hooks/useSwapper/useSwapperService'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { RateGasRow } from './Components/RateGasRow'
@@ -14,7 +14,7 @@ import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
 
 export const TradeInput = () => {
-  useSwapperV2()
+  useSwapperService()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -31,7 +31,7 @@ export const TradeInput = () => {
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
 
-  const { updateQuote, updateTrade, checkApprovalNeeded } = useSwapper()
+  // const { updateTrade, checkApprovalNeeded } = useSwapper()
 
   const { field: sellCryptoAmount } = useController({
     name: 'sellTradeAsset.amount',

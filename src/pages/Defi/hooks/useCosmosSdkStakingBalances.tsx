@@ -1,4 +1,4 @@
-import { AssetId, ChainId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -9,10 +9,7 @@ import {
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
-import {
-  EMPTY_COSMOS_ADDRESS,
-  EMPTY_OSMOSIS_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
+import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type UseCosmosStakingBalancesProps = {
@@ -51,25 +48,10 @@ export function useCosmosSdkStakingBalances({
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
-  // Default account specifiers to fetch Cosmos SDK staking data without any cosmos account
-  // Created and private key burned, guaranteed to be empty
-  const defaultCosmosAccountSpecifier = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
-  const defaultOsmosisAccountSpecifier = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
-  const { chainId } = fromAssetId(assetId)
-
-  const defaultAccountSpecifier = (() => {
-    if (supportsCosmosSdk) return ''
-
-    switch (chainId) {
-      case cosmosChainId:
-        return defaultCosmosAccountSpecifier
-      case osmosisChainId:
-        return defaultOsmosisAccountSpecifier
-      default:
-        return ''
-    }
-  })()
-
+  const defaultAccountSpecifier = useMemo(
+    () => getDefaultValidatorAddressFromAssetId(assetId),
+    [assetId],
+  )
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, {
       accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,

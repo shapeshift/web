@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { BIP44Params } from '@shapeshiftoss/types'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
@@ -24,6 +24,10 @@ import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 // const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type AccountSpecifier = string
+export type AccountMetaData = {
+  bip44Params: BIP44Params
+  accountType?: UtxoAccountType
+}
 
 export type Staking = {
   delegations: cosmos.Delegation[]
@@ -79,8 +83,8 @@ export type PortfolioAccountBalances = {
 }
 
 export type PortfolioAccountSpecifiers = {
-  byId: {
-    [k: AccountSpecifier]: BIP44Params
+  accountMetaDataById: {
+    [k: AccountSpecifier]: AccountMetaData
   }
   ids: AccountSpecifier[]
 }
@@ -102,7 +106,7 @@ export const initialState: Portfolio = {
     ids: [],
   },
   accountSpecifiers: {
-    byId: {},
+    accountMetaDataById: {},
     ids: [],
   },
   accountBalances: {

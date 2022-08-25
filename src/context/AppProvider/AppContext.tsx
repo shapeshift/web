@@ -44,6 +44,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountMetaData, AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
@@ -148,7 +149,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
-
+        const accMeta: Record<AccountSpecifier, AccountMetaData> = {}
         for (const chainId of supportedChains) {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue
@@ -178,6 +179,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!pubkey) continue
 
                 acc.push({ [chainId]: pubkey })
+                accMeta[`${chainId}:${pubkey}`] = {
+                  bip44Params,
+                  accountType,
+                }
               }
               break
             }
@@ -190,9 +195,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!supportsEthSwitchChain(wallet)) continue
               }
 
-              const pubkey = await adapter.getAddress({ wallet })
+              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+              const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey.toLowerCase() })
+              accMeta[`${chainId}:${pubkey}`] = { bip44Params }
               break
             }
             case CHAIN_NAMESPACE.Cosmos: {
@@ -203,9 +210,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!supportsOsmosis(wallet)) continue
               }
 
-              const pubkey = await adapter.getAddress({ wallet })
+              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+              const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
+              accMeta[`${chainId}:${pubkey}`] = { bip44Params }
               break
             }
             default:
@@ -214,6 +223,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
+        dispatch(portfolio.actions.setAccountMetadata(accMeta))
       } catch (e) {
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }

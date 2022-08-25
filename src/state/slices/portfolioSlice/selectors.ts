@@ -131,6 +131,10 @@ export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetB
   state.portfolio.assetBalances.byId
 export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['ids'] =>
   state.portfolio.accountSpecifiers.ids
+export const selectAccountMetaData = (
+  state: ReduxState,
+): PortfolioAccountSpecifiers['accountMetaDataById'] =>
+  state.portfolio.accountSpecifiers.accountMetaDataById
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId

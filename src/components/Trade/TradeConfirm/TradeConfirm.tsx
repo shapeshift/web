@@ -40,7 +40,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
 
-  const { getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
+  const {
+    getValues,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useFormContext<TradeState<KnownChainIds>>()
   const translate = useTranslate()
   const { trade, fees, sellAssetFiatRate, buyAssetFiatRate } = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
@@ -171,7 +175,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Divider />
           <Card.Body pb={0} px={0}>
             <Stack spacing={4}>
-              {sellTxid && sellTxid !== 'pending' && (
+              {sellTxid && !isSubmitting && (
                 <Row>
                   <Row.Label>
                     <RawText>Tx ID</RawText>

@@ -93,6 +93,7 @@ export const Address = () => {
             }}
           />
         </FormControl>
+        {isYatFeatureEnabled && <YatBanner mt={6} />}
       </ModalBody>
       <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
@@ -111,7 +112,6 @@ export const Address = () => {
             <Text translation='common.cancel' />
           </Button>
         </Stack>
-        {isYatFeatureEnabled && <YatBanner />}
       </ModalFooter>
     </SlideTransition>
   )

@@ -20,10 +20,12 @@ const FlagHeader = () => {
       <Heading>Flags</Heading>
       <RawText color='red.500' fontStyle='italic'>
         These features are <strong>experimental</strong> and in <strong>active development</strong>.
-        They may be incomplete and/or non-functional. Use at your own risk.
-      </RawText>
-      <RawText color='gray.500'>
-        Turn on and off flags by toggling the switch then press "Apply" to reset the application.
+        <br />
+        They may be incomplete and/or non-functional.
+        <br />
+        <strong>You may irreversibly lose funds - we cannot help you.</strong>
+        <br />
+        Use at your own risk!
       </RawText>
     </Stack>
   )
@@ -59,25 +61,33 @@ export const Flags = () => {
 
   return (
     <Main titleComponent={<FlagHeader />}>
-      <Card>
-        <Card.Body>
-          <Stack divider={<StackDivider />}>
-            {Object.keys(featureFlags).map((flag, idx) => (
-              <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
-            ))}
-          </Stack>
-        </Card.Body>
-      </Card>
+      <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
+        <Card flex={1}>
+          <Card.Header>
+            <RawText color='gray.500'>
+              Turn on and off flags by toggling the switch then press "Apply" to reset the
+              application.
+            </RawText>
+          </Card.Header>
+          <Card.Body>
+            <Stack divider={<StackDivider />}>
+              {Object.keys(featureFlags).map((flag, idx) => (
+                <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
+              ))}
+            </Stack>
+          </Card.Body>
+          <Card.Footer>
+            <HStack my={4} width='full'>
+              <Button onClick={handleApply} colorScheme='blue'>
+                Apply
+              </Button>
+              <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
+            </HStack>
+          </Card.Footer>
+        </Card>
 
-      <HStack my={4} width='full'>
-        <Button onClick={handleApply} colorScheme='blue'>
-          Apply
-        </Button>
-        <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
-      </HStack>
-
-      <Debugging />
-
+        <Debugging />
+      </Stack>
       {error && (
         <Alert status='error'>
           <AlertIcon />

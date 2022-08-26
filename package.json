@@ -104,6 +104,7 @@
     "@shapeshiftoss/investor-foxy": "^6.1.0",
     "@shapeshiftoss/investor-idle": "^2.1.0",
     "@shapeshiftoss/investor-yearn": "^6.1.0",
+    "@shapeshiftoss/eslint-plugin-logger": "../shapeshiftLib/packages/eslint-plugin-logger",
     "@shapeshiftoss/logger": "^1.1.2",
     "@shapeshiftoss/market-service": "^7.1.0",
     "@shapeshiftoss/swapper": "^11.1.0",

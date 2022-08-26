@@ -3842,6 +3842,12 @@
     lodash.clonedeep "^4.5.0"
     lodash.snakecase "^4.1.1"
 
+"@shapeshiftoss/eslint-plugin-logger@../shapeshiftLib/packages/eslint-plugin-logger":
+  version "1.0.0"
+  dependencies:
+    "@types/eslint" "^8.4.5"
+    eslint-scope "^7.1.1"
+
 "@shapeshiftoss/fiojs@1.0.1-shapeshift.2":
   version "1.0.1-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/fiojs/-/fiojs-1.0.1-shapeshift.2.tgz#d439c542b627f5a79ffa3a4ab0c5804c8d3a5452"
@@ -5433,10 +5439,10 @@
     "@types/eslint" "*"
     "@types/estree" "*"
 
-"@types/eslint@*":
-  version "8.2.1"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.2.1.tgz#13f3d69bac93c2ae008019c28783868d0a1d6605"
-  integrity sha512-UP9rzNn/XyGwb5RQ2fok+DzcIRIYwc16qTXse5+Smsy8MOIccCChT15KAwnsgQx4PzJkaMq4myFyZ4CL5TjhIQ==
+"@types/eslint@*", "@types/eslint@^8.4.5":
+  version "8.4.6"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.4.6.tgz#7976f054c1bccfcf514bff0564c0c41df5c08207"
+  integrity sha512-/fqTbjxyFUaYNO7VcW5g+4npmqVACz1bB7RTHYuLj+PRjw9hrCwrUXVQFpChUS0JsyEFvMZ7U/PfmvWgxJhI9g==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"

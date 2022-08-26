@@ -8,11 +8,7 @@ import { Notice } from './views/Notice'
 
 export const MobileWelcomeModal = () => {
   const { mobileWelcomeModal } = useModal()
-  const { close, isOpen } = mobileWelcomeModal
-
-  const handleClose = () => {
-    close()
-  }
+  const { close: handleClose, isOpen } = mobileWelcomeModal
 
   return (
     <Modal
@@ -26,17 +22,15 @@ export const MobileWelcomeModal = () => {
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <MemoryRouter>
           <Route>
-            {({ location }) => {
-              return (
-                <AnimatePresence exitBeforeEnter initial={false}>
-                  <Switch key={location.key} location={location}>
-                    <Route path='/success' component={ImportSuccess} />
-                    <Route path='/notice' component={Notice} />
-                    <Redirect exact from='/' to='/success' />
-                  </Switch>
-                </AnimatePresence>
-              )
-            }}
+            {({ location }) => (
+              <AnimatePresence exitBeforeEnter initial={false}>
+                <Switch key={location.key} location={location}>
+                  <Route path='/success' component={ImportSuccess} />
+                  <Route path='/notice' component={Notice} />
+                  <Redirect exact from='/' to='/success' />
+                </Switch>
+              </AnimatePresence>
+            )}
           </Route>
         </MemoryRouter>
       </ModalContent>

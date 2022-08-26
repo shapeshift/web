@@ -10,12 +10,12 @@ export const Notice = () => {
   const translate = useTranslate()
   const iconColor = useColorModeValue('gray.200', 'gray.700')
   const {
-    mobileWelcomeModal: { close },
+    mobileWelcomeModal: { close: handleClose },
     backupNativePassphrase: { open },
   } = useModal()
 
   const handleRecoveryClick = () => {
-    close()
+    handleClose()
     open({ preventClose: true })
   }
   return (
@@ -47,7 +47,7 @@ export const Notice = () => {
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>
-        <Button width='full' colorScheme='blue' variant='ghost' onClick={() => close()}>
+        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleClose}>
           {translate('modals.mobileWelcome.notice.secondaryCta')}
         </Button>
       </ModalFooter>

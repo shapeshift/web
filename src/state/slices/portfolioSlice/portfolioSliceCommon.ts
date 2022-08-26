@@ -24,11 +24,6 @@ import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 // const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type AccountSpecifier = string
-export type AccountMetaData = {
-  bip44Params: BIP44Params
-  accountType?: UtxoAccountType
-}
-
 export type Staking = {
   delegations: cosmos.Delegation[]
   redelegations: cosmos.Redelegation[]
@@ -80,6 +75,11 @@ export type PortfolioAccountBalances = {
     }
   }
   ids: AccountSpecifier[]
+}
+
+export type AccountMetaData = {
+  bip44Params: BIP44Params
+  accountType?: UtxoAccountType
 }
 
 export type AccountMetaDataById = {

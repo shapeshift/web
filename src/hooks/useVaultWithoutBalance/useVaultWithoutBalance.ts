@@ -43,25 +43,28 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
           [DefiProvider.Yearn]: yearn,
         }
 
-        const allVaults: MergedSerializableOpportunity[] = []
         const providersVaults = await Promise.all(
           Object.values(providers).map(p => (p ? p.findAll() : null)),
         )
 
-        providersVaults.forEach((providerVaults, index) => {
-          if (!providerVaults) return
-          const vaultsWithTvl: MergedSerializableOpportunity[] = Object.values(
-            providerVaults,
-          ).filter((vault: MergedSerializableOpportunity) => {
-            return bnOrZero(vault.tvl.balanceUsdc).gt(0)
-          })
-          allVaults.push(
-            ...vaultsWithTvl.map(vault => ({
-              ...vault,
-              provider: Object.keys(providers)[index],
-            })),
-          )
-        })
+        const allVaults: MergedSerializableOpportunity[] = providersVaults.reduce(
+          (vaultsWithBalance: MergedSerializableOpportunity[], providerVaults, index) => {
+            if (!providerVaults) return vaultsWithBalance
+            const vaultsWithTvl: MergedSerializableOpportunity[] = Object.values(
+              providerVaults,
+            ).filter((vault: MergedSerializableOpportunity) => {
+              return bnOrZero(vault.tvl.balanceUsdc).gt(0)
+            })
+            vaultsWithBalance.push(
+              ...vaultsWithTvl.map(vault => ({
+                ...vault,
+                provider: Object.keys(providers)[index],
+              })),
+            )
+            return vaultsWithBalance
+          },
+          [],
+        )
 
         setVaults(allVaults)
       } catch (error) {

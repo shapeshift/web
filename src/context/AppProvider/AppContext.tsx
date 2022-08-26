@@ -6,6 +6,7 @@ import {
   ethChainId,
   fromChainId,
   osmosisChainId,
+  toAccountId,
 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
@@ -179,10 +180,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!pubkey) continue
 
                 acc.push({ [chainId]: pubkey })
-                accMeta[`${chainId}:${pubkey}`] = {
-                  bip44Params,
-                  accountType,
-                }
+                const accountId = toAccountId({ chainId, account: pubkey })
+                accMeta[accountId] = { bip44Params, accountType }
               }
               break
             }
@@ -198,8 +197,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
               const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
+              const accountId = toAccountId({ chainId, account: pubkey.toLowerCase() })
               acc.push({ [chainId]: pubkey.toLowerCase() })
-              accMeta[`${chainId}:${pubkey}`] = { bip44Params }
+              accMeta[accountId] = { bip44Params }
               break
             }
             case CHAIN_NAMESPACE.Cosmos: {
@@ -214,7 +214,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
-              accMeta[`${chainId}:${pubkey}`] = { bip44Params }
+              const accountId = toAccountId({ chainId, account: pubkey })
+              accMeta[accountId] = { bip44Params }
               break
             }
             default:
@@ -277,7 +278,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         switch (chainId) {
           case cosmosChainId:
           case osmosisChainId:
-            const accountSpecifier = `${chainId}:${account}`
+            const accountSpecifier = toAccountId({ chainId, account })
             dispatch(getValidatorData.initiate({ accountSpecifier, chainId }, options))
             break
           case ethChainId:

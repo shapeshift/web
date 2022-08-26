@@ -21,6 +21,7 @@ import { IconCircle } from 'components/IconCircle'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { NativeWalletValues } from 'context/WalletProvider/NativeWallet/types'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -30,6 +31,11 @@ export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault
   const { state } = useWallet()
   const { walletInfo } = state
   const history = useHistory()
+  const {
+    backupNativePassphrase: {
+      props: { preventClose },
+    },
+  } = useModal()
 
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -64,7 +70,7 @@ export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault
       <ModalHeader>
         <Text translation={'modals.shapeShift.backupPassphrase.enterPassword'} />
       </ModalHeader>
-      <ModalCloseButton />
+      {!preventClose && <ModalCloseButton />}
       <ModalBody>
         <Button
           px={4}

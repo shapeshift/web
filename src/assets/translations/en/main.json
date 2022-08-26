@@ -806,6 +806,19 @@
         "ILS": "Israeli Shekel",
         "IDR": "Indonesian Rupiah"
       }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Your wallet has been imported!",
+        "body": "Welcome to the new ShapeShift App.",
+        "primaryCta": "Continue"
+      },
+      "notice": {
+        "header": "Login with email is being deprecated. Backup your wallet now!",
+        "body": "If you ever lose access to your device, you need your secret recovery phrase to recover your funds.",
+        "primaryCta": "Get Secret Recovery Phrase",
+        "secondaryCta": "I already know my secret recovery phrase"
+      }
     }
   },
   "walletProvider": {

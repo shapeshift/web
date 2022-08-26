@@ -5,6 +5,7 @@ import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
+import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
@@ -22,6 +23,7 @@ const MODALS = {
   keepKeyWipe: WipeModal,
   consentOptin: OptInModal,
   backupNativePassphrase: BackupPassphraseModal,
+  mobileWelcomeModal: MobileWelcomeModal,
 }
 
 // state

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.16.0...@shapeshiftoss/chain-adapters-v7.17.0) (2022-08-26)
+
+
+### Features
+
+* add getBIP44Params to IChainAdapter and impl ([#992](https://github.com/shapeshift/lib/issues/992)) ([52d03ad](https://github.com/shapeshift/lib/commit/52d03adb2caaf8a1d3f82b1a34321fb1b9df519a))
+
 # [@shapeshiftoss/chain-adapters-v7.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.15.3...@shapeshiftoss/chain-adapters-v7.16.0) (2022-08-18)
 
 

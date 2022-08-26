@@ -15,9 +15,7 @@ export type FeatureFlags = {
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
-  Litecoin: boolean
   IdleFinance: boolean
-  BitcoinCash: boolean
   Axelar: boolean
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
@@ -49,9 +47,7 @@ const initialState: Preferences = {
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
-    Litecoin: getConfig().REACT_APP_FEATURE_LITECOIN,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
-    BitcoinCash: getConfig().REACT_APP_FEATURE_BITCOINCASH,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,

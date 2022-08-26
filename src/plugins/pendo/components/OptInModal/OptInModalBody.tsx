@@ -58,7 +58,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
   }
 
   return enabled ? (
-    <LoadingBody isLoaded={consent}>
+    <LoadingBody isLoaded={!consent}>
       <ModalBody py={8}>
         <OptInIcon mb={4} />
         <Text

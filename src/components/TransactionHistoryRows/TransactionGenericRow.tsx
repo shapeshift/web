@@ -150,9 +150,7 @@ export const TransactionGenericRow = ({
               <Text
                 fontWeight='bold'
                 flex={1}
-                translation={
-                  title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
-                }
+                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
               />
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>

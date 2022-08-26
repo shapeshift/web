@@ -44,7 +44,7 @@ export const AllEarnOpportunities = () => {
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
-      supportsCosmosSdk: wallet ? supportsOsmosis(wallet) : undefined,
+      supportsCosmosSdk: wallet ? Boolean(supportsOsmosis(wallet)) : undefined,
     })
   const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({

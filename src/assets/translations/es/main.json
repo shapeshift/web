@@ -348,8 +348,8 @@
     "clickToConnect": "Haga clic para conectar una billetera"
   },
   "transactionRow": {
-    "send": "Enviado %{symbol}",
-    "receive": "Recibido %{symbol}",
+    "send": "Enviado",
+    "receive": "Recibido",
     "moreDetails": "Más Detalles",
     "date": "Fecha",
     "txid": "ID Transacción",

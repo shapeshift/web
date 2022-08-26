@@ -6,7 +6,7 @@
  */
 import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
@@ -803,6 +803,30 @@ describe('EthereumChainAdapter', () => {
       }
 
       expect(expectedOutput).toEqual(output)
+    })
+  })
+  describe('getBIP44Params', () => {
+    const expectedCoinType = 60
+    const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+    it('should be coinType 60', async () => {
+      const r = adapter.getBIP44Params({ accountNumber: 0 })
+      expect(r.coinType).toStrictEqual(expectedCoinType)
+    })
+    it('should respect accountNumber', async () => {
+      const expected: BIP44Params[] = [
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 0 },
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 1 },
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 2 },
+      ]
+      for (let accountNumber = 0; accountNumber < expected.length; accountNumber++) {
+        const r = adapter.getBIP44Params({ accountNumber })
+        expect(r).toStrictEqual(expected[accountNumber])
+      }
+    })
+    it('should throw for negative accountNumber', async () => {
+      expect(() => {
+        adapter.getBIP44Params({ accountNumber: -1 })
+      }).toThrow('accountNumber must be >= 0')
     })
   })
 })

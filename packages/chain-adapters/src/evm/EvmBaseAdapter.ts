@@ -19,6 +19,7 @@ import {
   ChainTxType,
   FeeDataEstimate,
   GetAddressInput,
+  GetBIP44ParamsInput,
   GetFeeDataInput,
   SignMessageInput,
   SignTxInput,
@@ -100,6 +101,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
     return { ...this.defaultBIP44Params, ...params }
+  }
+
+  getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
+    if (accountNumber < 0) {
+      throw new Error('accountNumber must be >= 0')
+    }
+    return { ...this.defaultBIP44Params, accountNumber }
   }
 
   async buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{

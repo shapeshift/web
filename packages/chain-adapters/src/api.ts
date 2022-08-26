@@ -7,6 +7,7 @@ import {
   ChainTxType,
   FeeDataEstimate,
   GetAddressInput,
+  GetBIP44ParamsInput,
   GetFeeDataInput,
   SignTxInput,
   SubscribeError,
@@ -46,6 +47,11 @@ export type ChainAdapter<T extends ChainId> = {
   getAccount(pubkey: string): Promise<Account<T>>
 
   buildBIP44Params(params: Partial<BIP44Params>): BIP44Params
+
+  /**
+   * Get BIP44Params for the given accountNumber and optional accountType
+   */
+  getBIP44Params(params: GetBIP44ParamsInput): BIP44Params
 
   getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse>
 

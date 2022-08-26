@@ -7,7 +7,7 @@
 import { avalancheAssetId } from '@shapeshiftoss/caip'
 import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
@@ -551,6 +551,30 @@ describe('AvalancheChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+    })
+  })
+  describe('getBIP44Params', () => {
+    const expectedCoinType = 9000
+    const adapter = new avalanche.ChainAdapter(makeChainAdapterArgs())
+    it('should be coinType 9000', async () => {
+      const r = adapter.getBIP44Params({ accountNumber: 0 })
+      expect(r.coinType).toStrictEqual(expectedCoinType)
+    })
+    it('should respect accountNumber', async () => {
+      const expected: BIP44Params[] = [
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 0 },
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 1 },
+        { purpose: 44, coinType: expectedCoinType, accountNumber: 2 },
+      ]
+      for (let accountNumber = 0; accountNumber < expected.length; accountNumber++) {
+        const r = adapter.getBIP44Params({ accountNumber })
+        expect(r).toStrictEqual(expected[accountNumber])
+      }
+    })
+    it('should throw for negative accountNumber', async () => {
+      expect(() => {
+        adapter.getBIP44Params({ accountNumber: -1 })
+      }).toThrow('accountNumber must be >= 0')
     })
   })
 })

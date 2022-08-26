@@ -82,10 +82,12 @@ export type PortfolioAccountBalances = {
   ids: AccountSpecifier[]
 }
 
+export type AccountMetaDataById = {
+  [k: AccountSpecifier]: AccountMetaData
+}
+
 export type PortfolioAccountSpecifiers = {
-  accountMetaDataById: {
-    [k: AccountSpecifier]: AccountMetaData
-  }
+  accountMetaDataById: AccountMetaDataById
   ids: AccountSpecifier[]
 }
 

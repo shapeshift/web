@@ -44,7 +44,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { AccountMetaData, AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { AccountMetaDataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
@@ -149,7 +149,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
-        const accMeta: Record<AccountSpecifier, AccountMetaData> = {}
+        const accMeta: AccountMetaDataById = {}
         for (const chainId of supportedChains) {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue

@@ -83,3 +83,8 @@ export const getUtxoParams = (sellAssetAccount: string) => {
   if (!sellAssetAccount) throw new Error('No UTXO account specifier')
   return accountIdToUtxoParams(sellAssetAccount, 0)
 }
+
+export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
+  const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
+  return assets.filter(asset => assetIdMap[asset.assetId])
+}

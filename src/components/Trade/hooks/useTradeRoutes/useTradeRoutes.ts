@@ -20,7 +20,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useSwapper } from '../useSwapper/useSwapper'
+import { useSwapper } from '../useSwapper/useSwapperV2'
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,

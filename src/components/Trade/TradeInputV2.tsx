@@ -63,14 +63,6 @@ export const TradeInput = () => {
       setValue('sellTradeAsset', currentBuyAsset)
       setValue('buyTradeAsset', currentSellAsset)
       setValue('action', TradeAmountInputField.SELL)
-      // updateQuote({
-      //   forceQuote: true,
-      //   amount: bnOrZero(currentBuyAsset.amount).toString(),
-      //   sellAsset: currentBuyAsset.asset,
-      //   buyAsset: currentSellAsset.asset,
-      //   action: TradeAmountInputField.SELL,
-      //   selectedCurrencyToUsdRate,
-      // })
     } catch (e) {
       console.error(e)
     }

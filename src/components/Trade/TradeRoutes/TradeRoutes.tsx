@@ -5,7 +5,7 @@ import { Approval } from 'components/Approval/Approval'
 import { SelectAccount } from 'components/Trade/SelectAccount'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { useSwapper } from '../hooks/useSwapper/useSwapper'
+import { useSwapper } from '../hooks/useSwapper/useSwapperV2'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'

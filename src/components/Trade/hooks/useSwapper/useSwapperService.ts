@@ -28,8 +28,15 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+The Swapper Service is responsible for reacting to changes to the Trade form and updating state accordingly.
+It will reactively:
+- Fetch and poll for trade quotes
+- Fetch and poll for USD rates
+- Fetch trade amounts (buy and sell)
+*/
 export const useSwapperService = () => {
-  // Form
+  // Form hooks
   const { control, setValue, getValues } = useFormContext<TradeState<KnownChainIds>>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
@@ -68,11 +75,9 @@ export const useSwapperService = () => {
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const sellAssetFeeAsset = useAppSelector(state =>
+  const sellAssetFeeAssetId = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
-  )
-
-  const feeAssetId = sellAssetFeeAsset?.assetId
+  ).assetId
 
   // API
   const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
@@ -99,7 +104,7 @@ export const useSwapperService = () => {
   // Effects
   // Trigger fiat rate queries
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && feeAssetId) {
+    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId) {
       const fiatArgsCommon: Pick<GetUsdRateArgs, 'buyAssetId' | 'sellAssetId'> = {
         buyAssetId: buyTradeAssetId!,
         sellAssetId: sellTradeAssetId!,
@@ -114,10 +119,10 @@ export const useSwapperService = () => {
       })
       setFeeAssetFiatRateArgs({
         ...fiatArgsCommon,
-        rateAssetId: feeAssetId,
+        rateAssetId: sellAssetFeeAssetId,
       })
     }
-  }, [buyTradeAssetId, feeAssetId, sellTradeAssetId])
+  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId])
 
   // Set fiat rates
   useEffect(() => {

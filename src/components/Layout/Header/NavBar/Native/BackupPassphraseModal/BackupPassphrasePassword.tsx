@@ -22,8 +22,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { NativeWalletValues } from 'context/WalletProvider/NativeWallet/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
+
+const moduleLogger = logger.child({ namespace: ['BackupPassphrasePassword'] })
 
 export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault) => void }) => {
   const translate = useTranslate()
@@ -47,7 +50,7 @@ export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault
       setVault(vault)
       history.push(BackupPassphraseRoutes.Info)
     } catch (e) {
-      console.info(e)
+      moduleLogger.error(e, { fn: 'BackupPassphrasePassword:onSubmit' }, 'Invalid password')
       setError(
         'password',
         {

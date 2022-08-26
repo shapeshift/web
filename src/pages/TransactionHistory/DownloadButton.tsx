@@ -18,6 +18,7 @@ import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
+
 const moduleLogger = logger.child({ namespace: ['DownloadButton'] })
 
 type ReportRow = {

@@ -1,6 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
@@ -19,6 +19,7 @@ import {
 } from 'plugins/foxPage/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
@@ -68,12 +69,11 @@ export const foxEth = createSlice({
   },
 })
 
-type getFoxEthLpGeneralDataReturn = {
+type GetFoxEthLpGeneralDataReturn = {
   tvl: string
   apy: string
-  isLoaded: boolean
 }
-type getFoxEthLpWalletDataReturn = {
+type GetFoxEthLpWalletDataReturn = {
   underlyingFoxAmount: string
   underlyingEthAmount: string
   cryptoAmount: string
@@ -82,39 +82,36 @@ type getFoxEthLpWalletDataReturn = {
 
 type GetFoxFarmingContractGeneralDataReturn = {
   expired: boolean
-} & getFoxEthLpGeneralDataReturn
+} & GetFoxEthLpGeneralDataReturn
 
 type GetFoxFarmingContractGeneralDataArgs = {
   contractAddress: string
 }
 
-type getFoxFarmingContractWalletDataReturn = {
+type GetFoxFarmingContractWalletDataReturn = {
   cryptoAmount: string
   fiatAmount: string
   unclaimedRewards: string
 }
 
-type getFoxFarmingContractWalletDataArgs = {
+type GetFoxFarmingContractWalletDataArgs = {
   contractAddress: string
   ethWalletAddress: string
 }
 
-type getFoxEthLpWalletDataArgs = {
+type GetFoxEthLpWalletDataArgs = {
   ethWalletAddress: string
 }
 
 export const foxEthApi = createApi({
   reducerPath: 'foxEthApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
+  ...BASE_RTK_CREATE_API_CONFIG,
   endpoints: build => ({
-    getFoxEthLpGeneralData: build.query<getFoxEthLpGeneralDataReturn, void>({
+    getFoxEthLpGeneralData: build.query<GetFoxEthLpGeneralDataReturn, void>({
       queryFn: async (_args, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
-          const state: any = getState() // ReduxState causes circular dependency\
+          const state: any = getState() // ReduxState causes circular dependency
           const ethPrecision = state.assets.byId[ethAssetId].precision
           const lpAssetPrecision = state.assets.byId[foxEthLpAssetId].precision
           const ethPrice = state.marketData.crypto.byId[ethAssetId].price
@@ -170,7 +167,7 @@ export const foxEthApi = createApi({
         }
       },
     }),
-    getFoxEthLpWalletData: build.query<getFoxEthLpWalletDataReturn, getFoxEthLpWalletDataArgs>({
+    getFoxEthLpWalletData: build.query<GetFoxEthLpWalletDataReturn, GetFoxEthLpWalletDataArgs>({
       queryFn: async ({ ethWalletAddress }, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
@@ -301,8 +298,8 @@ export const foxEthApi = createApi({
       },
     }),
     getFoxFarmingContractWalletData: build.query<
-      getFoxFarmingContractWalletDataReturn,
-      getFoxFarmingContractWalletDataArgs
+      GetFoxFarmingContractWalletDataReturn,
+      GetFoxFarmingContractWalletDataArgs
     >({
       queryFn: async ({ contractAddress, ethWalletAddress }, injectedStore) => {
         try {

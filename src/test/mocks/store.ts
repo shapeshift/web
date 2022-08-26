@@ -41,7 +41,8 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     accountSpecifiers: {
-      bip44ParamsById: {},
+      accountMetaDataById: {},
+      byId: {},
       ids: [],
     },
   },

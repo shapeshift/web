@@ -153,6 +153,17 @@ export const IdleOverview = () => {
     }, [])
   }, [assets, claimableTokens])
 
+  const underlyingAssets = useMemo(
+    () => [
+      {
+        ...underlyingToken,
+        cryptoBalance: cryptoAmountAvailable.toPrecision(),
+        allocationPercentage: '1',
+      },
+    ],
+    [underlyingToken, cryptoAmountAvailable],
+  )
+
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -166,13 +177,7 @@ export const IdleOverview = () => {
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
-        {
-          ...underlyingToken,
-          cryptoBalance: cryptoAmountAvailable.toPrecision(),
-          allocationPercentage: '1',
-        },
-      ]}
+      underlyingAssets={underlyingAssets}
       provider='Idle Finance'
       description={{
         description: underlyingToken.description,

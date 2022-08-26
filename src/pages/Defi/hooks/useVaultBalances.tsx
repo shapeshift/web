@@ -68,27 +68,31 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
 }
 
 async function getIdleVaults(balances: PortfolioBalancesById, idleInvestor: IdleInvestor | null) {
-  const acc: Record<string, IdleEarnVault> = {}
-  if (!idleInvestor) return acc
+  if (!idleInvestor) return {}
   const opportunities = await idleInvestor.findAll()
-  for (let index = 0; index < opportunities.length; index++) {
-    const vault = opportunities[index]
-    const vaultAssetId = vault.positionAsset.assetId
-    const tokenAssetId = vault.underlyingAsset.assetId
-    const balance = balances[vaultAssetId]
 
-    if (balance) {
-      acc[vault.id] = {
-        ...vault,
-        balance,
-        vaultAssetId,
-        tokenAssetId,
-        provider: DefiProvider.Idle,
-        chainId: fromAssetId(vault.positionAsset.assetId).chainId,
-        pricePerShare: vault?.positionAsset.underlyingPerPosition,
+  const acc: Record<string, IdleEarnVault> = opportunities.reduce(
+    (vaults: Record<string, IdleEarnVault>, vault) => {
+      const vaultAssetId = vault.positionAsset.assetId
+      const tokenAssetId = vault.underlyingAsset.assetId
+      const balance = balances[vaultAssetId]
+
+      if (balance) {
+        vaults[vault.id] = {
+          ...vault,
+          balance,
+          vaultAssetId,
+          tokenAssetId,
+          provider: DefiProvider.Idle,
+          chainId: fromAssetId(vault.positionAsset.assetId).chainId,
+          pricePerShare: vault?.positionAsset.underlyingPerPosition,
+        }
       }
-    }
-  }
+      return vaults
+    },
+    {},
+  )
+
   return acc
 }
 

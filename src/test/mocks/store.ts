@@ -62,6 +62,7 @@ export const mockStore: ReduxState = {
       MtPelerinFiatRamp: false,
       Yat: false,
       MultiAccounts: false,
+      SwapperV2: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

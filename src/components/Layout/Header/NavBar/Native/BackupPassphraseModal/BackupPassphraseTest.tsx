@@ -23,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
@@ -44,6 +45,11 @@ type TestState = {
 export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const {
+    backupNativePassphrase: {
+      props: { preventClose },
+    },
+  } = useModal()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
@@ -126,7 +132,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
       <ModalHeader pt={4}>
         <Text translation={'modals.shapeShift.backupPassphrase.testTitle'} />
       </ModalHeader>
-      <ModalCloseButton />
+      {!preventClose && <ModalCloseButton />}
       <ModalBody>
         <RawText>
           <Text

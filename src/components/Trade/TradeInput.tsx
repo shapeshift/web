@@ -96,7 +96,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const [isSubmittingLocal, setIsSubmittingLocal] = useState(false)
+  const [isUpdatingTrade, setIsUpdatingTrade] = useState(false)
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
@@ -208,7 +208,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
-    setIsSubmittingLocal(true)
+    setIsUpdatingTrade(true)
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -230,7 +230,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     } catch (e) {
       showErrorToast(e)
     }
-    setIsSubmittingLocal(false)
+    setIsUpdatingTrade(false)
   }
 
   const onSetMaxTrade = async () => {
@@ -494,7 +494,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmittingLocal || isSendMaxLoading}
+              isLoading={isUpdatingTrade || isSendMaxLoading}
               isDisabled={
                 !isDirty ||
                 !isValid ||

@@ -59,25 +59,27 @@ export const Flags = () => {
 
   return (
     <Main titleComponent={<FlagHeader />}>
-      <Card>
-        <Card.Body>
-          <Stack divider={<StackDivider />}>
-            {Object.keys(featureFlags).map((flag, idx) => (
-              <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
-            ))}
-          </Stack>
-        </Card.Body>
-      </Card>
+      <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
+        <Card flex={1}>
+          <Card.Body>
+            <Stack divider={<StackDivider />}>
+              {Object.keys(featureFlags).map((flag, idx) => (
+                <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
+              ))}
+            </Stack>
+          </Card.Body>
+          <Card.Footer>
+            <HStack my={4} width='full'>
+              <Button onClick={handleApply} colorScheme='blue'>
+                Apply
+              </Button>
+              <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
+            </HStack>
+          </Card.Footer>
+        </Card>
 
-      <HStack my={4} width='full'>
-        <Button onClick={handleApply} colorScheme='blue'>
-          Apply
-        </Button>
-        <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
-      </HStack>
-
-      <Debugging />
-
+        <Debugging />
+      </Stack>
       {error && (
         <Alert status='error'>
           <AlertIcon />

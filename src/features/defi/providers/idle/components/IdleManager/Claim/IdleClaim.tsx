@@ -11,7 +11,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
@@ -87,7 +87,7 @@ export const IdleClaim = () => {
     })()
   }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -95,7 +95,7 @@ export const IdleClaim = () => {
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

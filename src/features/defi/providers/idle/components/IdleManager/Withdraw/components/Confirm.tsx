@@ -9,7 +9,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -66,15 +66,14 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
-
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
+    if (!dispatch) return
     try {
       if (
         !(
-          state.userAddress &&
+          state?.userAddress &&
+          walletState?.wallet &&
           assetReference &&
-          walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity
         )
@@ -82,7 +81,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
       const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
+        opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareWithdrawal({
@@ -102,15 +101,31 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    state?.userAddress,
+    assetReference,
+    walletState?.wallet,
+    asset?.precision,
+    state?.withdraw,
+    idleInvestor,
+    opportunity,
+    onNext,
+    dispatch,
+  ])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
-  }
+  }, [onNext])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm

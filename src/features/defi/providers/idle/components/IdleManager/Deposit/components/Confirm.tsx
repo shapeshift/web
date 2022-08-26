@@ -9,7 +9,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -62,13 +62,12 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
-
-  const handleDeposit = async () => {
+  const handleDeposit = useCallback(async () => {
+    if (!dispatch) return
     try {
       if (
         !(
-          state.userAddress &&
+          state?.userAddress &&
           assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
@@ -105,15 +104,34 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    state?.userAddress,
+    walletState?.wallet,
+    state?.opportunity,
+    asset.precision,
+    assetReference,
+    state?.deposit,
+    idleInvestor,
+    opportunity,
+    dispatch,
+    onNext,
+    toast,
+    translate,
+  ])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
-  }
+  }, [onNext])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAssetBalance, state?.deposit, feeAsset?.precision],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm

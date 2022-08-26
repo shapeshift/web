@@ -9,7 +9,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -48,40 +48,52 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const getDepositGasEstimate = useCallback(
+    async (deposit: DepositValues): Promise<string | undefined> => {
+      if (!(state?.userAddress && opportunity && assetReference && idleInvestor)) return
+      try {
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
+          opportunity.positionAsset.assetId ?? '',
+        )
+        if (!idleOpportunity) throw new Error('No opportunity')
+        const preparedTx = await idleOpportunity.prepareDeposit({
+          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          address: state.userAddress,
+        })
+        // TODO(theobold): Figure out a better way for the safety factor
+        return bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
+      } catch (error) {
+        moduleLogger.error(
+          { fn: 'getDepositGasEstimate', error },
+          'Error getting deposit gas estimate',
+        )
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [
+      state?.userAddress,
+      opportunity,
+      assetReference,
+      idleInvestor,
+      asset?.precision,
+      translate,
+      toast,
+    ],
+  )
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference && idleInvestor)) return
-    try {
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!idleOpportunity) throw new Error('No opportunity')
-      const preparedTx = await idleOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const getApproveGasEstimate = async (): Promise<string | undefined> => {
-    if (!(state.userAddress && assetReference && opportunity)) return
+  const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
+    if (!(state?.userAddress && assetReference && opportunity)) return
     try {
       const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
+        opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
       const preparedApproval = await idleOpportunity.prepareApprove(state.userAddress)
@@ -101,79 +113,105 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         status: 'error',
       })
     }
-  }
+  }, [state?.userAddress, assetReference, opportunity, idleInvestor, toast, translate])
 
-  const handleContinue = async (formValues: DepositValues) => {
-    if (!(state.userAddress && opportunity)) return
-    // set deposit state for future use
-    dispatch({ type: IdleDepositActionType.SET_DEPOSIT, payload: formValues })
-    dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-    try {
-      // Check is approval is required for user address
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!idleOpportunity) throw new Error('No opportunity')
-      const _allowance = await idleOpportunity.allowance(state.userAddress)
-      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+  const handleContinue = useCallback(
+    async (formValues: DepositValues) => {
+      if (!(state?.userAddress && opportunity && dispatch)) return
+      // set deposit state for future use
+      dispatch({ type: IdleDepositActionType.SET_DEPOSIT, payload: formValues })
+      dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
+      try {
+        // Check is approval is required for user address
+        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+          opportunity.positionAsset.assetId ?? '',
+        )
+        if (!idleOpportunity) throw new Error('No opportunity')
+        const _allowance = await idleOpportunity.allowance(state.userAddress)
+        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
-      // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gt(formValues.cryptoAmount)) {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: IdleDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto },
+        // Skip approval step if user allowance is greater than requested deposit amount
+        if (allowance.gte(formValues.cryptoAmount)) {
+          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: IdleDepositActionType.SET_DEPOSIT,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Confirm)
+          dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
+        } else {
+          const estimatedGasCrypto = await getApproveGasEstimate()
+          if (!estimatedGasCrypto) return
+          dispatch({
+            type: IdleDepositActionType.SET_APPROVE,
+            payload: { estimatedGasCrypto },
+          })
+          onNext(DefiStep.Approve)
+          dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
+        }
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
         })
-        onNext(DefiStep.Confirm)
-        dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
-      } else {
-        const estimatedGasCrypto = await getApproveGasEstimate()
-        if (!estimatedGasCrypto) return
-        dispatch({
-          type: IdleDepositActionType.SET_APPROVE,
-          payload: { estimatedGasCrypto },
-        })
-        onNext(DefiStep.Approve)
         dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
       }
-    } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-      dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
-    }
-  }
+    },
+    [
+      state?.userAddress,
+      opportunity,
+      idleInvestor,
+      asset?.precision,
+      translate,
+      dispatch,
+      toast,
+      onNext,
+      getApproveGasEstimate,
+      getDepositGasEstimate,
+    ],
+  )
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [balance, asset?.precision],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const fiat = crypto.times(marketData.price)
-    const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const fiat = crypto.times(marketData.price)
+      const _value = bnOrZero(value)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [balance, asset?.precision, marketData?.price],
+  )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailable = useMemo(
+    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    [balance, asset?.precision],
+  )
+  const fiatAmountAvailable = useMemo(
+    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
+    [cryptoAmountAvailable, marketData?.price],
+  )
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,
       search: qs.stringify({
@@ -181,12 +219,14 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, query])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableDeposit
       asset={asset}
-      apy={String(opportunity?.metadata.apy?.net_apy)}
+      apy={bnOrZero(opportunity?.metadata.apy?.net_apy).toString()}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

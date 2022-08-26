@@ -10,7 +10,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -54,40 +54,53 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const getDepositGasEstimate = useCallback(
+    async (deposit: DepositValues): Promise<string | undefined> => {
+      if (!(state?.userAddress && opportunity && assetReference && idleInvestor)) return
+      try {
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
+          opportunity.positionAsset.assetId ?? '',
+        )
+        if (!idleOpportunity) throw new Error('No opportunity')
+        const preparedTx = await idleOpportunity.prepareDeposit({
+          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          address: state.userAddress,
+        })
+        // TODO: Figure out a better way for the safety factor
+        return bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
+      } catch (error) {
+        moduleLogger.error(
+          { fn: 'getDepositGasEstimate', error },
+          'Error getting deposit gas estimate',
+        )
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [
+      state?.userAddress,
+      opportunity,
+      assetReference,
+      idleInvestor,
+      asset?.precision,
+      toast,
+      translate,
+    ],
+  )
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference && idleInvestor)) return
-    try {
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!idleOpportunity) throw new Error('No opportunity')
-      const preparedTx = await idleOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const handleApprove = async () => {
+  const handleApprove = useCallback(async () => {
     if (
       !(
+        dispatch &&
         assetReference &&
-        state.userAddress &&
+        state?.userAddress &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
         opportunity
@@ -98,7 +111,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     try {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
+        opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareApprove(state.userAddress)
@@ -113,7 +126,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         fn: () => idleOpportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,
@@ -138,7 +151,22 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    assetReference,
+    idleInvestor,
+    asset?.precision,
+    state?.deposit,
+    state?.userAddress,
+    walletState?.wallet,
+    opportunity,
+    dispatch,
+    toast,
+    translate,
+    onNext,
+    getDepositGasEstimate,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove

@@ -9,9 +9,9 @@ import { Text } from 'components/Text'
 export const ImportSuccess = () => {
   const history = useHistory()
   const translate = useTranslate()
-  
+
   const handleContinueClick = useCallback(() => history.push('/notice'), [history])
-  
+
   return (
     <SlideTransition>
       <ModalBody>

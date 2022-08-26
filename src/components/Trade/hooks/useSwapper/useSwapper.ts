@@ -502,8 +502,8 @@ export const useSwapper = () => {
 
           // Update trade input form fields to new calculated amount
           setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-          setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
-          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
+          setValue('buyTradeAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
+          setValue('sellTradeAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
         } catch (e) {
           if (
             e instanceof SwapError &&
@@ -693,8 +693,8 @@ export const useSwapper = () => {
   }
 
   const reset = () => {
-    setValue('buyAsset.amount', '')
-    setValue('sellAsset.amount', '')
+    setValue('buyTradeAsset.amount', '')
+    setValue('sellTradeAsset.amount', '')
     setValue('fiatSellAmount', '')
   }
 

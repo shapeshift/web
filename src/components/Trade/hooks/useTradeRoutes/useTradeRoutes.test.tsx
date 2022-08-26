@@ -49,7 +49,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
     setValue,
     getValues: jest.fn((search: string) => {
       const data = {
-        buyAsset: {
+        buyTradeAsset: {
           asset: mockFOX,
           amount: buyAmount,
         },

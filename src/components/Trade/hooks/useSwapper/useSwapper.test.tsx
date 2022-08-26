@@ -235,7 +235,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(5, 'fiatSellAmount', '20.00')
     expect(setValue).toHaveBeenNthCalledWith(6, 'buyTradeAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'sellTradeAsset.amount', '20')
   })
   it('getQuote gets quote with fiatAmount', async () => {
     const { localMockState } = setup()
@@ -259,7 +259,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(5, 'fiatSellAmount', '20')
     expect(setValue).toHaveBeenNthCalledWith(6, 'buyTradeAsset.amount', '20')
-    expect(setValue).toHaveBeenNthCalledWith(7, 'sellAsset.amount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(7, 'sellTradeAsset.amount', '20')
   })
   it('reset resets', async () => {
     const { result, setValue } = setup()
@@ -268,7 +268,7 @@ describe('useSwapper', () => {
       reset()
     })
     expect(setValue).toBeCalledWith('buyTradeAsset.amount', '')
-    expect(setValue).toBeCalledWith('sellAsset.amount', '')
+    expect(setValue).toBeCalledWith('sellTradeAsset.amount', '')
     expect(setValue).toBeCalledWith('fiatSellAmount', '')
   })
 })

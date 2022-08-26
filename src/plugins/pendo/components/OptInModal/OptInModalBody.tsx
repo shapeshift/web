@@ -53,11 +53,17 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
   const handleConfirm = async () => {
     moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
     VisitorDataManager.recordConsent(CONSENT_TAG, true)
+    // Duplicate logic as in the useEffect above but DON'T remove it
+    // consent is not reactive and it won't update and do what you'd expect by moving the following lines in a useEffect()
     launch()
     onContinue()
   }
 
   return enabled ? (
+    // If we haven't recorded user consent, <LoadingBody /> will render children
+    // This looks wrong, but this route actually gets rendered once
+    // If we have a consent, we push another route
+    // Else, we also push another route, recording consent in case of mobile users
     <LoadingBody isLoaded={!consent}>
       <ModalBody py={8}>
         <OptInIcon mb={4} />

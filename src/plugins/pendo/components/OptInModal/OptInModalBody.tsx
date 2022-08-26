@@ -35,8 +35,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const CONSENT_TAG = `pendo_${getConfig().REACT_APP_PENDO_CONSENT_VERSION}`
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const consent = useMemo(() => VisitorDataManager.checkConsent(CONSENT_TAG), [])
+  const consent = useMemo(() => VisitorDataManager.checkConsent(CONSENT_TAG), [CONSENT_TAG])
 
   useEffect(() => {
     if (!enabled) onContinue()

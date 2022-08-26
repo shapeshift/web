@@ -22,7 +22,6 @@ import {
   supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
@@ -30,8 +29,6 @@ import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -56,9 +53,14 @@ import {
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
+  selectSelectedLocale,
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  EMPTY_COSMOS_ADDRESS,
+  EMPTY_OSMOSIS_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -94,7 +96,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
-  const isLitecoinEnabled = useFeatureFlag('Litecoin')
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -104,6 +105,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
+
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  useEffect(() => {
+    require(`dayjs/locale/${selectedLocale}.js`)
+  }, [selectedLocale])
 
   /**
    * handle wallet disconnect/switch logic
@@ -125,8 +131,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, wallet])
 
-  const { versions, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
-
   /**
    * this was previously known as the useAccountSpecifiers hook
    * this has recently been moved into redux state, as hooks are not singletons,
@@ -141,7 +145,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (isEmpty(assetsById)) return
     if (!wallet) return
-    if (isLitecoinEnabled && wallet instanceof KeepKeyHDWallet && !versions) return
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
@@ -155,16 +158,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           switch (chainNamespace) {
             case CHAIN_NAMESPACE.Bitcoin: {
               if (!supportsBTC(wallet)) continue
-
-              if (
-                chainReference === CHAIN_REFERENCE.LitecoinMainnet &&
-                wallet instanceof KeepKeyHDWallet &&
-                isLitecoinEnabled &&
-                versions // without versions, we can't be sure the isLTCSupportedFirmwareVersion is valid
-              ) {
-                // skip litecoin if KK firmware update is required
-                if (!isLTCSupportedFirmwareVersion) continue
-              }
 
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
 
@@ -225,17 +218,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
-  }, [
-    assetsById,
-    chainAdapterManager,
-    dispatch,
-    wallet,
-    supportedChains,
-    disposition,
-    isLitecoinEnabled,
-    isLTCSupportedFirmwareVersion,
-    versions,
-  ])
+  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
 
   // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
   useEffect(() => {
@@ -266,6 +249,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // forceRefetch is enabled here to make sure that we always have the latest state from chain
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
     const options = { forceRefetch: true }
+
+    // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
+    // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId
+    // Since the accountSpecifier is an empty address (generated and private keys burned) and isn't actually in state
+    if (wallet && !supportsCosmos(wallet)) {
+      const accountSpecifier = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
+    }
+    if (wallet && !supportsOsmosis(wallet)) {
+      const accountSpecifier = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: osmosisChainId }, options))
+    }
 
     accountSpecifiersList.forEach(accountSpecifierMap => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {

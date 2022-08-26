@@ -15,6 +15,7 @@
     "noResultsFound": "No se han encontrado resultados.",
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
+    "relayerGasFee": "Tarifa de gas del repetidor",
     "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
     "deposit": "Depositar",
@@ -52,6 +53,7 @@
     "copyFailedDescription": "Por Favor copiar manualmente",
     "viewAsset": "Ver activo",
     "settings": "Ajustes",
+    "joinDiscord": "Únete a Discord",
     "legalDated": "Fecha: enero de 2022",
     "approveOnWallet": "Aprobar en billetera",
     "confirmOnWallet": "Confirmar en la billetera",
@@ -62,7 +64,8 @@
     "generalError": "Se ha producido un error",
     "showDetails": "Mostrar detalles",
     "hideDetails": "Ocultar detalles",
-    "walletSupportsETHOnly": "Solo Ethereum"
+    "walletSupportsETHOnly": "Solo Ethereum",
+    "loadingText": "Cargando..."
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -70,7 +73,14 @@
     "keepKey": {
       "title": "Actualización de KeepKey disponible",
       "newUpdateAvailable": "Hay una nueva actualización de KeepKey disponible.",
-      "downloadCta": "Descargar actualización"
+      "downloadCta": "Descargar actualización",
+      "updateRequiredForFeature": "Esta actualización es necesaria para admitir %{feature}"
+    }
+  },
+  "multiCurrency": {
+    "toast": {
+      "title": "Error al cargar datos para %{symbol}",
+      "description": "Su moneda se ha restablecido a USD"
     }
   },
   "dashboard": {
@@ -112,7 +122,8 @@
     "fundsTo": "Los fondos se enviarán a",
     "fundsFrom": "Los fondos se enviarán desde",
     "headerLabel": "Compra/Vende criptomonedas",
-    "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}"
+    "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}",
+    "usOnly": "Solamente - EEUU"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -164,12 +175,30 @@
           "learnMore": "Aprende más"
         }
       },
+      "cosmosOverview": {
+        "rewards": "Las recompensas que gane se acumularán automáticamente.",
+        "cta": "Iniciar Staking",
+        "learnMore": "Aprende más",
+        "withdrawals": "Retirar Staking",
+        "emptyWithdraws": "Aquí se mostrarán las solicitudes pendientes de retirar Staking.",
+        "availableDate": "disponible %{date}"
+      },
       "foxyOverview": {
         "header": "Deposite FOX para ganar FOXy",
         "body": "FOXy es un token de rebase vinculado al precio de FOX. FOXy se pone a trabajar en diferentes protocolos DeFi para obtener el mejor rendimiento posible.",
         "rewards": "Las recompensas que gane se acumularán automáticamente.",
         "cta": "Deposite FOX ahora",
         "foxyBalance": "Balance FOXy",
+        "withdrawals": "Retiros",
+        "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
+        "availableDate": "disponible %{date}"
+      },
+      "foxFarmingOverview": {
+        "header": "Deposite tokens LP ETH-FOX en %{opportunity} para ganar",
+        "body": "Aprueba y Stake tus tokens de liquidez para ganar recompensas adicionales en FOX.",
+        "rewards": "Las recompensas se acumulan automáticamente.",
+        "cta": "Deposite tokens LP ETH-FOX  ahora",
+        "foxFarmingBalance": "Balance de tokens LP ETH-FOX",
         "withdrawals": "Retiros",
         "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
         "availableDate": "disponible %{date}"
@@ -191,7 +220,8 @@
         "claimAmount": "Cantidad a Reclamar",
         "claimToAddress": "Reclamar a la Dirección",
         "confirmClaim": "Confirmar Reclamo",
-        "claimNow": "Reclama ahora"
+        "claimNow": "Reclama ahora",
+        "claimYour": "Reclame su %{opportunity}"
       }
     },
     "amountToStake": "Cantidad a Stake",
@@ -287,6 +317,9 @@
       },
       "confirm": {
         "title": "Confirmar"
+      },
+      "status": {
+        "title": "Estado"
       }
     }
   },
@@ -315,8 +348,8 @@
     "clickToConnect": "Haga clic para conectar una billetera"
   },
   "transactionRow": {
-    "send": "Enviado %{symbol}",
-    "receive": "Recibido %{symbol}",
+    "send": "Enviado",
+    "receive": "Recibido",
     "moreDetails": "Más Detalles",
     "date": "Fecha",
     "txid": "ID Transacción",
@@ -366,11 +399,31 @@
     },
     "unknown": "Transacción"
   },
+  "bridge": {
+    "confirm": "Confirmar Bridge",
+    "selectChain": "Seleccionar Cadena",
+    "selectAsset": "Seleccionar Activo",
+    "startBridge": "Iniciar Bridge",
+    "confirmBridge": "Confirmar Bridge",
+    "preview": "Vista Previa de Bridge",
+    "transferring": "Transfiriendo",
+    "transferComplete": "Transferencia Completa",
+    "bridgeAnother": "Bridge otro activo",
+    "feeExceedsSend": "La tarifa excede el monto del envío",
+    "receiveAddress": "Dirección de Recepción",
+    "route": "Ruta",
+    "waitTimeLabel": "Tiempo de espera Aprox. ",
+    "waitTimeValue": "~5-10 minutos",
+    "noSupportedAssets": "No hay activos soportados en la billetera."
+  },
   "trade": {
+    "allowance": "Tolerancia",
+    "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "minerFee": "Tarifa de minero",
+    "protocolFee": "Tarifa de protocolo",
     "tradeFeeSource": "Tarifa de %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
@@ -382,15 +435,19 @@
     "estimatedGasFee": "Tarifa estimada de gas",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
+    "unlimited": "Ilimitado",
+    "exact": "Exacto",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
+      "protocolFee": "Esta es la tarifa cobrada por el protocolo seleccionado para procesar, No es una tarifa cobrada por ShapeShift",
       "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉"
     },
     "errors": {
       "title": "Algo salió mal",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
+      "sellAmountDoesNotCoverFee": "Cantidad demasiado pequeña. El monto de venta para este par es más bajo que la tarifa.",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
@@ -425,7 +482,8 @@
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
       },
-      "generalError": "Ha ocurrido un error comercial"
+      "generalError": "Ha ocurrido un error comercial",
+      "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
     },
     "shapeshiftFee": "Tarifa de ShapeShift"
   },
@@ -518,10 +576,16 @@
       }
     },
     "stake": {
-      "txFees": {
-        "low": "Bajo",
-        "medium": "Medio",
-        "high": "Alto"
+      "amountToStake": "Cantidad a Stake",
+      "stakeYour": "Stake su %{opportunity}",
+      "estimatedReturns": "Rendimientos Anuales Estimados*",
+      "estimateDisclaimer": "*Las estimaciones fluctúan con las condiciones del mercado.",
+      "footerDisclaimer": "Al continuar, aceptas nuestros",
+      "footerDisclaimerLink": "términos de servicio.",
+      "status": {
+        "pending": "Su transacción ha sido transmitida y está pendiente de confirmación.",
+        "success": "Has staked con éxito tu %{opportunity}.",
+        "failed": "Hubo un problema con su transacción de Stake."
       }
     },
     "send": {
@@ -596,6 +660,7 @@
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
       "withdrawFrom": "Retirar de %{oportunidad}",
+      "unstakeYour": "Retire su %{opportunity}",
       "footerDisclaimer": "Esta transacción requerirá una tarifa de gas por transacción.",
       "slippageSettings": "Ajustes de Deslizamiento",
       "withdrawType": "Tipo de Retiro",
@@ -621,6 +686,7 @@
     },
     "approve": {
       "header": "Permita que el enrutador ShapeShift DAO gaste su %{asset}",
+      "routerName": "Enrutador ShapeShift DAO",
       "body": "Necesitamos su permiso para usar su %{asset}",
       "learnMore": "¿Por qué necesito hacer esto?",
       "depositFee": "Habrá una tarifa de gas por separado para depositar.",
@@ -640,6 +706,7 @@
       },
       "withdrawTo": "Retirar A",
       "amountToDeposit": "Cantidad a Depositar",
+      "amountToStake": "Cantidad a Stake",
       "amountToWithdraw": "Cantidad a Retirar",
       "withdrawFrom": "Retiro de",
       "depositTo": "Depositar A",
@@ -648,6 +715,7 @@
       "withdrawFee": "Tarifa de Retiro",
       "withdrawInstantTime": "Instantáneo",
       "withdrawDelayedTime": "7 - 14 días",
+      "xDays": "%{unbondingDays} días",
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
@@ -679,6 +747,7 @@
     "settings": {
       "settings": "Ajustes",
       "currency": "Divisa",
+      "currencyFormat": "Formato de Moneda",
       "language": "Idioma",
       "balanceThreshold": "Umbral de saldo",
       "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor",
@@ -739,7 +808,6 @@
         "button": "Guardar PIN"
       },
       "settings": {
-        "loadingText": "Cargando...",
         "menuLabels": {
           "bootloader": "Cargador de Arranque",
           "firmware": "Firmware",
@@ -1069,7 +1137,8 @@
         "assetUnavailable": "Los datos de mercado para este activo aún no están disponibles. ¡Estamos trabajando en ello, espera!",
         "loading": "Obteniendo historial de precios, espera...",
         "maxTotalSupply": "Suministro Total Máx.",
-        "availableSupply": "Suministro Disponible"
+        "availableSupply": "Suministro Disponible",
+        "marketData": "Datos de Mercado"
       },
       "assetDescription": {
         "showMore": "Mostrar más",

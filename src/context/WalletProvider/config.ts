@@ -1,5 +1,12 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
+import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
+import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
+import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
+import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
+import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
+import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
@@ -53,6 +60,8 @@ export interface SupportedWalletInfo {
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]
+  connectedWalletMenuRoutes?: RouteProps[]
+  connectedWalletMenuInitialPath?: WalletConnectedRoutes
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
@@ -71,6 +80,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/legacy/login', component: LegacyLogin },
       { path: '/native/legacy/login/success', component: LegacyLoginSuccess },
     ],
+    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
+    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
@@ -87,6 +98,14 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.RecoverySettingUp, component: RecoverySettingUp },
       { path: KeepKeyRoutes.RecoverySentenceInvalid, component: KeepKeyRecoverySentenceInvalid },
     ],
+    connectedWalletMenuRoutes: [
+      { path: WalletConnectedRoutes.KeepKey, component: KeepKeyMenu },
+      { path: WalletConnectedRoutes.KeepKeyLabel, component: ChangeLabel },
+      { path: WalletConnectedRoutes.KeepKeyPin, component: ChangePin },
+      { path: WalletConnectedRoutes.KeepKeyTimeout, component: ChangeTimeout },
+      { path: WalletConnectedRoutes.KeepKeyPassphrase, component: ChangePassphrase },
+    ],
+    connectedWalletMenuInitialPath: WalletConnectedRoutes.KeepKey,
   },
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,

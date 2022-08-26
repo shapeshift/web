@@ -1,3 +1,4 @@
+import { btcAssetId } from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 import {
   assetIds,
@@ -15,7 +16,7 @@ import {
   mockCosmosAccountWithOnlyUndelegations,
   mockCosmosAccountWithStakingData,
   mockEthAccount,
-  mockETHandBTCAccounts,
+  mockEthAndBtcAccounts,
   mockEthToken,
   unknown1AssetId,
   unknown2AssetId,
@@ -34,6 +35,7 @@ import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlic
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectAccountIdByAddress,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
@@ -146,7 +148,7 @@ describe('portfolioSlice', () => {
       describe('Ethereum and bitcoin', () => {
         it('should update state', () => {
           const store = createStore()
-          const { ethAccount, ethAccount2, btcAccount } = mockETHandBTCAccounts({
+          const { ethAccount, ethAccount2, btcAccount } = mockEthAndBtcAccounts({
             ethAccountObj: {
               balance: '27803816548287370',
               chainSpecific: {
@@ -195,7 +197,7 @@ describe('portfolioSlice', () => {
 
         it('should update state and exclude unknown asset ids', () => {
           const store = createStore()
-          const { ethAccount, btcAccount } = mockETHandBTCAccounts({
+          const { ethAccount, btcAccount } = mockEthAndBtcAccounts({
             ethAccountObj: {
               balance: '23803816548287371',
               chainSpecific: {
@@ -241,7 +243,7 @@ describe('portfolioSlice', () => {
     describe('selectPortfolioAssetAccounts', () => {
       it('can get accounts containing an asset', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts()
 
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
@@ -258,7 +260,7 @@ describe('portfolioSlice', () => {
 
     describe('selectAccountIdByAddress', () => {
       const store = createStore()
-      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockETHandBTCAccounts()
+      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockEthAndBtcAccounts()
 
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -296,7 +298,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
       const store = createStore()
-      const { ethAccount, btcAccount } = mockETHandBTCAccounts()
+      const { ethAccount, btcAccount } = mockEthAndBtcAccounts()
 
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -316,7 +318,7 @@ describe('portfolioSlice', () => {
     describe('selectPortfolioAllocationPercentByFilter', () => {
       it('can select fiat allocation by accountId', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockEthAndBtcAccounts()
 
         // dispatch portfolio data
         store.dispatch(
@@ -351,7 +353,7 @@ describe('portfolioSlice', () => {
 
       it('should return 0 for allocation if no market data is available', () => {
         const store = createStore()
-        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockETHandBTCAccounts()
+        const { ethAccount, ethAccount2, btcAccount, ethAccountId } = mockEthAndBtcAccounts()
 
         // dispatch portfolio data
         store.dispatch(
@@ -386,7 +388,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioFiatAccountBalance', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000000000000000000' },
         ethAccount2Obj: { balance: '200000000000000000' },
       })
@@ -454,9 +456,45 @@ describe('portfolioSlice', () => {
       })
     })
 
+    describe('selectHighestFiatBalanceAccountByAssetId', () => {
+      const store = createStore()
+      const { btcAccount, btcAccount2, btcAccount3 } = mockEthAndBtcAccounts()
+
+      // dispatch portfolio data
+      store.dispatch(
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([btcAccount, btcAccount2, btcAccount3], assetIds),
+        ),
+      )
+
+      // dispatch market data
+      const btcMarketData = mockMarketData({ price: '10000' })
+
+      store.dispatch(
+        marketDataSlice.actions.setCryptoMarketData({
+          [btcAssetId]: btcMarketData,
+        }),
+      )
+
+      // dispatch asset data
+      const assetData = mockAssetState()
+      store.dispatch(assetsSlice.actions.setAssets(assetData))
+
+      it('can select highest value account by assetId', () => {
+        const state = store.getState()
+        const highestValueAccount = selectHighestFiatBalanceAccountByAssetId(state, {
+          assetId: btcAssetId,
+        })
+
+        const expectedHighestValueAccount =
+          'bip122:000000000019d6689c085ae165831e93:ypub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
+        expect(highestValueAccount).toEqual(expectedHighestValueAccount)
+      })
+    })
+
     describe('selectPortfolioFiatBalanceByFilter', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
         ethAccount2Obj: { balance: '200000000000000000' },
       })
@@ -504,7 +542,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioCryptoHumanBalancesByFilter', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
         ethAccount2Obj: {
           balance: '200000000000000000',
@@ -557,7 +595,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioTotalFiatBalanceByAccount', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -608,7 +646,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioTokenIdsByAccountId', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -655,7 +693,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAccountIdsSortedFiat', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -703,7 +741,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
       const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId } = mockETHandBTCAccounts({
+      const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '1000000000000000000',
           chainSpecific: {
@@ -755,7 +793,7 @@ describe('portfolioSlice', () => {
 
     describe('selectPortfolioAccountRows', () => {
       const store = createStore()
-      const { ethAccount } = mockETHandBTCAccounts({
+      const { ethAccount } = mockEthAndBtcAccounts({
         ethAccountObj: {
           balance: '0',
           chainSpecific: {

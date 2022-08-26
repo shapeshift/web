@@ -271,8 +271,8 @@
     "featureFlags": "功能开关标志"
   },
   "transactionRow": {
-    "send": "已发送%{symbol}",
-    "receive": "已收到%{symbol}",
+    "send": "已发送",
+    "receive": "已收到",
     "moreDetails": "查看详情",
     "date": "日期",
     "txid": "交易 ID",

@@ -62,6 +62,7 @@ export const useFoxEthLiquidityPool = () => {
   useEffect(() => {
     if (wallet && adapter) {
       ;(async () => {
+        if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet })
         setConnectedWalletEthAddress(address)
       })()

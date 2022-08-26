@@ -1,14 +1,15 @@
 import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { useMemo } from 'react'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -16,7 +17,6 @@ import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxFarmingDetails = () => {
-  const { opportunities, loading } = useFoxFarmingBalances()
   const {
     query,
     history: browserHistory,
@@ -27,7 +27,11 @@ export const FoxFarmingDetails = () => {
     exact: true,
   })
   const { contractAddress } = query
-  const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
+  const opportunity = useMemo(
+    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, foxFarmingOpportunities],
+  )
   const rewardBalance = bnOrZero(opportunity?.unclaimedRewards)
   const foxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -83,7 +87,11 @@ export const FoxFarmingDetails = () => {
       <ModalFooter justifyContent='flex-start' alignItems='flex-start' flexDir='column'>
         <Stack width='full'>
           <Text fontWeight='medium' translation='defi.modals.FoxFarmingOverview.withdrawals' />
-          <WithdrawCard asset={rewardAsset} amount={rewardBalance.toString()} />
+          <WithdrawCard
+            asset={rewardAsset}
+            amount={rewardBalance.toString()}
+            expired={opportunity.expired}
+          />
         </Stack>
       </ModalFooter>
     </Flex>

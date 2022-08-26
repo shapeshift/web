@@ -14,7 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -58,7 +58,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     state: { wallet },
   } = useWallet()
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleApprove = async () => {
     if (!opportunity || !wallet || !supportsETH(wallet)) return
@@ -69,8 +69,8 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(bnOrZero(state.withdraw.lpAmount))
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
+          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
@@ -79,7 +79,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
-        .div(`1e${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,

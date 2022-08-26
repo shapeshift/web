@@ -13,15 +13,16 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { useFoxFarmingBalances } from 'pages/Defi/hooks/useFoxFarmingBalances'
 import { selectPortfolioLoading } from 'state/slices/selectors'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
+import { ExpiredWithdraw } from './components/ExpiredWithdraw'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
 import { FoxFarmingWithdrawActionType } from './WithdrawCommon'
@@ -41,10 +42,10 @@ export const FoxFarmingWithdraw = () => {
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const { opportunities, loading: foxFarmingLoading } = useFoxFarmingBalances()
+  const { foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
   const opportunity = useMemo(
-    () => opportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, opportunities],
+    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
+    [contractAddress, foxFarmingOpportunities],
   )
 
   // user info
@@ -78,13 +79,19 @@ export const FoxFarmingWithdraw = () => {
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
-      [DefiStep.Info]: {
-        label: translate('defi.steps.withdraw.info.title'),
-        description: translate('defi.steps.withdraw.info.description', {
-          asset: opportunity?.opportunityName,
-        }),
-        component: Withdraw,
-      },
+      [DefiStep.Info]: opportunity?.expired
+        ? {
+            label: translate('defi.steps.withdraw.info.title'),
+            description: translate('defi.steps.withdraw.info.farmingExpiredDescription'),
+            component: ExpiredWithdraw,
+          }
+        : {
+            label: translate('defi.steps.withdraw.info.title'),
+            description: translate('defi.steps.withdraw.info.description', {
+              asset: opportunity?.opportunityName,
+            }),
+            component: Withdraw,
+          },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: Approve,
@@ -98,8 +105,7 @@ export const FoxFarmingWithdraw = () => {
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [opportunity?.opportunityName])
+  }, [opportunity?.expired, opportunity?.opportunityName, translate])
 
   if (loading || !opportunity || foxFarmingLoading)
     return (

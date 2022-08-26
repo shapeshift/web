@@ -124,9 +124,9 @@ export const ConnectWallet = () => {
                 fontSize={{ base: '6xl', lg: '8xl' }}
                 mb={6}
               >
-                <RawText color='white' fontWeight='light' lineHeight='1'>
+                <RawText color='white' fontWeight='light' lineHeight='1' userSelect={'none'}>
                   {translate('connectWalletPage.exploreThe')}{' '}
-                  <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
+                  <RawText color='white' fontWeight='bold' as='span'>
                     {translate('connectWalletPage.defiUniverse')}
                   </RawText>
                 </RawText>
@@ -167,7 +167,6 @@ export const ConnectWallet = () => {
                   size='lg'
                   zIndex={1}
                   variant='outline'
-                  colorScheme='white'
                   onClick={connectDemo}
                   isLoading={state.isLoadingLocalWallet}
                 >

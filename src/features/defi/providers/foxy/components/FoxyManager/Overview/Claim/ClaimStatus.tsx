@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -86,6 +87,7 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const { refetch: refetchFoxyBalances } = useFoxyBalances()
   useEffect(() => {
     ;(async () => {
       if (!foxy || !txid) return
@@ -97,6 +99,11 @@ export const ClaimStatus = () => {
           maxAttempts: 30,
         })
         const gasPrice = await foxy.getGasPrice()
+
+        if (transactionReceipt.status) {
+          refetchFoxyBalances()
+        }
+
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
@@ -111,7 +118,7 @@ export const ClaimStatus = () => {
         })
       }
     })()
-  }, [estimatedGas, foxy, state, txid])
+  }, [refetchFoxyBalances, estimatedGas, foxy, state, txid])
 
   return (
     <SlideTransition>
@@ -148,7 +155,7 @@ export const ClaimStatus = () => {
             <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
             <Row.Value>
               <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
-                <MiddleEllipsis address={txid} />
+                <MiddleEllipsis value={txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -169,7 +176,7 @@ export const ClaimStatus = () => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
-                <MiddleEllipsis address={userAddress} />
+                <MiddleEllipsis value={userAddress} />
               </Link>
             </Row.Value>
           </Row>

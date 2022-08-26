@@ -21,7 +21,6 @@ import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import {
   selectCurrencyFormat,
-  selectFeatureFlags,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -46,7 +45,6 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
@@ -68,36 +66,34 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <Switch isChecked={isLightMode} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
-          {featureFlags.MultiCurrency && (
-            <>
-              <SettingsListItem
-                label='modals.settings.currency'
-                onClick={() => routeProps.history.push(SettingsRoutes.FiatCurrencies)}
-                icon={<Icon as={FaCoins} color='gray.500' />}
-              >
-                <Flex alignItems='center'>
-                  <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                    {selectedCurrency}
-                  </RawText>
-                  <MdChevronRight color='gray.500' size='1.5em' />
-                </Flex>
-              </SettingsListItem>
-              <Divider my={1} />
-              <SettingsListItem
-                label='modals.settings.currencyFormat'
-                onClick={() => routeProps.history.push(SettingsRoutes.CurrencyFormat)}
-                icon={<Icon as={FaDollarSign} color='gray.500' />}
-              >
-                <Flex alignItems='center'>
-                  <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                    {currencyFormatsRepresenter[selectedCurrencyFormat]}
-                  </RawText>
-                  <MdChevronRight color='gray.500' size='1.5em' />
-                </Flex>
-              </SettingsListItem>
-              <Divider my={1} />
-            </>
-          )}
+          <>
+            <SettingsListItem
+              label='modals.settings.currency'
+              onClick={() => routeProps.history.push(SettingsRoutes.FiatCurrencies)}
+              icon={<Icon as={FaCoins} color='gray.500' />}
+            >
+              <Flex alignItems='center'>
+                <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
+                  {selectedCurrency}
+                </RawText>
+                <MdChevronRight color='gray.500' size='1.5em' />
+              </Flex>
+            </SettingsListItem>
+            <Divider my={1} />
+            <SettingsListItem
+              label='modals.settings.currencyFormat'
+              onClick={() => routeProps.history.push(SettingsRoutes.CurrencyFormat)}
+              icon={<Icon as={FaDollarSign} color='gray.500' />}
+            >
+              <Flex alignItems='center'>
+                <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
+                  {currencyFormatsRepresenter[selectedCurrencyFormat]}
+                </RawText>
+                <MdChevronRight color='gray.500' size='1.5em' />
+              </Flex>
+            </SettingsListItem>
+            <Divider my={1} />
+          </>
           <SettingsListItem
             label='modals.settings.language'
             onClick={() => routeProps.history.push(SettingsRoutes.Languages)}

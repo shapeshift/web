@@ -105,6 +105,19 @@ export const cosmos: Asset = {
   symbol: 'ATOM',
 }
 
+export const bitcoin: Asset = {
+  chainId: 'bip122:000000000019d6689c085ae165831e93',
+  assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  name: 'bitcoin',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+  explorer: 'https://live.blockcypher.com',
+  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  symbol: 'BTC',
+}
+
 export const mockAssetState = (obj?: Record<string, any>) =>
   merge(
     {
@@ -113,8 +126,9 @@ export const mockAssetState = (obj?: Record<string, any>) =>
         [fox.assetId]: fox,
         [usdc.assetId]: usdc,
         [zero.assetId]: zero,
+        [bitcoin.assetId]: bitcoin,
       },
-      ids: [ethereum.assetId, fox.assetId, usdc.assetId],
+      ids: [ethereum.assetId, fox.assetId, usdc.assetId, bitcoin.assetId],
     },
     obj,
   )

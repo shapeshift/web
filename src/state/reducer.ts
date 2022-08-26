@@ -1,7 +1,9 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { foxyApi } from './apis/foxy/foxyApi'
 import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
@@ -42,6 +44,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  swapperApi,
 }
 
 export const apiReducers = {
@@ -50,6 +53,8 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
+  [swapperApi.reducerPath]: swapperApi.reducer,
+  [foxyApi.reducerPath]: foxyApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

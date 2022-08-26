@@ -35,10 +35,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from '../validatorDataSlice/constants'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import {
   initialState,
@@ -160,7 +156,7 @@ export const findAccountsByAssetId = (
 
   // If we don't find an account that has the given asset,
   // return the account(s) for that given assets chain
-  if (result.length === 0) {
+  if (result.length === 0 && assetId) {
     return Object.keys(portfolioAccounts).filter(
       accountId => fromAssetId(assetId).chainId === fromAccountId(accountId).chainId,
     )
@@ -441,15 +437,4 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
-}
-
-export const getShapeshiftValidatorFromAccountSpecifier = (
-  accountSpecifier: AccountSpecifier,
-): string => {
-  const { chainId } = fromAccountId(accountSpecifier)
-  const chainIdToValidatorAddress: Record<ChainId, string> = {
-    [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-    [osmosisChainId]: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-  }
-  return chainIdToValidatorAddress[chainId]
 }

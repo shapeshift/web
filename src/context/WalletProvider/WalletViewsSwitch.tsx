@@ -101,12 +101,11 @@ export const WalletViewsSwitch = () => {
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {type &&
-                  SUPPORTED_WALLETS[type].routes.map((route, index) => {
+                  SUPPORTED_WALLETS[type].routes.map(route => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route
                         exact
-                        key={index}
                         path={route.path}
                         render={routeProps => <Component {...routeProps} />}
                       />

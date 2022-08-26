@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v9.17.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.17.0...@shapeshiftoss/swapper-v9.17.1) (2022-08-26)
+
+
+### Bug Fixes
+
+* osmo: calculate finish tx off second tx in transaction ([#990](https://github.com/shapeshift/lib/issues/990)) ([a879550](https://github.com/shapeshift/lib/commit/a8795501642b1ba6603c43c165f011f257b21e25))
+
 # [@shapeshiftoss/swapper-v9.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v9.16.2...@shapeshiftoss/swapper-v9.17.0) (2022-08-25)
 
 

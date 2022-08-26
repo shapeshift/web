@@ -18,7 +18,11 @@ import {
 import { type TradeState, TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetTradeQuoteQuery, useLazyGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
+import {
+  GetUsdRateArgs,
+  useGetTradeQuoteQuery,
+  useGetUsdRateQuery,
+} from 'state/apis/swapper/swapperApi'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
@@ -41,7 +45,9 @@ export const useSwapperService = () => {
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
   type TradeQuoteInputArg = TradeQuoteQueryInput[0]
-  type TradeQuoteInputOptions = TradeQuoteQueryInput[1]
+
+  type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
+  type UsdRateInputArg = UsdRateQueryInput[0]
 
   // State
   const {
@@ -49,6 +55,9 @@ export const useSwapperService = () => {
   } = useWallet()
   const [tradeAmounts, setTradeAmounts] = useState<Amounts | undefined>()
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
+  const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
+  const [sellAssetFiatRateArgs, setSellAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
+  const [feeAssetFiatRateArgs, setFeeAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -66,60 +75,56 @@ export const useSwapperService = () => {
   const feeAssetId = sellAssetFeeAsset?.assetId
 
   // API
-  const tradeQuoteOptions: TradeQuoteInputOptions = {
+  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
+
+  const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs, {
     pollingInterval: 30000,
-    refetchOnReconnect: true,
-  }
-
-  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, tradeQuoteOptions)
-
-  const [buyAssetFiatRateTrigger, buyAssetFiatRateResult] = useLazyGetUsdRateQuery()
-  const [sellAssetFiatRateTrigger, sellAssetFiatRateResult] = useLazyGetUsdRateQuery()
-  const [feeAssetFiatRateTrigger, feeAssetFiatRateResult] = useLazyGetUsdRateQuery()
+    selectFromResult: ({ data }) => ({
+      data: data?.usdRate,
+    }),
+  })
+  const { data: sellAssetFiatRateData } = useGetUsdRateQuery(sellAssetFiatRateArgs, {
+    pollingInterval: 30000,
+    selectFromResult: ({ data }) => ({
+      data: data?.usdRate,
+    }),
+  })
+  const { data: feeAssetFiatRateData } = useGetUsdRateQuery(feeAssetFiatRateArgs, {
+    pollingInterval: 30000,
+    selectFromResult: ({ data }) => ({
+      data: data?.usdRate,
+    }),
+  })
 
   // Effects
   // Trigger fiat rate queries
   useEffect(() => {
     if (sellTradeAssetId && buyTradeAssetId && feeAssetId) {
-      buyAssetFiatRateTrigger({
+      const fiatArgsCommon: Pick<GetUsdRateArgs, 'buyAssetId' | 'sellAssetId'> = {
+        buyAssetId: buyTradeAssetId!,
+        sellAssetId: sellTradeAssetId!,
+      }
+      setBuyAssetFiatRateArgs({
+        ...fiatArgsCommon,
         rateAssetId: buyTradeAssetId!,
-        buyAssetId: buyTradeAssetId!,
-        sellAssetId: sellTradeAssetId!,
       })
-      sellAssetFiatRateTrigger({
+      setSellAssetFiatRateArgs({
+        ...fiatArgsCommon,
         rateAssetId: sellTradeAssetId!,
-        buyAssetId: buyTradeAssetId!,
-        sellAssetId: sellTradeAssetId!,
       })
-      feeAssetFiatRateTrigger({
+      setFeeAssetFiatRateArgs({
+        ...fiatArgsCommon,
         rateAssetId: feeAssetId,
-        buyAssetId: buyTradeAssetId!,
-        sellAssetId: sellTradeAssetId!,
       })
     }
-  }, [
-    buyAssetFiatRateTrigger,
-    buyTradeAssetId,
-    feeAssetFiatRateTrigger,
-    feeAssetId,
-    sellAssetFiatRateTrigger,
-    sellTradeAssetId,
-  ])
+  }, [buyTradeAssetId, feeAssetId, sellTradeAssetId])
 
   // Set fiat rates
   useEffect(() => {
-    buyAssetFiatRateResult.data?.usdRate &&
-      setValue('buyAssetFiatRate', buyAssetFiatRateResult.data?.usdRate)
-    sellAssetFiatRateResult.data?.usdRate &&
-      setValue('sellAssetFiatRate', sellAssetFiatRateResult.data?.usdRate)
-    feeAssetFiatRateResult.data?.usdRate &&
-      setValue('feeAssetFiatRate', feeAssetFiatRateResult.data?.usdRate)
-  }, [
-    buyAssetFiatRateResult.data?.usdRate,
-    feeAssetFiatRateResult.data?.usdRate,
-    sellAssetFiatRateResult.data?.usdRate,
-    setValue,
-  ])
+    buyAssetFiatRateData && setValue('buyAssetFiatRate', buyAssetFiatRateData)
+    sellAssetFiatRateData && setValue('sellAssetFiatRate', sellAssetFiatRateData)
+    feeAssetFiatRateData && setValue('feeAssetFiatRate', feeAssetFiatRateData)
+  }, [buyAssetFiatRateData, feeAssetFiatRateData, sellAssetFiatRateData, setValue])
 
   // Get and set trade amounts
   useEffect(() => {
@@ -142,12 +147,9 @@ export const useSwapperService = () => {
     amount,
     buyAsset,
     buyAssetFiatRate,
-    buyAssetFiatRateResult?.data?.usdRate,
-    feeAssetFiatRateResult?.data?.usdRate,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellAssetFiatRate,
-    sellAssetFiatRateResult?.data?.usdRate,
     setValue,
   ])
 

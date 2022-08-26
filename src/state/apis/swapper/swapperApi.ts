@@ -6,7 +6,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
-type GetUsdRateArgs = {
+export type GetUsdRateArgs = {
   rateAssetId: AssetId
   buyAssetId: AssetId
   sellAssetId: AssetId
@@ -21,7 +21,7 @@ type State = {
   preferences: Preferences
 }
 
-export type GetTradeQuoteOutput = TradeQuote<ChainId>
+type GetTradeQuoteReturn = TradeQuote<ChainId>
 
 const getBestSwapperFromArgs = async (
   buyAssetId: AssetId,
@@ -64,7 +64,7 @@ export const swapperApi = createApi({
         }
       },
     }),
-    getTradeQuote: build.query<GetTradeQuoteOutput, GetTradeQuoteInput>({
+    getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
@@ -91,4 +91,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetUsdRateQuery, useLazyGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi
+export const { useGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi

@@ -50,7 +50,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid, isSubmitting },
+    formState: { errors, isDirty, isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts, toFiat },
@@ -491,7 +491,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmitting || isSendMaxLoading}
+              isLoading={isSendMaxLoading}
               isDisabled={
                 !isDirty ||
                 !isValid ||

@@ -143,13 +143,12 @@ export const selectPortfolioAccountMetadata = (state: ReduxState): AccountMetada
 export const selectBIP44ParamsByAccountId = createSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,
-  (accountMetadata, accountId): BIP44Params | undefined =>
-    accountMetadata?.[accountId]?.bip44Params,
+  (accountMetadata, accountId): BIP44Params => accountMetadata[accountId]?.bip44Params,
 )
 
 export const selectAccountNumberByAccountId = createSelector(
   selectBIP44ParamsByAccountId,
-  (bip44Params): number | undefined => bip44Params?.accountNumber,
+  (bip44Params): number => bip44Params.accountNumber,
 )
 
 export const selectAccountTypeByAccountId = createSelector(

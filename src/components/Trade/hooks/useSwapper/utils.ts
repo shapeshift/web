@@ -31,13 +31,7 @@ export type Amounts = {
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  | 'sellAmount'
-  | 'sellAsset'
-  | 'buyAsset'
-  | 'sendMax'
-  | 'sellAssetAccountNumber'
-  | 'wallet'
-  | 'receiveAddress'
+  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
 >
 
 // Type guards

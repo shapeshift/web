@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { type GetTradeQuoteInput, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -70,7 +71,7 @@ export const useSwapperService = () => {
     refetchOnReconnect: true,
   }
 
-  const { data: tradeQuoteData } = useGetTradeQuoteQuery(tradeQuoteArgs, tradeQuoteOptions)
+  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, tradeQuoteOptions)
 
   const [buyAssetFiatRateTrigger, buyAssetFiatRateResult] = useLazyGetUsdRateQuery()
   const [sellAssetFiatRateTrigger, sellAssetFiatRateResult] = useLazyGetUsdRateQuery()
@@ -166,14 +167,13 @@ export const useSwapperService = () => {
           chainAdapter,
           wallet,
         })
-        const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = (() => {
+        const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await (async () => {
           const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
             sellAmount: tradeAmounts?.sellAmount,
             sellAsset,
             buyAsset,
             sendMax: false,
             sellAssetAccountNumber: 0,
-            wallet,
             receiveAddress,
           }
           if (isSupportedNoneUtxoSwappingChain(sellAsset?.chainId)) {
@@ -184,11 +184,20 @@ export const useSwapperService = () => {
           } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccount) {
             const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
             if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+            const sellAssetChainAdapter = getChainAdapterManager().get(
+              sellAsset.chainId,
+            ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+            const { xpub } = await sellAssetChainAdapter.getPublicKey(
+              wallet,
+              utxoParams.bip44Params,
+              accountType,
+            )
             return {
               ...tradeQuoteInputCommonArgs,
               chainId: sellAsset.chainId,
               bip44Params: utxoParams.bip44Params,
               accountType,
+              xpub,
             }
           }
         })()
@@ -212,7 +221,6 @@ export const useSwapperService = () => {
 
   // Set trade quote
   useEffect(() => {
-    console.log('xxx trade quote result', tradeQuoteData)
-    tradeQuoteData?.data && setValue('quote', tradeQuoteData.data)
-  }, [tradeQuoteData, setValue])
+    tradeQuote && setValue('quote', tradeQuote)
+  }, [tradeQuote, setValue])
 }

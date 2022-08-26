@@ -24,6 +24,7 @@ export const portfolio = createSlice({
       return initialState
     },
     setAccountMetadata: (state, { payload }: { payload: AccountMetaDataById }) => {
+      moduleLogger.info('setting account metadata')
       state.accountSpecifiers.accountMetaDataById = payload
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {

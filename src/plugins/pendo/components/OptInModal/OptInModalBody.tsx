@@ -15,6 +15,7 @@ import { useEffect } from 'react'
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { isMobile } from 'lib/globals'
 import { logger } from 'lib/logger'
 
 import { OptInIcon } from './OptInIcon'
@@ -37,9 +38,10 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
 
   useEffect(() => {
     if (!enabled) onContinue()
-    if (typeof consent === 'boolean') {
+    // Auto launch if mobile or if they have consented
+    if (consent || isMobile) {
       moduleLogger.trace({ consent }, 'User has selected their consent')
-      if (consent) launch()
+      launch()
       onContinue()
     }
   }, [consent, enabled, onContinue])

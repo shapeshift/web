@@ -62,7 +62,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     )
   }, [state?.opportunity, asset])
 
-  const vaultTokenPrice = pricePerShare.times(marketData.price)
+  const vaultTokenPrice = pricePerShare.times(marketData.price).toString()
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   const getWithdrawGasEstimate = useCallback(
@@ -163,7 +163,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         marketData={{
           // The vault asset doesnt have market data.
           // We're making our own market data object for the withdraw view
-          price: vaultTokenPrice.toString(),
+          price: vaultTokenPrice,
           marketCap: '0',
           volume: '0',
           changePercent24Hr: 0,

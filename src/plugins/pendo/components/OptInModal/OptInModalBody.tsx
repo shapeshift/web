@@ -11,8 +11,9 @@ import {
 import { getConfig } from 'config'
 import { launch } from 'plugins/pendo'
 import { VisitorDataManager } from 'plugins/pendo/visitorData'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io'
+import { LoadingBody } from 'components/LoadingBody'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from 'lib/globals'
@@ -34,17 +35,21 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const CONSENT_TAG = `pendo_${getConfig().REACT_APP_PENDO_CONSENT_VERSION}`
-  const consent = VisitorDataManager.checkConsent(CONSENT_TAG)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const consent = useMemo(() => VisitorDataManager.checkConsent(CONSENT_TAG), [])
 
   useEffect(() => {
     if (!enabled) onContinue()
     // Auto launch if mobile or if they have consented
     if (consent || isMobile) {
+      if (isMobile && !consent) {
+        VisitorDataManager.recordConsent(CONSENT_TAG, true)
+      }
       moduleLogger.trace({ consent }, 'User has selected their consent')
       launch()
       onContinue()
     }
-  }, [consent, enabled, onContinue])
+  }, [CONSENT_TAG, consent, enabled, onContinue])
 
   const handleConfirm = async () => {
     moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
@@ -53,13 +58,8 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
     onContinue()
   }
 
-  // If the user has already consented, we don't need to ask them again
-  if (typeof consent === 'boolean') {
-    return null
-  }
-
   return enabled ? (
-    <>
+    <LoadingBody isLoaded={typeof consent !== 'boolean'}>
       <ModalBody py={8}>
         <OptInIcon mb={4} />
         <Text
@@ -163,6 +163,6 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
           <Text translation='plugins.analytics.optInModal.noThanks' />
         </Button>
       </ModalFooter>
-    </>
+    </LoadingBody>
   ) : null
 }

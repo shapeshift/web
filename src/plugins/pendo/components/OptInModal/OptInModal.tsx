@@ -34,6 +34,9 @@ export const OptInModal: React.FC = () => {
     moduleLogger.trace({ consent }, 'Consent Check')
     if (isMobile || consent) {
       // Auto launch if mobile or if they have consented
+      if (isMobile && !consent) {
+        VisitorDataManager.recordConsent(CONSENT_TAG, true)
+      }
       launch()
     } else if (!consent && !isOpen && hasWallet) {
       moduleLogger.debug({ consent }, 'Showing consent modal')

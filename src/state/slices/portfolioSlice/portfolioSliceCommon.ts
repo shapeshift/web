@@ -77,13 +77,13 @@ export type PortfolioAccountBalances = {
   ids: AccountSpecifier[]
 }
 
-export type AccountMetaData = {
+export type AccountMetadata = {
   bip44Params: BIP44Params
   accountType?: UtxoAccountType
 }
 
-export type AccountMetaDataById = {
-  [k: AccountSpecifier]: AccountMetaData
+export type AccountMetadataById = {
+  [k: AccountSpecifier]: AccountMetadata
 }
 
 /**
@@ -107,7 +107,7 @@ export type AccountMetaDataById = {
 type Address = string
 
 export type PortfolioAccountSpecifiers = {
-  accountMetaDataById: AccountMetaDataById
+  accountMetadataById: AccountMetadataById
   byId: {
     // this maps an account identifier to a list of addresses
     // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
@@ -134,7 +134,7 @@ export const initialState: Portfolio = {
     ids: [],
   },
   accountSpecifiers: {
-    accountMetaDataById: {},
+    accountMetadataById: {},
     byId: {},
     ids: [],
   },

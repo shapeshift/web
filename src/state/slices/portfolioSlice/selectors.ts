@@ -50,7 +50,7 @@ import {
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
-  AccountMetaDataById,
+  AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
@@ -137,8 +137,8 @@ export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
 
-export const selectPortfolioAccountMetadata = (state: ReduxState): AccountMetaDataById =>
-  state.portfolio.accountSpecifiers.accountMetaDataById
+export const selectPortfolioAccountMetadata = (state: ReduxState): AccountMetadataById =>
+  state.portfolio.accountSpecifiers.accountMetadataById
 
 export const selectBIP44ParamsByAccountId = createSelector(
   selectPortfolioAccountMetadata,

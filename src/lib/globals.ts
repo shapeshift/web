@@ -4,4 +4,4 @@ declare global {
   }
 }
 
-export const isMobile = true
+export const isMobile = Boolean(window.isShapeShiftMobile)

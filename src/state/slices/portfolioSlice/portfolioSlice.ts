@@ -10,7 +10,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { AccountMetaData, AccountSpecifier, initialState, Portfolio } from './portfolioSliceCommon'
+import { AccountMetaDataById, initialState, Portfolio } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
@@ -23,10 +23,7 @@ export const portfolio = createSlice({
       moduleLogger.info('clearing portfolio')
       return initialState
     },
-    setAccountMetadata: (
-      state,
-      { payload }: { payload: Record<AccountSpecifier, AccountMetaData> },
-    ) => {
+    setAccountMetadata: (state, { payload }: { payload: AccountMetaDataById }) => {
       state.accountSpecifiers.accountMetaDataById = payload
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {

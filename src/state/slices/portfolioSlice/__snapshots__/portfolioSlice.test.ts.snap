@@ -13,6 +13,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
         "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
@@ -62,6 +63,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
         "bip122:000000000019d6689c085ae165831e93:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l",
@@ -131,6 +133,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
         "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
@@ -221,6 +224,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
         "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
@@ -294,6 +298,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
         "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
@@ -348,6 +353,7 @@ Object {
     ],
   },
   "accountSpecifiers": Object {
+    "accountMetadataById": Object {},
     "byId": Object {
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
         "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",

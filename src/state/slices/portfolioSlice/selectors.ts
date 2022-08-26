@@ -15,6 +15,7 @@ import {
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
@@ -49,6 +50,7 @@ import {
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
+  AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
@@ -134,6 +136,28 @@ export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers[
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
+
+export const selectPortfolioAccountMetadata = (state: ReduxState): AccountMetadataById =>
+  state.portfolio.accountSpecifiers.accountMetadataById
+
+export const selectBIP44ParamsByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): BIP44Params | undefined =>
+    accountMetadata?.[accountId]?.bip44Params,
+)
+
+export const selectAccountNumberByAccountId = createSelector(
+  selectBIP44ParamsByAccountId,
+  (bip44Params): number | undefined => bip44Params?.accountNumber,
+)
+
+export const selectAccountTypeByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): UtxoAccountType | undefined =>
+    accountMetadata[accountId]?.accountType,
+)
 
 export const selectIsPortfolioLoaded = createSelector(
   selectAccountSpecifiers,

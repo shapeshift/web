@@ -1,31 +1,32 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
-import { RawText, Text } from 'components/Text'
-import {
-  addWallet,
-  deleteWallet,
-  getWallet,
-  listWallets,
-} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { RouteComponentProps } from 'react-router'
+import { Text } from 'components/Text'
+import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
-  // const { state, dispatch } = useWallet()
-  // const [error, setError] = useState<string | null>(null)
-  // const [wallets, setWallets] = useState<VaultInfo[]>([])
+  const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
   const translate = useTranslate()
-  const [walletExists, setWalletExists] = useState<boolean | null>(null)
 
   useEffect(() => {
-    ;(async () => setWalletExists(Boolean((await listWallets()).length)))()
-  })
+    ;(async () => {
+      try {
+        const localWallets = await listWallets()
+        setHasLocalWallet(localWallets.length > 0)
+      } catch (e) {
+        console.error('WalletProvider:MobileWallet:Start - Cannnot enumerate Vault', e)
+        setHasLocalWallet(false)
+      }
+    })()
+  }, [setHasLocalWallet])
 
   return (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.load.header'} />
+        <Text translation={'walletProvider.shapeShift.start.header'} />
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.start.body'} />
@@ -39,13 +40,11 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!walletExists}
-            onClick={async () => {
-              console.warn('mnemonic', await getWallet('1'))
-            }}
+            disabled={!hasLocalWallet}
+            onClick={() => history.push('/mobile/load')}
             data-test='wallet-native-load-button'
           >
-            <RawText>Load Wallet</RawText>
+            <Text translation={'walletProvider.shapeShift.start.load'} />
           </Button>
           <Divider />
           <Button
@@ -57,18 +56,10 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={async () => {
-              console.warn(
-                'save',
-                await addWallet({
-                  label: 'All',
-                  mnemonic: 'all all all all all all all all all all all all',
-                }),
-              )
-            }}
+            onClick={() => history.push('/mobile/create')}
             data-test='wallet-native-create-button'
           >
-            <RawText>Save All Seed</RawText>
+            <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
           <Button
             variant='ghost-filled'
@@ -79,12 +70,10 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={async () => {
-              console.warn('clear', await deleteWallet('*'))
-            }}
+            onClick={() => history.push('/mobile/import')}
             data-test='wallet-native-import-button'
           >
-            <RawText>Delete Wallet</RawText>
+            <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
           <Divider mt={4} />
           <Flex
@@ -100,7 +89,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
               ml={[0, 1.5]}
               borderTopRadius='none'
               colorScheme='blue'
-              onClick={() => history.push('/native/legacy/login')}
+              onClick={() => history.push('/mobile/legacy/login')}
             >
               {translate('common.login')}
             </Button>

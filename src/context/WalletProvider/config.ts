@@ -14,7 +14,13 @@ import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/c
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
 import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
+import { MobileCreate } from 'context/WalletProvider/MobileWallet/components/MobileCreate'
+import { MobileImport } from 'context/WalletProvider/MobileWallet/components/MobileImport'
+import { MobileLoad } from 'context/WalletProvider/MobileWallet/components/MobileLoad'
+import { MobileRename } from 'context/WalletProvider/MobileWallet/components/MobileRename'
 import { MobileStart } from 'context/WalletProvider/MobileWallet/components/MobileStart'
+import { MobileSuccess } from 'context/WalletProvider/MobileWallet/components/MobileSuccess'
+import { MobileTestPhrase } from 'context/WalletProvider/MobileWallet/components/MobileTestPhrase'
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
@@ -69,7 +75,15 @@ export interface SupportedWalletInfo {
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Mobile]: {
     ...MobileConfig,
-    routes: [{ path: '/mobile/connect', component: MobileStart }],
+    routes: [
+      { path: '/mobile/connect', component: MobileStart },
+      { path: '/mobile/load', component: MobileLoad },
+      { path: '/mobile/rename', component: MobileRename },
+      { path: '/mobile/import', component: MobileImport },
+      { path: '/mobile/create', component: MobileCreate },
+      { path: '/mobile/create-test', component: MobileTestPhrase },
+      { path: '/mobile/success', component: MobileSuccess },
+    ],
   },
   [KeyManager.Native]: {
     ...NativeConfig,

@@ -146,13 +146,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const txLink = useMemo(() => {
     switch (trade.sources[0].name) {
       case 'Osmosis':
-        return `${osmosisAsset?.explorerTxLink}${sellTxid}`
+        return `${osmosisAsset?.explorerTxLink}${buyTxid}`
       case 'CowSwap':
         return `https://explorer.cow.fi/orders/${sellTxid}`
       default:
         return `${trade.sellAsset?.explorerTxLink}${sellTxid}`
     }
-  }, [trade, sellTxid, osmosisAsset])
+  }, [trade, sellTxid, osmosisAsset, buyTxid])
 
   return (
     <SlideTransition>

@@ -21,7 +21,8 @@ export const Debugging = () => {
 
   const handleCopyClick = async () => {
     try {
-      await navigator.clipboard.writeText(visitorId ?? '')
+      if (!visitorId) throw new Error()
+      await navigator.clipboard.writeText(visitorId)
       alert('Visitor ID copied!')
     } catch (e) {
       alert('Something went wrong')

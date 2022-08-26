@@ -22,6 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
@@ -33,6 +34,11 @@ const moduleLogger = logger.child({
 export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const {
+    backupNativePassphrase: {
+      props: { preventClose },
+    },
+  } = useModal()
   const [revealed, setRevealed] = useState<boolean>(false)
   const handleShow = () => {
     setRevealed(!revealed)
@@ -95,7 +101,7 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
       <ModalHeader pt={4}>
         <Text translation={'modals.shapeShift.backupPassphrase.info.title'} />
       </ModalHeader>
-      <ModalCloseButton />
+      {!preventClose && <ModalCloseButton />}
       <ModalBody>
         <Text
           color='gray.500'

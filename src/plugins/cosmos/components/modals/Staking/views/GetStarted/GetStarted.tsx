@@ -3,19 +3,12 @@ import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { History } from 'history'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
-import {
-  isCosmosAssetId,
-  isOsmosisAssetId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectValidatorByAddress } from 'state/slices/selectors'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
+import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { GetStartedManagerRoutes } from './GetStartedCommon'
@@ -37,12 +30,10 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   }
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const defaultValidatorAddress = useMemo(() => {
-    if (isCosmosAssetId(assetId)) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-    if (isOsmosisAssetId(assetId)) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-
-    return ''
-  }, [assetId])
+  const defaultValidatorAddress = useMemo(
+    () => getDefaultValidatorAddressFromAssetId(assetId),
+    [assetId],
+  )
   const validatorData = useAppSelector(state =>
     selectValidatorByAddress(state, defaultValidatorAddress),
   )

@@ -10,7 +10,7 @@ import {
   osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   SwapError,
@@ -325,6 +325,14 @@ export const useSwapper = () => {
       } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
         const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+        const sellAssetChainAdapter = getChainAdapterManager().get(
+          sellAsset.chainId,
+        ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+        const { xpub } = await sellAssetChainAdapter.getPublicKey(
+          wallet,
+          utxoParams.bip44Params,
+          accountType,
+        )
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
           sellAmount: amount,
@@ -336,6 +344,7 @@ export const useSwapper = () => {
           receiveAddress,
           bip44Params: utxoParams.bip44Params,
           accountType,
+          xpub,
         })
       }
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
@@ -452,12 +461,19 @@ export const useSwapper = () => {
                 sellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
-                wallet,
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
               const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+              const sellAssetChainAdapter = getChainAdapterManager().get(
+                sellAsset.chainId,
+              ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+              const { xpub } = await sellAssetChainAdapter.getPublicKey(
+                wallet,
+                utxoParams.bip44Params,
+                accountType,
+              )
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
@@ -465,10 +481,10 @@ export const useSwapper = () => {
                 sellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
-                wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,
                 receiveAddress,
+                xpub,
               })
             }
             throw new Error(`unsupported chain id ${sellAsset.chainId}`)

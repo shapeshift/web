@@ -51,7 +51,8 @@ type TradeConfirmParams = {
 
 export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const [txid, setTxid] = useState('')
+  const [sellTxid, setSellTxid] = useState('')
+  const [buyTxid, setBuyTxid] = useState('')
   const {
     getValues,
     handleSubmit,
@@ -75,11 +76,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     selectFirstAccountSpecifierByChainId(state, buyAssetChainId),
   )
 
-  const parsedTxId = useMemo(
-    () => serializeTxIndex(buyAssetAccountSpecifier, txid, trade.receiveAddress),
-    [buyAssetAccountSpecifier, trade.receiveAddress, txid],
+  const parsedBuyTxId = useMemo(
+    () => serializeTxIndex(buyAssetAccountSpecifier, buyTxid, trade.receiveAddress),
+    [buyAssetAccountSpecifier, trade.receiveAddress, buyTxid],
   )
-  const status = useAppSelector(state => selectTxStatusById(state, parsedTxId))
+
+  const status =
+    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
   const { showErrorToast } = useErrorHandler()
 
@@ -96,6 +99,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await executeQuote()
+      setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
@@ -111,20 +115,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-
       if (txs.e) throw txs.e
-      if (!txs?.sellTxid) throw new Error('No sellTxid from getTradeTxs')
-      setTxid(txs.sellTxid)
+      setBuyTxid(txs.buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
       reset()
-      setTxid('')
+      setSellTxid('')
       history.push(TradeRoutePaths.Input)
     }
   }
 
   const handleBack = () => {
-    if (txid) {
+    if (sellTxid) {
       reset()
     }
     history.push(TradeRoutePaths.Input)
@@ -155,13 +157,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const txLink = useMemo(() => {
     switch (trade.sources[0].name) {
       case 'Osmosis':
-        return `${osmosisAsset?.explorerTxLink}${txid}`
+        return `${osmosisAsset?.explorerTxLink}${buyTxid}`
       case 'CowSwap':
-        return `https://explorer.cow.fi/orders/${txid}`
+        return `https://explorer.cow.fi/orders/${sellTxid}`
       default:
-        return `${trade.sellAsset?.explorerTxLink}${txid}`
+        return `${trade.sellAsset?.explorerTxLink}${sellTxid}`
     }
-  }, [trade, osmosisAsset, txid])
+  }, [trade, sellTxid, osmosisAsset, buyTxid])
 
   return (
     <SlideTransition>
@@ -191,7 +193,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 buyIcon={trade.buyAsset.icon}
                 tradeFiatAmount={tradeFiatAmount}
                 trade={trade}
-                status={txid ? status : undefined}
+                status={sellTxid || isSubmitting ? status : undefined}
               />
               <Stack spacing={4}>
                 <Row>
@@ -221,7 +223,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 />
               </Stack>
               <Stack spacing={4}>
-                {txid && (
+                {sellTxid && (
                   <Row>
                     <Row.Label>
                       <RawText>Tx ID</RawText>
@@ -303,9 +305,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>
-            {!txid && (
+            {!sellTxid && !isSubmitting && (
               <Button
-                isLoading={isSubmitting}
                 colorScheme='blue'
                 size='lg'
                 width='full'

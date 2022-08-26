@@ -8,6 +8,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
@@ -27,6 +28,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectFeatureFlags,
   selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectHighestFiatBalanceAccountByAssetId,
@@ -54,6 +56,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
+  const { Axelar } = useSelector(selectFeatureFlags)
   const [
     quote,
     buyTradeAsset,
@@ -329,6 +332,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
         <Card variant='unstyled'>
+          {!Axelar && (
+            <Card.Header>
+              <Card.Heading textAlign='center'>
+                <Text translation='trade.trade' />
+              </Card.Heading>
+            </Card.Header>
+          )}
+
           <Card.Body pb={0} px={0}>
             <FormControl isInvalid={!!errors.fiatSellAmount}>
               <Controller

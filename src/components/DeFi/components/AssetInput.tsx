@@ -45,6 +45,7 @@ export type AssetInputProps = {
   onAssetClick?: () => void
   onMaxClick?: (args: number) => void
   isReadOnly?: boolean
+  isSendMaxDisabled?: boolean
   cryptoAmount?: string
   fiatAmount?: string
   showFiatAmount?: boolean
@@ -63,6 +64,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onMaxClick,
   cryptoAmount,
   isReadOnly,
+  isSendMaxDisabled,
   fiatAmount,
   showFiatAmount = '0',
   balance,
@@ -166,7 +168,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             />
           )}
           {onMaxClick && (
-            <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
+            <MaxButtonGroup
+              options={percentOptions}
+              isDisabled={isReadOnly || isSendMaxDisabled}
+              onClick={onMaxClick}
+            />
           )}
         </Stack>
       )}

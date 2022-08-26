@@ -1,12 +1,16 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useSwapperService } from 'components/Trade/hooks/useSwapper/useSwapperService'
+import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
 import { TradeAssetInput } from './Components/TradeAssetInput'
@@ -30,6 +34,17 @@ export const TradeInput = () => {
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
+  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
+  )
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, {
+      accountId: sellAssetAccount,
+      assetId: sellTradeAsset?.asset?.assetId ?? '',
+    }),
+  )
 
   // const { updateTrade, checkApprovalNeeded } = useSwapper()
 
@@ -68,6 +83,19 @@ export const TradeInput = () => {
     }
   }
 
+  const handleSendMax = () => {
+    if (!sellTradeAsset?.asset) return
+    const maxSendAmount = getSendMaxAmount(
+      sellTradeAsset.asset,
+      sellFeeAsset,
+      quote,
+      sellAssetBalance,
+    )
+    setValue('action', TradeAmountInputField.SELL)
+    setValue('sellTradeAsset.amount', maxSendAmount)
+    setValue('amount', maxSendAmount)
+  }
+
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     console.info(values)
     try {
@@ -97,12 +125,13 @@ export const TradeInput = () => {
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
             cryptoAmount={sellCryptoAmount?.value}
             fiatAmount={sellFiatAmount.value}
+            isSendMaxDisabled={!quote}
             onChange={value => {
               sellCryptoAmount.onChange(value)
               handleInputChange(TradeAmountInputField.SELL, value)
             }}
             percentOptions={[1]}
-            onMaxClick={() => console.info('max')}
+            onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
           />
           <Stack justifyContent='center' alignItems='center'>

@@ -68,20 +68,23 @@ export const useSwapper = () => {
   )
 
   const osmosisEnabled = useFeatureFlag('Osmosis')
-  const getDefaultPair = useCallback((buyAssetChainId: ChainId | undefined) => {
-    const ethFoxPair = [ethAssetId, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
-    switch (buyAssetChainId) {
-      case KnownChainIds.AvalancheMainnet:
-        return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
-      case KnownChainIds.CosmosMainnet:
-        return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
-      case KnownChainIds.OsmosisMainnet:
-        return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
-      case KnownChainIds.EthereumMainnet:
-      default:
-        return ethFoxPair
-    }
-  }, [])
+  const getDefaultPair = useCallback(
+    (buyAssetChainId: ChainId | undefined) => {
+      const ethFoxPair = [ethAssetId, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+      switch (buyAssetChainId) {
+        case KnownChainIds.AvalancheMainnet:
+          return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
+        case KnownChainIds.CosmosMainnet:
+          return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
+        case KnownChainIds.OsmosisMainnet:
+          return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
+        case KnownChainIds.EthereumMainnet:
+        default:
+          return ethFoxPair
+      }
+    },
+    [osmosisEnabled],
+  )
 
   return {
     getSupportedSellableAssets,

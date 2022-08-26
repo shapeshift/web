@@ -2,8 +2,10 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { CHAIN_NAMESPACE, ChainId, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { GetTradeQuoteInput, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import { GetTradeQuoteInput, TradeQuote, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
@@ -60,8 +62,6 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   chainAdapter,
   wallet,
 }) => {
-  // Get first specifier for receive asset chain id
-  // Eventually we may want to customize which account they want to receive trades into
   const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
     specifiers => specifiers[buyAsset.chainId],
   )
@@ -75,8 +75,7 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
 
   const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
 
-  const receiveAddress = await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
-  return receiveAddress
+  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
 }
 
 export const getUtxoParams = (sellAssetAccount: string) => {
@@ -87,4 +86,23 @@ export const getUtxoParams = (sellAssetAccount: string) => {
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
   const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
   return assets.filter(asset => assetIdMap[asset.assetId])
+}
+
+export const getSendMaxAmount = (
+  sellAsset: Asset,
+  feeAsset: Asset,
+  quote: TradeQuote<KnownChainIds>,
+  sellAssetBalance: string,
+) => {
+  // Only subtract fee if sell asset is the fee asset
+  const isFeeAsset = feeAsset.assetId === sellAsset.assetId
+  const feeEstimate = bnOrZero(quote?.feeData?.fee)
+  // sell asset balance minus expected fee = maxTradeAmount
+  // only subtract if sell asset is fee asset
+  return fromBaseUnit(
+    bnOrZero(sellAssetBalance)
+      .minus(isFeeAsset ? feeEstimate : 0)
+      .toString(),
+    sellAsset.precision,
+  )
 }

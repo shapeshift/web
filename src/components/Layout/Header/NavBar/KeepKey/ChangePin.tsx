@@ -2,14 +2,17 @@ import { Button, Flex } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
+import { KeepKeyPin } from 'context/WalletProvider/KeepKey/components/Pin'
+import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
+import { useMenuRoutes } from '../hooks/useMenuRoutes'
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
+import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'
 
 const moduleLogger = logger.child({
   namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'ChangePin'],
@@ -20,14 +23,32 @@ export const ChangePin = () => {
   const { keepKeyWallet } = useKeepKey()
   const {
     state: {
-      deviceState: { awaitingDeviceInteraction },
+      keepKeyPinRequestType,
+      deviceState: { awaitingDeviceInteraction, isUpdatingPin },
     },
+    setDeviceState,
   } = useWallet()
   const toast = useToast()
+
+  const translationType = (() => {
+    switch (keepKeyPinRequestType) {
+      case PinMatrixRequestType.NEWFIRST:
+        return 'newPin'
+      case PinMatrixRequestType.NEWSECOND:
+        return 'newPinConfirm'
+      default:
+        return 'pin'
+    }
+  })()
 
   const handleChangePin = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleChangePin'] })
     fnLogger.trace('Applying new PIN...')
+
+    setDeviceState({
+      isUpdatingPin: true,
+      lastDeviceInteractionStatus: false,
+    })
 
     await keepKeyWallet?.changePin().catch(e => {
       fnLogger.error(e, 'Error applying new PIN')
@@ -39,12 +60,24 @@ export const ChangePin = () => {
       })
     })
 
+    setDeviceState({
+      isUpdatingPin: false,
+    })
+
     fnLogger.trace('PIN Changed')
   }
   const setting = 'PIN'
 
+  const shouldDisplayPinView = isUpdatingPin && !awaitingDeviceInteraction
+
   const renderPinState: JSX.Element = (() => {
-    return (
+    return shouldDisplayPinView ? (
+      <>
+        <SubMenuBody>
+          <KeepKeyPin translationType={translationType} />
+        </SubMenuBody>
+      </>
+    ) : (
       <>
         <SubMenuBody>
           <LastDeviceInteractionStatus setting={setting} />
@@ -67,12 +100,16 @@ export const ChangePin = () => {
   return (
     <SubMenuContainer>
       <Flex flexDir='column'>
-        <SubmenuHeader
-          title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-            setting,
-          })}
-          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
-        />
+        {!shouldDisplayPinView ? (
+          <SubmenuHeader
+            title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
+              setting,
+            })}
+            description={translate('walletProvider.keepKey.settings.descriptions.pin')}
+          />
+        ) : (
+          <SubmenuHeader title={translate(`walletProvider.keepKey.${translationType}.header`)} />
+        )}
         {renderPinState}
       </Flex>
     </SubMenuContainer>

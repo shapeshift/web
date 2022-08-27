@@ -1,26 +1,17 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Input,
-  ModalBody,
-  ModalHeader,
-  SimpleGrid,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import {
-  FailureType,
-  MessageType,
-  PinMatrixRequestType,
-} from 'context/WalletProvider/KeepKey/KeepKeyTypes'
+import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const KeepKeyPin = () => {
+type KeepKeyPinProps = {
+  translationType: string
+}
+
+export const KeepKeyPin = ({ translationType }: KeepKeyPinProps) => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const {
@@ -28,7 +19,6 @@ export const KeepKeyPin = () => {
     state: {
       keyring,
       deviceId,
-      keepKeyPinRequestType,
       deviceState: { disposition },
     },
     dispatch,
@@ -77,18 +67,6 @@ export const KeepKeyPin = () => {
     }
   }
 
-  // Use different translation text based on which type of PIN request we received
-  const translationType = (() => {
-    switch (keepKeyPinRequestType) {
-      case PinMatrixRequestType.NEWFIRST:
-        return 'newPin'
-      case PinMatrixRequestType.NEWSECOND:
-        return 'newPinConfirm'
-      default:
-        return 'pin'
-    }
-  })()
-
   const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
 
   useEffect(() => {
@@ -126,38 +104,33 @@ export const KeepKeyPin = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={`walletProvider.keepKey.${translationType}.header`} />
-      </ModalHeader>
-      <ModalBody>
-        <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
-        <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
-          {pinNumbers.map(number => (
-            <Button key={number} size='lg' p={8} onClick={() => handlePinPress(number)}>
-              <CircleIcon boxSize={4} />
-            </Button>
-          ))}
-        </SimpleGrid>
-        <Input
-          type='password'
-          ref={pinFieldRef}
-          size='lg'
-          variant='filled'
-          mb={6}
-          autoComplete='one-time-code'
-        />
-        {error && (
-          <Alert status='error'>
-            <AlertIcon />
-            <AlertDescription>
-              <Text translation={error} />
-            </AlertDescription>
-          </Alert>
-        )}
-        <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
-          <Text translation={`walletProvider.keepKey.${translationType}.button`} />
-        </Button>
-      </ModalBody>
+      <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
+      <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
+        {pinNumbers.map(number => (
+          <Button key={number} size='lg' p={8} onClick={() => handlePinPress(number)}>
+            <CircleIcon boxSize={4} />
+          </Button>
+        ))}
+      </SimpleGrid>
+      <Input
+        type='password'
+        ref={pinFieldRef}
+        size='lg'
+        variant='filled'
+        mb={6}
+        autoComplete='one-time-code'
+      />
+      {error && (
+        <Alert status='error'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={error} />
+          </AlertDescription>
+        </Alert>
+      )}
+      <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
+        <Text translation={`walletProvider.keepKey.${translationType}.button`} />
+      </Button>
     </>
   )
 }

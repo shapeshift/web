@@ -49,12 +49,13 @@ export type DeviceDisposition = 'initialized' | 'recovering' | 'initializing'
 
 export type DeviceState = {
   awaitingDeviceInteraction: boolean
-  lastDeviceInteractionStatus: Outcome | undefined
+  lastDeviceInteractionStatus: Outcome | undefined | boolean
   disposition: DeviceDisposition | undefined
   recoverWithPassphrase: boolean | undefined
   recoveryEntropy: Entropy
   recoveryCharacterIndex: number | undefined
   recoveryWordIndex: number | undefined
+  isUpdatingPin: boolean | undefined
 }
 
 const initialDeviceState: DeviceState = {
@@ -65,6 +66,7 @@ const initialDeviceState: DeviceState = {
   recoveryEntropy: VALID_ENTROPY[0],
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
+  isUpdatingPin: false,
 }
 
 export interface InitialState {
@@ -131,6 +133,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
+    case WalletActions.SET_PIN_REQUEST_TYPE:
+      return { ...state, keepKeyPinRequestType: action.payload }
     case WalletActions.SET_DEVICE_STATE:
       const { deviceState } = state
       const {
@@ -139,6 +143,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         disposition = deviceState.disposition,
         recoverWithPassphrase = deviceState.recoverWithPassphrase,
         recoveryEntropy = deviceState.recoveryEntropy,
+        isUpdatingPin = deviceState.isUpdatingPin,
       } = action.payload
       return {
         ...state,
@@ -149,6 +154,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           disposition,
           recoverWithPassphrase,
           recoveryEntropy,
+          isUpdatingPin,
         },
       }
     case WalletActions.SET_WALLET_MODAL:

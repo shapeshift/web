@@ -19,7 +19,7 @@ export const useKeepKeyEventHandler = (
   const {
     keyring,
     modal,
-    deviceState: { disposition },
+    deviceState: { disposition, isUpdatingPin },
   } = state
 
   const toast = useToast()
@@ -29,6 +29,7 @@ export const useKeepKeyEventHandler = (
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
       const { message_enum, message, from_wallet } = event
+
       const fnLogger = moduleLogger.child({
         namespace: ['handleEvent'],
         defaultFields: { deviceId, event },
@@ -91,14 +92,21 @@ export const useKeepKeyEventHandler = (
           break
         case MessageType.PINMATRIXREQUEST:
           setDeviceState({ awaitingDeviceInteraction: false })
-          dispatch({
-            type: WalletActions.OPEN_KEEPKEY_PIN,
-            payload: {
-              deviceId,
-              pinRequestType: message?.type,
-              showBackButton: disposition !== 'initialized',
-            },
-          })
+          if (!isUpdatingPin) {
+            dispatch({
+              type: WalletActions.OPEN_KEEPKEY_PIN,
+              payload: {
+                deviceId,
+                pinRequestType: message?.type,
+                showBackButton: disposition !== 'initialized',
+              },
+            })
+          } else {
+            dispatch({
+              type: WalletActions.SET_PIN_REQUEST_TYPE,
+              payload: message?.type,
+            })
+          }
           break
         case MessageType.CHARACTERREQUEST:
           setDeviceState({ awaitingDeviceInteraction: false })
@@ -238,6 +246,7 @@ export const useKeepKeyEventHandler = (
     dispatch,
     keyring,
     loadWallet,
+    isUpdatingPin,
     modal,
     state.walletInfo,
     setDeviceState,

@@ -12,7 +12,7 @@ import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
-import { KeepKeyPin } from './KeepKey/components/Pin'
+import { KeepKeyPinModal } from './KeepKey/components/PinModal'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConnect } from './Keplr/components/Connect'
@@ -77,7 +77,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
-      { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
+      { path: KeepKeyRoutes.Pin, component: KeepKeyPinModal },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
       { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },

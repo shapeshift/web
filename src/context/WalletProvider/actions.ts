@@ -23,6 +23,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
   OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE = 'OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE',
   SET_DEVICE_STATE = 'SET_DEVICE_STATE',
+  SET_PIN_REQUEST_TYPE = 'SET_PIN_REQUEST_TYPE',
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
 }
@@ -47,6 +48,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.SET_DEVICE_STATE; payload: Partial<DeviceState> }
+  | { type: WalletActions.SET_PIN_REQUEST_TYPE; payload: PinMatrixRequestType }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {

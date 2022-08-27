@@ -14,7 +14,11 @@ export const entries = [
   BackupPassphraseRoutes.Success,
 ]
 
-export const BackupPassphraseModal = () => {
+type BackupPassphraseModalProps = {
+  preventClose?: boolean
+}
+
+export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
   const [vault, setVault] = useState<Vault | null>(null)
   const { backupNativePassphrase } = useModal()
   const { close, isOpen } = backupNativePassphrase
@@ -25,7 +29,13 @@ export const BackupPassphraseModal = () => {
   }
 
   return (
-    <Modal isCentered closeOnOverlayClick closeOnEsc isOpen={isOpen} onClose={handleClose}>
+    <Modal
+      isCentered
+      closeOnOverlayClick={!preventClose}
+      closeOnEsc={!preventClose}
+      isOpen={isOpen}
+      onClose={handleClose}
+    >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <MemoryRouter initialEntries={entries}>

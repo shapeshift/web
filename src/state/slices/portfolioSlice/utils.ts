@@ -192,6 +192,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       case CHAIN_NAMESPACE.Ethereum: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
+        // TODO(0xdef1cafe): remove accountSpecifier here, it's the same as accountId below
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)

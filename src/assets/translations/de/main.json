@@ -137,7 +137,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Wallet verbinden",
-      "switchWallet": "Den Wallet-Anbieter wechseln",
+      "switchWallet": "Wallet-Anbieter wechseln",
       "disconnect": "Trennen",
       "disconnected": "(Getrennt)"
     }
@@ -192,6 +192,16 @@
         "withdrawals": "Abhebungen",
         "emptyWithdraws": "Ausstehende oder aktive Auszahlungen werden hier angezeigt.",
         "availableDate": "Verfügbar %{date}"
+      },
+      "foxFarmingOverview": {
+        "header": "Zahlen Sie ETH-FOX LP Tokens bei %{opportunity} ein, um zu verdienen",
+        "body": "Genehmigen und Staken Sie Ihre Liquiditätstoken, um Ihre FOX Bonusprämien zu erhalten.",
+        "rewards": "Die Belohnungen, die Sie verdienen, fallen automatisch an.",
+        "cta": "Zahlen Sie jetzt ETH-FOX LP Token ein",
+        "foxFarmingBalance": "ETH-FOX LP Token Guthaben",
+        "withdrawals": "Abhebungen",
+        "emptyWithdraws": "Ausstehende oder aktive Auszahlungen werden hier angezeigt.",
+        "availableDate": "verfügbar %{date}"
       },
       "overview": {
         "underlyingTokens": "Zugrunde liegende Token",
@@ -256,8 +266,8 @@
     "netWorth": "Nettovermögen",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
-    "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Vermögen einsetzen oder in eine DeFi-Strategie einzahlen.",
-    "clickHereToEarn": "Klicken Sie hier, um zu verdienen",
+    "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
+    "clickHereToEarn": "Klicken und verdienen Sie",
     "byFarming": " APR*, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "liquidityPools": "Liquidity Pools",
@@ -338,8 +348,8 @@
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden"
   },
   "transactionRow": {
-    "send": "%{symbol} gesendet",
-    "receive": "Erhalten %{symbol}",
+    "send": "Gesendet",
+    "receive": "Erhalten",
     "moreDetails": "Mehr Details",
     "date": "Datum",
     "txid": "Transaktions ID",
@@ -407,13 +417,15 @@
     "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio."
   },
   "trade": {
+    "allowance": "Genehmigung",
+    "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
     "tradeFeeSource": "%{tradeFeeSource} Gebühr",
-    "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percent}% des Handelsbetrags",
+    "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
     "confirmAndTrade": "Bestätigen und Handeln",
     "complete": "Handel abgeschlossen",
@@ -423,6 +435,8 @@
     "estimatedGasFee": "Geschätzte Gasgebühr",
     "approvingAsset": "%{symbol} wird genehmigt",
     "viewTransaction": "Transaktion anzeigen",
+    "unlimited": "Unbegrenzt",
+    "exact": "Genau",
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
@@ -501,9 +515,9 @@
       },
       "recoverySentence": {
         "header": "Schreiben Sie Ihren Wiederherstellungssatz auf",
-        "body": "Auf Ihrem KeepKey-Bildschirm sehen Sie Ihren Wiederherstellungssatz. Schreib es auf. Wenn Sie den Zugriff auf das Gerät verlieren, sind Ihre Guthaben NUR mit diesem Satz zugänglich.",
+        "body": "Auf Ihrem KeepKey-Bildschirm sehen Sie Ihren Wiederherstellungssatz. Schreib ihn auf. Wenn Sie den Zugriff auf das Gerät verlieren, sind Ihre Guthaben NUR mit diesem Satz zugänglich.",
         "infoFirst": "Es ist wichtig, dass Sie es genau so aufschreiben, wie es auf dem KeepKey erscheint.",
-        "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, sie gewährt Zugriff auf Ihr gesamtes Guthaben.",
+        "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
       },
       "wiped": {
@@ -616,7 +630,7 @@
     "receive": {
       "connectAWallet": "Verbinden Sie eine Wallet, um %{symbol} zu erhalten",
       "receiveAsset": "Erhalte %{asset}",
-      "onlySend": "Senden Sie nur %{asset} (%{symbol}) an diese Adresse. Das Senden anderer Coins kann zu dauerhaften Verlusten führen.",
+      "onlySend": "Senden Sie nur %{asset} (%{symbol}) an diese Adresse. Das Senden anderer Coins kann zu einem dauerhaften Verlust führen.",
       "copy": "Kopieren",
       "copied": "%{symbol} Empfangsadresse in die Zwischenablage kopiert",
       "copyFailed": "%{symbol} Empfangsadresse konnte nicht in die Zwischenablage kopiert werden",
@@ -1229,7 +1243,7 @@
       "totalFoxValue": "Gesamter Fox-Wert",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Seit 2019 bietet unser formwandelnder FOX-Token den Benutzern eine sich ständig erweiternde Welt von Nutzen und Vorteilen. Heute ermöglicht Ihnen unser ERC-20 Governance-Token nicht nur, die Zukunft von ShapeShift durch Ihre Stimme zu beeinflussen, Sie haben auch ein ständig wachsendes Universum an Investitionsmöglichkeiten. Investieren, verfolgen und verwalten Sie Ihr FOX-Guthaben hier.",
-      "getAsset": "%{assetSymbol} Abrufen",
+      "getAsset": "%{assetSymbol} Besorgen",
       "trade": "Handeln",
       "receive": "Erhalten",
       "mainStakingTitle": "%{assetSymbol} Token Staking",
@@ -1263,12 +1277,12 @@
     "analytics": {
       "optInModal": {
         "title": "Helfen Sie uns, ShapeShift zu verbessern",
-        "description": "ShapeShift möchte Nutzungsdaten sammeln, um besser zu verstehen, wie unsere Benutzer mit der App interagieren. Diese Daten werden verwendet, um die Benutzerfreundlichkeit und das Benutzererlebnis unseres Produkts kontinuierlich zu verbessern.",
+        "description": "ShapeShift würde gerne Nutzungsdaten sammeln, um besser zu verstehen wie unsere Benutzer mit der App interagieren. Diese Daten werden verwendet, um die Benutzerfreundlichkeit und das Benutzererlebnis unseres Produkts kontinuierlich zu verbessern.",
         "actionsSentence": "ShapeShift wird...",
         "noThanks": "Nein danke, bring mich zur privaten Version",
-        "sendEvents": "Senden Sie anonymisierte Klick- und Seitenaufrufereignisse",
-        "neverCollectPersonalInformations": "Sammeln Sie niemals Schlüssel, Adressen, Transaktionen, Guthaben oder persönliche Informationen",
-        "neverCollectIp": "Niemals Ihre vollständige IP-Adresse aufzeichnen",
+        "sendEvents": "Sendet anonymisierte Klick- und Seitenaufrufereignisse",
+        "neverCollectPersonalInformations": "Sammelt niemals Schlüssel, Adressen, Transaktionen, Guthaben oder persönliche Informationen",
+        "neverCollectIp": "Niemals Ihren vollständige IP-Adresse aufzeichnen",
         "neverSellData": "Niemals Ihre Daten zwecks Profit verkaufen"
       }
     }

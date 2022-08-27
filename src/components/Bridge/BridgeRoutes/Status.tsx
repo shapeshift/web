@@ -202,7 +202,7 @@ export const Status = () => {
                   <Row variant='gutter'>
                     <Row.Label>{translate('bridge.receiveAddress')}</Row.Label>
                     <Row.Value>
-                      <MiddleEllipsis address={receiveAddress ?? ''} />
+                      <MiddleEllipsis value={receiveAddress ?? ''} />
                     </Row.Value>
                   </Row>
                   <Row variant='gutter'>

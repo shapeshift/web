@@ -8,6 +8,7 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
@@ -140,6 +141,13 @@ export const OpportunityCard = ({
               />
             </SkeletonText>
           </Box>
+          {expired && (
+            <Flex flex={1} justifyContent='flex-end'>
+              <Tag colorScheme='yellow'>
+                <Text translation='defi.ended' />
+              </Tag>
+            </Flex>
+          )}
         </Flex>
       </Card.Body>
       <Card.Footer>
@@ -152,7 +160,7 @@ export const OpportunityCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'yellow.500' : ''} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>
@@ -163,8 +171,8 @@ export const OpportunityCard = ({
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
-              <StatNumber color='green.500'>
-                <Amount.Percent value={String(apy)} />
+              <StatNumber>
+                <Amount.Percent autoColor value={String(apy)} />
               </StatNumber>
             </Skeleton>
           </Stat>

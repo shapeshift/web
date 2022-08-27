@@ -9,10 +9,12 @@ import {
   selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
+import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type UseCosmosStakingBalancesProps = {
   assetId: AssetId
+  supportsCosmosSdk?: boolean
 }
 
 export type UseCosmosStakingBalancesReturn = {
@@ -37,6 +39,7 @@ export type MergedStakingOpportunity = cosmos.Validator & {
 
 export function useCosmosSdkStakingBalances({
   assetId,
+  supportsCosmosSdk = true,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -45,11 +48,20 @@ export function useCosmosSdkStakingBalances({
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
+  const defaultAccountSpecifier = useMemo(
+    () => getDefaultValidatorAddressFromAssetId(assetId),
+    [assetId],
+  )
   const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
+    selectStakingOpportunitiesDataFull(state, {
+      accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,
+      assetId,
+      supportsCosmosSdk,
+    }),
   )
 
   const mergedActiveStakingOpportunities = useMemo(() => {
+    if (!asset) return []
     if (!marketData?.price) return []
 
     return Object.values(stakingOpportunities).map(opportunity => {

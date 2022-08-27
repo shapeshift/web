@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -13,6 +14,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
+
+import { ApproveIcon } from './components/ApproveIcon'
+import { getTxMetadataWithAssetId } from './utils'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -34,7 +38,17 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
 }
 
-const TransactionIcon = ({ type }: { type: string }) => {
+const TransactionIcon = ({
+  type,
+  assetId,
+  value,
+  compactMode,
+}: {
+  type: string
+  assetId: AssetId | undefined
+  value: string | undefined
+  compactMode: boolean
+}) => {
   switch (type) {
     case TransferType.Send:
     case Direction.Outbound:
@@ -44,8 +58,13 @@ const TransactionIcon = ({ type }: { type: string }) => {
       return <ArrowDownIcon color='green.500' />
     case TradeType.Trade:
       return <FaExchangeAlt />
-    case Direction.InPlace:
-      return <FaThumbsUp />
+    case Direction.InPlace: {
+      return assetId && value ? (
+        <ApproveIcon assetId={assetId} value={value} compactMode={compactMode} />
+      ) : (
+        <FaThumbsUp />
+      )
+    }
     default:
       return <FaStickyNote />
   }
@@ -68,6 +87,7 @@ type TransactionGenericRowProps = {
   assets: TransactionRowAsset[]
   fee?: TransactionRowAsset
   txid: TxId
+  txData?: ReturnType<typeof getTxMetadataWithAssetId>
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
@@ -81,6 +101,7 @@ export const TransactionGenericRow = ({
   assets,
   fee,
   txid,
+  txData,
   blockTime,
   explorerTxLink,
   compactMode = false,
@@ -93,6 +114,7 @@ export const TransactionGenericRow = ({
     dateFormat,
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
+
   return (
     <Button
       height='auto'
@@ -111,7 +133,12 @@ export const TransactionGenericRow = ({
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
             <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
-              <TransactionIcon type={type} />
+              <TransactionIcon
+                type={type}
+                assetId={txData?.assetId}
+                value={txData?.value}
+                compactMode={compactMode}
+              />
             </IconCircle>
             <Stack
               direction={{ base: 'row', md: compactMode ? 'row' : 'column' }}
@@ -123,9 +150,7 @@ export const TransactionGenericRow = ({
               <Text
                 fontWeight='bold'
                 flex={1}
-                translation={
-                  title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
-                }
+                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
               />
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>

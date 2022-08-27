@@ -126,6 +126,12 @@ export const theme = extendTheme({
     Steps: CustomSteps,
     Popover,
   },
+  sizes: {
+    container: {
+      '2xl': '1440px',
+      '3xl': '1600px',
+    },
+  },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',
     'outline-inset': '0 0 0 3px rgba(66, 153, 225, 0.6) inset',

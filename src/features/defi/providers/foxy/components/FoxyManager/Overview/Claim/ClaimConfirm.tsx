@@ -165,7 +165,7 @@ export const ClaimConfirm = ({
                   color='blue.500'
                   href={`${asset?.explorerAddressLink}${userAddress}`}
                 >
-                  <MiddleEllipsis address={userAddress} />
+                  <MiddleEllipsis value={userAddress} />
                 </Link>
               </Skeleton>
             </Row.Value>

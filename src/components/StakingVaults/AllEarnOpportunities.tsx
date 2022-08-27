@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
@@ -24,31 +25,36 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
-  const { foxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const { data: foxyBalancesData } = useFoxyBalances()
+  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
+      supportsCosmosSdk: wallet ? supportsCosmos(wallet) : undefined,
     },
   )
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
+      supportsCosmosSdk: wallet ? Boolean(supportsOsmosis(wallet)) : undefined,
     })
   const featureFlags = useAppSelector(selectFeatureFlags)
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: foxyRows,
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming ? foxFarmingOpportunities : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming
+      ? onlyVisibleFoxFarmingOpportunities
+      : undefined,
   })
 
   const handleClick = useCallback(

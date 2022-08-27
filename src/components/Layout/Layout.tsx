@@ -11,7 +11,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, ...rest }) => {
     <>
       <Header />
 
-      <Flex>
+      <Flex maxWidth='container.3xl' margin='0 auto'>
         <SideNav />
         <Container
           as='main'

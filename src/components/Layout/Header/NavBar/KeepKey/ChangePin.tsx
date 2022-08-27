@@ -9,7 +9,6 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
-import { useMenuRoutes } from '../hooks/useMenuRoutes'
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
 import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'

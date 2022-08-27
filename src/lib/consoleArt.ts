@@ -1,24 +1,19 @@
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['consoleArt'] })
+/* eslint-disable no-console */
 export const renderConsoleArt = () => {
-  moduleLogger.info(
-    'color: #3761F9; font-size: 16px; font-family: monospace',
-    `%c 🦊 ShapeShift DAO`,
-  )
-  moduleLogger.info(
-    'color: #3761F9; font-size: 12px; font-family: monospace',
+  console.info(`%c 🦊 ShapeShift DAO`, 'color: #3761F9; font-size: 16px; font-family: monospace')
+  console.info(
     `%c 💬 Join our Discord https://discord.gg/shapeshift`,
-  )
-  moduleLogger.info(
     'color: #3761F9; font-size: 12px; font-family: monospace',
+  )
+  console.info(
     `%c 📝 See the DAO overview https://app.boardroom.info/shapeshift/overview`,
-  )
-  moduleLogger.info(
     'color: #3761F9; font-size: 12px; font-family: monospace',
+  )
+  console.info(
     `%c 🧑‍💻 Contribute on GitHub https://github.com/shapeshift`,
-  )
-  moduleLogger.info(
     'color: #3761F9; font-size: 12px; font-family: monospace',
+  )
+  console.info(
     `%c
     lcdOXWMMMMMMMMMMMMMMMMMMMMMMMMMMMMNKOdcd
     :  .';lx0NWMMMMMMMMMMMMMMMMMMNKOdc,'.  l
@@ -43,5 +38,6 @@ export const renderConsoleArt = () => {
     MMMMMMMMMMMMMMMW0c.  .lKWMMMMMMMMMMMMMMM
     MMMMMMMMMMMMMMMMMNo,;dNMMMMMMMMMMMMMMMMM
     `,
+    'color: #3761F9; font-size: 12px; font-family: monospace',
   )
 }

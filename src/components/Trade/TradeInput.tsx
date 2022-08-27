@@ -50,7 +50,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid, isSubmitting },
+    formState: { errors, isDirty, isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts, toFiat },
@@ -96,6 +96,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [isUpdatingTrade, setIsUpdatingTrade] = useState(false)
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
@@ -207,6 +208,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
+    setIsUpdatingTrade(true)
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -228,6 +230,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     } catch (e) {
       showErrorToast(e)
     }
+    setIsUpdatingTrade(false)
   }
 
   const onSetMaxTrade = async () => {
@@ -491,7 +494,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmitting || isSendMaxLoading}
+              isLoading={isUpdatingTrade || isSendMaxLoading}
               isDisabled={
                 !isDirty ||
                 !isValid ||

@@ -4,6 +4,7 @@ import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
+import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
@@ -41,7 +42,7 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay' | 'MtPelerin'
+export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay' | 'MtPelerin' | 'OnRamper'
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -138,6 +139,26 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
+      }
+    },
+  },
+  OnRamper: {
+    label: 'fiatRamps.onRamper',
+    tags: [],
+    logo: OnRamperLogo,
+    isImplemented: true,
+    supportsBuy: true,
+    supportsSell: true,
+    minimumSellThreshold: 0,
+    getBuyAndSellList: async () => {
+      const mockAssets = [] as FiatRampAsset[]
+      return Promise.resolve([mockAssets, mockAssets])
+    },
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      try {
+        moduleLogger.info(`Calling ${action} for ${assetId} at ${address}`)
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
     },
   },

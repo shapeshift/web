@@ -65,7 +65,15 @@ export const ChainMenu = () => {
     selectAssetById(state, currentChainNativeAssetId ?? ''),
   )
 
-  if (!state.wallet || !connectedEvmChainId || !currentChainNativeAsset) return null
+  const currentChainName = useMemo(() => {
+    const chainName = chainAdapterManager
+      .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
+      ?.getDisplayName()
+
+    return chainName ?? 'Unsupported Network'
+  }, [chainAdapterManager, connectedEvmChainId, supportedEvmChainIds])
+
+  if (!state.wallet) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain
@@ -79,10 +87,10 @@ export const ChainMenu = () => {
         width={{ base: 'full', md: 'auto' }}
       >
         <Flex alignItems='center'>
-          <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
-          {chainAdapterManager
-            .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
-            ?.getDisplayName() ?? ''}
+          {currentChainNativeAsset && (
+            <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
+          )}
+          {currentChainName}
         </Flex>
       </MenuButton>
       <MenuList p='10px' zIndex={2}>

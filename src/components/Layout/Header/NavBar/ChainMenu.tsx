@@ -44,7 +44,7 @@ const ChainMenuItem: React.FC<{
 }
 export const ChainMenu = () => {
   const { state, load } = useWallet()
-  const { supportedEvmChainIds, connectedEvmChainId, setEthNetwork } = useEvm()
+  const { isLoading, supportedEvmChainIds, connectedEvmChainId, setEthNetwork } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
   const handleChainClick = async (chainId: ChainId) => {
@@ -73,17 +73,21 @@ export const ChainMenu = () => {
     return chainName ?? 'Unsupported Network'
   }, [chainAdapterManager, connectedEvmChainId, supportedEvmChainIds])
 
+  const canSwitchChains = useMemo(
+    () => !isLoading && (supportedEvmChainIds.length > 1 || !connectedEvmChainId),
+    [isLoading, connectedEvmChainId, supportedEvmChainIds.length],
+  )
   if (!state.wallet) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain
-  if (supportedEvmChainIds.length < 2) return null
+  if (!canSwitchChains) return null
 
   return (
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        rightIcon={supportedEvmChainIds.length > 1 ? <ChevronDownIcon /> : null}
+        rightIcon={canSwitchChains ? <ChevronDownIcon /> : null}
         width={{ base: 'full', md: 'auto' }}
       >
         <Flex alignItems='center'>

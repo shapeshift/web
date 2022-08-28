@@ -1,4 +1,13 @@
-import { Box, Button, Skeleton, Stack, Stat, StatArrow, StatNumber, Switch } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  Skeleton,
+  Stack,
+  Stat,
+  StatArrow,
+  StatNumber,
+  Switch,
+} from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useState } from 'react'
@@ -42,52 +51,45 @@ export const Portfolio = () => {
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'
-          justifyContent={{ base: 'center', md: 'space-between' }}
+          justifyContent={{ md: 'space-between' }}
           alignItems='center'
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          <Box mb={{ base: 6, md: 0 }}>
-            <Card.Heading as='div' color='gray.500'>
-              <Skeleton isLoaded={isLoaded}>
-                <Text translation='dashboard.portfolio.portfolioBalance' />
-              </Skeleton>
-            </Card.Heading>
-            {isRainbowChartsEnabled && (
-              <Button
-                size={'sm'}
-                flexDirection='row'
-                onClick={toggleChartType}
-                variant='outline'
-                mt={2}
-              >
-                <Text translation='dashboard.portfolio.totalChart' />
-                <Switch isChecked={isRainbowChart} pointerEvents='none' ml={2} mr={2} />
-                <Text translation='dashboard.portfolio.rainbowChart' />
-              </Button>
-            )}
-
-            <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
-              <Skeleton isLoaded={isLoaded}>
-                <Amount.Fiat value={totalBalancePlusLpHoldings} />
-              </Skeleton>
-            </Card.Heading>
-            {isFinite(percentChange) && (
-              <Skeleton mt={2} isLoaded={!!percentChange}>
-                <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
-                  <StatNumber fontSize='md' display='flex' alignItems='center'>
-                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-                    <Amount.Percent value={percentChange * 0.01} />
-                  </StatNumber>
-                </Stat>
-              </Skeleton>
-            )}
-          </Box>
+          {isRainbowChartsEnabled && (
+            <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
+              <Text translation='dashboard.portfolio.totalChart' />
+              <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
+              <Text translation='dashboard.portfolio.rainbowChart' />
+            </Button>
+          )}
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
+        <Flex flexDir='column' justifyContent='center' alignItems='center'>
+          <Card.Heading as='div' color='gray.500'>
+            <Skeleton isLoaded={isLoaded}>
+              <Text translation='dashboard.portfolio.portfolioBalance' />
+            </Skeleton>
+          </Card.Heading>
+          <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+            <Skeleton isLoaded={isLoaded}>
+              <Amount.Fiat value={totalBalancePlusLpHoldings} />
+            </Skeleton>
+          </Card.Heading>
+          {isFinite(percentChange) && (
+            <Skeleton mt={2} isLoaded={!!percentChange}>
+              <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                <StatNumber fontSize='md' display='flex' alignItems='center'>
+                  <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                  <Amount.Percent value={percentChange * 0.01} />
+                </StatNumber>
+              </Stat>
+            </Skeleton>
+          )}
+        </Flex>
         <BalanceChart
           assetIds={assetIds}
           timeframe={timeframe}

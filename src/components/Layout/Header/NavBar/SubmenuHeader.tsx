@@ -8,9 +8,10 @@ type ExpandedMenuItemProps = {
   title?: string
   description?: string
   alert?: string
+  onBackClick?: () => void
 }
 
-export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
+export const SubmenuHeader = ({ title, description, onBackClick }: ExpandedMenuItemProps) => {
   const { handleBackClick } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
@@ -21,7 +22,7 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
         <IconButton
           isRound
           size='sm'
-          onClick={handleBackClick}
+          onClick={onBackClick ?? handleBackClick}
           aria-label='Go Back'
           icon={<ArrowBackIcon />}
         />

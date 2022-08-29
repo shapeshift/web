@@ -1,4 +1,13 @@
-import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  ButtonProps,
+  Input,
+  SimpleGrid,
+  SimpleGridProps,
+} from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
@@ -9,9 +18,19 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 type KeepKeyPinProps = {
   translationType: string
+  gridMaxWidth?: string | number
+  confirmButtonSize?: string
+  buttonsProps?: ButtonProps
+  gridProps?: SimpleGridProps
 }
 
-export const KeepKeyPin = ({ translationType }: KeepKeyPinProps) => {
+export const KeepKeyPin = ({
+  translationType,
+  gridMaxWidth,
+  confirmButtonSize,
+  buttonsProps,
+  gridProps,
+}: KeepKeyPinProps) => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const {
@@ -105,9 +124,23 @@ export const KeepKeyPin = ({ translationType }: KeepKeyPinProps) => {
   return (
     <>
       <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
-      <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
+      <SimpleGrid
+        columns={3}
+        spacing={6}
+        my={6}
+        maxWidth={gridMaxWidth ?? '250px'}
+        ml='auto'
+        mr='auto'
+        {...gridProps}
+      >
         {pinNumbers.map(number => (
-          <Button key={number} size='lg' p={8} onClick={() => handlePinPress(number)}>
+          <Button
+            key={number}
+            size={'lg'}
+            p={8}
+            onClick={() => handlePinPress(number)}
+            {...buttonsProps}
+          >
             <CircleIcon boxSize={4} />
           </Button>
         ))}
@@ -128,7 +161,13 @@ export const KeepKeyPin = ({ translationType }: KeepKeyPinProps) => {
           </AlertDescription>
         </Alert>
       )}
-      <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
+      <Button
+        width='full'
+        size={confirmButtonSize ?? 'lg'}
+        colorScheme='blue'
+        onClick={handleSubmit}
+        disabled={loading}
+      >
         <Text translation={`walletProvider.keepKey.${translationType}.button`} />
       </Button>
     </>

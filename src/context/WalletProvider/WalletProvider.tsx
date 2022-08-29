@@ -539,8 +539,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
         if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
           maybeProvider = (await detectEthereumProvider()) as MetaMaskLikeProvider
-          maybeProvider?.on?.('accountsChanged', resetState)
-          maybeProvider?.on?.('chainChanged', resetState)
         }
 
         if (localWalletType === KeyManager.XDefi) {
@@ -562,12 +560,27 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           maybeProvider = new WalletConnectProvider(config)
         }
 
+        if (maybeProvider) {
+          maybeProvider?.on?.('accountsChanged', resetState)
+          maybeProvider?.on?.('chainChanged', resetState)
+
+          const wallet = await state.adapters?.get(localWalletType)?.pairDevice()
+          if (wallet) {
+            const oldDisconnect = wallet.disconnect.bind(wallet)
+            wallet.disconnect = () => {
+              maybeProvider?.removeListener?.('accountsChanged', resetState)
+              maybeProvider?.removeListener?.('chainChanged', resetState)
+              return oldDisconnect()
+            }
+          }
+        }
+
         dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
       } catch (e) {
         if (!isMobile) console.error(e)
       }
     },
-    [resetState, state.provider],
+    [resetState, state.provider, state.adapters],
   )
 
   useEffect(() => {

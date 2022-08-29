@@ -61,17 +61,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       try {
         const deviceId = await wallet.getDeviceID()
 
-        // Hack to handle MetaMask account changes
-        //TODO: handle this properly
-        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         const isLocked = await wallet.isLocked()
-
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          state.provider?.removeListener?.('accountsChanged', resetState)
-          state.provider?.removeListener?.('chainChanged', resetState)
-          return oldDisconnect()
-        }
 
         await wallet.initialize()
 

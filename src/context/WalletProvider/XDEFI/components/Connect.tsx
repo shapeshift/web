@@ -57,17 +57,6 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
         }
 
-        // Hack to handle XDEFI account changes
-        //TODO: handle this properly
-        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          state.provider?.removeListener?.('accountsChanged', resetState)
-          state.provider?.removeListener?.('chainChanged', resetState)
-          return oldDisconnect()
-        }
-
         await wallet.initialize()
 
         dispatch({

@@ -66,14 +66,15 @@ export const swapperApi = createApi({
     }),
     getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState }) => {
+        const { sellAsset, buyAsset } = args
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           preferences: { featureFlags },
         } = state
         try {
           const swapper = await getBestSwapperFromArgs(
-            args.sellAsset.assetId,
-            args.buyAsset.assetId,
+            buyAsset.assetId,
+            sellAsset.assetId,
             featureFlags,
           )
           const tradeQuote = await swapper.getTradeQuote(args)

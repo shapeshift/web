@@ -16,6 +16,7 @@ import {
 import { TradeState } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
@@ -75,7 +76,7 @@ export const useTradeQuoteService = () => {
         })
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await (async () => {
           const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-            sellAmount: sellTradeAssetAmount,
+            sellAmount: toBaseUnit(sellTradeAssetAmount, sellAsset.precision),
             sellAsset,
             buyAsset,
             sendMax: false,

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -14,6 +15,7 @@ import {
   selectPortfolioAssetBalances,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
+const moduleLogger = logger.child({ namespace: ['useVaultBalances'] })
 
 export type EarnVault = Partial<Account<ChainId>> &
   SerializableOpportunity & {
@@ -82,7 +84,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         if (!yearnVaults) return
         setVaults(yearnVaults)
       } catch (error) {
-        console.error('error', error)
+        moduleLogger.error(error, 'error')
       } finally {
         setLoading(false)
       }

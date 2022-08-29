@@ -4,6 +4,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['YearnProvider'] })
 
 type YearnContextProps = {
   loading: boolean
@@ -38,7 +40,7 @@ export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
         await yearnInvestor.initialize()
         setYearn(yearnInvestor)
       } catch (error) {
-        console.error('YearnManager: error', error)
+        moduleLogger.error(error, 'YearnManager: error')
       } finally {
         setLoading(false)
       }

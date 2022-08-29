@@ -143,7 +143,7 @@ export const bucketEvents = (
     // the number of time units from start of chart to this tx
     const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      console.error(
+      moduleLogger.error(
         `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
       )
       return acc
@@ -253,7 +253,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
           default: {
-            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
+            moduleLogger.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
         }
       })

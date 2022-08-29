@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { logger } from 'lib/logger'
 
 import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
@@ -29,6 +30,7 @@ import {
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { IWalletContext, WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
+const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
   initialize: (...args: any[]) => Promise<any>
@@ -540,7 +542,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             await adapter.initialize?.()
             adapters.set(wallet, adapter)
           } catch (e) {
-            console.error('Error initializing HDWallet adapters', e)
+            moduleLogger.error(e, 'Error initializing HDWallet adapters')
           }
         }
 

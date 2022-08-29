@@ -41,7 +41,7 @@ const CryptoInput = (props: InputProps) => (
 export type AssetInputProps = {
   assetSymbol: string
   assetIcon: string
-  onChange?: (arg0: string, arg1?: boolean) => void
+  onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
   onMaxClick?: (args: number) => void
   isReadOnly?: boolean

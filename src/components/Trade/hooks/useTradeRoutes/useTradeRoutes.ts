@@ -99,7 +99,7 @@ export const useTradeRoutes = (
       if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
         setValue('buyTradeAsset.asset', routeDefaultBuyAsset)
         setValue('sellTradeAsset.asset', routeDefaultSellAsset)
-        setValue('action', TradeAmountInputField.SELL)
+        setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', '0')
       }
     } catch (e) {
@@ -152,7 +152,7 @@ export const useTradeRoutes = (
         }
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
           const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
-          setValue('action', TradeAmountInputField.FIAT)
+          setValue('action', TradeAmountInputField.SELL_FIAT)
           setValue('amount', fiatSellAmount)
           setValue('selectedAssetAccount', undefined)
           setValue('sellAssetAccount', undefined)
@@ -183,7 +183,7 @@ export const useTradeRoutes = (
 
         if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
           const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
-          setValue('action', TradeAmountInputField.FIAT)
+          setValue('action', TradeAmountInputField.SELL_FIAT)
           setValue('amount', fiatSellAmount)
         }
       } catch (e) {

@@ -9,7 +9,6 @@ import { useSelector } from 'react-redux'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import {
   type TradeQuoteInputCommonArgs,
-  Amounts,
   getFirstReceiveAddress,
   getUtxoParams,
   isSupportedNoneUtxoSwappingChain,
@@ -18,6 +17,7 @@ import {
 import { type TradeState, TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import {
   GetUsdRateArgs,
   useGetTradeQuoteQuery,
@@ -60,7 +60,6 @@ export const useSwapperService = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const [tradeAmounts, setTradeAmounts] = useState<Amounts | undefined>()
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [sellAssetFiatRateArgs, setSellAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
@@ -135,16 +134,20 @@ export const useSwapperService = () => {
   useEffect(() => {
     if (sellAsset && buyAsset && amount) {
       ;(async () => {
-        const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
-          amount,
-          buyAsset,
-          sellAsset,
-          buyAssetUsdRate: buyAssetFiatRate,
-          sellAssetUsdRate: sellAssetFiatRate,
-          action: action ?? TradeAmountInputField.SELL,
-          selectedCurrencyToUsdRate,
-        })
-        setTradeAmounts({ sellAmount, buyAmount, fiatSellAmount })
+        const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
+          calculateAmounts({
+            amount,
+            buyAsset,
+            sellAsset,
+            buyAssetUsdRate: buyAssetFiatRate,
+            sellAssetUsdRate: sellAssetFiatRate,
+            action: action ?? TradeAmountInputField.SELL_CRYPTO,
+            selectedCurrencyToUsdRate,
+          })
+        setValue('fiatSellAmount', fiatSellAmount)
+        setValue('fiatBuyAmount', fiatBuyAmount)
+        setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision))
+        setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision))
       })()
     }
   }, [
@@ -160,7 +163,8 @@ export const useSwapperService = () => {
 
   // Trigger trade quote query
   useEffect(() => {
-    if (sellAsset && buyAsset && wallet && tradeAmounts) {
+    const sellTradeAssetAmount = sellTradeAsset?.amount
+    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -176,7 +180,7 @@ export const useSwapperService = () => {
         })
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await (async () => {
           const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-            sellAmount: tradeAmounts?.sellAmount,
+            sellAmount: sellTradeAssetAmount,
             sellAsset,
             buyAsset,
             sendMax: false,
@@ -222,7 +226,6 @@ export const useSwapperService = () => {
     sellAssetAccount,
     sellTradeAsset,
     setValue,
-    tradeAmounts,
     wallet,
   ])
 

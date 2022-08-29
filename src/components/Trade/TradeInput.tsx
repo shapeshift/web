@@ -162,7 +162,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: amount ?? '0',
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
-        action: action ?? TradeAmountInputField.SELL,
+        action: action ?? TradeAmountInputField.SELL_CRYPTO,
         selectedCurrencyToUsdRate,
       })
     }
@@ -254,7 +254,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       const currentBuyAsset = getValues('buyTradeAsset')
 
       if (currentSellAsset?.asset && currentBuyAsset?.asset) {
-        setValue('action', TradeAmountInputField.SELL)
+        setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', maxSendAmount)
       } else {
         fnLogger.error(
@@ -284,7 +284,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       setValue('buyTradeAsset', currentSellAsset)
       setValue('selectedAssetAccount', undefined)
       setValue('sellAssetAccount', undefined)
-      setValue('action', TradeAmountInputField.SELL)
+      setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
       showErrorToast(e)
@@ -361,7 +361,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value && sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                        setValue('action', TradeAmountInputField.FIAT)
+                        setValue('action', TradeAmountInputField.SELL_FIAT)
                         setValue('amount', e.value)
                       }
                     }}
@@ -385,7 +385,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fieldName='sellTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL)}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL_CRYPTO)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.SellSelect)}
@@ -467,7 +467,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 fieldName='buyTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY)}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY_CRYPTO)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.BuySelect)}

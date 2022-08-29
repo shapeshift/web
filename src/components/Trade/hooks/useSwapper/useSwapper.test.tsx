@@ -202,7 +202,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        action: TradeAmountInputField.SELL,
+        action: TradeAmountInputField.SELL_CRYPTO,
         selectedCurrencyToUsdRate,
       })
     })
@@ -225,7 +225,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        action: TradeAmountInputField.BUY,
+        action: TradeAmountInputField.BUY_CRYPTO,
         selectedCurrencyToUsdRate,
       })
     })
@@ -248,7 +248,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: WETH,
         buyAsset: USDC,
-        action: TradeAmountInputField.FIAT,
+        action: TradeAmountInputField.SELL_FIAT,
         selectedCurrencyToUsdRate,
       })
     })

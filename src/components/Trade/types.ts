@@ -5,9 +5,10 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  FIAT = 'FIAT',
+  BUY_CRYPTO = 'BUY_CRYPTO',
+  BUY_FIAT = 'BUY_FIAT',
+  SELL_CRYPTO = 'SELL_CRYPTO',
+  SELL_FIAT = 'SELL_FIAT',
 }
 
 export type TradeAsset = {
@@ -28,6 +29,7 @@ export type TradeState<C extends ChainId> = {
   selectedAssetAccount: AccountSpecifier | undefined
   buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
+  fiatBuyAmount: string | undefined
   sellAssetFiatRate: string
   buyAssetFiatRate: string
   feeAssetFiatRate: string
@@ -36,9 +38,9 @@ export type TradeState<C extends ChainId> = {
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
-  quoteError: string | null // Deprecate
+  quoteError: string | null // TODO: Deprecate
   amount: string | null
-  receiveAddress: string | null // Implement
+  receiveAddress: string | null // TODO: Implement
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

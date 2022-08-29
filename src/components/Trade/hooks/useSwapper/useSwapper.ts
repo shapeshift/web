@@ -428,7 +428,7 @@ export const useSwapper = () => {
         buyAssetFiatRate,
       }: DebouncedQuoteInput) => {
         try {
-          const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+          const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount } = calculateAmounts({
             amount,
             buyAsset,
             sellAsset,
@@ -458,7 +458,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
-                sellAmount,
+                sellAmount: cryptoSellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
                 receiveAddress,
@@ -478,7 +478,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
-                sellAmount,
+                sellAmount: cryptoSellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
                 bip44Params: utxoParams.bip44Params,
@@ -502,8 +502,8 @@ export const useSwapper = () => {
 
           // Update trade input form fields to new calculated amount
           setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-          setValue('buyTradeAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
-          setValue('sellTradeAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
+          setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision)) // Buy asset input field amount
+          setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision)) // Sell asset input field amount
         } catch (e) {
           if (
             e instanceof SwapError &&

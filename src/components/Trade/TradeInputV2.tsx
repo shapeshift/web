@@ -48,18 +48,24 @@ export const TradeInput = () => {
 
   // const { updateTrade, checkApprovalNeeded } = useSwapper()
 
-  const { field: sellCryptoAmount } = useController({
+  const { field: cryptoSellAmount } = useController({
     name: 'sellTradeAsset.amount',
     control,
     rules: { required: true },
   })
-  const { field: sellFiatAmount } = useController({
+  const { field: fiatSellAmount } = useController({
     name: 'fiatSellAmount',
     control,
     rules: { required: true },
   })
 
-  const { field: buyCryptoAmount } = useController({
+  const { field: fiatBuyAmount } = useController({
+    name: 'fiatBuyAmount',
+    control,
+    rules: { required: true },
+  })
+
+  const { field: cryptoBuyAmount } = useController({
     name: 'buyTradeAsset.amount',
     control,
     rules: { required: true },
@@ -72,12 +78,13 @@ export const TradeInput = () => {
 
   const handleToggle = () => {
     try {
-      const currentSellAsset = getValues('sellTradeAsset')
-      const currentBuyAsset = getValues('buyTradeAsset')
-      if (!(currentSellAsset?.asset && currentBuyAsset?.asset)) return
-      setValue('sellTradeAsset', currentBuyAsset)
-      setValue('buyTradeAsset', currentSellAsset)
-      setValue('action', TradeAmountInputField.SELL)
+      const currentSellTradeAsset = getValues('sellTradeAsset')
+      const currentBuyTradeAsset = getValues('buyTradeAsset')
+      if (!(currentSellTradeAsset?.asset && currentBuyTradeAsset?.asset)) return
+      setValue('sellTradeAsset', currentBuyTradeAsset)
+      setValue('buyTradeAsset', currentSellTradeAsset)
+      setValue('action', TradeAmountInputField.SELL_CRYPTO)
+      setValue('amount', bnOrZero(currentBuyTradeAsset.amount).toString())
     } catch (e) {
       console.error(e)
     }
@@ -91,7 +98,7 @@ export const TradeInput = () => {
       quote,
       sellAssetBalance,
     )
-    setValue('action', TradeAmountInputField.SELL)
+    setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
   }
@@ -123,12 +130,19 @@ export const TradeInput = () => {
             assetId={sellTradeAsset?.asset?.assetId as AssetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={sellCryptoAmount?.value}
-            fiatAmount={sellFiatAmount.value}
+            cryptoAmount={cryptoSellAmount?.value}
+            fiatAmount={fiatSellAmount.value}
             isSendMaxDisabled={!quote}
-            onChange={value => {
-              sellCryptoAmount.onChange(value)
-              handleInputChange(TradeAmountInputField.SELL, value)
+            onChange={(value, isFiat) => {
+              const action = isFiat
+                ? TradeAmountInputField.SELL_FIAT
+                : TradeAmountInputField.SELL_CRYPTO
+              if (isFiat) {
+                fiatSellAmount.onChange(value)
+              } else {
+                cryptoSellAmount.onChange(value)
+              }
+              handleInputChange(action, value)
             }}
             percentOptions={[1]}
             onMaxClick={handleSendMax}
@@ -157,10 +171,19 @@ export const TradeInput = () => {
             assetId={buyTradeAsset?.asset?.assetId as AssetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={buyCryptoAmount?.value}
-            onChange={value => {
-              buyCryptoAmount.onChange(value)
-              handleInputChange(TradeAmountInputField.BUY, value)
+            cryptoAmount={cryptoBuyAmount?.value}
+            fiatAmount={fiatBuyAmount.value}
+            onChange={(value, isFiat) => {
+              const action = isFiat
+                ? TradeAmountInputField.BUY_FIAT
+                : TradeAmountInputField.BUY_CRYPTO
+              cryptoBuyAmount.onChange(value)
+              if (isFiat) {
+                fiatBuyAmount.onChange(value)
+              } else {
+                cryptoBuyAmount.onChange(value)
+              }
+              handleInputChange(action, value)
             }}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
@@ -176,11 +199,11 @@ export const TradeInput = () => {
           <ReceiveSummary
             isLoading={!quote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
-            amount={buyCryptoAmount?.value ?? ''}
+            amount={cryptoBuyAmount?.value ?? ''}
             beforeFees='100'
             protocolFee='10'
             shapeShiftFee='0'
-            minAmountAfterSlippage={buyCryptoAmount?.value ?? ''}
+            minAmountAfterSlippage={cryptoBuyAmount?.value ?? ''}
           />
         </Stack>
         <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>

@@ -1,5 +1,5 @@
 import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -25,20 +25,13 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  let provider: any
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
-
-    try {
-      provider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
-    } catch (error) {
-      throw new Error('walletProvider.xdefi.errors.connectFailure')
-    }
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
@@ -54,20 +47,20 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
         const deviceId = await wallet.getDeviceID()
 
-        if (provider !== (globalThis as any).xfi.ethereum) {
+        if (state.provider !== (globalThis as any).xfi.ethereum) {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
         }
 
         // Hack to handle XDEFI account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        provider?.on?.('accountsChanged', resetState)
-        provider?.on?.('chainChanged', resetState)
+        state.provider?.on?.('accountsChanged', resetState)
+        state.provider?.on?.('chainChanged', resetState)
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          provider?.removeListener?.('accountsChanged', resetState)
-          provider?.removeListener?.('chainChanged', resetState)
+          state.provider?.removeListener?.('accountsChanged', resetState)
+          state.provider?.removeListener?.('chainChanged', resetState)
           return oldDisconnect()
         }
 
@@ -97,7 +90,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [state.provider, state.adapters, dispatch, history])
 
   return (
     <ConnectModal

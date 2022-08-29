@@ -1,4 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import detectEthereumProvider from '@metamask/detect-provider'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import * as native from '@shapeshiftoss/hdwallet-native'
@@ -10,6 +11,7 @@ import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
@@ -78,6 +80,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
+  provider: any
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -96,6 +99,7 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   isDemoWallet: false,
+  provider: null,
   isLocked: false,
   modal: false,
   isLoadingLocalWallet: false,
@@ -125,6 +129,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       }
     case WalletActions.SET_IS_DEMO_WALLET:
       return { ...state, isDemoWallet: action.payload }
+    case WalletActions.SET_PROVIDER:
+      return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_IS_LOCKED:
@@ -514,6 +520,27 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        // TODO: WIP Proper wallet detection, this is extremely optimistic and will fail
+        let maybeProvider
+
+        maybeProvider = await detectEthereumProvider()
+        if (!maybeProvider) {
+          try {
+            maybeProvider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
+          } catch (error) {
+            throw new Error('walletProvider.xdefi.errors.connectFailure')
+          }
+        }
+        dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
+      } catch (e) {
+        if (!isMobile) console.error(e)
+      }
+    })()
+  }, [state.wallet])
 
   useEffect(() => {
     if (state.keyring) {

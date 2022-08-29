@@ -1,5 +1,4 @@
-import detectEthereumProvider from '@metamask/detect-provider'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
@@ -27,31 +26,20 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [provider, setProvider] = useState<any>()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        setProvider(await detectEthereumProvider())
-      } catch (e) {
-        if (!isMobile) moduleLogger.error(e, 'MetaMaskConnect errror')
-      }
-    })()
-  }, [setProvider])
 
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
 
-    if (!provider) {
+    if (!state.provider) {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
     //Handles UX issues caused by MM and Tally Ho both being injected.
-    if (provider.isTally) {
+    if (state.provider.isTally) {
       setErrorLoading('walletProvider.metaMask.errors.tallyInstalledAndSetToDefault')
       throw new Error('Tally Ho wallet installed and set as default')
     }
@@ -70,14 +58,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         // Hack to handle MetaMask account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        provider?.on?.('accountsChanged', resetState)
-        provider?.on?.('chainChanged', resetState)
+        state.provider?.on?.('accountsChanged', resetState)
+        state.provider?.on?.('chainChanged', resetState)
         const isLocked = await wallet.isLocked()
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          provider?.removeListener?.('accountsChanged', resetState)
-          provider?.removeListener?.('chainChanged', resetState)
+          state.provider?.removeListener?.('accountsChanged', resetState)
+          state.provider?.removeListener?.('chainChanged', resetState)
           return oldDisconnect()
         }
 
@@ -114,7 +102,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
   // The MM mobile app itself injects a provider, so we'll use pairDevice once
   // we've reopened ourselves in that environment.
-  return !provider && isMobile ? (
+  return !state.provider && isMobile ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

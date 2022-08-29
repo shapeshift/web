@@ -18,9 +18,6 @@ import { selectAssets, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
-// import { MaxPrice } from '../MaxPrice'
-// import { MinPrice } from '../MinPrice'
-
 export type RainbowChartProps = {
   data: RainbowData[]
   width: number
@@ -217,19 +214,6 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
             </g>
           </Group>
         </XYChart>
-        {/* a transparent ele that track the pointer event, allow us to display tooltup */}
-        {/* <Bar
-          x={margin.left}
-          y={margin.top * 2}
-          width={xMax}
-          height={yMax}
-          fill='transparent'
-          rx={14}
-          onTouchStart={handleTooltip}
-          onTouchMove={handleTooltip}
-          onMouseMove={handleTooltip}
-          onMouseLeave={() => hideTooltip()}
-        /> */}
       </ScaleSVG>
     </div>
   )

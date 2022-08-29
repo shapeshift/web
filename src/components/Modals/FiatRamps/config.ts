@@ -17,6 +17,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
+import { getOnRamperAssets } from './fiatRampProviders/onramper'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -151,7 +152,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsSell: true,
     minimumSellThreshold: 0,
     getBuyAndSellList: async () => {
-      const mockAssets = [] as FiatRampAsset[]
+      const mockAssets = await getOnRamperAssets()
       return Promise.resolve([mockAssets, mockAssets])
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {

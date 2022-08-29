@@ -51,45 +51,71 @@ export const Portfolio = () => {
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'
-          justifyContent={{ md: 'space-between' }}
+          justifyContent={{ base: 'center', md: 'space-between' }}
           alignItems='center'
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          {isRainbowChartsEnabled && (
+          {isRainbowChartsEnabled ? (
+            // TODO: only keep this part after `RainbowCharts` feature flag removal
             <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
               <Text translation='dashboard.portfolio.totalChart' />
               <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
               <Text translation='dashboard.portfolio.rainbowChart' />
             </Button>
+          ) : (
+            <Flex flexDir='column'>
+              <Card.Heading as='div' color='gray.500'>
+                <Skeleton isLoaded={isLoaded} mb={2}>
+                  <Text translation='dashboard.portfolio.portfolioBalance' />
+                </Skeleton>
+              </Card.Heading>
+              <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+                <Skeleton isLoaded={isLoaded}>
+                  <Amount.Fiat value={totalBalancePlusLpHoldings} />
+                </Skeleton>
+              </Card.Heading>
+              {isFinite(percentChange) && (
+                <Skeleton mt={2} isLoaded={!!percentChange}>
+                  <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                    <StatNumber fontSize='md' display='flex' alignItems='center'>
+                      <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                      <Amount.Percent value={percentChange * 0.01} />
+                    </StatNumber>
+                  </Stat>
+                </Skeleton>
+              )}
+            </Flex>
           )}
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
-        <Flex flexDir='column' justifyContent='center' alignItems='center'>
-          <Card.Heading as='div' color='gray.500'>
-            <Skeleton isLoaded={isLoaded}>
-              <Text translation='dashboard.portfolio.portfolioBalance' />
-            </Skeleton>
-          </Card.Heading>
-          <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
-            <Skeleton isLoaded={isLoaded}>
-              <Amount.Fiat value={totalBalancePlusLpHoldings} />
-            </Skeleton>
-          </Card.Heading>
-          {isFinite(percentChange) && (
-            <Skeleton mt={2} isLoaded={!!percentChange}>
-              <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
-                <StatNumber fontSize='md' display='flex' alignItems='center'>
-                  <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-                  <Amount.Percent value={percentChange * 0.01} />
-                </StatNumber>
-              </Stat>
-            </Skeleton>
-          )}
-        </Flex>
+        {isRainbowChartsEnabled && (
+          <Flex flexDir='column' justifyContent='center' alignItems='center'>
+            <Card.Heading as='div' color='gray.500'>
+              <Skeleton isLoaded={isLoaded}>
+                <Text translation='dashboard.portfolio.portfolioBalance' />
+              </Skeleton>
+            </Card.Heading>
+            <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+              <Skeleton isLoaded={isLoaded}>
+                <Amount.Fiat value={totalBalancePlusLpHoldings} />
+              </Skeleton>
+            </Card.Heading>
+            {isFinite(percentChange) && (
+              <Skeleton mt={2} isLoaded={!!percentChange}>
+                <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                  <StatNumber fontSize='md' display='flex' alignItems='center'>
+                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                    <Amount.Percent value={percentChange * 0.01} />
+                  </StatNumber>
+                </Stat>
+              </Skeleton>
+            )}
+          </Flex>
+        )}
         <BalanceChart
           assetIds={assetIds}
           timeframe={timeframe}

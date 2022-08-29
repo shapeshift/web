@@ -12,7 +12,7 @@ type GraphProps = {
   data: BalanceChartData
   isLoaded?: boolean
   loading?: boolean
-  color?: string
+  color: string
   isRainbowChart?: boolean
 }
 

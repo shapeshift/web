@@ -2,13 +2,12 @@
 /* eslint-disable no-console */
 import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
 import { exec } from 'child_process'
-import gitSemverTags from 'git-semver-tags'
 import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
 import pify from 'pify'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'
 
-const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
+import { exit, getLatestSemverTag } from './utils'
 
 const fetch = async () => {
   console.log(chalk.green('Fetching...'))
@@ -119,19 +118,6 @@ const doHotfixRelease = async () => {
   // 2. set release to current branch
   // 3. force push release to origin
   // 4. create draft PR
-}
-
-const getSemverTags = async (): Promise<string[]> => {
-  const tags = await pify(gitSemverTags)()
-  if (!tags.length) exit(chalk.red('No semver release tags found.'))
-  return tags
-}
-
-const getLatestSemverTag = async (): Promise<string> => {
-  const tags = await getSemverTags()
-  const tag = tags[0]
-  semver.valid(tag) || exit(chalk.red(`${tag} is not a valid semver tag.`))
-  return tags[0]
 }
 
 type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>

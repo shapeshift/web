@@ -1,10 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { GetTradeQuoteInput, Swapper, TradeQuote } from '@shapeshiftoss/swapper'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 export type GetUsdRateArgs = {
   rateAssetId: AssetId
@@ -22,20 +22,6 @@ type State = {
 }
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
-
-const getBestSwapperFromArgs = async (
-  buyAssetId: AssetId,
-  sellAssetId: AssetId,
-  featureFlags: FeatureFlags,
-): Promise<Swapper<ChainId>> => {
-  const swapperManager = await getSwapperManager(featureFlags)
-  const swapper = await swapperManager.getBestSwapper({
-    buyAssetId,
-    sellAssetId,
-  })
-  if (!swapper) throw new Error('swapper is undefined')
-  return swapper
-}
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

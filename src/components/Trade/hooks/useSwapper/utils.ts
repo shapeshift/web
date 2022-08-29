@@ -1,13 +1,29 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { CHAIN_NAMESPACE, ChainId, fromChainId, toAccountId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import {
+  AssetId,
+  CHAIN_NAMESPACE,
+  ChainId,
+  fromAssetId,
+  fromChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
+import { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { GetTradeQuoteInput, TradeQuote, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import {
+  GetTradeQuoteInput,
+  Swapper,
+  Trade,
+  TradeQuote,
+  UtxoSupportedChainIds,
+} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { DisplayFeeData } from 'components/Trade/types'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // Types
 type SupportedSwappingChains =
@@ -35,6 +51,13 @@ export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
   'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
 >
+
+type GetFormFeesArgs = {
+  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+  sellAsset: Asset
+  tradeFeeSource: string
+  feeAsset: Asset
+}
 
 // Type guards
 export const isSupportedUtxoSwappingChain = (
@@ -105,4 +128,82 @@ export const getSendMaxAmount = (
       .toString(),
     sellAsset.precision,
   )
+}
+
+const getEvmFees = <T extends EvmChainId>(
+  trade: Trade<T> | TradeQuote<T>,
+  feeAsset: Asset,
+  tradeFeeSource: string,
+): DisplayFeeData<T> => {
+  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+  const fee = feeBN.toString()
+  const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
+    .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+    .toString()
+  const totalFee = feeBN.plus(approvalFee).toString()
+  const gasPrice = bnOrZero(trade.feeData.chainSpecific.gasPrice).toString()
+  const estimatedGas = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
+
+  return {
+    fee,
+    chainSpecific: {
+      approvalFee,
+      gasPrice,
+      estimatedGas,
+      totalFee,
+    },
+    tradeFee: trade.feeData.tradeFee,
+    tradeFeeSource,
+  } as DisplayFeeData<T>
+}
+
+export const getFormFees = ({
+  trade,
+  sellAsset,
+  tradeFeeSource,
+  feeAsset,
+}: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
+  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+  const fee = feeBN.toString()
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Ethereum:
+      return getEvmFees(
+        trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
+        feeAsset,
+        tradeFeeSource,
+      )
+    case CHAIN_NAMESPACE.Cosmos: {
+      return {
+        fee,
+        tradeFee: trade.feeData.tradeFee,
+        tradeFeeSource: trade.sources[0].name,
+      }
+    }
+    case CHAIN_NAMESPACE.Bitcoin: {
+      const utxoTrade = trade as Trade<UtxoSupportedChainIds>
+      return {
+        fee,
+        chainSpecific: utxoTrade.feeData.chainSpecific,
+        tradeFee: utxoTrade.feeData.tradeFee,
+        tradeFeeSource,
+      }
+    }
+    default:
+      throw new Error('Unsupported chain ' + sellAsset.chainId)
+  }
+}
+
+export const getBestSwapperFromArgs = async (
+  buyAssetId: AssetId,
+  sellAssetId: AssetId,
+  featureFlags: FeatureFlags,
+): Promise<Swapper<ChainId>> => {
+  const swapperManager = await getSwapperManager(featureFlags)
+  const swapper = await swapperManager.getBestSwapper({
+    buyAssetId,
+    sellAssetId,
+  })
+  if (!swapper) throw new Error('swapper is undefined')
+  return swapper
 }

@@ -1,5 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
@@ -48,7 +49,7 @@ export const IdleDeposit = () => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const chainAdapter = chainAdapterManager.get(chainId)
+  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 

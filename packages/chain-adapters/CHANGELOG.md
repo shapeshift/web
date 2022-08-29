@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v7.17.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.17.0...@shapeshiftoss/chain-adapters-v7.17.1) (2022-08-29)
+
+
+### Bug Fixes
+
+* also test ltc segwit native bip44Params ([#997](https://github.com/shapeshift/lib/issues/997)) ([8b1192d](https://github.com/shapeshift/lib/commit/8b1192d32e40d7fc4c0d2c8892ae2dc51c40725c))
+
 # [@shapeshiftoss/chain-adapters-v7.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v7.16.0...@shapeshiftoss/chain-adapters-v7.17.0) (2022-08-26)
 
 

@@ -62,7 +62,8 @@ export const IdleOverview = () => {
     assetNamespace,
     assetReference: vaultAddress,
   })
-  const asset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const vault = useAppSelector(state => selectAssetById(state, vaultTokenId))
   const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
@@ -70,7 +71,7 @@ export const IdleOverview = () => {
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: vaultTokenId }),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${vault.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)

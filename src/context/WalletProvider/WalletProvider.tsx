@@ -557,22 +557,26 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (!walletType || !state.adapters) return
 
     const localWallet = await state.adapters.get(walletType)?.pairDevice()
-    if (localWallet && state.wallet && state.walletInfo) {
-      await localWallet.initialize()
-      const deviceId = await localWallet.getDeviceID()
 
-      dispatch({
-        type: WalletActions.SET_WALLET,
-        payload: {
-          wallet: localWallet,
-          name: state.walletInfo.name,
-          icon: state.walletInfo.icon,
-          deviceId,
-        },
-      })
-      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-    }
-  }, [state.wallet, state.walletInfo, walletType, state.adapters])
+    if (!localWallet) return
+
+    await localWallet.initialize()
+    const deviceId = await localWallet?.getDeviceID()
+
+    if (!deviceId) return
+
+    const { icon, name } = SUPPORTED_WALLETS[walletType]
+
+    dispatch({
+      type: WalletActions.SET_WALLET,
+      payload: {
+        wallet: localWallet,
+        name,
+        icon,
+        deviceId,
+      },
+    })
+  }, [state, walletType])
 
   const setProviderEvents = useCallback(
     async (maybeProvider: InitialState['provider']) => {
@@ -767,8 +771,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }),
     [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
   )
-
-  console.log({ value })
 
   return (
     <WalletContext.Provider value={value}>

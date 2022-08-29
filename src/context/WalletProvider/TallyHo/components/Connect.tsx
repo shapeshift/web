@@ -71,11 +71,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
           throw new Error('walletProvider.tallyHo.errors.network')
         }
 
-        // Hack to handle Tally account changes
-        //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        state.provider?.on?.('accountsChanged', resetState)
-        state.provider?.on?.('chainChanged', resetState)
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {

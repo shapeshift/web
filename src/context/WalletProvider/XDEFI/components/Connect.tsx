@@ -60,8 +60,6 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
         // Hack to handle XDEFI account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        state.provider?.on?.('accountsChanged', resetState)
-        state.provider?.on?.('chainChanged', resetState)
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {

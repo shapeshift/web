@@ -528,39 +528,47 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
+  const resetState = useCallback(() => dispatch({ type: WalletActions.RESET_STATE }), [])
+
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
-  const onProviderChange = useCallback(async (localWalletType: KeyManager | null) => {
-    if (!localWalletType) return
-    try {
-      // TODO: WIP Proper wallet detection, this is extremely optimistic and will fail
-      let maybeProvider
+  const onProviderChange = useCallback(
+    async (localWalletType: KeyManager | null) => {
+      if (!localWalletType) return
+      try {
+        let maybeProvider: InitialState['provider'] = null
 
-      if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
-        maybeProvider = await detectEthereumProvider()
-      }
-
-      if (localWalletType === KeyManager.XDefi) {
-        try {
-          maybeProvider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
-        } catch (error) {
-          throw new Error('walletProvider.xdefi.errors.connectFailure')
+        if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
+          maybeProvider = (await detectEthereumProvider()) as MetaMaskLikeProvider
+          maybeProvider?.on?.('accountsChanged', resetState)
+          maybeProvider?.on?.('chainChanged', resetState)
         }
-      }
-      if (localWalletType === KeyManager.WalletConnect) {
-        const config: WalletConnectProviderConfig = {
-          /** List of RPC URLs indexed by chain ID */
-          rpc: {
-            1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-          },
-        }
-        maybeProvider = new WalletConnectProvider(config)
-      }
 
-      dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
-    } catch (e) {
-      if (!isMobile) console.error(e)
-    }
-  }, [])
+        if (localWalletType === KeyManager.XDefi) {
+          try {
+            maybeProvider = globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
+            state.provider?.on?.('accountsChanged', resetState)
+            state.provider?.on?.('chainChanged', resetState)
+          } catch (error) {
+            throw new Error('walletProvider.xdefi.errors.connectFailure')
+          }
+        }
+        if (localWalletType === KeyManager.WalletConnect) {
+          const config: WalletConnectProviderConfig = {
+            /** List of RPC URLs indexed by chain ID */
+            rpc: {
+              1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+            },
+          }
+          maybeProvider = new WalletConnectProvider(config)
+        }
+
+        dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
+      } catch (e) {
+        if (!isMobile) console.error(e)
+      }
+    },
+    [resetState, state.provider],
+  )
 
   useEffect(() => {
     ;(async () => {

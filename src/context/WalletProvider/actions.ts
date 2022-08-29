@@ -3,7 +3,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
-import type { Adapters } from './WalletProvider'
+import type { Adapters, InitialState } from './WalletProvider'
 import { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
@@ -42,7 +42,7 @@ export type ActionTypes =
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_IS_DEMO_WALLET; payload: boolean }
-  | { type: WalletActions.SET_PROVIDER; payload: any }
+  | { type: WalletActions.SET_PROVIDER; payload: InitialState['provider'] }
   | { type: WalletActions.SET_IS_LOCKED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }

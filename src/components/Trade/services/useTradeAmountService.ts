@@ -7,6 +7,10 @@ import { fromBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+The Trade Amount Service is responsible for reacting to changes to trade amounts and keeps all amounts in sync.
+It mutates the fiatSellAmount, fiatBuyAmount, buyTradeAsset.amount, and sellTradeAsset.amount properties of TradeState.
+*/
 export const useTradeAmountService = () => {
   // Form hooks
   const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()

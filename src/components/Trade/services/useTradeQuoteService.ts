@@ -21,7 +21,11 @@ import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/sel
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useTradeAmountService = () => {
+/*
+The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
+The only mutation is on TradeState's quote property.
+*/
+export const useTradeQuoteService = () => {
   // Form hooks
   const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })

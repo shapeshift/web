@@ -8,6 +8,10 @@ import { GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperAp
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+The Fiat Rate Service is responsible for fetching and setting fiat rates.
+It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of TradeState.
+*/
 export const useFiatRateService = () => {
   // Types
   type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>

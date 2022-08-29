@@ -553,24 +553,45 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const resetState = useCallback(() => dispatch({ type: WalletActions.RESET_STATE }), [])
 
+  const handleAccountsChanged = useCallback(async () => {
+    if (!walletType || !state.adapters) return
+
+    const localWallet = await state.adapters.get(walletType)?.pairDevice()
+    if (localWallet && state.wallet && state.walletInfo) {
+      await localWallet.initialize()
+      const deviceId = await localWallet.getDeviceID()
+
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet: localWallet,
+          name: state.walletInfo.name,
+          icon: state.walletInfo.icon,
+          deviceId,
+        },
+      })
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+    }
+  }, [state.wallet, state.walletInfo, walletType, state.adapters])
+
   const setProviderEvents = useCallback(
     async (maybeProvider: InitialState['provider']) => {
       if (!(maybeProvider && walletType)) return
 
-      maybeProvider?.on?.('accountsChanged', resetState)
+      maybeProvider?.on?.('accountsChanged', handleAccountsChanged)
       maybeProvider?.on?.('chainChanged', resetState)
 
       const wallet = await state.adapters?.get(walletType)?.pairDevice()
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          maybeProvider?.removeListener?.('accountsChanged', resetState)
+          maybeProvider?.removeListener?.('accountsChanged', handleAccountsChanged)
           maybeProvider?.removeListener?.('chainChanged', resetState)
           return oldDisconnect()
         }
       }
     },
-    [resetState, state.adapters, walletType],
+    [resetState, state.adapters, walletType, handleAccountsChanged],
   )
 
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
@@ -746,6 +767,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }),
     [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
   )
+
+  console.log({ value })
 
   return (
     <WalletContext.Provider value={value}>

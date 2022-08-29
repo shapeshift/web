@@ -8,6 +8,7 @@ import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
+import { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -70,6 +71,7 @@ const initialDeviceState: DeviceState = {
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
 }
+export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
 
 export interface InitialState {
   keyring: Keyring
@@ -80,7 +82,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
-  provider: any
+  provider: MetaMaskLikeProvider | null
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -255,7 +257,7 @@ const getInitialState = () => {
   const localWalletDeviceId = getLocalWalletDeviceId()
   //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
   if (
-    (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) ||
+    (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
     (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
   )
     return initialState
@@ -374,7 +376,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               break
             case KeyManager.MetaMask:
               //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
-              if (localWalletType === 'metamask' && (window as any)?.ethereum?.isTally) disconnect()
+              if (
+                localWalletType === 'metamask' &&
+                (window?.ethereum as MetaMaskLikeProvider)?.isTally
+              )
+                disconnect()
               const localMetaMaskWallet = await state.adapters
                 .get(KeyManager.MetaMask)
                 ?.pairDevice()

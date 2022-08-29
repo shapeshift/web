@@ -5,8 +5,10 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
+const moduleLogger = logger.child({ namespace: ['Label'] })
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
@@ -27,7 +29,7 @@ export const KeepKeyLabel = () => {
     const resetMessage: ResetDevice = { label: label ?? '', pin: true }
     setDeviceState({ awaitingDeviceInteraction: true })
     await wallet?.reset(resetMessage).catch(e => {
-      console.error(e)
+      moduleLogger.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),

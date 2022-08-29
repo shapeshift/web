@@ -17,6 +17,7 @@ import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -26,6 +27,8 @@ import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -62,7 +65,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       onOngoingTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
-      console.error('FoxEthLpWithdraw:handleConfirm error', error)
+      moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
     } finally {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }

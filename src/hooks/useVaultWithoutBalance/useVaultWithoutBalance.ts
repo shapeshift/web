@@ -5,7 +5,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
+const moduleLogger = logger.child({ namespace: ['useVaultWithoutBalance'] })
 
 export type YearnVaultWithUnderlyingTokenBalance = SerializableOpportunity & {
   underlyingTokenBalanceUsdc: string
@@ -39,7 +41,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
         const vaultsWithTVL = filter(yearnVaults, vault => bnOrZero(vault.tvl.balanceUsdc).gt(0))
         setVaults(vaultsWithTVL)
       } catch (error) {
-        console.error('error getting supported yearn vaults', error)
+        moduleLogger.error(error, 'error getting supported yearn vaults')
       } finally {
         setLoading(false)
       }

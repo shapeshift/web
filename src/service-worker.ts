@@ -1,4 +1,7 @@
 /// <reference lib="webworker" />
+
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['service-worker'] })
 declare const self: ServiceWorkerGlobalScope &
   typeof globalThis & { __WB_MANIFEST: { revision: string | null; url: string } }
 
@@ -12,21 +15,21 @@ const manifest = self.__WB_MANIFEST /* eslint-disable-line @typescript-eslint/no
 self.addEventListener('activate', () => self.clients.claim())
 
 self.addEventListener('install', event => {
-  console.info('ServiceWorker:install', event)
+  moduleLogger.info(event, 'ServiceWorker:install')
   event.waitUntil(
     (async () => {
       try {
-        console.info('ServiceWorker:install:skipWaiting')
+        moduleLogger.info('ServiceWorker:install:skipWaiting')
         await self.skipWaiting()
       } catch (e) {
-        console.error('ServiceWorker:install:Error', e)
+        moduleLogger.error(e, 'ServiceWorker:install:Error')
       }
     })(),
   )
 })
 
 self.addEventListener('message', event => {
-  console.info('ServiceWorker:message', event)
+  moduleLogger.info(event, 'ServiceWorker:message')
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
   }

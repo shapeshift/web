@@ -1,6 +1,6 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
@@ -27,12 +27,18 @@ export interface TallyHoSetupProps
 const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
 
 export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+
+  useEffect(() => {
+    ;(async () => {
+      await onProviderChange(KeyManager.TallyHo)
+    })()
+  }, [onProviderChange])
 
   const pairDevice = async () => {
     setError(null)

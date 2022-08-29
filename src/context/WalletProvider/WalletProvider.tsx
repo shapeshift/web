@@ -521,26 +521,35 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
+  // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
+  const onProviderChange = useCallback(async (localWalletType: KeyManager | null) => {
+    if (!localWalletType) return
+    try {
+      // TODO: WIP Proper wallet detection, this is extremely optimistic and will fail
+      let maybeProvider
+
+      if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
+        maybeProvider = await detectEthereumProvider()
+      }
+      if (localWalletType === KeyManager.XDefi) {
+        try {
+          maybeProvider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
+        } catch (error) {
+          throw new Error('walletProvider.xdefi.errors.connectFailure')
+        }
+      }
+      dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
+    } catch (e) {
+      if (!isMobile) console.error(e)
+    }
+  }, [])
+
   useEffect(() => {
     ;(async () => {
-      try {
-        // TODO: WIP Proper wallet detection, this is extremely optimistic and will fail
-        let maybeProvider
-
-        maybeProvider = await detectEthereumProvider()
-        if (!maybeProvider) {
-          try {
-            maybeProvider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
-          } catch (error) {
-            throw new Error('walletProvider.xdefi.errors.connectFailure')
-          }
-        }
-        dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
-      } catch (e) {
-        if (!isMobile) console.error(e)
-      }
+      const localWalletType = getLocalWalletType()
+      await onProviderChange(localWalletType)
     })()
-  }, [state.wallet])
+  }, [state.wallet, onProviderChange])
 
   useEffect(() => {
     if (state.keyring) {
@@ -656,9 +665,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
+      onProviderChange,
       connectDemo,
     }),
-    [state, connect, create, disconnect, load, setDeviceState, connectDemo],
+    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
   )
 
   return (

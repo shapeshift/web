@@ -1,5 +1,5 @@
 import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -22,12 +22,18 @@ export interface XDEFISetupProps
 }
 
 export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+
+  useEffect(() => {
+    ;(async () => {
+      await onProviderChange(KeyManager.XDefi)
+    })()
+  }, [onProviderChange])
 
   const pairDevice = useCallback(async () => {
     setError(null)

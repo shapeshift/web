@@ -12,7 +12,7 @@ import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
@@ -275,7 +275,10 @@ const getInitialState = () => {
 }
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+  // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
+  // Internal state, for memoization purposes only
+  const [walletType, setWalletType] = useState<KeyManager | null>(null)
 
   const disconnect = useCallback(() => {
     /**
@@ -534,14 +537,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const onProviderChange = useCallback(
     async (localWalletType: KeyManager | null) => {
       if (!localWalletType) return
+      setWalletType(localWalletType)
+      if (!walletType) return
       try {
         let maybeProvider: InitialState['provider'] = null
 
-        if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
+        if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(walletType)) {
           maybeProvider = (await detectEthereumProvider()) as MetaMaskLikeProvider
         }
 
-        if (localWalletType === KeyManager.XDefi) {
+        if (walletType === KeyManager.XDefi) {
           try {
             maybeProvider = globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
             state.provider?.on?.('accountsChanged', resetState)
@@ -550,7 +555,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             throw new Error('walletProvider.xdefi.errors.connectFailure')
           }
         }
-        if (localWalletType === KeyManager.WalletConnect) {
+        if (walletType === KeyManager.WalletConnect) {
           const config: WalletConnectProviderConfig = {
             /** List of RPC URLs indexed by chain ID */
             rpc: {
@@ -564,7 +569,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           maybeProvider?.on?.('accountsChanged', resetState)
           maybeProvider?.on?.('chainChanged', resetState)
 
-          const wallet = await state.adapters?.get(localWalletType)?.pairDevice()
+          const wallet = await state.adapters?.get(walletType)?.pairDevice()
           if (wallet) {
             const oldDisconnect = wallet.disconnect.bind(wallet)
             wallet.disconnect = () => {
@@ -580,7 +585,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (!isMobile) console.error(e)
       }
     },
-    [resetState, state.provider, state.adapters],
+    // Only a change of wallet type should invalidate the reference
+    // Else, this will add many duplicate event listeners
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [walletType],
   )
 
   useEffect(() => {

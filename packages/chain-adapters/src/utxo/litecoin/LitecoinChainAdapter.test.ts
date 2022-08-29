@@ -469,10 +469,15 @@ describe('LitecoinChainAdapter', () => {
       }
     })
     it('should properly map account types to purposes', async () => {
-      const accountTypes: UtxoAccountType[] = [UtxoAccountType.P2pkh, UtxoAccountType.SegwitP2sh]
+      const accountTypes: UtxoAccountType[] = [
+        UtxoAccountType.P2pkh,
+        UtxoAccountType.SegwitP2sh,
+        UtxoAccountType.SegwitNative,
+      ]
       const expected: BIP44Params[] = [
         { purpose: 44, coinType: 2, accountNumber: 0 },
         { purpose: 49, coinType: 2, accountNumber: 0 },
+        { purpose: 84, coinType: 2, accountNumber: 0 },
       ]
       accountTypes.forEach((accountType, i) => {
         const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
@@ -480,10 +485,15 @@ describe('LitecoinChainAdapter', () => {
       })
     })
     it('should respect accountNumber', async () => {
-      const accountTypes: UtxoAccountType[] = [UtxoAccountType.P2pkh, UtxoAccountType.SegwitP2sh]
+      const accountTypes: UtxoAccountType[] = [
+        UtxoAccountType.P2pkh,
+        UtxoAccountType.SegwitP2sh,
+        UtxoAccountType.SegwitNative,
+      ]
       const expected: BIP44Params[] = [
         { purpose: 44, coinType: 2, accountNumber: 0 },
         { purpose: 49, coinType: 2, accountNumber: 1 },
+        { purpose: 84, coinType: 2, accountNumber: 2 },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
         const r = adapter.getBIP44Params({ accountNumber, accountType })

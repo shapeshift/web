@@ -43,6 +43,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
+  const [passphrase, setPassphrase] = useState<(string | undefined)[][]>()
   const [awaitingKeepKeyResponse, setAwaitingKeepKeyResponse] = useState(true)
 
   const inputField1 = useRef<HTMLInputElement>(null)
@@ -114,10 +115,21 @@ export const KeepKeyRecoverySentenceEntry = () => {
       await keepKeyWallet?.sendCharacterDone()
       // Else send a Space to let the KeepKey know we're ready to enter the next word
     } else {
+      passphrase
+        ? setPassphrase([...passphrase, characterInputValues])
+        : setPassphrase([characterInputValues])
       await keepKeyWallet?.sendCharacter(' ')
       resetInputs()
     }
-  }, [recoveryWordIndex, history, keepKeyWallet, resetInputs, wordEntropy])
+  }, [
+    recoveryWordIndex,
+    history,
+    keepKeyWallet,
+    resetInputs,
+    wordEntropy,
+    passphrase,
+    characterInputValues,
+  ])
 
   const onCharacterInput = useCallback(
     async (e: KeyboardEvent) => {
@@ -155,12 +167,22 @@ export const KeepKeyRecoverySentenceEntry = () => {
             await keepKeyWallet?.sendCharacter(' ')
             break
           case 'Backspace':
-            setCharacterInputValues(c =>
-              inputValuesReducer(c, undefined, recoveryCharacterIndex - 1),
-            )
-            setAwaitingKeepKeyResponse(true)
-            await keepKeyWallet?.sendCharacterDelete()
-            break
+            if (recoveryCharacterIndex === 0 && passphrase) {
+              const previousWord = passphrase.slice(-1)[0]
+              setPassphrase(passphrase.slice(0, -1))
+              setCharacterInputValues(previousWord)
+              inputFields[previousWord.length - 1].current?.focus()
+              setAwaitingKeepKeyResponse(true)
+              await keepKeyWallet?.sendCharacterDelete()
+              break
+            } else {
+              setCharacterInputValues(c =>
+                inputValuesReducer(c, undefined, recoveryCharacterIndex - 1),
+              )
+              setAwaitingKeepKeyResponse(true)
+              await keepKeyWallet?.sendCharacterDelete()
+              break
+            }
           case 'Enter':
             setAwaitingKeepKeyResponse(true)
             await handleWordSubmit()
@@ -178,6 +200,8 @@ export const KeepKeyRecoverySentenceEntry = () => {
       keepKeyWallet,
       resetInputs,
       wordEntropy,
+      inputFields,
+      passphrase,
     ],
   )
 

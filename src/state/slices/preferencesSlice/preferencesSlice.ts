@@ -20,6 +20,7 @@ export type FeatureFlags = {
   MtPelerinFiatRamp: boolean
   Yat: boolean
   RainbowCharts: boolean
+  MultiAccounts: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -51,6 +52,7 @@ const initialState: Preferences = {
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
+    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

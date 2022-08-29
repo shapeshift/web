@@ -35,10 +35,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from '../validatorDataSlice/constants'
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import {
   initialState,
@@ -196,6 +192,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       case CHAIN_NAMESPACE.Ethereum: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
+        // TODO(0xdef1cafe): remove accountSpecifier here, it's the same as accountId below
         const accountSpecifier = `${chainId}:${toLower(pubkey)}`
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
@@ -441,15 +438,4 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
-}
-
-export const getShapeshiftValidatorFromAccountSpecifier = (
-  accountSpecifier: AccountSpecifier,
-): string => {
-  const { chainId } = fromAccountId(accountSpecifier)
-  const chainIdToValidatorAddress: Record<ChainId, string> = {
-    [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-    [osmosisChainId]: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-  }
-  return chainIdToValidatorAddress[chainId]
 }

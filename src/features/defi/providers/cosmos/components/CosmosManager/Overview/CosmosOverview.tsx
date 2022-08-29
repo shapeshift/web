@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import {
@@ -8,16 +9,13 @@ import {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  isCosmosAssetId,
-  isOsmosisAssetId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -29,10 +27,7 @@ import {
   selectTotalBondingsBalanceByAssetId,
   selectValidatorByAddress,
 } from 'state/slices/selectors'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
+import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosEmpty } from './CosmosEmpty'
@@ -50,7 +45,21 @@ export const CosmosOverview = () => {
     assetReference,
   })
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId: stakingAssetId })
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const supportsCosmosSdk = useMemo(() => {
+    if (!wallet) return
+
+    if (chainId === cosmosChainId) return supportsCosmos(wallet)
+    if (chainId === osmosisChainId) return supportsOsmosis(wallet)
+  }, [chainId, wallet])
+
+  const opportunities = useCosmosSdkStakingBalances({
+    assetId: stakingAssetId,
+    supportsCosmosSdk,
+  })
 
   const opportunity = useMemo(
     () =>
@@ -83,12 +92,10 @@ export const CosmosOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const defaultValidatorAddress = useMemo(() => {
-    if (isCosmosAssetId(stakingAssetId)) return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
-    if (isOsmosisAssetId(stakingAssetId)) return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-
-    return ''
-  }, [stakingAssetId])
+  const defaultValidatorAddress = useMemo(
+    () => getDefaultValidatorAddressFromAssetId(stakingAssetId),
+    [stakingAssetId],
+  )
   const validatorData = useAppSelector(state =>
     selectValidatorByAddress(state, defaultValidatorAddress),
   )

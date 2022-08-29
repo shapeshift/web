@@ -359,8 +359,8 @@
     "explore": "Explore"
   },
   "transactionRow": {
-    "send": "Sent %{symbol}",
-    "receive": "Received %{symbol}",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -432,6 +432,7 @@
     "noSupportedAssets": "No supported assets in portfolio."
   },
   "trade": {
+    "trade": "Trade",
     "allowance": "Allowance",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
@@ -806,6 +807,19 @@
         "SGD": "Singapore Dollar",
         "ILS": "Israeli Shekel",
         "IDR": "Indonesian Rupiah"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Your wallet has been imported!",
+        "body": "Welcome to the new ShapeShift App.",
+        "primaryCta": "Continue"
+      },
+      "notice": {
+        "header": "Login with email is being deprecated. Backup your wallet now!",
+        "body": "If you ever lose access to your device, you need your secret recovery phrase to recover your funds.",
+        "primaryCta": "Get Secret Recovery Phrase",
+        "secondaryCta": "I already know my secret recovery phrase"
       }
     }
   },
@@ -1214,7 +1228,8 @@
   },
   "accounts": {
     "accounts": "Accounts",
-    "selectAccount": "Select an Account"
+    "selectAccount": "Select an Account",
+    "addAccount": "Add Account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1322,6 +1337,14 @@
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Get a Yat",
+        "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
   }

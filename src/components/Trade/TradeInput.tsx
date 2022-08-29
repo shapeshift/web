@@ -8,6 +8,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
@@ -27,6 +28,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectFeatureFlags,
   selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectHighestFiatBalanceAccountByAssetId,
@@ -48,12 +50,13 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid, isSubmitting },
+    formState: { errors, isDirty, isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts, toFiat },
   } = useLocaleFormatter()
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
+  const { Axelar } = useSelector(selectFeatureFlags)
   const [
     quote,
     buyTradeAsset,
@@ -93,6 +96,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [isUpdatingTrade, setIsUpdatingTrade] = useState(false)
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
@@ -204,6 +208,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
+    setIsUpdatingTrade(true)
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -225,6 +230,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     } catch (e) {
       showErrorToast(e)
     }
+    setIsUpdatingTrade(false)
   }
 
   const onSetMaxTrade = async () => {
@@ -329,6 +335,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
         <Card variant='unstyled'>
+          {!Axelar && (
+            <Card.Header>
+              <Card.Heading textAlign='center'>
+                <Text translation='trade.trade' />
+              </Card.Heading>
+            </Card.Header>
+          )}
+
           <Card.Body pb={0} px={0}>
             <FormControl isInvalid={!!errors.fiatSellAmount}>
               <Controller
@@ -480,7 +494,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmitting || isSendMaxLoading}
+              isLoading={isUpdatingTrade || isSendMaxLoading}
               isDisabled={
                 !isDirty ||
                 !isValid ||

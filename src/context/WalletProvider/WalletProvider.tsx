@@ -6,6 +6,7 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import { providers } from 'ethers'
@@ -82,7 +83,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   isDemoWallet: boolean
-  provider: MetaMaskLikeProvider | null
+  provider: MetaMaskLikeProvider | WalletConnectProvider | null
   isLocked: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -537,6 +538,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(localWalletType)) {
         maybeProvider = await detectEthereumProvider()
       }
+
       if (localWalletType === KeyManager.XDefi) {
         try {
           maybeProvider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
@@ -544,6 +546,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           throw new Error('walletProvider.xdefi.errors.connectFailure')
         }
       }
+      if (localWalletType === KeyManager.WalletConnect) {
+        const config: WalletConnectProviderConfig = {
+          /** List of RPC URLs indexed by chain ID */
+          rpc: {
+            1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+          },
+        }
+        maybeProvider = new WalletConnectProvider(config)
+      }
+
       dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
     } catch (e) {
       if (!isMobile) console.error(e)

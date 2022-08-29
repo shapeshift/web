@@ -156,7 +156,9 @@ export const useKeepKeyEventHandler = (
               })()
               break
             case FailureType.SYNTAXERROR:
-              console.warn('KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?')
+              moduleLogger.warn(
+                'KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?',
+              )
               dispatch({
                 type: WalletActions.OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE,
                 payload: {

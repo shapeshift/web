@@ -21,6 +21,7 @@ export type FeatureFlags = {
   Yat: boolean
   RainbowCharts: boolean
   MultiAccounts: boolean
+  SwapperV2: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -53,6 +54,7 @@ const initialState: Preferences = {
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
+    SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

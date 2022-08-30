@@ -42,6 +42,7 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
+import { makeBalanceChartData } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -286,15 +287,10 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
   return buckets
 }
 
-const makeEmptyBalanceChartData = () => ({
-  total: [],
-  rainbow: [],
-})
-
 type BucketsToChartData = (buckets: Bucket[]) => BalanceChartData
 
 export const bucketsToChartData: BucketsToChartData = buckets => {
-  const initial: BalanceChartData = makeEmptyBalanceChartData()
+  const initial: BalanceChartData = makeBalanceChartData()
 
   const result = buckets.reduce((acc, bucket) => {
     const date = bucket.end.valueOf()
@@ -351,9 +347,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const assets = useAppSelector(selectAssets)
   const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
-  const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(
-    makeEmptyBalanceChartData(),
-  )
+  const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
   const balances = useAppSelector(state =>
     selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),

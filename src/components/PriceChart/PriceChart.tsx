@@ -8,7 +8,7 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
+import { makeBalanceChartData } from 'hooks/useBalanceChartData/utils'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
@@ -50,13 +50,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
 
-  const data = useMemo(
-    (): BalanceChartData => ({
-      total: priceData,
-      rainbow: [],
-    }),
-    [priceData],
-  )
+  const data = useMemo(() => makeBalanceChartData(priceData), [priceData])
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 

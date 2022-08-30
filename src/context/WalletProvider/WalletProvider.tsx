@@ -580,7 +580,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
         dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
       } catch (e) {
-        if (!isMobile) console.error(e)
+        if (!isMobile) moduleLogger.error(e, 'onProviderChange error')
       }
     },
     // Only a change of wallet type should invalidate the reference

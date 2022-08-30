@@ -63,11 +63,9 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
         {...buttonProps}
       >
         <Stack direction='row' alignItems='center'>
-          <Text
-            fontWeight='bold'
-            color='var(--chakra-colors-chakra-body-text)'
-            translation={['accounts.accountNumber', { number: activeAccount }]}
-          />
+          <RawText fontWeight='bold' color='var(--chakra-colors-chakra-body-text)'>
+            {translate('accounts.accountNumber', { number: activeAccount })}
+          </RawText>
           <MiddleEllipsis
             shouldShorten
             fontFamily='monospace'

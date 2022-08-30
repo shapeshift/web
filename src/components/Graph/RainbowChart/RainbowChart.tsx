@@ -8,7 +8,7 @@ import { AreaSeries, AreaStack, Axis, Margin, Tooltip, XYChart } from '@visx/xyc
 import { extent, Numeric } from 'd3-array'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -25,6 +25,12 @@ export type RainbowChartProps = {
   color: string
   margin?: Margin
 }
+
+const getScaledX = (date: number, start: number, end: number, width: number) =>
+  ((date - start) / (end - start)) * width
+
+const getScaledY = (price: number, min: number, max: number, height: number) =>
+  ((max - price) / (max - min)) * height
 
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
 export const RainbowChart: React.FC<RainbowChartProps> = ({
@@ -74,25 +80,28 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const maxPrice = Math.max(...totals)
   const maxPriceDate = data.find(x => x.total === maxPrice)!.date
   const minPriceDate = data.find(x => x.total === minPrice)!.date
-  const getScaledX = (date: number) =>
-    ((date - xScale.domain[0].getTime()) /
-      (xScale.domain[1].getTime() - xScale.domain[0].getTime())) *
-    width
 
-  const handleTextPosition = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
-    const offsetWidth = width / 2
-    const buffer = 16
-    const end = width - offsetWidth
-    if (x < offsetWidth) {
-      return { x: x + buffer, anchor: 'start' }
-    } else if (x > end) {
-      return { x, anchor: 'end' }
-    } else {
-      return { x, anchor: 'start' }
-    }
-  }
-  const scaledMaxPriceX = handleTextPosition(getScaledX(maxPriceDate))
-  const scaledMinPriceX = handleTextPosition(getScaledX(minPriceDate))
+  const handleTextPosition = useCallback(
+    (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
+      const offsetWidth = width / 2
+      const buffer = 16
+      const end = width - offsetWidth
+      if (x < offsetWidth) {
+        return { x: x + buffer, anchor: 'start' }
+      } else if (x > end) {
+        return { x, anchor: 'end' }
+      } else {
+        return { x, anchor: 'start' }
+      }
+    },
+    [width],
+  )
+  const scaledMaxPriceX = handleTextPosition(
+    getScaledX(maxPriceDate, xScale.domain[0].getTime(), xScale.domain[1].getTime(), width),
+  )
+  const scaledMinPriceX = handleTextPosition(
+    getScaledX(minPriceDate, xScale.domain[0].getTime(), xScale.domain[1].getTime(), width),
+  )
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
   const yScale = {
     type: 'linear' as const,
@@ -100,10 +109,8 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     domain: [minPrice ?? 0, maxPrice ?? 0],
     nice: true,
   }
-  const getScaledY = (price: number) =>
-    ((maxPrice - price) / (maxPrice - minPrice)) * (height - margin.bottom)
-  const scaledMaxPriceY = getScaledY(maxPrice)
-  const scaledMinPriceY = getScaledY(minPrice)
+  const scaledMaxPriceY = getScaledY(maxPrice, minPrice, maxPrice, height - margin.bottom)
+  const scaledMinPriceY = getScaledY(minPrice, minPrice, maxPrice, height - margin.bottom)
 
   const tooltipBg = useColorModeValue('white', colors.gray[700])
   const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[600])

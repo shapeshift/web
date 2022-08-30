@@ -1,29 +1,35 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { GetTradeQuoteInput, TradeQuote, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import {
+  type GetTradeQuoteInput,
+  type TradeQuote,
+  type UtxoSupportedChainIds,
+} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import {
+  type TradeQuoteInputCommonArgs,
   getBestSwapperFromArgs,
   getFirstReceiveAddress,
   getFormFees,
   getUtxoParams,
   isSupportedNoneUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
-  TradeQuoteInputCommonArgs,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { TradeState } from 'components/Trade/types'
+import { type TradeState } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import {
+  selectAccountSpecifiers,
+  selectFeatureFlags,
+  selectFeeAssetById,
+  selectFiatToUsdRate,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*

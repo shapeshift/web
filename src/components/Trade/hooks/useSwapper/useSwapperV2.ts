@@ -1,7 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import { type Asset } from '@shapeshiftoss/asset-service'
 import {
+  type ChainId,
   avalancheAssetId,
-  ChainId,
   cosmosAssetId,
   ethAssetId,
   osmosisAssetId,
@@ -13,7 +13,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
-import { TradeState } from 'components/Trade/types'
+import { type TradeState } from 'components/Trade/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'

@@ -2,9 +2,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { TradeAmountInputField, TradeState } from 'components/Trade/types'
+import { type TradeState, TradeAmountInputField } from 'components/Trade/types'
 import { fromBaseUnit } from 'lib/math'
-import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
+import { selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*

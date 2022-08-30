@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import React from 'react'
+import { type FC } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,7 +16,7 @@ type RateGasRowProps = {
   rate?: string
   gasFee: string
 }
-export const RateGasRow: React.FC<RateGasRowProps> = ({ sellSymbol, buySymbol, rate, gasFee }) => {
+export const RateGasRow: FC<RateGasRowProps> = ({ sellSymbol, buySymbol, rate, gasFee }) => {
   const translate = useTranslate()
   return !rate ? (
     <Stack direction='row' alignItems='center' fontSize='sm'>

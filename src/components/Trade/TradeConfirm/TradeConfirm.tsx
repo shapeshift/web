@@ -10,12 +10,12 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { osmosisAssetId } from '@shapeshiftoss/caip'
-import { isCowTrade, TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, isCowTrade } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps, useLocation } from 'react-router-dom'
+import { type RouterProps, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -67,7 +67,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate'> = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
-  // TODO: Use fiatRate from TradeState - we don't need to pass fiatRate around.
+  // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
   const { fiatRate } = location.state
   const {
     number: { toFiat },

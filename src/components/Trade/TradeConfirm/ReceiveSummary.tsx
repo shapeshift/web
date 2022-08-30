@@ -7,10 +7,11 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { type FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Row, RowProps } from 'components/Row/Row'
+import { type RowProps, Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 
 type ReceiveSummaryProps = {
@@ -24,7 +25,7 @@ type ReceiveSummaryProps = {
   minAmountAfterSlippage?: string
 } & RowProps
 
-export const ReceiveSummary: React.FC<ReceiveSummaryProps> = ({
+export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
   amount,
   fiatAmount,

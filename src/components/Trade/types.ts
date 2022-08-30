@@ -1,8 +1,13 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
-import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import { type Asset } from '@shapeshiftoss/asset-service'
+import { type ChainId } from '@shapeshiftoss/caip'
+import {
+  type CowTrade,
+  type QuoteFeeData,
+  type Trade,
+  type TradeQuote,
+} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY_CRYPTO = 'BUY_CRYPTO',
@@ -34,7 +39,8 @@ export type TradeState<C extends ChainId> = {
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
-  quoteError: string | null // TODO: Deprecate
+  /** @deprecated use native react hook form errors instead */
+  quoteError: string | null
   amount: string | null
   receiveAddress: string | null // TODO: Implement
 }

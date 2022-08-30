@@ -3,9 +3,9 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { TradeState } from 'components/Trade/types'
-import { GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { type TradeState } from 'components/Trade/types'
+import { type GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*

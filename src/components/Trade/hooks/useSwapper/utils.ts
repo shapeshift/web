@@ -1,29 +1,29 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import { type Asset } from '@shapeshiftoss/asset-service'
 import {
-  AssetId,
+  type AssetId,
+  type ChainId,
   CHAIN_NAMESPACE,
-  ChainId,
   fromAssetId,
   fromChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { type EvmChainId, ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  GetTradeQuoteInput,
-  Swapper,
-  Trade,
-  TradeQuote,
-  UtxoSupportedChainIds,
+  type GetTradeQuoteInput,
+  type Swapper,
+  type Trade,
+  type TradeQuote,
+  type UtxoSupportedChainIds,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { DisplayFeeData } from 'components/Trade/types'
+import { type DisplayFeeData } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // Types
 type SupportedSwappingChains =
@@ -40,12 +40,6 @@ type GetFirstReceiveAddressArgs = {
 }
 
 type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
-
-export type Amounts = {
-  sellAmount: string
-  buyAmount: string
-  fiatSellAmount: string
-}
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,

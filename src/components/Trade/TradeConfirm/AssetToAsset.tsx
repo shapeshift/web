@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Circle, Divider, Flex, FlexProps, Spinner, useColorModeValue } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { FC } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 
 type AssetToAssetProps = {
@@ -9,13 +10,13 @@ type AssetToAssetProps = {
   status?: TxStatus
 } & FlexProps
 
-export const AssetToAsset = ({
+export const AssetToAsset: FC<AssetToAssetProps> = ({
   buyIcon,
   sellIcon,
   boxSize = '32px',
   status,
   ...rest
-}: AssetToAssetProps) => {
+}) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const gray = useColorModeValue('white', 'gray.750')

@@ -40,7 +40,7 @@ const styles = {
     body: {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
-      'font-feature-settings': "'zero' on;",
+      'font-feature-settings': "'zero'",
     },
     html: {
       scrollBehavior: 'smooth',

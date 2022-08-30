@@ -549,8 +549,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (walletType === KeyManager.XDefi) {
           try {
             maybeProvider = globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
-            state.provider?.on?.('accountsChanged', resetState)
-            state.provider?.on?.('chainChanged', resetState)
           } catch (error) {
             throw new Error('walletProvider.xdefi.errors.connectFailure')
           }

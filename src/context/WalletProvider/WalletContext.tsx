@@ -13,6 +13,7 @@ export interface IWalletContext {
   load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void
   connectDemo: () => Promise<void>
+  onProviderChange: (localWalletType: KeyManager) => Promise<void>
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

@@ -80,7 +80,12 @@ export const WalletConnectedMenu = ({
         {connectedWalletMenuRoutes?.map(route => {
           const Component = route.component
           return !Component ? null : (
-            <Route exact path={route.path} render={routeProps => <Component {...routeProps} />} />
+            <Route
+              key='walletConnectedMenuRoute'
+              exact
+              path={route.path}
+              render={routeProps => <Component {...routeProps} />}
+            />
           )
         })}
       </Switch>

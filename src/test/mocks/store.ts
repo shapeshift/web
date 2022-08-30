@@ -62,6 +62,7 @@ export const mockStore: ReduxState = {
       Zendesk: false,
       MtPelerinFiatRamp: false,
       Yat: false,
+      RainbowCharts: false,
       MultiAccounts: false,
     },
     selectedLocale: 'en',

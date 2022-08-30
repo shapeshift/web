@@ -20,7 +20,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 
@@ -35,6 +36,7 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
   const { supportedEvmChainIds } = useEvm()
+  const acctMetaData = useAppSelector(state => selectPortfolioAccountMetadata(state))
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -49,6 +51,11 @@ export const useFormSend = () => {
         const chainId = adapter.getChainId()
 
         const { estimatedFees, feeType, address: to } = data
+
+        const { bip44Params, accountType } = acctMetaData[data.accountId]
+        if (!bip44Params) {
+          throw new Error(`useFormSend: no bip44Params for accountId ${data.accountId}`)
+        }
 
         const result = await (async () => {
           if (supportedEvmChainIds.includes(chainId)) {
@@ -72,6 +79,7 @@ export const useFormSend = () => {
               to,
               value,
               wallet,
+              bip44Params,
               chainSpecific: {
                 erc20ContractAddress,
                 gasLimit,
@@ -84,25 +92,16 @@ export const useFormSend = () => {
           if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
             const fees = estimatedFees[feeType] as FeeData<UtxoChainId>
 
-            const { accountType, utxoParams } = accountIdToUtxoParams(data.accountId, 0)
-
             if (!accountType) {
               throw new Error(
-                `useFormSend: could not get bitcoin accountType from accountId: ${data.accountId}`,
+                `useFormSend: no accountType for utxo from accountId: ${data.accountId}`,
               )
             }
-
-            if (!utxoParams) {
-              throw new Error(
-                `useFormSend: could not get bitcoin utxoParams from accountId: ${data.accountId}`,
-              )
-            }
-
             return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
               to,
               value,
               wallet,
-              bip44Params: utxoParams.bip44Params,
+              bip44Params,
               chainSpecific: {
                 satoshiPerByte: fees.chainSpecific.satoshiPerByte,
                 accountType,

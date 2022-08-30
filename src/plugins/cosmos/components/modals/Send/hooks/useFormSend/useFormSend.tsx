@@ -7,6 +7,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 
@@ -18,7 +20,7 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
-
+  const acctMetaData = useAppSelector(state => selectPortfolioAccountMetadata(state))
   type CosmosSdkChainFees = FeeData<KnownChainIds.CosmosMainnet> &
     FeeData<KnownChainIds.OsmosisMainnet>
 
@@ -29,6 +31,10 @@ export const useFormSend = () => {
           KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
         >
         if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
+        const { bip44Params } = acctMetaData[data.accountId]
+        if (!bip44Params)
+          throw new Error(`useFormSend: no bip44Params for accountId ${data.accountId}`)
+
         const value = bnOrZero(data.cryptoAmount)
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
@@ -45,6 +51,7 @@ export const useFormSend = () => {
           memo,
           value,
           wallet,
+          bip44Params,
           chainSpecific: { gas, fee },
           sendMax: data.sendMax,
         })

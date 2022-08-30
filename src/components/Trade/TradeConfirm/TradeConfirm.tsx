@@ -211,7 +211,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               />
               <Stack spacing={4}>
                 <Row>
-                  <Row.Label>Send</Row.Label>
+                  <Row.Label>{translate('common.send')}</Row.Label>
                   <Row.Value textAlign='right'>
                     <Amount.Crypto value={sellAmountCrypto} symbol={trade.sellAsset.symbol} />
                     <Amount.Fiat color='gray.500' value={sellAmountFiat.toString()} prefix='≈' />
@@ -230,7 +230,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 {sellTxid && (
                   <Row>
                     <Row.Label>
-                      <RawText>Tx ID</RawText>
+                      <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
                       <Link isExternal color='blue.500' href={txLink}>

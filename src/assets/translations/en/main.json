@@ -66,7 +66,8 @@
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
-    "loadingText": "Loading..."
+    "loadingText": "Loading...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "A new version of the app is available",

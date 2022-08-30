@@ -59,21 +59,27 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     }, initial)
   }, [assetIds])
 
-  const xScale = {
-    type: 'time' as const,
-    range: [0, width] as [Numeric, Numeric],
-    domain: extent(data, d => new Date(d.date)) as [Date, Date],
-  }
+  const xScale = useMemo(
+    () => ({
+      type: 'time' as const,
+      range: [0, width] as [Numeric, Numeric],
+      domain: extent(data, d => new Date(d.date)) as [Date, Date],
+    }),
+    [data, width],
+  )
 
   const labelColor = useColorModeValue(colors.gray[300], colors.gray[700])
-  const tickLabelProps = {
-    textAnchor: 'middle' as const,
-    verticalAnchor: 'middle' as const,
-    fontSize: 12,
-    fontWeight: 'bold',
-    fill: labelColor,
-    letterSpacing: 0,
-  }
+  const tickLabelProps = useMemo(
+    () => ({
+      textAnchor: 'middle' as const,
+      verticalAnchor: 'middle' as const,
+      fontSize: 12,
+      fontWeight: 'bold',
+      fill: labelColor,
+      letterSpacing: 0,
+    }),
+    [labelColor],
+  )
 
   const totals = useMemo(() => data.map(d => d.total), [data])
   const minPrice = Math.min(...totals)
@@ -103,12 +109,15 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     getScaledX(minPriceDate, xScale.domain[0].getTime(), xScale.domain[1].getTime(), width),
   )
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
-  const yScale = {
-    type: 'linear' as const,
-    range: [yMax + margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
-    domain: [minPrice ?? 0, maxPrice ?? 0],
-    nice: true,
-  }
+  const yScale = useMemo(
+    () => ({
+      type: 'linear' as const,
+      range: [yMax + margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      domain: [minPrice ?? 0, maxPrice ?? 0],
+      nice: true,
+    }),
+    [margin.top, maxPrice, minPrice, yMax],
+  )
   const scaledMaxPriceY = getScaledY(maxPrice, minPrice, maxPrice, height - margin.bottom)
   const scaledMinPriceY = getScaledY(minPrice, minPrice, maxPrice, height - margin.bottom)
 

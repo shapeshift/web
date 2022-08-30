@@ -21,8 +21,8 @@ export const MainNavLink = memo(
       <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
         <Button
           width='full'
-          justifyContent='flex-start'
-          variant='ghost'
+          justifyContent={{ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }}
+          variant='nav-link'
           isActive={href ? active : false}
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}

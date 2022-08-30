@@ -25,6 +25,8 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
+  swapperApi: mockApiFactory('swapperApi' as const),
+  foxyApi: mockApiFactory('foxyApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -39,6 +41,7 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     accountSpecifiers: {
+      accountMetadataById: {},
       byId: {},
       ids: [],
     },
@@ -49,18 +52,18 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       Osmosis: false,
-      MultiCurrency: false,
       FoxLP: false,
       FoxFarming: false,
       Avalanche: false,
       Thor: false,
       CowSwap: false,
-      JunoPay: false,
       Pendo: false,
-      Litecoin: false,
-      BitcoinCash: false,
       Axelar: false,
       Zendesk: false,
+      MtPelerinFiatRamp: false,
+      Yat: false,
+      RainbowCharts: false,
+      MultiAccounts: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

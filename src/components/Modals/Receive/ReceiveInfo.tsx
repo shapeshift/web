@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -32,6 +32,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+import { selectAccountNumberByAccountId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 
@@ -52,7 +54,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, 0)
+  const filter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, accountNumber)
 
   useEffect(() => {
     ;(async () => {
@@ -191,7 +195,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       _active={{ color: 'blue.800' }}
                       cursor='pointer'
                     >
-                      <MiddleEllipsis address={receiveAddress} data-test='receive-address-label' />
+                      <MiddleEllipsis value={receiveAddress} data-test='receive-address-label' />
                     </Flex>
                   </Skeleton>
                 </Card.Body>

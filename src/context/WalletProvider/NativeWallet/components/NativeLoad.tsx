@@ -26,8 +26,10 @@ import {
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['NativeLoad'] })
 
 type VaultInfo = {
   id: string
@@ -61,7 +63,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
           setWallets(storedWallets)
         } catch (e) {
-          console.error('WalletProvider:NativeWallet:Load - Cannot get vault', e)
+          moduleLogger.error(e, 'WalletProvider:NativeWallet:Load - Cannot get vault')
           setWallets([])
         }
       }
@@ -85,6 +87,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId, meta: { label: item.name } },
           })
+          dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           // The wallet is already initialized so we can close the modal
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

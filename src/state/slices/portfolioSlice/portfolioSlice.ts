@@ -1,15 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { initialState, Portfolio } from './portfolioSliceCommon'
+import { AccountMetadataById, initialState, Portfolio } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
@@ -21,6 +22,10 @@ export const portfolio = createSlice({
     clear: () => {
       moduleLogger.info('clearing portfolio')
       return initialState
+    },
+    setAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
+      moduleLogger.info('setting account metadata')
+      state.accountSpecifiers.accountMetadataById = payload
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.info('upserting portfolio')
@@ -82,11 +87,8 @@ export const portfolio = createSlice({
 type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const portfolioApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch, getState }) => {

@@ -17,6 +17,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,6 +30,7 @@ import {
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../constants'
+const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
 
 const ethersProvider = getEthersProvider()
 
@@ -60,6 +62,7 @@ export const useFoxEthLiquidityPool = () => {
   useEffect(() => {
     if (wallet && adapter) {
       ;(async () => {
+        if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet })
         setConnectedWalletEthAddress(address)
       })()
@@ -166,7 +169,7 @@ export const useFoxEthLiquidityPool = () => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxEthLiquidityPool:addLiquidity error')
       }
     },
     [
@@ -264,7 +267,7 @@ export const useFoxEthLiquidityPool = () => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxEthLiquidityPool:remoLiquidity error')
       }
     },
     [

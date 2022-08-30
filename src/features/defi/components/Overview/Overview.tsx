@@ -39,6 +39,7 @@ type OverviewProps = {
   tvl?: string
   apy?: string
   icons?: string[]
+  expired?: boolean
 } & DefiActionButtonProps &
   PropsWithChildren
 
@@ -55,6 +56,7 @@ export const Overview: React.FC<OverviewProps> = ({
   description,
   menu,
   children,
+  expired,
 }) => {
   const renderUnderlyingAssets = useMemo(() => {
     return underlyingAssets.map(asset => {
@@ -136,14 +138,14 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         </Stack>
         {children}
-        {(description || tvl || apy) && (
+        {(description || tvl || apy || expired) && (
           <>
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
                 <Text fontSize='lg' fontWeight='medium' translation='defi.modals.overview.about' />
                 {description && <AssetDescriptionTeaser {...description} />}
               </Stack>
-              {(tvl || apy) && (
+              {(tvl || apy || expired) && (
                 <StatGroup>
                   {tvl && (
                     <Stat fontWeight='medium'>
@@ -156,6 +158,14 @@ export const Overview: React.FC<OverviewProps> = ({
                     <Stat fontWeight='medium'>
                       <Amount.Percent autoColor value={apy} fontSize='lg' />
                       <StatLabel>APY</StatLabel>
+                    </Stat>
+                  )}
+
+                  {expired && (
+                    <Stat fontWeight='medium'>
+                      <Tag colorScheme='yellow'>
+                        <Text translation='defi.ended' />
+                      </Tag>
                     </Stat>
                   )}
                 </StatGroup>

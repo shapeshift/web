@@ -19,6 +19,8 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['ConnectWallet'] })
 
 async function connectCypressWallet(
   keyring: Keyring,
@@ -96,7 +98,7 @@ export const ConnectWallet = () => {
             history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
           }
         })
-        .catch(e => console.error(e))
+        .catch(e => moduleLogger.error(e))
     }
   }, [history, hasWallet, query, state, dispatch, isCypressTest])
   return (
@@ -122,9 +124,9 @@ export const ConnectWallet = () => {
                 fontSize={{ base: '6xl', lg: '8xl' }}
                 mb={6}
               >
-                <RawText color='white' fontWeight='light' lineHeight='1'>
+                <RawText color='white' fontWeight='light' lineHeight='1' userSelect={'none'}>
                   {translate('connectWalletPage.exploreThe')}{' '}
-                  <RawText color='white' fontWeight='bold' as='span' userSelect={'none'}>
+                  <RawText color='white' fontWeight='bold' as='span'>
                     {translate('connectWalletPage.defiUniverse')}
                   </RawText>
                 </RawText>
@@ -165,7 +167,6 @@ export const ConnectWallet = () => {
                   size='lg'
                   zIndex={1}
                   variant='outline'
-                  colorScheme='white'
                   onClick={connectDemo}
                   isLoading={state.isLoadingLocalWallet}
                 >

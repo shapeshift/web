@@ -148,7 +148,9 @@ export const useKeepKeyEventHandler = (
               })()
               break
             case FailureType.SYNTAXERROR:
-              console.warn('KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?')
+              moduleLogger.warn(
+                'KeepKey Event [FAILURE]: Invalid mnemonic, are words in correct order?',
+              )
               dispatch({
                 type: WalletActions.OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE,
                 payload: {
@@ -199,6 +201,7 @@ export const useKeepKeyEventHandler = (
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
+          dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
       } catch (e) {

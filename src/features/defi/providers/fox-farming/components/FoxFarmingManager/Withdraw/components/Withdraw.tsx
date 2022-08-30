@@ -14,12 +14,14 @@ import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -45,10 +47,10 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     try {
       const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(`1e${ethAsset.precision}`).toPrecision()
+      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('FoxFarmingWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(error, 'FoxFarmingWithdraw:getWithdrawGasEstimate error:')
     }
   }
 
@@ -61,10 +63,10 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       payload: { lpAmount: formValues.cryptoAmount, isExiting },
     })
     const lpAllowance = await allowance()
-    const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
+    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
 
-    // Skip approval step if user allowance is greater than requested deposit amount
-    if (allowanceAmount.gt(bnOrZero(formValues.cryptoAmount))) {
+    // Skip approval step if user allowance is greater than or equal requested deposit amount
+    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
       const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
       if (!estimatedGasCrypto) {
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
@@ -83,7 +85,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(`1e${ethAsset.precision}`)
+            .div(bn(10).pow(ethAsset.precision))
             .toPrecision(),
         },
       })

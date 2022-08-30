@@ -1,7 +1,16 @@
-import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  Skeleton,
+  Stack,
+  Stat,
+  StatArrow,
+  StatNumber,
+  Switch,
+} from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
@@ -9,6 +18,7 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioAssetIds,
@@ -32,6 +42,10 @@ export const Portfolio = () => {
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
+  const isRainbowChartsEnabled = useFeatureFlag('RainbowCharts')
+  const [isRainbowChart, setIsRainbowChart] = useState(false)
+  const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
+
   return (
     <Stack spacing={6} width='full'>
       <Card variant='footer-stub'>
@@ -43,14 +57,49 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          <Box mb={{ base: 6, md: 0 }}>
+          {isRainbowChartsEnabled ? (
+            // TODO: only keep this part after `RainbowCharts` feature flag removal
+            <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
+              <Text translation='dashboard.portfolio.totalChart' />
+              <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
+              <Text translation='dashboard.portfolio.rainbowChart' />
+            </Button>
+          ) : (
+            <Flex flexDir='column'>
+              <Card.Heading as='div' color='gray.500'>
+                <Skeleton isLoaded={isLoaded} mb={2}>
+                  <Text translation='dashboard.portfolio.portfolioBalance' />
+                </Skeleton>
+              </Card.Heading>
+              <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+                <Skeleton isLoaded={isLoaded}>
+                  <Amount.Fiat value={totalBalancePlusLpHoldings} />
+                </Skeleton>
+              </Card.Heading>
+              {isFinite(percentChange) && (
+                <Skeleton mt={2} isLoaded={!!percentChange}>
+                  <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                    <StatNumber fontSize='md' display='flex' alignItems='center'>
+                      <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                      <Amount.Percent value={percentChange * 0.01} />
+                    </StatNumber>
+                  </Stat>
+                </Skeleton>
+              )}
+            </Flex>
+          )}
+          <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
+            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
+          </Skeleton>
+        </Card.Header>
+        {isRainbowChartsEnabled && (
+          <Flex flexDir='column' justifyContent='center' alignItems='center'>
             <Card.Heading as='div' color='gray.500'>
               <Skeleton isLoaded={isLoaded}>
                 <Text translation='dashboard.portfolio.portfolioBalance' />
               </Skeleton>
             </Card.Heading>
-
-            <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
+            <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
               <Skeleton isLoaded={isLoaded}>
                 <Amount.Fiat value={totalBalancePlusLpHoldings} />
               </Skeleton>
@@ -65,17 +114,28 @@ export const Portfolio = () => {
                 </Stat>
               </Skeleton>
             )}
-          </Box>
-          <Skeleton isLoaded={isLoaded}>
-            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
-          </Skeleton>
-        </Card.Header>
+          </Flex>
+        )}
         <BalanceChart
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
+          isRainbowChart={isRainbowChart}
         />
+        <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
+          <TimeControls
+            onChange={setTimeframe}
+            defaultTime={timeframe}
+            buttonGroupProps={{
+              display: 'flex',
+              width: 'full',
+              justifyContent: 'space-between',
+              px: 6,
+              py: 4,
+            }}
+          />
+        </Skeleton>
       </Card>
       <Card>
         <Card.Header>

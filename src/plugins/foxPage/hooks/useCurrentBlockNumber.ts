@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { logger } from 'lib/logger'
 
 import { getEthersProvider } from '../utils'
+const moduleLogger = logger.child({ namespace: ['useCurrentBlockNumber'] })
 
 const web3Provider = getEthersProvider()
 
@@ -13,7 +15,7 @@ export const useCurrentBlockNumber = () => {
     web3Provider
       .getBlockNumber()
       .then(setBlock)
-      .catch(error => console.error(`Failed to get block number for chainId:`, error))
+      .catch(error => moduleLogger.error(error))
   }, [block])
 
   return block

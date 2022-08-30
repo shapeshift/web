@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import {
   FiatMarketDataArgs,
@@ -12,6 +12,7 @@ import {
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
@@ -125,11 +126,8 @@ export const marketData = createSlice({
 type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'marketApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets

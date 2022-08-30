@@ -12,7 +12,7 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
-import { RawText, Text } from '../Text'
+import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
@@ -87,7 +87,6 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 />
                 {values?.map((item: AccountItem, id: number) => (
                   <AccountChildOption
-                    value={`${item.account}-${id}`}
                     key={`${item.account}-${id}`}
                     title={item.name}
                     cryptoBalance={item.cryptoBalance}

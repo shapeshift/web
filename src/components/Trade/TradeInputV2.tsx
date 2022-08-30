@@ -9,6 +9,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/services/useSwapperService'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,6 +18,8 @@ import { RateGasRow } from './Components/RateGasRow'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
+
+const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
@@ -89,7 +92,7 @@ export const TradeInput = () => {
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', bnOrZero(currentBuyTradeAsset.amount).toString())
     } catch (e) {
-      console.error(e)
+      moduleLogger.error(e, 'handleToggle error')
     }
   }
 
@@ -107,12 +110,12 @@ export const TradeInput = () => {
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
-    console.info(values)
+    moduleLogger.info(values, 'debugging logger')
     try {
       // TODO: Check if approval needed
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
-      console.error(e)
+      moduleLogger.error(e, 'onSubmit error')
     }
   }
 

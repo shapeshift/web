@@ -183,7 +183,7 @@ export const TradeInput = () => {
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
-          ></TradeAssetInput>
+          />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
           <RateGasRow

@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
@@ -79,7 +80,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
   const amountRef = useRef<string | null>(null)
-  const [isFiat, setIsFiat] = useState<boolean>(false)
+  const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -142,7 +143,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       {showFiatAmount && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
           <Button
-            onClick={() => setIsFiat(!isFiat)}
+            onClick={() => toggleIsFiat(!isFiat)}
             size='xs'
             fontWeight='medium'
             variant='link'

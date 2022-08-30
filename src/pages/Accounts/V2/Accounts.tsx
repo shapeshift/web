@@ -38,7 +38,7 @@ const exampleAccounts: AccountItem[] = [
 ]
 
 export const Accounts = () => {
-  const [activeAccount, setActiveAccount] = useState<string | null>('0')
+  const [activeAccount, setActiveAccount] = useState<string | null>(null)
   return (
     <Main titleComponent={<AccountHeader />}>
       <List ml={0} mt={0} spacing={4}>

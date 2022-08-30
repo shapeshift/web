@@ -61,7 +61,7 @@ export const Accounts = () => {
           <AccountDropdown
             accounts={exampleAccounts}
             activeAccount={activeAccount}
-            buttonProps={{ mx: 2, mt: 2 }}
+            buttonProps={{ mx: 2, mt: 2, px: 2 }}
             onClick={account => setActiveAccount(account)}
           />
         </AssetInput>

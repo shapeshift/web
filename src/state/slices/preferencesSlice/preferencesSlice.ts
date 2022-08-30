@@ -19,6 +19,7 @@ export type FeatureFlags = {
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
   Yat: boolean
+  RainbowCharts: boolean
   MultiAccounts: boolean
   SwapperV2: boolean
 }
@@ -51,6 +52,7 @@ const initialState: Preferences = {
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
+    RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
   },

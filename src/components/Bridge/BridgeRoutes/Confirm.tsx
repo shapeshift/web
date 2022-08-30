@@ -25,6 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -35,6 +36,7 @@ import { useAppSelector } from 'state/store'
 import { EditableAddress } from '../components/EditableAddress'
 import { BridgeAsset, BridgeRoutePaths, BridgeState } from '../types'
 import { WithBackButton } from './WithBackButton'
+const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 type SelectAssetProps = {
   onClick: (asset: BridgeAsset) => void
@@ -107,7 +109,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
 
         setIsLoadingRelayerFee(false)
       } catch (e) {
-        console.error('GasFee error', e)
+        moduleLogger.error(e, 'GasFee error')
       }
     })()
   }, [
@@ -165,7 +167,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
       await handleSend(handleSendArgs)
       history.push(BridgeRoutePaths.Status)
     } catch (e) {
-      console.error('GasFee error', e)
+      moduleLogger.error(e, 'GasFee error')
       setIsExecutingTransaction(false)
     }
   }

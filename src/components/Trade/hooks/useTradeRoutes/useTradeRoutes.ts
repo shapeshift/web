@@ -17,10 +17,13 @@ import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/T
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useSwapper } from '../useSwapper/useSwapperV2'
+
+const moduleLogger = logger.child({ namespace: ['useTradeRoutes'] })
 
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
@@ -103,7 +106,7 @@ export const useTradeRoutes = (
         setValue('amount', '0')
       }
     } catch (e) {
-      console.warn(e)
+      moduleLogger.warn(e, 'useTradeRoutes:setDefaultAssets error')
     }
   }, [
     assets,
@@ -158,7 +161,7 @@ export const useTradeRoutes = (
           setValue('sellAssetAccount', undefined)
         }
       } catch (e) {
-        console.warn(e)
+        moduleLogger.warn(e, 'useTradeRoutes:handleSellClick error')
       } finally {
         history.push(TradeRoutePaths.Input)
       }
@@ -187,7 +190,7 @@ export const useTradeRoutes = (
           setValue('amount', fiatSellAmount)
         }
       } catch (e) {
-        console.warn(e)
+        moduleLogger.warn(e, 'useTradeRoutes:handleBuyClick error')
       } finally {
         history.push(TradeRoutePaths.Input)
       }

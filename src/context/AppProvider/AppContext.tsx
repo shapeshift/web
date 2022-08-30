@@ -226,7 +226,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
         dispatch(portfolio.actions.setAccountMetadata(accMeta))
       } catch (e) {
-        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+        moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])

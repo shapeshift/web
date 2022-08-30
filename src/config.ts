@@ -96,6 +96,8 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
     err.message = key
+    // Can't use logger in src/config in tests
+    // eslint-disable-next-line no-console
     console.error(err, key, 'Invalid Config')
   })
 }

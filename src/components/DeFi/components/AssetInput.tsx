@@ -143,7 +143,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       {showFiatAmount && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
           <Button
-            onClick={() => toggleIsFiat(!isFiat)}
+            onClick={toggleIsFiat}
             size='xs'
             fontWeight='medium'
             variant='link'

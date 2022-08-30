@@ -46,7 +46,13 @@ type TradeAssetInputProps = {
   assetId?: AssetId
 } & AssetInputProps
 
-export const TradeAssetInput: React.FC<TradeAssetInputProps> = props => {
-  const { assetId } = props
-  return assetId ? <AssetInputLoaded assetId={assetId} {...props} /> : <AssetInputLoading />
+export const TradeAssetInput: React.FC<TradeAssetInputProps> = ({
+  assetId,
+  ...restAssetInputProps
+}) => {
+  return assetId ? (
+    <AssetInputLoaded assetId={assetId} {...restAssetInputProps} />
+  ) : (
+    <AssetInputLoading />
+  )
 }

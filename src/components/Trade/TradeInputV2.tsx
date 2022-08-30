@@ -49,8 +49,6 @@ export const TradeInput = () => {
     }),
   )
 
-  // const { updateTrade, checkApprovalNeeded } = useSwapper()
-
   const { field: sellAmountCrypto } = useController({
     name: 'sellTradeAsset.amount',
     control,

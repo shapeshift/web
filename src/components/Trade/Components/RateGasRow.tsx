@@ -32,7 +32,12 @@ export const RateGasRow: FC<RateGasRowProps> = ({ sellSymbol, buySymbol, rate, g
             flexProps={{ flexDirection: 'row-reverse' }}
           >
             <Stack width='full' direction='row' spacing={1}>
-              <Amount.Crypto fontSize='sm' value='1' symbol={sellSymbol ?? ''} suffix='=' />
+              <Amount.Crypto
+                fontSize='sm'
+                value='1'
+                symbol={sellSymbol ?? ''}
+                suffix={sellSymbol ? '=' : ''}
+              />
               <Amount.Crypto
                 fontSize='sm'
                 value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}

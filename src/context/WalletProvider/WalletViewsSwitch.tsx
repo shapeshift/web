@@ -105,6 +105,7 @@ export const WalletViewsSwitch = () => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route
+                        key='walletViewRoute'
                         exact
                         path={route.path}
                         render={routeProps => <Component {...routeProps} />}

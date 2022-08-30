@@ -10,6 +10,7 @@ export const getBanxaAssets = () => {
     // name will be set in useFiatRampCurrencyList hook
     name: '',
   }))
+  console.log(assets)
   return assets
 }
 

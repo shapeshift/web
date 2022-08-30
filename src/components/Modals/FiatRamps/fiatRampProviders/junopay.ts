@@ -61,7 +61,6 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
     acc.push(mapped)
     return acc
   }, [])
-
   return assets
 }
 

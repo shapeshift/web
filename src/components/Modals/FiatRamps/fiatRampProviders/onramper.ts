@@ -2,6 +2,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import * as _ from 'lodash'
 import { logger } from 'lib/logger'
+import { adapters } from '@shapeshiftoss/caip'
 
 import { FiatRampAsset } from '../FiatRampsCommon'
 
@@ -68,6 +69,10 @@ export async function getOnRamperAssets(): Promise<FiatRampAsset[]> {
     }
   })()
 
+  const onRamperAssets = adapters.getSupportedOnRamperAssets()
+
+  console.log(onRamperAssets)
+
   if (!data) return []
   const fiatRampAssets = convertOnRamperDataToFiatRampAsset(data)
   return fiatRampAssets
@@ -77,6 +82,9 @@ function convertOnRamperDataToFiatRampAsset(response: OnRamperGatewaysResponse):
   // First get all the Transak coins, since they have the cleanest names
   // Then add all the rest
   const groupedByGateway = _.groupBy(response.gateways, 'identifier')
+
+  console.log(groupedByGateway)
+
   const initialCoins =
     _.head(groupedByGateway['Transak'])?.cryptoCurrencies.map(currency =>
       toFiatRampAsset(currency, response.icons),
@@ -95,7 +103,6 @@ function convertOnRamperDataToFiatRampAsset(response: OnRamperGatewaysResponse):
         assetId: curr.code,
         symbol: curr.code,
         imageUrl: response.icons[curr.code].icon,
-        disabled: false,
       })
     }
     return acc
@@ -109,6 +116,5 @@ function toFiatRampAsset(currency: Currency, icons: IGL) {
     assetId: currency.code,
     symbol: currency.code,
     imageUrl: icons[currency.code].icon,
-    disabled: false,
   } as FiatRampAsset
 }

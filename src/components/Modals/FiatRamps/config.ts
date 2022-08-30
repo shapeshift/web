@@ -152,8 +152,8 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsSell: true,
     minimumSellThreshold: 0,
     getBuyAndSellList: async () => {
-      const mockAssets = await getOnRamperAssets()
-      return Promise.resolve([mockAssets, mockAssets])
+      const onRamperAssets = await getOnRamperAssets()
+      return [onRamperAssets, onRamperAssets]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       try {

@@ -458,7 +458,10 @@ export const TradeInput = ({ history }: RouterProps) => {
                       displayType={'text'}
                       thousandSeparator={true}
                     />
-                    <RawText whiteSpace={'pre'}>{` ${buyTradeAsset?.asset?.symbol}`}</RawText>
+                    <RawText
+                      mr={2}
+                      whiteSpace={'pre'}
+                    >{` ${buyTradeAsset?.asset?.symbol}`}</RawText>
                     <HelperTooltip label={translate('trade.tooltip.rate')} />
                   </>
                 )}

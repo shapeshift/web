@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ChainId } from '@shapeshiftoss/caip'
 import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -15,10 +15,6 @@ export type TradeAsset = {
   asset?: Asset
   amount?: string
   fiatAmount?: string
-}
-
-export type TradeProps = {
-  defaultBuyAssetId: AssetId
 }
 
 export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }

@@ -39,7 +39,7 @@ export function Amount({
 
 type CryptoAmountProps = {
   value: string
-  symbol?: string
+  symbol: string
   cryptoSymbolStyle?: TextProps
   maximumFractionDigits?: number
 } & AmountProps

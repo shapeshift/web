@@ -1,6 +1,7 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import React from 'react'
 import { AssetInput, AssetInputProps } from 'components/DeFi/components/AssetInput'
 import {
   selectMarketDataById,
@@ -32,7 +33,7 @@ type AssetInputLoadedProps = {
 
 const AssetInputLoaded: React.FC<AssetInputLoadedProps> = ({ assetId, ...rest }) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  // user info
+
   const balance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId }),
   )

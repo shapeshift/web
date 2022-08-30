@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { osmosisAssetId } from '@shapeshiftoss/caip'
 import { isCowTrade, TradeTxs } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -40,7 +39,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { TradeRoutePaths, TradeState } from '../types'
+import { TradeRoutePaths, TS } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
@@ -57,12 +56,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TradeState<KnownChainIds>>()
+  } = useFormContext<TS>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  const { trade, fees, sellAssetFiatRate } = getValues()
+  const {
+    trade,
+    fees,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate'> = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
+  // TODO: Use fiatRate from TradeState - we don't need to pass fiatRate around.
   const { fiatRate } = location.state
   const {
     number: { toFiat },
@@ -134,22 +139,32 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const tradeFiatAmount = toFiat(
-    bnOrZero(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0))
-      .times(bnOrZero(sellAssetFiatRate))
-      .times(selectedCurrencyToUsdRate)
-      .toNumber(),
+  const sellAmountCrypto = fromBaseUnit(
+    bnOrZero(trade?.sellAmount),
+    trade?.sellAsset?.precision ?? 0,
   )
-  const feeFiatValue = bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate)
 
-  const tradeFiatValue = bnOrZero(
-    fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset.precision ?? 0),
-  )
+  const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
-  //ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
-  const gasFeeToTradeRatioPercentage = feeFiatValue.dividedBy(tradeFiatValue).times(100).toNumber()
+  const buyAmountCryptoBeforeFees = fromBaseUnit(
+    bnOrZero(trade?.buyAmount),
+    trade?.buyAsset?.precision ?? 0,
+  )
+  const buyAmountCryptoAfterFees = fromBaseUnit(
+    bnOrZero(trade?.buyAmount).minus(bnOrZero(fees?.tradeFee)),
+    trade?.buyAsset?.precision ?? 0,
+  )
+
+  const buyAmountFiat = bnOrZero(buyAmountCryptoBeforeFees)
+    .times(bnOrZero(buyAssetFiatRate))
+    .times(selectedCurrencyToUsdRate)
+
+  const feeAmountFiat = bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate)
+
+  // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
+  const gasFeeToTradeRatioPercentage = feeAmountFiat.dividedBy(sellAmountFiat).times(100).toNumber()
   const gasFeeToTradeRatioPercentageThreshold = 5
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
@@ -191,35 +206,24 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             >
               <AssetToAsset
                 buyIcon={trade.buyAsset.icon}
-                tradeFiatAmount={tradeFiatAmount}
-                trade={trade}
+                sellIcon={trade.sellAsset.icon}
                 status={sellTxid || isSubmitting ? status : undefined}
               />
               <Stack spacing={4}>
                 <Row>
                   <Row.Label>Send</Row.Label>
                   <Row.Value textAlign='right'>
-                    <Amount.Crypto
-                      value={Number(
-                        fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset?.precision ?? 0),
-                      ).toString()}
-                      symbol={trade.sellAsset.symbol}
-                    />
-                    <Amount.Fiat color='gray.500' value={tradeFiatAmount} prefix='≈' />
+                    <Amount.Crypto value={sellAmountCrypto} symbol={trade.sellAsset.symbol} />
+                    <Amount.Fiat color='gray.500' value={sellAmountFiat.toString()} prefix='≈' />
                   </Row.Value>
                 </Row>
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
-                  amount={Number(
-                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
-                  ).toString()}
-                  fiatAmount={tradeFiatAmount}
-                  beforeFees='100'
-                  protocolFee='10'
+                  amount={buyAmountCryptoAfterFees}
+                  fiatAmount={buyAmountFiat.toString()}
+                  beforeFees={buyAmountCryptoBeforeFees}
+                  protocolFee={fees?.tradeFee}
                   shapeShiftFee='0'
-                  minAmountAfterSlippage={Number(
-                    fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0),
-                  ).toString()}
                 />
               </Stack>
               <Stack spacing={4}>
@@ -280,13 +284,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} ≃{' '}
-                    {toFiat(
-                      bnOrZero(fees?.fee)
-                        .times(fiatRate)
-                        .times(selectedCurrencyToUsdRate)
-                        .toNumber(),
-                    )}
+                    {bnOrZero(fees?.fee).toNumber()} ≃ {toFiat(feeAmountFiat.toNumber())}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

@@ -1,6 +1,6 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router'
@@ -48,28 +48,30 @@ export const TradeInput = () => {
 
   // const { updateTrade, checkApprovalNeeded } = useSwapper()
 
-  const { field: cryptoSellAmount } = useController({
+  const { field: sellAmountCrypto } = useController({
     name: 'sellTradeAsset.amount',
     control,
     rules: { required: true },
   })
-  const { field: fiatSellAmount } = useController({
+  const { field: sellAmountFiat } = useController({
     name: 'fiatSellAmount',
     control,
     rules: { required: true },
   })
 
-  const { field: fiatBuyAmount } = useController({
+  const { field: buyAmountFiat } = useController({
     name: 'fiatBuyAmount',
     control,
     rules: { required: true },
   })
 
-  const { field: cryptoBuyAmount } = useController({
+  const { field: buyAmountCrypto } = useController({
     name: 'buyTradeAsset.amount',
     control,
     rules: { required: true },
   })
+
+  const toCryptoAmountAfterFees = bnOrZero(buyAmountCrypto?.value).minus(bnOrZero(fees?.tradeFee))
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
@@ -106,16 +108,7 @@ export const TradeInput = () => {
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     console.info(values)
     try {
-      // const approveNeeded = await checkApprovalNeeded()
-      // if (approveNeeded) {
-      //   history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
-      //   return
-      // }
-      // await updateTrade({
-      //   sellAsset: values.quote.sellAsset,
-      //   buyAsset: values.quote.buyAsset,
-      //   amount: values.quote.sellAmount,
-      // })
+      // TODO: Check if approval needed
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       console.error(e)
@@ -127,20 +120,20 @@ export const TradeInput = () => {
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={0}>
           <TradeAssetInput
-            assetId={sellTradeAsset?.asset?.assetId as AssetId}
+            assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={cryptoSellAmount?.value}
-            fiatAmount={fiatSellAmount.value}
+            cryptoAmount={sellAmountCrypto?.value}
+            fiatAmount={sellAmountFiat.value}
             isSendMaxDisabled={!quote}
             onChange={(value, isFiat) => {
               const action = isFiat
                 ? TradeAmountInputField.SELL_FIAT
                 : TradeAmountInputField.SELL_CRYPTO
               if (isFiat) {
-                fiatSellAmount.onChange(value)
+                sellAmountFiat.onChange(value)
               } else {
-                cryptoSellAmount.onChange(value)
+                sellAmountCrypto.onChange(value)
               }
               handleInputChange(action, value)
             }}
@@ -168,20 +161,20 @@ export const TradeInput = () => {
             />
           </Stack>
           <TradeAssetInput
-            assetId={buyTradeAsset?.asset?.assetId as AssetId}
+            assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={cryptoBuyAmount?.value}
-            fiatAmount={fiatBuyAmount.value}
+            cryptoAmount={buyAmountCrypto?.value}
+            fiatAmount={buyAmountFiat.value}
             onChange={(value, isFiat) => {
               const action = isFiat
                 ? TradeAmountInputField.BUY_FIAT
                 : TradeAmountInputField.BUY_CRYPTO
-              cryptoBuyAmount.onChange(value)
+              buyAmountCrypto.onChange(value)
               if (isFiat) {
-                fiatBuyAmount.onChange(value)
+                buyAmountFiat.onChange(value)
               } else {
-                cryptoBuyAmount.onChange(value)
+                buyAmountCrypto.onChange(value)
               }
               handleInputChange(action, value)
             }}
@@ -199,11 +192,11 @@ export const TradeInput = () => {
           <ReceiveSummary
             isLoading={!quote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
-            amount={cryptoBuyAmount?.value ?? ''}
-            beforeFees='100'
-            protocolFee='10'
+            amount={toCryptoAmountAfterFees.toString()}
+            beforeFees={buyAmountCrypto?.value ?? ''}
+            protocolFee={fees?.tradeFee}
             shapeShiftFee='0'
-            minAmountAfterSlippage={cryptoBuyAmount?.value ?? ''}
+            minAmountAfterSlippage={buyAmountCrypto?.value ?? ''}
           />
         </Stack>
         <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>

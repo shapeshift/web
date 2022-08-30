@@ -1,25 +1,21 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Circle, Divider, Flex, FlexProps, Spinner, useColorModeValue } from '@chakra-ui/react'
-import { Trade } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AssetIcon } from 'components/AssetIcon'
 
-type AssetToAssetProps<C extends KnownChainIds> = {
-  tradeFiatAmount: string
+type AssetToAssetProps = {
   buyIcon: string
+  sellIcon: string
   status?: TxStatus
-  trade?: Trade<C>
 } & FlexProps
 
 export const AssetToAsset = ({
-  tradeFiatAmount,
   buyIcon,
-  trade,
+  sellIcon,
   boxSize = '32px',
   status,
   ...rest
-}: AssetToAssetProps<KnownChainIds>) => {
+}: AssetToAssetProps) => {
   const sellAssetColor = !status ? '#F7931A' : '#2775CA'
   const buyAssetColor = '#2775CA'
   const gray = useColorModeValue('white', 'gray.750')
@@ -63,7 +59,7 @@ export const AssetToAsset = ({
     <Flex width='full' justifyContent='space-between' alignItems='stretch' {...rest}>
       <Box flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center'>
-          <AssetIcon src={trade?.sellAsset.icon} boxSize={boxSize} />
+          <AssetIcon src={sellIcon} boxSize={boxSize} />
           <Divider borderBottomWidth={2} flex={1} bgColor={sellAssetColor} />
         </Flex>
       </Box>

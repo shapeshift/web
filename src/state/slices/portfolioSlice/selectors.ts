@@ -33,6 +33,7 @@ import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectFarmContractsFiatBalance } from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
@@ -333,10 +334,17 @@ export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
   selectTotalStakingUndelegationFiat,
-  (portfolioFiatBalance, delegationFiatBalance, undelegationFiatBalance): string => {
+  selectFarmContractsFiatBalance,
+  (
+    portfolioFiatBalance,
+    delegationFiatBalance,
+    undelegationFiatBalance,
+    foxFarmingFiatBalance,
+  ): string => {
     return bnOrZero(portfolioFiatBalance)
       .plus(delegationFiatBalance)
       .plus(undelegationFiatBalance)
+      .plus(foxFarmingFiatBalance)
       .toString()
   },
 )

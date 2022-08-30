@@ -8,7 +8,9 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
+  selectFarmContractsFiatBalance,
   selectFeatureFlags,
+  selectFoxEthLpFiatBalance,
   selectFoxEthLpOpportunity,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
@@ -39,6 +41,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   })
   const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
   const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
+  const farmContractsFiatBalance = useAppSelector(selectFarmContractsFiatBalance)
+  const foxEthLpFiatBalance = useAppSelector(selectFoxEthLpFiatBalance)
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
@@ -55,6 +59,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(foxyBalancesData?.totalBalance ?? '0')
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
+    .plus(farmContractsFiatBalance)
+    .plus(foxEthLpFiatBalance)
     .toString()
 
   return {

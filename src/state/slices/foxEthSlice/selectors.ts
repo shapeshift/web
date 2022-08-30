@@ -1,6 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
+import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+
+import { foxEthLpAssetId } from './constants'
 
 export const selectFoxEthLpOpportunity = (state: ReduxState) => state.foxEth.lpOpportunity
 
@@ -30,5 +33,23 @@ export const selectFarmContractsBalance = createSelector(
       bnOrZero(0),
     )
     return foxFarmingTotalCryptoAmount.toString()
+  },
+)
+
+export const selectFoxEthLpFiatBalance = createSelector(
+  selectMarketData,
+  selectFoxEthLpOpportunity,
+  (marketData, lpOpportunity) => {
+    const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
+    return bnOrZero(lpOpportunity.cryptoAmount).times(lpTokenPrice).toFixed(2)
+  },
+)
+
+export const selectFarmContractsFiatBalance = createSelector(
+  selectMarketData,
+  selectFarmContractsBalance,
+  (marketData, foxFarmingTotalCryptoAmount) => {
+    const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
+    return bnOrZero(foxFarmingTotalCryptoAmount).times(lpTokenPrice).toFixed(2)
   },
 )

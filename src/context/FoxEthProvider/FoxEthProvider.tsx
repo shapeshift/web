@@ -46,7 +46,7 @@ export type FoxFarmingEarnOpportunityType = {
 
 const icons = [
   'https://assets.coincap.io/assets/icons/eth@2x.png',
-  'https://assets.coincap.io/assets/icons/fox@2x.png',
+  'https://assets.coincap.io/assets/icons/256/fox.png',
 ]
 
 const lpOpportunity: EarnOpportunityType = {

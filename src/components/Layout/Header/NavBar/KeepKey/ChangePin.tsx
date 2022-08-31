@@ -4,6 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeepKeyPin } from 'context/WalletProvider/KeepKey/components/Pin'
 import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
@@ -24,6 +25,7 @@ export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
   const {
+    dispatch,
     state: {
       keepKeyPinRequestType,
       deviceState: { awaitingDeviceInteraction, isUpdatingPin },
@@ -73,9 +75,10 @@ export const ChangePin = () => {
 
     setDeviceState({
       isUpdatingPin: true,
-      lastDeviceInteractionStatus: false,
       awaitingDeviceInteraction: true,
     })
+
+    dispatch({ type: WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE })
 
     await keepKeyWallet?.changePin().catch(e => {
       fnLogger.error(e, 'Error applying new PIN')

@@ -1,8 +1,8 @@
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import * as _ from 'lodash'
+import { uniqBy } from 'lodash'
 import { logger } from 'lib/logger'
-import { adapters } from '@shapeshiftoss/caip'
 
 import { FiatRampAsset } from '../FiatRampsCommon'
 
@@ -10,30 +10,21 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
 })
 
+// Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
 interface OnRamperGatewaysResponse {
   gateways: IGatewayItem[]
-  localization: {
-    country: string
-    state: string | null
-    currency: string
-  }
-  icons: IGL
-  defaultAmounts?: {
-    [key: string]: number
-  }
+  icons: TokenIconMap
 }
 
-type IGL = {
+type TokenIconMap = {
   [key: string]: IconGatewaysResponse
 }
 
 interface Currency {
-  code: string // display only
-  id: string // internal id e.g. bnb-bep20
-  precision: number
+  code: string
+  id: string
   network?: string
   displayName?: string
-  supportsAddressTag?: boolean
 }
 
 interface IconGatewaysResponse {
@@ -44,8 +35,6 @@ interface IconGatewaysResponse {
 
 interface IGatewayItem {
   identifier: string
-  paymentMethods: string[]
-  fiatCurrencies: Currency[]
   cryptoCurrencies: Currency[]
 }
 
@@ -69,52 +58,32 @@ export async function getOnRamperAssets(): Promise<FiatRampAsset[]> {
     }
   })()
 
-  const onRamperAssets = adapters.getSupportedOnRamperAssets()
-
-  console.log(onRamperAssets)
-
   if (!data) return []
+
   const fiatRampAssets = convertOnRamperDataToFiatRampAsset(data)
   return fiatRampAssets
 }
 
 function convertOnRamperDataToFiatRampAsset(response: OnRamperGatewaysResponse): FiatRampAsset[] {
-  // First get all the Transak coins, since they have the cleanest names
-  // Then add all the rest
+  // We only need Transak coin definitions, they have the cleanest naming scheme out of all available providers
   const groupedByGateway = _.groupBy(response.gateways, 'identifier')
+  const initialCoins = _.head(groupedByGateway['Transak'])
+    ?.cryptoCurrencies.map(currency => toFiatRampAsset(currency, response.icons))
+    .filter(p => p !== undefined) as FiatRampAsset[]
 
-  console.log(groupedByGateway)
-
-  const initialCoins =
-    _.head(groupedByGateway['Transak'])?.cryptoCurrencies.map(currency =>
-      toFiatRampAsset(currency, response.icons),
-    ) || []
-
-  const initialCoinsUnique = _.uniqBy(initialCoins, 'assetId')
-
-  const coinsWithDisplayName = response.gateways
-    .flatMap(gw => gw.cryptoCurrencies)
-    .filter(coin => coin.displayName !== undefined)
-
-  const totalCoinList = coinsWithDisplayName.reduce<FiatRampAsset[]>((acc, curr) => {
-    if (!acc.find(coin => coin.assetId === curr.code)) {
-      acc.push({
-        name: curr.displayName || '',
-        assetId: curr.code,
-        symbol: curr.code,
-        imageUrl: response.icons[curr.code].icon,
-      })
-    }
-    return acc
-  }, initialCoinsUnique)
-  return totalCoinList
+  const uniqueCoins = uniqBy(initialCoins, 'assetId')
+  return uniqueCoins
 }
 
-function toFiatRampAsset(currency: Currency, icons: IGL) {
-  return {
-    name: currency.displayName,
-    assetId: currency.code,
-    symbol: currency.code,
-    imageUrl: icons[currency.code].icon,
-  } as FiatRampAsset
+function toFiatRampAsset(currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined {
+  const assetId = adapters.onRamperTickerToAssetId(currency.code)
+  if (assetId !== undefined) {
+    return {
+      name: currency.displayName || '',
+      assetId,
+      symbol: currency.code,
+      imageUrl: icons[currency.code].icon,
+    }
+  }
+  return undefined
 }

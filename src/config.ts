@@ -60,6 +60,7 @@ const validators = {
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
   REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
+  REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier

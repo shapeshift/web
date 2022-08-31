@@ -25,7 +25,7 @@ type RampsListProps = {
 
 export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => {
   const history = useHistory()
-  const mtPelerinFiatRampFlag = useFeatureFlag('MtPelerinFiatRamp')
+  const onRamperFiatRampFlag = useFeatureFlag('OnRamperFiatRamp')
   const tagColor = useColorModeValue('gray.600', 'gray.400')
   const ramps = useMemo(() => {
     type Entry = [keyof typeof supportedFiatRamps, SupportedFiatRampConfig]
@@ -34,7 +34,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
         // TODO: remove before merging to develop
-        if (fiatRamp === 'MtPelerin' && !mtPelerinFiatRampFlag) return acc
+        if (fiatRamp === 'OnRamper' && !onRamperFiatRampFlag) return acc
         if (fiatRampConfig.isImplemented) {
           acc.unshift(
             <Button
@@ -124,7 +124,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
       initial,
     )
     return result
-  }, [history, mtPelerinFiatRampFlag, setFiatRampProvider, tagColor])
+  }, [history, onRamperFiatRampFlag, setFiatRampProvider, tagColor])
 
   return (
     <>

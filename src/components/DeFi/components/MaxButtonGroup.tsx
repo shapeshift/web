@@ -15,7 +15,7 @@ export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
   isDisabled,
 }) => {
   return (
-    <ButtonGroup justifyContent='space-between' size='xs'>
+    <ButtonGroup justifyContent='flex-end' size='xs'>
       {options.map(option => (
         <Button
           isDisabled={isDisabled}

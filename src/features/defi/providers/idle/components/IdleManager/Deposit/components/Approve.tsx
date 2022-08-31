@@ -182,7 +182,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
-      providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
+      providerIcon={asset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

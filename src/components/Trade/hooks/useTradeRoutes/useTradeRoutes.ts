@@ -105,7 +105,11 @@ export const useTradeRoutes = (
       const routeDefaultBuyAsset = assets[buyAssetId]
 
       // If we don't have a quote already, get one for the route's default assets
-      if (routeDefaultSellAsset && routeDefaultBuyAsset && !(buyTradeAsset || sellTradeAsset)) {
+      if (
+        routeDefaultSellAsset &&
+        routeDefaultBuyAsset &&
+        !(buyTradeAsset?.asset || sellTradeAsset?.asset)
+      ) {
         setValue('buyTradeAsset.asset', routeDefaultBuyAsset)
         setValue('sellTradeAsset.asset', routeDefaultSellAsset)
         setValue('action', TradeAmountInputField.SELL_CRYPTO)

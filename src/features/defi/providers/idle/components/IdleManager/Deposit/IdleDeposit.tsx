@@ -112,12 +112,11 @@ export const IdleDeposit = () => {
         component: Confirm,
       },
       [DefiStep.Status]: {
-        label: 'Status',
+        label: translate('defi.steps.status.title'),
         component: Status,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [translate, asset.symbol])
 
   if (loading || !asset || !marketData || !idleInvestor) {
     return (

@@ -120,13 +120,12 @@ export const IdleWithdraw = () => {
         component: Confirm,
       },
       [DefiStep.Status]: {
-        label: 'Status',
+        label: translate('defi.steps.status.title'),
         component: Status,
       },
     }
     // We only need this to update on symbol change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [underlyingAsset.symbol])
+  }, [translate, underlyingAsset.symbol])
 
   if (loading || !asset || !marketData)
     return (

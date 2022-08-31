@@ -158,7 +158,7 @@ export const foxEthApi = createApi({
           Object.values(HistoryTimeframe).forEach(timeframe => {
             dispatch(
               marketData.actions.setCryptoPriceHistory({
-                data: [{ price: bnOrZero(price).toNumber(), date: new Date().getTime() }],
+                data: [{ price: bnOrZero(price).toNumber(), date: 0 }],
                 args: { timeframe, assetId: foxEthLpAssetId },
               }),
             )

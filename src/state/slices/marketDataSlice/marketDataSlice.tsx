@@ -14,6 +14,8 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
+import { foxEthLpAssetId } from '../foxEthSlice/constants'
+
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 export type PriceHistoryData = {
@@ -61,6 +63,8 @@ const initialState: MarketDataState = {
     priceHistory: INITIAL_PRICE_HISTORY,
   },
 }
+
+const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
 
 // do not directly use or export, singleton
 let _marketServiceManager: MarketServiceManager | undefined
@@ -156,9 +160,10 @@ export const marketApi = createApi({
         }
       },
     }),
-    findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
+    findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
+        if (ignoreAssetIds.includes(assetId)) return { data: null }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,

@@ -2,6 +2,7 @@ import { Contract } from '@ethersproject/contracts'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
@@ -152,7 +153,16 @@ export const foxEthApi = createApi({
           const lpMarketData = {
             [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
           }
+          // hacks for adding lp price and price history
           dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
+          Object.values(HistoryTimeframe).forEach(timeframe => {
+            dispatch(
+              marketData.actions.setCryptoPriceHistory({
+                data: [{ price: bnOrZero(price).toNumber(), date: new Date().getTime() }],
+                args: { timeframe, assetId: foxEthLpAssetId },
+              }),
+            )
+          })
           const data = { tvl, apy, isLoaded: true }
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }

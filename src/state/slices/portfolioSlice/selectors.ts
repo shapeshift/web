@@ -33,12 +33,16 @@ import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectFarmContractsFiatBalance } from 'state/slices/foxEthSlice/selectors'
+import {
+  selectFarmContractsFiatBalance,
+  selectLpPlusFarmContractsBaseUnitBalance,
+} from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import { foxEthLpAssetId } from '../foxEthSlice/constants'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -508,6 +512,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectMarketData,
     selectBalanceThreshold,
     selectPortfolioAccounts,
+    selectLpPlusFarmContractsBaseUnitBalance,
     (_state: ReduxState, accountId?: string) => accountId,
     (
       assetsById,
@@ -516,6 +521,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       marketData,
       balanceThreshold,
       portfolioAccounts,
+      lpPlusFarmContractsBaseUnitBalance,
       accountId,
     ): PortfolioBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
@@ -540,6 +546,8 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         )
         return acc
       }, cloneDeep(rawBalances))
+      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] =
+        lpPlusFarmContractsBaseUnitBalance
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<PortfolioAssetBalances['byId']>((acc, [assetId, baseUnitBalance]) => {

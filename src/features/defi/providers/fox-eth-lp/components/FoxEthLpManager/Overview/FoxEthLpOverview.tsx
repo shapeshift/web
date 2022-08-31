@@ -16,7 +16,6 @@ import { useAppSelector } from 'state/store'
 export const FoxEthLpOverview = () => {
   const opportunity = useAppSelector(selectFoxEthLpOpportunity)
   const { underlyingFoxAmount, underlyingEthAmount } = opportunity
-  console.info(underlyingFoxAmount, underlyingEthAmount)
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))

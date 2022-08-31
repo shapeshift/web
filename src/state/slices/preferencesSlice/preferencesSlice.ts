@@ -42,8 +42,10 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
-    FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
+    // FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
+    // FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
+    FoxLP: true,
+    FoxFarming: true,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

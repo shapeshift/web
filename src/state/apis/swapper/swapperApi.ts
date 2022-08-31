@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { GetTradeQuoteInput, Swapper, TradeQuote } from '@shapeshiftoss/swapper'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { FeatureFlags, Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
-type GetUsdRateArgs = {
+export type GetUsdRateArgs = {
   rateAssetId: AssetId
   buyAssetId: AssetId
   sellAssetId: AssetId
@@ -21,21 +21,7 @@ type State = {
   preferences: Preferences
 }
 
-type GetTradeQuoteOutput = TradeQuote<ChainId>
-
-const getBestSwapperFromArgs = async (
-  buyAssetId: AssetId,
-  sellAssetId: AssetId,
-  featureFlags: FeatureFlags,
-): Promise<Swapper<ChainId>> => {
-  const swapperManager = await getSwapperManager(featureFlags)
-  const swapper = await swapperManager.getBestSwapper({
-    buyAssetId,
-    sellAssetId,
-  })
-  if (!swapper) throw new Error('swapper is undefined')
-  return swapper
-}
+type GetTradeQuoteReturn = TradeQuote<ChainId>
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -64,16 +50,17 @@ export const swapperApi = createApi({
         }
       },
     }),
-    getTradeQuote: build.query<GetTradeQuoteOutput, GetTradeQuoteInput>({
+    getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState }) => {
+        const { sellAsset, buyAsset } = args
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           preferences: { featureFlags },
         } = state
         try {
           const swapper = await getBestSwapperFromArgs(
-            args.sellAsset.assetId,
-            args.buyAsset.assetId,
+            buyAsset.assetId,
+            sellAsset.assetId,
             featureFlags,
           )
           const tradeQuote = await swapper.getTradeQuote(args)

@@ -27,7 +27,6 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
-  swapperApi.middleware,
   foxEthApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
@@ -48,7 +47,6 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
-  store.dispatch(apiSlices.swapperApi.util.resetApiState())
   store.dispatch(apiSlices.foxEthApi.util.resetApiState())
 }
 

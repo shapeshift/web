@@ -3,12 +3,14 @@ import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 import { SelectAccount } from 'components/Trade/SelectAccount'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { useSwapper } from '../hooks/useSwapper/useSwapper'
+import { useSwapper } from '../hooks/useSwapper/useSwapperV2'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
-import { TradeInput } from '../TradeInput'
+import { TradeInput as TradeInputV1 } from '../TradeInput'
+import { TradeInput as TradeInputV2 } from '../TradeInputV2'
 import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
@@ -21,6 +23,9 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
   const location = useLocation()
   const { handleBuyClick, handleSellClick } = useTradeRoutes(defaultBuyAssetId)
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
+
+  const isSwapperV2 = useFeatureFlag('SwapperV2')
+  const TradeInputComponent = isSwapperV2 ? TradeInputV2 : TradeInputV1
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -45,7 +50,7 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
             />
           )}
         />
-        <Route path={TradeRoutePaths.Input} component={TradeInput} />
+        <Route path={TradeRoutePaths.Input} component={TradeInputComponent} />
         <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
         <Route path={TradeRoutePaths.Approval} component={Approval} />
         <Route path={TradeRoutePaths.AccountSelect} component={SelectAccount} />

@@ -16,6 +16,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,6 +28,7 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../../fox-eth-lp/constants'
 import farmAbi from '../abis/farmingAbi.json'
+const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
 const ethersProvider = getEthersProvider()
 
@@ -147,7 +149,7 @@ export const useFoxFarming = (contractAddress: string) => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxFarming:stake error')
       }
     },
     [
@@ -242,7 +244,7 @@ export const useFoxFarming = (contractAddress: string) => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxFarming:unstake error')
       }
     },
     [

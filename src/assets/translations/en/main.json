@@ -66,7 +66,8 @@
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
-    "loadingText": "Loading..."
+    "loadingText": "Loading...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -86,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Rainbow",
+      "totalChart": "💰 Total",
       "addAsset": "Add Asset",
       "yourAssets": "Your Assets",
       "asset": "Asset",
@@ -447,10 +450,14 @@
     "needPermission": "needs your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
+    "receiveInclFee": "Receive (incl. fees)",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "unlimited": "Unlimited",
     "exact": "Exact",
+    "expectedAmount": "Expected Amount",
+    "beforeFees": "Before Fees",
+    "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
@@ -1227,7 +1234,8 @@
   "accounts": {
     "accounts": "Accounts",
     "selectAccount": "Select an Account",
-    "addAccount": "Add Account"
+    "addAccount": "Add Account",
+    "accountNumber": "Account #%{number}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

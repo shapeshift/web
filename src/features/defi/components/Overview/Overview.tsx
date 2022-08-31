@@ -79,7 +79,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
     return rewardAssets.map((asset, index) => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`asset_${index}`}>
+      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
         <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
       </Tag>

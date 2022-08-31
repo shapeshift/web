@@ -8,50 +8,91 @@ import {
   MenuOptionGroup,
   Stack,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import {
+  AccountId,
+  AssetId,
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromAssetId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { ReduxState } from 'state/reducer'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAssetById,
+  selectPortfolioAccountIds,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
-export type AccountItem = {
-  account: string
-  cryptoBalance: string
-  name: string
-  symbol: string
-}
-
 type AccountDropdownProps = {
-  onClick: (arg: string) => void
-  activeAccount: string | null
-  accounts: AccountItem[]
+  assetId: AssetId
   buttonProps?: ButtonProps
+  onChange?: (accountId: AccountId) => void
 }
 
 export const AccountDropdown: React.FC<AccountDropdownProps> = ({
-  onClick,
-  accounts,
+  assetId,
   buttonProps,
-  activeAccount,
+  onChange,
 }) => {
-  const translate = useTranslate()
-  const accountList = useMemo(() => {
-    const groups = accounts.reduce(
-      (entryMap, currentAccount) =>
-        entryMap.set(currentAccount.account, [
-          ...(entryMap.get(currentAccount.account) || []),
-          currentAccount,
-        ]),
-      new Map(),
-    )
-    return Array.from(groups.entries())
-  }, [accounts])
+  const { chainId } = fromAssetId(assetId)
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
-  const handleClick = (account: string) => {
-    onClick(account)
+  // TODO(0xdef1cafe): selectPortfolioAccountIdsByChainId
+  const allAccountIds = useSelector(selectPortfolioAccountIds)
+  const accountIds = allAccountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
+
+  type AccountIdsByNumberAndType = {
+    [k: number]: AccountId[]
   }
+  const initial: AccountIdsByNumberAndType = {}
+  const accountIdsByNumberAndType = accountIds.reduce((acc, accountId) => {
+    const { accountNumber } = accountMetadata[accountId].bip44Params
+    if (!acc[accountNumber]) acc[accountNumber] = []
+    acc[accountNumber].push(accountId)
+    return acc
+  }, initial)
+
+  const [selectedAccountId, setSelectedAccountId] = useState<AccountId>(accountIds[0])
+  const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
+  const translate = useTranslate()
+  const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const onClick = (accountId: AccountId) => {
+    setSelectedAccountId(accountId)
+    // don't fire if not changed
+    accountId !== selectedAccountId && onChange?.(accountId)
+  }
+
+  const makeTitle = useCallback(
+    (accountId: AccountId) => {
+      /**
+       * for UTXO chains, we want the title to be the account type
+       * for account-based chains, we want the title to be the asset name
+       */
+      const { chainNamespace } = fromChainId(chainId)
+      switch (chainNamespace) {
+        // note - conceptually this is really CHAIN_NAMESPACE.UTXO
+        case CHAIN_NAMESPACE.Bitcoin: {
+          return accountIdToLabel(accountId)
+        }
+        default: {
+          return asset.name
+        }
+      }
+    },
+    [chainId, asset],
+  )
 
   return (
     <Menu closeOnSelect={false} matchWidth>
@@ -64,7 +105,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
       >
         <Stack direction='row' alignItems='center'>
           <RawText fontWeight='bold' color='var(--chakra-colors-chakra-body-text)'>
-            {translate('accounts.accountNumber', { number: activeAccount })}
+            {translate('accounts.accountNumber', { number: selectedAccountId })}
           </RawText>
           <MiddleEllipsis
             shouldShorten
@@ -76,25 +117,30 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
       </MenuButton>
       <MenuList minWidth='240px' maxHeight='200px' overflowY='auto'>
         <MenuOptionGroup defaultValue='asc' type='radio'>
-          {accountList.map((group, id) => {
-            const [account, values] = group
+          {Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
             return (
               <>
                 <AccountSegment
-                  key={id}
-                  title={translate('accounts.accountNumber', { number: account })}
-                  subtitle='0x1234...1234'
+                  key={accountNumber}
+                  title={translate('accounts.accountNumber', { number: accountNumber })}
+                  // subtitle={accountIdToLabel(accountId)} // hide me until we have the option to "nickname" accounts
                 />
-                {values?.map((item: AccountItem, id: number) => (
-                  <AccountChildOption
-                    key={`${item.account}-${id}`}
-                    title={item.name}
-                    cryptoBalance={item.cryptoBalance}
-                    symbol={item.symbol}
-                    isChecked={activeAccount === item.account}
-                    onClick={() => handleClick(item.account)}
-                  />
-                ))}
+                {accountIds.map(accountId => {
+                  // const accountMetadataForAccountId = accountMetadata[accountId]
+                  // const supportedAccountTypes = chainAdapter?.getSupportedAccountTypes?.() ?? [
+                  //   undefined,
+                  // ]
+                  return (
+                    <AccountChildOption
+                      key={accountId}
+                      title={makeTitle(accountId)}
+                      cryptoBalance={'420'}
+                      symbol={asset.symbol}
+                      isChecked={selectedAccountId === accountId}
+                      onClick={() => onClick(accountId)}
+                    />
+                  )
+                })}
               </>
             )
           })}

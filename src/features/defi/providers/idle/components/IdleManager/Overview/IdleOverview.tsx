@@ -20,6 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
@@ -28,6 +29,10 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({
+  namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Overview', 'IdleOverview'],
+})
 
 const defaultMenu: DefiButtonProps[] = [
   {
@@ -133,7 +138,7 @@ export const IdleOverview = () => {
         }
       } catch (error) {
         // TODO: handle client side errors
-        console.error('IdleOverview error:', error)
+        moduleLogger.error(error, 'IdleOverview:useEffect error')
       }
     })()
   }, [idleInvestor, vaultAddress, chainId, toast, translate, walletAddress])

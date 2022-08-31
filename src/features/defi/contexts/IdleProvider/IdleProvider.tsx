@@ -1,9 +1,12 @@
 import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
+import { logger } from 'lib/logger'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { getIdleInvestor } from './idleInvestorSingleton'
+
+const moduleLogger = logger.child({ namespace: ['Defi', 'Contexts', 'IdleProvider'] })
 
 type IdleContextProps = {
   loading: boolean
@@ -37,7 +40,7 @@ export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
         await investor.initialize()
         setIdle(investor)
       } catch (error) {
-        console.error('IdleManager: error', error)
+        moduleLogger.error(error, 'IdleProvider:useEffect error')
       } finally {
         setLoading(false)
       }

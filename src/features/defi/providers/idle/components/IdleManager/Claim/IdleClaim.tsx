@@ -18,6 +18,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,6 +27,10 @@ import { ClaimContext } from './ClaimContext'
 import { initialState, reducer } from './ClaimReducer'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Idle', 'IdleClaim'],
+})
 
 export const IdleClaim = () => {
   const { idleInvestor } = useIdle()
@@ -82,7 +87,7 @@ export const IdleClaim = () => {
         dispatch({ type: IdleClaimActionType.SET_CLAIMABLE_TOKENS, payload: claimableTokens })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('IdleClaim error:', error)
+        moduleLogger.error(error, 'IdleClaim:useEffect error')
       }
     })()
   }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])

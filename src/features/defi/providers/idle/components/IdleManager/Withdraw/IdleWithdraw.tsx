@@ -19,6 +19,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -32,6 +33,10 @@ import { Withdraw } from './components/Withdraw'
 import { IdleWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Withdraw', 'IdleWithdraw'],
+})
 
 export const IdleWithdraw = () => {
   const { idleInvestor } = useIdle()
@@ -85,7 +90,8 @@ export const IdleWithdraw = () => {
         dispatch({ type: IdleWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('IdleWithdraw error:', error)
+
+        moduleLogger.error(error, 'IdleWithdraw:useEffect error')
       }
     })()
   }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])

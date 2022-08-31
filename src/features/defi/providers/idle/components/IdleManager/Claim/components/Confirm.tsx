@@ -152,7 +152,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      console.error('IdleClaim:handleConfirm error', error)
+      moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
     }

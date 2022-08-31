@@ -15,6 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -24,6 +25,10 @@ import { useAppSelector } from 'state/store'
 
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
+})
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -83,7 +88,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           .toString()
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
-        console.error('IdleWithdraw:getWithdrawGasEstimate error:', error)
+        moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
     [state?.userAddress, opportunity, assetReference, idleInvestor, asset],

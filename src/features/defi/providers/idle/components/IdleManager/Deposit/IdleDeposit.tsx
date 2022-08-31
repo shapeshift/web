@@ -19,6 +19,7 @@ import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -33,6 +34,10 @@ import { Status } from './components/Status'
 import { IdleDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
+
+const moduleLogger = logger.child({
+  namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Deposit', 'IdleDeposit'],
+})
 
 export const IdleDeposit = () => {
   const { idleInvestor } = useIdle()
@@ -76,7 +81,7 @@ export const IdleDeposit = () => {
         dispatch({ type: IdleDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('IdleDeposit error:', error)
+        moduleLogger.error(error, 'IdleDeposit:useEffect error')
       }
     })()
   }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])

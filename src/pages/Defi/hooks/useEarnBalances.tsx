@@ -19,12 +19,12 @@ export type UseEarnBalancesReturn = {
   loading: boolean
 }
 
-export type SerializableOpportuniy = MergedEarnVault
+export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
-  const vaultArray: SerializableOpportuniy[] = useMemo(() => Object.values(vaults), [vaults])
+  const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosSdkStakingBalances({
       assetId: cosmosAssetId,

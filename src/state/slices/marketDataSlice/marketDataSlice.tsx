@@ -64,6 +64,9 @@ const initialState: MarketDataState = {
   },
 }
 
+// TODO: remove this once single and multi sided delegation abstraction is implemented
+// since foxEthLpAsset market data is monkey-patched, requesting its price history
+// will return an empty array which overrides the patch.
 const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
 
 // do not directly use or export, singleton

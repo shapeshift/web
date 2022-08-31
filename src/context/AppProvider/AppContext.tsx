@@ -377,8 +377,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isPortfolioLoaded || !wallet || !supportsETH(wallet)) return
-    // TODO: remove this line when flags were removed
-    if (!(foxLpEnabled || foxFarmingEnabled)) return
     // getting fox-eth lp token data
     dispatch(foxEthApi.endpoints.getFoxEthLpGeneralData.initiate())
     const chainAdapterManager = getChainAdapterManager()
@@ -389,7 +387,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       const ethWalletAddress = await adapter.getAddress({ wallet })
       // getting fox-eth lp token balances
-      dispatch(foxEthApi.endpoints.getFoxEthLpWalletData.initiate({ ethWalletAddress }))
+      // TODO: remove this line when flags were removed
+      if (foxLpEnabled || foxFarmingEnabled)
+        dispatch(foxEthApi.endpoints.getFoxEthLpWalletData.initiate({ ethWalletAddress }))
       farmOpportunities.forEach(opportunity => {
         const { contractAddress } = opportunity
         // getting fox farm contract data
@@ -399,12 +399,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           }),
         )
         // getting fox farm contract balances
-        dispatch(
-          foxEthApi.endpoints.getFoxFarmingContractWalletData.initiate({
-            contractAddress,
-            ethWalletAddress,
-          }),
-        )
+        // TODO: remove this line when flags were removed
+        if (foxFarmingEnabled)
+          dispatch(
+            foxEthApi.endpoints.getFoxFarmingContractWalletData.initiate({
+              contractAddress,
+              ethWalletAddress,
+            }),
+          )
       })
     })()
   }, [dispatch, foxEthLpMarketData, foxFarmingEnabled, foxLpEnabled, isPortfolioLoaded, wallet])

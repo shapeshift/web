@@ -5,17 +5,19 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
-import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
-import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  useGetFoxEthLpGeneralDataQuery,
+  useGetFoxFarmingContractGeneralDataQuery,
+} from 'state/slices/foxEthSlice/foxEthSlice'
 
 import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
-  const { lpApr, isLpAprLoaded } = useLpApr()
-
+  const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
+    useGetFoxFarmingContractGeneralDataQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
+  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpGeneralDataQuery()
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [FOX_ASSET_ID]: [
@@ -28,8 +30,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               isLoaded: isFarmingAprV4Loaded && isLpAprLoaded,
               apy:
                 isFarmingAprV4Loaded && isLpAprLoaded
-                  ? bnOrZero(farmingAprV4)
-                      .plus(lpApr ?? 0)
+                  ? bnOrZero(farmingV4Data?.apy)
+                      .plus(lpData?.apy ?? 0)
                       .toString()
                   : null,
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0/get-started',
@@ -49,7 +51,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: foxEthLpOpportunityName,
               isLoaded: isLpAprLoaded,
-              apy: isLpAprLoaded ? lpApr : null,
+              apy: lpData?.apy ?? null,
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
@@ -95,7 +97,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [lpApr, farmingAprV4, assetId, isLpAprLoaded, isFarmingAprV4Loaded])
+  }, [isFarmingAprV4Loaded, isLpAprLoaded, farmingV4Data?.apy, lpData?.apy, assetId])
 
   return otherOpportunities
 }

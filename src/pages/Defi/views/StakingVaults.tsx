@@ -13,8 +13,6 @@ import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCom
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
-import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -26,6 +24,10 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  useGetFoxEthLpGeneralDataQuery,
+  useGetFoxFarmingContractGeneralDataQuery,
+} from 'state/slices/foxEthSlice/foxEthSlice'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,8 +44,9 @@ const FoxFarmCTA = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
-  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
-  const { lpApr, isLpAprLoaded } = useLpApr()
+  const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
+    useGetFoxFarmingContractGeneralDataQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
+  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpGeneralDataQuery()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const ethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/slip44:60'))
   const foxAsset = useAppSelector(state =>
@@ -101,8 +104,8 @@ const FoxFarmCTA = () => {
             <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}>
               <Amount.Percent
                 as='span'
-                value={bnOrZero(farmingAprV4)
-                  .plus(lpApr ?? 0)
+                value={bnOrZero(farmingV4Data?.apy)
+                  .plus(lpData?.apy ?? 0)
                   .toString()}
               />
             </Skeleton>

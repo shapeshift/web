@@ -353,8 +353,5 @@ export const foxEthApi = createApi({
   }),
 })
 
-export const {
-  useGetFoxEthLpGeneralDataQuery,
-  useGetFoxFarmingContractGeneralDataQuery,
-  useGetFoxFarmingContractWalletDataQuery,
-} = foxEthApi
+export const { useGetFoxEthLpGeneralDataQuery, useGetFoxFarmingContractGeneralDataQuery } =
+  foxEthApi

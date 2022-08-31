@@ -541,9 +541,9 @@
         "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
         "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
       },
-      "wiped": {
-        "header": "KeepKey Wiped Successfully",
-        "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
+      "factoryState": {
+        "header": "Get Started with Keepkey",
+        "body": "Your KeepKey is set to factory default settings. Create a new wallet, or restore a wallet using your secret recovery phrase",
         "createButton": "Create a New Wallet",
         "recoverButton": "Recover Wallet"
       },

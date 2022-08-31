@@ -19,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
+import { clearLocalWallet } from './local-wallet'
 import { SelectModal } from './SelectModal'
 const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
@@ -29,8 +30,9 @@ export const WalletViewsSwitch = () => {
   const translate = useTranslate()
   const match = useRouteMatch('/')
   const {
-    state: { wallet, modal, showBackButton, initialRoute, type },
+    state: { wallet, modal, showBackButton, initialRoute, type, disconnectOnCloseModal },
     dispatch,
+    disconnect,
   } = useWallet()
 
   const cancelWalletRequests = useCallback(async () => {
@@ -47,7 +49,13 @@ export const WalletViewsSwitch = () => {
 
   const onClose = async () => {
     history.replace('/')
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    if (disconnectOnCloseModal) {
+      disconnect()
+      dispatch({ type: WalletActions.RESET_STATE })
+      clearLocalWallet()
+    } else {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    }
     await cancelWalletRequests()
   }
 

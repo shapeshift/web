@@ -522,12 +522,6 @@
         "infoSecond": "Nunca comparta su frase de recuperación, otorgara acceso a todos sus fondos.",
         "awaitingButtonPress": "Siga los pasos en su KeepKey para ver su sentencia de recuperación. ¡Escríbelo!"
       },
-      "wiped": {
-        "header": "KeepKey borrado con éxito",
-        "body": "Ha restablecido con éxito su KeepKey a los valores de fábrica predeterminados. Ahora puede restaurar utilizando una frase semilla de recuperación existente o crear una nueva billetera.",
-        "createButton": "Crear una nueva billetera",
-        "recoverButton": "Recuperar billetera"
-      },
       "recoverySentenceEntry": {
         "header": "Ingrese su Oración de Recuperación",
         "body": "Usando la leyenda codificada del teclado en su KeepKey, ingrese las primeras 4 letras de cada palabra. Si hay menos de 4 letras en la palabra, presione Enter, presione la barra espaciadora o haga clic en Siguiente cuando haya terminado de escribir.",

@@ -78,9 +78,7 @@ export const Status = () => {
 
   const claimableAssetsToRender = useMemo(() => {
     if (!state.claimableTokens) return null
-    return state.claimableTokens.map((token, index) => (
-      <ClaimableAsset key={`asset_${index}`} token={token} />
-    ))
+    return state.claimableTokens.map(token => <ClaimableAsset key={token.assetId} token={token} />)
   }, [state.claimableTokens])
 
   const handleViewPosition = useCallback(() => {

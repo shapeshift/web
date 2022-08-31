@@ -52,6 +52,7 @@ import {
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
+  AccountMetadata,
   AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
@@ -142,6 +143,12 @@ export const selectPortfolioAccountBalances = (
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountSpecifiers.accountMetadataById,
   accountMetadata => accountMetadata,
+)
+
+export const selectPortfolioAccountMetadataByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): AccountMetadata => accountMetadata[accountId],
 )
 
 export const selectBIP44ParamsByAccountId = createSelector(

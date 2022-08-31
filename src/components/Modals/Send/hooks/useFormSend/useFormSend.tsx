@@ -21,7 +21,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 
@@ -36,7 +36,7 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
   const { supportedEvmChainIds } = useEvm()
-  const acctMetaData = useAppSelector(state => selectPortfolioAccountMetadata(state))
+  const acctMetaData = useSelector(selectPortfolioAccountMetadata)
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {

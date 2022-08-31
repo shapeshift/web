@@ -31,8 +31,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
@@ -55,17 +54,18 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const chainAdapter = chainAdapterManager.get(chainId)
 
   const filter = useMemo(() => ({ accountId }), [accountId])
-  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, accountNumber ?? 0)
+  const accountMeta = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, filter),
+  )
+  const { accountType, bip44Params } = accountMeta
 
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
-      const accountParams = utxoParams
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
-        ...accountParams,
+        bip44Params,
       })
       setReceiveAddress(selectedAccountAddress)
       if (asset.chainId === KnownChainIds.EthereumMainnet) {
@@ -81,18 +81,16 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     asset,
     wallet,
     chainAdapter,
-    utxoParams,
+    bip44Params,
   ])
 
   const handleVerify = async () => {
-    const accountParams = utxoParams
-
     if (!(wallet && chainAdapter && receiveAddress)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
       accountType,
-      ...accountParams,
+      bip44Params,
     })
 
     setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)

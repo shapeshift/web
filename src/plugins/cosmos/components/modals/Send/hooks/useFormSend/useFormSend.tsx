@@ -8,7 +8,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 
@@ -20,7 +20,7 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const acctMetaData = useAppSelector(state => selectPortfolioAccountMetadata(state))
+  const acctMetaData = useSelector(selectPortfolioAccountMetadata)
   type CosmosSdkChainFees = FeeData<KnownChainIds.CosmosMainnet> &
     FeeData<KnownChainIds.OsmosisMainnet>
 

@@ -61,8 +61,10 @@ const validators = {
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
+  REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
   REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
+  REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),
@@ -98,6 +100,8 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
     err.message = key
+    // Can't use logger in src/config in tests
+    // eslint-disable-next-line no-console
     console.error(err, key, 'Invalid Config')
   })
 }

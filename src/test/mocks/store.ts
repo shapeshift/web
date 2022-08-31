@@ -41,6 +41,7 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     accountSpecifiers: {
+      accountMetadataById: {},
       byId: {},
       ids: [],
     },
@@ -62,7 +63,9 @@ export const mockStore: ReduxState = {
       Zendesk: false,
       MtPelerinFiatRamp: false,
       Yat: false,
+      RainbowCharts: false,
       MultiAccounts: false,
+      SwapperV2: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

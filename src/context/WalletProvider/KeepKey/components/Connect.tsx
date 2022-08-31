@@ -14,9 +14,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
   let t: string
@@ -60,7 +62,7 @@ export const KeepKeyConnect = () => {
             setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
             return
           }
-          console.error('KeepKey Connect: There was an error initializing the wallet', err)
+          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
           setErrorLoading('walletProvider.errors.walletNotFound')
           return
         })
@@ -98,7 +100,7 @@ export const KeepKeyConnect = () => {
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        console.error('KeepKey Connect: There was an error initializing the wallet', e)
+        moduleLogger.error(e, 'KeepKey Connect: There was an error initializing the wallet')
         setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
     }

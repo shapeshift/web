@@ -1,7 +1,10 @@
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+
+const moduleLogger = logger.child({ namespace: ['FoxyProvider'] })
 
 type FoxyContextProps = {
   loading: boolean
@@ -28,7 +31,7 @@ export const FoxyProvider: React.FC<PropsWithChildren> = ({ children }) => {
         const api = getFoxyApi()
         setFoxy(api)
       } catch (error) {
-        console.error('FoxyManager: error', error)
+        moduleLogger.error(error, 'FoxyManager: error')
       } finally {
         setLoading(false)
       }

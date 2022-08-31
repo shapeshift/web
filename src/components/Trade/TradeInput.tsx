@@ -50,7 +50,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid, isSubmitting },
+    formState: { errors, isDirty, isValid },
   } = useFormContext<TradeState<KnownChainIds>>()
   const {
     number: { localeParts, toFiat },
@@ -70,8 +70,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   ] = useWatch({
     name: [
       'quote',
-      'buyAsset',
-      'sellAsset',
+      'buyTradeAsset',
+      'sellTradeAsset',
       'feeAssetFiatRate',
       'quoteError',
       'sellAssetAccount',
@@ -81,8 +81,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     ],
   }) as [
     TS['quote'],
-    TS['buyAsset'],
-    TS['sellAsset'],
+    TS['buyTradeAsset'],
+    TS['sellTradeAsset'],
     TS['feeAssetFiatRate'],
     TS['quoteError'],
     TS['sellAssetAccount'],
@@ -96,6 +96,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [isUpdatingTrade, setIsUpdatingTrade] = useState(false)
 
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
@@ -162,7 +163,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: amount ?? '0',
         sellAsset: sellTradeAsset.asset,
         buyAsset: buyTradeAsset.asset,
-        action: action ?? TradeAmountInputField.SELL,
+        action: action ?? TradeAmountInputField.SELL_CRYPTO,
         selectedCurrencyToUsdRate,
       })
     }
@@ -207,6 +208,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
+    setIsUpdatingTrade(true)
 
     try {
       const approvalNeeded = await checkApprovalNeeded()
@@ -228,6 +230,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     } catch (e) {
       showErrorToast(e)
     }
+    setIsUpdatingTrade(false)
   }
 
   const onSetMaxTrade = async () => {
@@ -250,11 +253,11 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: buyTradeAsset.asset,
         feeAsset,
       })
-      const currentSellAsset = getValues('sellAsset')
-      const currentBuyAsset = getValues('buyAsset')
+      const currentSellAsset = getValues('sellTradeAsset')
+      const currentBuyAsset = getValues('buyTradeAsset')
 
       if (currentSellAsset?.asset && currentBuyAsset?.asset) {
-        setValue('action', TradeAmountInputField.SELL)
+        setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', maxSendAmount)
       } else {
         fnLogger.error(
@@ -280,11 +283,11 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentBuyAsset = buyTradeAsset
     try {
       if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
-      setValue('sellAsset', currentBuyAsset)
-      setValue('buyAsset', currentSellAsset)
+      setValue('sellTradeAsset', currentBuyAsset)
+      setValue('buyTradeAsset', currentSellAsset)
       setValue('selectedAssetAccount', undefined)
       setValue('sellAssetAccount', undefined)
-      setValue('action', TradeAmountInputField.SELL)
+      setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
       showErrorToast(e)
@@ -361,7 +364,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     onValueChange={e => {
                       onChange(e.value)
                       if (e.value !== value && sellTradeAsset?.asset && buyTradeAsset?.asset) {
-                        setValue('action', TradeAmountInputField.FIAT)
+                        setValue('action', TradeAmountInputField.SELL_FIAT)
                         setValue('amount', e.value)
                       }
                     }}
@@ -382,10 +385,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             <FormControl>
               <TokenRow<TradeState<KnownChainIds>>
                 control={control}
-                fieldName='sellAsset.amount'
+                fieldName='sellTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL)}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.SELL_CRYPTO)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.SellSelect)}
@@ -455,7 +458,10 @@ export const TradeInput = ({ history }: RouterProps) => {
                       displayType={'text'}
                       thousandSeparator={true}
                     />
-                    <RawText whiteSpace={'pre'}>{` ${buyTradeAsset?.asset?.symbol}`}</RawText>
+                    <RawText
+                      mr={2}
+                      whiteSpace={'pre'}
+                    >{` ${buyTradeAsset?.asset?.symbol}`}</RawText>
                     <HelperTooltip label={translate('trade.tooltip.rate')} />
                   </>
                 )}
@@ -464,10 +470,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             <FormControl mb={6}>
               <TokenRow<TradeState<KnownChainIds>>
                 control={control}
-                fieldName='buyAsset.amount'
+                fieldName='buyTradeAsset.amount'
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
-                onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY)}
+                onInputChange={onTokenRowInputChange(TradeAmountInputField.BUY_CRYPTO)}
                 inputLeftElement={
                   <TokenButton
                     onClick={() => history.push(TradeRoutePaths.BuySelect)}
@@ -491,7 +497,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   ? 'red'
                   : 'blue'
               }
-              isLoading={isSubmitting || isSendMaxLoading}
+              isLoading={isUpdatingTrade || isSendMaxLoading}
               isDisabled={
                 !isDirty ||
                 !isValid ||

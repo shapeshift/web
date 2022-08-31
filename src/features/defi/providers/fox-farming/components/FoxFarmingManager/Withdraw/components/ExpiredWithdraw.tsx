@@ -19,11 +19,16 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
+const moduleLogger = logger.child({
+  namespace: ['Providers', 'FoxFarming', 'FoxFarmingManager', 'Withdraw', 'ExpiredWithdraw'],
+})
 
 export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -51,7 +56,13 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('FoxFarmingWithdraw:getWithdrawGasEstimate error:', error)
+      moduleLogger.error(
+        error,
+        {
+          fn: 'getWithdrawGasEstimate',
+        },
+        'FoxFarmingWithdraw:getWithdrawGasEstimate error',
+      )
     }
   }
 

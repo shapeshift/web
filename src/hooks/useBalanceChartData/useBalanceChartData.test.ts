@@ -1,3 +1,4 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
@@ -16,7 +17,6 @@ import {
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-const ethAssetId = 'eip155:1/slip44:60'
 const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
 describe('makeBuckets', () => {
@@ -31,7 +31,7 @@ describe('makeBuckets', () => {
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {
         const { balance } = bucket
-        expect(balance.fiat.toNumber()).toEqual(0)
+        expect(Object.values(balance.fiat).every(v => v.toNumber() === 0)).toBeTruthy()
         expect(Object.keys(balance.crypto)).toEqual(assetIds)
         expect(balance.crypto[ethAssetId]).toEqual(bn(ethBalance))
       })

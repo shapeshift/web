@@ -17,7 +17,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
-import { getOnRamperAssets } from './fiatRampProviders/onramper'
+import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 import { getConfig } from 'config'
 
@@ -164,7 +164,8 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       try {
-        moduleLogger.info(`Calling ${action} for ${assetId} at ${address}`)
+        const onRamperCheckoutUrl = createOnRamperUrl(action, assetId, address)
+        window.open(onRamperCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }

@@ -22,7 +22,7 @@ import { RawText, Text } from 'components/Text'
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 
-type AssetWithBalance = {
+export type AssetWithBalance = {
   cryptoBalance: string
   allocationPercentage?: string
   icons?: string[]
@@ -78,8 +78,8 @@ export const Overview: React.FC<OverviewProps> = ({
 
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
-    return rewardAssets.map(asset => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm'>
+    return rewardAssets.map((asset, index) => (
+      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
         <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
       </Tag>

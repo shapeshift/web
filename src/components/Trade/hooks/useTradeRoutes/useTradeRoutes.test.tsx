@@ -39,12 +39,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const setValue = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
-  ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
-    getDefaultPair: () => [mockETH.assetId, mockFOX.assetId],
-    swapperManager: {
-      getBestSwapper: jest.fn(),
-    },
-  }))
+  ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({}))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     getValues: jest.fn((search: string) => {

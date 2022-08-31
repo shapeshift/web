@@ -13,11 +13,13 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
 import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +35,8 @@ export const useTradeRoutes = (
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const { getDefaultPair, swapperManager } = useSwapper()
+  const { swapperManager } = useSwapper()
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
   const assets = useSelector(selectAssets)
@@ -55,7 +58,10 @@ export const useTradeRoutes = (
 
   // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
   const buyAssetChainId = routeBuyAssetId ? fromAssetId(routeBuyAssetId).chainId : walletChainId
-  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultPair(buyAssetChainId)
+  const [defaultSellAssetId, defaultBuyAssetId] = getDefaultAssetIdPairByChainId(
+    buyAssetChainId,
+    featureFlags,
+  )
 
   const { chainId: defaultSellChainId } = fromAssetId(defaultSellAssetId)
   const defaultFeeAssetId = getChainAdapterManager().get(defaultSellChainId)!.getFeeAssetId()

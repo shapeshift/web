@@ -1,4 +1,3 @@
-import { ethChainId } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -175,13 +174,6 @@ describe('useSwapper', () => {
     await act(async () => {
       const approvalNeeded = await result.current.checkApprovalNeeded()
       expect(approvalNeeded).toBe(true)
-    })
-  })
-  it('gets default pair', async () => {
-    const { result } = setup()
-    await act(async () => {
-      const defaultPair = result.current.getDefaultPair(ethChainId)
-      expect(defaultPair).toHaveLength(2)
     })
   })
   it('swappermanager initializes with swapper', async () => {

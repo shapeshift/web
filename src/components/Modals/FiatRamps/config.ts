@@ -1,4 +1,5 @@
 import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
+import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -19,7 +20,6 @@ import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
-import { getConfig } from 'config'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -156,15 +156,15 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isImplemented: true,
     isActive: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
     supportsBuy: true,
-    supportsSell: true,
+    supportsSell: false,
     minimumSellThreshold: 0,
     getBuyAndSellList: async () => {
       const onRamperAssets = await getOnRamperAssets()
-      return [onRamperAssets, onRamperAssets]
+      return [onRamperAssets, []]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (_action: FiatRampAction, assetId: AssetId, address: string) => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(action, assetId, address)
+        const onRamperCheckoutUrl = createOnRamperUrl(assetId, address, window.location.href)
         window.open(onRamperCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')

@@ -27,11 +27,15 @@ import { useSwapper } from '../useSwapper/useSwapperV2'
 
 const moduleLogger = logger.child({ namespace: ['useTradeRoutes'] })
 
+export enum AssetClickAction {
+  Buy = 'buy',
+  Sell = 'sell',
+}
+
 export const useTradeRoutes = (
   routeBuyAssetId?: AssetId,
 ): {
-  handleSellClick: (asset: Asset) => Promise<void>
-  handleBuyClick: (asset: Asset) => Promise<void>
+  handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
@@ -39,6 +43,7 @@ export const useTradeRoutes = (
   const featureFlags = useAppSelector(selectFeatureFlags)
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
+  const fiatSellAmount = getValues('fiatSellAmount')
   const assets = useSelector(selectAssets)
   const {
     state: { wallet },
@@ -149,64 +154,40 @@ export const useTradeRoutes = (
     setDefaultAssets()
   }, [connectedEvmChainId, setDefaultAssets])
 
-  const handleSellClick = useCallback(
-    async (asset: Asset) => {
-      try {
-        const previousSellAsset = { ...getValues('sellTradeAsset') }
-        const previousBuyAsset = { ...getValues('buyTradeAsset') }
+  const handleAssetClick = useCallback(
+    (asset: Asset, action: AssetClickAction) => {
+      const isBuy = action === AssetClickAction.Buy
+      const isSell = action === AssetClickAction.Sell
+      const isSameAsset =
+        asset.assetId === (isBuy ? sellTradeAsset?.asset?.assetId : buyTradeAsset?.asset?.assetId)
+      const previousSellTradeAsset = { ...getValues('sellTradeAsset') }
+      const previousBuyTradeAsset = { ...getValues('buyTradeAsset') }
 
-        // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousBuyAsset?.asset?.assetId) {
-          setValue('sellTradeAsset.asset', asset)
-          setValue('buyTradeAsset.asset', previousSellAsset.asset)
-        } else {
-          setValue('sellTradeAsset.asset', asset)
-          setValue('buyTradeAsset.asset', buyTradeAsset?.asset)
-        }
-        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-          const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
-          setValue('action', TradeAmountInputField.SELL_FIAT)
-          setValue('amount', fiatSellAmount)
-          setValue('selectedAssetAccount', undefined)
-          setValue('sellAssetAccount', undefined)
-        }
-      } catch (e) {
-        moduleLogger.warn(e, 'useTradeRoutes:handleSellClick error')
-      } finally {
-        history.push(TradeRoutePaths.Input)
+      if (isBuy) {
+        setValue('buyTradeAsset.asset', asset)
+        isSameAsset && setValue('sellTradeAsset.asset', previousBuyTradeAsset.asset)
       }
+
+      if (isSell) {
+        setValue('sellTradeAsset.asset', asset)
+        isSameAsset && setValue('buyTradeAsset.asset', previousSellTradeAsset.asset)
+        setValue('selectedAssetAccount', undefined)
+        setValue('sellAssetAccount', undefined)
+      }
+
+      setValue('action', TradeAmountInputField.SELL_FIAT)
+      setValue('amount', fiatSellAmount ?? '0')
+      history.push(TradeRoutePaths.Input)
     },
-    [getValues, sellTradeAsset, buyTradeAsset, setValue, history],
+    [
+      sellTradeAsset?.asset?.assetId,
+      buyTradeAsset?.asset?.assetId,
+      getValues,
+      setValue,
+      fiatSellAmount,
+      history,
+    ],
   )
 
-  const handleBuyClick = useCallback(
-    async (asset: Asset) => {
-      try {
-        const previousSellAsset = { ...getValues('sellTradeAsset') }
-        const previousBuyAsset = { ...getValues('buyTradeAsset') }
-
-        // Handle scenario where same asset is selected for buy and sell
-        if (asset.assetId === previousSellAsset?.asset?.assetId) {
-          setValue('buyTradeAsset.asset', asset)
-          setValue('sellTradeAsset.asset', previousBuyAsset.asset)
-        } else {
-          setValue('buyTradeAsset.asset', asset)
-          setValue('sellTradeAsset.asset', sellTradeAsset?.asset)
-        }
-
-        if (sellTradeAsset?.asset && buyTradeAsset?.asset) {
-          const fiatSellAmount = getValues('fiatSellAmount') ?? '0'
-          setValue('action', TradeAmountInputField.SELL_FIAT)
-          setValue('amount', fiatSellAmount)
-        }
-      } catch (e) {
-        moduleLogger.warn(e, 'useTradeRoutes:handleBuyClick error')
-      } finally {
-        history.push(TradeRoutePaths.Input)
-      }
-    },
-    [getValues, buyTradeAsset, sellTradeAsset, setValue, history],
-  )
-
-  return { handleSellClick, handleBuyClick }
+  return { handleAssetClick }
 }

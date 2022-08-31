@@ -19,6 +19,7 @@ import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { getOnRamperAssets } from './fiatRampProviders/onramper'
 import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import { getConfig } from 'config'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -36,6 +37,7 @@ export interface SupportedFiatRampConfig {
   tags?: string[]
   logo: string
   isImplemented: boolean
+  isActive: boolean
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
   minimumSellThreshold?: number
@@ -70,12 +72,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
     isImplemented: true,
+    isActive: true,
     minimumSellThreshold: 5,
   },
   Banxa: {
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
     isImplemented: true,
+    isActive: true,
     minimumSellThreshold: 50,
     supportsBuy: true,
     supportsSell: true,
@@ -102,6 +106,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
     isImplemented: true,
+    isActive: true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {
@@ -124,6 +129,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
     isImplemented: true,
+    isActive: true,
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
@@ -148,6 +154,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: [],
     logo: OnRamperLogo,
     isImplemented: true,
+    isActive: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
     supportsBuy: true,
     supportsSell: true,
     minimumSellThreshold: 0,

@@ -1,7 +1,7 @@
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { uniqBy } from 'lodash'
+import { groupBy, head, uniqBy } from 'lodash'
 import { logger } from 'lib/logger'
 
 import { FiatRampAsset } from '../FiatRampsCommon'
@@ -66,8 +66,8 @@ export async function getOnRamperAssets(): Promise<FiatRampAsset[]> {
 
 function convertOnRamperDataToFiatRampAsset(response: OnRamperGatewaysResponse): FiatRampAsset[] {
   // We only need Transak coin definitions, they have the cleanest naming scheme out of all available providers
-  const groupedByGateway = _.groupBy(response.gateways, 'identifier')
-  const initialCoins = _.head(groupedByGateway['Transak'])
+  const groupedByGateway = groupBy(response.gateways, 'identifier')
+  const initialCoins = head(groupedByGateway['Transak'])
     ?.cryptoCurrencies.map(currency => toFiatRampAsset(currency, response.icons))
     .filter(p => p !== undefined) as FiatRampAsset[]
 

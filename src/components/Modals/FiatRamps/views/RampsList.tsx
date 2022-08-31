@@ -33,9 +33,7 @@ export const RampsList: React.FC<RampsListProps> = ({ setFiatRampProvider }) => 
     const result = (Object.entries(supportedFiatRamps) as Entry[]).reduce(
       (acc, supportedFiatRamp) => {
         const [fiatRamp, fiatRampConfig] = supportedFiatRamp
-        // TODO: remove before merging to develop
-        if (fiatRamp === 'OnRamper' && !onRamperFiatRampFlag) return acc
-        if (fiatRampConfig.isImplemented) {
+        if (fiatRampConfig.isImplemented && fiatRampConfig.isActive) {
           acc.unshift(
             <Button
               key={fiatRamp}

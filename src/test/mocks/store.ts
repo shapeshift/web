@@ -58,6 +58,7 @@ export const mockStore: ReduxState = {
       Thor: false,
       CowSwap: false,
       Pendo: false,
+      IdleFinance: false,
       Axelar: false,
       Zendesk: false,
       MtPelerinFiatRamp: false,

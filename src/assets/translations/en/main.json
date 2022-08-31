@@ -322,6 +322,12 @@
           "rewardsInfo": "Rewards you'll receive"
         }
       },
+      "claim": {
+        "info": {
+          "title": "Claim Info",
+          "description": "Withdraw the accrued farmed tokens"
+        }
+      },
       "approve": {
         "title": "Approve"
       },
@@ -684,6 +690,9 @@
         "failed": "There was an issue with your deposit."
       }
     },
+    "claim": {
+      "claimFrom": "Claim From %{opportunity}"
+    },
     "stake": {
       "amountToStake": "Amount To Stake",
       "stakeYour": "Stake your %{opportunity}",
@@ -748,6 +757,7 @@
       "amountToDeposit": "Amount To Deposit",
       "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
+      "amountToClaim": "Amount To Claim",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",

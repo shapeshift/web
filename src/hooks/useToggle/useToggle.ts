@@ -1,8 +1,4 @@
-import { useCallback, useState } from 'react'
+import { ReducerWithoutAction, useReducer } from 'react'
 
-// Inspired ty https://usehooks.com/useToggle/
-export const useToggle = (initialState: boolean = false): [boolean, () => void] => {
-  const [state, setState] = useState<boolean>(initialState)
-  const toggle = useCallback((): void => setState(state => !state), [])
-  return [state, toggle]
-}
+export const useToggle = (initialState = false) =>
+  useReducer<ReducerWithoutAction<boolean>>(state => !state, initialState)

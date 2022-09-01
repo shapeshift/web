@@ -6,7 +6,7 @@ import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { foxAssetId, foxEthLpOpportunityName } from '../../../constants'
@@ -32,6 +32,8 @@ export const FoxEthLpOverview = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: lpAsset.assetId, selectedLocale })
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   if (loading || !opportunity) {
     return (
       <DefiModalContent>
@@ -44,7 +46,7 @@ export const FoxEthLpOverview = ({
 
   return (
     <Overview
-      onAccountChange={handleAccountChange}
+      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

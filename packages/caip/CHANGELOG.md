@@ -1,3 +1,18 @@
+# [@shapeshiftoss/caip-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.16.0...@shapeshiftoss/caip-v7.0.0) (2022-09-01)
+
+
+### Features
+
+* rename CHAIN_NAMESPACE.Bitcoin -> CHAIN_NAMESPACE.Utxo ([#1006](https://github.com/shapeshift/lib/issues/1006)) ([cbb1fbf](https://github.com/shapeshift/lib/commit/cbb1fbfbb30ec81b96f65dab1f8748f07a3d98fd))
+
+
+### BREAKING CHANGES
+
+* CHAIN_NAMESPACE.Bitcoin is now CHAIN_NAMESPACE.Utxo
+
+This renames CHAIN_NAMESPACE.Bitcoin to CHAIN_NAMESPACE.Utxo since it
+now refers to any UTXO chain
+
 # [@shapeshiftoss/caip-v6.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.15.1...@shapeshiftoss/caip-v6.16.0) (2022-08-23)
 
 

@@ -9,11 +9,20 @@ import {
   Stack,
   Tag,
 } from '@chakra-ui/react'
-import { AccountId, AssetId, CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import {
+  AccountId,
+  AssetId,
+  btcChainId,
+  CHAIN_NAMESPACE,
+  fromAssetId,
+  fromChainId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -38,20 +47,25 @@ type AccountDropdownProps = {
 export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   const { assetId, buttonProps, onChange } = props
   const { chainId } = fromAssetId(assetId)
-  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector((s: ReduxState) =>
     selectPortfolioAccountIdsByAssetId(s, filter),
   )
 
+  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
+
+  const translate = useTranslate()
+  const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
   const accountBalances = useSelector(selectPortfolioAccountBalances)
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
   const [selectedAccountLabel, setSelectedAccountLabel] = useState('')
   const [selectedAccountNumber, setSelectedAccountNumber] = useState(0)
-  const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
-  const translate = useTranslate()
 
+  /**
+   * react on selectedAccountId change
+   */
   useEffect(() => {
     if (isEmpty(accountMetadata)) return
     if (!selectedAccountId) return
@@ -62,6 +76,9 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
     onChange?.(selectedAccountId)
   }, [accountMetadata, selectedAccountId, onChange])
 
+  /**
+   * react on accountIds
+   */
   useEffect(() => {
     if (!accountIds.length) return
     const accountId = accountIds[0] // default to the first when we receive them
@@ -134,6 +151,16 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
     onClick,
     selectedAccountId,
   ])
+
+  /**
+   * these chains already have multi account support via sending and receiving,
+   * and we need to use *and* render this new component while we retrofit the rest of the app
+   *
+   * the effectful logic above will still run for other chains, and return the first account
+   * via the onChange callback on mount, but nothing will be visually rendered
+   */
+  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
+  if (isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
 
   if (!accountIds.length) return null
 

@@ -17,7 +17,11 @@ import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']
 
-export const TradeRoutes = (defaultBuyAssetId?: AssetId) => {
+type TradeRoutesProps = {
+  defaultBuyAssetId?: AssetId
+}
+
+export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
   useDefaultAssetsService(defaultBuyAssetId)
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const location = useLocation()

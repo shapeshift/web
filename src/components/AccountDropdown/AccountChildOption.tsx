@@ -13,8 +13,16 @@ export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
     const Component = (
       <MenuItemOption ref={ref} {...props}>
         <Stack direction='row' justifyContent='space-between' fontSize='sm' spacing={4}>
-          <RawText whiteSpace='nowrap'>{title}</RawText>
-          <Amount.Crypto whiteSpace='nowrap' value={cryptoBalance} symbol={symbol} />
+          <RawText fontWeight='bold' whiteSpace='nowrap'>
+            {title}
+          </RawText>
+          <Amount.Crypto
+            whiteSpace='nowrap'
+            color='gray.500'
+            fontWeight='medium'
+            value={cryptoBalance}
+            symbol={symbol}
+          />
         </Stack>
         {children}
       </MenuItemOption>

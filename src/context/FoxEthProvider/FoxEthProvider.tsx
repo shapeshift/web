@@ -112,6 +112,7 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   lpTokenPrice: string | null
   foxFarmingTotalBalanceInBaseUnit: string | null
   foxEthLpOpportunity: EarnOpportunityType
+  connectedWalletEthAddress: string | null
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   onlyVisibleFoxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpLoading: boolean
@@ -125,6 +126,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   lpEthBalance: null,
   lpTokenPrice: null,
   foxFarmingTotalBalanceInBaseUnit: null,
+  connectedWalletEthAddress: null,
   foxEthLpOpportunity: lpOpportunity,
   foxFarmingOpportunities: [v4FarmingOpportunity],
   onlyVisibleFoxFarmingOpportunities: [v4FarmingOpportunity],
@@ -149,9 +151,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [lpEthBalance, setLpEthBalance] = useState<string | null>(null)
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
-  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool()
-
   const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(connectedWalletEthAddress)
+
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
@@ -353,6 +355,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const value = useMemo(
     () => ({
+      connectedWalletEthAddress,
       totalBalance: bnOrZero(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
         .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
         .toString(),
@@ -374,6 +377,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     [
       featureFlags.FoxLP,
       featureFlags.FoxFarming,
+      connectedWalletEthAddress,
       foxEthLpOpportunity,
       foxFarmingTotalBalance,
       foxFarmingTotalCryptoAmount,

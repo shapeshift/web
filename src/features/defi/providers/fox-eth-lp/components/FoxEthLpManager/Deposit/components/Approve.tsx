@@ -8,6 +8,7 @@ import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -27,7 +28,9 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool()
+  const { connectedWalletEthAddress } = useFoxEth()
+  const { approve, allowance, getDepositGasData } =
+    useFoxEthLiquidityPool(connectedWalletEthAddress)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

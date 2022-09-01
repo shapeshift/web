@@ -115,6 +115,14 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
       }
     }
 
+    /**
+     * for UTXO-based chains, we can have many accounts for a single account number
+     * e.g. account 0 can have legacy, segwit, and segwit native
+     *
+     * this allows us to render the multiple account varieties and their balances for
+     * the native asset for UTXO chains, or a single row with the selected asset for
+     * account based chains that support tokens
+     */
     type AccountIdsByNumberAndType = {
       [k: number]: AccountId[]
     }

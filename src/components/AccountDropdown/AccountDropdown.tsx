@@ -41,7 +41,7 @@ import { AccountSegment } from './AccountSegement'
 type AccountDropdownProps = {
   assetId: AssetId
   buttonProps?: ButtonProps
-  onChange?: (accountId: AccountId) => void
+  onChange: (accountId: AccountId) => void
 }
 
 export const AccountDropdown: React.FC<AccountDropdownProps> = props => {

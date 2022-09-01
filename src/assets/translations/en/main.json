@@ -363,7 +363,8 @@
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade"
   },
   "transactionRow": {
     "send": "Sent",

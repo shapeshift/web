@@ -204,7 +204,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
           <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>
       </MenuButton>
-      <MenuList minWidth='240px' maxHeight='200px' overflowY='auto'>
+      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto'>
         <MenuOptionGroup defaultValue='asc' type='radio'>
           {menuOptions}
         </MenuOptionGroup>

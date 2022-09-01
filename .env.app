@@ -14,6 +14,7 @@ REACT_APP_PENDO_UNSAFE_DESIGNER_MODE=false
 REACT_APP_REFERRER=no-referrer
 
 # unchained
+REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
 REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL=https://api.avalanche.shapeshift.com
@@ -28,6 +29,7 @@ REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL=https://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_WS_URL=wss://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
-# no osmo prod cluster yet
-REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL=https://dev-api.osmosis.shapeshift.com
-REACT_APP_UNCHAINED_OSMOSIS_WS_URL=wss://dev-api.osmosis.shapeshift.com
+REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL=https://api.osmosis.shapeshift.com
+REACT_APP_UNCHAINED_OSMOSIS_WS_URL=wss://api.osmosis.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com

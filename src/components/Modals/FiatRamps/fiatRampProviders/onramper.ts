@@ -80,7 +80,7 @@ const convertOnRamperDataToFiatRampAsset = (
 
 function toFiatRampAsset(currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined {
   const assetId = adapters.onRamperTickerToAssetId(currency.code)
-  if (assetId !== undefined) {
+  if (assetId) {
     return {
       name: currency.displayName || '',
       assetId,

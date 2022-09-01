@@ -1,7 +1,7 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { uniqBy } from 'lodash'
+import { head, uniqBy } from 'lodash'
 import { logger } from 'lib/logger'
 
 import { FiatRampAsset } from '../FiatRampsCommon'
@@ -68,18 +68,16 @@ const convertOnRamperDataToFiatRampAsset = (
   response: OnRamperGatewaysResponse,
 ): FiatRampAsset[] => {
   const allCoins = response.gateways
-    .flatMap(q => q.cryptoCurrencies)
-    .map(currency => {
-      return toFiatRampAsset(currency, response.icons)
-    })
-    .filter(p => p !== undefined) as FiatRampAsset[]
+    .flatMap(gateway => gateway.cryptoCurrencies)
+    .map(currency => toFiatRampAsset(currency, response.icons))
+    .filter(assetOpt => assetOpt !== undefined) as FiatRampAsset[]
 
   const uniqueCoins = uniqBy(allCoins, 'assetId')
   return uniqueCoins
 }
 
 const toFiatRampAsset = (currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined => {
-  const assetId = adapters.onRamperTickerToAssetId(currency.code)
+  const assetId = adapters.onRamperTokenIdToAssetId(currency.code)
   if (assetId) {
     return {
       name: currency.displayName || '',
@@ -97,18 +95,19 @@ export const createOnRamperUrl = (
   address: string,
   currentUrl: string,
 ): string => {
-  const onRamperSymbol = adapters.assetIdToOnRamperTicker(assetId)
-  if (!onRamperSymbol) throw new Error('Asset not supported by OnRamper')
+  const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
+  if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
 
   const baseUrl = getConfig().REACT_APP_ONRAMPER_WIDGET_URL
   const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
 
   const params = new URLSearchParams()
+  const defaultCrypto = head(onRamperSymbols)!!
 
   params.set('apiKey', apiKey)
-  params.set('defaultCrypto', onRamperSymbol)
-  params.set('onlyCryptos', onRamperSymbol)
-  params.set('wallets', `${onRamperSymbol}:${address}`)
+  params.set('defaultCrypto', defaultCrypto)
+  params.set('onlyCryptos', onRamperSymbols.join(','))
+  params.set('wallets', `${defaultCrypto}:${address}`)
   params.set('isAddressEditable', 'false')
   // we don't support selling via OnRamper because there's no way to open the popup directly on the Sell tab
   params.set('supportSell', 'false')

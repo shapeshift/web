@@ -39,7 +39,7 @@ export const estimateFees = ({
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Cosmos:
       return adapter.getFeeData({})
-    case CHAIN_NAMESPACE.Ethereum:
+    case CHAIN_NAMESPACE.Evm:
       return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: address,
         value,

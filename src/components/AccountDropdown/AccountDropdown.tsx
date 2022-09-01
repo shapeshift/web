@@ -7,7 +7,7 @@ import {
   MenuList,
   MenuOptionGroup,
   Stack,
-  Tag,
+  Text,
 } from '@chakra-ui/react'
 import {
   AccountId,
@@ -192,16 +192,9 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
           <RawText fontWeight='bold' color='var(--chakra-colors-chakra-body-text)'>
             {translate('accounts.accountNumber', { accountNumber })}
           </RawText>
-          <Tag
-            whiteSpace='nowrap'
-            colorScheme='blue'
-            fontSize='x-small'
-            fontWeight='bold'
-            minHeight='auto'
-            py={1}
-          >
+          <Text fontWeight='medium' color='grey.500'>
             {accountLabel}
-          </Tag>
+          </Text>
           <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>
       </MenuButton>

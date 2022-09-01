@@ -151,9 +151,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [lpEthBalance, setLpEthBalance] = useState<string | null>(null)
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
-  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool()
-
   const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(connectedWalletEthAddress)
+
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<

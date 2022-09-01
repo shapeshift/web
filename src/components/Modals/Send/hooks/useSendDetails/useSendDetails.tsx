@@ -235,7 +235,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               const adapterFees = await adapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }

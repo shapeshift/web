@@ -610,7 +610,7 @@ export const useSwapper = () => {
         const fees = getEvmFees()
         setValue('fees', fees)
         break
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
           tradeFee: trade.feeData.tradeFee,

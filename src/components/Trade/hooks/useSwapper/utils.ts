@@ -171,7 +171,7 @@ export const getFormFees = ({
         feeAsset,
         tradeFeeSource,
       )
-    case CHAIN_NAMESPACE.Cosmos: {
+    case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         fee,
         tradeFee: trade.feeData.tradeFee,

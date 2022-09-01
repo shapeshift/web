@@ -289,7 +289,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         break
       }
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`

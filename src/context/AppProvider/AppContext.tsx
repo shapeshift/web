@@ -202,7 +202,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               accMeta[accountId] = { bip44Params }
               break
             }
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
                 if (!supportsCosmos(wallet)) continue
               }

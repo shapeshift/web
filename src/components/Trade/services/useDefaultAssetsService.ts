@@ -61,12 +61,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     setDefaultAssetIdPair([defaultSellAssetId, defaultBuyAssetId])
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
 
-  const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs, {
-    pollingInterval: 30000,
-    selectFromResult: ({ data }) => ({
-      data: data?.usdRate,
-    }),
-  })
+  const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs)
 
   useEffect(
     () =>

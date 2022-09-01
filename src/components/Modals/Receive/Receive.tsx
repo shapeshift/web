@@ -15,6 +15,7 @@ type ReceivePropsType = {
 }
 
 const Receive = ({ asset, accountId }: ReceivePropsType) => {
+  console.info(`Receive ${asset} acct: ${accountId}`)
   const { receive } = useModal()
   const { close, isOpen } = receive
 

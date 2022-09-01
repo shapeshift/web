@@ -3,12 +3,12 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
-import { useSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 

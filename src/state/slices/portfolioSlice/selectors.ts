@@ -148,7 +148,7 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
 export const selectPortfolioAccountMetadataByAccountId = createSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,
-  (accountMetadata, accountId): AccountMetadata => accountMetadata[accountId],
+  (accountMetadata, accountId): AccountMetadata | undefined => accountMetadata[accountId],
 )
 
 export const selectBIP44ParamsByAccountId = createSelector(

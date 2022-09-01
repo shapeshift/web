@@ -1,7 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import { SelectAssetView } from './SelectAssetView'
@@ -9,7 +8,7 @@ import { SelectAssetView } from './SelectAssetView'
 export const entries = [SelectAssetRoutes.Search, SelectAssetRoutes.Account]
 
 type SelectAssetRouterProps = {
-  onClick: (asset: Asset, accountId: AccountSpecifier) => void
+  onClick: (asset: Asset) => void
 } & RouteComponentProps
 
 export type SelectAssetLocation = {

@@ -1,6 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react' // useMemo
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -9,6 +9,8 @@ import {
   useGetFoxyAprQuery,
   useGetFoxyBalancesQuery,
 } from 'state/apis/foxy/foxyApi'
+// import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+// import { useAppSelector } from 'state/store'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]
@@ -23,11 +25,18 @@ export function useFoxyBalances() {
     state: { wallet },
   } = useWallet()
 
+  // const filter = useMemo(() => ({ accountId }), [accountId])
+  // const accountMeta = useAppSelector(state =>
+  //   selectPortfolioAccountMetadataByAccountId(state, filter),
+  // )
+  // const { accountType, bip44Params } = accountMeta
+
   useEffect(() => {
     ;(async () => {
       const chainAdapter = await getChainAdapterManager().get(KnownChainIds.EthereumMainnet)
       if (!chainAdapter || !wallet) return
-      const userAddress = await chainAdapter.getAddress({ wallet })
+      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
+      const userAddress = await chainAdapter.getAddress({ wallet, bip44Params })
       setUserAddress(userAddress)
     })()
   }, [wallet])

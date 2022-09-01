@@ -67,13 +67,12 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     },
   })
 
-  const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
+  const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')
     methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
-    methods.setValue(SendFormFields.AccountId, accountId)
 
     history.push(SendRoutes.Address)
   }

@@ -2,7 +2,6 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
-import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
@@ -13,28 +12,21 @@ type ReceiveRouterProps = {
   asset?: Asset
   accountId?: AccountSpecifier
 }
-export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
+export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
-  const [selectedAccount, setSelectedAccount] = useState<AccountSpecifier>()
   const location = useLocation()
   const history = useHistory()
 
-  const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
+  const handleAssetSelect = async (asset: Asset) => {
     setSelectedAsset(asset)
-    setSelectedAccount(accountId)
     history.push(ReceiveRoutes.Info)
   }
 
   useEffect(() => {
-    if (!selectedAsset && !asset && !accountId) {
+    console.info(`ReceiveRouter selectedAsset: ${selectedAsset?.assetId} asset: ${asset?.assetId}`)
+    if (!selectedAsset && !asset) {
       history.push(ReceiveRoutes.Select)
-    } else if (selectedAsset && asset && !accountId) {
-      history.push(ReceiveRoutes.Select, {
-        toRoute: SelectAssetRoutes.Account,
-        assetId: asset.assetId,
-      })
-    } else if (asset && accountId) {
-      setSelectedAccount(accountId)
+    } else if (asset) {
       setSelectedAsset(asset)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,8 +38,8 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
         <Route
           path={ReceiveRoutes.Info}
           component={(props: RouteComponentProps) =>
-            selectedAccount && selectedAsset ? (
-              <ReceiveInfo asset={selectedAsset} accountId={selectedAccount} {...props} />
+            /* selectedAccount && */ selectedAsset ? (
+              <ReceiveInfo asset={selectedAsset} {...props} />
             ) : null
           }
         />

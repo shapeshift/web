@@ -17,7 +17,7 @@
   "rules": {
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/no-autofocus": "off",
-    "no-console": "error",
+    // "no-console": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "prettier/prettier": [
       "error",

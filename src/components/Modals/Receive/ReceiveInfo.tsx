@@ -23,6 +23,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -38,26 +39,27 @@ import { ReceiveRoutes } from './ReceiveCommon'
 
 type ReceivePropsType = {
   asset: Asset
-  accountId: AccountSpecifier
+  accountId?: AccountSpecifier
 } & RouteComponentProps
 
-export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
+export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
+  const [accountId, setAccountId] = useState<string>('')
   const chainAdapterManager = getChainAdapterManager()
   const history = useHistory()
   const { chainId, name, symbol } = asset
-
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const filter = useMemo(() => ({ accountId }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const accountMeta = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, filter),
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
-  const { accountType, bip44Params } = accountMeta
+  const accountType = accountMeta?.accountType
+  const bip44Params = accountMeta?.bip44Params
 
   useEffect(() => {
     ;(async () => {
@@ -121,6 +123,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     }
   }
 
+  const onAccountChange = (accountId: string) => {
+    console.info(`account changed: ${accountId}`)
+    setAccountId(accountId)
+  }
   return (
     <>
       <IconButton
@@ -179,6 +185,11 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             >
               <LightMode>
                 <Card.Body display='inline-block' textAlign='center' p={6}>
+                  <AccountDropdown
+                    assetId={asset.assetId}
+                    onChange={onAccountChange}
+                    buttonProps={{ height: 5, variant: 'solid' }}
+                  />
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>

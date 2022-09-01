@@ -13,6 +13,7 @@ import {
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
@@ -21,7 +22,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
-import { useSelector } from 'state/store'
 
 import { SendInput } from '../../Form'
 

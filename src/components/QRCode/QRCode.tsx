@@ -10,5 +10,11 @@ export const QRCode = ({ loading, text = '', ...props }: QRCodeProps) => {
   const buffer = qrImage.imageSync(text, { type: 'png', margin: 2 })
   const dataURI = 'data:image/png;base64,' + buffer.toString('base64')
 
+  /*
+    return (<Center>
+      {loading ? <Spinner /> : <><AccountDropdown assetId={asset.assetId}></AccountDropdown> <Image src={dataURI} boxSize='3xs' {...props} /></>}
+        </Center>
+  )
+  */
   return <Center>{loading ? <Spinner /> : <Image src={dataURI} boxSize='3xs' {...props} />}</Center>
 }

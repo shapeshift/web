@@ -70,9 +70,9 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   const { chainId } = buyAsset
   const accountId = toAccountId({ chainId, account })
 
-  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
-
-  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
+  const { accountType } = accountIdToUtxoParams(accountId, 0)
+  const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
+  return await chainAdapter.getAddress({ wallet, accountType, bip44Params })
 }
 
 export const getUtxoParams = (sellAssetAccountId: string) => {

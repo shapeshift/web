@@ -49,7 +49,7 @@ export const estimateFees = ({
         },
         sendMax,
       })
-    case CHAIN_NAMESPACE.Bitcoin: {
+    case CHAIN_NAMESPACE.Utxo: {
       return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
         to: address,
         value,

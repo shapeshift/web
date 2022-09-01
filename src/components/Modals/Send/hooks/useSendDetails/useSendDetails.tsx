@@ -251,7 +251,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
               const adapterFees = await utxoAdapter.getFeeData({
                 to,

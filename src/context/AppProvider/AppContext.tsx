@@ -158,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const { chainNamespace, chainReference } = fromChainId(chainId)
 
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               if (!supportsBTC(wallet)) continue
 
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>

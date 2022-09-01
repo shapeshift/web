@@ -62,7 +62,7 @@ export const isSupportedUtxoSwappingChain = (
   chainId: ChainId,
 ): chainId is UtxoSupportedChainIds => {
   const { chainNamespace } = fromChainId(chainId)
-  return chainNamespace === CHAIN_NAMESPACE.Bitcoin
+  return chainNamespace === CHAIN_NAMESPACE.Utxo
 }
 
 export const isSupportedNoneUtxoSwappingChain = (
@@ -178,7 +178,7 @@ export const getFormFees = ({
         tradeFeeSource: trade.sources[0].name,
       }
     }
-    case CHAIN_NAMESPACE.Bitcoin: {
+    case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         fee,

@@ -174,7 +174,8 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
    */
   const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
   const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-  if (isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
+  if (!isMultiAccountsEnabled) return null
+  if (!existingMultiAccountChainIds.includes(chainId)) return null
 
   if (!accountIds.length) return null
 

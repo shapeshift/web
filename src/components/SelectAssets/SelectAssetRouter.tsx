@@ -5,7 +5,7 @@ import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'r
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import { SelectAssetView } from './SelectAssetView'
 
-export const entries = [SelectAssetRoutes.Search, SelectAssetRoutes.Account]
+export const entries = [SelectAssetRoutes.Search]
 
 type SelectAssetRouterProps = {
   onClick: (asset: Asset) => void

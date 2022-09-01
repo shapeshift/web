@@ -15,10 +15,12 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
 import isNil from 'lodash/isNil'
+import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -32,13 +34,28 @@ import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
-  const { control } = useFormContext<SendInput>()
+  const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
     control,
   })
+
+  const onAccountChange = useCallback(
+    (accountId: string) => {
+      console.info(`onAccountChange: ${accountId}`)
+      setValue(SendFormFields.AccountId, accountId)
+    },
+    [setValue],
+  )
+
+  const useAssetId = useMemo((): string => {
+    if (!asset || !asset.assetId) {
+      return ''
+    }
+    return asset.assetId as string
+  }, [asset])
 
   const { send } = useModal()
   const {
@@ -60,7 +77,7 @@ export const Details = () => {
   if (
     !(
       asset &&
-      asset?.name &&
+      asset.name &&
       !isNil(cryptoAmount) &&
       cryptoSymbol &&
       !isNil(fiatAmount) &&
@@ -89,6 +106,7 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
+        <AccountDropdown assetId={useAssetId} onChange={onAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists

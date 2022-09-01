@@ -60,7 +60,7 @@ export const Address = () => {
         isRound
         onClick={() =>
           history.push(SendRoutes.Select, {
-            toRoute: SelectAssetRoutes.Account,
+            toRoute: SelectAssetRoutes.Search,
             assetId: asset.assetId,
           })
         }

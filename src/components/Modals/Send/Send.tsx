@@ -41,7 +41,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
                 return chainNamespace === CHAIN_NAMESPACE.CosmosSdk ? (
                   <CosmosForm asset={asset} accountId={accountId} {...props} />
                 ) : (
-                  <Form asset={asset} accountId={accountId} {...props} />
+                  <Form asset={asset} {...props} />
                 )
               }}
             />

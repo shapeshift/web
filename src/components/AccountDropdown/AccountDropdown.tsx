@@ -60,8 +60,20 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
-  const [selectedAccountLabel, setSelectedAccountLabel] = useState('')
-  const [selectedAccountNumber, setSelectedAccountNumber] = useState(0)
+  // const [selectedAccountLabel, setSelectedAccountLabel] = useState('')
+  // const [selectedAccountNumber, setSelectedAccountNumber] = useState(0)
+
+  const accountLabel = useMemo(
+    () => selectedAccountId && accountIdToLabel(selectedAccountId),
+    [selectedAccountId],
+  )
+  const accountNumber = useMemo(
+    () =>
+      (selectedAccountId &&
+        (accountMetadata[selectedAccountId]?.bip44Params ?? {})?.accountNumber) ??
+      0,
+    [accountMetadata, selectedAccountId],
+  )
 
   /**
    * react on selectedAccountId change
@@ -69,10 +81,6 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   useEffect(() => {
     if (isEmpty(accountMetadata)) return
     if (!selectedAccountId) return
-    setSelectedAccountLabel(accountIdToLabel(selectedAccountId))
-    setSelectedAccountNumber(
-      (accountMetadata[selectedAccountId]?.bip44Params ?? {})?.accountNumber ?? 0,
-    )
     onChange?.(selectedAccountId)
   }, [accountMetadata, selectedAccountId, onChange])
 
@@ -175,7 +183,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
       >
         <Stack direction='row' alignItems='center'>
           <RawText fontWeight='bold' color='var(--chakra-colors-chakra-body-text)'>
-            {translate('accounts.accountNumber', { accountNumber: selectedAccountNumber })}
+            {translate('accounts.accountNumber', { accountNumber })}
           </RawText>
           <Tag
             whiteSpace='nowrap'
@@ -185,7 +193,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
             minHeight='auto'
             py={1}
           >
-            {selectedAccountLabel}
+            {accountLabel}
           </Tag>
           <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>

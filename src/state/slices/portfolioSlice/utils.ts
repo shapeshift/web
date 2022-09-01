@@ -189,7 +189,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chainNamespace } = fromChainId(chainId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum: {
+      case CHAIN_NAMESPACE.Evm: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
         // TODO(0xdef1cafe): remove accountSpecifier here, it's the same as accountId below

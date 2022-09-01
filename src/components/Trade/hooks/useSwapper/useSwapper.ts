@@ -606,7 +606,7 @@ export const useSwapper = () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         const fees = getEvmFees()
         setValue('fees', fees)
         break

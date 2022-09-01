@@ -77,7 +77,7 @@ const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         switch (chainReference) {
           case CHAIN_REFERENCE.AvalancheCChain:
             return ASSET_REFERENCE.AvalancheC

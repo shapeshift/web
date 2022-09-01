@@ -186,7 +186,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               break
             }
 
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
                 if (!supportsETH(wallet)) continue
               }

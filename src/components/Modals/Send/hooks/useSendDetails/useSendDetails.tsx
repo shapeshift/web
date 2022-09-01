@@ -240,7 +240,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,

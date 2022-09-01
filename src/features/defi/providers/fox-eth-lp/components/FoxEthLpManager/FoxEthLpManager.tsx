@@ -15,7 +15,7 @@ import { FoxEthLpWithdraw } from './Withdraw/FoxEthLpWithdraw'
 export const FoxEthLpManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
-  const { accountId, setAccountId } = useFoxEth()
+  const { setAccountId } = useFoxEth()
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

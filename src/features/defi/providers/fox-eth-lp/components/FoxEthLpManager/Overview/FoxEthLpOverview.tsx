@@ -13,12 +13,10 @@ import { foxAssetId, foxEthLpOpportunityName } from '../../../constants'
 
 type FoxEthLpOverviewProps = {
   onAccountChange: (accountId: AccountId) => void
-  accountId: AccountId | null
 }
 
 export const FoxEthLpOverview = ({
   onAccountChange: handleAccountChange,
-  accountId,
 }: FoxEthLpOverviewProps) => {
   const {
     foxEthLpOpportunity: opportunity,

@@ -106,6 +106,8 @@ type FoxEthProviderProps = {
 }
 
 type IFoxLpAndFarmingOpportunitiesContext = {
+  accountId: AccountId | null
+  setAccountId: (accountId: AccountId) => void
   totalBalance: string
   lpFoxBalance: string | null
   lpEthBalance: string | null
@@ -121,6 +123,8 @@ type IFoxLpAndFarmingOpportunitiesContext = {
 }
 
 const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpportunitiesContext>({
+  setAccountId: _accountId => {},
+  accountId: null,
   totalBalance: '0',
   lpFoxBalance: null,
   lpEthBalance: null,
@@ -155,7 +159,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [accountId, setAccountId] = useState<AccountId | null>(null)
   const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(connectedWalletEthAddress)
 
-  const [farmingLoading, setFarmingLoading] = useState<boolean>(false)
+  const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
     FoxFarmingEarnOpportunityType[]

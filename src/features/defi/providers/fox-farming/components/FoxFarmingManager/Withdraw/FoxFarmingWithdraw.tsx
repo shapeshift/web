@@ -14,7 +14,6 @@ import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
 import { selectPortfolioLoading } from 'state/slices/selectors'
@@ -36,10 +35,7 @@ export const FoxFarmingWithdraw = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
-
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(chainId)
+  const { contractAddress } = query
 
   const {
     connectedWalletEthAddress: userAddress,
@@ -56,7 +52,7 @@ export const FoxFarmingWithdraw = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(userAddress && contractAddress && chainAdapter && opportunity)) return
+        if (!(userAddress && contractAddress && opportunity)) return
 
         dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: userAddress })
         dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
@@ -65,7 +61,7 @@ export const FoxFarmingWithdraw = () => {
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [userAddress, chainAdapter, translate, chainId, contractAddress, opportunity])
+  }, [userAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

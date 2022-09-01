@@ -68,7 +68,7 @@ export const FoxFarmingDeposit = () => {
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [userAddress, translate, toast, chainId, contractAddress, opportunity])
+  }, [userAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

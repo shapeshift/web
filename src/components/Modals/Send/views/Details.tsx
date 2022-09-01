@@ -43,10 +43,7 @@ export const Details = () => {
   })
 
   const onAccountChange = useCallback(
-    (accountId: string) => {
-      console.info(`onAccountChange: ${accountId}`)
-      setValue(SendFormFields.AccountId, accountId)
-    },
+    (accountId: string) => setValue(SendFormFields.AccountId, accountId),
     [setValue],
   )
 

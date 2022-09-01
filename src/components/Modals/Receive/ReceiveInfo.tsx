@@ -124,7 +124,6 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   }
 
   const onAccountChange = (accountId: string) => {
-    console.info(`account changed: ${accountId}`)
     setAccountId(accountId)
   }
   return (

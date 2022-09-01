@@ -23,7 +23,6 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
   }
 
   useEffect(() => {
-    console.info(`ReceiveRouter selectedAsset: ${selectedAsset?.assetId} asset: ${asset?.assetId}`)
     if (!selectedAsset && !asset) {
       history.push(ReceiveRoutes.Select)
     } else if (asset) {

@@ -182,6 +182,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   return (
     <Menu closeOnSelect={true} matchWidth>
       <MenuButton
+        iconSpacing={0}
         as={Button}
         size='sm'
         rightIcon={<ChevronDownIcon />}

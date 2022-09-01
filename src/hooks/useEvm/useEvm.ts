@@ -12,7 +12,7 @@ export const useEvm = () => {
     state: { wallet },
   } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [ethNetwork, setEthNetwork] = useState<string>()
+  const [ethNetwork, setEthNetwork] = useState<string | null>()
   const [connectedEvmChainId, setConnectedEvmChainId] = useState<ChainId>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
@@ -28,7 +28,7 @@ export const useEvm = () => {
   useEffect(() => {
     ;(async () => {
       setIsLoading(true)
-      setEthNetwork(undefined)
+      setEthNetwork(null)
       const ethNetwork = await (wallet as ETHWallet)?.ethGetChainId?.()
       if (ethNetwork) setEthNetwork(bnOrZero(ethNetwork).toString())
     })()

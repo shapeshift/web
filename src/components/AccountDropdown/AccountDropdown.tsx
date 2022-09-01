@@ -53,27 +53,11 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
     selectPortfolioAccountIdsByAssetId(s, filter),
   )
 
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-
   const translate = useTranslate()
   const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
-  // const [selectedAccountLabel, setSelectedAccountLabel] = useState('')
-  // const [selectedAccountNumber, setSelectedAccountNumber] = useState(0)
-
-  const accountLabel = useMemo(
-    () => selectedAccountId && accountIdToLabel(selectedAccountId),
-    [selectedAccountId],
-  )
-  const accountNumber = useMemo(
-    () =>
-      (selectedAccountId &&
-        (accountMetadata[selectedAccountId]?.bip44Params ?? {})?.accountNumber) ??
-      0,
-    [accountMetadata, selectedAccountId],
-  )
 
   /**
    * react on selectedAccountId change
@@ -96,6 +80,19 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   }, [assetId, accountIds])
 
   const onClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
+
+  /**
+   * memoized view bits and bobs
+   */
+  const accountLabel = useMemo(
+    () => selectedAccountId && accountIdToLabel(selectedAccountId),
+    [selectedAccountId],
+  )
+
+  const accountNumber = useMemo(
+    () => selectedAccountId && accountMetadata[selectedAccountId].bip44Params.accountNumber,
+    [accountMetadata, selectedAccountId],
+  )
 
   const menuOptions = useMemo(() => {
     const makeTitle = (accountId: AccountId) => {
@@ -176,6 +173,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
    * via the onChange callback on mount, but nothing will be visually rendered
    */
   const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
+  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
   if (isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
 
   if (!accountIds.length) return null

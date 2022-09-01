@@ -92,9 +92,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       return firstFourLastFour(specifier)
     case btcChainId:
       // TODO(0xdef1cafe): translations
-      if (specifier.startsWith('xpub')) return 'LEGACY'
-      if (specifier.startsWith('ypub')) return 'SEGWIT'
-      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      if (specifier.startsWith('xpub')) return 'Legacy'
+      if (specifier.startsWith('ypub')) return 'Segwit'
+      if (specifier.startsWith('zpub')) return 'Segwit Native'
       return ''
     case bchChainId:
       return 'Bitcoin Cash'
@@ -106,9 +106,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       return 'Dogecoin'
     case ltcChainId:
       // TODO: translations
-      if (specifier.startsWith('Ltub')) return 'LEGACY'
-      if (specifier.startsWith('Mtub')) return 'SEGWIT'
-      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      if (specifier.startsWith('Ltub')) return 'Legacy'
+      if (specifier.startsWith('Mtub')) return 'Segwit'
+      if (specifier.startsWith('zpub')) return 'Segwit Native'
       return ''
     default: {
       return ''

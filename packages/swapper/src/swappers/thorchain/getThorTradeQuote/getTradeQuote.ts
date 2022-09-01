@@ -98,7 +98,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           }
         })()
 
-      case CHAIN_NAMESPACE.Bitcoin:
+      case CHAIN_NAMESPACE.Utxo:
         return (async (): Promise<TradeQuote<UtxoSupportedChainIds>> => {
           const { vault, opReturnData, pubkey } = await getBtcThorTxInfo({
             deps,

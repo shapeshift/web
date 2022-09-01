@@ -16,7 +16,7 @@ import {
 describe('adapters:coingecko', () => {
   describe('coingeckoToAssetIds', () => {
     it('can get AssetIds for bitcoin', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
 
       const assetId = toAssetId({
@@ -94,7 +94,7 @@ describe('adapters:coingecko', () => {
 
   describe('assetIdToCoingecko', () => {
     it('can get CoinGecko id for bitcoin AssetId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetId = toAssetId({
         chainNamespace,

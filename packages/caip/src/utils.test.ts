@@ -61,7 +61,7 @@ describe('accountIdToSpecifier', () => {
 
 describe('isValidChainPartsPair', () => {
   it('correctly validates pairs', () => {
-    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
       true,
     )
     expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
@@ -79,7 +79,7 @@ describe('isValidChainPartsPair', () => {
 describe('type guard', () => {
   describe('isChainNamespace', () => {
     it('correctly determines type', () => {
-      expect(isChainNamespace(CHAIN_NAMESPACE.Bitcoin)).toEqual(true)
+      expect(isChainNamespace(CHAIN_NAMESPACE.Utxo)).toEqual(true)
       expect(isChainNamespace(CHAIN_NAMESPACE.Ethereum)).toEqual(true)
       expect(isChainNamespace('invalid')).toEqual(false)
       expect(isChainNamespace('')).toEqual(false)
@@ -150,7 +150,7 @@ describe('type guard assertion', () => {
 
   describe('assertIsChainNamespace', () => {
     it('correctly asserts type', () => {
-      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Bitcoin)).not.toThrow()
+      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Utxo)).not.toThrow()
       expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Ethereum)).not.toThrow()
       expect(() => assertIsChainNamespace('invalid')).toThrow()
       expect(() => assertIsChainNamespace('')).toThrow()
@@ -187,10 +187,10 @@ describe('type guard assertion', () => {
   describe('assertValidChainPartsPair', () => {
     it('correctly asserts type', () => {
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet),
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.BitcoinTestnet),
       ).not.toThrow()
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.EthereumMainnet),
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.EthereumMainnet),
       ).toThrow()
       expect(() =>
         assertValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet),

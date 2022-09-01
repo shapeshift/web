@@ -5,7 +5,7 @@ import { assetIdToCoinCap, coincapToAssetId } from '.'
 describe('adapters:coincap', () => {
   describe('coincapToAssetId', () => {
     it('can get AssetId for bitcoin', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetId = toAssetId({
         chainNamespace,
@@ -64,7 +64,7 @@ describe('adapters:coincap', () => {
 
   describe('assetIdToCoinCap', () => {
     it('can get coincap id for bitcoin AssetId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetId = toAssetId({
         chainNamespace,

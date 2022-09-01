@@ -157,7 +157,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
-      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (
           adapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
         ).signTransaction({

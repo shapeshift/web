@@ -46,7 +46,7 @@ describe('toAccountId', () => {
   })
 
   it('does not lowercase bitcoin account', () => {
-    const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const chainNamespace = CHAIN_NAMESPACE.Utxo
     const chainReference = CHAIN_REFERENCE.BitcoinMainnet
     const chainId = toChainId({ chainNamespace, chainReference })
     const account = '327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
@@ -66,7 +66,7 @@ describe('fromAccountId', () => {
     const accountId = 'bip122:000000000019d6689c085ae165831e93:327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
     const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
     const expectedAccount = '327aHcrjdooNUzG3qqZkuVZkm3MyjgxScn'
-    const expectedChainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const expectedChainNamespace = CHAIN_NAMESPACE.Utxo
     const expectedChainReference = CHAIN_REFERENCE.BitcoinMainnet
     expect(account).toEqual(expectedAccount)
     expect(chainNamespace).toEqual(expectedChainNamespace)
@@ -78,7 +78,7 @@ describe('fromAccountId', () => {
     const accountId = 'bip122:00000000001a91e3dace36e2be3bf030:DDFrdu2AyWCkgpdypkABTnL6FWBGKSAL8V'
     const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
     const expectedAccount = 'DDFrdu2AyWCkgpdypkABTnL6FWBGKSAL8V'
-    const expectedChainNamespace = CHAIN_NAMESPACE.Bitcoin
+    const expectedChainNamespace = CHAIN_NAMESPACE.Utxo
     const expectedChainReference = CHAIN_REFERENCE.DogecoinMainnet
     expect(account).toEqual(expectedAccount)
     expect(chainNamespace).toEqual(expectedChainNamespace)

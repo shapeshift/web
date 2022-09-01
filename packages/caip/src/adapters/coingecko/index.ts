@@ -64,7 +64,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           )
       }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
-    case CHAIN_NAMESPACE.Bitcoin:
+    case CHAIN_NAMESPACE.Utxo:
     default:
       throw new Error(`chainNamespace ${chainNamespace} not supported.`)
   }

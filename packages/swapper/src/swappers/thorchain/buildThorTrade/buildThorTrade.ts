@@ -76,7 +76,7 @@ export const buildTrade = async ({
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
       }
-    } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+    } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
       const { vault, opReturnData } = await getBtcThorTxInfo({
         deps,
         sellAsset,

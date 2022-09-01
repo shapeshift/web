@@ -255,7 +255,7 @@ describe('assetId', () => {
     })
 
     it('throws with invalid btc network', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.EthereumRopsten
       const assetIdArgSuperset = {
         chainNamespace,
@@ -403,7 +403,7 @@ describe('assetId', () => {
     })
 
     it('can make bitcoin AssetId on mainnet', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const assetIdArgSuperset = {
         chainNamespace,
@@ -420,7 +420,7 @@ describe('assetId', () => {
     })
 
     it('can make bitcoin AssetId on testnet', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinTestnet
       const assetIdArgSuperset = {
         chainNamespace,
@@ -444,8 +444,8 @@ describe('assetId', () => {
       const ibc: AssetNamespace = 'ibc'
       const native: AssetNamespace = 'native'
       it.each([
-        [CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinMainnet, slip44, ASSET_REFERENCE.Bitcoin],
-        [CHAIN_NAMESPACE.Bitcoin, CHAIN_REFERENCE.BitcoinTestnet, slip44, ASSET_REFERENCE.Bitcoin],
+        [CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.BitcoinMainnet, slip44, ASSET_REFERENCE.Bitcoin],
+        [CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.BitcoinTestnet, slip44, ASSET_REFERENCE.Bitcoin],
         [
           CHAIN_NAMESPACE.Ethereum,
           CHAIN_REFERENCE.EthereumMainnet,
@@ -524,7 +524,7 @@ describe('assetId', () => {
       const AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
       const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } =
         fromAssetId(AssetId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Bitcoin)
+      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Utxo)
       expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinMainnet)
       expect(chainId).toEqual(toChainId({ chainNamespace, chainReference }))
       expect(assetNamespace).toEqual('slip44')
@@ -535,7 +535,7 @@ describe('assetId', () => {
       const AssetId = 'bip122:000000000933ea01ad0ee984209779ba/slip44:0'
       const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } =
         fromAssetId(AssetId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Bitcoin)
+      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Utxo)
       expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinTestnet)
       expect(chainId).toEqual(toChainId({ chainNamespace, chainReference }))
       expect(assetNamespace).toEqual('slip44')

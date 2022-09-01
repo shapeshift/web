@@ -51,14 +51,14 @@ describe('chainId', () => {
     })
 
     it('can turn Bitcoin mainnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinMainnet
       const result = toChainId({ chainNamespace, chainReference })
       expect(result).toEqual('bip122:000000000019d6689c085ae165831e93')
     })
 
     it('can turn Bitcoin testnet to ChainId', () => {
-      const chainNamespace = CHAIN_NAMESPACE.Bitcoin
+      const chainNamespace = CHAIN_NAMESPACE.Utxo
       const chainReference = CHAIN_REFERENCE.BitcoinTestnet
       const result = toChainId({ chainNamespace, chainReference })
       expect(result).toEqual('bip122:000000000933ea01ad0ee984209779ba')
@@ -68,7 +68,7 @@ describe('chainId', () => {
       // @ts-ignore
       expect(() =>
         toChainId({
-          chainNamespace: CHAIN_NAMESPACE.Bitcoin,
+          chainNamespace: CHAIN_NAMESPACE.Utxo,
           chainReference: CHAIN_REFERENCE.CosmosHubVega,
         }),
       ).toThrow('assertIsChainId: unsupported ChainId: bip122:vega-testnet')
@@ -79,14 +79,14 @@ describe('chainId', () => {
     it('can turn Bitcoin mainnet to chain and network', () => {
       const bitcoinChainId = 'bip122:000000000019d6689c085ae165831e93'
       const { chainNamespace, chainReference } = fromChainId(bitcoinChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Bitcoin)
+      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Utxo)
       expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinMainnet)
     })
 
     it('can turn Bitcoin testnet to chain and network', () => {
       const bitcoinChainId = 'bip122:000000000933ea01ad0ee984209779ba'
       const { chainNamespace, chainReference } = fromChainId(bitcoinChainId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Bitcoin)
+      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Utxo)
       expect(chainReference).toEqual(CHAIN_REFERENCE.BitcoinTestnet)
     })
 

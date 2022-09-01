@@ -25,7 +25,7 @@ export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
 
 export const CHAIN_NAMESPACE = {
   Ethereum: 'eip155',
-  Bitcoin: 'bip122',
+  Utxo: 'bip122',
   Cosmos: 'cosmos',
 } as const
 
@@ -53,7 +53,7 @@ export const CHAIN_REFERENCE = {
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
-  [CHAIN_NAMESPACE.Bitcoin]: [
+  [CHAIN_NAMESPACE.Utxo]: [
     CHAIN_REFERENCE.BitcoinMainnet,
     CHAIN_REFERENCE.BitcoinTestnet,
     CHAIN_REFERENCE.BitcoinCashMainnet,
@@ -79,7 +79,7 @@ type ValidAssetNamespace = {
 }
 
 export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
-  [CHAIN_NAMESPACE.Bitcoin]: ['slip44'],
+  [CHAIN_NAMESPACE.Utxo]: ['slip44'],
   [CHAIN_NAMESPACE.Ethereum]: ['slip44', 'erc20', 'erc721'],
   [CHAIN_NAMESPACE.Cosmos]: ['cw20', 'cw721', 'ibc', 'native', 'slip44'],
 })

@@ -1,10 +1,13 @@
 import { AddIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Stack } from '@chakra-ui/react'
-import { AccountId, btcAssetId, cosmosAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { AccountId } from '@shapeshiftoss/caip'
+import { useSelector } from 'react-redux'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { selectPortfolioAccountIds } from 'state/slices/selectors'
 
 import { ChainRow } from './components/ChainRow'
 
@@ -24,6 +27,8 @@ const AccountHeader = () => {
 }
 
 export const Accounts = () => {
+  const accountIds = useSelector(selectPortfolioAccountIds)
+  const uniqueFeeAssetIds = Array.from(new Set(accountIds.map(accountIdToFeeAssetId)))
   return (
     <Main titleComponent={<AccountHeader />}>
       <List ml={0} mt={0} spacing={4}>
@@ -31,24 +36,14 @@ export const Accounts = () => {
         <ChainRow title='Bitcoin' color='#F7931A' />
         <ChainRow title='Bitcoin Cash' color='#8DC351' />
       </List>
-      <AccountDropdown
-        assetId={btcAssetId}
-        onChange={(accountId: AccountId) => {
-          moduleLogger.trace(accountId)
-        }}
-      />
-      <AccountDropdown
-        assetId={ethAssetId}
-        onChange={(accountId: AccountId) => {
-          moduleLogger.trace(accountId)
-        }}
-      />
-      <AccountDropdown
-        assetId={cosmosAssetId}
-        onChange={(accountId: AccountId) => {
-          moduleLogger.trace(accountId)
-        }}
-      />
+      {uniqueFeeAssetIds.map(assetId => (
+        <AccountDropdown
+          assetId={assetId}
+          onChange={(accountId: AccountId) => {
+            moduleLogger.trace(accountId)
+          }}
+        />
+      ))}
     </Main>
   )
 }

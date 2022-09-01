@@ -78,7 +78,7 @@ const convertOnRamperDataToFiatRampAsset = (
   return uniqueCoins
 }
 
-function toFiatRampAsset(currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined {
+const toFiatRampAsset = (currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined => {
   const assetId = adapters.onRamperTickerToAssetId(currency.code)
   if (assetId) {
     return {

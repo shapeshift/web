@@ -4,7 +4,6 @@ import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 import { SelectAccount } from 'components/Trade/SelectAccount'
-import { useDefaultAssetsService } from 'components/Trade/services/useDefaultAssetsService'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapperV2'
@@ -22,10 +21,9 @@ type TradeRoutesProps = {
 }
 
 export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
-  useDefaultAssetsService(defaultBuyAssetId)
-  const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const location = useLocation()
-  const { handleAssetClick } = useTradeRoutes()
+  const { handleAssetClick } = useTradeRoutes(defaultBuyAssetId)
+  const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
 
   const isSwapperV2 = useFeatureFlag('SwapperV2')
   const TradeInputComponent = isSwapperV2 ? TradeInputV2 : TradeInputV1

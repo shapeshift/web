@@ -1,4 +1,4 @@
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { AccountId, ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -152,9 +152,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
   const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const [accountId, setAccountId] = useState<AccountId | null>(null)
   const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(connectedWalletEthAddress)
 
-  const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
+  const [farmingLoading, setFarmingLoading] = useState<boolean>(false)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
     FoxFarmingEarnOpportunityType[]
@@ -170,6 +171,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const featureFlags = useAppSelector(selectFeatureFlags)
 
+  // TODO: Remove this useEffect
+  // The reason why it is still here is because we use connectedWalletEthAddress both for the modals, and to display the DeFi cards/rows
+  // If we remove it now, we will be unable to get to the modal in the first place to change accounts
   useEffect(() => {
     if (
       // get price if at least one of lp or farming were on
@@ -208,6 +212,14 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       })()
     }
   }, [adapter, wallet])
+
+  useEffect(() => {
+    if (!accountId) return
+    ;(async () => {
+      const accountAddress = fromAccountId(accountId).account
+      setConnectedWalletEthAddress(accountAddress)
+    })()
+  }, [accountId])
 
   const fetchFarmingOpportunities = useCallback(async () => {
     moduleLogger.info('fetching farming opportunities')
@@ -355,6 +367,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const value = useMemo(
     () => ({
+      accountId,
+      setAccountId,
       connectedWalletEthAddress,
       totalBalance: bnOrZero(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
         .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
@@ -377,6 +391,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     [
       featureFlags.FoxLP,
       featureFlags.FoxFarming,
+      accountId,
+      setAccountId,
       connectedWalletEthAddress,
       foxEthLpOpportunity,
       foxFarmingTotalBalance,

@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { AccountId, ethAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -11,7 +11,15 @@ import { useAppSelector } from 'state/store'
 
 import { foxAssetId, foxEthLpOpportunityName } from '../../../constants'
 
-export const FoxEthLpOverview = () => {
+type FoxEthLpOverviewProps = {
+  onAccountChange: (accountId: AccountId) => void
+  accountId: AccountId | null
+}
+
+export const FoxEthLpOverview = ({
+  onAccountChange: handleAccountChange,
+  accountId,
+}: FoxEthLpOverviewProps) => {
   const {
     foxEthLpOpportunity: opportunity,
     lpFoxBalance: foxBalance,
@@ -38,6 +46,7 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
+      onAccountChange={handleAccountChange}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

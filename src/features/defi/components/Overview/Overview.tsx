@@ -10,7 +10,9 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { PropsWithChildren, useMemo } from 'react'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import {
   AssetDescriptionTeaser,
@@ -29,6 +31,7 @@ export type AssetWithBalance = {
 } & Asset
 
 type OverviewProps = {
+  onAccountChange?: (accountId: AccountId) => void
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
   name: string
@@ -44,6 +47,7 @@ type OverviewProps = {
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
+  onAccountChange,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -111,9 +115,17 @@ export const Overview: React.FC<OverviewProps> = ({
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}
                   </RawText>
-                  <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
-                    {provider}
-                  </RawText>
+                  {onAccountChange ? (
+                    <AccountDropdown
+                      assetId={asset.assetId}
+                      onChange={onAccountChange}
+                      buttonProps={{ height: 5, variant: 'solid' }}
+                    />
+                  ) : (
+                    <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
+                      {provider}
+                    </RawText>
+                  )}
                 </Stack>
               </Stack>
               <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />

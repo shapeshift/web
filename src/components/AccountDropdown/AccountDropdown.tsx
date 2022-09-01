@@ -65,7 +65,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   useEffect(() => {
     if (isEmpty(accountMetadata)) return
     if (!selectedAccountId) return
-    onChange?.(selectedAccountId)
+    onChange(selectedAccountId)
   }, [accountMetadata, selectedAccountId, onChange])
 
   /**

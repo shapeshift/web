@@ -278,6 +278,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
     },
     [
       accountAddress,
+      accountNumber,
       ethAsset.chainId,
       ethAsset.precision,
       foxAsset.precision,
@@ -471,7 +472,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       })()
       return broadcastTXID
     },
-    [adapter, foxContract, getApproveGasData, uniV2LPContract, wallet],
+    [accountNumber, adapter, foxContract, getApproveGasData, uniV2LPContract, wallet],
   )
 
   return {

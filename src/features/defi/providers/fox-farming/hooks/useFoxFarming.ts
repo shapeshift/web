@@ -253,6 +253,7 @@ export const useFoxFarming = (contractAddress: string) => {
     },
     [
       accountAddress,
+      accountNumber,
       contractAddress,
       ethAsset.chainId,
       foxFarmingContract,
@@ -390,7 +391,7 @@ export const useFoxFarming = (contractAddress: string) => {
       }
     })()
     return broadcastTXID
-  }, [adapter, contractAddress, getApproveGasData, uniV2LPContract, wallet])
+  }, [accountNumber, adapter, contractAddress, getApproveGasData, uniV2LPContract, wallet])
 
   const getClaimGasData = useCallback(
     async (userAddress: string) => {
@@ -461,7 +462,7 @@ export const useFoxFarming = (contractAddress: string) => {
       }
     })()
     return broadcastTXID
-  }, [adapter, accountAddress, contractAddress, foxFarmingContract, wallet])
+  }, [accountNumber, adapter, accountAddress, contractAddress, foxFarmingContract, wallet])
 
   return {
     allowance,

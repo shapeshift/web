@@ -57,9 +57,11 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
 
   const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
   const accountNumber = useMemo(() => {
+    if (!accountAddress) return null
+
     const accountId = toAccountId({
       chainId: ethChainId,
-      account: accountAddress ?? '',
+      account: accountAddress,
     })
     return accountMetadata[accountId]?.bip44Params.accountNumber
   }, [accountMetadata, accountAddress])
@@ -191,7 +193,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const removeLiquidity = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !accountNumber || !uniswapRouterContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
@@ -419,7 +421,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
 
   const approve = useCallback(
     async (forWithdrawal?: boolean) => {
-      if (!wallet) return
+      if (!wallet || !accountNumber) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       const data = contract.interface.encodeFunctionData('approve', [
         UNISWAP_V2_ROUTER_ADDRESS,

@@ -45,9 +45,11 @@ export const useFoxFarming = (contractAddress: string) => {
 
   const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
   const accountNumber = useMemo(() => {
+    if (!accountAddress) return null
+
     const accountId = toAccountId({
       chainId: ethChainId,
-      account: accountAddress ?? '',
+      account: accountAddress,
     })
     return accountMetadata[accountId]?.bip44Params.accountNumber
   }, [accountMetadata, accountAddress])
@@ -77,7 +79,7 @@ export const useFoxFarming = (contractAddress: string) => {
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
-        if (!accountAddress || !foxFarmingContract || !wallet) return
+        if (!accountAddress || !accountNumber || !foxFarmingContract || !wallet) return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const data = foxFarmingContract.interface.encodeFunctionData('stake', [
@@ -340,7 +342,7 @@ export const useFoxFarming = (contractAddress: string) => {
   )
 
   const approve = useCallback(async () => {
-    if (!wallet || !uniV2LPContract) return
+    if (!wallet || !accountNumber || !uniV2LPContract) return
     const data = uniV2LPContract.interface.encodeFunctionData('approve', [
       contractAddress,
       MAX_ALLOWANCE,
@@ -408,7 +410,7 @@ export const useFoxFarming = (contractAddress: string) => {
   )
 
   const claimRewards = useCallback(async () => {
-    if (!wallet || !foxFarmingContract || !accountAddress) return
+    if (!wallet || !accountNumber || !foxFarmingContract || !accountAddress) return
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
     const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
       to: contractAddress,

@@ -38,7 +38,7 @@ describe('yearn market service', () => {
       const result = await yearnVaultMarketCapService.findAll()
       expect(Object.keys(result)[0]).toEqual(
         toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Ethereum,
+          chainNamespace: CHAIN_NAMESPACE.Evm,
           chainReference: CHAIN_REFERENCE.EthereumMainnet,
           assetNamespace: 'erc20',
           assetReference: yvBTCAddress.toLowerCase(),
@@ -73,13 +73,13 @@ describe('yearn market service', () => {
     it('can map yearn to AssetIds', async () => {
       const result = await yearnVaultMarketCapService.findAll()
       const yvBtcAssetId = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnVaultRestData[0].address.toLowerCase(),
       })
       const yvDaiAssetId = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnVaultRestData[1].address.toLowerCase(),

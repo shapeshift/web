@@ -37,7 +37,7 @@
     "web3-utils": "1.7.4"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/caip": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.27.0",
     "@shapeshiftoss/hdwallet-native": "^1.27.0",
     "@shapeshiftoss/types": "^8.1.0",
@@ -45,7 +45,7 @@
     "bs58check": "^2.0.2"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^6.7.0",
+    "@shapeshiftoss/caip": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.27.0",
     "@shapeshiftoss/hdwallet-native": "^1.27.0",
     "@shapeshiftoss/types": "^8.1.0",

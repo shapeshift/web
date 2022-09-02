@@ -47,7 +47,7 @@ export const buildTrade = async ({
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-    if (chainNamespace === CHAIN_NAMESPACE.Ethereum) {
+    if (chainNamespace === CHAIN_NAMESPACE.Evm) {
       const sellAssetBip44Params = sellAdapter.buildBIP44Params({
         accountNumber: sellAssetAccountNumber,
       })
@@ -109,7 +109,7 @@ export const buildTrade = async ({
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign,
       }
-    } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
+    } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
       const txData = await cosmosTxData({
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,

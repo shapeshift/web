@@ -1083,7 +1083,7 @@ export class FoxyApi {
       }
     })
 
-    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainNamespace = CHAIN_NAMESPACE.Evm
     const chainReference = CHAIN_REFERENCE.EthereumMainnet
     const assetNamespace = 'erc20'
     const assetReference = tokenContractAddress

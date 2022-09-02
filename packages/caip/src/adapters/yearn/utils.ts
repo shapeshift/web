@@ -34,7 +34,7 @@ export const fetchData = async () => {
 
 export const parseEthData = (data: (Token | Vault)[]) => {
   const assetNamespace = 'erc20'
-  const chainNamespace = CHAIN_NAMESPACE.Ethereum
+  const chainNamespace = CHAIN_NAMESPACE.Evm
   const chainReference = CHAIN_REFERENCE.EthereumMainnet
 
   return data.reduce((acc, datum) => {
@@ -54,7 +54,7 @@ export const parseEthData = (data: (Token | Vault)[]) => {
 
 export const parseData = (d: (Token | Vault)[]) => {
   const ethMainnet = toChainId({
-    chainNamespace: CHAIN_NAMESPACE.Ethereum,
+    chainNamespace: CHAIN_NAMESPACE.Evm,
     chainReference: CHAIN_REFERENCE.EthereumMainnet,
   })
   return { [ethMainnet]: parseEthData(d) }

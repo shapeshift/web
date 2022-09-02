@@ -68,13 +68,13 @@ describe('yearn token market service', () => {
     it('can map yearn to assetIds', async () => {
       const result = await yearnTokenMarketCapService.findAll()
       const yvBtcAssetId = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnTokenRestData[0].address.toLowerCase(),
       })
       const yvDaiAssetId = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Ethereum,
+        chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'erc20',
         assetReference: mockYearnTokenRestData[1].address.toLowerCase(),

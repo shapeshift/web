@@ -16,7 +16,7 @@ import { toChainId, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftoss/caip
 
 const api = new FoxyApi({
   adapter: await adapterManager.byChainId(
-    toChainId({ chainNamespace: CHAIN_NAMESPACE.Ethereum, chainReference: CHAIN_REFERENCE.EthereumMainnet })
+    toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference: CHAIN_REFERENCE.EthereumMainnet })
   ), // adapter is an ETH @shapeshiftoss/chain-adapters
   providerUrl: '<your eth node privider url>'
 })
@@ -60,7 +60,7 @@ For more in-depth examples, check out ./src/foxycli.ts
 ```javascript
 const api = new FoxyApi({
   adapter: await adapterManager.byChainId(
-    toChainId({ chainNamespace: CHAIN_NAMESPACE.Ethereum, chainReference: CHAIN_REFERENCE.EthereumMainnet })
+    toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference: CHAIN_REFERENCE.EthereumMainnet })
   ),
   providerUrl: 'https://dev-api.ethereum.shapeshift.com'
 })

@@ -3,7 +3,7 @@ import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constan
 import { assetIdToOsmosis, osmosisToAssetId } from '.'
 
 describe('osmosis adapter', () => {
-  const chainNamespace = CHAIN_NAMESPACE.Cosmos
+  const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
   const chainReference = CHAIN_REFERENCE.OsmosisMainnet
 
   describe('osmosisToAssetId', () => {

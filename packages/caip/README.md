@@ -12,7 +12,7 @@ Usage
 ### `toChainId` | `toCAIP2`
 
 ```ts
-const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainNamespace = CHAIN_NAMESPACE.Evm
 const chainReference = CHAIN_REFERENCE.EthereumMainnet
 const result = toChainId({ chainNamespace, chainReference })
 expect(result).toEqual('eip155:1')
@@ -23,7 +23,7 @@ expect(result).toEqual('eip155:1')
 ```ts
 const ethereumChainId = 'eip155:1'
 const { chainNamespace, chainReference } = fromChainId(ethereumChainId)
-expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Ethereum)
+expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Evm)
 expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumMainnet)
 ```
 
@@ -36,7 +36,7 @@ Usage
 ### `toAccountId` | `toCAIP10`
 
 ```ts
-const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainNamespace = CHAIN_NAMESPACE.Evm
 const chainReference = CHAIN_REFERENCE.EthereumMainnet
 const chainId = toChainId({ chainNamespace, chainReference })
 const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
@@ -67,7 +67,7 @@ Usage
 Ether
 
 ```ts
-const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainNamespace = CHAIN_NAMESPACE.Evm
 const chainReference = CHAIN_REFERENCE.EthereumMainnet
 const chainId = toChainId({ chainNamespace, chainReference })
 const assetNamespace = 'slip44'
@@ -79,7 +79,7 @@ expect(toAssetId({ chainId, assetNamespace, assetReference })).toEqual('eip155:1
 ERC20 token
 
 ```ts
-const chainNamespace = CHAIN_NAMESPACE.Ethereum
+const chainNamespace = CHAIN_NAMESPACE.Evm
 const chainReference = CHAIN_REFERENCE.EthereumMainnet
 const chainId = toChainId({ chainNamespace, chainReference })
 const assetNamespace = 'erc20'

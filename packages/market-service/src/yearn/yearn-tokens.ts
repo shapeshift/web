@@ -55,7 +55,7 @@ export class YearnTokenMarketCapService implements MarketService {
 
       return tokens.reduce((acc, token) => {
         const _assetId: string = toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Ethereum,
+          chainNamespace: CHAIN_NAMESPACE.Evm,
           chainReference: CHAIN_REFERENCE.EthereumMainnet,
           assetNamespace: 'erc20',
           assetReference: token.address,

@@ -17,7 +17,7 @@ describe('toAccountId', () => {
   })
 
   it('throws on empty account', () => {
-    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainNamespace = CHAIN_NAMESPACE.Evm
     const chainReference = CHAIN_REFERENCE.EthereumMainnet
     const chainId = toChainId({ chainNamespace, chainReference })
     const account = ''
@@ -26,7 +26,7 @@ describe('toAccountId', () => {
   })
 
   it('accepts valid eth chainId and account', () => {
-    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainNamespace = CHAIN_NAMESPACE.Evm
     const chainReference = CHAIN_REFERENCE.EthereumMainnet
     const chainId = toChainId({ chainNamespace, chainReference })
     const account = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
@@ -36,7 +36,7 @@ describe('toAccountId', () => {
   })
 
   it('lowercases eth address', () => {
-    const chainNamespace = CHAIN_NAMESPACE.Ethereum
+    const chainNamespace = CHAIN_NAMESPACE.Evm
     const chainReference = CHAIN_REFERENCE.EthereumMainnet
     const chainId = toChainId({ chainNamespace, chainReference })
     const account = '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
@@ -90,7 +90,7 @@ describe('fromAccountId', () => {
     const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
     const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
     const expectedAccount = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-    const expectedChainNamespace = CHAIN_NAMESPACE.Ethereum
+    const expectedChainNamespace = CHAIN_NAMESPACE.Evm
     const expectedChainReference = CHAIN_REFERENCE.EthereumMainnet
     expect(account).toEqual(expectedAccount)
     expect(chainNamespace).toEqual(expectedChainNamespace)
@@ -102,7 +102,7 @@ describe('fromAccountId', () => {
     const accountId = 'eip155:1:0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
     const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
     const expectedAccount = '0xa44c286ba83bb771cd0107b2c1df678435bd1535'
-    const expectedChainNamespace = CHAIN_NAMESPACE.Ethereum
+    const expectedChainNamespace = CHAIN_NAMESPACE.Evm
     const expectedChainReference = CHAIN_REFERENCE.EthereumMainnet
     expect(account).toEqual(expectedAccount)
     expect(chainNamespace).toEqual(expectedChainNamespace)

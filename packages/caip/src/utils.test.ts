@@ -64,15 +64,13 @@ describe('isValidChainPartsPair', () => {
     expect(isValidChainPartsPair(CHAIN_NAMESPACE.Utxo, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
       true,
     )
-    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Evm, CHAIN_REFERENCE.BitcoinTestnet)).toEqual(
       false,
     )
     expect(
       isValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet),
     ).toEqual(false)
-    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference)).toEqual(
-      false,
-    )
+    expect(isValidChainPartsPair(CHAIN_NAMESPACE.Evm, 'invalid' as ChainReference)).toEqual(false)
   })
 })
 
@@ -80,7 +78,7 @@ describe('type guard', () => {
   describe('isChainNamespace', () => {
     it('correctly determines type', () => {
       expect(isChainNamespace(CHAIN_NAMESPACE.Utxo)).toEqual(true)
-      expect(isChainNamespace(CHAIN_NAMESPACE.Ethereum)).toEqual(true)
+      expect(isChainNamespace(CHAIN_NAMESPACE.Evm)).toEqual(true)
       expect(isChainNamespace('invalid')).toEqual(false)
       expect(isChainNamespace('')).toEqual(false)
     })
@@ -151,7 +149,7 @@ describe('type guard assertion', () => {
   describe('assertIsChainNamespace', () => {
     it('correctly asserts type', () => {
       expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Utxo)).not.toThrow()
-      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Ethereum)).not.toThrow()
+      expect(() => assertIsChainNamespace(CHAIN_NAMESPACE.Evm)).not.toThrow()
       expect(() => assertIsChainNamespace('invalid')).toThrow()
       expect(() => assertIsChainNamespace('')).toThrow()
     })
@@ -196,7 +194,7 @@ describe('type guard assertion', () => {
         assertValidChainPartsPair('invalid' as ChainNamespace, CHAIN_REFERENCE.BitcoinTestnet),
       ).toThrow()
       expect(() =>
-        assertValidChainPartsPair(CHAIN_NAMESPACE.Ethereum, 'invalid' as ChainReference),
+        assertValidChainPartsPair(CHAIN_NAMESPACE.Evm, 'invalid' as ChainReference),
       ).toThrow()
     })
   })

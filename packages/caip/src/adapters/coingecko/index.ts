@@ -41,7 +41,7 @@ export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
   const { chainNamespace, chainReference } = fromChainId(chainId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Ethereum:
+    case CHAIN_NAMESPACE.Evm:
       switch (chainReference) {
         case CHAIN_REFERENCE.EthereumMainnet:
           return CoingeckoAssetPlatform.Ethereum
@@ -52,7 +52,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
-    case CHAIN_NAMESPACE.Cosmos:
+    case CHAIN_NAMESPACE.CosmosSdk:
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
           return CoingeckoAssetPlatform.Cosmos

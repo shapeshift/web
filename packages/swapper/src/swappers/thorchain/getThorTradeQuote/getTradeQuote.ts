@@ -74,7 +74,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         return (async (): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> => {
           const { router } = await getEthThorTxInfo({
             deps,
@@ -126,7 +126,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             feeData,
           }
         })()
-      case CHAIN_NAMESPACE.Cosmos:
+      case CHAIN_NAMESPACE.CosmosSdk:
         return (async (): Promise<TradeQuote<KnownChainIds.CosmosMainnet>> => {
           const feeData = await (
             sellAdapter as ChainAdapter<KnownChainIds.CosmosMainnet>

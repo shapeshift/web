@@ -40,8 +40,7 @@ export const toAccountId: ToAccountId = ({
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount =
-    chainNamespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
+  const outputAccount = chainNamespace === CHAIN_NAMESPACE.Evm ? account.toLowerCase() : account
 
   return `${chainId}:${outputAccount}`
 }
@@ -77,8 +76,7 @@ export const fromAccountId: FromAccountId = (accountId) => {
   // we lowercase eth accounts as per the draft spec
   // it's not explicit, but cHecKsUM can be recovered from lowercase eth accounts
   // we don't lowercase bitcoin addresses as they'll fail checksum
-  const outputAccount =
-    chainNamespace === CHAIN_NAMESPACE.Ethereum ? account.toLowerCase() : account
+  const outputAccount = chainNamespace === CHAIN_NAMESPACE.Evm ? account.toLowerCase() : account
 
   return { chainId, account: outputAccount, chainNamespace, chainReference }
 }

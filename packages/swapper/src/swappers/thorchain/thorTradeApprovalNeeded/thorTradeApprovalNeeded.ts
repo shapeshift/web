@@ -22,7 +22,7 @@ export const thorTradeApprovalNeeded = async ({
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
     const { chainNamespace } = fromChainId(sellAsset.chainId)
 
-    if (chainNamespace !== CHAIN_NAMESPACE.Ethereum) return { approvalNeeded: false }
+    if (chainNamespace !== CHAIN_NAMESPACE.Evm) return { approvalNeeded: false }
 
     const accountNumber = quote.sellAssetAccountNumber
 

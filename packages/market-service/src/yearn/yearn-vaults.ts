@@ -53,7 +53,7 @@ export class YearnVaultMarketCapService implements MarketService {
         )
         .reduce((acc, yearnItem) => {
           const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Ethereum,
+            chainNamespace: CHAIN_NAMESPACE.Evm,
             chainReference: CHAIN_REFERENCE.EthereumMainnet,
             assetNamespace: 'erc20',
             assetReference: yearnItem.address,

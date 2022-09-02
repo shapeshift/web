@@ -148,7 +148,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       const { chainNamespace } = fromAssetId(trade.sellAsset.assetId)
 
-      if (chainNamespace === CHAIN_NAMESPACE.Ethereum) {
+      if (chainNamespace === CHAIN_NAMESPACE.Evm) {
         const signedTx = await (
           adapter as unknown as EvmBaseAdapter<EvmSupportedChainIds>
         ).signTransaction({
@@ -166,7 +166,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         })
         const txid = await adapter.broadcastTransaction(signedTx)
         return { tradeId: txid }
-      } else if (chainNamespace === CHAIN_NAMESPACE.Cosmos) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
         const signedTx = await (adapter as unknown as cosmos.ChainAdapter).signTransaction({
           txToSign: (trade as ThorTrade<KnownChainIds.CosmosMainnet>).txData as CosmosSignTx,
           wallet,

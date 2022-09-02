@@ -2831,6 +2831,20 @@
     tsoa "^4.1.0"
     ws "^8.8.0"
 
+"@shapeshiftoss/chain-adapters@^7.13.0":
+  version "7.17.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-7.17.1.tgz#25860127a0f28cf5749bc1146b9ccb8c58edf43d"
+  integrity sha512-jlXQvb/7Hd3LOeQnvqP9/fBrFRWnGLZXzVzRKOp/U/sNPZvM+7EwRIlrC6P+6Iw/rRTPVXhjtU5yRXJI/hhDHw==
+  dependencies:
+    axios "^0.26.1"
+    bech32 "^2.0.0"
+    bignumber.js "^9.0.2"
+    bitcoinjs-lib "^5.2.0"
+    coinselect "^3.1.13"
+    ethers "^5.4.7"
+    multicoin-address-validator "^0.5.2"
+    web3-utils "1.7.4"
+
 "@shapeshiftoss/common-api@^8.0.0":
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-8.0.0.tgz#3e98d15c426278a9015e90d4d674ff4e91e5377a"

@@ -12,11 +12,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,6 +30,7 @@ import {
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../constants'
+const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
 
 const ethersProvider = getEthersProvider()
 
@@ -43,8 +45,7 @@ function calculateSlippageMargin(amount: string | null, precision: number) {
     .toFixed()
 }
 
-export const useFoxEthLiquidityPool = () => {
-  const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+export const useFoxEthLiquidityPool = (connectedWalletEthAddress: string | null) => {
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -56,16 +57,6 @@ export const useFoxEthLiquidityPool = () => {
 
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
-  useEffect(() => {
-    if (wallet && adapter) {
-      ;(async () => {
-        if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet })
-        setConnectedWalletEthAddress(address)
-      })()
-    }
-  }, [adapter, wallet])
 
   const uniswapRouterContract = useMemo(
     () => new Contract(UNISWAP_V2_ROUTER_ADDRESS, IUniswapV2Router02ABI.abi, ethersProvider),
@@ -167,7 +158,7 @@ export const useFoxEthLiquidityPool = () => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxEthLiquidityPool:addLiquidity error')
       }
     },
     [
@@ -265,7 +256,7 @@ export const useFoxEthLiquidityPool = () => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxEthLiquidityPool:remoLiquidity error')
       }
     },
     [

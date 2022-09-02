@@ -13,6 +13,7 @@ type BalanceChartArgs = {
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void
+  isRainbowChart: boolean
 }
 
 export const BalanceChart: React.FC<BalanceChartArgs> = ({
@@ -21,6 +22,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   timeframe,
   percentChange,
   setPercentChange,
+  isRainbowChart,
 }) => {
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assetIds,
@@ -28,10 +30,9 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
     timeframe,
   })
 
-  useEffect(
-    () => setPercentChange(calculatePercentChange(balanceChartData)),
-    [balanceChartData, setPercentChange],
-  )
+  const { total } = balanceChartData
+
+  useEffect(() => setPercentChange(calculatePercentChange(total)), [total, setPercentChange])
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
@@ -42,6 +43,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
         data={balanceChartData}
         loading={balanceChartDataLoading}
         isLoaded={!balanceChartDataLoading}
+        isRainbowChart={isRainbowChart}
       />
     </Card.Body>
   )

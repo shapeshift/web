@@ -1,8 +1,5 @@
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
-import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import { getConfig } from 'config'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
@@ -35,7 +32,7 @@ const moduleLogger = logger.child({
  * Test WalletConnect Tool: https://test.walletconnect.org/
  */
 export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
@@ -45,20 +42,22 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(false)
   }
 
+  useEffect(() => {
+    ;(async () => {
+      await onProviderChange(KeyManager.WalletConnect)
+    })()
+  }, [onProviderChange])
+
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
 
-    try {
-      const config: WalletConnectProviderConfig = {
-        /** List of RPC URLs indexed by chain ID */
-        rpc: {
-          1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-        },
-      }
+    if (!(state.provider && 'connector' in state.provider)) {
+      throw new Error('walletProvider.walletconnect.errors.connectFailure')
+    }
 
-      const provider = new WalletConnectProvider(config)
-      provider.connector.on('disconnect', () => {
+    try {
+      state.provider.connector.on('disconnect', () => {
         // Handle WalletConnect session rejection
         history.push('/walletconnect/failure')
       })

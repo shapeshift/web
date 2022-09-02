@@ -3,7 +3,7 @@ import { createIcon } from '@chakra-ui/react'
 export const DefiIcon = createIcon({
   displayName: 'DeFiIcon',
   path: (
-    <g clip-path='url(#clip0_25_654)'>
+    <g clipPath='url(#clip0_25_654)'>
       <path
         fillRule='evenodd'
         clipRule='evenodd'

@@ -1,12 +1,12 @@
 /**
  * @jest-environment jsdom
  */
-import { renderHook } from '@testing-library/react'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
-import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
-import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
 
-import { useSortedYearnVaults } from './useSortedYearnVaults'
+import { renderHook } from '@testing-library/react'
+import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
+import { MergedEarnVault, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+
+import { useSortedVaults } from './useSortedVaults'
 
 const addressWithBalance1 = '0xa696a63cc78dffa1a63e9e50587c197387ff6c7e'
 const addressWithBalance2 = '0xd9788f3931ede4d5018184e198699dc6d66c1915'
@@ -50,7 +50,7 @@ jest.mock('pages/Defi/hooks/useVaultBalances', () => {
 jest.mock('hooks/useVaultWithoutBalance/useVaultWithoutBalance', () => {
   return {
     useVaultWithoutBalance: () => {
-      const vaults: Record<string, SerializableOpportunity> = {}
+      const vaults: Record<string, MergedSerializableOpportunity> = {}
       vaults[address400KTVL3] = mockVault({
         id: address400KTVL3,
         tvl: {
@@ -153,9 +153,9 @@ jest.mock('hooks/useVaultWithoutBalance/useVaultWithoutBalance', () => {
   }
 })
 
-describe('useSortedYearnVaults hook', () => {
+describe('useSortedVaults hook', () => {
   it('should sorted array depending on balance, TVL and apy', () => {
-    const { result } = renderHook(() => useSortedYearnVaults())
+    const { result } = renderHook(() => useSortedVaults())
 
     expect(result.current.length).toBe(12)
     // vaults with balance sorted by balance

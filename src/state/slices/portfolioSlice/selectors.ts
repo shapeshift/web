@@ -10,11 +10,13 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
+  fromAccountId,
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
@@ -26,6 +28,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { createCachedSelector } from 're-reselect'
 import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -49,6 +52,7 @@ import {
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
+  AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
@@ -134,6 +138,29 @@ export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers[
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
+
+export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
+  (state: ReduxState): AccountMetadataById => state.portfolio.accountSpecifiers.accountMetadataById,
+  accountMetadata => accountMetadata,
+)
+
+export const selectBIP44ParamsByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): BIP44Params => accountMetadata[accountId]?.bip44Params,
+)
+
+export const selectAccountNumberByAccountId = createSelector(
+  selectBIP44ParamsByAccountId,
+  (bip44Params): number => bip44Params.accountNumber,
+)
+
+export const selectAccountTypeByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): UtxoAccountType | undefined =>
+    accountMetadata[accountId]?.accountType,
+)
 
 export const selectIsPortfolioLoaded = createSelector(
   selectAccountSpecifiers,
@@ -576,6 +603,20 @@ export const selectPortfolioAssets = createSelector(
 
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
+
+/**
+ * selects portfolio account ids that *can* contain an assetId
+ * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
+ * but can contain it
+ */
+export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
+  selectPortfolioAccountIds,
+  selectAssetIdParamFromFilter,
+  (accountIds, assetId): AccountId[] => {
+    const { chainId } = fromAssetId(assetId)
+    return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
+  },
+)((_accountIds, { assetId }) => assetId ?? 'undefined')
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
 export const selectPortfolioLoading = createSelector(

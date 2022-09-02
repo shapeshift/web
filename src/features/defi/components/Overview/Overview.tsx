@@ -10,7 +10,9 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { PropsWithChildren, useMemo } from 'react'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import {
   AssetDescriptionTeaser,
@@ -22,13 +24,14 @@ import { RawText, Text } from 'components/Text'
 import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 
-type AssetWithBalance = {
+export type AssetWithBalance = {
   cryptoBalance: string
   allocationPercentage?: string
   icons?: string[]
 } & Asset
 
 type OverviewProps = {
+  onAccountChange?: (accountId: AccountId) => void
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
   name: string
@@ -44,6 +47,7 @@ type OverviewProps = {
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
+  onAccountChange,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -78,8 +82,8 @@ export const Overview: React.FC<OverviewProps> = ({
 
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
-    return rewardAssets.map(asset => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm'>
+    return rewardAssets.map((asset, index) => (
+      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
         <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
       </Tag>
@@ -111,9 +115,17 @@ export const Overview: React.FC<OverviewProps> = ({
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}
                   </RawText>
-                  <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
-                    {provider}
-                  </RawText>
+                  {onAccountChange ? (
+                    <AccountDropdown
+                      assetId={asset.assetId}
+                      onChange={onAccountChange}
+                      buttonProps={{ height: 5, variant: 'solid' }}
+                    />
+                  ) : (
+                    <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
+                      {provider}
+                    </RawText>
+                  )}
                 </Stack>
               </Stack>
               <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />

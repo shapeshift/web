@@ -11,11 +11,13 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { getEthersProvider } from 'plugins/foxPage/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,6 +29,7 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../../fox-eth-lp/constants'
 import farmAbi from '../abis/farmingAbi.json'
+const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
 const ethersProvider = getEthersProvider()
 
@@ -35,7 +38,7 @@ const ethersProvider = getEthersProvider()
  * @param contractAddress farming contract address, since there could be multiple contracts
  */
 export const useFoxFarming = (contractAddress: string) => {
-  const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const { connectedWalletEthAddress } = useFoxEth()
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
@@ -45,16 +48,6 @@ export const useFoxFarming = (contractAddress: string) => {
 
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
-  useEffect(() => {
-    if (wallet && adapter) {
-      ;(async () => {
-        if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet })
-        setConnectedWalletEthAddress(address)
-      })()
-    }
-  }, [adapter, wallet])
 
   const uniswapRouterContract = useMemo(
     () => new Contract(UNISWAP_V2_ROUTER_ADDRESS, IUniswapV2Router02ABI.abi, ethersProvider),
@@ -147,7 +140,7 @@ export const useFoxFarming = (contractAddress: string) => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxFarming:stake error')
       }
     },
     [
@@ -242,7 +235,7 @@ export const useFoxFarming = (contractAddress: string) => {
         }
         return broadcastTXID
       } catch (error) {
-        console.warn(error)
+        moduleLogger.warn(error, 'useFoxFarming:unstake error')
       }
     },
     [

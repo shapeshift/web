@@ -29,7 +29,7 @@ const Label = (props: BoxProps) => {
 
 const Value = (props: TextProps) => {
   const styles = useStyles()
-  return <Box __css={styles.value} fontSize='md' {...props} />
+  return <Box __css={styles.value} {...props} />
 }
 
 Row.Label = Label

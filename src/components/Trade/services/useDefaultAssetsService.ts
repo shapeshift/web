@@ -63,26 +63,29 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
   const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs)
 
+  const buyAssetId = routeBuyAssetId ?? defaultAssetIdPair?.[1]
+
   useEffect(
     () =>
       defaultAssetIdPair &&
+      buyAssetId &&
       setBuyAssetFiatRateArgs({
-        buyAssetId: defaultAssetIdPair[1],
+        buyAssetId,
         sellAssetId: defaultAssetIdPair[0],
-        rateAssetId: defaultAssetIdPair[1],
+        rateAssetId: buyAssetId,
       }),
-    [defaultAssetIdPair],
+    [buyAssetId, defaultAssetIdPair],
   )
 
   const setInitialAssets = useCallback(() => {
     // TODO: update Swapper to have an proper way to validate a pair is supported.
-    if (buyAssetFiatRateData && defaultAssetIdPair) {
-      setValue('buyTradeAsset.asset', assets[defaultAssetIdPair[1]])
+    if (buyAssetFiatRateData && defaultAssetIdPair && buyAssetId) {
+      setValue('buyTradeAsset.asset', assets[buyAssetId])
       setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', '0')
     }
-  }, [assets, buyAssetFiatRateData, defaultAssetIdPair, setValue])
+  }, [assets, buyAssetFiatRateData, buyAssetId, defaultAssetIdPair, setValue])
 
   useEffect(() => setInitialAssets(), [setInitialAssets])
 }

@@ -16,7 +16,7 @@ import {
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -48,13 +48,6 @@ export const Details = () => {
     [setValue],
   )
 
-  const useAssetId = useMemo((): string => {
-    if (!asset || !asset.assetId) {
-      return ''
-    }
-    return asset.assetId as string
-  }, [asset])
-
   const { send } = useModal()
   const {
     balancesLoading,
@@ -76,6 +69,7 @@ export const Details = () => {
     !(
       asset &&
       asset.name &&
+      asset.assetId &&
       !isNil(cryptoAmount) &&
       cryptoSymbol &&
       !isNil(fiatAmount) &&
@@ -104,7 +98,7 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <AccountDropdown assetId={useAssetId} onChange={onAccountChange} />
+        <AccountDropdown assetId={(asset as Asset).assetId} onChange={onAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists

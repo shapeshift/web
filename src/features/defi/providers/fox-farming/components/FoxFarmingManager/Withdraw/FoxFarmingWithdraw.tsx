@@ -37,11 +37,7 @@ export const FoxFarmingWithdraw = () => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const {
-    connectedWalletEthAddress: userAddress,
-    foxFarmingOpportunities,
-    farmingLoading: foxFarmingLoading,
-  } = useFoxEth()
+  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
   const opportunity = useMemo(
     () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
     [contractAddress, foxFarmingOpportunities],
@@ -52,16 +48,16 @@ export const FoxFarmingWithdraw = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(userAddress && contractAddress && opportunity)) return
+        if (!(accountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: userAddress })
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [userAddress, translate, contractAddress, opportunity])
+  }, [accountAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

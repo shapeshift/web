@@ -39,11 +39,11 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     lpFoxBalance: foxBalance,
     lpEthBalance: ethBalance,
     lpLoading: loading,
-    connectedWalletEthAddress,
+    accountAddress,
   } = useFoxEth()
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
-    useFoxEthLiquidityPool(connectedWalletEthAddress)
+    useFoxEthLiquidityPool(accountAddress)
   const [foxAmount, setFoxAmount] = useState('0')
   const [ethAmount, setEthAmount] = useState('0')
 

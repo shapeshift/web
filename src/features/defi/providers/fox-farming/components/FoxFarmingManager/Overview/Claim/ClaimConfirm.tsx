@@ -52,7 +52,7 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
-  const { connectedWalletEthAddress: userAddress, onOngoingTxIdChange } = useFoxEth()
+  const { accountAddress: userAddress, onOngoingTxIdChange } = useFoxEth()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))

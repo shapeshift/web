@@ -47,11 +47,7 @@ export const FoxFarmingDeposit = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const {
-    connectedWalletEthAddress: userAddress,
-    foxFarmingOpportunities,
-    farmingLoading: foxFarmingLoading,
-  } = useFoxEth()
+  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
   const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
 
   const loading = useSelector(selectPortfolioLoading)
@@ -59,16 +55,16 @@ export const FoxFarmingDeposit = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(userAddress && contractAddress && opportunity)) return
+        if (!(accountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: userAddress })
+        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [userAddress, translate, toast, contractAddress, opportunity])
+  }, [accountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

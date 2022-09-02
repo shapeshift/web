@@ -181,13 +181,13 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
               mt={8}
               bg='white'
             >
-              <LightMode>
-                <Card.Body display='inline-block' textAlign='center' p={6}>
-                  <AccountDropdown
-                    assetId={asset.assetId}
-                    onChange={setAccountId}
-                    buttonProps={{ height: 5, variant: 'solid' }}
-                  />
+              <Card.Body display='inline-block' textAlign='center' p={6}>
+                <AccountDropdown
+                  assetId={asset.assetId}
+                  onChange={setAccountId}
+                  buttonProps={{ height: 5, variant: 'solid' }}
+                />
+                <LightMode>
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
@@ -205,8 +205,8 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                       <MiddleEllipsis value={receiveAddress} data-test='receive-address-label' />
                     </Flex>
                   </Skeleton>
-                </Card.Body>
-              </LightMode>
+                </LightMode>
+              </Card.Body>
             </Card>
           </ModalBody>
           <ModalFooter flexDir='column'>

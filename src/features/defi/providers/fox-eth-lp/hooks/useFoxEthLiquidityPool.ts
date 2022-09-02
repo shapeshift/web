@@ -58,9 +58,11 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
 
   const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
   const accountNumber = useMemo(() => {
+    if (!accountAddress) return null
+
     const accountId = toAccountId({
       chainId: ethChainId,
-      account: accountAddress ?? '',
+      account: accountAddress,
     })
     return accountMetadata[accountId]?.bip44Params.accountNumber
   }, [accountMetadata, accountAddress])

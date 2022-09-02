@@ -2,6 +2,7 @@
 The Default Asset Service is responsible for populating the trade widget with initial assets.
 It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
 */
+import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import {
   AssetId,
@@ -24,7 +25,7 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useDefaultAssetsService = (routeBuyAssetId: AssetId | undefined) => {
+export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
   type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
   type UsdRateInputArg = UsdRateQueryInput[0]
 
@@ -70,6 +71,8 @@ export const useDefaultAssetsService = (routeBuyAssetId: AssetId | undefined) =>
     return defaultAssetIdPair?.[1]
   }, [defaultAssetIdPair, routeBuyAssetId])
 
+  const previousBuyAssetId = usePrevious(buyAssetId)
+
   useEffect(
     () =>
       defaultAssetIdPair &&
@@ -83,6 +86,7 @@ export const useDefaultAssetsService = (routeBuyAssetId: AssetId | undefined) =>
   )
 
   const setInitialAssets = useCallback(() => {
+    if (buyAssetId !== previousBuyAssetId) return
     // TODO: update Swapper to have an proper way to validate a pair is supported.
     if (buyAssetFiatRateData && defaultAssetIdPair && buyAssetId) {
       setValue('buyTradeAsset.asset', assets[buyAssetId])
@@ -90,7 +94,7 @@ export const useDefaultAssetsService = (routeBuyAssetId: AssetId | undefined) =>
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', '0')
     }
-  }, [assets, buyAssetFiatRateData, buyAssetId, defaultAssetIdPair, setValue])
+  }, [assets, buyAssetFiatRateData, previousBuyAssetId, buyAssetId, defaultAssetIdPair, setValue])
 
   useEffect(() => setInitialAssets(), [setInitialAssets])
 }

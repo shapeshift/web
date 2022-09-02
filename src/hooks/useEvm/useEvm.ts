@@ -15,7 +15,7 @@ export const useEvm = () => {
   const supportedEvmChainIds = useMemo(
     () =>
       Array.from(getChainAdapterManager().keys()).filter(
-        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
+        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm,
       ),
     // We want to explicitly react on featureFlags to get a new reference here
     // eslint-disable-next-line react-hooks/exhaustive-deps

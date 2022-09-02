@@ -17,7 +17,7 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   const { chainNamespace } = fromAssetId(assetId)
-  if (!(chainNamespace === CHAIN_NAMESPACE.Ethereum) || assetIds.length === 0) return null
+  if (!(chainNamespace === CHAIN_NAMESPACE.Evm) || assetIds.length === 0) return null
 
   return (
     <Card>

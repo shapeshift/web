@@ -62,7 +62,7 @@ export const isSupportedUtxoSwappingChain = (
   chainId: ChainId,
 ): chainId is UtxoSupportedChainIds => {
   const { chainNamespace } = fromChainId(chainId)
-  return chainNamespace === CHAIN_NAMESPACE.Bitcoin
+  return chainNamespace === CHAIN_NAMESPACE.Utxo
 }
 
 export const isSupportedNoneUtxoSwappingChain = (
@@ -165,20 +165,20 @@ export const getFormFees = ({
   const fee = feeBN.toString()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Ethereum:
+    case CHAIN_NAMESPACE.Evm:
       return getEvmFees(
         trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
         feeAsset,
         tradeFeeSource,
       )
-    case CHAIN_NAMESPACE.Cosmos: {
+    case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         fee,
         tradeFee: trade.feeData.tradeFee,
         tradeFeeSource: trade.sources[0].name,
       }
     }
-    case CHAIN_NAMESPACE.Bitcoin: {
+    case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         fee,

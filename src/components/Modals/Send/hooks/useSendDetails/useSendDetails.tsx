@@ -235,12 +235,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               const adapterFees = await adapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,
@@ -251,7 +251,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
               const adapterFees = await utxoAdapter.getFeeData({
                 to,

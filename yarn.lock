@@ -3815,10 +3815,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^6.16.0":
-  version "6.16.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-6.16.0.tgz#79d060dfd6791b2b731a6c8341178c7364b17ea7"
-  integrity sha512-YkVgGt8FhHsMbpwUUMi40gAcJ6huQSRx7uvg/pNORW3dxv8l9bzz7Xhz/XLkjMeNNuJUcLSVk90ic4am0EXcoQ==
+"@shapeshiftoss/caip@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.0.0.tgz#e09d81a8463a7a5e9e7229959ee07ad4c0cfe37f"
+  integrity sha512-alv45/2vEr7Pp90eM3uEG582P25Uf8lPDc0QhWveVwWyJf3Ecy3er73n/3KK35ZoO1pW0nUOTT38DU1EgNZ6+A==
 
 "@shapeshiftoss/chain-adapters@^7.17.0":
   version "7.17.0"

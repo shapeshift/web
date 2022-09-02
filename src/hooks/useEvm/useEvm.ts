@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -13,7 +13,6 @@ export const useEvm = () => {
   } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [ethNetwork, setEthNetwork] = useState<string | null>()
-  const [connectedEvmChainId, setConnectedEvmChainId] = useState<ChainId>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () =>
@@ -24,23 +23,20 @@ export const useEvm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],
   )
-
   useEffect(() => {
     ;(async () => {
       setIsLoading(true)
-      setEthNetwork(null)
       const ethNetwork = await (wallet as ETHWallet)?.ethGetChainId?.()
-      if (ethNetwork) setEthNetwork(bnOrZero(ethNetwork).toString())
+      ethNetwork ? setEthNetwork(bnOrZero(ethNetwork).toString()) : setEthNetwork(null)
     })()
   }, [wallet])
 
-  useEffect(() => {
-    ethNetwork && isLoading && setIsLoading(false)
-    const connectedEvmChainId = supportedEvmChainIds.find(
-      chainId => fromChainId(chainId).chainReference === ethNetwork,
-    )
-    setConnectedEvmChainId(connectedEvmChainId)
-  }, [ethNetwork, isLoading, supportedEvmChainIds])
+  const connectedEvmChainId = useMemo(() => {
+    if (ethNetwork && isLoading) {
+      setIsLoading(false)
+    }
+    return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
+  }, [isLoading, ethNetwork, supportedEvmChainIds])
 
   return { supportedEvmChainIds, connectedEvmChainId, setEthNetwork, isLoading }
 }

@@ -6,6 +6,7 @@ import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/services/useSwapperService'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,6 +24,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const { checkApprovalNeeded } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -112,7 +114,11 @@ export const TradeInput = () => {
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     moduleLogger.info(values, 'debugging logger')
     try {
-      // TODO: Check if approval needed
+      const approveNeeded = await checkApprovalNeeded()
+      if (approveNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
+        return
+      }
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')

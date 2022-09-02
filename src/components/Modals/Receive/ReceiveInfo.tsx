@@ -19,6 +19,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -47,14 +48,14 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
-  const [accountId, setAccountId] = useState<string>('')
+  const [accountId, setAccountId] = useState<AccountId | null>('')
   const chainAdapterManager = getChainAdapterManager()
   const history = useHistory()
   const { chainId, name, symbol } = asset
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId: accountId || '' }), [accountId])
   const accountMeta = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )

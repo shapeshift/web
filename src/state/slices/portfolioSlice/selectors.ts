@@ -69,14 +69,14 @@ import {
 
 type ParamFilter = {
   assetId: AssetId
-  accountId: AccountSpecifier
+  accountId: AccountId
   accountSpecifier: string
   validatorAddress: PubKey
   supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   accountSpecifier?: string
   validatorAddress?: PubKey
   supportsCosmosSdk?: boolean

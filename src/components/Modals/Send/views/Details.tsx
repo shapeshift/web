@@ -14,6 +14,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -43,7 +44,7 @@ export const Details = () => {
   })
 
   const onAccountChange = useCallback(
-    (accountId: string) => setValue(SendFormFields.AccountId, accountId),
+    (accountId: AccountId) => setValue(SendFormFields.AccountId, accountId),
     [setValue],
   )
 

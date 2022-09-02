@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
+import { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -26,7 +26,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Input]: string
   [SendFormFields.Address]: string
   [SendFormFields.VanityAddress]: string
-  [SendFormFields.AccountId]: string
+  [SendFormFields.AccountId]: AccountId
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
@@ -42,7 +42,7 @@ type SendFormProps = {
   asset: Asset
 }
 
-export const Form = ({ asset: initialAsset }: SendFormProps) => {
+export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()

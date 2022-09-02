@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
+import { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
@@ -28,7 +28,7 @@ import { Details } from './views/Details'
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.Memo]?: string
-  [SendFormFields.AccountId]: AccountSpecifier
+  [SendFormFields.AccountId]: AccountId
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey

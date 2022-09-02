@@ -64,6 +64,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
+      if (!bip44Params) return
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
@@ -123,9 +124,6 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
     }
   }
 
-  const onAccountChange = (accountId: string) => {
-    setAccountId(accountId)
-  }
   return (
     <>
       <IconButton
@@ -186,7 +184,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                 <Card.Body display='inline-block' textAlign='center' p={6}>
                   <AccountDropdown
                     assetId={asset.assetId}
-                    onChange={onAccountChange}
+                    onChange={setAccountId}
                     buttonProps={{ height: 5, variant: 'solid' }}
                   />
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>

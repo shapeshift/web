@@ -3,14 +3,12 @@ import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
   asset?: Asset
-  accountId?: AccountSpecifier
 }
 export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)

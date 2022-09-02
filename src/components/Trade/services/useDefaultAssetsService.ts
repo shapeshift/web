@@ -63,7 +63,12 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
   const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs)
 
-  const buyAssetId = routeBuyAssetId ?? defaultAssetIdPair?.[1]
+  const buyAssetId = useMemo(() => {
+    if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair[0])
+      return routeBuyAssetId
+
+    return defaultAssetIdPair?.[1]
+  }, [defaultAssetIdPair, routeBuyAssetId])
 
   useEffect(
     () =>

@@ -16,7 +16,6 @@ import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { Address } from 'components/Modals/Send/views/Address'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -25,14 +24,14 @@ import { SendFormFields } from './SendCommon'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 
-export type SendInput = {
+export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Address]: string
   [SendFormFields.Memo]?: string
   [SendFormFields.AccountId]: AccountId
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<ChainId>
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
@@ -42,10 +41,9 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: Asset
-  accountId?: AccountSpecifier
 }
 
-export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
+export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
@@ -55,7 +53,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
-      accountId,
+      accountId: '',
       address: '',
       memo: '',
       asset: initialAsset,
@@ -69,6 +67,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
 
   const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.AccountId, '')
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')

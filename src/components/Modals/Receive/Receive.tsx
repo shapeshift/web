@@ -14,7 +14,7 @@ type ReceivePropsType = {
   accountId?: AccountSpecifier
 }
 
-const Receive = ({ asset, accountId }: ReceivePropsType) => {
+const Receive = ({ asset }: ReceivePropsType) => {
   const { receive } = useModal()
   const { close, isOpen } = receive
 
@@ -26,9 +26,7 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
           <Switch>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => (
-                <ReceiveRouter asset={asset} accountId={accountId} {...props} />
-              )}
+              component={(props: RouteComponentProps) => <ReceiveRouter asset={asset} {...props} />}
             />
           </Switch>
         </MemoryRouter>

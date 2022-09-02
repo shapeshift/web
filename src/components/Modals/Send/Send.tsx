@@ -5,7 +5,6 @@ import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { Form } from './Form'
 import { SendRoutes } from './SendCommon'
@@ -20,10 +19,9 @@ export const entries = [
 
 type SendModalProps = {
   asset: Asset
-  accountId?: AccountSpecifier
 }
 
-export const SendModal = ({ asset, accountId }: SendModalProps) => {
+export const SendModal = ({ asset }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -39,7 +37,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
               component={(props: RouteComponentProps) => {
                 const { chainNamespace } = fromChainId(asset.chainId)
                 return chainNamespace === CHAIN_NAMESPACE.CosmosSdk ? (
-                  <CosmosForm asset={asset} accountId={accountId} {...props} />
+                  <CosmosForm asset={asset} {...props} />
                 ) : (
                   <Form asset={asset} {...props} />
                 )

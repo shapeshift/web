@@ -16,13 +16,15 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
@@ -40,7 +42,7 @@ import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 const MAX_MEMO_LENGTH = 256
 
 export const Details = () => {
-  const { control } = useFormContext<SendInput>()
+  const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -52,6 +54,10 @@ export const Details = () => {
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
+  const handleAccountChange = useCallback(
+    (accountId: AccountId) => setValue(CosmosSendFormFields.AccountId, accountId),
+    [setValue],
+  )
   const { send } = useModal()
   const {
     balancesLoading,
@@ -68,7 +74,8 @@ export const Details = () => {
   if (
     !(
       asset &&
-      asset?.name &&
+      asset.name &&
+      asset.assetId &&
       !isNil(cryptoAmount) &&
       cryptoSymbol &&
       !isNil(fiatAmount) &&
@@ -97,6 +104,7 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
+        <AccountDropdown assetId={(asset as Asset).assetId} onChange={handleAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists

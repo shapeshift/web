@@ -10,6 +10,7 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
+  fromAccountId,
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
@@ -27,6 +28,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import { createCachedSelector } from 're-reselect'
 import { BridgeAsset } from 'components/Bridge/types'
 import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -137,8 +139,10 @@ export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
 
-export const selectPortfolioAccountMetadata = (state: ReduxState): AccountMetadataById =>
-  state.portfolio.accountSpecifiers.accountMetadataById
+export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
+  (state: ReduxState): AccountMetadataById => state.portfolio.accountSpecifiers.accountMetadataById,
+  accountMetadata => accountMetadata,
+)
 
 export const selectBIP44ParamsByAccountId = createSelector(
   selectPortfolioAccountMetadata,
@@ -599,6 +603,20 @@ export const selectPortfolioAssets = createSelector(
 
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
+
+/**
+ * selects portfolio account ids that *can* contain an assetId
+ * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
+ * but can contain it
+ */
+export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
+  selectPortfolioAccountIds,
+  selectAssetIdParamFromFilter,
+  (accountIds, assetId): AccountId[] => {
+    const { chainId } = fromAssetId(assetId)
+    return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
+  },
+)((_accountIds, { assetId }) => assetId ?? 'undefined')
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
 export const selectPortfolioLoading = createSelector(

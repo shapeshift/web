@@ -165,13 +165,13 @@ export const getFormFees = ({
   const fee = feeBN.toString()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Ethereum:
+    case CHAIN_NAMESPACE.Evm:
       return getEvmFees(
         trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
         feeAsset,
         tradeFeeSource,
       )
-    case CHAIN_NAMESPACE.Cosmos: {
+    case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         fee,
         tradeFee: trade.feeData.tradeFee,

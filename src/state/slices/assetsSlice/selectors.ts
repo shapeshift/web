@@ -77,7 +77,7 @@ const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         switch (chainReference) {
           case CHAIN_REFERENCE.AvalancheCChain:
             return ASSET_REFERENCE.AvalancheC
@@ -86,7 +86,7 @@ const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
-      case CHAIN_NAMESPACE.Cosmos:
+      case CHAIN_NAMESPACE.CosmosSdk:
         switch (chainReference) {
           case CHAIN_REFERENCE.CosmosHubMainnet:
             return ASSET_REFERENCE.Cosmos

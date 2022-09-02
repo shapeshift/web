@@ -20,9 +20,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataById,
+  selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,20 +56,14 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
-  const accountId = useMemo(
-    () =>
-      accountAddress
-        ? toAccountId({
-            chainId: ethChainId,
-            account: accountAddress,
-          })
-        : '',
-    [accountAddress],
-  )
-
-  const filter = useMemo(() => ({ accountId }), [accountId])
-
-  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+  const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
+  const accountNumber = useMemo(() => {
+    const accountId = toAccountId({
+      chainId: ethChainId,
+      account: accountAddress ?? '',
+    })
+    return accountMetadata[accountId]?.bip44Params.accountNumber
+  }, [accountMetadata, accountAddress])
 
   const {
     state: { wallet },

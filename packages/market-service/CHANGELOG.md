@@ -1,3 +1,24 @@
+# [@shapeshiftoss/market-service-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.5.1...@shapeshiftoss/market-service-v7.0.0) (2022-09-02)
+
+
+### Features
+
+* use CHAIN_NAMESPACE.Evm & CHAIN_NAMESPACE.CosmosSdk ([#1007](https://github.com/shapeshift/lib/issues/1007)) ([b6c5490](https://github.com/shapeshift/lib/commit/b6c54902c9e84fd628e917e4747acdb6faf3405d)), closes [#1008](https://github.com/shapeshift/lib/issues/1008)
+
+
+### BREAKING CHANGES
+
+* CHAIN_NAMESPACE.Ethereum is now CHAIN_NAMESPACE.Evm
+* CHAIN_NAMESPACE.Cosmos is now CHAIN_NAMESPACE.CosmosSdk
+
+* chore: trigger CI
+
+* chore: trigger ci
+
+* fix: internally bump caip
+
+Co-authored-by: Apotheosis <97164662+0xApotheosis@users.noreply.github.com>
+
 # [@shapeshiftoss/market-service-v6.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.5.0...@shapeshiftoss/market-service-v6.5.1) (2022-08-15)
 
 # [@shapeshiftoss/market-service-v6.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v6.4.6...@shapeshiftoss/market-service-v6.5.0) (2022-08-01)

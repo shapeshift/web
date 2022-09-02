@@ -24,7 +24,7 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
+export const useDefaultAssetsService = (routeBuyAssetId: AssetId | undefined) => {
   type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
   type UsdRateInputArg = UsdRateQueryInput[0]
 

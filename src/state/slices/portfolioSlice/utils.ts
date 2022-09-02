@@ -189,7 +189,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chainNamespace } = fromChainId(chainId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum: {
+      case CHAIN_NAMESPACE.Evm: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
         // TODO(0xdef1cafe): remove accountSpecifier here, it's the same as accountId below
@@ -240,7 +240,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         })
         break
       }
-      case CHAIN_NAMESPACE.Bitcoin: {
+      case CHAIN_NAMESPACE.Utxo: {
         const btcAccount = account as Account<KnownChainIds.BitcoinMainnet>
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
@@ -289,7 +289,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         break
       }
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountSpecifier = `${chainId}:${_xpubOrAccount}`

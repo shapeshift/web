@@ -43,7 +43,7 @@ export const Details = () => {
     control,
   })
 
-  const onAccountChange = useCallback(
+  const handleAccountChange = useCallback(
     (accountId: AccountId) => setValue(SendFormFields.AccountId, accountId),
     [setValue],
   )
@@ -98,7 +98,7 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <AccountDropdown assetId={(asset as Asset).assetId} onChange={onAccountChange} />
+        <AccountDropdown assetId={(asset as Asset).assetId} onChange={handleAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists

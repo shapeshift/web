@@ -30,9 +30,8 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { connectedWalletEthAddress } = useFoxEth()
-  const { approve, allowance, getWithdrawGasData } =
-    useFoxEthLiquidityPool(connectedWalletEthAddress)
+  const { accountAddress } = useFoxEth()
+  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

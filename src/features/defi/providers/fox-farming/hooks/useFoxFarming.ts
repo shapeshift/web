@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import {
   ChainAdapter,
   ethereum,
@@ -18,7 +18,7 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadata } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import IUniswapV2Router02ABI from '../../fox-eth-lp/abis/IUniswapV2Router02.json'
@@ -42,6 +42,16 @@ export const useFoxFarming = (contractAddress: string) => {
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+
+  const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
+  const accountNumber = useMemo(() => {
+    const accountId = toAccountId({
+      chainId: ethChainId,
+      account: accountAddress ?? '',
+    })
+    return accountMetadata[accountId]?.bip44Params.accountNumber
+  }, [accountMetadata, accountAddress])
+
   const {
     state: { wallet },
   } = useWallet()
@@ -104,7 +114,7 @@ export const useFoxFarming = (contractAddress: string) => {
               data,
               gasLimit,
               bip44Params: adapter.buildBIP44Params({
-                accountNumber: 0,
+                accountNumber,
               }),
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
@@ -146,6 +156,7 @@ export const useFoxFarming = (contractAddress: string) => {
     [
       adapter,
       accountAddress,
+      accountNumber,
       contractAddress,
       ethAsset.chainId,
       foxFarmingContract,
@@ -158,7 +169,7 @@ export const useFoxFarming = (contractAddress: string) => {
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
       try {
-        if (!accountAddress || !foxFarmingContract || !wallet) return
+        if (!accountAddress || !accountNumber || !foxFarmingContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
@@ -199,7 +210,7 @@ export const useFoxFarming = (contractAddress: string) => {
               data,
               gasLimit,
               bip44Params: adapter.buildBIP44Params({
-                accountNumber: 0,
+                accountNumber,
               }),
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
@@ -350,7 +361,7 @@ export const useFoxFarming = (contractAddress: string) => {
       data,
       gasLimit,
       bip44Params: adapter.buildBIP44Params({
-        accountNumber: 0,
+        accountNumber,
       }),
       gasPrice,
     })
@@ -421,7 +432,7 @@ export const useFoxFarming = (contractAddress: string) => {
       data,
       gasLimit,
       bip44Params: adapter.buildBIP44Params({
-        accountNumber: 0,
+        accountNumber,
       }),
       gasPrice,
     })

@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import {
   ChainAdapter,
   ethereum,
@@ -18,7 +18,11 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import erc20abi from '../abis/erc20abi.json'
@@ -50,6 +54,16 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+
+  const accountMetadata = useAppSelector(state => selectPortfolioAccountMetadata(state))
+  const accountNumber = useMemo(() => {
+    const accountId = toAccountId({
+      chainId: ethChainId,
+      account: accountAddress ?? '',
+    })
+    return accountMetadata[accountId]?.bip44Params.accountNumber
+  }, [accountMetadata, accountAddress])
+
   const {
     state: { wallet },
   } = useWallet()
@@ -76,7 +90,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const addLiquidity = useCallback(
     async (foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !accountNumber || !uniswapRouterContract || !wallet) return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const value = bnOrZero(ethAmount)
@@ -122,7 +136,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
               data,
               gasLimit,
               bip44Params: adapter.buildBIP44Params({
-                accountNumber: 0,
+                accountNumber,
               }),
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
@@ -164,6 +178,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
     [
       adapter,
       accountAddress,
+      accountNumber,
       ethAsset.chainId,
       ethAsset.precision,
       foxAsset.precision,
@@ -220,7 +235,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
               data,
               gasLimit,
               bip44Params: adapter.buildBIP44Params({
-                accountNumber: 0,
+                accountNumber,
               }),
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
@@ -426,7 +441,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
         data,
         gasLimit,
         bip44Params: adapter.buildBIP44Params({
-          accountNumber: 0,
+          accountNumber,
         }),
         gasPrice,
       })

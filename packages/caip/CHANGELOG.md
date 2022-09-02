@@ -1,3 +1,24 @@
+# [@shapeshiftoss/caip-v8.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v7.0.0...@shapeshiftoss/caip-v8.0.0) (2022-09-02)
+
+
+### Features
+
+* use CHAIN_NAMESPACE.Evm & CHAIN_NAMESPACE.CosmosSdk ([#1007](https://github.com/shapeshift/lib/issues/1007)) ([b6c5490](https://github.com/shapeshift/lib/commit/b6c54902c9e84fd628e917e4747acdb6faf3405d)), closes [#1008](https://github.com/shapeshift/lib/issues/1008)
+
+
+### BREAKING CHANGES
+
+* CHAIN_NAMESPACE.Ethereum is now CHAIN_NAMESPACE.Evm
+* CHAIN_NAMESPACE.Cosmos is now CHAIN_NAMESPACE.CosmosSdk
+
+* chore: trigger CI
+
+* chore: trigger ci
+
+* fix: internally bump caip
+
+Co-authored-by: Apotheosis <97164662+0xApotheosis@users.noreply.github.com>
+
 # [@shapeshiftoss/caip-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v6.16.0...@shapeshiftoss/caip-v7.0.0) (2022-09-01)
 
 

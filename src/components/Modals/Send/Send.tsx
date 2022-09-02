@@ -38,7 +38,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
               path='/'
               component={(props: RouteComponentProps) => {
                 const { chainNamespace } = fromChainId(asset.chainId)
-                return chainNamespace === CHAIN_NAMESPACE.Cosmos ? (
+                return chainNamespace === CHAIN_NAMESPACE.CosmosSdk ? (
                   <CosmosForm asset={asset} accountId={accountId} {...props} />
                 ) : (
                   <Form asset={asset} accountId={accountId} {...props} />

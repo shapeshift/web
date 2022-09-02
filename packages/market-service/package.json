@@ -36,14 +36,14 @@
     "p-ratelimit": "^1.0.1"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^7.0.0",
+    "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^7.13.0",
     "@shapeshiftoss/investor-foxy": "^4.0.2",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^9.5.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^7.0.0",
+    "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^7.13.0",
     "@shapeshiftoss/investor-foxy": "^4.0.2",
     "@shapeshiftoss/types": "^8.1.0",

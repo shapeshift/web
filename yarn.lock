@@ -2797,6 +2797,17 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
+"@shapeshiftoss/asset-service@^7.1.0":
+  version "7.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-7.5.0.tgz#e9e54c23823e95473f503cac9a04d0c9efed87bc"
+  integrity sha512-LPgWwHFsoVEA/6hm90yuaD1AF0MArcxrDyuoyO77BvaJPBaVbbgGkzTr94gbnHy3+PDe2jRJO4P5BT40An3ZeA==
+  dependencies:
+    axios "^0.26.1"
+    identicon.js "^2.3.3"
+    js-pixel-fonts "^1.5.0"
+    lodash "^4.17.21"
+    node-polyglot "^2.4.2"
+
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
   version "5.2.0-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"
@@ -2946,6 +2957,31 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
+"@shapeshiftoss/investor-foxy@^4.0.2":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-4.1.1.tgz#b86451992e4ce6fcac79382a81cf9b95446c25b8"
+  integrity sha512-wxOrA4ri3e0sHGvJoH4BiyH8y/gAbnIUjswDk9MFTyikpX2WZ1hioTO+p3ULhNFSrIKHBdFdagOohZjzCkdSGA==
+  dependencies:
+    "@ethersproject/providers" "^5.5.3"
+    axios "^0.26.1"
+    bignumber.js "^9.0.2"
+    lodash "^4.17.21"
+    web3 "1.7.4"
+    web3-core "1.7.4"
+    web3-utils "1.7.4"
+
+"@shapeshiftoss/investor-idle@^1.0.0":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-1.1.1.tgz#0de672cd8a95007abfff968486b4580356518992"
+  integrity sha512-EP2ym9EQMZaBM4Hcg2vVRBtAiOayQ6Rtw/aU07JaYYChvB5Dx2ItgFbh8T871nmA3aM9dKeMFc8r58L2BZgi4g==
+  dependencies:
+    "@ethersproject/providers" "^5.5.3"
+    bignumber.js "^9.0.2"
+    lodash "^4.17.21"
+    web3 "1.7.4"
+    web3-core "1.7.4"
+    web3-utils "1.7.4"
+
 "@shapeshiftoss/proto-tx-builder@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.2.1.tgz#82106d45adcec0d5d215a6098b52d16ef3db3dc8"
@@ -2957,6 +2993,17 @@
     cosmjs-types "^0.4.1"
     google-protobuf "^3.17.0"
     long "^4.0.0"
+
+"@shapeshiftoss/unchained-client@^9.5.0":
+  version "9.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.9.0.tgz#093ba1f9f9ce04b07a027eeba2ba9ad32c4f86ba"
+  integrity sha512-5LJzxwS5ZNSHmH+Z4lQ4GbR78U4WVe3H2gJj/RLzYMQGJUPn8hqHMkfiOWaI6jAzi54kG5/e3MGJftwQf92JyQ==
+  dependencies:
+    "@yfi/sdk" "^1.0.30"
+    bignumber.js "^9.0.2"
+    ethers "^5.5.3"
+    isomorphic-ws "^4.0.1"
+    ws "^8.3.0"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

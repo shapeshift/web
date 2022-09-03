@@ -1,11 +1,6 @@
 import { AssetId, AssetNamespace, AssetReference } from './assetId/assetId'
 import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
-import {
-  ASSET_NAMESPACE_STRINGS,
-  ASSET_REFERENCE,
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
-} from './constants'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from './constants'
 import { isValidChainPartsPair, parseAssetIdRegExp } from './utils'
 
 export const isChainNamespace = (
@@ -21,7 +16,7 @@ export const isChainReference = (
 export const isAssetNamespace = (
   maybeAssetNamespace: AssetNamespace | string,
 ): maybeAssetNamespace is AssetNamespace =>
-  ASSET_NAMESPACE_STRINGS.some((s) => s === maybeAssetNamespace)
+  Object.values(ASSET_NAMESPACE).some((s) => s === maybeAssetNamespace)
 
 export const isAssetReference = (
   maybeAssetReference: AssetReference | string,
@@ -29,12 +24,15 @@ export const isAssetReference = (
   Object.values(ASSET_REFERENCE).some((s) => s === maybeAssetReference)
 
 export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetReference => {
-  const matches = parseAssetIdRegExp.exec(maybeAssetId)?.groups
+  const matches = parseAssetIdRegExp.exec(maybeAssetId)
+  if (!matches) {
+    return false
+  }
+  const { 1: chainNamespace, 2: chainReference, 3: assetNamespace } = matches
   return (
-    !!matches &&
-    isChainNamespace(matches.chainNamespace) &&
-    isChainReference(matches.chainReference) &&
-    isAssetNamespace(matches.assetNamespace)
+    isChainNamespace(chainNamespace) &&
+    isChainReference(chainReference) &&
+    isAssetNamespace(assetNamespace)
   )
 }
 

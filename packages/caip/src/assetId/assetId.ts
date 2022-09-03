@@ -1,8 +1,7 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
-import toLower from 'lodash/toLower'
 
 import { ChainId, ChainNamespace, ChainReference, fromChainId, toChainId } from '../chainId/chainId'
-import { ASSET_NAMESPACE_STRINGS, ASSET_REFERENCE, VALID_ASSET_NAMESPACE } from '../constants'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, VALID_ASSET_NAMESPACE } from '../constants'
 import {
   assertIsAssetNamespace,
   assertIsChainNamespace,
@@ -15,7 +14,7 @@ import { Nominal, parseAssetIdRegExp } from '../utils'
 
 export type AssetId = Nominal<string, 'AssetId'>
 
-export type AssetNamespace = typeof ASSET_NAMESPACE_STRINGS[number]
+export type AssetNamespace = typeof ASSET_NAMESPACE[keyof typeof ASSET_NAMESPACE]
 
 export type AssetReference = typeof ASSET_REFERENCE[keyof typeof ASSET_REFERENCE]
 
@@ -124,30 +123,28 @@ export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
 
 export const fromAssetId: FromAssetId = (assetId) => {
   if (!isAssetId(assetId)) throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
-  const matches = parseAssetIdRegExp.exec(assetId)?.groups
+  const matches = parseAssetIdRegExp.exec(assetId)
   if (!matches) throw new Error(`fromAssetId: could not parse AssetId: ${assetId}`)
 
+  const { 1: chainNamespace, 2: chainReference, 3: assetNamespace, 4: assetReference } = matches
+
   // These should never throw because isAssetId() would have already caught it, but they help with type inference
-  assertIsChainNamespace(matches.chainNamespace)
-  assertIsChainReference(matches.chainReference)
-  assertIsAssetNamespace(matches.assetNamespace)
-
-  const chainNamespace = matches.chainNamespace
-  const chainReference = matches.chainReference
-  const assetNamespace = matches.assetNamespace
-
-  const shouldLowercaseAssetReference =
-    assetNamespace && ['erc20', 'erc721'].includes(assetNamespace)
-
-  const assetReference = shouldLowercaseAssetReference
-    ? toLower(matches.assetReference)
-    : matches.assetReference
-  assertIsChainReference(chainReference)
   assertIsChainNamespace(chainNamespace)
+  assertIsChainReference(chainReference)
+  assertIsAssetNamespace(assetNamespace)
+
   const chainId = toChainId({ chainNamespace, chainReference })
 
   if (assetNamespace && assetReference && chainId) {
-    return { chainId, chainReference, chainNamespace, assetNamespace, assetReference }
+    return {
+      chainId,
+      chainReference,
+      chainNamespace,
+      assetNamespace,
+      assetReference: ['erc20', 'erc721'].includes(assetNamespace)
+        ? assetReference.toLowerCase()
+        : assetReference,
+    }
   } else {
     throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
   }

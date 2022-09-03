@@ -1,6 +1,6 @@
 import { ChainNamespace, ChainReference } from './chainId/chainId'
 import {
-  ASSET_NAMESPACE_STRINGS,
+  ASSET_NAMESPACE,
   ASSET_REFERENCE,
   btcAssetId,
   btcChainId,
@@ -106,8 +106,8 @@ describe('type guard', () => {
 
   describe('isAssetNamespace', () => {
     it('correctly determines type', () => {
-      expect(isAssetNamespace(ASSET_NAMESPACE_STRINGS[0])).toEqual(true)
-      expect(isAssetNamespace(ASSET_NAMESPACE_STRINGS[1])).toEqual(true)
+      expect(isAssetNamespace(ASSET_NAMESPACE.cw20)).toEqual(true)
+      expect(isAssetNamespace(ASSET_NAMESPACE.cw721)).toEqual(true)
       expect(isAssetNamespace('invalid')).toEqual(false)
       expect(isAssetNamespace('')).toEqual(false)
     })
@@ -166,8 +166,8 @@ describe('type guard assertion', () => {
 
   describe('assertIsAssetNamespace', () => {
     it('correctly asserts type', () => {
-      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE_STRINGS[0])).not.toThrow()
-      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE_STRINGS[1])).not.toThrow()
+      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE.cw20)).not.toThrow()
+      expect(() => assertIsAssetNamespace(ASSET_NAMESPACE.cw721)).not.toThrow()
       expect(() => assertIsAssetNamespace('invalid')).toThrow()
       expect(() => assertIsAssetNamespace('')).toThrow()
     })

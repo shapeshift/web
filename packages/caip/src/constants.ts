@@ -52,6 +52,27 @@ export const CHAIN_REFERENCE = {
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
 } as const
 
+export const ASSET_NAMESPACE = {
+  cw20: 'cw20',
+  cw721: 'cw721',
+  erc20: 'erc20',
+  erc721: 'erc721',
+  slip44: 'slip44',
+  native: 'native',
+  ibc: 'ibc',
+} as const
+
+export const ASSET_REFERENCE = {
+  Bitcoin: '0',
+  Litecoin: '2',
+  Dogecoin: '3',
+  Ethereum: '60',
+  Cosmos: '118',
+  Osmosis: '118',
+  BitcoinCash: '145',
+  AvalancheC: '9000',
+} as const
+
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Utxo]: [
     CHAIN_REFERENCE.BitcoinMainnet,
@@ -79,28 +100,13 @@ type ValidAssetNamespace = {
 }
 
 export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
-  [CHAIN_NAMESPACE.Utxo]: ['slip44'],
-  [CHAIN_NAMESPACE.Evm]: ['slip44', 'erc20', 'erc721'],
-  [CHAIN_NAMESPACE.CosmosSdk]: ['cw20', 'cw721', 'ibc', 'native', 'slip44'],
+  [CHAIN_NAMESPACE.Utxo]: [ASSET_NAMESPACE.slip44],
+  [CHAIN_NAMESPACE.Evm]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.erc20, ASSET_NAMESPACE.erc721],
+  [CHAIN_NAMESPACE.CosmosSdk]: [
+    ASSET_NAMESPACE.cw20,
+    ASSET_NAMESPACE.cw721,
+    ASSET_NAMESPACE.ibc,
+    ASSET_NAMESPACE.native,
+    ASSET_NAMESPACE.slip44,
+  ],
 })
-
-export const ASSET_NAMESPACE_STRINGS = [
-  'cw20',
-  'cw721',
-  'erc20',
-  'erc721',
-  'slip44',
-  'native',
-  'ibc',
-] as const
-
-export const ASSET_REFERENCE = {
-  Bitcoin: '0',
-  Litecoin: '2',
-  Dogecoin: '3',
-  Ethereum: '60',
-  Cosmos: '118',
-  Osmosis: '118',
-  BitcoinCash: '145',
-  AvalancheC: '9000',
-} as const

@@ -72,10 +72,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   useEffect(() => {
     if (!accountId) return
-    ;(async () => {
-      const accountAddress = fromAccountId(accountId).account
-      setAccountAddress(accountAddress)
-    })()
+    const accountAddress = fromAccountId(accountId).account
+    setAccountAddress(accountAddress)
   }, [accountId])
 
   // watch tx to reload opportunities if it got confirmed

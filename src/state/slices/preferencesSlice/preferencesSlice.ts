@@ -43,8 +43,8 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    FoxLP: true || getConfig().REACT_APP_FEATURE_FOX_LP,
-    FoxFarming: true || getConfig().REACT_APP_FEATURE_FOX_FARMING,
+    FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
+    FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
@@ -55,7 +55,7 @@ const initialState: Preferences = {
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
-    MultiAccounts: true || getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
+    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
   },
   selectedLocale: simpleLocale(),

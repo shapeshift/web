@@ -19,7 +19,7 @@ async function run() {
     listings.push(...newListings)
   }
 
-  fs.writeFileSync(path.join(__dirname, 'registry.json'), JSON.stringify(listings, null, 2))
+  fs.writeFileSync(path.join(__dirname, '..', 'registry.json'), JSON.stringify(listings, null, 2))
 }
 
 run()

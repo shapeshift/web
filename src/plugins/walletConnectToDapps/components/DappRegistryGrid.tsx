@@ -23,7 +23,7 @@ interface RegistryItem {
   image: string
 }
 
-const registry: RegistryItem[] = require('./registry.json')
+const registry: RegistryItem[] = require('../registry.json')
 
 const pageSize = 20
 
@@ -46,9 +46,9 @@ export const DappRegistryGrid: FC = () => {
   )
 
   return (
-    <>
-      <Stack direction='row' alignItems='center'>
-        <Heading flex={1}>
+    <Box>
+      <Stack direction='row' alignItems='center' mb={4}>
+        <Heading flex={1} fontSize='2xl'>
           <Text translation='plugins.walletConnectToDapps.availableDapps' />
         </Heading>
         <Box>
@@ -91,6 +91,6 @@ export const DappRegistryGrid: FC = () => {
           </Link>
         ))}
       </SimpleGrid>
-    </>
+    </Box>
   )
 }

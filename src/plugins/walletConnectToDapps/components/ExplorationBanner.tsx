@@ -1,13 +1,16 @@
 import { Avatar, Box, Button, Flex, Image, Stack, useColorModeValue } from '@chakra-ui/react'
 import bannerImg from 'assets/dapps-banner.png'
-import { Card } from 'components/Card/Card'
 import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { FC } from 'react'
 
 export const ExplorationBanner: FC = () => (
-  <Card>
-    <Stack direction='row'>
+  <Box
+    borderWidth={1}
+    borderColor={useColorModeValue('blackAlpha.50', 'gray.750')}
+    borderRadius='lg'
+  >
+    <Stack direction='row' spacing={4}>
       <Flex flex={1}>
         <Image objectFit='cover' boxSize='100%' src={bannerImg} />
       </Flex>
@@ -37,5 +40,5 @@ export const ExplorationBanner: FC = () => (
         </Stack>
       </Stack>
     </Stack>
-  </Card>
+  </Box>
 )

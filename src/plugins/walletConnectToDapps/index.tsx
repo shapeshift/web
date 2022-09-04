@@ -2,7 +2,7 @@ import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIco
 import { type Plugins } from 'plugins/types'
 import { RouteCategory } from 'Routes/helpers'
 
-import { WalletConnectToDappsExploration } from './WalletConnectToDappsExploration'
+import { WalletConnectToDapps } from './WalletConnectToDapps'
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
@@ -16,7 +16,7 @@ export default function register(): Plugins {
           {
             path: '/dapps',
             label: 'navBar.dApps',
-            main: WalletConnectToDappsExploration,
+            main: WalletConnectToDapps,
             icon: <WalletConnectCurrentColorIcon />,
             category: RouteCategory.Explore,
           },

@@ -1355,6 +1355,15 @@
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
       }
+    },
+    "walletConnectToDapps": {
+      "availableDapps": "Available dApps",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More",
+      "banner": {
+        "title": "Connect to over 300+ dApps",
+        "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
+      }
     }
   },
   "features": {

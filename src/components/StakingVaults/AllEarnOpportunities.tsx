@@ -11,7 +11,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
+import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -31,7 +31,9 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
-  const sortedVaults = useSortedYearnVaults()
+
+  const sortedVaults = useSortedVaults()
+
   const { data: foxyBalancesData } = useFoxyBalances()
   const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
   const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)

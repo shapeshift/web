@@ -37,7 +37,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/staking/0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0/get-started',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
+                'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxFarming,
               opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
@@ -55,7 +55,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               link: 'https://fox.shapeshift.com/fox-farming/liquidity/0x470e8de2ebaef52014a47cb5e6af86884947f08c/lp-add',
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/fox@2x.png',
+                'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -71,7 +71,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               isLoaded: true,
               apy: null,
               link: 'https://app.rari.capital/fuse/pool/79',
-              icons: ['https://assets.coincap.io/assets/icons/fox@2x.png'],
+              icons: ['https://assets.coincap.io/assets/icons/256/fox.png'],
               isDisabled: true,
             },
           ],

@@ -232,7 +232,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     txs.forEach(tx => {
       if (tx.fee && assetIds.includes(tx.fee.assetId)) {
         // don't count fees for UTXO chains
-        if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Bitcoin) {
+        if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Utxo) {
           // balance history being built in descending order, so fee means we had more before
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),

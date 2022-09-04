@@ -14,7 +14,7 @@ Bug fixes and features should always come with tests.
 
 ### Testing UI Business Logic
 
-Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and test that code in isolation from it's UI.
+Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and test that code in isolation from its UI.
 
 # Unit Testing
 

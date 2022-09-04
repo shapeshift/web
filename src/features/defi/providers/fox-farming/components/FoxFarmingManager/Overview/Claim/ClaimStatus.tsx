@@ -3,7 +3,6 @@ import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/cai
 import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch } from 'react-redux'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -15,7 +14,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -68,7 +66,6 @@ const StatusInfo = {
 export const ClaimStatus = () => {
   const { history: browserHistory } = useBrowserRouter()
   const translate = useTranslate()
-  const dispatch = useDispatch()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress },
   } = useLocation<ClaimStatusState>()
@@ -104,17 +101,8 @@ export const ClaimStatus = () => {
           ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
           : '0',
       })
-      dispatch(
-        foxEthApi.endpoints.getFoxFarmingContractWalletData.initiate(
-          {
-            contractAddress,
-            ethWalletAddress: userAddress,
-          },
-          { forceRefetch: true },
-        ),
-      )
     }
-  }, [confirmedTransaction, contractAddress, dispatch, feeAsset.precision, userAddress])
+  }, [confirmedTransaction, contractAddress, feeAsset.precision])
 
   return (
     <SlideTransition>

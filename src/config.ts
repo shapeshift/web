@@ -55,6 +55,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THOR: bool({ default: false }),
+  REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),

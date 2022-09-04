@@ -53,8 +53,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
     setLoading(true)
 
     if (!(state.provider && 'connector' in state.provider)) {
-      // TODO: error-handling in a stacked PR
-      return
+      throw new Error('walletProvider.walletconnect.errors.connectFailure')
     }
 
     try {

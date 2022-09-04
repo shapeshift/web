@@ -1,15 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  avalancheAssetId,
-  CHAIN_NAMESPACE,
-  ChainId,
-  cosmosAssetId,
-  ethAssetId,
-  fromAssetId,
-  osmosisAssetId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -33,7 +24,6 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -178,8 +168,6 @@ export const useSwapper = () => {
     state: { wallet },
   } = useWallet()
 
-  const osmosisEnabled = useFeatureFlag('Osmosis')
-
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
     return assets.filter(asset => assetIdMap[asset.assetId])
@@ -209,24 +197,6 @@ export const useSwapper = () => {
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
     [swapperManager, sellTradeAsset],
-  )
-
-  const getDefaultPair = useCallback(
-    (buyAssetChainId: ChainId | undefined) => {
-      const ethFoxPair = [ethAssetId, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
-      switch (buyAssetChainId) {
-        case KnownChainIds.AvalancheMainnet:
-          return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
-        case KnownChainIds.CosmosMainnet:
-          return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
-        case KnownChainIds.OsmosisMainnet:
-          return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
-        case KnownChainIds.EthereumMainnet:
-        default:
-          return ethFoxPair
-      }
-    },
-    [osmosisEnabled],
   )
 
   const sellAssetBalance = useAppSelector(state =>
@@ -322,7 +292,7 @@ export const useSwapper = () => {
           sendMax: false,
           receiveAddress,
         })
-      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         const sellAssetChainAdapter = getChainAdapterManager().get(
@@ -463,7 +433,7 @@ export const useSwapper = () => {
                 sellAssetAccountNumber: 0,
                 receiveAddress,
               })
-            } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+            } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
               const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               const sellAssetChainAdapter = getChainAdapterManager().get(
@@ -636,11 +606,11 @@ export const useSwapper = () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         const fees = getEvmFees()
         setValue('fees', fees)
         break
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
           tradeFee: trade.feeData.tradeFee,
@@ -649,7 +619,7 @@ export const useSwapper = () => {
         setValue('fees', fees)
         break
       }
-      case CHAIN_NAMESPACE.Bitcoin:
+      case CHAIN_NAMESPACE.Utxo:
         {
           const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
@@ -705,7 +675,6 @@ export const useSwapper = () => {
     executeQuote,
     getSupportedBuyAssetsFromSellAsset,
     getSupportedSellableAssets,
-    getDefaultPair,
     checkApprovalNeeded,
     approve,
     getSendMaxAmount,

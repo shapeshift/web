@@ -1,26 +1,21 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
@@ -34,16 +29,12 @@ import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
-  const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const reduxDispatch = useDispatch()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const { accountAddress } = useFoxEth()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -53,30 +44,15 @@ export const Status = () => {
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
-  useEffect(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-    if (wallet && adapter) {
-      ;(async () => {
-        const address = await adapter.getAddress({ wallet })
-        setUserAddres(address)
-      })()
-    }
-  }, [ethAsset.chainId, wallet])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
-  }, [state?.txid, userAddress, accountSpecifier])
+    if (!(state?.txid && accountAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (
-      confirmedTransaction &&
-      confirmedTransaction.status !== 'Pending' &&
-      dispatch &&
-      userAddress
-    ) {
+    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: {
@@ -86,14 +62,8 @@ export const Status = () => {
             : '0',
         },
       })
-      reduxDispatch(
-        foxEthApi.endpoints.getFoxEthLpWalletData.initiate(
-          { ethWalletAddress: userAddress },
-          { forceRefetch: true },
-        ),
-      )
     }
-  }, [confirmedTransaction, dispatch, ethAsset.precision, reduxDispatch, userAddress])
+  }, [confirmedTransaction, dispatch, ethAsset.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

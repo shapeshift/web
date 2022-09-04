@@ -13,9 +13,8 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectFoxFarmingOpportunityByContractAddress,
@@ -40,33 +39,28 @@ export const FoxFarmingWithdraw = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
-
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(chainId)
+  const { contractAddress } = query
 
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
+  const { accountAddress } = useFoxEth()
 
-  // user info
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && opportunity)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        if (!(accountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [chainAdapter, walletState.wallet, translate, chainId, contractAddress, opportunity])
+  }, [accountAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

@@ -15,6 +15,7 @@ import { Amount } from 'components/Amount/Amount'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -42,6 +43,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const opportunity = state?.opportunity
+  const { onOngoingTxIdChange } = useFoxEth()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -61,11 +63,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   const handleDeposit = async () => {
     try {
-      if (!state.userAddress || !assetReference || !walletState.wallet) return
+      if (!assetReference || !walletState.wallet) return
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       const txid = await stake(state.deposit.cryptoAmount)
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
+      onOngoingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')

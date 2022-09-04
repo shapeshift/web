@@ -551,9 +551,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
-  const resetState = useCallback(() => dispatch({ type: WalletActions.RESET_STATE }), [])
-
-  const handleAccountsChanged = useCallback(async () => {
+  const handleAccountsOrChainChanged = useCallback(async () => {
     if (!walletType || !state.adapters) return
 
     const localWallet = await state.adapters.get(walletType)?.pairDevice()
@@ -582,20 +580,20 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     async (maybeProvider: InitialState['provider']) => {
       if (!(maybeProvider && walletType)) return
 
-      maybeProvider?.on?.('accountsChanged', handleAccountsChanged)
-      maybeProvider?.on?.('chainChanged', resetState)
+      maybeProvider?.on?.('accountsChanged', handleAccountsOrChainChanged)
+      maybeProvider?.on?.('chainChanged', handleAccountsOrChainChanged)
 
       const wallet = await state.adapters?.get(walletType)?.pairDevice()
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          maybeProvider?.removeListener?.('accountsChanged', handleAccountsChanged)
-          maybeProvider?.removeListener?.('chainChanged', resetState)
+          maybeProvider?.removeListener?.('accountsChanged', handleAccountsOrChainChanged)
+          maybeProvider?.removeListener?.('chainChanged', handleAccountsOrChainChanged)
           return oldDisconnect()
         }
       }
     },
-    [resetState, state.adapters, walletType, handleAccountsChanged],
+    [state.adapters, walletType, handleAccountsOrChainChanged],
   )
 
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load

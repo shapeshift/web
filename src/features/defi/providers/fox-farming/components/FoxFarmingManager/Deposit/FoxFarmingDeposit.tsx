@@ -14,9 +14,8 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -43,7 +42,6 @@ export const FoxFarmingDeposit = () => {
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = getChainAdapterManager()
   const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
@@ -53,26 +51,23 @@ export const FoxFarmingDeposit = () => {
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
+  const { accountAddress } = useFoxEth()
 
-  // user info
-  const chainAdapter = chainAdapterManager.get(chainId)
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && opportunity)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        if (!(accountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [chainAdapter, walletState.wallet, translate, toast, chainId, contractAddress, opportunity])
+  }, [accountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

@@ -2,9 +2,13 @@ import { type Asset } from '@shapeshiftoss/asset-service'
 import {
   type AssetId,
   type ChainId,
+  avalancheAssetId,
   CHAIN_NAMESPACE,
+  cosmosAssetId,
+  ethAssetId,
   fromAssetId,
   fromChainId,
+  osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId, ChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -58,7 +62,7 @@ export const isSupportedUtxoSwappingChain = (
   chainId: ChainId,
 ): chainId is UtxoSupportedChainIds => {
   const { chainNamespace } = fromChainId(chainId)
-  return chainNamespace === CHAIN_NAMESPACE.Bitcoin
+  return chainNamespace === CHAIN_NAMESPACE.Utxo
 }
 
 export const isSupportedNoneUtxoSwappingChain = (
@@ -161,20 +165,20 @@ export const getFormFees = ({
   const fee = feeBN.toString()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Ethereum:
+    case CHAIN_NAMESPACE.Evm:
       return getEvmFees(
         trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
         feeAsset,
         tradeFeeSource,
       )
-    case CHAIN_NAMESPACE.Cosmos: {
+    case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         fee,
         tradeFee: trade.feeData.tradeFee,
         tradeFeeSource: trade.sources[0].name,
       }
     }
-    case CHAIN_NAMESPACE.Bitcoin: {
+    case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         fee,
@@ -200,4 +204,29 @@ export const getBestSwapperFromArgs = async (
   })
   if (!swapper) throw new Error('swapper is undefined')
   return swapper
+}
+
+export const getDefaultAssetIdPairByChainId = (
+  buyAssetChainId: ChainId | undefined,
+  featureFlags: FeatureFlags,
+): AssetId[] => {
+  const osmosisEnabled = featureFlags.Osmosis
+  const ethFoxPair = [
+    ethAssetId,
+    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' as AssetId,
+  ]
+  switch (buyAssetChainId) {
+    case KnownChainIds.AvalancheMainnet:
+      return [
+        avalancheAssetId,
+        'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab' as AssetId,
+      ]
+    case KnownChainIds.CosmosMainnet:
+      return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
+    case KnownChainIds.OsmosisMainnet:
+      return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
+    case KnownChainIds.EthereumMainnet:
+    default:
+      return ethFoxPair
+  }
 }

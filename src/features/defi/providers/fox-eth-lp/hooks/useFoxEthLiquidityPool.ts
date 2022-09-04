@@ -12,7 +12,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -45,8 +45,7 @@ function calculateSlippageMargin(amount: string | null, precision: number) {
     .toFixed()
 }
 
-export const useFoxEthLiquidityPool = () => {
-  const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -58,16 +57,6 @@ export const useFoxEthLiquidityPool = () => {
 
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
-  useEffect(() => {
-    if (wallet && adapter) {
-      ;(async () => {
-        if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet })
-        setConnectedWalletEthAddress(address)
-      })()
-    }
-  }, [adapter, wallet])
 
   const uniswapRouterContract = useMemo(
     () => new Contract(UNISWAP_V2_ROUTER_ADDRESS, IUniswapV2Router02ABI.abi, ethersProvider),
@@ -87,7 +76,7 @@ export const useFoxEthLiquidityPool = () => {
   const addLiquidity = useCallback(
     async (foxAmount: string, ethAmount: string) => {
       try {
-        if (!connectedWalletEthAddress || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !uniswapRouterContract || !wallet) return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const value = bnOrZero(ethAmount)
@@ -98,7 +87,7 @@ export const useFoxEthLiquidityPool = () => {
           bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
           calculateSlippageMargin(foxAmount, foxAsset.precision),
           calculateSlippageMargin(ethAmount, ethAsset.precision),
-          connectedWalletEthAddress,
+          accountAddress,
           Date.now() + 1200000,
         ])
         const adapterType = adapter.getChainId()
@@ -107,7 +96,7 @@ export const useFoxEthLiquidityPool = () => {
           value,
           chainSpecific: {
             contractData: data,
-            from: connectedWalletEthAddress,
+            from: accountAddress,
           },
         })
         const result = await (async () => {
@@ -174,7 +163,7 @@ export const useFoxEthLiquidityPool = () => {
     },
     [
       adapter,
-      connectedWalletEthAddress,
+      accountAddress,
       ethAsset.chainId,
       ethAsset.precision,
       foxAsset.precision,
@@ -187,7 +176,7 @@ export const useFoxEthLiquidityPool = () => {
   const removeLiquidity = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       try {
-        if (!connectedWalletEthAddress || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !uniswapRouterContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
@@ -197,7 +186,7 @@ export const useFoxEthLiquidityPool = () => {
           bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
           calculateSlippageMargin(foxAmount, foxAsset.precision),
           calculateSlippageMargin(ethAmount, ethAsset.precision),
-          connectedWalletEthAddress,
+          accountAddress,
           Date.now() + 1200000,
         ])
         const adapterType = adapter.getChainId()
@@ -206,7 +195,7 @@ export const useFoxEthLiquidityPool = () => {
           value: '0',
           chainSpecific: {
             contractData: data,
-            from: connectedWalletEthAddress,
+            from: accountAddress,
           },
         })
         const result = await (async () => {
@@ -271,7 +260,7 @@ export const useFoxEthLiquidityPool = () => {
       }
     },
     [
-      connectedWalletEthAddress,
+      accountAddress,
       ethAsset.chainId,
       ethAsset.precision,
       foxAsset.precision,
@@ -283,8 +272,8 @@ export const useFoxEthLiquidityPool = () => {
   )
 
   const calculateHoldings = useCallback(async () => {
-    if (!uniV2LPContract || !connectedWalletEthAddress) return
-    const balance = await uniV2LPContract.balanceOf(connectedWalletEthAddress)
+    if (!uniV2LPContract || !accountAddress) return
+    const balance = await uniV2LPContract.balanceOf(accountAddress)
     const totalSupply = await uniV2LPContract.totalSupply()
     const reserves = await uniV2LPContract.getReserves()
 
@@ -301,7 +290,7 @@ export const useFoxEthLiquidityPool = () => {
       foxBalance,
       lpBalance: bnOrZero(balance.toString()).toString(),
     }
-  }, [uniV2LPContract, connectedWalletEthAddress, ethAsset.precision, foxAsset.precision])
+  }, [uniV2LPContract, accountAddress, ethAsset.precision, foxAsset.precision])
 
   const getLpTVL = useCallback(async () => {
     if (uniV2LPContract) {
@@ -327,20 +316,17 @@ export const useFoxEthLiquidityPool = () => {
   const allowance = useCallback(
     async (forWithdrawal?: boolean) => {
       const contract = forWithdrawal ? uniV2LPContract : foxContract
-      if (!connectedWalletEthAddress || !contract) return
-      const _allowance = await contract.allowance(
-        connectedWalletEthAddress,
-        UNISWAP_V2_ROUTER_ADDRESS,
-      )
+      if (!accountAddress || !contract) return
+      const _allowance = await contract.allowance(accountAddress, UNISWAP_V2_ROUTER_ADDRESS)
       return _allowance.toString()
     },
-    [connectedWalletEthAddress, foxContract, uniV2LPContract],
+    [accountAddress, foxContract, uniV2LPContract],
   )
 
   const getApproveGasData = useCallback(
     async (forWithdrawal?: boolean) => {
       const contract = forWithdrawal ? uniV2LPContract : foxContract
-      if (adapter && connectedWalletEthAddress && contract) {
+      if (adapter && accountAddress && contract) {
         const data = contract.interface.encodeFunctionData('approve', [
           UNISWAP_V2_ROUTER_ADDRESS,
           MAX_ALLOWANCE,
@@ -350,26 +336,26 @@ export const useFoxEthLiquidityPool = () => {
           value: '0',
           chainSpecific: {
             contractData: data,
-            from: connectedWalletEthAddress,
+            from: accountAddress,
             contractAddress: contract.address,
           },
         })
         return fees
       }
     },
-    [adapter, connectedWalletEthAddress, foxContract, uniV2LPContract],
+    [adapter, accountAddress, foxContract, uniV2LPContract],
   )
 
   const getDepositGasData = useCallback(
     async (foxAmount: string, ethAmount: string) => {
-      if (!connectedWalletEthAddress || !uniswapRouterContract) return
+      if (!accountAddress || !uniswapRouterContract) return
       const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
         bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),
-        connectedWalletEthAddress,
+        accountAddress,
         Date.now() + 1200000,
       ])
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
@@ -377,29 +363,23 @@ export const useFoxEthLiquidityPool = () => {
         value,
         chainSpecific: {
           contractData: data,
-          from: connectedWalletEthAddress,
+          from: accountAddress,
         },
       })
       return estimatedFees
     },
-    [
-      adapter,
-      connectedWalletEthAddress,
-      ethAsset.precision,
-      foxAsset.precision,
-      uniswapRouterContract,
-    ],
+    [adapter, accountAddress, ethAsset.precision, foxAsset.precision, uniswapRouterContract],
   )
 
   const getWithdrawGasData = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
-      if (!connectedWalletEthAddress || !uniswapRouterContract) return
+      if (!accountAddress || !uniswapRouterContract) return
       const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
         bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),
-        connectedWalletEthAddress,
+        accountAddress,
         Date.now() + 1200000,
       ])
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
@@ -407,14 +387,14 @@ export const useFoxEthLiquidityPool = () => {
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: connectedWalletEthAddress,
+          from: accountAddress,
         },
       })
       return estimatedFees
     },
     [
       adapter,
-      connectedWalletEthAddress,
+      accountAddress,
       ethAsset.precision,
       foxAsset.precision,
       lpAsset.precision,

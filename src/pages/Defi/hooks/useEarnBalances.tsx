@@ -3,7 +3,6 @@ import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
@@ -17,13 +16,15 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
-import { useVaultBalances } from './useVaultBalances'
+import { MergedEarnVault, useVaultBalances } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]
   totalEarningBalance: string
   loading: boolean
 }
+
+export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()

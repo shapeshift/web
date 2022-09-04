@@ -7,7 +7,7 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
@@ -15,10 +15,15 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
@@ -34,7 +39,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const opportunity = state?.opportunity
-  const { getLpTokenPrice } = useFoxEthLiquidityPool()
+  const { accountAddress } = useFoxEth()
+  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountAddress)
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,
@@ -45,14 +51,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const marketData = {
-    // The LP token doesnt have market data.
-    // We're making our own market data object for the deposit view
-    price: lpTokenPrice ? bnOrZero(lpTokenPrice).toFixed(2) : '0',
-    marketCap: '0',
-    volume: '0',
-    changePercent24Hr: 0,
-  }
+  const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   // user info

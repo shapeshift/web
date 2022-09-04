@@ -13,11 +13,13 @@ import qs from 'qs'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectFoxFarmingOpportunityByContractAddress,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -33,6 +35,7 @@ export const FoxFarmingOverview = () => {
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
+  const { setAccountId: handleAccountChange } = useFoxEth()
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -48,6 +51,7 @@ export const FoxFarmingOverview = () => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
     return (
@@ -80,6 +84,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
       asset={rewardAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

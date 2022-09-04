@@ -1,0 +1,2851 @@
+[
+  {
+    "category": "dapp",
+    "id": "d2ae9c3c2782806fd6db704bf40ef0238af9470d7964ae566114a033f4a9a110",
+    "homepage": "https://etherscan.io/",
+    "name": "Etherscan",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d2ae9c3c2782806fd6db704bf40ef0238af9470d7964ae566114a033f4a9a110"
+  },
+  {
+    "category": "wallet",
+    "id": "1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369",
+    "homepage": "https://rainbow.me/",
+    "name": "Rainbow",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369"
+  },
+  {
+    "category": "dapp",
+    "id": "be49f0a78d6ea1beed3804c3a6b62ea71f568d58d9df8097f3d61c7c9baf273d",
+    "homepage": "https://uniswap.exchange/",
+    "name": "Uniswap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/be49f0a78d6ea1beed3804c3a6b62ea71f568d58d9df8097f3d61c7c9baf273d"
+  },
+  {
+    "category": "wallet",
+    "id": "4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0",
+    "homepage": "https://trustwallet.com/",
+    "name": "Trust Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0"
+  },
+  {
+    "category": "dapp",
+    "id": "7ba1202d012a1402c8c56331471b183d2aaafb99a667dfdaf2ac4a123ea604ed",
+    "homepage": "https://binance.org/",
+    "name": "Binance DEX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7ba1202d012a1402c8c56331471b183d2aaafb99a667dfdaf2ac4a123ea604ed"
+  },
+  {
+    "category": "wallet",
+    "id": "cf21952a9bc8108bf13b12c92443751e2cc388d27008be4201b92bbc6d83dd46",
+    "homepage": "https://argent.xyz/",
+    "name": "Argent",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/cf21952a9bc8108bf13b12c92443751e2cc388d27008be4201b92bbc6d83dd46"
+  },
+  {
+    "category": "dapp",
+    "id": "f759efd17edb158c361ffd793a741b3518fe85b9c15d36b9483fba033118aaf2",
+    "homepage": "https://opensea.io/",
+    "name": "OpenSea",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f759efd17edb158c361ffd793a741b3518fe85b9c15d36b9483fba033118aaf2"
+  },
+  {
+    "category": "wallet",
+    "id": "c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96",
+    "homepage": "https://metamask.io/",
+    "name": "MetaMask",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96"
+  },
+  {
+    "category": "dapp",
+    "id": "d82213ea5c476a43d9ab48d2011e3a5329a07826bd8191b24815e5bfe8c207be",
+    "homepage": "https://compound.finance/",
+    "name": "Compound",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d82213ea5c476a43d9ab48d2011e3a5329a07826bd8191b24815e5bfe8c207be"
+  },
+  {
+    "category": "wallet",
+    "id": "225affb176778569276e484e1b92637ad061b01e13a048b35a9d280c3b58970f",
+    "homepage": "https://gnosis-safe.io/",
+    "name": "Gnosis Safe Multisig",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/225affb176778569276e484e1b92637ad061b01e13a048b35a9d280c3b58970f"
+  },
+  {
+    "category": "dapp",
+    "id": "a85fb60f37b9971969e00caa241ed2b6ccd8fce369f59d3a965202595a4a9462",
+    "homepage": "https://gnosis-safe.io/",
+    "name": "Gnosis Safe Multisig",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a85fb60f37b9971969e00caa241ed2b6ccd8fce369f59d3a965202595a4a9462"
+  },
+  {
+    "category": "dapp",
+    "id": "02563239502b03cef22f5e71059ce97bd48cf7ab0f856964d7e17c0e3631db9f",
+    "homepage": "https://zapper.fi/",
+    "name": "Zapper",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/02563239502b03cef22f5e71059ce97bd48cf7ab0f856964d7e17c0e3631db9f"
+  },
+  {
+    "category": "wallet",
+    "id": "f2436c67184f158d1beda5df53298ee84abfc367581e4505134b5bcf5f46697d",
+    "homepage": "https://crypto.com/",
+    "name": "Crypto.com | DeFi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f2436c67184f158d1beda5df53298ee84abfc367581e4505134b5bcf5f46697d"
+  },
+  {
+    "category": "wallet",
+    "id": "0b58bf037bf943e934706796fb017d59eace1dadcbc1d9fe24d9b46629e5985c",
+    "homepage": "https://pillarproject.io/",
+    "name": "Pillar",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0b58bf037bf943e934706796fb017d59eace1dadcbc1d9fe24d9b46629e5985c"
+  },
+  {
+    "category": "dapp",
+    "id": "e6c38d65364335d550f629c44a1a86eb6befffa363e7de1cdba26462838226fd",
+    "homepage": "https://app.aave.com/",
+    "name": "Aave",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e6c38d65364335d550f629c44a1a86eb6befffa363e7de1cdba26462838226fd"
+  },
+  {
+    "category": "dapp",
+    "id": "9a70a431ed25a8872ef971e3b02c9a7dfff2ae6cf66ec9eb37612aadefbc4e9d",
+    "homepage": "https://localcryptos.com/",
+    "name": "LocalCryptos",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9a70a431ed25a8872ef971e3b02c9a7dfff2ae6cf66ec9eb37612aadefbc4e9d"
+  },
+  {
+    "category": "dapp",
+    "id": "fd0cae9917f44482aae80d4a3ef4d8a53e50d465cde783baf5d2eca5cc53cf61",
+    "homepage": "https://debank.com/",
+    "name": "DeBank",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fd0cae9917f44482aae80d4a3ef4d8a53e50d465cde783baf5d2eca5cc53cf61"
+  },
+  {
+    "category": "dapp",
+    "id": "8308656f4548bb81b3508afe355cfbb7f0cb6253d1cc7f998080601f838ecee3",
+    "homepage": "https://unstoppabledomains.com/manager",
+    "name": "Unstoppable Domains",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8308656f4548bb81b3508afe355cfbb7f0cb6253d1cc7f998080601f838ecee3"
+  },
+  {
+    "category": "dapp",
+    "id": "a90d95ac84983ea0d5370b2584a3db4a1aee1975e0b86801e0ddd8159c80d5ff",
+    "homepage": "https://app.rarible.com/#/connect",
+    "name": "Rarible",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a90d95ac84983ea0d5370b2584a3db4a1aee1975e0b86801e0ddd8159c80d5ff"
+  },
+  {
+    "category": "wallet",
+    "id": "afbd95522f4041c71dd4f1a065f971fd32372865b416f95a0b1db759ae33f2a7",
+    "homepage": "https://steakwallet.fi",
+    "name": "Steakwallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/afbd95522f4041c71dd4f1a065f971fd32372865b416f95a0b1db759ae33f2a7"
+  },
+  {
+    "category": "dapp",
+    "id": "f98ce170f08376732dfddde7823a5f97d9039bcec4e5df02f3978858eb84d305",
+    "homepage": "https://1inch.exchange/",
+    "name": "1inch Exchange",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f98ce170f08376732dfddde7823a5f97d9039bcec4e5df02f3978858eb84d305"
+  },
+  {
+    "category": "wallet",
+    "id": "ccb714920401f7d008dbe11281ae70e3a4bfb621763b187b9e4a3ce1ab8faa3b",
+    "homepage": "https://bitpay.com",
+    "name": "BitPay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ccb714920401f7d008dbe11281ae70e3a4bfb621763b187b9e4a3ce1ab8faa3b"
+  },
+  {
+    "category": "wallet",
+    "id": "7674bb4e353bf52886768a3ddc2a4562ce2f4191c80831291218ebd90f5f5e26",
+    "homepage": "https://mathwallet.org/",
+    "name": "MathWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7674bb4e353bf52886768a3ddc2a4562ce2f4191c80831291218ebd90f5f5e26"
+  },
+  {
+    "category": "wallet",
+    "id": "83f26999937cbc2e2014655796da4b05f77c1de9413a0ee6d0c6178ebcfc3168",
+    "homepage": "https://walleth.org/",
+    "name": "WallETH",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/83f26999937cbc2e2014655796da4b05f77c1de9413a0ee6d0c6178ebcfc3168"
+  },
+  {
+    "category": "dapp",
+    "id": "7bc4da398540ed770b1d7608a62f253985f9850a2c28abb5c74f94cca37fadbd",
+    "homepage": "https://yearn.finance/",
+    "name": "yearn",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7bc4da398540ed770b1d7608a62f253985f9850a2c28abb5c74f94cca37fadbd"
+  },
+  {
+    "category": "wallet",
+    "id": "71dad538ba02a9b321041d388f9c1efe14e0d1915a2ea80a90405d2f6b67a33d",
+    "homepage": "https://authereum.org",
+    "name": "Authereum",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/71dad538ba02a9b321041d388f9c1efe14e0d1915a2ea80a90405d2f6b67a33d"
+  },
+  {
+    "category": "wallet",
+    "id": "2863183c3299d820fb9a4cb8aab4a34f50380c9992e8be871fd60a62e8d36481",
+    "homepage": "https://1inch.io/wallet/",
+    "name": "1inch Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2863183c3299d820fb9a4cb8aab4a34f50380c9992e8be871fd60a62e8d36481"
+  },
+  {
+    "category": "wallet",
+    "id": "797c615e2c556b610c048eb35535f212c0dd58de5d03e763120e90a7d1350a77",
+    "homepage": "https://huobiwallet.com/",
+    "name": "Huobi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/797c615e2c556b610c048eb35535f212c0dd58de5d03e763120e90a7d1350a77"
+  },
+  {
+    "category": "dapp",
+    "id": "8e96e3b538965f3bcac2836b6579df3a9de55ce69c49e5ac1a6889c8f0b8df7b",
+    "homepage": "https://adex.network/",
+    "name": "Adex Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8e96e3b538965f3bcac2836b6579df3a9de55ce69c49e5ac1a6889c8f0b8df7b"
+  },
+  {
+    "category": "dapp",
+    "id": "bf528087bc3d8ae759444e8246cd56d5a0ddea701274163294e533f20353832b",
+    "homepage": "https://oasis.app",
+    "name": "Oasis App",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/bf528087bc3d8ae759444e8246cd56d5a0ddea701274163294e533f20353832b"
+  },
+  {
+    "category": "wallet",
+    "id": "c36c969aefd9d2e8ce6c1b90da90c0970699aee14b07c7a84b1124873d84c53d",
+    "homepage": "https://loopring.io",
+    "name": "Loopring Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c36c969aefd9d2e8ce6c1b90da90c0970699aee14b07c7a84b1124873d84c53d"
+  },
+  {
+    "category": "dapp",
+    "id": "e15a799a9a997f09035d48444afae83b0f7dd74fe5eefc5ec47ad679df29ceaa",
+    "homepage": "https://mantradao.com/",
+    "name": "MANTRA DAO",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e15a799a9a997f09035d48444afae83b0f7dd74fe5eefc5ec47ad679df29ceaa"
+  },
+  {
+    "category": "wallet",
+    "id": "6bb4596640ce9f8c02fbaa83e3685425455a0917d025608b4abc53bfe55887c6",
+    "homepage": "https://trustology.io/",
+    "name": "TrustVault",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6bb4596640ce9f8c02fbaa83e3685425455a0917d025608b4abc53bfe55887c6"
+  },
+  {
+    "category": "dapp",
+    "id": "6d9f418c42768bc939bd83acd7f7db0507dcc3cd0dac209a65ed5ca34b360079",
+    "homepage": "https://matcha.xyz",
+    "name": "Matcha",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6d9f418c42768bc939bd83acd7f7db0507dcc3cd0dac209a65ed5ca34b360079"
+  },
+  {
+    "category": "wallet",
+    "id": "185850e869e40f4e6c59b5b3f60b7e63a72e88b09e2a43a40b1fd0f237e49e9a",
+    "homepage": "https://atomicwallet.io/",
+    "name": "Atomic",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/185850e869e40f4e6c59b5b3f60b7e63a72e88b09e2a43a40b1fd0f237e49e9a"
+  },
+  {
+    "category": "wallet",
+    "id": "1f69170bf7a9bdcf89403ec012659b7124e158f925cdd4a2be49274c24cf5e5d",
+    "homepage": "https://coolwallet.io/",
+    "name": "CoolWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1f69170bf7a9bdcf89403ec012659b7124e158f925cdd4a2be49274c24cf5e5d"
+  },
+  {
+    "category": "wallet",
+    "id": "beea4e71c2ffbb48b59b21e33fb0049ef6522585aa9c8a33a97d3e1c81f16693",
+    "homepage": "https://alicedapp.com/",
+    "name": "Alice",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/beea4e71c2ffbb48b59b21e33fb0049ef6522585aa9c8a33a97d3e1c81f16693"
+  },
+  {
+    "category": "dapp",
+    "id": "70cad09a92cb1c278dd876b3c46173dfd2ed394ecef1bd803ee001d7632e93a1",
+    "homepage": "https://instadapp.io/",
+    "name": "InstaDapp",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/70cad09a92cb1c278dd876b3c46173dfd2ed394ecef1bd803ee001d7632e93a1"
+  },
+  {
+    "category": "wallet",
+    "id": "138f51c8d00ac7b9ac9d8dc75344d096a7dfe370a568aa167eabc0a21830ed98",
+    "homepage": "https://alphawallet.com/",
+    "name": "AlphaWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/138f51c8d00ac7b9ac9d8dc75344d096a7dfe370a568aa167eabc0a21830ed98"
+  },
+  {
+    "category": "wallet",
+    "id": "468b4ab3582757233017ec10735863489104515ab160c053074905a1eecb7e63",
+    "homepage": "https://dcentwallet.com",
+    "name": "D'CENT Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/468b4ab3582757233017ec10735863489104515ab160c053074905a1eecb7e63"
+  },
+  {
+    "category": "dapp",
+    "id": "44ff1e444b11207673bb2e832138afa0062e4618659189b9207990a7767dccdf",
+    "homepage": "https://matic.network/",
+    "name": "Matic Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/44ff1e444b11207673bb2e832138afa0062e4618659189b9207990a7767dccdf"
+  },
+  {
+    "category": "wallet",
+    "id": "8240fb8a7b117aed27f04aa8870c714eeb910f7c1b16c9b868e793c1836335b8",
+    "homepage": "https://nash.io/",
+    "name": "Nash",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8240fb8a7b117aed27f04aa8870c714eeb910f7c1b16c9b868e793c1836335b8"
+  },
+  {
+    "category": "dapp",
+    "id": "501ce637a32ca401d7fe8f10664f29b2cbff6f4a83e23df30affe2a8c3c36bec",
+    "homepage": "https://nash.io/",
+    "name": "Nash",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/501ce637a32ca401d7fe8f10664f29b2cbff6f4a83e23df30affe2a8c3c36bec"
+  },
+  {
+    "category": "dapp",
+    "id": "21ab23fb856af690a4cd42ec6505a1398b571da2a772717ad3f0e047f34cced7",
+    "homepage": "https://bamboorelay.com/",
+    "name": "Bamboo Relay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/21ab23fb856af690a4cd42ec6505a1398b571da2a772717ad3f0e047f34cced7"
+  },
+  {
+    "category": "wallet",
+    "id": "a395dbfc92b5519cbd1cc6937a4e79830187daaeb2c6fcdf9b9cce4255f2dcd5",
+    "homepage": "https://cybavo.com/",
+    "name": "CYBAVO Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a395dbfc92b5519cbd1cc6937a4e79830187daaeb2c6fcdf9b9cce4255f2dcd5"
+  },
+  {
+    "category": "wallet",
+    "id": "c889f5add667a8c69d147d613c7f18a4bd97c2e47c946cabfdd13ec1d596e4a0",
+    "homepage": "https://tokenary.io/",
+    "name": "Tokenary",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c889f5add667a8c69d147d613c7f18a4bd97c2e47c946cabfdd13ec1d596e4a0"
+  },
+  {
+    "category": "dapp",
+    "id": "ddcd44ec977ae9e456f1ea930a46e67fa7537c0c89498deb17b1d29c4274ff31",
+    "homepage": "https://sablier.finance/",
+    "name": "Sablier",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ddcd44ec977ae9e456f1ea930a46e67fa7537c0c89498deb17b1d29c4274ff31"
+  },
+  {
+    "category": "wallet",
+    "id": "7b83869f03dc3848866e0299bc630aaf3213bea95cd6cecfbe149389cf457a09",
+    "homepage": "https://spatium.net/",
+    "name": "Spatium",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7b83869f03dc3848866e0299bc630aaf3213bea95cd6cecfbe149389cf457a09"
+  },
+  {
+    "category": "dapp",
+    "id": "013e3e71441eaf78044b05f30544cac56ea91a5e5a8a39b62bd0b80808de00da",
+    "homepage": "https://dex.ag/",
+    "name": "DEX.AG",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/013e3e71441eaf78044b05f30544cac56ea91a5e5a8a39b62bd0b80808de00da"
+  },
+  {
+    "category": "wallet",
+    "id": "0b415a746fb9ee99cce155c2ceca0c6f6061b1dbca2d722b3ba16381d0562150",
+    "homepage": "https://safepal.io/",
+    "name": "SafePal",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0b415a746fb9ee99cce155c2ceca0c6f6061b1dbca2d722b3ba16381d0562150"
+  },
+  {
+    "category": "dapp",
+    "id": "0cc13b1d63976ca5dd90dcbfb234e95f69d4edde6a24cbcd09683a5fd944040e",
+    "homepage": "https://ens.domains/",
+    "name": "ENS Domains",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0cc13b1d63976ca5dd90dcbfb234e95f69d4edde6a24cbcd09683a5fd944040e"
+  },
+  {
+    "category": "wallet",
+    "id": "176b83d9268d77438e32aa44770fb37b40d6448740b6a05a97b175323356bd1b",
+    "homepage": "https://wallet.io/",
+    "name": "wallet.io",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/176b83d9268d77438e32aa44770fb37b40d6448740b6a05a97b175323356bd1b"
+  },
+  {
+    "category": "dapp",
+    "id": "2871556630e7ed3588218a4279561f71735b7567c3e48b2f80b2a7705c51e0c3",
+    "homepage": "https://idle.finance/",
+    "name": "Idle Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2871556630e7ed3588218a4279561f71735b7567c3e48b2f80b2a7705c51e0c3"
+  },
+  {
+    "category": "wallet",
+    "id": "802a2041afdaf4c7e41a2903e98df333c8835897532699ad370f829390c6900f",
+    "homepage": "https://infinitywallet.io/",
+    "name": "Infinity Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/802a2041afdaf4c7e41a2903e98df333c8835897532699ad370f829390c6900f"
+  },
+  {
+    "category": "dapp",
+    "id": "ce64cd600d0ae877f47ba0148501bcd23ee1c08a2adeaaf69310679ec3fe7132",
+    "homepage": "https://iearn.finance/",
+    "name": "iearn.finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ce64cd600d0ae877f47ba0148501bcd23ee1c08a2adeaaf69310679ec3fe7132"
+  },
+  {
+    "category": "wallet",
+    "id": "244a0d93a45df0d0501a9cb9cdfb4e91aa750cfd4fc88f6e97a54d8455a76f5c",
+    "homepage": "https://easypocket.app/",
+    "name": "EasyPocket",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/244a0d93a45df0d0501a9cb9cdfb4e91aa750cfd4fc88f6e97a54d8455a76f5c"
+  },
+  {
+    "category": "dapp",
+    "id": "98f22f6c710f0142d04591df1a1938d94b81450bba0f986757432b6719f6e641",
+    "homepage": "https://rcn.market/",
+    "name": "RCN Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/98f22f6c710f0142d04591df1a1938d94b81450bba0f986757432b6719f6e641"
+  },
+  {
+    "category": "wallet",
+    "id": "881946407ff22a32ec0e42b2cd31ea5dab52242dc3648d777b511a0440d59efb",
+    "homepage": "https://mtpelerin.com/bridge-wallet",
+    "name": "Bridge Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/881946407ff22a32ec0e42b2cd31ea5dab52242dc3648d777b511a0440d59efb"
+  },
+  {
+    "category": "wallet",
+    "id": "3b0e861b3a57e98325b82ab687fe0a712c81366d521ceec49eebc35591f1b5d1",
+    "homepage": "https://sparkpoint.io/",
+    "name": "SparkPoint",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3b0e861b3a57e98325b82ab687fe0a712c81366d521ceec49eebc35591f1b5d1"
+  },
+  {
+    "category": "dapp",
+    "id": "6f9d21b4f537a5b82406ee97b1ed06311bf60500ac6e6fb822dd2de73dda0593",
+    "homepage": "https://kickback.events/",
+    "name": "Kickback",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6f9d21b4f537a5b82406ee97b1ed06311bf60500ac6e6fb822dd2de73dda0593"
+  },
+  {
+    "category": "wallet",
+    "id": "ca86f48760bf5f84dcd6b1daca0fd55e2aa073ecf46453ba8a1db0b2e8e85ac1",
+    "homepage": "https://viawallet.com/",
+    "name": "ViaWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ca86f48760bf5f84dcd6b1daca0fd55e2aa073ecf46453ba8a1db0b2e8e85ac1"
+  },
+  {
+    "category": "wallet",
+    "id": "38ee551a01e3c5af9d8a9715768861e4d642e2381a62245083f96672b5646c6b",
+    "homepage": "https://peakdefi.com/",
+    "name": "PEAKDEFI Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/38ee551a01e3c5af9d8a9715768861e4d642e2381a62245083f96672b5646c6b"
+  },
+  {
+    "category": "dapp",
+    "id": "41b51f689a37ffb63d6663fc8ea0c86e0bc6a030f835bb3e5d5e53dc03b83b35",
+    "homepage": "https://mintbase.io/",
+    "name": "Mintbase",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/41b51f689a37ffb63d6663fc8ea0c86e0bc6a030f835bb3e5d5e53dc03b83b35"
+  },
+  {
+    "category": "wallet",
+    "id": "7e90b95230bc462869bbb59f952273d89841e1c76bcc5319898e08c9f34bd4cd",
+    "homepage": "https://unstoppable.money/",
+    "name": "Unstoppable Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7e90b95230bc462869bbb59f952273d89841e1c76bcc5319898e08c9f34bd4cd"
+  },
+  {
+    "category": "dapp",
+    "id": "7da158932208181d61b9e421e2a2088fb70d4adf64adc676e185fcea5396e4d0",
+    "homepage": "https://daostack.io/",
+    "name": "DAOstack",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7da158932208181d61b9e421e2a2088fb70d4adf64adc676e185fcea5396e4d0"
+  },
+  {
+    "category": "wallet",
+    "id": "025247d02e1972362982f04c96c78e7c02c4b68a9ac2107c26fe2ebb85c317c0",
+    "homepage": "https://halodefi.org/",
+    "name": "HaloDeFi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/025247d02e1972362982f04c96c78e7c02c4b68a9ac2107c26fe2ebb85c317c0"
+  },
+  {
+    "category": "dapp",
+    "id": "fffd1ef5d2105b1b89252c0cf4596a400444d7d4d592268e5699d301eff08ae2",
+    "homepage": "https://myetherwallet.com/",
+    "name": "MyEtherWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fffd1ef5d2105b1b89252c0cf4596a400444d7d4d592268e5699d301eff08ae2"
+  },
+  {
+    "category": "wallet",
+    "id": "d12b6e114af8c47a6eec19a576f1022032a5ee4f8cafee612049f4796c803c7e",
+    "homepage": "https://dokwallet.com/",
+    "name": "Dok Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d12b6e114af8c47a6eec19a576f1022032a5ee4f8cafee612049f4796c803c7e"
+  },
+  {
+    "category": "wallet",
+    "id": "3d56ed42374504f1bb2ba368094269eaea461c075ab796d504f354baac213dc5",
+    "homepage": "https://authentrend.com/at-wallet/",
+    "name": "AT.Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3d56ed42374504f1bb2ba368094269eaea461c075ab796d504f354baac213dc5"
+  },
+  {
+    "category": "dapp",
+    "id": "14e870c10e5e83f9590db63ae5d369e56cb8d88ed6aa27fa021b1ec37ca561cd",
+    "homepage": "https://affogato.co/",
+    "name": "Affogato",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/14e870c10e5e83f9590db63ae5d369e56cb8d88ed6aa27fa021b1ec37ca561cd"
+  },
+  {
+    "category": "dapp",
+    "id": "e4a14f67fb4fbfe240ec43efdca3c50e15ab7302446def657e47e86ec999e655",
+    "homepage": "https://stablepay.io/",
+    "name": "StablePay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e4a14f67fb4fbfe240ec43efdca3c50e15ab7302446def657e47e86ec999e655"
+  },
+  {
+    "category": "wallet",
+    "id": "1e04cf5cddcd84edb1370b12eae1fcecedf125b77209fff80e7ef2a6d3c74719",
+    "homepage": "https://midasprotocol.io/",
+    "name": "Midas Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1e04cf5cddcd84edb1370b12eae1fcecedf125b77209fff80e7ef2a6d3c74719"
+  },
+  {
+    "category": "wallet",
+    "id": "15d1d97de89526a3c259a235304a7c510c40cda3331f0f8433da860ecc528bef",
+    "homepage": "https://ellipal.com/",
+    "name": "Ellipal",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/15d1d97de89526a3c259a235304a7c510c40cda3331f0f8433da860ecc528bef"
+  },
+  {
+    "category": "dapp",
+    "id": "c1b96e441428dac9475c162de858d5c4e78c09a9948d0a2626cc37376fa99407",
+    "homepage": "https://defisaver.com/",
+    "name": "DeFi Saver",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c1b96e441428dac9475c162de858d5c4e78c09a9948d0a2626cc37376fa99407"
+  },
+  {
+    "category": "dapp",
+    "id": "5429480c60b48a6c93557ee57b56ec66bba892f4e90c84e54ba233a864de4124",
+    "homepage": "https://thorchain.org/",
+    "name": "ThorChain",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5429480c60b48a6c93557ee57b56ec66bba892f4e90c84e54ba233a864de4124"
+  },
+  {
+    "category": "wallet",
+    "id": "19ad8334f0f034f4176a95722b5746b539b47b37ce17a5abde4755956d05d44c",
+    "homepage": "https://aktionariat.com/",
+    "name": "Aktionariat",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/19ad8334f0f034f4176a95722b5746b539b47b37ce17a5abde4755956d05d44c"
+  },
+  {
+    "category": "wallet",
+    "id": "95501c1a07c8eb575cb28c753ab9044259546ebcefcd3645461086e49b671f5c",
+    "homepage": "https://talken.io",
+    "name": "Talken Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/95501c1a07c8eb575cb28c753ab9044259546ebcefcd3645461086e49b671f5c"
+  },
+  {
+    "category": "wallet",
+    "id": "d612ddb7326d7d64428d035971b82247322a4ffcf126027560502eff4c02bd1c",
+    "homepage": "https://flarewallet.io",
+    "name": "Flare Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d612ddb7326d7d64428d035971b82247322a4ffcf126027560502eff4c02bd1c"
+  },
+  {
+    "category": "dapp",
+    "id": "b0234ad23e4ab635e63a86f1b6adbda87edcad6ac426321e865daf991dc12ce8",
+    "homepage": "https://heliowallet.com/",
+    "name": "HelioWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b0234ad23e4ab635e63a86f1b6adbda87edcad6ac426321e865daf991dc12ce8"
+  },
+  {
+    "category": "dapp",
+    "id": "0e680e620e7a8d15a8048aa6d9a825e07291a1da23a82ced661aa96ed2e81998",
+    "homepage": "https://escaroo.com/",
+    "name": "Escaroo",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0e680e620e7a8d15a8048aa6d9a825e07291a1da23a82ced661aa96ed2e81998"
+  },
+  {
+    "category": "dapp",
+    "id": "54d4f6b75cf9288dbade3a17363ba67c45043fc384f58c2c8c4f1b67da139d60",
+    "homepage": "https://kyberswap.com/",
+    "name": "KyberSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/54d4f6b75cf9288dbade3a17363ba67c45043fc384f58c2c8c4f1b67da139d60"
+  },
+  {
+    "category": "wallet",
+    "id": "2ed796df33fdbde6a3ea6a47d3636b8341fe285038d844c7a78267b465b27028",
+    "homepage": "https://kyberswap.com/",
+    "name": "KyberSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2ed796df33fdbde6a3ea6a47d3636b8341fe285038d844c7a78267b465b27028"
+  },
+  {
+    "category": "dapp",
+    "id": "5f46863e8fdeb98a98dea1ca9ecaef896c8f4382ba6778deeaf65a399bb7e679",
+    "homepage": "https://tokenmarket.net/",
+    "name": "TokenMarket",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5f46863e8fdeb98a98dea1ca9ecaef896c8f4382ba6778deeaf65a399bb7e679"
+  },
+  {
+    "category": "wallet",
+    "id": "6193353e17504afc4bb982ee743ab970cd5cf842a35ecc9b7de61c150cf291e0",
+    "homepage": "https://atoken.com",
+    "name": "AToken Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6193353e17504afc4bb982ee743ab970cd5cf842a35ecc9b7de61c150cf291e0"
+  },
+  {
+    "category": "wallet",
+    "id": "4e6af4201658b52daad51a279bb363a08b3927e74c0f27abeca3b0110bddf0a9",
+    "homepage": "https://www.tongue.fi",
+    "name": "Tongue Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4e6af4201658b52daad51a279bb363a08b3927e74c0f27abeca3b0110bddf0a9"
+  },
+  {
+    "category": "dapp",
+    "id": "d4835d7f70d198d1c9e03bebdd3c27bb68b4bb621de3797c08eb35d8ef2833da",
+    "homepage": "https://mesa.eth.link/",
+    "name": "Mesa",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d4835d7f70d198d1c9e03bebdd3c27bb68b4bb621de3797c08eb35d8ef2833da"
+  },
+  {
+    "category": "wallet",
+    "id": "b13fcc7e3500a4580c9a5341ed64c49c17d7f864497881048eb160c089be5346",
+    "homepage": "https://rsk.co/",
+    "name": "RWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b13fcc7e3500a4580c9a5341ed64c49c17d7f864497881048eb160c089be5346"
+  },
+  {
+    "category": "wallet",
+    "id": "13c6a06b733edf51784f669f508826b2ab0dc80122a8b5d25d84b17d94bbdf70",
+    "homepage": "https://plasmapay.com/",
+    "name": "PlasmaPay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/13c6a06b733edf51784f669f508826b2ab0dc80122a8b5d25d84b17d94bbdf70"
+  },
+  {
+    "category": "wallet",
+    "id": "0aafbedfb8eb56dae59ecc37c9a5388509cf9c082635e3f752581cc7128a17c0",
+    "homepage": "https://o3.network",
+    "name": "O3Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0aafbedfb8eb56dae59ecc37c9a5388509cf9c082635e3f752581cc7128a17c0"
+  },
+  {
+    "category": "wallet",
+    "id": "761d3d98fd77bdb06e6c90092ee7071c6001e93401d05dcf2b007c1a6c9c222c",
+    "homepage": "https://me.hashkey.com/",
+    "name": "HashKey Me",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/761d3d98fd77bdb06e6c90092ee7071c6001e93401d05dcf2b007c1a6c9c222c"
+  },
+  {
+    "category": "dapp",
+    "id": "b971da97af8b126d704c9c19e324d3b44ea885c067da3631eb22fb5e8b9180e1",
+    "homepage": "https://chainsfr.com",
+    "name": "Chainsfr",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b971da97af8b126d704c9c19e324d3b44ea885c067da3631eb22fb5e8b9180e1"
+  },
+  {
+    "category": "dapp",
+    "id": "32f5f734ca5e57cd5e448aa4fc0a720b802d67182a0b6494f46867241fae3b9e",
+    "homepage": "http://aka3.net",
+    "name": "AKA3 Email Alias",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/32f5f734ca5e57cd5e448aa4fc0a720b802d67182a0b6494f46867241fae3b9e"
+  },
+  {
+    "category": "wallet",
+    "id": "0a00cbe128dddd6e096ebb78533a2c16ed409152a377c1f61a6a5ea643a2d950",
+    "homepage": "https://jadewallet.io/",
+    "name": "Jade Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0a00cbe128dddd6e096ebb78533a2c16ed409152a377c1f61a6a5ea643a2d950"
+  },
+  {
+    "category": "wallet",
+    "id": "c04ae532094873c054a6c9339746c39c9ba5839c4d5bb2a1d9db51f9e5e77266",
+    "homepage": "https://guarda.com/",
+    "name": "Guarda Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c04ae532094873c054a6c9339746c39c9ba5839c4d5bb2a1d9db51f9e5e77266"
+  },
+  {
+    "category": "wallet",
+    "id": "ffa139f74d1c8ebbb748cf0166f92d886e8c81b521c2193aa940e00626f4e215",
+    "homepage": "https://defiantapp.tech/",
+    "name": "Defiant",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ffa139f74d1c8ebbb748cf0166f92d886e8c81b521c2193aa940e00626f4e215"
+  },
+  {
+    "category": "dapp",
+    "id": "b6b9e0449871fbe29174da88d909c4eb127cdcaf545ac470daaed9b0d93d515c",
+    "homepage": "https://sushi.com/",
+    "name": "SushiSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b6b9e0449871fbe29174da88d909c4eb127cdcaf545ac470daaed9b0d93d515c"
+  },
+  {
+    "category": "wallet",
+    "id": "1ce6dae0fea7114846382391d946784d95d9032460a857bb23b55bd9807259d1",
+    "homepage": "https://trusteeglobal.com/",
+    "name": "Trustee Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1ce6dae0fea7114846382391d946784d95d9032460a857bb23b55bd9807259d1"
+  },
+  {
+    "category": "dapp",
+    "id": "d8663d3a49e8c0ace8ece983fc6fbdb47bdfcc3b1dacbafb99940c9e7ddc9429",
+    "homepage": "https://unagii.com/",
+    "name": "Unagii",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d8663d3a49e8c0ace8ece983fc6fbdb47bdfcc3b1dacbafb99940c9e7ddc9429"
+  },
+  {
+    "category": "dapp",
+    "id": "0afb52d86941c9f09946295848506fe4bc5e35f0fef606ce2ade789f76a6fbea",
+    "homepage": "https://cream.finance/",
+    "name": "Cream Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0afb52d86941c9f09946295848506fe4bc5e35f0fef606ce2ade789f76a6fbea"
+  },
+  {
+    "category": "wallet",
+    "id": "d01c7758d741b363e637a817a09bcf579feae4db9f5bb16f599fdd1f66e2f974",
+    "homepage": "https://valoraapp.com",
+    "name": "Valora",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d01c7758d741b363e637a817a09bcf579feae4db9f5bb16f599fdd1f66e2f974"
+  },
+  {
+    "category": "dapp",
+    "id": "6e8bece35cfcfeed1aa4922e939c118ab26f51af5c7ab842a6a77a00694d4b9f",
+    "homepage": "https://shells.exchange/",
+    "name": "Shell Exchange",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6e8bece35cfcfeed1aa4922e939c118ab26f51af5c7ab842a6a77a00694d4b9f"
+  },
+  {
+    "category": "wallet",
+    "id": "36d854b702817e228d5c853c528d7bdb46f4bb041d255f67b82eb47111e5676b",
+    "homepage": "https://celowallet.app/",
+    "name": "Celo Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/36d854b702817e228d5c853c528d7bdb46f4bb041d255f67b82eb47111e5676b"
+  },
+  {
+    "category": "wallet",
+    "id": "717911f4db0c5eda0e02e76ed179b7940ba1eefffdfb3c9e6540696226860da0",
+    "homepage": "https://elastos.org",
+    "name": "Elastos Essentials",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/717911f4db0c5eda0e02e76ed179b7940ba1eefffdfb3c9e6540696226860da0"
+  },
+  {
+    "category": "dapp",
+    "id": "6c5f0f23fb7158576a5f314585ad520a43d3afae1a6cad59dcff626709525c2b",
+    "homepage": "https://swapx.org/",
+    "name": "SwapX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6c5f0f23fb7158576a5f314585ad520a43d3afae1a6cad59dcff626709525c2b"
+  },
+  {
+    "category": "dapp",
+    "id": "8858da9365f7ab948c4f137ff93a5c8cbc311fe5321fcd31dccea6efdba538aa",
+    "homepage": "https://starname.me/",
+    "name": "Starname",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8858da9365f7ab948c4f137ff93a5c8cbc311fe5321fcd31dccea6efdba538aa"
+  },
+  {
+    "category": "wallet",
+    "id": "c20b97dd1679625f4eb0bccd727c80746cb13bd97208b0c8e62c89cfd1d4b9cc",
+    "homepage": "https://fuse.cash/",
+    "name": "fuse.cash",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c20b97dd1679625f4eb0bccd727c80746cb13bd97208b0c8e62c89cfd1d4b9cc"
+  },
+  {
+    "category": "dapp",
+    "id": "82f6a24e8c52f80c2ed28e718202cb12fdb22df34419c327e6846c1544e107f3",
+    "homepage": "https://space.storage/",
+    "name": "Space",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/82f6a24e8c52f80c2ed28e718202cb12fdb22df34419c327e6846c1544e107f3"
+  },
+  {
+    "category": "wallet",
+    "id": "fbc8d86ad914ebd733fec4812b4b7af5ca709fdd9e75a930115e5baa02c4ef4c",
+    "homepage": "https://rabby.io/",
+    "name": "Rabby",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fbc8d86ad914ebd733fec4812b4b7af5ca709fdd9e75a930115e5baa02c4ef4c"
+  },
+  {
+    "category": "dapp",
+    "id": "43055637bd8d3da2afa83b1650348c8ccafa67e0c201afe2c0f2a06a9aecae18",
+    "homepage": "https://mask.io/",
+    "name": "Maskbook",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/43055637bd8d3da2afa83b1650348c8ccafa67e0c201afe2c0f2a06a9aecae18"
+  },
+  {
+    "category": "dapp",
+    "id": "2d7b5ef9ea6e5b856440ad38ac3e9ffc6e311f353aae4a90daadf4654e31ffb7",
+    "homepage": "https://snapshot.page/",
+    "name": "Snapshot",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2d7b5ef9ea6e5b856440ad38ac3e9ffc6e311f353aae4a90daadf4654e31ffb7"
+  },
+  {
+    "category": "wallet",
+    "id": "9d6c614d1995741d5313f1f3dbf1f66dcba694de782087d13b8721822502692f",
+    "homepage": "https://stasis.net/",
+    "name": "Stasis",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9d6c614d1995741d5313f1f3dbf1f66dcba694de782087d13b8721822502692f"
+  },
+  {
+    "category": "wallet",
+    "id": "a6ffb821a3c32d36fc9d29e29c2ff79a0cd1db0bca453714777846ddf3fdff76",
+    "homepage": "https://justliquidity.org/",
+    "name": "JulWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a6ffb821a3c32d36fc9d29e29c2ff79a0cd1db0bca453714777846ddf3fdff76"
+  },
+  {
+    "category": "wallet",
+    "id": "2f010ad2b0777998e950b5d72969e3b6a7090f0dde59b509ce9a41a5d1b2f9f4",
+    "homepage": "https://functionx.io/",
+    "name": "f(x) Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2f010ad2b0777998e950b5d72969e3b6a7090f0dde59b509ce9a41a5d1b2f9f4"
+  },
+  {
+    "category": "dapp",
+    "id": "cacf4ce4b9b170741b0dbdb8c008c61e88faae3eae5bd58db549925859940410",
+    "homepage": "https://ankr.com/",
+    "name": "Ankr",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/cacf4ce4b9b170741b0dbdb8c008c61e88faae3eae5bd58db549925859940410"
+  },
+  {
+    "category": "wallet",
+    "id": "96bf9b7141215037f4a9f567ce536b1eb2836fb71cc67c07ba73f3c3eadc53d6",
+    "homepage": "https://getbull.app/",
+    "name": "Bull App",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/96bf9b7141215037f4a9f567ce536b1eb2836fb71cc67c07ba73f3c3eadc53d6"
+  },
+  {
+    "category": "wallet",
+    "id": "fc65284c7e407387d732fbfe5d57ed378a89db28c3559ada079f9097d43d2575",
+    "homepage": "https://anybit.io",
+    "name": "Anybit",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fc65284c7e407387d732fbfe5d57ed378a89db28c3559ada079f9097d43d2575"
+  },
+  {
+    "category": "dapp",
+    "id": "492caa74c01551142885e2e5ecbe760f82e4c0206e8d3fe4d8c14477032b0412",
+    "homepage": "https://tokamak.network/",
+    "name": "Tokamak Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/492caa74c01551142885e2e5ecbe760f82e4c0206e8d3fe4d8c14477032b0412"
+  },
+  {
+    "category": "wallet",
+    "id": "dea4ab675289353a508956c4f821bc4e9141d9f99a5d244ae7af92b4d575db6d",
+    "homepage": "https://minerva.digital/",
+    "name": "Minerva Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dea4ab675289353a508956c4f821bc4e9141d9f99a5d244ae7af92b4d575db6d"
+  },
+  {
+    "category": "dapp",
+    "id": "57361b007a69218b00842b78d7cb4f98afd3572cb52ef950c4fd05c0a47c21e1",
+    "homepage": "https://actus-protocol.io/",
+    "name": "Actus Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/57361b007a69218b00842b78d7cb4f98afd3572cb52ef950c4fd05c0a47c21e1"
+  },
+  {
+    "category": "dapp",
+    "id": "1fe0c2ed2ddd10d7caf2db5d873a8fde1817dff12a29dff0e9c59e99ee8cd8a4",
+    "homepage": "https://astrotools.io/",
+    "name": "AstroTools.io",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1fe0c2ed2ddd10d7caf2db5d873a8fde1817dff12a29dff0e9c59e99ee8cd8a4"
+  },
+  {
+    "category": "wallet",
+    "id": "3cdf74643ac60e3f1d5807cb3dfa9d843793a4d1f3a233066fd35b61e72d42b9",
+    "homepage": "https://criptoarchi.com/",
+    "name": "ArchiPage",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3cdf74643ac60e3f1d5807cb3dfa9d843793a4d1f3a233066fd35b61e72d42b9"
+  },
+  {
+    "category": "wallet",
+    "id": "76745388a50e6fea982c4dee2a3ad61a8aa417668be870754689caa8a7506c93",
+    "homepage": "https://tangem.com",
+    "name": "Tangem",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/76745388a50e6fea982c4dee2a3ad61a8aa417668be870754689caa8a7506c93"
+  },
+  {
+    "category": "dapp",
+    "id": "45ad03d00056530b6a275ec4babe7b04f15cdcd4a5b14c8d6b9a26adcc84928a",
+    "homepage": "https://rubic.exchange/",
+    "name": "Rubic Exchange",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/45ad03d00056530b6a275ec4babe7b04f15cdcd4a5b14c8d6b9a26adcc84928a"
+  },
+  {
+    "category": "dapp",
+    "id": "3c930df62f0ac573c8d993debb4de3e32fc0159ca85543dcadf3eb7e06a57e54",
+    "homepage": "https://harvest.finance/",
+    "name": "Harvest Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3c930df62f0ac573c8d993debb4de3e32fc0159ca85543dcadf3eb7e06a57e54"
+  },
+  {
+    "category": "wallet",
+    "id": "67d728ec0a4d650a7a5b28390df634b86f775efc5075123aab537fc7fc53f045",
+    "homepage": "https://chainge.finance",
+    "name": "Chainge Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/67d728ec0a4d650a7a5b28390df634b86f775efc5075123aab537fc7fc53f045"
+  },
+  {
+    "category": "wallet",
+    "id": "9d93c497dc5c835abd1ddd3c5d388eaf54b995b49573340d9580b366259b7972",
+    "homepage": "https://iotex.io/",
+    "name": "ioPay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9d93c497dc5c835abd1ddd3c5d388eaf54b995b49573340d9580b366259b7972"
+  },
+  {
+    "category": "dapp",
+    "id": "9c2a672e60f354708a3e622d7cf3fd11a25d7f8265f811ede376f599cc077102",
+    "homepage": "https://mushrooms.finance/",
+    "name": "Mushroom Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9c2a672e60f354708a3e622d7cf3fd11a25d7f8265f811ede376f599cc077102"
+  },
+  {
+    "category": "dapp",
+    "id": "d516cd697587ceacdeb96c302488b43daf4a08732c6cdc6533989fb0598715dd",
+    "homepage": "https://bitfrost.finance/",
+    "name": "Bitfrost Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d516cd697587ceacdeb96c302488b43daf4a08732c6cdc6533989fb0598715dd"
+  },
+  {
+    "category": "wallet",
+    "id": "addb6cfece8fe6d2e7039baf5b2ba3249da48957b08bcc877a2e32eaffa6e7aa",
+    "homepage": "https://wallet3.io/",
+    "name": "Wallet 3",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/addb6cfece8fe6d2e7039baf5b2ba3249da48957b08bcc877a2e32eaffa6e7aa"
+  },
+  {
+    "category": "wallet",
+    "id": "416a17a68726c10896a46e9ecbb25eaa0e342611b2387d4787902bf1984b68e9",
+    "homepage": "https://abtwallet.io/",
+    "name": "DID Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/416a17a68726c10896a46e9ecbb25eaa0e342611b2387d4787902bf1984b68e9"
+  },
+  {
+    "category": "dapp",
+    "id": "0ace4cf765779f94e3f546dee7bf2852dee333c57999ca04ae80403df4a14cd7",
+    "homepage": "https://datamine.network/",
+    "name": "Datamine Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0ace4cf765779f94e3f546dee7bf2852dee333c57999ca04ae80403df4a14cd7"
+  },
+  {
+    "category": "wallet",
+    "id": "c1abb33fa718be77d96c56a3f9720400e9c5de2f79ef50ad6a2c19b1c28659f3",
+    "homepage": "https://deploystarship.com",
+    "name": "StarBase",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c1abb33fa718be77d96c56a3f9720400e9c5de2f79ef50ad6a2c19b1c28659f3"
+  },
+  {
+    "category": "dapp",
+    "id": "f5dfce6586648970f967d75640ae074553deb3a93dda5ce109de894d61027b59",
+    "homepage": "https://streamr.network/",
+    "name": "Streamr",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f5dfce6586648970f967d75640ae074553deb3a93dda5ce109de894d61027b59"
+  },
+  {
+    "category": "wallet",
+    "id": "29449bf9d53ae02dd64a6719915c65882d7d634cca2d2de19586c772e6cbe759",
+    "homepage": "https://shinobi-wallet.net/",
+    "name": "Shinobi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/29449bf9d53ae02dd64a6719915c65882d7d634cca2d2de19586c772e6cbe759"
+  },
+  {
+    "category": "dapp",
+    "id": "0fbcea2de72eee88bb00512395fb1e99388ffbb1746cdf01dffc6797d4f06bfd",
+    "homepage": "https://dappradar.com/",
+    "name": "DappRadar",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0fbcea2de72eee88bb00512395fb1e99388ffbb1746cdf01dffc6797d4f06bfd"
+  },
+  {
+    "category": "dapp",
+    "id": "3175fb08702c0c5945b837a47d333fa4f323763557623200b1f52cd57de6fa7b",
+    "homepage": "https://superrare.co/",
+    "name": "SuperRare",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3175fb08702c0c5945b837a47d333fa4f323763557623200b1f52cd57de6fa7b"
+  },
+  {
+    "category": "wallet",
+    "id": "403308a7b7d5da26558cb3658d963d9a87648940a38cc04143f223815d631aa5",
+    "homepage": "https://open.seaio.cc/",
+    "name": "GD Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/403308a7b7d5da26558cb3658d963d9a87648940a38cc04143f223815d631aa5"
+  },
+  {
+    "category": "dapp",
+    "id": "34ecba237dabd32d823ecc328e125d503434609185c7bfb4ce8106618fdcfc10",
+    "homepage": "https://arbitrum.io/",
+    "name": "Arbitrum",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/34ecba237dabd32d823ecc328e125d503434609185c7bfb4ce8106618fdcfc10"
+  },
+  {
+    "category": "dapp",
+    "id": "541b38c73c267bfacf2383cc6c4fb0b23fcd93c092b265bdf4e2c6f521c385da",
+    "homepage": "https://paraswap.io/",
+    "name": "ParaSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/541b38c73c267bfacf2383cc6c4fb0b23fcd93c092b265bdf4e2c6f521c385da"
+  },
+  {
+    "category": "wallet",
+    "id": "2235b648bdf382bc1a6960f1db8eda5c71f65a1996e6cb549d24783ca58a2903",
+    "homepage": "https://binana.vip/",
+    "name": "Binana",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2235b648bdf382bc1a6960f1db8eda5c71f65a1996e6cb549d24783ca58a2903"
+  },
+  {
+    "category": "wallet",
+    "id": "a0718f5fb1493e4aaac72cff62d162cb85db40ed68fd8700298f36f1d5c4b73d",
+    "homepage": "https://airgap.it",
+    "name": "AirGap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a0718f5fb1493e4aaac72cff62d162cb85db40ed68fd8700298f36f1d5c4b73d"
+  },
+  {
+    "category": "dapp",
+    "id": "7c207664419cd871fc76a8e6d4496800877bcd9592eb42b4b987608344663f8f",
+    "homepage": "https://honeyswap.org/",
+    "name": "HoneySwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7c207664419cd871fc76a8e6d4496800877bcd9592eb42b4b987608344663f8f"
+  },
+  {
+    "category": "wallet",
+    "id": "76428179ce9213ab6f8f49923310efcf5eea089764196c7a2018bea8afcd6603",
+    "homepage": "https://paytube.io/",
+    "name": "PayTube",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/76428179ce9213ab6f8f49923310efcf5eea089764196c7a2018bea8afcd6603"
+  },
+  {
+    "category": "dapp",
+    "id": "b127136d3fae5d392cc34eba50d6788a248345a797e696ad5f6ee88aabe1eaa6",
+    "homepage": "https://proofofhumanity.id/",
+    "name": "Proof of Humanity",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b127136d3fae5d392cc34eba50d6788a248345a797e696ad5f6ee88aabe1eaa6"
+  },
+  {
+    "category": "wallet",
+    "id": "42049d5de7c9e88664bb4e13db614decb08a4ba4f0e6eefd5617f25d3cb2983b",
+    "homepage": "https://blockbank.ai",
+    "name": "BlockBank",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/42049d5de7c9e88664bb4e13db614decb08a4ba4f0e6eefd5617f25d3cb2983b"
+  },
+  {
+    "category": "wallet",
+    "id": "d864d048f82084fac88d386c32b3261513ed7b5d1d4b52f96f91022059e984f9",
+    "homepage": "https://orangewallet.app/",
+    "name": "Orange",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d864d048f82084fac88d386c32b3261513ed7b5d1d4b52f96f91022059e984f9"
+  },
+  {
+    "category": "dapp",
+    "id": "5a329cffe7aa4afa662139c3e119e51683bba096b0b877c5f55ba56b250632ab",
+    "homepage": "https://swapzone.io/",
+    "name": "Swapzone",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5a329cffe7aa4afa662139c3e119e51683bba096b0b877c5f55ba56b250632ab"
+  },
+  {
+    "category": "wallet",
+    "id": "28ec413631bf709cc6aeb3d4e3fdd7be541d38ba852ac491840e2501eaa7cb4b",
+    "homepage": "https://neftipedia.com/",
+    "name": "NEFTiPEDiA",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/28ec413631bf709cc6aeb3d4e3fdd7be541d38ba852ac491840e2501eaa7cb4b"
+  },
+  {
+    "category": "wallet",
+    "id": "2969649937a2a6c587e1391446d60e2e06b9c5196162a6aa70a0002292aa8d22",
+    "homepage": "https://avacus.cc/",
+    "name": "Avacus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2969649937a2a6c587e1391446d60e2e06b9c5196162a6aa70a0002292aa8d22"
+  },
+  {
+    "category": "dapp",
+    "id": "25a0ea266e011f80bc9952b1cc6f1328d3bbe69d9aa0283e6b70d9d1367a9ed7",
+    "homepage": "https://axion.network",
+    "name": "Axion",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/25a0ea266e011f80bc9952b1cc6f1328d3bbe69d9aa0283e6b70d9d1367a9ed7"
+  },
+  {
+    "category": "dapp",
+    "id": "4b65e51c3df048d08f63b308c2a3d52a7472c3e1688f0ea8c65be9f4cf5d4631",
+    "homepage": "https://krystal.app/",
+    "name": "Krystal",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4b65e51c3df048d08f63b308c2a3d52a7472c3e1688f0ea8c65be9f4cf5d4631"
+  },
+  {
+    "category": "wallet",
+    "id": "58cb8992bd89d9b90bf1e6208a9f6d3f4b2959fe81b4566bc5c4621f99db2499",
+    "homepage": "https://krystal.app/",
+    "name": "Krystal",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/58cb8992bd89d9b90bf1e6208a9f6d3f4b2959fe81b4566bc5c4621f99db2499"
+  },
+  {
+    "category": "dapp",
+    "id": "9405762be07f986472fd249c0aa49dc5de325afe880d1c39df0d5cb5a9458706",
+    "homepage": "https://daolaunch.net",
+    "name": "DAOLaunch",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9405762be07f986472fd249c0aa49dc5de325afe880d1c39df0d5cb5a9458706"
+  },
+  {
+    "category": "wallet",
+    "id": "2c81da3add65899baeac53758a07e652eea46dbb5195b8074772c62a77bbf568",
+    "homepage": "https://ambire.com",
+    "name": "Ambire Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2c81da3add65899baeac53758a07e652eea46dbb5195b8074772c62a77bbf568"
+  },
+  {
+    "category": "dapp",
+    "id": "a46b30fc7a7c662e75825225f2eae09b07412199d09771d821a5a0853e906906",
+    "homepage": "https://mooncatworld.com",
+    "name": "MoonCat World",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a46b30fc7a7c662e75825225f2eae09b07412199d09771d821a5a0853e906906"
+  },
+  {
+    "category": "dapp",
+    "id": "4408aab9112b401fabc0605be6fec8ade8519680fa40ed8b6e13f7a32d31cdba",
+    "homepage": "https://mulandefi.finance/",
+    "name": "Mulan Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4408aab9112b401fabc0605be6fec8ade8519680fa40ed8b6e13f7a32d31cdba"
+  },
+  {
+    "category": "dapp",
+    "id": "7b5ccbe00139bb41c0a087716420b68354db3daf4b6a58bcffd64baf38e5bd87",
+    "homepage": "https://flexa.network/",
+    "name": "Flexa",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7b5ccbe00139bb41c0a087716420b68354db3daf4b6a58bcffd64baf38e5bd87"
+  },
+  {
+    "category": "dapp",
+    "id": "a7fd043435006b030302ed050bf85a793e575930f3faa7a6130f1be369bfe206",
+    "homepage": "https://pancakeswap.finance/",
+    "name": "PancakeSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a7fd043435006b030302ed050bf85a793e575930f3faa7a6130f1be369bfe206"
+  },
+  {
+    "category": "dapp",
+    "id": "fc14632c9fee01c327d2b5d5bd960efbd5ca301fc7b9e4a891741d2703e3ca72",
+    "homepage": "https://criptoarchi.com/",
+    "name": "Cripto Archi Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fc14632c9fee01c327d2b5d5bd960efbd5ca301fc7b9e4a891741d2703e3ca72"
+  },
+  {
+    "category": "dapp",
+    "id": "e428e92b4f14f7bf5929881f8d4bf92f5dc29a41553a5c4016db32d52b0ae150",
+    "homepage": "https://moonkat.net/",
+    "name": "Moonkat",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e428e92b4f14f7bf5929881f8d4bf92f5dc29a41553a5c4016db32d52b0ae150"
+  },
+  {
+    "category": "dapp",
+    "id": "0e595419de85c18fb413dd06196d0119513e1c4907ca4dc8240af35002cac8bf",
+    "homepage": "https://himegamiprotocol.org/",
+    "name": "Himegami Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0e595419de85c18fb413dd06196d0119513e1c4907ca4dc8240af35002cac8bf"
+  },
+  {
+    "category": "dapp",
+    "id": "5726877b12fe2b16b4491624a920d481d4e31ddd39663c456ee195342e2f694c",
+    "homepage": "https://punk.finance",
+    "name": "Punk Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5726877b12fe2b16b4491624a920d481d4e31ddd39663c456ee195342e2f694c"
+  },
+  {
+    "category": "dapp",
+    "id": "d73c705f5aef95a1914afce5310faf4660f0354e8a5a7e3cc420ae4a0daa89eb",
+    "homepage": "https://ghostmarket.io",
+    "name": "GhostMarket",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d73c705f5aef95a1914afce5310faf4660f0354e8a5a7e3cc420ae4a0daa89eb"
+  },
+  {
+    "category": "dapp",
+    "id": "9fadd1908c3a55a10ec42c66c192bcfb34e055d8b1f523233dccdeeebb3e73c2",
+    "homepage": "https://alkemi.network",
+    "name": "Alkemi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9fadd1908c3a55a10ec42c66c192bcfb34e055d8b1f523233dccdeeebb3e73c2"
+  },
+  {
+    "category": "dapp",
+    "id": "dd3cf12012061040d30a7ccda1527fc8996062899c89a521ee4060a998e49cdb",
+    "homepage": "https://vesper.finance/",
+    "name": "Vesper Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dd3cf12012061040d30a7ccda1527fc8996062899c89a521ee4060a998e49cdb"
+  },
+  {
+    "category": "dapp",
+    "id": "79021a292ca1cec3d4e8d879a3c88942119478fbf7db3ea2459160d0dbb82356",
+    "homepage": "https://nftbank.ai/",
+    "name": " NFTBank.ai",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/79021a292ca1cec3d4e8d879a3c88942119478fbf7db3ea2459160d0dbb82356"
+  },
+  {
+    "category": "dapp",
+    "id": "7c9754f94b305167ccc5770f9b9878d2a9f0150fc98dbdb6fa900553abf15f7c",
+    "homepage": "https://fuse.io",
+    "name": "Fuse Staking",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7c9754f94b305167ccc5770f9b9878d2a9f0150fc98dbdb6fa900553abf15f7c"
+  },
+  {
+    "category": "dapp",
+    "id": "e2612e4e0e482b16836c475a94586bbdf8952edf57f13d2965bd824816260cc1",
+    "homepage": "https://tyrell-yutani.app",
+    "name": "Tyrell-Yutani HUB",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e2612e4e0e482b16836c475a94586bbdf8952edf57f13d2965bd824816260cc1"
+  },
+  {
+    "category": "dapp",
+    "id": "8fcea8ada5b01e501ef11014c6658e6e39a6e0dcca4a12a131170c4d5c631425",
+    "homepage": "https://changenow.io",
+    "name": "ChangeNow",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8fcea8ada5b01e501ef11014c6658e6e39a6e0dcca4a12a131170c4d5c631425"
+  },
+  {
+    "category": "dapp",
+    "id": "b3e7f913050524a55819c22056b5d60a58e0773c14a91d0d1309e436ba762bcf",
+    "homepage": "https://ravenprotocol.com/",
+    "name": "Raven Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b3e7f913050524a55819c22056b5d60a58e0773c14a91d0d1309e436ba762bcf"
+  },
+  {
+    "category": "dapp",
+    "id": "8f8506b7f191a8ab95a8295fc8ca147aa152b1358bee4283d6ad2468d97e0ca4",
+    "homepage": "https://celoterminal.com",
+    "name": "CeloTerminal",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8f8506b7f191a8ab95a8295fc8ca147aa152b1358bee4283d6ad2468d97e0ca4"
+  },
+  {
+    "category": "dapp",
+    "id": "c56663507f4a19ce710f784f84c3e45ec73fda6dd3abb36ef381400cb3604abf",
+    "homepage": "https://uselesscrypto.com",
+    "name": "U-Swap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c56663507f4a19ce710f784f84c3e45ec73fda6dd3abb36ef381400cb3604abf"
+  },
+  {
+    "category": "dapp",
+    "id": "0c6ccafe44a3fe7b2c48eb627d01af7477946c5880461b20459c28c1faaf395e",
+    "homepage": "https://decentraland.org",
+    "name": "Decentraland",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0c6ccafe44a3fe7b2c48eb627d01af7477946c5880461b20459c28c1faaf395e"
+  },
+  {
+    "category": "dapp",
+    "id": "f1a34d93e2545075fca526562cd59b6b21b8c344f76787594b5ec120a4babce8",
+    "homepage": "https://spiritswap.finance/",
+    "name": "SpiritSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f1a34d93e2545075fca526562cd59b6b21b8c344f76787594b5ec120a4babce8"
+  },
+  {
+    "category": "dapp",
+    "id": "56f7370aafccaed767ac969e79fc0359063daead3a34dfe3991638cc105c5e6a",
+    "homepage": "https://spookyswap.finance/",
+    "name": "SpookySwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/56f7370aafccaed767ac969e79fc0359063daead3a34dfe3991638cc105c5e6a"
+  },
+  {
+    "category": "hybrid",
+    "id": "e655422696ea63706adf66f50c802a419ad2e441ea5052b0698e892d7b22c1bc",
+    "homepage": "https://latoken.com/",
+    "name": "LATOKEN Multichain DeFi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e655422696ea63706adf66f50c802a419ad2e441ea5052b0698e892d7b22c1bc"
+  },
+  {
+    "category": "wallet",
+    "id": "80980fc1dce538ee9a795b0eaf93b06866e0b35608cff5aa72dc9879b03c1a5a",
+    "homepage": "https://usecryptnation.io",
+    "name": "SoCap Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/80980fc1dce538ee9a795b0eaf93b06866e0b35608cff5aa72dc9879b03c1a5a"
+  },
+  {
+    "category": "wallet",
+    "id": "e2c884737858154c28ff2c543f96331f8987f58734a9c9eaff6d2daef8cd2917",
+    "homepage": "https://dohrnii.io/",
+    "name": "Dohrnii Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e2c884737858154c28ff2c543f96331f8987f58734a9c9eaff6d2daef8cd2917"
+  },
+  {
+    "category": "dapp",
+    "id": "7ea003772a1fe143cd331c520d1a08a2cc65fe6514811192b86c7878b86bc824",
+    "homepage": "https://awardpool.com",
+    "name": "Award Pool",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7ea003772a1fe143cd331c520d1a08a2cc65fe6514811192b86c7878b86bc824"
+  },
+  {
+    "category": "wallet",
+    "id": "91628e2ae2228af2145bfac21093ad7be682810ec16af540a9e017ad6b933a81",
+    "homepage": "https://neftipedia.com/",
+    "name": "NeftiWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/91628e2ae2228af2145bfac21093ad7be682810ec16af540a9e017ad6b933a81"
+  },
+  {
+    "category": "wallet",
+    "id": "97a9e82e4b12362eab26130dc28eebe8b76c7ac0d5434ef690dfb8b04b419873",
+    "homepage": "https://candidewallet.com",
+    "name": "Candide",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/97a9e82e4b12362eab26130dc28eebe8b76c7ac0d5434ef690dfb8b04b419873"
+  },
+  {
+    "category": "dapp",
+    "id": "93eaabf522a1e270be952fec536869e4a895ee1570b0129fbfd506c5bfac209e",
+    "homepage": "https://abcavocado.me/index.php",
+    "name": "ABCavocado",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/93eaabf522a1e270be952fec536869e4a895ee1570b0129fbfd506c5bfac209e"
+  },
+  {
+    "category": "dapp",
+    "id": "7dd97f0b25806117ae5d3000117e7e2e3a362548cebd92ce38357d6a09a39dc6",
+    "homepage": "https://metaspace.fi/",
+    "name": "Metaspace",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7dd97f0b25806117ae5d3000117e7e2e3a362548cebd92ce38357d6a09a39dc6"
+  },
+  {
+    "category": "wallet",
+    "id": "23d57b0a48df6cec411e609ddedaa290dae4a844ea90909ddd33aca794574603",
+    "homepage": "https://www.wallid.io/",
+    "name": "MyWalliD",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/23d57b0a48df6cec411e609ddedaa290dae4a844ea90909ddd33aca794574603"
+  },
+  {
+    "category": "wallet",
+    "id": "9b9be9e11e15dfc7e6914449c78c345a60a3a5a8ec5855df5517eb76c56b6018",
+    "homepage": "http://celo.dance/",
+    "name": "CeloDance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9b9be9e11e15dfc7e6914449c78c345a60a3a5a8ec5855df5517eb76c56b6018"
+  },
+  {
+    "category": "dapp",
+    "id": "64af550970654673b979d3d8d725eb01863d9c187254c1a3d2e9a115f1d7e77e",
+    "homepage": "https://civfund.org",
+    "name": "CivTrade",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/64af550970654673b979d3d8d725eb01863d9c187254c1a3d2e9a115f1d7e77e"
+  },
+  {
+    "category": "wallet",
+    "id": "f2dcbeb246b4e4d37d748a7b2be54bbd93bdbe3e351d0badc1cbd3ea262d8466",
+    "homepage": "https://bitgert.com",
+    "name": "BRISE Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f2dcbeb246b4e4d37d748a7b2be54bbd93bdbe3e351d0badc1cbd3ea262d8466"
+  },
+  {
+    "category": "wallet",
+    "id": "2a527d1ee63ab8837381714b85f75d57217699c2b758a8d79bf6658f02db0578",
+    "homepage": "https://watt.me",
+    "name": "WATT ME",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2a527d1ee63ab8837381714b85f75d57217699c2b758a8d79bf6658f02db0578"
+  },
+  {
+    "category": "dapp",
+    "id": "5b06aef286ef1be1c9c9fb7a923949156aaf797ff3f91523f29e9cebb14d8458",
+    "homepage": "https://deltatheta.tech",
+    "name": "Delta.theta",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5b06aef286ef1be1c9c9fb7a923949156aaf797ff3f91523f29e9cebb14d8458"
+  },
+  {
+    "category": "wallet",
+    "id": "51334e444ea1ba3d23c96063b8600c94af89233bd3f8f3685123c46e0348766c",
+    "homepage": "https://snowball.money/",
+    "name": "Snowball",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/51334e444ea1ba3d23c96063b8600c94af89233bd3f8f3685123c46e0348766c"
+  },
+  {
+    "category": "wallet",
+    "id": "792fbacfe787d67595dd4eb38ac308e14b3bbc810393db56f477a92e5ac8764b",
+    "homepage": "https://www.assurepro.io/",
+    "name": "Assure",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/792fbacfe787d67595dd4eb38ac308e14b3bbc810393db56f477a92e5ac8764b"
+  },
+  {
+    "category": "wallet",
+    "id": "b265ce38b94d602957a0946673c59a99a15d69adda4317544fec7298ea2d1387",
+    "homepage": "https://safemoon.net/",
+    "name": "SafeMoon",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b265ce38b94d602957a0946673c59a99a15d69adda4317544fec7298ea2d1387"
+  },
+  {
+    "category": "dapp",
+    "id": "45f048db8ca4d2bbf622e8474402f684ec0d2eb68baa4ec9e8001dd617d6285c",
+    "homepage": "https://www.graflr.com",
+    "name": "Graflr",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/45f048db8ca4d2bbf622e8474402f684ec0d2eb68baa4ec9e8001dd617d6285c"
+  },
+  {
+    "category": "dapp",
+    "id": "b63b8e2a16539c4524ff27a1e166a4006538ddff647954e7bbfd6fa93c9d8198",
+    "homepage": "https://www.stellarx.com/",
+    "name": "StellarX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b63b8e2a16539c4524ff27a1e166a4006538ddff647954e7bbfd6fa93c9d8198"
+  },
+  {
+    "category": "wallet",
+    "id": "584538f059b079deecc80dface062cf40c33afd45dca02c7edca134a8225556d",
+    "homepage": "https://www.balletcrypto.com/",
+    "name": "Ballet Crypto",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/584538f059b079deecc80dface062cf40c33afd45dca02c7edca134a8225556d"
+  },
+  {
+    "category": "wallet",
+    "id": "f2dca938b70ea7965ffbc3ef49f3e21701d1fc4f1c543d4b05801c126416466b",
+    "homepage": "https://filwallet.co/",
+    "name": "FILWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f2dca938b70ea7965ffbc3ef49f3e21701d1fc4f1c543d4b05801c126416466b"
+  },
+  {
+    "category": "wallet",
+    "id": "e3787ea98d014ca77e2c3794db97c02ef8bcb39347705f5e79502a55434a1ecf",
+    "homepage": "https://trustkeys.network/",
+    "name": "TK Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e3787ea98d014ca77e2c3794db97c02ef8bcb39347705f5e79502a55434a1ecf"
+  },
+  {
+    "category": "dapp",
+    "id": "4d892f3895e92d4dcc048429a920c22cb565c91de529559c47d7fe8a3189e0c8",
+    "homepage": "https://mp.teller.org",
+    "name": "TellerV2 Marketplace",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4d892f3895e92d4dcc048429a920c22cb565c91de529559c47d7fe8a3189e0c8"
+  },
+  {
+    "category": "dapp",
+    "id": "102df0272b2e764ef05954a8822a87c1cdaa4c56b06905527a469bf503d27bd7",
+    "homepage": "https://bridge.platon.network/bridge",
+    "name": "PlatON Bridge",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/102df0272b2e764ef05954a8822a87c1cdaa4c56b06905527a469bf503d27bd7"
+  },
+  {
+    "category": "wallet",
+    "id": "e1882224c4c09a84575c533867d434267c46384f5a365b889605d28b061747c4",
+    "homepage": "https://www.bee.com/en",
+    "name": "BeeWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e1882224c4c09a84575c533867d434267c46384f5a365b889605d28b061747c4"
+  },
+  {
+    "category": "dapp",
+    "id": "1249debdc68d1800039c0dbeab2e58ee391a0bc9f12553c5e1d6ff63276967ff",
+    "homepage": "https://srk.finance",
+    "name": "SparkSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1249debdc68d1800039c0dbeab2e58ee391a0bc9f12553c5e1d6ff63276967ff"
+  },
+  {
+    "category": "wallet",
+    "id": "a18aeec9fab0c08ca41e7bdaae06cac5700bb628ec75c6381bacd9b2df574895",
+    "homepage": "https://monarchwallet.com",
+    "name": "Monarch Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a18aeec9fab0c08ca41e7bdaae06cac5700bb628ec75c6381bacd9b2df574895"
+  },
+  {
+    "category": "wallet",
+    "id": "af9a6dfff9e63977bbde28fb23518834f08b696fe8bff6dd6827acad1814c6be",
+    "homepage": "https://status.im/",
+    "name": "Status",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/af9a6dfff9e63977bbde28fb23518834f08b696fe8bff6dd6827acad1814c6be"
+  },
+  {
+    "category": "wallet",
+    "id": "c40b9bcef32fa6ce4e0df98be1420628bbc4957646f742380fe618fcb4ab74f1",
+    "homepage": "https://ricewallet.io/",
+    "name": "RiceWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c40b9bcef32fa6ce4e0df98be1420628bbc4957646f742380fe618fcb4ab74f1"
+  },
+  {
+    "category": "wallet",
+    "id": "5265dcf66be0553328dbc727414ab329e22f9a480e593bd2e927b279e4ab244d",
+    "homepage": "https://mrhb.network/",
+    "name": "SahalWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5265dcf66be0553328dbc727414ab329e22f9a480e593bd2e927b279e4ab244d"
+  },
+  {
+    "category": "hybrid",
+    "id": "c587c2601ccfc456cb7d4d9bb34f12f0fd11ad49faeeb4602860e239b5397843",
+    "homepage": "https://www.vision-crypto.com/",
+    "name": "Vision: Crypto Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c587c2601ccfc456cb7d4d9bb34f12f0fd11ad49faeeb4602860e239b5397843"
+  },
+  {
+    "category": "wallet",
+    "id": "c39d8ee468e50474fdf3a0bd6b981be404d4671e2702a3d633aae95bcbaa032a",
+    "homepage": "https://xfun.io",
+    "name": "XFUN Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c39d8ee468e50474fdf3a0bd6b981be404d4671e2702a3d633aae95bcbaa032a"
+  },
+  {
+    "category": "wallet",
+    "id": "9034d54985807aaf3d7780f50f155f954daa468fb58d7b14b216fc79d68bbd14",
+    "homepage": "https://wallet.qubic.app",
+    "name": "Qubic Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9034d54985807aaf3d7780f50f155f954daa468fb58d7b14b216fc79d68bbd14"
+  },
+  {
+    "category": "hybrid",
+    "id": "612be720948b5a07bfde600ba907c6b91591ac87390a97c77fa960dacb07f03f",
+    "homepage": "https://dopamineapp.com/",
+    "name": "DopamineApp",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/612be720948b5a07bfde600ba907c6b91591ac87390a97c77fa960dacb07f03f"
+  },
+  {
+    "category": "wallet",
+    "id": "c29c9237e92bc18e141e52aba3aa6d04b1afbe9952a0ab2f96dbd8653645c1df",
+    "homepage": "https://www.antiersolutions.com/",
+    "name": "Ancrypto Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c29c9237e92bc18e141e52aba3aa6d04b1afbe9952a0ab2f96dbd8653645c1df"
+  },
+  {
+    "category": "wallet",
+    "id": "540148afe64558bb238cab6c43bd963055ed9248c094eaebff94d7bbb59f9aba",
+    "homepage": "https://ttmbank.com/key-wallet/",
+    "name": "TTM Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/540148afe64558bb238cab6c43bd963055ed9248c094eaebff94d7bbb59f9aba"
+  },
+  {
+    "category": "wallet",
+    "id": "ce0ea4417b28e4b219283a99dc34cd27afe01e88d4a0cfa41b90c73088949ace",
+    "homepage": "https://thorwallet.org",
+    "name": "THORWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ce0ea4417b28e4b219283a99dc34cd27afe01e88d4a0cfa41b90c73088949ace"
+  },
+  {
+    "category": "wallet",
+    "id": "576c90ceaea34f29ff0104837cf2b2e23d201be43be1433feeb18d375430e1fd",
+    "homepage": "https://pltwallet.io/",
+    "name": "PLTwallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/576c90ceaea34f29ff0104837cf2b2e23d201be43be1433feeb18d375430e1fd"
+  },
+  {
+    "category": "dapp",
+    "id": "8e512cf90917c19246d2e46a693c8b8949b96de941fb951d7f63538584afe22e",
+    "homepage": "https://deepspace.game",
+    "name": "DEEPSPACE - Outpost",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8e512cf90917c19246d2e46a693c8b8949b96de941fb951d7f63538584afe22e"
+  },
+  {
+    "category": "wallet",
+    "id": "971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709",
+    "homepage": "https://www.okx.com/web3",
+    "name": "OKX Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709"
+  },
+  {
+    "category": "hybrid",
+    "id": "7e94e75c90964a69ea375b92214f50c4223dfbfa4913a3733b615444b322f687",
+    "homepage": "https://coinstats.app/",
+    "name": "CoinStats",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7e94e75c90964a69ea375b92214f50c4223dfbfa4913a3733b615444b322f687"
+  },
+  {
+    "category": "wallet",
+    "id": "71e9729d1bbd8ae7f2142a9b0aeb64f142141adc4be6659176e6fe7cf36ddd6c",
+    "homepage": "https://wallet.dentacoin.com/",
+    "name": "Dentacoin Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/71e9729d1bbd8ae7f2142a9b0aeb64f142141adc4be6659176e6fe7cf36ddd6c"
+  },
+  {
+    "category": "hybrid",
+    "id": "1c178b393f66b08f6e0decf743ee11c53a36eeb17faaa9e8c20f9ed2d05a96f3",
+    "homepage": "https://fundamenta.network",
+    "name": "Fundamenta Mobile",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1c178b393f66b08f6e0decf743ee11c53a36eeb17faaa9e8c20f9ed2d05a96f3"
+  },
+  {
+    "category": "wallet",
+    "id": "75ca1aafd91026f435803f9a11e8e4278388e189aa30dc93e532244ade262c57",
+    "homepage": "https://www.talkapp.org/",
+    "name": "Talk+",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/75ca1aafd91026f435803f9a11e8e4278388e189aa30dc93e532244ade262c57"
+  },
+  {
+    "category": "wallet",
+    "id": "a0e4da8b263efda0a304ad250f2bdb877342d6df61717805687c5c6ca5909c64",
+    "homepage": "https://www.hyperpay.io/",
+    "name": "HyperPay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a0e4da8b263efda0a304ad250f2bdb877342d6df61717805687c5c6ca5909c64"
+  },
+  {
+    "category": "dapp",
+    "id": "ecc8e7f2450de364eb8ff80e6e29666bca76232fc3ca872501397b67ebf0b7dd",
+    "homepage": "https://bring.finance/",
+    "name": "BRING.FINANCE",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ecc8e7f2450de364eb8ff80e6e29666bca76232fc3ca872501397b67ebf0b7dd"
+  },
+  {
+    "category": "wallet",
+    "id": "c87c562ce7f3a3ff9f4eed5f5a0edbcbd812db5aed4d14c7e6c044d8b6795d84",
+    "homepage": "http://opera.com",
+    "name": "Opera Crypto Browser",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c87c562ce7f3a3ff9f4eed5f5a0edbcbd812db5aed4d14c7e6c044d8b6795d84"
+  },
+  {
+    "category": "hybrid",
+    "id": "88018c059feb045089b22a9fe8acd4604b85f8db44693f1ddf08cfdba17dbe9a",
+    "homepage": "https://dracula-metaverse.com/#game-play",
+    "name": "Dracula Metaverse",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/88018c059feb045089b22a9fe8acd4604b85f8db44693f1ddf08cfdba17dbe9a"
+  },
+  {
+    "category": "wallet",
+    "id": "7468ebbf5e14bd146c4fa12a08fb1a0d8d9af3b66409a5b682b64cffc4f21919",
+    "homepage": "https://hideoutpay.com/",
+    "name": "Hideout Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7468ebbf5e14bd146c4fa12a08fb1a0d8d9af3b66409a5b682b64cffc4f21919"
+  },
+  {
+    "category": "dapp",
+    "id": "4b309f7a91ea5cc41b8e80349699c3ba90a1533d3113c7e088af5ab8601cbb02",
+    "homepage": "https://maimun.club/",
+    "name": "Maimun Ape Social Club",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4b309f7a91ea5cc41b8e80349699c3ba90a1533d3113c7e088af5ab8601cbb02"
+  },
+  {
+    "category": "wallet",
+    "id": "23db748bbf7ba1e737921bee04f54d53356e95533e0ed66c39113324873294e7",
+    "homepage": "https://realt.co",
+    "name": "RealT Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/23db748bbf7ba1e737921bee04f54d53356e95533e0ed66c39113324873294e7"
+  },
+  {
+    "category": "wallet",
+    "id": "ed657064daf740734d4a4ae31406cb294a17dc2dbd422ce90a86ed9816f0ded4",
+    "homepage": "https://nitrogen.org/",
+    "name": "Nitrogen Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ed657064daf740734d4a4ae31406cb294a17dc2dbd422ce90a86ed9816f0ded4"
+  },
+  {
+    "category": "wallet",
+    "id": "11c5487e4d8dd8bf32d4c92222363df8296a27307b2531be1e25770365392ecb",
+    "homepage": "https://cardstack.com/earn-together",
+    "name": "Card Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/11c5487e4d8dd8bf32d4c92222363df8296a27307b2531be1e25770365392ecb"
+  },
+  {
+    "category": "wallet",
+    "id": "5dc61e9d57489bccc11306365361614dac3de1d8eab2a9a7877a95970f68712f",
+    "homepage": "https://www.paybolt.com",
+    "name": "PayBolt",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5dc61e9d57489bccc11306365361614dac3de1d8eab2a9a7877a95970f68712f"
+  },
+  {
+    "category": "wallet",
+    "id": "d99d67379a0af80a39ef8fa79ad477debfe5abb71bd7cf92d12f30d6ffa69506",
+    "homepage": "https://wallet.gamestop.com/wallets",
+    "name": "GameStop Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d99d67379a0af80a39ef8fa79ad477debfe5abb71bd7cf92d12f30d6ffa69506"
+  },
+  {
+    "category": "wallet",
+    "id": "4d0cf1b635a59175b4ad6d6522b0b748ee920b1f8c32030fa704c00926efdf3e",
+    "homepage": "https://paper.xyz",
+    "name": "Paper Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4d0cf1b635a59175b4ad6d6522b0b748ee920b1f8c32030fa704c00926efdf3e"
+  },
+  {
+    "category": "wallet",
+    "id": "53dd23581ff2ac3473a517c2995ad41cb214e105ebc99a122bda032051bb54c6",
+    "homepage": "https://www.earthwallet.io/",
+    "name": "Earth Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/53dd23581ff2ac3473a517c2995ad41cb214e105ebc99a122bda032051bb54c6"
+  },
+  {
+    "category": "wallet",
+    "id": "ca1d3f91b9233ff1f3a64fbaf2bd4a718e9ea0489ec71938d9da030a9f98ef8f",
+    "homepage": "https://paraswap.io",
+    "name": "ParaSwap Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ca1d3f91b9233ff1f3a64fbaf2bd4a718e9ea0489ec71938d9da030a9f98ef8f"
+  },
+  {
+    "category": "wallet",
+    "id": "1f4a05ea52aae148a4b65d07cd4d3fdd06fcb7c81ff07e2465728fed7ed6260f",
+    "homepage": "http://keywallet.co.kr/",
+    "name": "Keywallet Touch",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1f4a05ea52aae148a4b65d07cd4d3fdd06fcb7c81ff07e2465728fed7ed6260f"
+  },
+  {
+    "category": "wallet",
+    "id": "b823fb0d7228ef8e3c0bc9607df9ed79dae2ab3a2811d33f22ade4f573c18232",
+    "homepage": "https://slavi.io/",
+    "name": "Slavi Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b823fb0d7228ef8e3c0bc9607df9ed79dae2ab3a2811d33f22ade4f573c18232"
+  },
+  {
+    "category": "wallet",
+    "id": "9806e241053d8c99b0ce9f62606f97d405de5c3c0b2593921f5aac99ecbaea58",
+    "homepage": "https://blockchain.com",
+    "name": "Blockchain.com",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9806e241053d8c99b0ce9f62606f97d405de5c3c0b2593921f5aac99ecbaea58"
+  },
+  {
+    "category": "wallet",
+    "id": "107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c",
+    "homepage": "https://www.bitcoin.com/",
+    "name": "Bitcoin.com Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/107bb20463699c4e614d3a2fb7b961e66f48774cb8f6d6c1aee789853280972c"
+  },
+  {
+    "category": "dapp",
+    "id": "452a6bc6decd68605bd274c499e9f85566a845e70922917f0737b60e8d58cde8",
+    "homepage": "https://www.mintagemedia.com/",
+    "name": "Mintage NFT",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/452a6bc6decd68605bd274c499e9f85566a845e70922917f0737b60e8d58cde8"
+  },
+  {
+    "category": "wallet",
+    "id": "34c19e0afafeb86ffa75df1c04445b8840450217e79d30abc6def9aa537fb7d6",
+    "homepage": "https://wallet3.io",
+    "name": "Wallet 3",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/34c19e0afafeb86ffa75df1c04445b8840450217e79d30abc6def9aa537fb7d6"
+  },
+  {
+    "category": "wallet",
+    "id": "21b071705a9b9de1646e6a3a0e894d807d0fa4a208e88fc003ee056021f208e1",
+    "homepage": "https://www.apollox.com/en",
+    "name": "ApolloX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/21b071705a9b9de1646e6a3a0e894d807d0fa4a208e88fc003ee056021f208e1"
+  },
+  {
+    "category": "dapp",
+    "id": "55d433d8ba2487c2b951cf2d0078bc1ecea578e4f84aecd1c5435bd3f4bae632",
+    "homepage": "https://anationtoken.com",
+    "name": "A-NATION ",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/55d433d8ba2487c2b951cf2d0078bc1ecea578e4f84aecd1c5435bd3f4bae632"
+  },
+  {
+    "category": "wallet",
+    "id": "b480598cc4d562de84a9d7a8cd80954b69332d5bdaa7acc10d15156df551590f",
+    "homepage": "https://firstwallet.pro/",
+    "name": "FirstWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b480598cc4d562de84a9d7a8cd80954b69332d5bdaa7acc10d15156df551590f"
+  },
+  {
+    "category": "wallet",
+    "id": "0e4915107da5b3408b38e248f7a710f4529d54cd30e9d12ff0eb886d45c18e92",
+    "homepage": "https://www.getarculus.com",
+    "name": "Arculus Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0e4915107da5b3408b38e248f7a710f4529d54cd30e9d12ff0eb886d45c18e92"
+  },
+  {
+    "category": "wallet",
+    "id": "a3e4e54d0266116e3b51cdb89630dacb1b45c5a40d3ae7c98ca329489bf2e15a",
+    "homepage": "https://lab.localtrade.cc",
+    "name": "LocalTrade Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a3e4e54d0266116e3b51cdb89630dacb1b45c5a40d3ae7c98ca329489bf2e15a"
+  },
+  {
+    "category": "wallet",
+    "id": "add46dfc2dc09c855fc8c14d950353528e184a8f4346886129c990074450ae9c",
+    "homepage": "https://www.ennowallet.com",
+    "name": "Enno Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/add46dfc2dc09c855fc8c14d950353528e184a8f4346886129c990074450ae9c"
+  },
+  {
+    "category": "wallet",
+    "id": "bae2ab14ef450f307f24a395a3c2766a2ef8a9c0e61856985d23f6445e8db03f",
+    "homepage": "https://cryptnox.com",
+    "name": "Cryptnox Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/bae2ab14ef450f307f24a395a3c2766a2ef8a9c0e61856985d23f6445e8db03f"
+  },
+  {
+    "category": "dapp",
+    "id": "259d9b14c78abdf2b6876bd1e9da0787932000cb7088996a938696a62180c7b2",
+    "homepage": "https://www.apollox.com/en",
+    "name": "ApolloX DEX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/259d9b14c78abdf2b6876bd1e9da0787932000cb7088996a938696a62180c7b2"
+  },
+  {
+    "category": "dapp",
+    "id": "681c1c202efd7a1578651f052bb7810fc83ac6601ab195702a1dd7d347f63e17",
+    "homepage": "https://app.rango.exchange/swap/BSC.BNB/AVAX_CCHAIN.AVAX/",
+    "name": "Rango Exchange",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/681c1c202efd7a1578651f052bb7810fc83ac6601ab195702a1dd7d347f63e17"
+  },
+  {
+    "category": "wallet",
+    "id": "a3dad9f302b2e36feb712645646de6ad4bab221d250f7f6c770c6429e596ac43",
+    "homepage": "https://argent.xyz/",
+    "name": "Argent Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a3dad9f302b2e36feb712645646de6ad4bab221d250f7f6c770c6429e596ac43"
+  },
+  {
+    "category": "dapp",
+    "id": "616a69d8d4a38e0235c32a50ff80f45cf99bf1f5788fb523ffa90f5b660bd975",
+    "homepage": "https://balancer.fi",
+    "name": "Balancer",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/616a69d8d4a38e0235c32a50ff80f45cf99bf1f5788fb523ffa90f5b660bd975"
+  },
+  {
+    "category": "dapp",
+    "id": "af724b42aa301b17617729f8b95dafd9fe1c72e9831b52177f279d6bd80f64b0",
+    "homepage": "https://daohaus.club/",
+    "name": "DAOhaus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/af724b42aa301b17617729f8b95dafd9fe1c72e9831b52177f279d6bd80f64b0"
+  },
+  {
+    "category": "hybrid",
+    "id": "ad47668fc1e4327881f1f8b91f563d7a2c1d6e9596cd6b7d97b5791fe76964e9",
+    "homepage": "https://mask.io/",
+    "name": "Mask Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ad47668fc1e4327881f1f8b91f563d7a2c1d6e9596cd6b7d97b5791fe76964e9"
+  },
+  {
+    "category": "dapp",
+    "id": "19c7ae6c2f2dad48a51c08b268544379afa37018b758311fa2a1fcc3ccb1a8fd",
+    "homepage": "https://mstable.org/",
+    "name": "mStable",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/19c7ae6c2f2dad48a51c08b268544379afa37018b758311fa2a1fcc3ccb1a8fd"
+  },
+  {
+    "category": "wallet",
+    "id": "c6f3d04a4e1a51e7d2045f347a5ebdab30fc600950a740fca21f0c92e230ee05",
+    "homepage": "https://arianee.org",
+    "name": "Arianee Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c6f3d04a4e1a51e7d2045f347a5ebdab30fc600950a740fca21f0c92e230ee05"
+  },
+  {
+    "category": "wallet",
+    "id": "76a3d548a08cf402f5c7d021f24fd2881d767084b387a5325df88bc3d4b6f21b",
+    "homepage": "https://lobstr.co/",
+    "name": "LOBSTR Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/76a3d548a08cf402f5c7d021f24fd2881d767084b387a5325df88bc3d4b6f21b"
+  },
+  {
+    "category": "dapp",
+    "id": "7c9c698f57537732ddb6a0f38f82720d27a776cb761c44330d641f941c435678",
+    "homepage": "https://chromasignet.com",
+    "name": "Chroma Signet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7c9c698f57537732ddb6a0f38f82720d27a776cb761c44330d641f941c435678"
+  },
+  {
+    "category": "hybrid",
+    "id": "efda9a34ef0b5de23496abda5eeeb2dcf8cd1497530ac91f58304cba867ae28f",
+    "homepage": "https://multisig.boba.network/",
+    "name": "Boba Multisig",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/efda9a34ef0b5de23496abda5eeeb2dcf8cd1497530ac91f58304cba867ae28f"
+  },
+  {
+    "category": "wallet",
+    "id": "1f711d32b1df0f84741fafa2ad1d81599b01297cc7d22d153272cb3ef4232f19",
+    "homepage": "https://sequence.xyz/",
+    "name": "Sequence Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1f711d32b1df0f84741fafa2ad1d81599b01297cc7d22d153272cb3ef4232f19"
+  },
+  {
+    "category": "wallet",
+    "id": "4f5de5333fed2ccf47c690579aba3b9128aea78175339ff51ef61704bde7502a",
+    "homepage": "https://okse.io",
+    "name": "Okse Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4f5de5333fed2ccf47c690579aba3b9128aea78175339ff51ef61704bde7502a"
+  },
+  {
+    "category": "wallet",
+    "id": "f039a4bdf6d5a54065b6cc4b134e32d23bed5d391ad97f25aab5627de26a0784",
+    "homepage": "https://neonwallet.com/",
+    "name": "Neon Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f039a4bdf6d5a54065b6cc4b134e32d23bed5d391ad97f25aab5627de26a0784"
+  },
+  {
+    "category": "wallet",
+    "id": "c8c8f44329b9b826ded9a2ac330745f584a61aed6b1d0ed2a093b64bca7fc3bb",
+    "homepage": "https://abra.com",
+    "name": "Abra Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c8c8f44329b9b826ded9a2ac330745f584a61aed6b1d0ed2a093b64bca7fc3bb"
+  },
+  {
+    "category": "dapp",
+    "id": "75f698d4436b5cdeac8f2773af14cf76ea3bc580be7eb984ad6ed65703cdd35d",
+    "homepage": "https://blackbullswap.finance",
+    "name": "Blackbullswap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/75f698d4436b5cdeac8f2773af14cf76ea3bc580be7eb984ad6ed65703cdd35d"
+  },
+  {
+    "category": "wallet",
+    "id": "6d1d5b892e02d4c992ae67f18f522398481360c64269f5cdf5e4b80435b20e3d",
+    "homepage": "https://3swallet.com/",
+    "name": "3S Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6d1d5b892e02d4c992ae67f18f522398481360c64269f5cdf5e4b80435b20e3d"
+  },
+  {
+    "category": "dapp",
+    "id": "2100ca23b42b63129323bfae9060e0462e15850f7b343f2eb8be53d610fed40b",
+    "homepage": "https://sparkswap.finance",
+    "name": "SparkSwap Apps",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2100ca23b42b63129323bfae9060e0462e15850f7b343f2eb8be53d610fed40b"
+  },
+  {
+    "category": "dapp",
+    "id": "431e9b5190eac102ff4bf623672e1d87c437d4c9a5bc9de2e97e12bd23c8689a",
+    "homepage": "https://www.leisurepay.io/",
+    "name": "LeisurePay",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/431e9b5190eac102ff4bf623672e1d87c437d4c9a5bc9de2e97e12bd23c8689a"
+  },
+  {
+    "category": "wallet",
+    "id": "fe2535202d208d96607955fe18e98d4564838200c3498c8cd1736b46291355f2",
+    "homepage": "https://safematrix.io/",
+    "name": "Safematrix",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fe2535202d208d96607955fe18e98d4564838200c3498c8cd1736b46291355f2"
+  },
+  {
+    "category": "dapp",
+    "id": "aabde7254ae8cfa25681ba60e6bfcce0c517e392d5e21981f15a3ffdd727413d",
+    "homepage": "https://dipoleswap.exchange/",
+    "name": "DipoleSwap",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/aabde7254ae8cfa25681ba60e6bfcce0c517e392d5e21981f15a3ffdd727413d"
+  },
+  {
+    "category": "wallet",
+    "id": "fbea6f68df4e6ce163c144df86da89f24cb244f19b53903e26aea9ab7de6393c",
+    "homepage": "https://klever.finance/wallet/",
+    "name": "Klever Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fbea6f68df4e6ce163c144df86da89f24cb244f19b53903e26aea9ab7de6393c"
+  },
+  {
+    "category": "hybrid",
+    "id": "30edc47c24de2727a86d50ba88c3516db28c0494a7c5f0b127e4329e855c6840",
+    "homepage": "https://autonomy.io",
+    "name": "Autonomy: Digital Art Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/30edc47c24de2727a86d50ba88c3516db28c0494a7c5f0b127e4329e855c6840"
+  },
+  {
+    "category": "dapp",
+    "id": "c7af7d5e8738821a53cddc31f34f162b003886c47d8e72c702ec20a3e50d765b",
+    "homepage": "https://ela.city",
+    "name": "Elacity",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c7af7d5e8738821a53cddc31f34f162b003886c47d8e72c702ec20a3e50d765b"
+  },
+  {
+    "category": "dapp",
+    "id": "d60cd57ae5bd4fda3c0f0db6e510aa334d2d92e0ed32470f9024677f33c339d1",
+    "homepage": "https://www.avedex.com",
+    "name": "ADP",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d60cd57ae5bd4fda3c0f0db6e510aa334d2d92e0ed32470f9024677f33c339d1"
+  },
+  {
+    "category": "dapp",
+    "id": "2216bf32f1a873d948886617068ccc7354ef51af7735756aa815737e8552e5f6",
+    "homepage": "https://pandora.digital/",
+    "name": "Embraced - Pandora",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2216bf32f1a873d948886617068ccc7354ef51af7735756aa815737e8552e5f6"
+  },
+  {
+    "category": "dapp",
+    "id": "dbe6b1a46c685f8db39264361d5b2762a30243dfd798aff7ca4badaad510baff",
+    "homepage": "https://app.nftxcards.com/",
+    "name": "NFTxCards Marketplace",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dbe6b1a46c685f8db39264361d5b2762a30243dfd798aff7ca4badaad510baff"
+  },
+  {
+    "category": "wallet",
+    "id": "33e181cb6c0f3e313e20b17129f06f4dd9939a01e3a371cdef389d4dcc29258e",
+    "homepage": "https://leadwallet.io",
+    "name": "Lead Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/33e181cb6c0f3e313e20b17129f06f4dd9939a01e3a371cdef389d4dcc29258e"
+  },
+  {
+    "category": "hybrid",
+    "id": "4c0203e76f3163c472073fa9be9843aabdd01a99cd1d0a5a87db5caa71f68898",
+    "homepage": "https://punkwallet.io",
+    "name": "🧑‍🎤 PunkWallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4c0203e76f3163c472073fa9be9843aabdd01a99cd1d0a5a87db5caa71f68898"
+  },
+  {
+    "category": "wallet",
+    "id": "159b0423ce9075d5662f588f805931d989627affab3e63e4dd7ebc62b9c6738c",
+    "homepage": "https://oxalus.io/wallet",
+    "name": "Oxalus Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/159b0423ce9075d5662f588f805931d989627affab3e63e4dd7ebc62b9c6738c"
+  },
+  {
+    "category": "dapp",
+    "id": "6c235aecc7ab2571b6efa06d52faba12ad1b6d4a27963996b292e864344e1833",
+    "homepage": "https://perp.com/",
+    "name": "Perpetual Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6c235aecc7ab2571b6efa06d52faba12ad1b6d4a27963996b292e864344e1833"
+  },
+  {
+    "category": "wallet",
+    "id": "63076bf87200069fa799f5c75c578ff963e0a6c23489b65cc8721d3cbc7ad5e2",
+    "homepage": "https://a4.finance",
+    "name": "A4 Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/63076bf87200069fa799f5c75c578ff963e0a6c23489b65cc8721d3cbc7ad5e2"
+  },
+  {
+    "category": "hybrid",
+    "id": "a1aa007996a851ecf6b2752ab68bf98aa28f3a533f157420e960b447b4ff0448",
+    "homepage": "https://theparallel.io/",
+    "name": "The Parallel",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a1aa007996a851ecf6b2752ab68bf98aa28f3a533f157420e960b447b4ff0448"
+  },
+  {
+    "category": "dapp",
+    "id": "a47bfeddbf76b24c5adbd2ce16b5b4418c42b806a1c8c4afdaa01f045bd5ce52",
+    "homepage": "https://coldstack.io/",
+    "name": "ColdStack",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a47bfeddbf76b24c5adbd2ce16b5b4418c42b806a1c8c4afdaa01f045bd5ce52"
+  },
+  {
+    "category": "wallet",
+    "id": "0c5bba82e70a2b62405871af809020a077d110d765c0798eb660ad5d3131b328",
+    "homepage": "https://edge.app/",
+    "name": "Edge Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0c5bba82e70a2b62405871af809020a077d110d765c0798eb660ad5d3131b328"
+  },
+  {
+    "category": "dapp",
+    "id": "82b4b2e7ee8ee6db857329c81452c2471061eb8ba5e29b0bad5c0d7bb9d9c64f",
+    "homepage": "https://elk.finance",
+    "name": "Elk Finance",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/82b4b2e7ee8ee6db857329c81452c2471061eb8ba5e29b0bad5c0d7bb9d9c64f"
+  },
+  {
+    "category": "wallet",
+    "id": "feb6ff1fb426db18110f5a80c7adbde846d0a7e96b2bc53af4b73aaf32552bea",
+    "homepage": "https://www.cosmostation.io/",
+    "name": "Cosmostation",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/feb6ff1fb426db18110f5a80c7adbde846d0a7e96b2bc53af4b73aaf32552bea"
+  },
+  {
+    "category": "wallet",
+    "id": "7902b32d857b8e1a58a6aab7129b56b40320bdb1c4854d5f2bd0b361f7e76d10",
+    "homepage": "https://lz.finance/home",
+    "name": "LZ Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7902b32d857b8e1a58a6aab7129b56b40320bdb1c4854d5f2bd0b361f7e76d10"
+  },
+  {
+    "category": "wallet",
+    "id": "08739356e3fc0efd9498696b7831e8b42b0ad7390af663cd3ba3c30866195b34",
+    "homepage": "https://blockcerts.com",
+    "name": "BCERTin wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/08739356e3fc0efd9498696b7831e8b42b0ad7390af663cd3ba3c30866195b34"
+  },
+  {
+    "category": "wallet",
+    "id": "19418ecfd44963883e4d6abca1adeb2036f3b5ffb9bee0ec61f267a9641f878b",
+    "homepage": "https://kryptogo.com/wallet",
+    "name": "KryptoGO Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/19418ecfd44963883e4d6abca1adeb2036f3b5ffb9bee0ec61f267a9641f878b"
+  },
+  {
+    "category": "wallet",
+    "id": "c482dfe368d4f004479977fd88e80dc9e81107f3245d706811581a6dfe69c534",
+    "homepage": "https://walletnow.app/",
+    "name": "NOW Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c482dfe368d4f004479977fd88e80dc9e81107f3245d706811581a6dfe69c534"
+  },
+  {
+    "category": "wallet",
+    "id": "62429fe64910c4e3355b2e3a4dcaa1c62e0605413672aff89f1046638530e66e",
+    "homepage": "https://slope.finance",
+    "name": "Slope Wallet",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/62429fe64910c4e3355b2e3a4dcaa1c62e0605413672aff89f1046638530e66e"
+  },
+  {
+    "category": "hybrid",
+    "id": "885123c0cb521fd121f0b200b0bdcf0d8d54d2f93699443ef11ecadf4a24baff",
+    "homepage": "Https://nftrade.com/",
+    "name": "Nftrade.com",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/885123c0cb521fd121f0b200b0bdcf0d8d54d2f93699443ef11ecadf4a24baff"
+  },
+  {
+    "category": "dapp",
+    "id": "1a8fed4bd55911a282854d7f1cdbca90319ad6dc1a9452dbf5eb3d39279e5c9f",
+    "homepage": "https://domani.finance",
+    "name": "DOMANI",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1a8fed4bd55911a282854d7f1cdbca90319ad6dc1a9452dbf5eb3d39279e5c9f"
+  },
+  {
+    "category": "wallet",
+    "id": "24fa79ebaafca330af474d828d3d1d4b20b4d7f93f7d2fd4986ddafee5e51b14",
+    "homepage": "https://xcapit.com/",
+    "name": "Xcapit",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/24fa79ebaafca330af474d828d3d1d4b20b4d7f93f7d2fd4986ddafee5e51b14"
+  },
+  {
+    "category": "dapp",
+    "id": "025ec6010962022ad58dc9467f888877d2fe16e0b4ec0ccd0c7388735f1e5641",
+    "homepage": "https://3box.io/",
+    "name": "3Box",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/025ec6010962022ad58dc9467f888877d2fe16e0b4ec0ccd0c7388735f1e5641"
+  },
+  {
+    "category": "dapp",
+    "id": "fb6cd1a045de3209931525fe421631d3bda00fd8f5d72226833b99f3966d4f0d",
+    "homepage": "https://dex.blue/",
+    "name": "dex.blue",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fb6cd1a045de3209931525fe421631d3bda00fd8f5d72226833b99f3966d4f0d"
+  },
+  {
+    "category": "wallet",
+    "id": "8fb830a15679a8537d84c3852e026a4bdb39d0ee3b387411a91e8f6abafdc1ad",
+    "homepage": "https://ownbit.io/",
+    "name": "Ownbit",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8fb830a15679a8537d84c3852e026a4bdb39d0ee3b387411a91e8f6abafdc1ad"
+  },
+  {
+    "category": "dapp",
+    "id": "325f1b46b2d2e04c911089f8da507da38bb13ee3c95aa85fa4e327bd0c88ab12",
+    "homepage": "https://bulksender.app/",
+    "name": "BulkSender",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/325f1b46b2d2e04c911089f8da507da38bb13ee3c95aa85fa4e327bd0c88ab12"
+  },
+  {
+    "category": "dapp",
+    "id": "f6399af14c9bbe64672c4a5f5fd9fca42107b76f3bce1b33325d5ffd702c7f66",
+    "homepage": "https://betoken.fund/",
+    "name": "Betoken",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f6399af14c9bbe64672c4a5f5fd9fca42107b76f3bce1b33325d5ffd702c7f66"
+  },
+  {
+    "category": "dapp",
+    "id": "ede2b38da1dddfffd32bbb84c3549b2c1585a14adb88a62b8c10f095253f2f54",
+    "homepage": "https://furucombo.app/",
+    "name": "Furucombo",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ede2b38da1dddfffd32bbb84c3549b2c1585a14adb88a62b8c10f095253f2f54"
+  },
+  {
+    "category": "dapp",
+    "id": "bbe3172e59ba21541c5739f09031cd28ac3aed0ccd23280acfe19706fbf04820",
+    "homepage": "https://invoice.build/",
+    "name": "Invoice.build",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/bbe3172e59ba21541c5739f09031cd28ac3aed0ccd23280acfe19706fbf04820"
+  },
+  {
+    "category": "wallet",
+    "id": "ee97613ab75c89c3ddc6337952ff8b581ebf2466fc68e9bb601dca655dcef849",
+    "homepage": "https://bitpiehk.com/",
+    "name": "Bitpie",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ee97613ab75c89c3ddc6337952ff8b581ebf2466fc68e9bb601dca655dcef849"
+  },
+  {
+    "category": "wallet",
+    "id": "356fc3d6e801a76197a8b6f9bcac8ebe4f9e8ab8337012d4e453233983ff197a",
+    "homepage": "https://bitpie.com/",
+    "name": "Bitpie",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/356fc3d6e801a76197a8b6f9bcac8ebe4f9e8ab8337012d4e453233983ff197a"
+  },
+  {
+    "category": "wallet",
+    "id": "0105fbfd71efd3b19dde8060d6c9d959f555c078515a47b1a29cc9b67e6a4531",
+    "homepage": "https://coinhub.org/",
+    "name": "Coinhub",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0105fbfd71efd3b19dde8060d6c9d959f555c078515a47b1a29cc9b67e6a4531"
+  },
+  {
+    "category": "dapp",
+    "id": "aeaad5749e22fd5c7fdb29251af22a04b3d23b6770769e5e8d81a77a4b666287",
+    "homepage": "https://bprotocol.org",
+    "name": "B.Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/aeaad5749e22fd5c7fdb29251af22a04b3d23b6770769e5e8d81a77a4b666287"
+  },
+  {
+    "category": "dapp",
+    "id": "c38c37b8bdf6117fe09e1db3a13240bb1029c4a9ad88ea97cd1f3e30f48e0ab7",
+    "homepage": "https://bitpif.com/",
+    "name": "BITPIF",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c38c37b8bdf6117fe09e1db3a13240bb1029c4a9ad88ea97cd1f3e30f48e0ab7"
+  },
+  {
+    "category": "wallet",
+    "id": "38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662",
+    "homepage": "https://bitkeep.org",
+    "name": "BitKeep",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662"
+  },
+  {
+    "category": "wallet",
+    "id": "746fa59e214ba46cfa688e9540a6b3450b514e89f39bd9c5a00b5a7fdaba8351",
+    "homepage": "http://goldbit.io/gbapp.php",
+    "name": "GoldBit",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/746fa59e214ba46cfa688e9540a6b3450b514e89f39bd9c5a00b5a7fdaba8351"
+  },
+  {
+    "category": "wallet",
+    "id": "bb88a220ed4dcd3d717ec19b6ac00a672edf92e97ef7c243d35e25ff56a07301",
+    "homepage": "https://bumoon.io",
+    "name": "Boo!",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/bb88a220ed4dcd3d717ec19b6ac00a672edf92e97ef7c243d35e25ff56a07301"
+  },
+  {
+    "category": "wallet",
+    "id": "fd144d6a46656068f37fb1d59d3caf413651ea5f4a24025c9fd72a6bbe22d834",
+    "homepage": "https://bycoin.im",
+    "name": "Bycoin",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fd144d6a46656068f37fb1d59d3caf413651ea5f4a24025c9fd72a6bbe22d834"
+  },
+  {
+    "category": "wallet",
+    "id": "5864e2ced7c293ed18ac35e0db085c09ed567d67346ccb6f58a0327a75137489",
+    "homepage": "https://www.fireblocks.com/",
+    "name": "Fireblocks",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5864e2ced7c293ed18ac35e0db085c09ed567d67346ccb6f58a0327a75137489"
+  },
+  {
+    "category": "wallet",
+    "id": "3b9f67c2c0887f71e4f9ba1bd2bf5b4eb6cda94419abd3f0c5c12931a60928b0",
+    "homepage": "https://bitski.com",
+    "name": "Bitski",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3b9f67c2c0887f71e4f9ba1bd2bf5b4eb6cda94419abd3f0c5c12931a60928b0"
+  },
+  {
+    "category": "dapp",
+    "id": "59789a1ccc40eb4c3dbe77c0e8f975517eb4cbd33ec97bf441b8d7712ad64f7b",
+    "homepage": "https://bitriel.com/",
+    "name": "Bitriel",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/59789a1ccc40eb4c3dbe77c0e8f975517eb4cbd33ec97bf441b8d7712ad64f7b"
+  },
+  {
+    "category": "dapp",
+    "id": "0de75ef9552f91acb2a8b8204d15c5e5c4ad03afd1afa19404d184ee38954939",
+    "homepage": "https://www.orderinbox.com",
+    "name": "Orderinbox",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0de75ef9552f91acb2a8b8204d15c5e5c4ad03afd1afa19404d184ee38954939"
+  },
+  {
+    "category": "dapp",
+    "id": "601b269aa064083a4f115bd906bd4b4ca3c92f379468b5debc93e6d680bbea7d",
+    "homepage": "https://tokentool.bitbond.com/",
+    "name": "Token Tool by Bitbond",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/601b269aa064083a4f115bd906bd4b4ca3c92f379468b5debc93e6d680bbea7d"
+  },
+  {
+    "category": "dapp",
+    "id": "3161f4087a6400d1b96907c148bfb0afbb4fd2171363908bbed285a954b648f3",
+    "homepage": "https://octusbridge.io",
+    "name": "Octus Bridge",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3161f4087a6400d1b96907c148bfb0afbb4fd2171363908bbed285a954b648f3"
+  },
+  {
+    "category": "wallet",
+    "id": "3a9973b9ee638a3aac3e1d001cabe425bf307602a61faee67942fda314736610",
+    "homepage": "https://uniblow.org/",
+    "name": "Uniblow",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3a9973b9ee638a3aac3e1d001cabe425bf307602a61faee67942fda314736610"
+  },
+  {
+    "category": "wallet",
+    "id": "41f20106359ff63cf732adf1f7dc1a157176c9b02fd266b50da6dcc1e9b86071",
+    "homepage": "https://bitizen.org/",
+    "name": "Bitizen",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/41f20106359ff63cf732adf1f7dc1a157176c9b02fd266b50da6dcc1e9b86071"
+  },
+  {
+    "category": "dapp",
+    "id": "809e8a66fdef79fe2d5100bf4f40d74ea0a9490544cce49de3bc5b668abfa490",
+    "homepage": "https://bridge.bring.finance/",
+    "name": "Bring.Bridge",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/809e8a66fdef79fe2d5100bf4f40d74ea0a9490544cce49de3bc5b668abfa490"
+  },
+  {
+    "category": "dapp",
+    "id": "29ac7e56b3b4654f52463cbf0f7b5fc7f299dd24ba9583c0c9f3a51832a9f073",
+    "homepage": "https://app.orbitlaunch.io/",
+    "name": "OrbitEcosystem",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/29ac7e56b3b4654f52463cbf0f7b5fc7f299dd24ba9583c0c9f3a51832a9f073"
+  },
+  {
+    "category": "wallet",
+    "id": "20459438007b75f4f4acb98bf29aa3b800550309646d375da5fd4aac6c2a2c66",
+    "homepage": "https://tokenpocket.pro/",
+    "name": "TokenPocket",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/20459438007b75f4f4acb98bf29aa3b800550309646d375da5fd4aac6c2a2c66"
+  },
+  {
+    "category": "dapp",
+    "id": "c591664a9fc2dfee98992ce072d0354154b667ec2f0c9d937ceb84fa9ab843b4",
+    "homepage": "https://curve.fi",
+    "name": "Curve",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c591664a9fc2dfee98992ce072d0354154b667ec2f0c9d937ceb84fa9ab843b4"
+  },
+  {
+    "category": "dapp",
+    "id": "2d0bda43d0c0703335ebc242e176182b5a50304b99984e01e86bebdd91238c7e",
+    "homepage": "https://mycrypto.com/",
+    "name": "MyCrypto",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2d0bda43d0c0703335ebc242e176182b5a50304b99984e01e86bebdd91238c7e"
+  },
+  {
+    "category": "wallet",
+    "id": "b021913ba555948a1c81eb3d89b372be46f8354e926679de648e4fa2938bed3e",
+    "homepage": "https://coin98.com/",
+    "name": "Coin98",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b021913ba555948a1c81eb3d89b372be46f8354e926679de648e4fa2938bed3e"
+  },
+  {
+    "category": "wallet",
+    "id": "29f4a70ad5993f3f73ae8119f0e78ecbae51deec2a021a770225c644935c0f09",
+    "homepage": "https://zel.network",
+    "name": "ZelCore",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/29f4a70ad5993f3f73ae8119f0e78ecbae51deec2a021a770225c644935c0f09"
+  },
+  {
+    "category": "wallet",
+    "id": "15d7610042217f691385d20e640869dc7273e991b04e8f476417cdc5ec856955",
+    "homepage": "https://www.coinomi.com/",
+    "name": "Coinomi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/15d7610042217f691385d20e640869dc7273e991b04e8f476417cdc5ec856955"
+  },
+  {
+    "category": "dapp",
+    "id": "7f88a77105e3960625af762a84863c0d2f80c74fe6d8a1f46b136edcefc1b3c3",
+    "homepage": "https://hegic.co/",
+    "name": "Hegic",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7f88a77105e3960625af762a84863c0d2f80c74fe6d8a1f46b136edcefc1b3c3"
+  },
+  {
+    "category": "dapp",
+    "id": "00af657f1f1a370adeadd306d772849698cd99e89ba53fe8e508a12511f9c22b",
+    "homepage": "https://clovers.network/",
+    "name": "Clovers",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/00af657f1f1a370adeadd306d772849698cd99e89ba53fe8e508a12511f9c22b"
+  },
+  {
+    "category": "wallet",
+    "id": "78640a74036794a5b7f8ea501887c168232723696db4231f54abd3fe524037b4",
+    "homepage": "https://www.xinfin.io/",
+    "name": "XinFin XDC Network",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/78640a74036794a5b7f8ea501887c168232723696db4231f54abd3fe524037b4"
+  },
+  {
+    "category": "dapp",
+    "id": "bb92c98ab35248d1dac4f1abe46e13b49724ce42a7dbcc8ead183dba1b50e12a",
+    "homepage": "https://mcdex.io",
+    "name": "MCDEX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/bb92c98ab35248d1dac4f1abe46e13b49724ce42a7dbcc8ead183dba1b50e12a"
+  },
+  {
+    "category": "dapp",
+    "id": "ef45e5cb8c86e3904c26f0105ae52ad5d79659c58e0922b18c0d61a6854afcc4",
+    "homepage": "https://pitchinvestorslive.com/",
+    "name": "Pitch",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ef45e5cb8c86e3904c26f0105ae52ad5d79659c58e0922b18c0d61a6854afcc4"
+  },
+  {
+    "category": "wallet",
+    "id": "be6607b0a4093c0443bfe9c19ab30c99c91d2638866c99a6a16a71d3c1df78f8",
+    "homepage": "https://coinus.io/",
+    "name": "CoinUs",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/be6607b0a4093c0443bfe9c19ab30c99c91d2638866c99a6a16a71d3c1df78f8"
+  },
+  {
+    "category": "wallet",
+    "id": "ca151c4caeec5f9cc02ef03e498cb38c02ee5e498a8db13e853315077a5b45dc",
+    "homepage": "https://cmorq.com/",
+    "name": "cmorq",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ca151c4caeec5f9cc02ef03e498cb38c02ee5e498a8db13e853315077a5b45dc"
+  },
+  {
+    "category": "dapp",
+    "id": "09728a04025a39f04c76c3ab3751f1d245fab60bc519489a0c0107f0861e950a",
+    "homepage": "https://zksync.io/",
+    "name": "zkSync",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/09728a04025a39f04c76c3ab3751f1d245fab60bc519489a0c0107f0861e950a"
+  },
+  {
+    "category": "dapp",
+    "id": "66a152c24564b90c790dda221dc6064d8a916b8ee45f4fb3d6732da01d0bebaa",
+    "homepage": "https://indexcoop.com/",
+    "name": "Index Coop",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/66a152c24564b90c790dda221dc6064d8a916b8ee45f4fb3d6732da01d0bebaa"
+  },
+  {
+    "category": "dapp",
+    "id": "3c8532a03fc2fc60876b145e9482c002edffd5403268710b9f5412a822a4be87",
+    "homepage": "https://octo.fi/",
+    "name": "OctoFi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3c8532a03fc2fc60876b145e9482c002edffd5403268710b9f5412a822a4be87"
+  },
+  {
+    "category": "wallet",
+    "id": "b397a6d7fc2eb4895579d0fa043d66bbb0396e40237876d6d9f294f41cf755ac",
+    "homepage": "https://gopocket.finance/",
+    "name": "Go Pocket",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b397a6d7fc2eb4895579d0fa043d66bbb0396e40237876d6d9f294f41cf755ac"
+  },
+  {
+    "category": "dapp",
+    "id": "a3ad8e05bc84499afaf3612a0ac95ef5e9b65c587da1b5ed71a00b9ff0e5f4af",
+    "homepage": "https://orchid.com/",
+    "name": "Orchid Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a3ad8e05bc84499afaf3612a0ac95ef5e9b65c587da1b5ed71a00b9ff0e5f4af"
+  },
+  {
+    "category": "wallet",
+    "id": "6464873279d46030c0b6b005b33da6be5ed57a752be3ef1f857dc10eaf8028aa",
+    "homepage": "https://secuxtech.com/",
+    "name": "SecuX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6464873279d46030c0b6b005b33da6be5ed57a752be3ef1f857dc10eaf8028aa"
+  },
+  {
+    "category": "dapp",
+    "id": "417d83b614dd10de664107873ca2c2a65c62f2e699113dc005790f6a84c42cae",
+    "homepage": "https://twinci.io",
+    "name": "Twinci",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/417d83b614dd10de664107873ca2c2a65c62f2e699113dc005790f6a84c42cae"
+  },
+  {
+    "category": "dapp",
+    "id": "d67b8e1ee1bd30f68af1203f07a5081aed629a859e6e1fbb3e6a424dc9e1592d",
+    "homepage": "https://nftyconnect.com/",
+    "name": "NFTY Connect",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d67b8e1ee1bd30f68af1203f07a5081aed629a859e6e1fbb3e6a424dc9e1592d"
+  },
+  {
+    "category": "dapp",
+    "id": "3f6d608030d9bf5ea6128121bb0f8d5230ba21ea3fcd66fbf93e7fd1ba72d0e6",
+    "homepage": "https://unlock-protocol.com/",
+    "name": "Unlock Protocol",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3f6d608030d9bf5ea6128121bb0f8d5230ba21ea3fcd66fbf93e7fd1ba72d0e6"
+  },
+  {
+    "category": "wallet",
+    "id": "5859076ade608fbc4e9d3fe2f95e8527de80f8451ecbb1dced54ca84deae0dd6",
+    "homepage": "https://coingrig.com",
+    "name": "Coingrig",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5859076ade608fbc4e9d3fe2f95e8527de80f8451ecbb1dced54ca84deae0dd6"
+  },
+  {
+    "category": "dapp",
+    "id": "d27af9e0cce4fe1e05c00a1a0e27f160da9f02ae6fc662ff4022219b3c57fce2",
+    "homepage": "https://connect3.world",
+    "name": "Connect3",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d27af9e0cce4fe1e05c00a1a0e27f160da9f02ae6fc662ff4022219b3c57fce2"
+  },
+  {
+    "category": "dapp",
+    "id": "895fee383e9ebb38411d04c8b64fddf354dcc601f958290286475f31ca9e2bd1",
+    "homepage": "https://quixotic.io",
+    "name": "Quixotic",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/895fee383e9ebb38411d04c8b64fddf354dcc601f958290286475f31ca9e2bd1"
+  },
+  {
+    "category": "dapp",
+    "id": "5cfacbd76097ea40949e6fc17721009d93f6d3b6f243a207c167bd0f058c341f",
+    "homepage": "https://cryptomultisender.com/",
+    "name": "Crypto Multisender",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5cfacbd76097ea40949e6fc17721009d93f6d3b6f243a207c167bd0f058c341f"
+  },
+  {
+    "category": "wallet",
+    "id": "f323633c1f67055a45aac84e321af6ffe46322da677ffdd32f9bc1e33bafe29c",
+    "homepage": "https://core.app",
+    "name": "Core",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f323633c1f67055a45aac84e321af6ffe46322da677ffdd32f9bc1e33bafe29c"
+  },
+  {
+    "category": "wallet",
+    "id": "36d8d9c0c7fe2957149ce8e878f3a01a8611521983362d9b651fb6e508325583",
+    "homepage": "https://coincircle.com",
+    "name": "CoinCircle",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/36d8d9c0c7fe2957149ce8e878f3a01a8611521983362d9b651fb6e508325583"
+  },
+  {
+    "category": "dapp",
+    "id": "36a9516e9b17c1153233fc7faffee259697a2138aed633ab256b947971b044a8",
+    "homepage": "https://optimistic.loogies.io/",
+    "name": "OptimisticLoogies",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/36a9516e9b17c1153233fc7faffee259697a2138aed633ab256b947971b044a8"
+  },
+  {
+    "category": "wallet",
+    "id": "19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927",
+    "homepage": "https://www.ledger.com/ledger-live",
+    "name": "Ledger Live",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927"
+  },
+  {
+    "category": "dapp",
+    "id": "09c4e2ebc81a6a76c05d0c62f797151732fa9c0b84ef92654cd438849271e44b",
+    "homepage": "https://dydx.exchange/",
+    "name": "dYdX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/09c4e2ebc81a6a76c05d0c62f797151732fa9c0b84ef92654cd438849271e44b"
+  },
+  {
+    "category": "wallet",
+    "id": "efba9ae0a9e0fdd9e3e055ddf3c8e75f294babb8aea3499456eff27f771fda61",
+    "homepage": "https://eidoo.io/",
+    "name": "Eidoo",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/efba9ae0a9e0fdd9e3e055ddf3c8e75f294babb8aea3499456eff27f771fda61"
+  },
+  {
+    "category": "dapp",
+    "id": "b79d14dff50d405ebc7484f5316f999d8e0d9d130c3a4412aaf7e5c587b0d954",
+    "homepage": "https://defiprime.com/",
+    "name": "DeFi Prime",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b79d14dff50d405ebc7484f5316f999d8e0d9d130c3a4412aaf7e5c587b0d954"
+  },
+  {
+    "category": "dapp",
+    "id": "ed6a16b330335e7b39a27f43ccc603043a02d03e66d3d185a8924fec42bb2d03",
+    "homepage": "https://ddex.io/",
+    "name": "DDEX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ed6a16b330335e7b39a27f43ccc603043a02d03e66d3d185a8924fec42bb2d03"
+  },
+  {
+    "category": "wallet",
+    "id": "6ec1ffc9627c3b9f87676da3f7b5796828a6c016d3253e51e771e6f951cb5702",
+    "homepage": "https://gridplus.io/",
+    "name": "GridPlus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6ec1ffc9627c3b9f87676da3f7b5796828a6c016d3253e51e771e6f951cb5702"
+  },
+  {
+    "category": "dapp",
+    "id": "4a7c46897481ccee8c101b99a920b90727cf42bf0f99c8f4f50e6a6ebc802c4e",
+    "homepage": "https://linkdrop.io/",
+    "name": "Linkdrop",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4a7c46897481ccee8c101b99a920b90727cf42bf0f99c8f4f50e6a6ebc802c4e"
+  },
+  {
+    "category": "dapp",
+    "id": "253aedf09361b7d0d90b33107079635554ad56807d9f0a6edd95891a45eca990",
+    "homepage": "https://dodoex.io/",
+    "name": "DODO",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/253aedf09361b7d0d90b33107079635554ad56807d9f0a6edd95891a45eca990"
+  },
+  {
+    "category": "dapp",
+    "id": "88fe080dcec093d8e358ab011f5384878ead9cb68ac0ac7dc690744811366597",
+    "homepage": "https://lido.fi/",
+    "name": "Lido",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/88fe080dcec093d8e358ab011f5384878ead9cb68ac0ac7dc690744811366597"
+  },
+  {
+    "category": "dapp",
+    "id": "fd147609a856c6793f2c01f80d1e60b6948490adf1dfcf18015e396510d6636c",
+    "homepage": "https://definer.org/",
+    "name": "DeFiner",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fd147609a856c6793f2c01f80d1e60b6948490adf1dfcf18015e396510d6636c"
+  },
+  {
+    "category": "dapp",
+    "id": "c9688b7e5331a9cdeebb973201263f470fdcbca9151e02752523c7ff89ddecf3",
+    "homepage": "https://www.trinity-feeds.app/",
+    "name": "Trinity Feeds",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c9688b7e5331a9cdeebb973201263f470fdcbca9151e02752523c7ff89ddecf3"
+  },
+  {
+    "category": "dapp",
+    "id": "a6c7662de52db7c8088f1e32dcf04c122675c834c839c2eb40e495aed207d4e2",
+    "homepage": "https://dogsofelon.io/",
+    "name": "Dogs of Elon",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a6c7662de52db7c8088f1e32dcf04c122675c834c839c2eb40e495aed207d4e2"
+  },
+  {
+    "category": "wallet",
+    "id": "dc5415b6ea8114db518ae91195b027d690a11a1d2bfdd1a904e93c5cb746380e",
+    "homepage": "https://simplehold.io/",
+    "name": "SimpleHold",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dc5415b6ea8114db518ae91195b027d690a11a1d2bfdd1a904e93c5cb746380e"
+  },
+  {
+    "category": "wallet",
+    "id": "48e53d96460308a1734614b5d4fdf7ea169e6f998e01eb7b4e18014f57904d67",
+    "homepage": "https://helixid.io/",
+    "name": "helix id",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/48e53d96460308a1734614b5d4fdf7ea169e6f998e01eb7b4e18014f57904d67"
+  },
+  {
+    "category": "dapp",
+    "id": "f54181d7af8b5f4dc6fe080328ac25435228f2f798b2e40e1ac0d2da70cc4b38",
+    "homepage": "https://nft.multisender.app",
+    "name": "NFT Multisender",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f54181d7af8b5f4dc6fe080328ac25435228f2f798b2e40e1ac0d2da70cc4b38"
+  },
+  {
+    "category": "wallet",
+    "id": "e9ff15be73584489ca4a66f64d32c4537711797e30b6660dbcb71ea72a42b1f4",
+    "homepage": "https://exodus.com/",
+    "name": "Exodus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e9ff15be73584489ca4a66f64d32c4537711797e30b6660dbcb71ea72a42b1f4"
+  },
+  {
+    "category": "wallet",
+    "id": "9d373b43ad4d2cf190fb1a774ec964a1addf406d6fd24af94ab7596e58c291b2",
+    "homepage": "https://token.im/",
+    "name": "imToken",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9d373b43ad4d2cf190fb1a774ec964a1addf406d6fd24af94ab7596e58c291b2"
+  },
+  {
+    "category": "wallet",
+    "id": "61f6e716826ae8455ad16abc5ec31e4fd5d6d2675f0ce2dee3336335431f720e",
+    "homepage": "https://mykey.org",
+    "name": "MYKEY",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/61f6e716826ae8455ad16abc5ec31e4fd5d6d2675f0ce2dee3336335431f720e"
+  },
+  {
+    "category": "dapp",
+    "id": "132a564227f18d8c549bf4bebc617b5416be80fca9d321507685d96c8d84bcc5",
+    "homepage": "https://tokensets.com/",
+    "name": "TokenSets",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/132a564227f18d8c549bf4bebc617b5416be80fca9d321507685d96c8d84bcc5"
+  },
+  {
+    "category": "dapp",
+    "id": "780f1069d765bf8d5c8d3c17728e0f0fac17708d07dfe840b7c0e61d3ab7ec61",
+    "homepage": "https://totle.com/",
+    "name": "Totle",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/780f1069d765bf8d5c8d3c17728e0f0fac17708d07dfe840b7c0e61d3ab7ec61"
+  },
+  {
+    "category": "dapp",
+    "id": "394ee2a85b0ed89e766fbb27c0aeb44d423dee7ec7189ba39c1ab9b5fe55f870",
+    "homepage": "https://synthetix.exchange/",
+    "name": "Synthetix",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/394ee2a85b0ed89e766fbb27c0aeb44d423dee7ec7189ba39c1ab9b5fe55f870"
+  },
+  {
+    "category": "dapp",
+    "id": "6d296cc03b11b2b59c1e009f1854576be7ae1687951cf7f6283f993ac7b8b2e4",
+    "homepage": "https://pooltogether.com/",
+    "name": "PoolTogether",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6d296cc03b11b2b59c1e009f1854576be7ae1687951cf7f6283f993ac7b8b2e4"
+  },
+  {
+    "category": "dapp",
+    "id": "a66189f2de21e3674c3762ab93c1c14a666a5361d4d79df1f2d9409151cd5def",
+    "homepage": "https://melon.avantgarde.finance/",
+    "name": "Melon",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a66189f2de21e3674c3762ab93c1c14a666a5361d4d79df1f2d9409151cd5def"
+  },
+  {
+    "category": "dapp",
+    "id": "b37cbde29b86efa434b1eebda15f7598e4338f5307c6d766311558cebd548b33",
+    "homepage": "https://2key.network/",
+    "name": "2Key",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b37cbde29b86efa434b1eebda15f7598e4338f5307c6d766311558cebd548b33"
+  },
+  {
+    "category": "wallet",
+    "id": "e05615ed22df39c8d9b99ea38b45d4accb103fcef9cfa5d5edd38f5839b5182e",
+    "homepage": "https://quiverx.io",
+    "name": "QuiverX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/e05615ed22df39c8d9b99ea38b45d4accb103fcef9cfa5d5edd38f5839b5182e"
+  },
+  {
+    "category": "wallet",
+    "id": "1bc1d561a2a38a2ff0c4dfb21c2236f7335084f822cd5de016bd4725fed389df",
+    "homepage": "https://yitoken.im",
+    "name": "yiToken",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/1bc1d561a2a38a2ff0c4dfb21c2236f7335084f822cd5de016bd4725fed389df"
+  },
+  {
+    "category": "dapp",
+    "id": "7657bb2b332c4ad3ef648a7f67ce6f1def58027be3c36efa098a4ab031e6031d",
+    "homepage": "https://fleek.co/",
+    "name": "Fleek",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/7657bb2b332c4ad3ef648a7f67ce6f1def58027be3c36efa098a4ab031e6031d"
+  },
+  {
+    "category": "dapp",
+    "id": "dc5eae101caa47ce5580eb792799660bf2b8621cfadb7a4cbf69f8b647e71c51",
+    "homepage": "https://livepeer.org",
+    "name": "Livepeer Explorer",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dc5eae101caa47ce5580eb792799660bf2b8621cfadb7a4cbf69f8b647e71c51"
+  },
+  {
+    "category": "wallet",
+    "id": "dd8ee41915d967e547c80266e883d77ee808427405f4e8026a85ac1308104221",
+    "homepage": "https://linen.app/",
+    "name": "Linen",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dd8ee41915d967e547c80266e883d77ee808427405f4e8026a85ac1308104221"
+  },
+  {
+    "category": "dapp",
+    "id": "8fcad00e3d10c0361c6b778796ca421c0ced7dbaa91d98a707a3af3c0024b0ca",
+    "homepage": "https://eyesfi.com/",
+    "name": "eyesfi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/8fcad00e3d10c0361c6b778796ca421c0ced7dbaa91d98a707a3af3c0024b0ca"
+  },
+  {
+    "category": "dapp",
+    "id": "9a5e4fe7d72eb97d1947350a4fbd95425d801c193932494d8431fa3789ec6ce1",
+    "homepage": "https://www.loopop.io/",
+    "name": "Loopop! - IN LOVE & LOVE-IN",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/9a5e4fe7d72eb97d1947350a4fbd95425d801c193932494d8431fa3789ec6ce1"
+  },
+  {
+    "category": "dapp",
+    "id": "a446ceaee1e7db60502b145003c6d019fd0061fed07eec77446df5dde48dfd62",
+    "homepage": "https://Zoo.one",
+    "name": "ZooKeeper",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a446ceaee1e7db60502b145003c6d019fd0061fed07eec77446df5dde48dfd62"
+  },
+  {
+    "category": "hybrid",
+    "id": "ecc4036f814562b41a5268adc86270fba1365471402006302e70169465b7ac18",
+    "homepage": "https://zerion.io/",
+    "name": "Zerion",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/ecc4036f814562b41a5268adc86270fba1365471402006302e70169465b7ac18"
+  },
+  {
+    "category": "dapp",
+    "id": "5bc813278a24518f002ab5a29833d67e747ca6a688e34ae09371a41449204408",
+    "homepage": "https://evoverses.com",
+    "name": "EvoVerses",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5bc813278a24518f002ab5a29833d67e747ca6a688e34ae09371a41449204408"
+  },
+  {
+    "category": "dapp",
+    "id": "089b3f0e1f3133098b8ef0d6d794e46383b02ba73adf824287979506b8c12533",
+    "homepage": "https://tengi.xyz",
+    "name": "Tengi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/089b3f0e1f3133098b8ef0d6d794e46383b02ba73adf824287979506b8c12533"
+  },
+  {
+    "category": "wallet",
+    "id": "22046f35fd2ec3937582426f7e803617101a73bbcbe9374375529cebbfc59c47",
+    "homepage": "https://www.uvtoken.com",
+    "name": "Uvtoken",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/22046f35fd2ec3937582426f7e803617101a73bbcbe9374375529cebbfc59c47"
+  },
+  {
+    "category": "dapp",
+    "id": "2c68a247b6ebd732bf72dcd070330bd261a5e30df80fdabcac84c75eef29addd",
+    "homepage": "https://www.forestknight.io/",
+    "name": "Forest Knight",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/2c68a247b6ebd732bf72dcd070330bd261a5e30df80fdabcac84c75eef29addd"
+  },
+  {
+    "category": "dapp",
+    "id": "fe9b597a44552ff0ef0ef68a7a6befa953ddc17ea1536c1e971ad2c85ac1e054",
+    "homepage": "https://we-nft.io",
+    "name": "We-NFT.io",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fe9b597a44552ff0ef0ef68a7a6befa953ddc17ea1536c1e971ad2c85ac1e054"
+  },
+  {
+    "category": "wallet",
+    "id": "f94a60403cdffa9a521dd12f9ec1004a887755c62ecf7bb4e9b8ee6806c26b58",
+    "homepage": "https://www.uvtoken.com",
+    "name": "UvToken",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/f94a60403cdffa9a521dd12f9ec1004a887755c62ecf7bb4e9b8ee6806c26b58"
+  },
+  {
+    "category": "wallet",
+    "id": "85db431492aa2e8672e93f4ea7acf10c88b97b867b0d373107af63dc4880f041",
+    "homepage": "https://www.frontier.xyz/",
+    "name": "Frontier",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/85db431492aa2e8672e93f4ea7acf10c88b97b867b0d373107af63dc4880f041"
+  },
+  {
+    "category": "wallet",
+    "id": "4ff5b6816dd118b8c362939cfb7332f667ff071a1828aa96c760871e1b5634fd",
+    "homepage": "https://zengo.com/",
+    "name": "ZenGo",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/4ff5b6816dd118b8c362939cfb7332f667ff071a1828aa96c760871e1b5634fd"
+  },
+  {
+    "category": "dapp",
+    "id": "5249689fb88651c082bc690c8f7665b038f244d3eba88e56588e62621ddf9a3c",
+    "homepage": "https://game.elemon.io",
+    "name": "Elemon",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/5249689fb88651c082bc690c8f7665b038f244d3eba88e56588e62621ddf9a3c"
+  },
+  {
+    "category": "wallet",
+    "id": "47bb07617af518642f3413a201ec5859faa63acb1dd175ca95085d35d38afb83",
+    "homepage": "https://keyring.app/",
+    "name": "KEYRING PRO",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/47bb07617af518642f3413a201ec5859faa63acb1dd175ca95085d35d38afb83"
+  },
+  {
+    "category": "wallet",
+    "id": "00e39f835988d1bb783b2a0748e18bc6278dec03492d00b0e102a466cd8b3d77",
+    "homepage": "https://zelus.io",
+    "name": "Zelus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/00e39f835988d1bb783b2a0748e18bc6278dec03492d00b0e102a466cd8b3d77"
+  },
+  {
+    "category": "dapp",
+    "id": "fb3833872e33f8d02e5d00a0bda341eadf9e61c4e66cc635f46370c2fe5959f5",
+    "homepage": "https://tengri.io",
+    "name": "Tengri.io",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/fb3833872e33f8d02e5d00a0bda341eadf9e61c4e66cc635f46370c2fe5959f5"
+  },
+  {
+    "category": "wallet",
+    "id": "0563e0724f434298dda37acaa704857ab293b48f1b39b765569a0072de43c0cf",
+    "homepage": "https://get-verso.com",
+    "name": "Verso",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/0563e0724f434298dda37acaa704857ab293b48f1b39b765569a0072de43c0cf"
+  },
+  {
+    "category": "wallet",
+    "id": "d0387325e894a1c4244820260ad7c78bb20d79eeec2fd59ffe3529223f3f84c6",
+    "homepage": "https://infinitowallet.io/",
+    "name": "Infinito",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d0387325e894a1c4244820260ad7c78bb20d79eeec2fd59ffe3529223f3f84c6"
+  },
+  {
+    "category": "dapp",
+    "id": "a1fb7359e8d89469a4004b809c8470216a7c049c4b27ad6f3cabc3ac9d79adf9",
+    "homepage": "https://yfx.com/",
+    "name": "YFX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a1fb7359e8d89469a4004b809c8470216a7c049c4b27ad6f3cabc3ac9d79adf9"
+  },
+  {
+    "category": "dapp",
+    "id": "658cc78a82d277db4cf6a801adcb1b68aeccd1357d40c177c443625da95fd8f4",
+    "homepage": "https://loopring.io",
+    "name": "Loopring",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/658cc78a82d277db4cf6a801adcb1b68aeccd1357d40c177c443625da95fd8f4"
+  },
+  {
+    "category": "dapp",
+    "id": "30ce179f170230734d83ba26a6b381a7a3298fe014559fae51cc0a14daf8c92d",
+    "homepage": "https://knownorigin.io/",
+    "name": "KnownOrigin",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/30ce179f170230734d83ba26a6b381a7a3298fe014559fae51cc0a14daf8c92d"
+  },
+  {
+    "category": "dapp",
+    "id": "c2e7871837f2b6f99de43371629606f3b0ddf2d25ac49d92be419e682088919d",
+    "homepage": "https://88mph.app/",
+    "name": "88mph",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/c2e7871837f2b6f99de43371629606f3b0ddf2d25ac49d92be419e682088919d"
+  },
+  {
+    "category": "dapp",
+    "id": "16cbec7a52204dbb75455f8ead438f7a8e9727956153626988000f313cfcef45",
+    "homepage": "https://yooshi.io/",
+    "name": "Yooshi",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/16cbec7a52204dbb75455f8ead438f7a8e9727956153626988000f313cfcef45"
+  },
+  {
+    "category": "dapp",
+    "id": "d29a5c54fbd768185c643706ac8101a9bbe1c44225674379a57193503cf5ec69",
+    "homepage": "https://mooni.tech/",
+    "name": "Mooni",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/d29a5c54fbd768185c643706ac8101a9bbe1c44225674379a57193503cf5ec69"
+  },
+  {
+    "category": "wallet",
+    "id": "b642ab6de0fe5c7d1e4a2b2821c9c807a81d0f6fd42ee3a75e513ea16e91151c",
+    "homepage": "https://vision-crypto.com/",
+    "name": "Vision",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/b642ab6de0fe5c7d1e4a2b2821c9c807a81d0f6fd42ee3a75e513ea16e91151c"
+  },
+  {
+    "category": "dapp",
+    "id": "3ed8d78a90e1ecefae998f6f3d7fe968d0ac6c2ee7a092fe29bae3e9621f9a8f",
+    "homepage": "https://zlot.finance/",
+    "name": "zLOT",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3ed8d78a90e1ecefae998f6f3d7fe968d0ac6c2ee7a092fe29bae3e9621f9a8f"
+  },
+  {
+    "category": "dapp",
+    "id": "6b9ac5790debc6264e9581215724b782a23543cba6df5da693c334a90e83855e",
+    "homepage": "https://plotx.io",
+    "name": "PlotX",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6b9ac5790debc6264e9581215724b782a23543cba6df5da693c334a90e83855e"
+  },
+  {
+    "category": "wallet",
+    "id": "dceb063851b1833cbb209e3717a0a0b06bf3fb500fe9db8cd3a553e4b1d02137",
+    "homepage": "https://onto.app/",
+    "name": "ONTO",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/dceb063851b1833cbb209e3717a0a0b06bf3fb500fe9db8cd3a553e4b1d02137"
+  },
+  {
+    "category": "dapp",
+    "id": "6a2a781c47a940d740f7f0e9872c9683088baa559e69a8da81fcad9ad650b990",
+    "homepage": "https://pwn.xyz/",
+    "name": "PWN",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/6a2a781c47a940d740f7f0e9872c9683088baa559e69a8da81fcad9ad650b990"
+  },
+  {
+    "category": "wallet",
+    "id": "74f8092562bd79675e276d8b2062a83601a4106d30202f2d509195e30e19673d",
+    "homepage": "https://www.spot-wallet.com/",
+    "name": "Spot",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/74f8092562bd79675e276d8b2062a83601a4106d30202f2d509195e30e19673d"
+  },
+  {
+    "category": "wallet",
+    "id": "3f1bc4a8fd72b3665459ec5c99ee51b424f6beeebe46b45f4a70cf08a84cbc50",
+    "homepage": "https://toruswallet.io/",
+    "name": "Torus",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/3f1bc4a8fd72b3665459ec5c99ee51b424f6beeebe46b45f4a70cf08a84cbc50"
+  },
+  {
+    "category": "dapp",
+    "id": "a1ca5756d9a7b959a727aea7f3ae3d6223facb363403e9913e984f5868fede2b",
+    "homepage": "https://yup.io/",
+    "name": "Yup",
+    "image": "https://registry.walletconnect.com/api/v1/logo/md/a1ca5756d9a7b959a727aea7f3ae3d6223facb363403e9913e984f5868fede2b"
+  }
+]

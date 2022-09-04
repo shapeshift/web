@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
@@ -42,6 +43,7 @@ type DepositProps = {
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
+  onAccountChange?: (accountId: AccountId) => void
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
@@ -79,6 +81,7 @@ export const PairDeposit = ({
   fiatInputValidation1,
   fiatInputValidation2,
   isLoading,
+  onAccountChange,
   onContinue,
   percentOptions,
   syncPair = true,
@@ -212,10 +215,12 @@ export const PairDeposit = ({
             onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
+            assetId={asset1.assetId}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
             balance={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
+            onAccountChange={onAccountChange}
             onMaxClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
@@ -225,10 +230,12 @@ export const PairDeposit = ({
             onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
             fiatAmount={fiatAmount2?.value}
             showFiatAmount={true}
+            assetId={asset2.assetId}
             assetIcon={asset2.icon}
             assetSymbol={asset2.symbol}
             balance={cryptoAmountAvailable2}
             fiatBalance={fiatAmountAvailable2}
+            onAccountChange={onAccountChange}
             onMaxClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}
             errors={cryptoError2 || fiatError2}

@@ -12,6 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import React, { PropsWithChildren, ReactNode } from 'react'
 import {
@@ -59,6 +60,7 @@ type WithdrawProps = {
   fiatInputValidation?: ControllerProps['rules']
   // Asset market data
   marketData: MarketData
+  onAccountChange?: (accountId: AccountId) => void
   // Array of the % options
   percentOptions: number[]
   // Show withdraw types
@@ -100,6 +102,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   enableSlippage = false,
   fiatInputValidation,
   handlePercentClick,
+  onAccountChange,
   onContinue,
   isLoading,
   percentOptions,
@@ -175,9 +178,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
           cryptoAmount={cryptoAmount?.value}
+          onAccountChange={onAccountChange}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
           fiatAmount={fiatAmount?.value}
           showFiatAmount={true}
+          assetId={asset.assetId}
           assetIcon={asset.icon}
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}

@@ -13,10 +13,11 @@ import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxF
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -30,12 +31,15 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { contractAddress } = query
   const opportunity = state?.opportunity
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
+  const { setAccountId: handleAccountChange } = useFoxEth()
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
@@ -156,6 +160,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
+        {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !totalFiatBalance}

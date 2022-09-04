@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
@@ -30,6 +31,7 @@ type DepositProps = {
   enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
+  onAccountChange?: (accountId: AccountId) => void
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
@@ -66,6 +68,7 @@ export const Deposit = ({
   cryptoInputValidation,
   fiatInputValidation,
   isLoading,
+  onAccountChange,
   onContinue,
   percentOptions,
   inputIcons,
@@ -149,6 +152,8 @@ export const Deposit = ({
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             cryptoAmount={cryptoAmount?.value}
+            assetId={asset.assetId}
+            onAccountChange={onAccountChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}

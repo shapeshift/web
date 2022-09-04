@@ -274,23 +274,24 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 }
 
 const getInitialState = () => {
-  const localWalletType = getLocalWalletType()
-  const localWalletDeviceId = getLocalWalletDeviceId()
-  //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
-  if (
-    (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
-    (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
-  )
-    return initialState
-  if (localWalletType && localWalletDeviceId) {
-    /**
-     * set isLoadingLocalWallet->true to bypass splash screen
-     */
-    return {
-      ...initialState,
-      isLoadingLocalWallet: true,
-    }
-  }
+  // @TODO: FIX THIS
+  // const localWalletType = getLocalWalletType()
+  // const localWalletDeviceId = getLocalWalletDeviceId()
+  // //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
+  // if (
+  //   (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
+  //   (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
+  // )
+  //   return initialState
+  // if (localWalletType && localWalletDeviceId) {
+  //   /**
+  //    * set isLoadingLocalWallet->true to bypass splash screen
+  //    */
+  //   return {
+  //     ...initialState,
+  //     isLoadingLocalWallet: true,
+  //   }
+  // }
   return initialState
 }
 
@@ -318,18 +319,18 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
             case KeyManager.Native:
-              const localNativeWallet = await state.adapters
-                .get(KeyManager.Native)
-                ?.pairDevice(localWalletDeviceId)
-              if (localNativeWallet) {
-                /**
-                 * This will eventually fire an event, which the native wallet
-                 * password modal will be shown
-                 */
-                await localNativeWallet.initialize()
-              } else {
-                disconnect()
-              }
+              // const localNativeWallet = await state.adapters
+              //   .get(KeyManager.Native)
+              //   ?.pairDevice(localWalletDeviceId)
+              // if (localNativeWallet) {
+              //   /**
+              //    * This will eventually fire an event, which the native wallet
+              //    * password modal will be shown
+              //    */
+              //   await localNativeWallet.initialize()
+              // } else {
+              //   disconnect()
+              // }
               break
             case KeyManager.KeepKey:
               try {

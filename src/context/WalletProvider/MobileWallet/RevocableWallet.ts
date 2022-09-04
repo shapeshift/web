@@ -1,14 +1,15 @@
 import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
-import { generateMnemonic } from 'bip39'
+import { generateMnemonic, validateMnemonic } from 'bip39'
 
-import { MobileWalletInfo, RevocableObject } from './types'
+import type { MobileWalletInfoWithMnemonic, RevocableObject } from './types'
 
-type MobileWalletInfoMnemonic = MobileWalletInfo & { mnemonic?: string }
+type Info = Partial<MobileWalletInfoWithMnemonic>
+
 class Wallet {
-  #info: MobileWalletInfoMnemonic
+  #info: Info
 
-  constructor(wallet: MobileWalletInfoMnemonic) {
-    this.#info = { ...wallet }
+  constructor(wallet: Info) {
+    this.#info = { createdAt: Date.now(), ...wallet }
   }
 
   get id() {
@@ -32,6 +33,9 @@ class Wallet {
   }
 
   set mnemonic(value) {
+    if (value && !validateMnemonic(value)) {
+      throw new Error('Invalid mnemonic')
+    }
     this.#info.mnemonic = value
   }
 
@@ -50,6 +54,5 @@ class Wallet {
 
 export type RevocableWallet = RevocableObject<Wallet>
 
-export const createRevocableWallet: (
-  wallet: MobileWalletInfoMnemonic,
-) => RevocableWallet = wallet => new (Revocable(Wallet))(wallet)
+export const createRevocableWallet: (wallet: Info) => RevocableWallet = wallet =>
+  new (Revocable(Wallet))(wallet)

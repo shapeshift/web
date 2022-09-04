@@ -14,13 +14,6 @@ import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/c
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
 import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
-import { MobileCreate } from 'context/WalletProvider/MobileWallet/components/MobileCreate'
-import { MobileImport } from 'context/WalletProvider/MobileWallet/components/MobileImport'
-import { MobileLoad } from 'context/WalletProvider/MobileWallet/components/MobileLoad'
-import { MobileRename } from 'context/WalletProvider/MobileWallet/components/MobileRename'
-import { MobileStart } from 'context/WalletProvider/MobileWallet/components/MobileStart'
-import { MobileSuccess } from 'context/WalletProvider/MobileWallet/components/MobileSuccess'
-import { MobileTestPhrase } from 'context/WalletProvider/MobileWallet/components/MobileTestPhrase'
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
@@ -37,6 +30,13 @@ import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskConfig } from './MetaMask/config'
+import { MobileCreate } from './MobileWallet/components/MobileCreate'
+import { MobileImport } from './MobileWallet/components/MobileImport'
+import { MobileLoad } from './MobileWallet/components/MobileLoad'
+import { MobileRename } from './MobileWallet/components/MobileRename'
+import { MobileStart } from './MobileWallet/components/MobileStart'
+import { MobileSuccess } from './MobileWallet/components/MobileSuccess'
+import { MobileTestPhrase } from './MobileWallet/components/MobileTestPhrase'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
 import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
 import { LegacyLoginSuccess } from './NativeWallet/components/LegacyLoginSuccess'
@@ -84,6 +84,9 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/mobile/create-test', component: MobileTestPhrase },
       { path: '/mobile/success', component: MobileSuccess },
     ],
+    // @TODO: Update
+    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
+    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
   },
   [KeyManager.Native]: {
     ...NativeConfig,

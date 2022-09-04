@@ -24,20 +24,20 @@ import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
-import {
-  deleteWallet,
-  getWallet,
-  listWallets,
-} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { MobileWalletInfo } from 'context/WalletProvider/MobileWallet/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { MobileConfig } from '../config'
+import { MobileConfig, mobileLogger } from '../config'
+import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
+import { RevocableWallet } from '../RevocableWallet'
+
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileLoad'],
+})
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
-  const [wallets, setWallets] = useState<MobileWalletInfo[]>([])
+  const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const translate = useTranslate()
 
   useEffect(() => {
@@ -45,23 +45,24 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
       if (!wallets.length) {
         try {
           const vaults = await listWallets()
+          moduleLogger.trace({ vaults }, 'Found wallets')
           if (!vaults.length) {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
 
           setWallets(vaults)
         } catch (e) {
-          console.error('WalletProvider:NativeWallet:Load - Cannot get vault', e)
+          mobileLogger.error(e, 'Error reading list of wallets')
           setWallets([])
         }
       }
     })()
   }, [wallets])
 
-  const handleWalletSelect = async (item: MobileWalletInfo) => {
+  const handleWalletSelect = async (item: RevocableWallet) => {
     const adapter = state.adapters?.get(KeyManager.Native)
-    const deviceId = item.id
-    if (adapter) {
+    const deviceId = item?.id
+    if (adapter && deviceId) {
       const { name, icon } = MobileConfig
       try {
         const revoker = await getWallet(deviceId)
@@ -79,33 +80,36 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
-        setLocalNativeWalletName(item.label)
+        setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+        setLocalNativeWalletName(item?.label ?? 'label')
       } catch (e) {
+        mobileLogger.error(e, { deviceId }, 'Error loading a wallet')
         setError('walletProvider.shapeShift.load.error.pair')
       }
     } else {
+      mobileLogger.warn({ deviceId }, 'Missing adapter or device ID')
       setError('walletProvider.shapeShift.load.error.pair')
     }
   }
 
-  const handleDelete = async (wallet: MobileWalletInfo) => {
+  const handleDelete = async (wallet: RevocableWallet) => {
     const result = window.confirm(
       translate('walletProvider.shapeShift.load.confirmForget', {
         wallet: wallet.label ?? wallet.id,
       }),
     )
-    if (result) {
+    if (result && wallet?.id) {
       try {
         await deleteWallet(wallet.id)
         setWallets([])
       } catch (e) {
+        mobileLogger.error(e, 'Error deleting a wallet')
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }
   }
 
-  const handleRename = async (vault: MobileWalletInfo) => {
+  const handleRename = async (vault: RevocableWallet) => {
     history.push('/mobile/rename', { vault })
   }
 

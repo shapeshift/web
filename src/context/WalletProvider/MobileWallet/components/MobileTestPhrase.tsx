@@ -1,5 +1,6 @@
-import { Box, Button, Checkbox, Divider, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
+import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
+import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -9,7 +10,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
-import { MobileSetupProps } from '../types'
+import { mobileLogger } from '../config'
+import type { MobileSetupProps } from '../types'
 
 const revocable = native.crypto.Isolation.Engines.Default.revocable
 
@@ -25,28 +27,36 @@ type TestState = {
   correctAnswerIndex: number
 }
 
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileTestPhrase'],
+})
+
 export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
-  const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
+  // const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
+  const [revoker] = useState(new (Revocable(class {}))())
 
-  const onCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Check the captcha in case the captcha has been validated
-    setHasAlreadySaved(e.target.checked)
-    return
-  }
+  // const onCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   // Check the captcha in case the captcha has been validated
+  //   setHasAlreadySaved(e.target.checked)
+  //   return
+  // }
 
-  const { vault, isLegacyWallet } = location.state
+  const { vault } = location.state
 
   const shuffleMnemonic = useCallback(async () => {
+    moduleLogger.info('shuffleMnemonic')
     if (testCount >= TEST_COUNT_REQUIRED || !vault) return
     try {
       const words = vault.getWords() ?? []
+      moduleLogger.info({ words }, 'words')
       let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      moduleLogger.info({ randomWords, shuffledNumbers }, 'randomWords')
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]
@@ -64,13 +74,14 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
             randomWords,
             correctAnswerIndex,
           },
-          vault.addRevoker.bind(vault),
+          revoker.addRevoker.bind(revoker),
         ),
       )
     } catch (e) {
+      moduleLogger.error(e, 'shuffleMnemonic')
       setError('walletProvider.shapeShift.create.error')
     }
-  }, [setTestState, shuffledNumbers, vault, testCount])
+  }, [revoker, shuffledNumbers, testCount, vault])
 
   useEffect(() => {
     shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
@@ -82,10 +93,10 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
       history.replace('/mobile/success', { vault })
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
-        setTimeout(() => vault?.revoke(), 250)
+        setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, vault])
+  }, [testCount, history, vault, revoker])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -95,6 +106,8 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
       setInvalidTries([...invalidTries, index])
     }
   }
+
+  moduleLogger.info({ testState }, 'TestState')
 
   return !testState ? null : (
     <>
@@ -138,39 +151,39 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
                 >
                   {word}
                 </Button>,
-                vault.addRevoker.bind(vault),
+                revoker.addRevoker.bind(revoker),
               ),
             )}
         </Wrap>
-        {isLegacyWallet && (
-          <Box>
-            <Box position='relative' mb={8} mt={10}>
-              <Divider />
-              <Text
-                translation={'common.or'}
-                transform='translate(-50%, -50%)'
-                left='50%'
-                position='absolute'
-                color='gray.500'
-              />
-            </Box>
-            <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>
-              <Text
-                fontSize='sm'
-                translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}
-              />
-            </Checkbox>
-            <Button
-              colorScheme='blue'
-              width='full'
-              size='md'
-              isDisabled={!hasAlreadySaved}
-              onClick={() => history.push('/mobile/password', { vault })}
-            >
-              <Text translation={'common.skip'} />
-            </Button>
-          </Box>
-        )}
+        {/*{isLegacyWallet && (*/}
+        {/*  <Box>*/}
+        {/*    <Box position='relative' mb={8} mt={10}>*/}
+        {/*      <Divider />*/}
+        {/*      <Text*/}
+        {/*        translation={'common.or'}*/}
+        {/*        transform='translate(-50%, -50%)'*/}
+        {/*        left='50%'*/}
+        {/*        position='absolute'*/}
+        {/*        color='gray.500'*/}
+        {/*      />*/}
+        {/*    </Box>*/}
+        {/*    <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>*/}
+        {/*      <Text*/}
+        {/*        fontSize='sm'*/}
+        {/*        translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}*/}
+        {/*      />*/}
+        {/*    </Checkbox>*/}
+        {/*    <Button*/}
+        {/*      colorScheme='blue'*/}
+        {/*      width='full'*/}
+        {/*      size='md'*/}
+        {/*      isDisabled={!hasAlreadySaved}*/}
+        {/*      onClick={() => history.push('/mobile/password', { vault })}*/}
+        {/*    >*/}
+        {/*      <Text translation={'common.skip'} />*/}
+        {/*    </Button>*/}
+        {/*  </Box>*/}
+        {/*)}*/}
       </ModalBody>
     </>
   )

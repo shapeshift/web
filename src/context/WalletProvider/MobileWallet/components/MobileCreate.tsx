@@ -14,6 +14,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
+import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
 import { range } from 'lodash'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
@@ -21,11 +22,16 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { createWallet, updateWallet } from '../mobileMessageHandlers'
+import { mobileLogger } from '../config'
+import { addWallet, createWallet } from '../mobileMessageHandlers'
 import { RevocableWallet } from '../RevocableWallet'
 import { MobileLocationState } from '../types'
 
 const revocable = native.crypto.Isolation.Engines.Default.revocable
+
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileCreate'],
+})
 
 export const MobileCreate = () => {
   const history = useHistory()
@@ -37,15 +43,17 @@ export const MobileCreate = () => {
     setRevealed(!revealed)
   }
   const [words, setWords] = useState<ReactNode[] | null>(null)
-  const [revoker, setRevoker] = useState<RevocableWallet | null>(null)
-  const [label, setLabel] = useState('Mobile Wallet')
+  const [vault, setVault] = useState<RevocableWallet | null>(null)
+  const [label, setLabel] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [revoker] = useState(new (Revocable(class {}))())
   const translate = useTranslate()
 
   const placeholders = useMemo(() => {
     return range(1, 13).map(i => (
       <Tag
         p={2}
-        flexBasis='31%'
+        flexBasis='30%'
         justifyContent='flex-start'
         fontSize='md'
         colorScheme='blue'
@@ -58,44 +66,45 @@ export const MobileCreate = () => {
   }, [])
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        setRevoker(await createWallet({ label: 'Mobile Wallet' }))
-      } catch (e) {
-        console.error(e)
-      }
-    })()
-  }, [revoker])
+    try {
+      setVault(createWallet())
+    } catch (e) {
+      moduleLogger.error(e, 'Create Wallet')
+    }
+  }, [setVault])
 
   useEffect(() => {
-    try {
-      const words = revoker?.getWords()?.map((word: string, index: number) =>
-        revocable(
-          <Tag
-            p={2}
-            flexBasis='31%'
-            justifyContent='flex-start'
-            fontSize='md'
-            key={word}
-            colorScheme='blue'
-          >
-            <Code mr={2}>{index + 1}</Code>
-            {word}
-          </Tag>,
-          revoker.addRevoker.bind(revocable),
-        ),
-      )
+    if (!vault) return
 
-      if (words) setWords(words)
+    try {
+      setWords(
+        vault.getWords()?.map((word: string, index: number) =>
+          revocable(
+            <Tag
+              p={2}
+              flexBasis='30%'
+              justifyContent='flex-start'
+              fontSize='md'
+              key={word}
+              colorScheme='blue'
+              overflow='hidden'
+            >
+              <Code mr={2}>{index + 1}</Code>
+              {word}
+            </Tag>,
+            revoker.addRevoker.bind(revoker),
+          ),
+        ) ?? null,
+      )
     } catch (e) {
-      console.error('failed to get Secret Recovery Phrase:', e)
+      moduleLogger.error(e, 'failed to get Secret Recovery Phrase')
       setWords(null)
     }
 
     return () => {
-      revoker?.revoke()
+      revoker.revoke()
     }
-  }, [setWords, revoker])
+  }, [setWords, revoker, vault])
 
   return (
     <>
@@ -113,18 +122,18 @@ export const MobileCreate = () => {
         <Wrap mt={12} mb={6}>
           {revealed ? words : placeholders}
         </Wrap>
-        <FormControl mb={6} isInvalid={Boolean(label) && label.length < 64}>
+        <FormControl mb={6} isInvalid={label.length > 64}>
           <Input
             value={label}
             onChange={e => setLabel(e.target.value)}
             size='lg'
             variant='filled'
             id='name'
-            placeholder={translate('modals.shapeShift.password.walletName')}
+            placeholder={translate('walletProvider.shapeShift.rename.walletName')}
             data-test='wallet-native-set-name-input'
           />
           <FormErrorMessage>
-            {translate('modals.shapeShift.password.error.maxLength')}
+            {translate('modals.shapeShift.password.error.maxLength', { length: 64 })}
           </FormErrorMessage>
         </FormControl>
       </ModalBody>
@@ -137,12 +146,23 @@ export const MobileCreate = () => {
         <Button
           colorScheme='blue'
           size='lg'
-          disabled={!(words && revealedOnce.current && label)}
-          onClick={() => {
-            if (revoker?.mnemonic && label) {
-              revoker.label = label
-              updateWallet(revoker.id, { label }).catch(console.error)
-              history.push('/mobile/create-test', { revoker, isLegacyWallet: false })
+          isLoading={isSaving}
+          disabled={isSaving || !(words && revealedOnce.current && label)}
+          onClick={async () => {
+            if (vault?.mnemonic && label) {
+              try {
+                setIsSaving(true)
+                vault.label = label
+                const w = await addWallet({ label, mnemonic: vault.mnemonic })
+                if (w) {
+                  w.mnemonic = vault.mnemonic
+                  history.push('/mobile/create-test', { vault: w, isLegacyWallet: false })
+                }
+              } catch (e) {
+                moduleLogger.error(e, 'Error saving new wallet')
+              } finally {
+                setIsSaving(false)
+              }
             }
           }}
         >

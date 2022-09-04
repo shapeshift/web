@@ -2,27 +2,40 @@ import {
   Button,
   FormControl,
   FormErrorMessage,
+  Input,
   ModalBody,
   ModalHeader,
   Textarea,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
-import { FieldValues, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeWalletValues } from '../types'
+import { mobileLogger } from '../config'
+import { addWallet } from '../mobileMessageHandlers'
+
+type FormValues = { mnemonic: string; name: string }
+
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileImport'],
+})
 
 export const MobileImport = ({ history }: RouteComponentProps) => {
-  const onSubmit = async (values: FieldValues) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      const vault = await Vault.create()
-      vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
-      history.push('/mobile/password', { vault })
+      moduleLogger.trace(
+        { name: values.name, mnemonicLength: values.mnemonic.length },
+        'Import a wallet',
+      )
+      const vault = await addWallet({
+        mnemonic: values.mnemonic.toLowerCase().trim(),
+        label: values.name.trim(),
+      })
+      history.push('/mobile/success', { vault })
     } catch (e) {
+      moduleLogger.error(e, 'Error importing a wallet')
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
   }
@@ -32,7 +45,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<NativeWalletValues>({ shouldUnregister: true })
+  } = useForm<FormValues>({ shouldUnregister: true })
 
   const translate = useTranslate()
 
@@ -72,6 +85,21 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
             <FormErrorMessage data-test='wallet-native-seed-validation-message'>
               {errors.mnemonic?.message}
             </FormErrorMessage>
+          </FormControl>
+          <FormControl mb={6} isInvalid={Boolean(errors.name)}>
+            <Input
+              {...register('name', {
+                maxLength: {
+                  value: 64,
+                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
+                },
+              })}
+              size='lg'
+              variant='filled'
+              id='name'
+              placeholder={translate('walletProvider.shapeShift.rename.walletName')}
+            />
+            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <Button
             colorScheme='blue'

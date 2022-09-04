@@ -6,42 +6,46 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import { FieldValues, useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { updateWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 
-import { MobileSetupProps, NativeWalletValues } from '../types'
+import { mobileLogger } from '../config'
+import { updateWallet } from '../mobileMessageHandlers'
+import { MobileSetupProps } from '../types'
+
+const isValidLabel = (label: unknown): label is string => {
+  return typeof label === 'string' && label.length > 0 && label.length < 65
+}
+
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileRename'],
+})
 
 export const MobileRename = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [label, setLabel] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const onSubmit = async (values: FieldValues) => {
+  const handleClick = async () => {
+    setIsSubmitting(true)
     try {
-      console.log('Wallet: ', require('util').inspect(location.state.vault))
-      console.log('Label: ', require('util').inspect(values))
       if (
-        values.name.length > 0 &&
+        isValidLabel(label) &&
         location.state.vault?.id &&
-        (await updateWallet(location.state.vault.id, { label: values.name }))
+        (await updateWallet(location.state.vault.id, { label }))
       ) {
         history.goBack()
+      } else {
+        setError(translate('modals.shapeShift.password.error.maxLength'))
       }
     } catch (e) {
-      console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)
-      setError('password', {
-        type: 'manual',
-        message: translate('modals.shapeShift.password.error.invalid'),
-      })
+      moduleLogger.error(e, 'Error renaming a wallet')
+    } finally {
+      setIsSubmitting(false)
     }
   }
-
-  const {
-    setError,
-    handleSubmit,
-    register,
-    formState: { errors, isSubmitting },
-  } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   return (
     <>
@@ -50,33 +54,27 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
       </ModalHeader>
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={6} isInvalid={Boolean(errors.name)}>
-            <Input
-              {...register('name', {
-                maxLength: {
-                  value: 64,
-                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
-                },
-              })}
-              size='lg'
-              variant='filled'
-              id='name'
-              placeholder={translate('walletProvider.shapeShift.rename.walletName')}
-            />
-            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
-          </FormControl>
-          <Button
-            colorScheme='blue'
+        <FormControl mb={6} isInvalid={Boolean(error)}>
+          <Input
             size='lg'
-            width='full'
-            type='submit'
-            isLoading={isSubmitting}
-            isDisabled={Boolean(errors.name)}
-          >
-            <Text translation={'walletProvider.shapeShift.rename.button'} />
-          </Button>
-        </form>
+            variant='filled'
+            id='name'
+            placeholder={translate('walletProvider.shapeShift.rename.walletName')}
+            onChange={e => setLabel(e.target.value)}
+          />
+          <FormErrorMessage>{error}</FormErrorMessage>
+        </FormControl>
+        <Button
+          colorScheme='blue'
+          size='lg'
+          width='full'
+          type='submit'
+          isLoading={isSubmitting}
+          isDisabled={Boolean(error) || !label || isSubmitting}
+          onClick={handleClick}
+        >
+          <Text translation={'walletProvider.shapeShift.rename.button'} />
+        </Button>
       </ModalBody>
     </>
   )

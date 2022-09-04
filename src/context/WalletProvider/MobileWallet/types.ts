@@ -1,9 +1,9 @@
 import React from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
 
-import { NativeWalletValues } from '../NativeWallet/types'
-import { RevocableWallet } from './RevocableWallet'
+import type { NativeWalletValues } from '../NativeWallet/types'
+import type { RevocableWallet } from './RevocableWallet'
 
 export type { NativeWalletValues }
 
@@ -34,6 +34,5 @@ export interface MobileSetupProps
     any, // history
     MobileLocationState
   > {
-  vault: MobileWalletInfo
   dispatch: React.Dispatch<ActionTypes>
 }

@@ -1,19 +1,20 @@
-import { generateMnemonic } from 'bip39'
 import {
   createRevocableWallet,
   RevocableWallet,
 } from 'context/WalletProvider/MobileWallet/RevocableWallet'
-import {
+import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from 'context/WalletProvider/MobileWallet/types'
-import { logger } from 'lib/logger'
+
+import { mobileLogger } from './config'
 
 type Command =
   | 'getWallet'
   | 'deleteWallet'
   | 'updateWallet'
   | 'hasWallet'
+  | 'hasWallets'
   | 'addWallet'
   | 'listWallets'
 
@@ -33,7 +34,7 @@ type Message =
       mnemonic: string
     }
   | {
-      cmd: 'listWallets'
+      cmd: 'listWallets' | 'hasWallets'
     }
 
 export type MessageFromMobileApp = {
@@ -66,7 +67,7 @@ const postMessage = async <T>(msg: Message): Promise<T> => {
   })
 }
 
-const moduleLogger = logger.child({ namespace: ['lib', 'mobileWallet'] })
+const moduleLogger = mobileLogger.child({ namespace: ['lib', 'mobileWallet'] })
 
 export const listWallets = () => {
   moduleLogger.trace({ fn: 'listWallets' }, 'List Wallets')
@@ -77,6 +78,11 @@ export const getWallet = async (key: string) => {
   moduleLogger.trace({ fn: 'getWallet', key }, 'Get Wallet')
   const wallet = await postMessage<MobileWalletInfoWithMnemonic | null>({ cmd: 'getWallet', key })
   return wallet ? createRevocableWallet(wallet) : null
+}
+
+export const hasWallets = () => {
+  moduleLogger.trace({ fn: 'hasWallets' }, 'Has Wallets')
+  return postMessage<number>({ cmd: 'hasWallets' })
 }
 
 export const hasWallet = (key: string) => {
@@ -92,17 +98,13 @@ export const updateWallet = (key: string, wallet: { label: string }) => {
 export const addWallet = async (wallet: { label: string; mnemonic: string }) => {
   moduleLogger.trace({ fn: 'addWallet' }, 'Add Wallet')
   const w = await postMessage<MobileWalletInfo | null>({ cmd: 'addWallet', ...wallet })
-  return w ? createRevocableWallet(w) : null
+  return w ? createRevocableWallet({ ...w, mnemonic: wallet.mnemonic }) : null
 }
 
-export const createWallet = async (wallet: { label: string }) => {
-  moduleLogger.trace({ fn: 'createWallet' }, 'Create Wallet')
-  const w = await postMessage<MobileWalletInfo | null>({
-    cmd: 'addWallet',
-    label: wallet.label,
-    mnemonic: generateMnemonic(),
-  })
-  return w ? createRevocableWallet(w) : null
+export const createWallet = () => {
+  const w = createRevocableWallet({})
+  w.generateMnemonic()
+  return w
 }
 
 export const deleteWallet = (key: string) => {

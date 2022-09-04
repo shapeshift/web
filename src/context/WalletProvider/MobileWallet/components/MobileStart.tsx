@@ -1,23 +1,26 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
-import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+
+import { mobileLogger } from '../config'
+import { deleteWallet, hasWallets } from '../mobileMessageHandlers'
+
+const moduleLogger = mobileLogger.child({ namespace: [''] })
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
-  const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
+  const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
   const translate = useTranslate()
 
   useEffect(() => {
     ;(async () => {
       try {
-        const localWallets = await listWallets()
-        setHasLocalWallet(localWallets.length > 0)
+        const localWallets = await hasWallets()
+        setHasLocalWallet(localWallets > 0)
       } catch (e) {
-        console.error('WalletProvider:MobileWallet:Start - Cannnot enumerate Vault', e)
+        moduleLogger.error(e, 'Error checking for wallets')
         setHasLocalWallet(false)
       }
     })()
@@ -89,7 +92,11 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
               ml={[0, 1.5]}
               borderTopRadius='none'
               colorScheme='blue'
-              onClick={() => history.push('/mobile/legacy/login')}
+              onClick={async () => {
+                // @TODO: Don't commit this
+                await deleteWallet('*')
+                history.push('/mobile/legacy/login')
+              }}
             >
               {translate('common.login')}
             </Button>

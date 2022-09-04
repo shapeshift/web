@@ -58,6 +58,7 @@ const reactAppRewireConfig = {
 
     // Initialize top-level arrays just in case they're missing for some reason.
     _.merge(config, {
+      devtool: isProduction ? 'source-map' : 'inline-source-map',
       plugins: [],
       ignoreWarnings: [],
     })

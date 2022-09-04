@@ -8,11 +8,15 @@ import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
-import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { MobileConfig, mobileLogger } from '../config'
 import { MobileSetupProps } from '../types'
+
+const moduleLogger = mobileLogger.child({
+  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileSuccess'],
+})
 
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
@@ -25,13 +29,15 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       const adapter = state.adapters?.get(KeyManager.Native)!
       try {
         await new Promise(resolve => setTimeout(resolve, 250))
-        const deviceId = vault.id
+        const deviceId = vault.id ?? ''
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
+
+        moduleLogger.warn({ deviceId, mnemonic }, 'TEST')
         if (mnemonic) {
           await wallet.loadDevice({ mnemonic, deviceId })
-          const { name, icon } = NativeConfig
-          const walletLabel = vault.label
+          const { name, icon } = MobileConfig
+          const walletLabel = vault?.label ?? 'label'
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -48,18 +54,18 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
           setLocalNativeWalletName(walletLabel)
           return setIsSuccessful(true)
         }
-      } catch (error) {
-        console.error('Failed to load device', error)
+      } catch (e) {
+        moduleLogger.error(e, { vault }, 'Error pairing device')
       }
 
       setIsSuccessful(false)
     })()
 
     return () => {
-      vault?.revoke()
+      // Make sure the component is completely unmounted before we revoke the mnemonic
+      setTimeout(() => vault?.revoke(), 500)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vault])
+  }, [dispatch, setIsSuccessful, state.adapters, vault])
 
   return (
     <>

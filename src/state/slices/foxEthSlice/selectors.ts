@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
@@ -12,7 +13,7 @@ export const selectFoxEthLpOpportunity = (state: ReduxState) => state.foxEth.lpO
 export const selectFoxFarmingOpportunities = (state: ReduxState) =>
   state.foxEth.farmingOpportunities
 
-export const selectVisibleFoxFarmingOpportunities = createSelector(
+export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunities,
   opportunities =>
     opportunities.filter(
@@ -28,7 +29,7 @@ export const selectFoxFarmingOpportunityByContractAddress = createSelector(
     opportunities.find(opportunity => opportunity.contractAddress === contractAddress),
 )
 
-export const selectFarmContractsBalance = createSelector(
+export const selectFarmContractsBalance = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunities,
   (farmingOpportunities): string => {
     const foxFarmingTotalCryptoAmount = farmingOpportunities.reduce(

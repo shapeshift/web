@@ -16,13 +16,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
+      - run: corepack enable
 
       - name: Download Build Folder
         uses: actions/download-artifact@v3
@@ -31,7 +25,7 @@ jobs:
           path: build
 
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       # needs to run after install
       - name: Commitlint PR Title
@@ -47,3 +41,4 @@ jobs:
 
       - name: Test
         run: yarn test
+

@@ -258,5 +258,6 @@
   },
   "resolutions": {
     "friendly-challenge@0.9.2": "patch:friendly-challenge@npm:0.9.2#.yarn/patches/friendly-challenge-npm-0.9.2-db0cad46d3.patch"
-  }
+  },
+  "packageManager": "yarn@3.2.3"
 }

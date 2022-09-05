@@ -68,6 +68,8 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
+      - run: corepack enable
+
       - name: Cache Cypress binary
         uses: actions/cache@v3
         with:
@@ -75,6 +77,7 @@ jobs:
           key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+            cypress-${{ runner.os }}-cypress
 
       - name: Cache Node Modules
         uses: actions/cache@v3
@@ -82,7 +85,8 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
+            ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+            ${{ runner.os }}-node-modules-
 
       - name: Install Cypress & Build Project
         uses: cypress-io/github-action@v4

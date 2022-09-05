@@ -9,7 +9,8 @@ import { foxEthLpAssetId } from './constants'
 
 export const selectFoxEthLpOpportunity = (state: ReduxState) => state.foxEth.lpOpportunity
 
-export const selectFoxFarmingOpportunities = (state: ReduxState) => state.foxEth.farmOpportunities
+export const selectFoxFarmingOpportunities = (state: ReduxState) =>
+  state.foxEth.farmingOpportunities
 
 export const selectVisibleFoxFarmingOpportunities = createSelector(
   selectFoxFarmingOpportunities,

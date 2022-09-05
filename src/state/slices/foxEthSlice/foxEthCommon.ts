@@ -79,7 +79,7 @@ const v1FarmingOpportunity: FoxFarmingEarnOpportunityType = {
   opportunityName: 'Fox Farming V1',
 }
 
-export const farmOpportunities = [
+export const farmingOpportunities = [
   v1FarmingOpportunity,
   v2FarmingOpportunity,
   v3FarmingOpportunity,

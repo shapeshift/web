@@ -8,16 +8,16 @@ import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-far
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  useGetFoxEthLpGeneralDataQuery,
-  useGetFoxFarmingContractGeneralDataQuery,
+  useGetFoxEthLpMetricsQuery,
+  useGetFoxFarmingContractMetricsQuery,
 } from 'state/slices/foxEthSlice/foxEthSlice'
 
 import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
-    useGetFoxFarmingContractGeneralDataQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
-  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpGeneralDataQuery()
+    useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
+  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpMetricsQuery()
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [FOX_ASSET_ID]: [

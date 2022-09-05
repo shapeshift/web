@@ -6,18 +6,26 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import React, { createContext, useContext, useMemo } from 'react'
 import { useCallback, useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
+import { farmingOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
+import {
+  foxEthApi,
+  useGetFoxEthLpAccountDataQuery,
+  useGetFoxEthLpMetricsQuery,
+} from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
+  selectIsPortfolioLoaded,
+  selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
@@ -30,17 +38,17 @@ type FoxEthProviderProps = {
   children: React.ReactNode
 }
 
-type IFoxLpAndFarmingOpportunitiesContext = {
+type IFoxEthContext = {
   accountId: AccountId | null
   setAccountId: (accountId: AccountId) => void
-  accountAddress: string | null
+  accountAddress: string
   onOngoingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
 }
 
-const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpportunitiesContext>({
+const FoxEthContext = createContext<IFoxEthContext>({
   setAccountId: _accountId => {},
   accountId: null,
-  accountAddress: null,
+  accountAddress: '',
   onOngoingTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
@@ -48,7 +56,12 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const foxLpEnabled = useFeatureFlag('FoxLP')
+  const foxFarmingEnabled = useFeatureFlag('FoxFarming')
+  const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const isPortfolioLoaded = useAppSelector(selectIsPortfolioLoaded)
+  const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(
@@ -56,9 +69,25 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
-  const [accountAddress, setAccountAddress] = useState<string | null>(null)
+  const [accountAddress, setAccountAddress] = useState<string>('')
   const [accountId, setAccountId] = useState<AccountId | null>(null)
-  const reduxDispatch = useDispatch()
+  const readyToFetchLpData = isPortfolioLoaded && wallet && supportsETH(wallet)
+  const readyToFetchFarmingData = readyToFetchLpData && foxEthLpMarketData.price !== '0'
+
+  useGetFoxEthLpMetricsQuery(undefined, {
+    skip: !readyToFetchLpData,
+  })
+  const { refetch: refetchFoxEthLpAccountData } = useGetFoxEthLpAccountDataQuery(
+    { accountAddress },
+    {
+      skip: !(
+        readyToFetchLpData &&
+        accountAddress &&
+        foxLpEnabled &&
+        foxEthLpMarketData.price !== '0'
+      ),
+    },
+  )
 
   useEffect(() => {
     if (wallet && adapter) {
@@ -75,6 +104,34 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     const accountAddress = fromAccountId(accountId).account
     setAccountAddress(accountAddress)
   }, [accountId])
+
+  // this hook handles the data we need from the farming opportunities
+  useEffect(() => {
+    if (!readyToFetchFarmingData) return
+    // getting fox-eth lp token data
+    const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
+    ;(async () => {
+      // getting fox-eth lp token balances
+      farmingOpportunities.forEach(opportunity => {
+        const { contractAddress } = opportunity
+        // getting fox farm contract data
+        dispatch(
+          getFoxFarmingContractMetrics.initiate({
+            contractAddress,
+          }),
+        )
+        // getting fox farm contract balances
+        // TODO: remove this condition when flags were removed
+        if (foxFarmingEnabled && accountAddress)
+          dispatch(
+            getFoxFarmingContractAccountData.initiate({
+              contractAddress,
+              accountAddress,
+            }),
+          )
+      })
+    })()
+  }, [accountAddress, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
 
   // watch tx to reload opportunities if it got confirmed
   const accountSpecifier = useAppSelector(state =>
@@ -96,16 +153,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (accountAddress && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         moduleLogger.info('Refetching fox lp/farming opportunities')
-        reduxDispatch(
-          foxEthApi.endpoints.getFoxEthLpWalletData.initiate(
-            { ethWalletAddress: accountAddress },
-            { forceRefetch: true },
-          ),
-        )
+        refetchFoxEthLpAccountData()
         if (ongoingTxContractAddress)
-          reduxDispatch(
-            foxEthApi.endpoints.getFoxFarmingContractWalletData.initiate(
-              { ethWalletAddress: accountAddress, contractAddress: ongoingTxContractAddress },
+          dispatch(
+            foxEthApi.endpoints.getFoxFarmingContractAccountData.initiate(
+              { accountAddress, contractAddress: ongoingTxContractAddress },
               { forceRefetch: true },
             ),
           )
@@ -113,7 +165,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         setOngoingTxContractAddress(null)
       }
     }
-  }, [accountAddress, ongoingTxContractAddress, reduxDispatch, transaction])
+  }, [accountAddress, ongoingTxContractAddress, dispatch, transaction, refetchFoxEthLpAccountData])
 
   const value = useMemo(
     () => ({
@@ -125,11 +177,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     [accountId, setAccountId, accountAddress, handleOngoingTxIdChange],
   )
 
-  return (
-    <FoxLpAndFarmingOpportunitiesContext.Provider value={value}>
-      {children}
-    </FoxLpAndFarmingOpportunitiesContext.Provider>
-  )
+  return <FoxEthContext.Provider value={value}>{children}</FoxEthContext.Provider>
 }
 
-export const useFoxEth = () => useContext(FoxLpAndFarmingOpportunitiesContext)
+export const useFoxEth = () => useContext(FoxEthContext)

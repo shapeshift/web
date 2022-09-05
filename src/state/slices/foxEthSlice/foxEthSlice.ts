@@ -1,4 +1,3 @@
-import { Contract } from '@ethersproject/contracts'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
@@ -24,8 +23,9 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
+import { getOrCreateContract } from './contractManager'
 import {
-  farmOpportunities,
+  farmingOpportunities,
   FoxEthLpEarnOpportunityType,
   FoxFarmingEarnOpportunityType,
   lpOpportunity,
@@ -33,12 +33,12 @@ import {
 import { fetchPairData } from './utils'
 
 type FoxEthState = {
-  farmOpportunities: FoxFarmingEarnOpportunityType[]
+  farmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpOpportunity: FoxEthLpEarnOpportunityType
 }
 
 const initialState: FoxEthState = {
-  farmOpportunities,
+  farmingOpportunities,
   lpOpportunity,
 }
 
@@ -59,56 +59,56 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
-      const stateOpportunityIndex = state.farmOpportunities.findIndex(
+      const stateOpportunityIndex = state.farmingOpportunities.findIndex(
         opportunity => opportunity.contractAddress === action.payload.contractAddress,
       )
-      state.farmOpportunities[stateOpportunityIndex] = {
-        ...state.farmOpportunities[stateOpportunityIndex],
+      state.farmingOpportunities[stateOpportunityIndex] = {
+        ...state.farmingOpportunities[stateOpportunityIndex],
         ...action.payload,
       }
     },
   },
 })
 
-type GetFoxEthLpGeneralDataReturn = {
+type GetFoxEthLpMetricsReturn = {
   tvl: string
   apy: string
 }
-type GetFoxEthLpWalletDataReturn = {
+type GetFoxEthLpAccountDataReturn = {
   underlyingFoxAmount: string
   underlyingEthAmount: string
   cryptoAmount: string
   fiatAmount: string
 }
 
-type GetFoxFarmingContractGeneralDataReturn = {
+type GetFoxFarmingContractMetricsReturn = {
   expired: boolean
-} & GetFoxEthLpGeneralDataReturn
+} & GetFoxEthLpMetricsReturn
 
-type GetFoxFarmingContractGeneralDataArgs = {
+type GetFoxFarmingContractMetricsArgs = {
   contractAddress: string
 }
 
-type GetFoxFarmingContractWalletDataReturn = {
+type GetFoxFarmingContractAccountDataReturn = {
   cryptoAmount: string
   fiatAmount: string
   unclaimedRewards: string
 }
 
-type GetFoxFarmingContractWalletDataArgs = {
+type GetFoxFarmingContractAccountDataArgs = {
   contractAddress: string
-  ethWalletAddress: string
+  accountAddress: string
 }
 
-type GetFoxEthLpWalletDataArgs = {
-  ethWalletAddress: string
+type GetFoxEthLpAccountDataArgs = {
+  accountAddress: string
 }
 
 export const foxEthApi = createApi({
   reducerPath: 'foxEthApi',
   ...BASE_RTK_CREATE_API_CONFIG,
   endpoints: build => ({
-    getFoxEthLpGeneralData: build.query<GetFoxEthLpGeneralDataReturn, void>({
+    getFoxEthLpMetrics: build.query<GetFoxEthLpMetricsReturn, void>({
       queryFn: async (_args, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
@@ -117,10 +117,9 @@ export const foxEthApi = createApi({
           const lpAssetPrecision = state.assets.byId[foxEthLpAssetId].precision
           const ethPrice = state.marketData.crypto.byId[ethAssetId].price
           const ethersProvider = getEthersProvider()
-          const uniV2LPContract = new Contract(
+          const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
-            ethersProvider,
           )
           const pair = await fetchPairData(
             new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
@@ -167,18 +166,18 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
         } catch (err) {
-          moduleLogger.error(err, 'getFoxEthLpGeneralData')
+          moduleLogger.error(err, 'getFoxEthLpMetrics')
           return {
             error: {
-              error: 'LP general data is not loaded',
+              error: 'LP metrics is not loaded',
               status: 'CUSTOM_ERROR',
             },
           }
         }
       },
     }),
-    getFoxEthLpWalletData: build.query<GetFoxEthLpWalletDataReturn, GetFoxEthLpWalletDataArgs>({
-      queryFn: async ({ ethWalletAddress }, injectedStore) => {
+    getFoxEthLpAccountData: build.query<GetFoxEthLpAccountDataReturn, GetFoxEthLpAccountDataArgs>({
+      queryFn: async ({ accountAddress }, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency\
@@ -186,13 +185,11 @@ export const foxEthApi = createApi({
           const foxPrecision = state.assets.byId[foxAssetId].precision
           const lpAssetPrecision = state.assets.byId[foxEthLpAssetId].precision
           const lpTokenPrice = state.marketData.crypto.byId[foxEthLpAssetId].price
-          const ethersProvider = getEthersProvider()
-          const uniV2LPContract = new Contract(
+          const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
-            ethersProvider,
           )
-          const balance = await uniV2LPContract.balanceOf(ethWalletAddress)
+          const balance = await uniV2LPContract.balanceOf(accountAddress)
           const cryptoAmount = bnOrZero(balance.toString()).div(bn(10).pow(lpAssetPrecision))
           const fiatAmount = cryptoAmount.times(lpTokenPrice).toFixed(2)
           const totalSupply = await uniV2LPContract.totalSupply()
@@ -219,7 +216,7 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
         } catch (err) {
-          moduleLogger.error(err, 'getFoxEthLpWalletData')
+          moduleLogger.error(err, 'getFoxEthLpAccountData')
           return {
             error: {
               error: 'LP wallet data is not loaded',
@@ -229,9 +226,9 @@ export const foxEthApi = createApi({
         }
       },
     }),
-    getFoxFarmingContractGeneralData: build.query<
-      GetFoxFarmingContractGeneralDataReturn,
-      GetFoxFarmingContractGeneralDataArgs
+    getFoxFarmingContractMetrics: build.query<
+      GetFoxFarmingContractMetricsReturn,
+      GetFoxFarmingContractMetricsArgs
     >({
       queryFn: async ({ contractAddress }, injectedStore) => {
         try {
@@ -243,11 +240,10 @@ export const foxEthApi = createApi({
           const lpTokenPrice = state.marketData.crypto.byId[foxEthLpAssetId].price
 
           const ethersProvider = getEthersProvider()
-          const foxFarmingContract = new Contract(contractAddress, farmAbi, ethersProvider)
-          const uniV2LPContract = new Contract(
+          const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
+          const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
-            ethersProvider,
           )
 
           // tvl
@@ -297,21 +293,21 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }
         } catch (err) {
-          moduleLogger.error(err, 'getFoxFarmingContractGeneralData')
+          moduleLogger.error(err, 'getFoxFarmingContractMetrics')
           return {
             error: {
-              error: 'Fox farming general data is not loaded',
+              error: 'Fox farming metrics is not loaded',
               status: 'CUSTOM_ERROR',
             },
           }
         }
       },
     }),
-    getFoxFarmingContractWalletData: build.query<
-      GetFoxFarmingContractWalletDataReturn,
-      GetFoxFarmingContractWalletDataArgs
+    getFoxFarmingContractAccountData: build.query<
+      GetFoxFarmingContractAccountDataReturn,
+      GetFoxFarmingContractAccountDataArgs
     >({
-      queryFn: async ({ contractAddress, ethWalletAddress }, injectedStore) => {
+      queryFn: async ({ contractAddress, accountAddress }, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
@@ -319,11 +315,10 @@ export const foxEthApi = createApi({
           const foxPrecision = state.assets.byId[foxAssetId].precision
           const lpTokenPrice = state.marketData.crypto.byId[foxEthLpAssetId].price
 
-          const ethersProvider = getEthersProvider()
-          const foxFarmingContract = new Contract(contractAddress, farmAbi, ethersProvider)
+          const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
 
-          const stakedBalance = await foxFarmingContract.balanceOf(ethWalletAddress)
-          const unclaimedRewards = await foxFarmingContract.earned(ethWalletAddress)
+          const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
+          const unclaimedRewards = await foxFarmingContract.earned(accountAddress)
           const balance = bnOrZero(stakedBalance.toString())
             .div(bn(10).pow(lpAssetPrecision))
             .toString()
@@ -340,7 +335,7 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }
         } catch (err) {
-          moduleLogger.error(err, 'getFoxFarmingContractWalletData')
+          moduleLogger.error(err, 'getFoxFarmingContractAccountData')
           return {
             error: {
               error: 'Fox farming wallet data is not loaded',
@@ -353,5 +348,9 @@ export const foxEthApi = createApi({
   }),
 })
 
-export const { useGetFoxEthLpGeneralDataQuery, useGetFoxFarmingContractGeneralDataQuery } =
-  foxEthApi
+export const {
+  useGetFoxEthLpMetricsQuery,
+  useGetFoxEthLpAccountDataQuery,
+  useGetFoxFarmingContractMetricsQuery,
+  useGetFoxFarmingContractAccountDataQuery,
+} = foxEthApi

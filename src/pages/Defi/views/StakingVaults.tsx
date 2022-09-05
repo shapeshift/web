@@ -8,7 +8,7 @@ import {
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
@@ -24,9 +24,10 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxAssetId } from 'state/slices/foxEthSlice/constants'
 import {
-  useGetFoxEthLpGeneralDataQuery,
-  useGetFoxFarmingContractGeneralDataQuery,
+  useGetFoxEthLpMetricsQuery,
+  useGetFoxFarmingContractMetricsQuery,
 } from 'state/slices/foxEthSlice/foxEthSlice'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -45,13 +46,11 @@ const FoxFarmCTA = () => {
   const history = useHistory()
   const location = useLocation()
   const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
-    useGetFoxFarmingContractGeneralDataQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
-  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpGeneralDataQuery()
+    useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
+  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpMetricsQuery()
   const featureFlags = useAppSelector(selectFeatureFlags)
-  const ethAsset = useAppSelector(state => selectAssetById(state, 'eip155:1/slip44:60'))
-  const foxAsset = useAppSelector(state =>
-    selectAssetById(state, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'),
-  )
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const { icon: ethAssetIcon } = ethAsset
   const { icon: foxAssetIcon } = foxAsset
   const hoverBg = useColorModeValue('gray.100', 'gray.750')

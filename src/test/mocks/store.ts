@@ -115,7 +115,7 @@ export const mockStore: ReduxState = {
     validatorIds: [],
   },
   foxEth: {
-    farmOpportunities: [],
+    farmingOpportunities: [],
     lpOpportunity: {} as EarnOpportunityType,
   },
 }

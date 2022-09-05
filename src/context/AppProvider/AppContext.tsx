@@ -9,7 +9,6 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import {
-  ChainAdapter,
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
@@ -24,7 +23,6 @@ import {
   supportsEthSwitchChain,
   supportsOsmosis,
 } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
@@ -32,7 +30,6 @@ import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -41,9 +38,6 @@ import {
   accountSpecifiers,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
-import { farmOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   marketApi,
   useFindAllQuery,
@@ -58,7 +52,6 @@ import {
   selectAssetIds,
   selectAssets,
   selectIsPortfolioLoaded,
-  selectMarketDataById,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
@@ -105,9 +98,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
-  const foxLpEnabled = useFeatureFlag('FoxLP')
-  const foxFarmingEnabled = useFeatureFlag('FoxFarming')
-  const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -374,48 +364,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!routeAssetId) return
     dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
-
-  useEffect(() => {
-    if (!isPortfolioLoaded || !wallet || !supportsETH(wallet)) return
-    // getting fox-eth lp token data
-    const {
-      getFoxEthLpGeneralData,
-      getFoxEthLpWalletData,
-      getFoxFarmingContractGeneralData,
-      getFoxFarmingContractWalletData,
-    } = foxEthApi.endpoints
-    dispatch(getFoxEthLpGeneralData.initiate())
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(
-      ethChainId,
-    ) as ChainAdapter<KnownChainIds.EthereumMainnet>
-    if (foxEthLpMarketData.price === '0') return
-    ;(async () => {
-      const ethWalletAddress = await adapter.getAddress({ wallet })
-      // getting fox-eth lp token balances
-      // TODO: remove this condition when flags were removed
-      if (foxLpEnabled || foxFarmingEnabled)
-        dispatch(getFoxEthLpWalletData.initiate({ ethWalletAddress }))
-      farmOpportunities.forEach(opportunity => {
-        const { contractAddress } = opportunity
-        // getting fox farm contract data
-        dispatch(
-          getFoxFarmingContractGeneralData.initiate({
-            contractAddress,
-          }),
-        )
-        // getting fox farm contract balances
-        // TODO: remove this condition when flags were removed
-        if (foxFarmingEnabled)
-          dispatch(
-            getFoxFarmingContractWalletData.initiate({
-              contractAddress,
-              ethWalletAddress,
-            }),
-          )
-      })
-    })()
-  }, [dispatch, foxEthLpMarketData, foxFarmingEnabled, foxLpEnabled, isPortfolioLoaded, wallet])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

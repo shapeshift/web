@@ -85,7 +85,7 @@ export const FoxFarmingOverview = () => {
   return (
     <Overview
       {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
-      asset={rewardAsset}
+      asset={stakingAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

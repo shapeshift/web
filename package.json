@@ -2,6 +2,10 @@
   "name": "@shapeshiftoss/web",
   "version": "1.27.0",
   "private": true,
+  "engines": {
+    "node": ">=16.0.0",
+    "yarn": "^3.0.0"
+  },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
     "link-packages": "./scripts/link-packages.sh",
@@ -234,7 +238,6 @@
     "msw": "^0.36.5",
     "msw-storybook-addon": "^1.6.0",
     "multiformats": "^9.6.3",
-    "patch-package": "^6.4.7",
     "path-browserify": "^1.0.1",
     "pify": "^5.0.0",
     "postinstall-postinstall": "^2.1.0",
@@ -251,7 +254,9 @@
     "val-loader": "^4.0.0",
     "web3-utils": "^1.5.2",
     "webpack": "5.72.1",
-    "webpack-subresource-integrity": "^5.0.0",
-    "yarn-minify": "^1.0.1"
+    "webpack-subresource-integrity": "^5.0.0"
+  },
+  "resolutions": {
+    "friendly-challenge@0.9.2": "patch:friendly-challenge@npm:0.9.2#.yarn/patches/friendly-challenge-npm-0.9.2-db0cad46d3.patch"
   }
 }

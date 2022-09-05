@@ -1,7 +1,7 @@
-diff --git a/node_modules/friendly-challenge/index.js b/node_modules/friendly-challenge/index.js
-index 9152aa1..7b1dd50 100644
---- a/node_modules/friendly-challenge/index.js
-+++ b/node_modules/friendly-challenge/index.js
+diff --git a/index.js b/index.js
+index 9152aa10be04ad1a403f7d5dddbaf6a12d74d78f..deed51fe71ecc1cbe6b7e0bc68b7f3e4a1dfeab8 100644
+--- a/index.js
++++ b/index.js
 @@ -2,6 +2,8 @@
  // (https://github.com/niklasvh/base64-arraybuffer, MIT licensed)
  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

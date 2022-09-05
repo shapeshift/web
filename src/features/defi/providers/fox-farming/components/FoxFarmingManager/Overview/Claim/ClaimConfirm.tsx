@@ -9,7 +9,6 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +20,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -47,7 +45,6 @@ export const ClaimConfirm = ({
   chainId,
   onBack,
 }: ClaimConfirmProps) => {
-  const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
@@ -55,9 +52,7 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
-  const { onOngoingTxIdChange } = useFoxEth()
-
-  const chainAdapterManager = getChainAdapterManager()
+  const { accountAddress: userAddress, onOngoingTxIdChange } = useFoxEth()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -98,20 +93,6 @@ export const ClaimConfirm = ({
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && chainAdapter)) return
-        const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
-        setUserAddress(userAddress)
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingClaim error')
-      }
-    })()
-  }, [chainAdapterManager, walletState.wallet])
 
   useEffect(() => {
     ;(async () => {
@@ -172,7 +153,7 @@ export const ClaimConfirm = ({
                   color='blue.500'
                   href={`${asset?.explorerAddressLink}${userAddress}`}
                 >
-                  <MiddleEllipsis value={userAddress} />
+                  <MiddleEllipsis value={userAddress ?? ''} />
                 </Link>
               </Skeleton>
             </Row.Value>

@@ -9,7 +9,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
-type DefiButtonProps = {
+export type DefiButtonProps = {
   label: string
   icon: JSX.Element
   action: DefiAction

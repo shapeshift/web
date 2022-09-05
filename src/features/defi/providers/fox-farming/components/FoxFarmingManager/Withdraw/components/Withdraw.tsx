@@ -16,7 +16,7 @@ import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -36,10 +36,11 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
-  const totalFiatBalance = opportunity?.fiatAmount
+  const totalFiatBalance = bnOrZero(opportunity?.fiatAmount)
 
   if (!state || !dispatch || !opportunity) return null
 
@@ -100,7 +101,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(totalFiatBalance).times(percent).toFixed(2)
+    const fiatAmount = bnOrZero(totalFiatBalance).times(percent).toString()
     setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     // exit if max button was clicked
@@ -120,7 +121,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(cryptoAmountAvailable)
     const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -128,7 +129,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const validateFiatAmount = (value: string) => {
     const _value = bnOrZero(value)
     const fiat = bnOrZero(totalFiatBalance)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(_value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -138,24 +139,17 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       <ReusableWithdraw
         asset={asset}
         icons={opportunity?.icons}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailable={cryptoAmountAvailable.toString()}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },
         }}
-        fiatAmountAvailable={totalFiatBalance ?? '0'}
+        fiatAmountAvailable={totalFiatBalance?.toString() ?? '0'}
         fiatInputValidation={{
           required: true,
           validate: { validateFiatAmount },
         }}
-        marketData={{
-          // The LP token doesnt have market data.
-          // We're making our own market data object for the withdraw view
-          price: bnOrZero(totalFiatBalance).div(cryptoAmountAvailable).toFixed(2),
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-        }}
+        marketData={marketData}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !totalFiatBalance}

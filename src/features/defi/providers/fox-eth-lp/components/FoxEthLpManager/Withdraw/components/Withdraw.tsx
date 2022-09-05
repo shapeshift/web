@@ -54,10 +54,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
-  const totalFiatBalance = bnOrZero(opportunity.underlyingFoxAmount)
-    .times(foxMarketData.price)
-    .plus(bnOrZero(opportunity.underlyingEthAmount).times(ethMarketData.price))
-    .toFixed(2)
+  const fiatAmountAvailable = bnOrZero(opportunity.fiatAmount).toString()
 
   // user info
   const balance = useAppSelector(state =>
@@ -124,7 +121,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(totalFiatBalance).times(percent).toFixed(2)
+    const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
     setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     if (underlyingFoxAmount && underlyingEthAmount) {
@@ -135,7 +132,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     const percentage = bnOrZero(value).div(
-      bnOrZero(isFiat ? totalFiatBalance : cryptoAmountAvailable),
+      bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailable),
     )
     if (underlyingFoxAmount && underlyingEthAmount) {
       setFoxAmount(percentage.times(underlyingFoxAmount).toFixed(8))
@@ -153,7 +150,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const validateFiatAmount = (value: string) => {
     const _value = bnOrZero(value)
-    const fiat = bnOrZero(totalFiatBalance)
+    const fiat = bnOrZero(fiatAmountAvailable)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
@@ -169,7 +166,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           required: true,
           validate: { validateCryptoAmount },
         }}
-        fiatAmountAvailable={totalFiatBalance}
+        fiatAmountAvailable={fiatAmountAvailable}
         fiatInputValidation={{
           required: true,
           validate: { validateFiatAmount },

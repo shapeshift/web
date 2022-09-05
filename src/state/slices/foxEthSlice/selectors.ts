@@ -47,7 +47,8 @@ export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
     const lpAsset = assetsById[foxEthLpAssetId]
     return toBaseUnit(
       bnOrZero(lpOpportunity.cryptoAmount).plus(bnOrZero(farmContractsBalance)),
-      lpAsset.precision,
+      // src/state/reselect-tools.test.ts fails saying lpAsset is undefined
+      lpAsset?.precision ?? 0,
     )
   },
 )

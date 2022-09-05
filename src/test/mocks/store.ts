@@ -66,6 +66,7 @@ export const mockStore: ReduxState = {
       RainbowCharts: false,
       MultiAccounts: false,
       SwapperV2: false,
+      WalletConnectToDapps: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -1,16 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  avalancheAssetId,
-  CHAIN_NAMESPACE,
-  ChainId,
-  cosmosAssetId,
-  ethAssetId,
-  fromAssetId,
-  osmosisAssetId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
-import { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   SwapError,
@@ -33,7 +24,6 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -92,8 +82,8 @@ export const useSwapper = () => {
   ] = useWatch({
     name: [
       'quote',
-      'sellAsset',
-      'buyAsset',
+      'sellTradeAsset',
+      'buyTradeAsset',
       'trade',
       'sellAssetAccount',
       'isExactAllowance',
@@ -178,8 +168,6 @@ export const useSwapper = () => {
     state: { wallet },
   } = useWallet()
 
-  const osmosisEnabled = useFeatureFlag('Osmosis')
-
   const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
     const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
     return assets.filter(asset => assetIdMap[asset.assetId])
@@ -209,24 +197,6 @@ export const useSwapper = () => {
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
     [swapperManager, sellTradeAsset],
-  )
-
-  const getDefaultPair = useCallback(
-    (buyAssetChainId: ChainId | undefined) => {
-      const ethFoxPair = [ethAssetId, 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
-      switch (buyAssetChainId) {
-        case KnownChainIds.AvalancheMainnet:
-          return [avalancheAssetId, 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab']
-        case KnownChainIds.CosmosMainnet:
-          return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
-        case KnownChainIds.OsmosisMainnet:
-          return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
-        case KnownChainIds.EthereumMainnet:
-        default:
-          return ethFoxPair
-      }
-    },
-    [osmosisEnabled],
   )
 
   const sellAssetBalance = useAppSelector(state =>
@@ -260,7 +230,7 @@ export const useSwapper = () => {
       sellAsset.precision,
     )
 
-    setValue('sellAsset.amount', maxAmount)
+    setValue('sellTradeAsset.amount', maxAmount)
     return maxAmount
   }
 
@@ -322,9 +292,17 @@ export const useSwapper = () => {
           sendMax: false,
           receiveAddress,
         })
-      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+        const sellAssetChainAdapter = getChainAdapterManager().get(
+          sellAsset.chainId,
+        ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+        const { xpub } = await sellAssetChainAdapter.getPublicKey(
+          wallet,
+          utxoParams.bip44Params,
+          accountType,
+        )
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
           sellAmount: amount,
@@ -336,6 +314,7 @@ export const useSwapper = () => {
           receiveAddress,
           bip44Params: utxoParams.bip44Params,
           accountType,
+          xpub,
         })
       }
       throw new Error(`unsupported chain id ${sellAsset.chainId}`)
@@ -419,7 +398,7 @@ export const useSwapper = () => {
         buyAssetFiatRate,
       }: DebouncedQuoteInput) => {
         try {
-          const { sellAmount, buyAmount, fiatSellAmount } = await calculateAmounts({
+          const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount } = calculateAmounts({
             amount,
             buyAsset,
             sellAsset,
@@ -449,26 +428,33 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
-                sellAmount,
+                sellAmount: cryptoSellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
-                wallet,
                 receiveAddress,
               })
-            } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+            } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
               const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+              const sellAssetChainAdapter = getChainAdapterManager().get(
+                sellAsset.chainId,
+              ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+              const { xpub } = await sellAssetChainAdapter.getPublicKey(
+                wallet,
+                utxoParams.bip44Params,
+                accountType,
+              )
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
-                sellAmount,
+                sellAmount: cryptoSellAmount,
                 sendMax: false,
                 sellAssetAccountNumber: 0,
-                wallet,
                 bip44Params: utxoParams.bip44Params,
                 accountType,
                 receiveAddress,
+                xpub,
               })
             }
             throw new Error(`unsupported chain id ${sellAsset.chainId}`)
@@ -486,8 +472,8 @@ export const useSwapper = () => {
 
           // Update trade input form fields to new calculated amount
           setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-          setValue('buyAsset.amount', fromBaseUnit(buyAmount, buyAsset.precision)) // Buy asset input field amount
-          setValue('sellAsset.amount', fromBaseUnit(sellAmount, sellAsset.precision)) // Sell asset input field amount
+          setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision)) // Buy asset input field amount
+          setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision)) // Sell asset input field amount
         } catch (e) {
           if (
             e instanceof SwapError &&
@@ -620,11 +606,11 @@ export const useSwapper = () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         const fees = getEvmFees()
         setValue('fees', fees)
         break
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
           tradeFee: trade.feeData.tradeFee,
@@ -633,7 +619,7 @@ export const useSwapper = () => {
         setValue('fees', fees)
         break
       }
-      case CHAIN_NAMESPACE.Bitcoin:
+      case CHAIN_NAMESPACE.Utxo:
         {
           const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
@@ -677,8 +663,8 @@ export const useSwapper = () => {
   }
 
   const reset = () => {
-    setValue('buyAsset.amount', '')
-    setValue('sellAsset.amount', '')
+    setValue('buyTradeAsset.amount', '')
+    setValue('sellTradeAsset.amount', '')
     setValue('fiatSellAmount', '')
   }
 
@@ -689,7 +675,6 @@ export const useSwapper = () => {
     executeQuote,
     getSupportedBuyAssetsFromSellAsset,
     getSupportedSellableAssets,
-    getDefaultPair,
     checkApprovalNeeded,
     approve,
     getSendMaxAmount,

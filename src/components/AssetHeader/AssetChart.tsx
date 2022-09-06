@@ -189,6 +189,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             timeframe={timeframe}
             percentChange={percentChange}
             setPercentChange={setPercentChange}
+            isRainbowChart={false}
           />
         </Box>
       ) : (

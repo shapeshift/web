@@ -15,10 +15,15 @@ export type FeatureFlags = {
   Thor: boolean
   CowSwap: boolean
   Pendo: boolean
+  IdleFinance: boolean
   Axelar: boolean
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
   Yat: boolean
+  RainbowCharts: boolean
+  MultiAccounts: boolean
+  SwapperV2: boolean
+  WalletConnectToDapps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -45,10 +50,15 @@ const initialState: Preferences = {
     Thor: getConfig().REACT_APP_FEATURE_THOR,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
+    IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
+    RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
+    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
+    SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
+    WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

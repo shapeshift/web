@@ -18,7 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
@@ -28,7 +28,11 @@ export const FoxFarmingOverview = () => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const { foxFarmingOpportunities, farmingLoading: loading } = useFoxEth()
+  const {
+    setAccountId: handleAccountChange,
+    foxFarmingOpportunities,
+    farmingLoading: loading,
+  } = useFoxEth()
   const opportunity = useMemo(
     () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
     [contractAddress, foxFarmingOpportunities],
@@ -48,6 +52,8 @@ export const FoxFarmingOverview = () => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   if (loading || !opportunity || !opportunity.apy) {
     return (
@@ -80,6 +86,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
       asset={rewardAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

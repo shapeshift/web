@@ -1,6 +1,8 @@
 // The service-worker doesn't load when use `yarn dev`. You need to do a
 // `yarn build && http-server build` and serve up the compiled output
 
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['serviceWorkerRegistration'] })
 type ServiceWorkerCallbacks = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void
   onUpdate?: (registration: ServiceWorkerRegistration) => void
@@ -29,18 +31,18 @@ async function registerValidSW(swUrl: string, callbacks?: ServiceWorkerCallbacks
             // At this point, the updated precached content has been fetched,
             // but the previous service worker will still serve the older
             // content until all client tabs are closed.
-            console.info('ServiceWorker:installed:onUpdate')
+            moduleLogger.info('ServiceWorker:installed:onUpdate')
             callbacks?.onUpdate?.(registration)
           } else {
             // At this point, everything has been precached.
-            console.info('ServiceWorker:installed:onSuccess')
+            moduleLogger.info('ServiceWorker:installed:onSuccess')
             callbacks?.onSuccess?.(registration)
           }
         }
       }
     }
   } catch (e) {
-    console.error('ServiceWorker:registerValidSW:Error', e)
+    moduleLogger.error(e, 'ServiceWorker:registerValidSW:Error')
   }
 }
 
@@ -60,7 +62,7 @@ async function checkValidServiceWorker(swUrl: string, callbacks?: ServiceWorkerC
       await registerValidSW(swUrl, callbacks)
     }
   } catch (e) {
-    console.warn('ServiceWorker:checkValidServiceWorker - No internet connection found.')
+    moduleLogger.warn('ServiceWorker:checkValidServiceWorker - No internet connection found.')
   }
 }
 
@@ -75,7 +77,7 @@ export async function unregister() {
       const reg = await navigator.serviceWorker.ready
       await reg.unregister()
     } catch (e) {
-      console.error('ServiceWorker:unregister:Error', e)
+      moduleLogger.error(e, 'ServiceWorker:unregister:Error')
     }
   }
 }
@@ -103,7 +105,7 @@ export function register(callbacks?: ServiceWorkerCallbacks) {
 
         // Add some additional logging to localhost, pointing developers to the
         // service worker/PWA documentation.
-        navigator.serviceWorker.ready.then(() => console.info('ServiceWorker:ready'))
+        navigator.serviceWorker.ready.then(() => moduleLogger.info('ServiceWorker:ready'))
       } else {
         // Is not localhost. Just register service worker
         void registerValidSW(swUrl, callbacks)

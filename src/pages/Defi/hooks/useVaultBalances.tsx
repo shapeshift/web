@@ -1,12 +1,17 @@
 import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { Account } from '@shapeshiftoss/chain-adapters'
+import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
+import { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
+import { SerializableOpportunity as YearnSerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -14,16 +19,33 @@ import {
   selectPortfolioAssetBalances,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
+const moduleLogger = logger.child({ namespace: ['useVaultBalances'] })
 
-export type EarnVault = Partial<Account<ChainId>> &
-  SerializableOpportunity & {
+export type MergedSerializableOpportunity = (
+  | IdleSerializableOpportunity
+  | YearnSerializableOpportunity
+) & {
+  provider: string
+}
+
+export type YearnEarnVault = Partial<Account<ChainId>> &
+  YearnSerializableOpportunity & {
+    provider: string
+    vaultAssetId: AssetId
+    tokenAssetId: AssetId
+    pricePerShare: BigNumber
+  }
+
+export type IdleEarnVault = Partial<Account<ChainId>> &
+  IdleSerializableOpportunity & {
+    provider: string
     vaultAssetId: AssetId
     tokenAssetId: AssetId
     pricePerShare: BigNumber
   }
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
-  const acc: Record<string, EarnVault> = {}
+  const acc: Record<string, YearnEarnVault> = {}
   if (!yearn) return acc
   const opportunities = await yearn.findAll()
   for (let index = 0; index < opportunities.length; index++) {
@@ -35,16 +57,48 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
     if (balance) {
       acc[vault.id] = {
         ...vault,
-        chainId: fromAssetId(vault.positionAsset.assetId).chainId,
         balance,
         vaultAssetId,
         tokenAssetId,
+        provider: DefiProvider.Yearn,
+        chainId: fromAssetId(vault.positionAsset.assetId).chainId,
         pricePerShare: vault?.positionAsset.underlyingPerPosition,
       }
     }
   }
   return acc
 }
+
+async function getIdleVaults(balances: PortfolioBalancesById, idleInvestor: IdleInvestor | null) {
+  if (!idleInvestor) return {}
+  const opportunities = await idleInvestor.findAll()
+
+  const acc: Record<string, IdleEarnVault> = opportunities.reduce(
+    (vaults: Record<string, IdleEarnVault>, vault) => {
+      const vaultAssetId = vault.positionAsset.assetId
+      const tokenAssetId = vault.underlyingAsset.assetId
+      const balance = balances[vaultAssetId]
+
+      if (balance) {
+        vaults[vault.id] = {
+          ...vault,
+          balance,
+          vaultAssetId,
+          tokenAssetId,
+          provider: DefiProvider.Idle,
+          chainId: fromAssetId(vault.positionAsset.assetId).chainId,
+          pricePerShare: vault?.positionAsset.underlyingPerPosition,
+        }
+      }
+      return vaults
+    },
+    {},
+  )
+
+  return acc
+}
+
+export type EarnVault = YearnEarnVault | IdleEarnVault
 
 export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
@@ -69,25 +123,32 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
+  const { idleInvestor, loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
+
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!wallet || yearnLoading) return
+    if (!wallet || yearnLoading || idleLoading) return
     ;(async () => {
       setLoading(true)
       try {
-        const yearnVaults = await getYearnVaults(balances, yearn)
-        if (!yearnVaults) return
-        setVaults(yearnVaults)
+        const [idleVaults, yearnVaults] = await Promise.all([
+          getIdleVaults(balances, idleInvestor),
+          getYearnVaults(balances, yearn),
+        ])
+
+        const allVaults = { ...idleVaults, ...yearnVaults }
+
+        setVaults(allVaults)
       } catch (error) {
-        console.error('error', error)
+        moduleLogger.error(error, 'error')
       } finally {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idleInvestor])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

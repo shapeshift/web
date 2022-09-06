@@ -41,7 +41,7 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-On Linux and MacOS it works out of the box following the steps.<br/>
+If you are using Linux and MacOS it works out of the box following the steps.<br/>
 ⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
 
 - Clone the repo
@@ -119,7 +119,7 @@ Runs the component documentation.<br /> Open
 
 If you're developing locally in this `web` repository, and need to make changes affecting packages in `lib`
 or `unchained` (backend), use the following steps to link packages locally for developing.
-If your changes only touch `web` these steps are not necessary.
+If your changes only touch `web` these steps are unnecessary.
 
 **Initial, one-off setup:**
 

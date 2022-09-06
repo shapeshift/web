@@ -14,7 +14,7 @@ import { useAppSelector } from 'state/store'
 
 export const SelectAccount = ({ history }: RouteComponentProps) => {
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const assetId = getValues('sellAsset')?.asset?.assetId
+  const assetId = getValues('sellTradeAsset')?.asset?.assetId
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )

@@ -66,7 +66,8 @@
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
-    "loadingText": "Loading..."
+    "loadingText": "Loading...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -86,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Rainbow",
+      "totalChart": "💰 Total",
       "addAsset": "Add Asset",
       "yourAssets": "Your Assets",
       "asset": "Asset",
@@ -319,6 +322,12 @@
           "rewardsInfo": "Rewards you'll receive"
         }
       },
+      "claim": {
+        "info": {
+          "title": "Claim Info",
+          "description": "Withdraw the accrued farmed tokens"
+        }
+      },
       "approve": {
         "title": "Approve"
       },
@@ -357,8 +366,8 @@
     "explore": "Explore"
   },
   "transactionRow": {
-    "send": "Sent %{symbol}",
-    "receive": "Received %{symbol}",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -430,6 +439,7 @@
     "noSupportedAssets": "No supported assets in portfolio."
   },
   "trade": {
+    "trade": "Trade",
     "allowance": "Allowance",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Searching for best rate...",
@@ -446,10 +456,14 @@
     "needPermission": "needs your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
+    "receiveInclFee": "Receive (incl. fees)",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "unlimited": "Unlimited",
     "exact": "Exact",
+    "expectedAmount": "Expected Amount",
+    "beforeFees": "Before Fees",
+    "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
@@ -676,6 +690,9 @@
         "failed": "There was an issue with your deposit."
       }
     },
+    "claim": {
+      "claimFrom": "Claim From %{opportunity}"
+    },
     "stake": {
       "amountToStake": "Amount To Stake",
       "stakeYour": "Stake your %{opportunity}",
@@ -740,6 +757,7 @@
       "amountToDeposit": "Amount To Deposit",
       "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
+      "amountToClaim": "Amount To Claim",
       "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
@@ -804,6 +822,19 @@
         "SGD": "Singapore Dollar",
         "ILS": "Israeli Shekel",
         "IDR": "Indonesian Rupiah"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Your wallet has been imported!",
+        "body": "Welcome to the new ShapeShift App.",
+        "primaryCta": "Continue"
+      },
+      "notice": {
+        "header": "Login with email is being deprecated. Backup your wallet now!",
+        "body": "If you ever lose access to your device, you need your secret recovery phrase to recover your funds.",
+        "primaryCta": "Get Secret Recovery Phrase",
+        "secondaryCta": "I already know my secret recovery phrase"
       }
     }
   },
@@ -1212,7 +1243,9 @@
   },
   "accounts": {
     "accounts": "Accounts",
-    "selectAccount": "Select an Account"
+    "selectAccount": "Select an Account",
+    "addAccount": "Add Account",
+    "accountNumber": "Account #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1320,6 +1353,14 @@
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Get a Yat",
+        "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
   }

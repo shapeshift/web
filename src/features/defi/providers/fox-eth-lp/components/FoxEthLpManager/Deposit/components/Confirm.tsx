@@ -37,9 +37,9 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { onOngoingTxIdChange } = useFoxEth()
+  const { accountAddress, onOngoingTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { addLiquidity } = useFoxEthLiquidityPool()
+  const { addLiquidity } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 

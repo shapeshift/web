@@ -1,32 +1,36 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CowTrade, QuoteFeeData, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import { type Asset } from '@shapeshiftoss/asset-service'
+import { type ChainId } from '@shapeshiftoss/caip'
+import {
+  type CowTrade,
+  type QuoteFeeData,
+  type Trade,
+  type TradeQuote,
+} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  FIAT = 'FIAT',
+  BUY_CRYPTO = 'BUY_CRYPTO',
+  BUY_FIAT = 'BUY_FIAT',
+  SELL_CRYPTO = 'SELL_CRYPTO',
+  SELL_FIAT = 'SELL_FIAT',
 }
 
 export type TradeAsset = {
   asset?: Asset
   amount?: string
-}
-
-export type TradeProps = {
-  defaultBuyAssetId: AssetId
+  fiatAmount?: string
 }
 
 export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }
 
 export type TradeState<C extends ChainId> = {
-  sellAsset: TradeAsset | undefined
+  sellTradeAsset: TradeAsset | undefined
   sellAssetAccount: AccountSpecifier | undefined
   selectedAssetAccount: AccountSpecifier | undefined
-  buyAsset: TradeAsset | undefined
+  buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
+  fiatBuyAmount: string | undefined
   sellAssetFiatRate: string
   buyAssetFiatRate: string
   feeAssetFiatRate: string
@@ -35,8 +39,10 @@ export type TradeState<C extends ChainId> = {
   isExactAllowance?: boolean
   quote: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
+  /** @deprecated use native react hook form errors instead */
   quoteError: string | null
   amount: string | null
+  receiveAddress: string | null // TODO: Implement
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

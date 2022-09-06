@@ -77,12 +77,12 @@ export const WalletConnectedMenu = ({
             <ConnectedMenu />
           </SubMenuContainer>
         </Route>
-        {connectedWalletMenuRoutes?.map((route, index) => {
+        {connectedWalletMenuRoutes?.map(route => {
           const Component = route.component
           return !Component ? null : (
             <Route
+              key='walletConnectedMenuRoute'
               exact
-              key={index}
               path={route.path}
               render={routeProps => <Component {...routeProps} />}
             />

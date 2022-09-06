@@ -6,6 +6,7 @@ import {
   ethChainId,
   fromChainId,
   osmosisChainId,
+  toAccountId,
 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
@@ -44,6 +45,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
@@ -57,6 +59,10 @@ import {
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  EMPTY_COSMOS_ADDRESS,
+  EMPTY_OSMOSIS_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -144,7 +150,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       try {
         const acc: AccountSpecifierMap[] = []
-
+        const accMeta: AccountMetadataById = {}
         for (const chainId of supportedChains) {
           const adapter = chainAdapterManager.get(chainId)
           if (!adapter) continue
@@ -152,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const { chainNamespace, chainReference } = fromChainId(chainId)
 
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               if (!supportsBTC(wallet)) continue
 
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -174,11 +180,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!pubkey) continue
 
                 acc.push({ [chainId]: pubkey })
+                const accountId = toAccountId({ chainId, account: pubkey })
+                accMeta[accountId] = { bip44Params, accountType }
               }
               break
             }
 
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
                 if (!supportsETH(wallet)) continue
               }
@@ -186,12 +194,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!supportsEthSwitchChain(wallet)) continue
               }
 
-              const pubkey = await adapter.getAddress({ wallet })
+              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+              const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
+              const accountId = toAccountId({ chainId, account: pubkey.toLowerCase() })
               acc.push({ [chainId]: pubkey.toLowerCase() })
+              accMeta[accountId] = { bip44Params }
               break
             }
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
                 if (!supportsCosmos(wallet)) continue
               }
@@ -199,9 +210,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!supportsOsmosis(wallet)) continue
               }
 
-              const pubkey = await adapter.getAddress({ wallet })
+              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+              const pubkey = await adapter.getAddress({ bip44Params, wallet })
               if (!pubkey) continue
               acc.push({ [chainId]: pubkey })
+              const accountId = toAccountId({ chainId, account: pubkey })
+              accMeta[accountId] = { bip44Params }
               break
             }
             default:
@@ -210,8 +224,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
+        dispatch(portfolio.actions.setAccountMetadata(accMeta))
       } catch (e) {
-        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+        moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
   }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
@@ -246,12 +261,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
     const options = { forceRefetch: true }
 
+    // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
+    // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId
+    // Since the accountSpecifier is an empty address (generated and private keys burned) and isn't actually in state
+    if (wallet && !supportsCosmos(wallet)) {
+      const accountSpecifier = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: cosmosChainId }, options))
+    }
+    if (wallet && !supportsOsmosis(wallet)) {
+      const accountSpecifier = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
+      dispatch(getValidatorData.initiate({ accountSpecifier, chainId: osmosisChainId }, options))
+    }
+
     accountSpecifiersList.forEach(accountSpecifierMap => {
       Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
         switch (chainId) {
           case cosmosChainId:
           case osmosisChainId:
-            const accountSpecifier = `${chainId}:${account}`
+            const accountSpecifier = toAccountId({ chainId, account })
             dispatch(getValidatorData.initiate({ accountSpecifier, chainId }, options))
             break
           case ethChainId:

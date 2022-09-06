@@ -19,6 +19,8 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['ConnectWallet'] })
 
 async function connectCypressWallet(
   keyring: Keyring,
@@ -96,7 +98,7 @@ export const ConnectWallet = () => {
             history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
           }
         })
-        .catch(e => console.error(e))
+        .catch(e => moduleLogger.error(e))
     }
   }, [history, hasWallet, query, state, dispatch, isCypressTest])
   return (

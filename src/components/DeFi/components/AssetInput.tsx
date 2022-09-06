@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
@@ -41,10 +42,11 @@ const CryptoInput = (props: InputProps) => (
 export type AssetInputProps = {
   assetSymbol: string
   assetIcon: string
-  onChange?: (arg0: string, arg1?: boolean) => void
+  onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
   onMaxClick?: (args: number) => void
   isReadOnly?: boolean
+  isSendMaxDisabled?: boolean
   cryptoAmount?: string
   fiatAmount?: string
   showFiatAmount?: boolean
@@ -63,6 +65,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onMaxClick,
   cryptoAmount,
   isReadOnly,
+  isSendMaxDisabled,
   fiatAmount,
   showFiatAmount = '0',
   balance,
@@ -77,7 +80,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
   const amountRef = useRef<string | null>(null)
-  const [isFiat, setIsFiat] = useState<boolean>(false)
+  const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -139,7 +142,13 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
       {showFiatAmount && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
-          <Button onClick={() => setIsFiat(!isFiat)} size='xs' variant='link' colorScheme='blue'>
+          <Button
+            onClick={toggleIsFiat}
+            size='xs'
+            fontWeight='medium'
+            variant='link'
+            color='gray.500'
+          >
             {isFiat ? (
               <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
             ) : (
@@ -160,7 +169,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             />
           )}
           {onMaxClick && (
-            <MaxButtonGroup options={percentOptions} isDisabled={isReadOnly} onClick={onMaxClick} />
+            <MaxButtonGroup
+              options={percentOptions}
+              isDisabled={isReadOnly || isSendMaxDisabled}
+              onClick={onMaxClick}
+            />
           )}
         </Stack>
       )}

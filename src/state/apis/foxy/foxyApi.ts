@@ -61,7 +61,7 @@ export type MergedFoxyOpportunity = FoxyOpportunity & {
 }
 
 const moduleLogger = logger.child({
-  namespace: ['state', 'apis', 'foxy', 'UseFoxyBalances'],
+  namespace: ['state', 'apis', 'foxy', 'foxyApi'],
 })
 
 type MaybeMarketCapData = Record<AssetId, MarketData | undefined>
@@ -229,7 +229,7 @@ export const foxyApi = createApi({
             },
           }
         } catch (error) {
-          console.error('error', error)
+          moduleLogger.error(error, { fn: 'getFoxyBalances' }, 'Error getting foxy balances')
           return {
             error: {
               error: `getFoxyBalances Error`,

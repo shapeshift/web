@@ -107,7 +107,7 @@ export const YearnDeposit: React.FC<{
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: props => <Deposit {...props} onAccountChange={handleAccountChange} />,
+        component: ownProps => <Deposit {...ownProps} onAccountChange={handleAccountChange} />,
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -118,7 +118,7 @@ export const YearnDeposit: React.FC<{
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: props => <Confirm {...props} accountNumber={accountNumber} />,
+        component: ownProps => <Confirm {...ownProps} accountNumber={accountNumber} />,
       },
       [DefiStep.Status]: {
         label: 'Status',

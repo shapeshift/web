@@ -22,6 +22,7 @@
     "withdraw": "Abheben",
     "withdrawal": "Abhebung",
     "claim": "Beanspruchen",
+    "withdrawAndClaim": "Abheben & Beanspruchen",
     "overview": "Übersicht",
     "getStarted": "Loslegen",
     "connectWallet": "verbinde Wallet",
@@ -53,7 +54,7 @@
     "copyFailedDescription": "Bitte manuell kopieren",
     "viewAsset": "Vermögenswerte anzeigen",
     "settings": "Einstellungen",
-    "joinDiscord": "Tritt Discord bei",
+    "joinDiscord": "trete Discord bei",
     "legalDated": "Stand: Januar 2022",
     "approveOnWallet": "Auf Wallet genehmigen",
     "confirmOnWallet": "Auf Wallet bestätigen",
@@ -112,6 +113,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
@@ -123,7 +125,9 @@
     "fundsFrom": "Die Mittel werden von gesendet",
     "headerLabel": "Krypto kaufen/verkaufen",
     "insufficientCryptoAmountToSell": "Der Mindestverkaufsbetrag beträgt $%{amount}",
-    "usOnly": "US-Only"
+    "usOnly": "nur US Bürger(innen)",
+    "noKYC": "kein KYC",
+    "nonUS": "Nicht-US Bürger"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +264,7 @@
     "tvl": "TVL",
     "apy": "Jährlicher Zinsertrag",
     "apr": "Jährliche Rendite",
+    "ended": "Beendet",
     "balance": "Kontostand",
     "defi": "DeFi",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
@@ -309,7 +314,9 @@
         "info": {
           "title": "Abhebungsinformation",
           "description": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten.",
-          "yieldyDescription": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten. Nachfolgende Auszahlungen werden zusammengefasst und setzen die Auszahlungszeit zurück."
+          "yieldyDescription": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten. Nachfolgende Auszahlungen werden zusammengefasst und setzen die Auszahlungszeit zurück.",
+          "farmingExpiredDescription": "Dieser Farming Vertrag ist beendet. Sie müssen Ihr gesamtes Guthaben abheben.",
+          "rewardsInfo": "Belohnungen, die Sie erhalten"
         }
       },
       "approve": {
@@ -345,7 +352,9 @@
     "foxToken": "FOX Verdienstmöglichkeiten ",
     "featureFlags": "Eigenschaften ändern",
     "demoMode": "Demo Modus",
-    "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden"
+    "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
+    "wallet": "Wallet",
+    "explore": "Entdecken"
   },
   "transactionRow": {
     "send": "%{symbol} gesendet",
@@ -375,6 +384,8 @@
       "yearn": {
         "deposit": "Einzahlen",
         "approve": "Genehmigen",
+        "revoke": "Widerrufen",
+        "infinite": "Unendlich ∞",
         "withdraw": "Abheben",
         "receive": "Erhalten"
       },
@@ -394,7 +405,9 @@
         "claimWithdraw": "Abhebung anfordern"
       },
       "erc20": {
-        "approve": "Genehmigen"
+        "approve": "Genehmigen",
+        "revoke": "Widerrufen",
+        "infinite": "Unendlich ∞"
       }
     },
     "unknown": "Transaktion"
@@ -570,6 +583,20 @@
           "required": "Passwortbestätigung ist erforderlich",
           "length": "Ihr Passwort muss mindestens %{length} Zeichen lang sein",
           "maxLength": "Spitzname darf maximal %{length} Zeichen lang sein"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Meine Wallet sichern",
+        "enterPassword": "Geben Sie Ihr Passwort ein, um fortzufahren",
+        "testTitle": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
+        "info": {
+          "title": "Ihre geheime Wiederherstellungsphrase",
+          "description": "Schreiben Sie diese 12 Wörter auf und speichern Sie sie sicher offline. Diese 12-Wort-Phrase wird verwendet, um Ihre privaten Wallet Schlüssel wiederherzustellen.",
+          "warning": "Hinweis: Wenn Sie Ihre geheime Wiederherstellungsphrase verlieren, kann ShapeShift Ihnen nicht helfen, Ihre Wallet  wiederherzustellen, und Ihr Guthaben ist für immer verloren."
+        },
+        "success": {
+          "title": "Erfolgreich",
+          "description": "Sie haben Ihre Wallet gesichert. Denken Sie daran, Ihre geheime Wiederherstellungsphrase an einem sicheren Ort aufzubewahren."
         }
       }
     },
@@ -1177,7 +1204,8 @@
     }
   },
   "accounts": {
-    "accounts": "Konten"
+    "accounts": "Konten",
+    "selectAccount": "Wählen Sie ein Konto aus"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1231,6 +1259,7 @@
     "status": "Status",
     "transactionType": "Transaktionsart",
     "minerFee": "Miner-Gebühr",
+    "approvalAmount": "genehmigter Betrag",
     "unknownType": "Transaktion",
     "from": "Von",
     "to": "Nach",

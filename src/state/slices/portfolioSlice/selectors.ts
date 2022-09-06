@@ -623,7 +623,15 @@ export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[]
 
 export const selectPortfolioChainIds = createDeepEqualOutputSelector(
   selectPortfolioAccountIds,
-  accountIds => Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
+  (accountIds): ChainId[] =>
+    Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
+)
+
+export const selectPortfolioAccountIdsByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccountIds,
+  selectChainIdParamFromFilter,
+  (accountIds, chainId): AccountId[] =>
+    accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId),
 )
 
 /**

@@ -9,6 +9,7 @@ import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import {
   selectFeeAssetByChainId,
+  selectPortfolioAccountIdsByChainId,
   selectPortfolioFiatBalanceByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -25,7 +26,19 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByChainId(s, filter))
+  const chainAccountIds = useAppSelector(s => selectPortfolioAccountIdsByChainId(s, filter))
   const { color, name } = asset
+
+  const accountRows = useMemo(() => {
+    return chainAccountIds.map(accountId => (
+      <AccountRow
+        key={accountId}
+        accountId={accountId}
+        onClick={() => history.push(`accounts/${accountId}`)}
+      />
+    ))
+  }, [chainAccountIds, history])
+
   return (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold'>
       <Stack
@@ -52,30 +65,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         </Stack>
       </Stack>
       <NestedList as={Collapse} in={isOpen}>
-        <AccountRow
-          chainColor={color}
-          title='Whatever'
-          subtitle='Account #0'
-          fiatBalance='100'
-          accountNumber='0'
-          onClick={() => history.push('/dashboard')}
-        />
-        <AccountRow
-          chainColor={color}
-          title='Whatever'
-          subtitle='Account #0'
-          fiatBalance='100'
-          accountNumber='1'
-          onClick={() => history.push('/dashboard')}
-        />
-        <AccountRow
-          chainColor={color}
-          title='Whatever'
-          subtitle='Account #0'
-          fiatBalance='100'
-          accountNumber='2'
-          onClick={() => history.push('/dashboard')}
-        />
+        {accountRows}
       </NestedList>
     </ListItem>
   )

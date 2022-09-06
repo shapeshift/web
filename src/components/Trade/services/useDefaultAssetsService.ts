@@ -17,6 +17,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
   AssetIdTradePair,
   getDefaultAssetIdPairByChainId,
@@ -45,6 +46,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
+  const { getReceiveAddressFromBuyAsset } = useSwapper()
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains
@@ -107,26 +109,46 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
   useEffect(() => {
     if (buyAssetId !== previousBuyAssetId) return
+
     // TODO: update Swapper to have an proper way to validate a pair is supported.
-    if (defaultAssetIdPair) {
-      setValue('action', TradeAmountInputField.SELL_CRYPTO)
-      setValue('amount', '0')
-      // If the swapper supports the buy asset with the default sell asset, use that pair
-      if (buyAssetFiatRateData && buyAssetId) {
-        setValue('buyTradeAsset.asset', assets[buyAssetId])
-        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair.sellAssetId])
+    const assetPair = (() => {
+      switch (true) {
+        // If the swapper supports the buy asset with the default sell asset, use that pair
+        case !!(buyAssetFiatRateData && buyAssetId && defaultAssetIdPair):
+          return {
+            buyAsset: assets[buyAssetId!],
+            sellAsset: assets[defaultAssetIdPair!.sellAssetId],
+          }
         // If the swapper supports the default buy asset with the default sell asset, use the default pair
-      } else if (defaultAssetFiatRateData && !isBuyAssetFiatRateLoading) {
-        setValue('buyTradeAsset.asset', assets[defaultAssetIdPair.buyAssetId])
-        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair.sellAssetId])
-        // Use FOX/ETH as a fallback, though only once we have a response confirming the defaults aren't supported
-      } else if (!isBuyAssetFiatRateLoading && !isDefaultAssetFiatRateLoading) {
+        case !!(defaultAssetFiatRateData && !isBuyAssetFiatRateLoading && defaultAssetIdPair):
+          return {
+            buyAsset: assets[defaultAssetIdPair!.buyAssetId],
+            sellAsset: assets[defaultAssetIdPair!.sellAssetId],
+          }
+        // Use FOX/ETH as a fallback, though only if we have a response confirming the defaults aren't supported
+        case !(isBuyAssetFiatRateLoading || isDefaultAssetFiatRateLoading):
+          return {
+            buyAsset: assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
+            sellAsset: assets[ethAssetId],
+          }
+        default:
+          return undefined
+      }
+    })()
+
+    if (assetPair) {
+      ;(async () => {
+        const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
+        setValue('action', TradeAmountInputField.SELL_CRYPTO)
+        setValue('amount', '0')
         setValue(
           'buyTradeAsset.asset',
-          assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
+          receiveAddress
+            ? assetPair.buyAsset
+            : assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
         )
-        setValue('sellTradeAsset.asset', assets[ethAssetId])
-      }
+        setValue('sellTradeAsset.asset', receiveAddress ? assetPair.sellAsset : assets[ethAssetId])
+      })()
     }
   }, [
     assets,
@@ -134,6 +156,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     buyAssetId,
     defaultAssetFiatRateData,
     defaultAssetIdPair,
+    getReceiveAddressFromBuyAsset,
     isBuyAssetFiatRateLoading,
     isDefaultAssetFiatRateLoading,
     previousBuyAssetId,

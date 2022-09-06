@@ -26,14 +26,14 @@ We should really be striving to have small component files. When files get large
 
 ### File Size
 
-There is no magic number to say how many lines is too much. But if we are writing code and it starts to approach or pass the 150 line mark, we should start asking our selves if it can be broken down into smaller more digestible chunks and/or needs to use some already created shared code to help slim it down.
+There is no magic number to say how many lines is too much. But if we are writing code and it starts to approach or pass the 150 line mark, we should start asking ourselves if it can be broken down into smaller more digestible chunks and/or needs to use some already created shared code to help slim it down.
 
 ### Try to only define one component/function per file
 
 Another common thing that makes components bloated is defining multiple functions/components in the same file. Here are a few reasons why it is a good idea to separate your functions and components into their own files.
 
 1. You can unit test separately from the rest of the code.
-2. If anyone decides that they can reuse that code its a quick and easy move to a shared folder.
+2. If anyone decides that they can reuse that code it's a quick and easy move to a shared folder.
 3. It can be confusing when you are looking for a component that is exported from a file that does not share the same name. It sounds trivial but it removes just a little bit of friction.
 
 ### Use your judgement when splitting out components
@@ -42,4 +42,4 @@ You don't need to split out components just to split them out. If you define a c
 
 ### Views should be dumb
 
-Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and [test](testing.md) that code in isolation from it's UI.
+Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and [test](testing.md) that code in isolation from its UI.

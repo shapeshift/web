@@ -16,6 +16,8 @@ import React, { useCallback, useEffect, useMemo, useReducer, useState } from 're
 import { isMobile } from 'react-device-detect'
 import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
+import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
 
@@ -34,6 +36,7 @@ import {
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { IWalletContext, WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
+
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
@@ -274,24 +277,23 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 }
 
 const getInitialState = () => {
-  // @TODO: FIX THIS
-  // const localWalletType = getLocalWalletType()
-  // const localWalletDeviceId = getLocalWalletDeviceId()
-  // //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
-  // if (
-  //   (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
-  //   (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
-  // )
-  //   return initialState
-  // if (localWalletType && localWalletDeviceId) {
-  //   /**
-  //    * set isLoadingLocalWallet->true to bypass splash screen
-  //    */
-  //   return {
-  //     ...initialState,
-  //     isLoadingLocalWallet: true,
-  //   }
-  // }
+  const localWalletType = getLocalWalletType()
+  const localWalletDeviceId = getLocalWalletDeviceId()
+  //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
+  if (
+    (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
+    (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
+  )
+    return initialState
+  if (localWalletType && localWalletDeviceId) {
+    /**
+     * set isLoadingLocalWallet->true to bypass splash screen
+     */
+    return {
+      ...initialState,
+      isLoadingLocalWallet: true,
+    }
+  }
   return initialState
 }
 
@@ -312,25 +314,59 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const load = useCallback(() => {
+    const fnLogger = moduleLogger.child({ namespace: ['load'] })
+
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
+    fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
+            case KeyManager.Mobile:
+              try {
+                const w = await getWallet(localWalletDeviceId)
+                fnLogger.trace({ id: w?.id, label: w?.label }, 'Found mobile wallet')
+                if (w && w.mnemonic && w.label) {
+                  const localMobileWallet = await state.adapters
+                    .get(KeyManager.Native)
+                    ?.pairDevice(localWalletDeviceId)
+
+                  if (localMobileWallet) {
+                    localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
+                    const { name, icon } = MobileConfig
+                    dispatch({
+                      type: WalletActions.SET_WALLET,
+                      payload: {
+                        wallet: localMobileWallet,
+                        name,
+                        icon,
+                        deviceId: w.id || localWalletDeviceId,
+                        meta: { label: w.label },
+                      },
+                    })
+                    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                  } else {
+                    disconnect()
+                  }
+                }
+              } catch (e) {
+                moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')
+              }
+              break
             case KeyManager.Native:
-              // const localNativeWallet = await state.adapters
-              //   .get(KeyManager.Native)
-              //   ?.pairDevice(localWalletDeviceId)
-              // if (localNativeWallet) {
-              //   /**
-              //    * This will eventually fire an event, which the native wallet
-              //    * password modal will be shown
-              //    */
-              //   await localNativeWallet.initialize()
-              // } else {
-              //   disconnect()
-              // }
+              const localNativeWallet = await state.adapters
+                .get(KeyManager.Native)
+                ?.pairDevice(localWalletDeviceId)
+              if (localNativeWallet) {
+                /**
+                 * This will eventually fire an event, which the native wallet
+                 * password modal will be shown
+                 */
+                await localNativeWallet.initialize()
+              } else {
+                disconnect()
+              }
               break
             case KeyManager.KeepKey:
               try {

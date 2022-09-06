@@ -39,13 +39,18 @@ import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
 type AccountDropdownProps = {
+  accountId?: AccountId // if provided - will force this component into this state
   assetId: AssetId
   buttonProps?: ButtonProps
   onChange: (accountId: AccountId) => void
 }
 
-export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
-  const { assetId, buttonProps, onChange } = props
+export const AccountDropdown: React.FC<AccountDropdownProps> = ({
+  accountId,
+  assetId,
+  buttonProps,
+  onChange,
+}) => {
   const { chainId } = fromAssetId(assetId)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -72,12 +77,14 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
    * react on accountIds
    */
   useEffect(() => {
+    if (accountId) return setSelectedAccountId(accountId) // set if we are fed a prop of accountId
     if (!accountIds.length) return
-    const accountId = accountIds[0] // default to the first when we receive them
-    accountId !== selectedAccountId && setSelectedAccountId(accountId) // don't set to same thing again
+    // TODO(0xdef1cafe): default to segwit-native for all UTXO chains
+    const firstAccountId = accountIds[0] // default to the first when we receive them
+    setSelectedAccountId(firstAccountId)
     // this effect sets selectedAccountId for the first render when we receive accountIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds])
+  }, [accountId, assetId, accountIds])
 
   const onClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 
@@ -140,14 +147,14 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
           title={translate('accounts.accountNumber', { accountNumber })}
           subtitle={''} // hide me until we have the option to "nickname" accounts
         />
-        {accountIds.map((accountId, index) => (
+        {accountIds.map((iterAccountId, index) => (
           <AccountChildOption
-            key={`${accountId}-${index}`}
-            title={makeTitle(accountId)}
-            cryptoBalance={fromBaseUnit(accountBalances[accountId][assetId], asset.precision)}
+            key={`${iterAccountId}-${index}`}
+            title={makeTitle(iterAccountId)}
+            cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
             symbol={asset.symbol}
-            isChecked={selectedAccountId === accountId}
-            onClick={() => onClick(accountId)}
+            isChecked={selectedAccountId === iterAccountId}
+            onClick={() => onClick(iterAccountId)}
           />
         ))}
       </>
@@ -180,6 +187,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   return (
     <Menu closeOnSelect={true} matchWidth>
       <MenuButton
+        disabled={Boolean(accountId)} // do not allow account selection if we pass in a prop
         iconSpacing={0}
         as={Button}
         size='sm'

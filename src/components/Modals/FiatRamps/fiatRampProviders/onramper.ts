@@ -39,7 +39,7 @@ type GatewayItem = {
   cryptoCurrencies: Currency[]
 }
 
-const getGatewayResponse = async () => {
+const getGatewayData = async () => {
   try {
     const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
     const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY

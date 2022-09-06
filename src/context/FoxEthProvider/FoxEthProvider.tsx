@@ -114,7 +114,7 @@ type IFoxLpAndFarmingOpportunitiesContext = {
   lpTokenPrice: string | null
   foxFarmingTotalBalanceInBaseUnit: string | null
   foxEthLpOpportunity: EarnOpportunityType
-  connectedWalletEthAddress: string | null
+  accountAddress: string | null
   foxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   onlyVisibleFoxFarmingOpportunities: FoxFarmingEarnOpportunityType[]
   lpLoading: boolean
@@ -130,7 +130,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
   lpEthBalance: null,
   lpTokenPrice: null,
   foxFarmingTotalBalanceInBaseUnit: null,
-  connectedWalletEthAddress: null,
+  accountAddress: null,
   foxEthLpOpportunity: lpOpportunity,
   foxFarmingOpportunities: [v4FarmingOpportunity],
   onlyVisibleFoxFarmingOpportunities: [v4FarmingOpportunity],
@@ -155,9 +155,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [lpEthBalance, setLpEthBalance] = useState<string | null>(null)
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
-  const [connectedWalletEthAddress, setConnectedWalletEthAddress] = useState<string | null>(null)
+  const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const [accountId, setAccountId] = useState<AccountId | null>(null)
-  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(connectedWalletEthAddress)
+  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress)
 
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
@@ -176,7 +176,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   // TODO: Remove this useEffect
-  // The reason why it is still here is because we use connectedWalletEthAddress both for the modals, and to display the DeFi cards/rows
+  // The reason why it is still here is because we use accountAddress both for the modals, and to display the DeFi cards/rows
   // If we remove it now, we will be unable to get to the modal in the first place to change accounts
   useEffect(() => {
     if (
@@ -212,7 +212,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ;(async () => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet })
-        setConnectedWalletEthAddress(address)
+        setAccountAddress(address)
       })()
     }
   }, [adapter, wallet])
@@ -221,13 +221,13 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (!accountId) return
     ;(async () => {
       const accountAddress = fromAccountId(accountId).account
-      setConnectedWalletEthAddress(accountAddress)
+      setAccountAddress(accountAddress)
     })()
   }, [accountId])
 
   const fetchFarmingOpportunities = useCallback(async () => {
     moduleLogger.info('fetching farming opportunities')
-    if (!connectedWalletEthAddress) return
+    if (!accountAddress) return
     try {
       const newOpportunities = await Promise.all(
         foxFarmingOpportunities.map(async opportunity => {
@@ -236,7 +236,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             ethAssetPrecision: ethAsset.precision,
             ethPrice: ethMarketData.price,
             lpAssetPrecision,
-            address: connectedWalletEthAddress,
+            address: accountAddress,
             foxPrice: foxMarketData.price,
             foxAssetPrecision,
           })
@@ -268,7 +268,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       setFarmingLoading(false)
     }
   }, [
-    connectedWalletEthAddress,
+    accountAddress,
     foxFarmingOpportunities,
     ethAsset.precision,
     ethMarketData.price,
@@ -320,15 +320,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   // reload opportunities when wallet changes
   useEffect(() => {
-    if (
-      !(
-        connectedWalletEthAddress &&
-        lpApr &&
-        isMarketDataReady &&
-        lpAssetPrecision &&
-        foxAssetPrecision
-      )
-    )
+    if (!(accountAddress && lpApr && isMarketDataReady && lpAssetPrecision && foxAssetPrecision))
       return
     ;(async () => {
       fetchFarmingOpportunities()
@@ -336,7 +328,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     })()
     // market data causes fetch callback function to create a new reference
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedWalletEthAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
+  }, [accountAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
 
   // watch tx to reload opportunities if it got confirmed
   const accountSpecifier = useAppSelector(state =>
@@ -347,10 +339,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const handleOngoingTxIdChange = useCallback(
     async (txid: string) => {
-      if (!connectedWalletEthAddress) return
-      setOngoingTxId(serializeTxIndex(accountSpecifier, txid, connectedWalletEthAddress))
+      if (!accountAddress) return
+      setOngoingTxId(serializeTxIndex(accountSpecifier, txid, accountAddress))
     },
-    [accountSpecifier, connectedWalletEthAddress],
+    [accountSpecifier, accountAddress],
   )
 
   useEffect(() => {
@@ -373,7 +365,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     () => ({
       accountId,
       setAccountId,
-      connectedWalletEthAddress,
+      accountAddress,
       totalBalance: bnOrZero(featureFlags.FoxLP ? foxEthLpOpportunity.fiatAmount : 0)
         .plus(featureFlags.FoxFarming ? foxFarmingTotalBalance : 0)
         .toString(),
@@ -397,7 +389,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       featureFlags.FoxFarming,
       accountId,
       setAccountId,
-      connectedWalletEthAddress,
+      accountAddress,
       foxEthLpOpportunity,
       foxFarmingTotalBalance,
       foxFarmingTotalCryptoAmount,

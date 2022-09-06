@@ -33,7 +33,7 @@ export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { connectedWalletEthAddress: userAddress, foxEthLpOpportunity: opportunity } = useFoxEth()
+  const { accountAddress, foxEthLpOpportunity: opportunity } = useFoxEth()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -45,9 +45,9 @@ export const Status = () => {
   )
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
-  }, [state?.txid, userAddress, accountSpecifier])
+    if (!(state?.txid && accountAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

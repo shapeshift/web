@@ -147,12 +147,14 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     if (assetPair) {
       ;(async () => {
         const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
-        if (receiveAddress) {
-          setValue('action', TradeAmountInputField.SELL_CRYPTO)
-          setValue('amount', '0')
-          setValue('buyTradeAsset.asset', assetPair.buyAsset)
-          setValue('sellTradeAsset.asset', assetPair.sellAsset)
-        }
+        const buyAsset = receiveAddress
+          ? assetPair.buyAsset
+          : assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+        const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
+        setValue('action', TradeAmountInputField.SELL_CRYPTO)
+        setValue('amount', '0')
+        setValue('buyTradeAsset.asset', buyAsset)
+        setValue('sellTradeAsset.asset', sellAsset)
       })()
     }
   }, [

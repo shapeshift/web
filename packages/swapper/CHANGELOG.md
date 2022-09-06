@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.1...@shapeshiftoss/swapper-v11.0.2) (2022-09-06)
+
+
+### Bug Fixes
+
+* **swapper:** minimum one dollar trade fee ([#994](https://github.com/shapeshift/lib/issues/994)) ([e08194f](https://github.com/shapeshift/lib/commit/e08194f91a50edbf2e203f59f32b9918c6fc7d66))
+
 # [@shapeshiftoss/swapper-v11.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.0...@shapeshiftoss/swapper-v11.0.1) (2022-09-02)
 
 # [@shapeshiftoss/swapper-v11.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v10.0.0...@shapeshiftoss/swapper-v11.0.0) (2022-09-02)

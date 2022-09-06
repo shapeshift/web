@@ -156,15 +156,20 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isImplemented: true,
     isActive: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
     supportsBuy: true,
-    supportsSell: false,
+    supportsSell: true,
     minimumSellThreshold: 0,
     getBuyAndSellList: async () => {
       const onRamperAssets = await getOnRamperAssets()
-      return [onRamperAssets, []]
+      return [onRamperAssets, onRamperAssets]
     },
-    onSubmit: (_action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(assetId, address, window.location.href)
+        const onRamperCheckoutUrl = createOnRamperUrl(
+          action,
+          assetId,
+          address,
+          window.location.href,
+        )
         window.open(onRamperCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')

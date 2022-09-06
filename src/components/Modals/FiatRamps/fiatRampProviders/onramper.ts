@@ -1,10 +1,11 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { head, uniqBy } from 'lodash'
+import head from 'lodash/head'
+import uniqBy from 'lodash/uniqBy'
 import { logger } from 'lib/logger'
 
-import { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
@@ -38,28 +39,25 @@ type GatewayItem = {
   cryptoCurrencies: Currency[]
 }
 
-export const getOnRamperAssets = async (): Promise<FiatRampAsset[]> => {
-  const data = await (async () => {
-    try {
-      const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
-      const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
-      const { data } = await axios.get<OnRamperGatewaysResponse>(
-        `${baseUrl}gateways?includeIcons=true`,
-        {
-          headers: {
-            Authorization: `Basic ${apiKey}`,
-          },
+const getGatewayResponse = async () => {
+  try {
+    const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
+    const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
+    return (
+      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}gateways?includeIcons=true`, {
+        headers: {
+          Authorization: `Basic ${apiKey}`,
         },
-      )
+      })
+    ).data
+  } catch (e) {
+    moduleLogger.error(e, 'Failed to fetch assets')
+  }
+}
 
-      return data
-    } catch (e) {
-      moduleLogger.error(e, 'Failed to fetch assets')
-    }
-  })()
-
+export const getOnRamperAssets = async (): Promise<FiatRampAsset[]> => {
+  const data = await getGatewayResponse()
   if (!data) return []
-
   const fiatRampAssets = convertOnRamperDataToFiatRampAsset(data)
   return fiatRampAssets
 }
@@ -80,7 +78,7 @@ const toFiatRampAsset = (currency: Currency, icons: TokenIconMap): FiatRampAsset
   const assetId = adapters.onRamperTokenIdToAssetId(currency.code)
   if (assetId) {
     return {
-      name: currency.displayName || '',
+      name: currency.displayName ?? '',
       assetId,
       symbol: currency.code,
       imageUrl: icons[currency.code].icon,
@@ -91,6 +89,7 @@ const toFiatRampAsset = (currency: Currency, icons: TokenIconMap): FiatRampAsset
 }
 
 export const createOnRamperUrl = (
+  action: FiatRampAction,
   assetId: AssetId,
   address: string,
   currentUrl: string,
@@ -109,8 +108,14 @@ export const createOnRamperUrl = (
   params.set('onlyCryptos', onRamperSymbols.join(','))
   params.set('wallets', `${defaultCrypto}:${address}`)
   params.set('isAddressEditable', 'false')
-  // we don't support selling via OnRamper because there's no way to open the popup directly on the Sell tab
-  params.set('supportSell', 'false')
+
+  if (action === FiatRampAction.Sell) {
+    params.set('initScreen', 'sell')
+    params.set('supportSell', 'true')
+  } else {
+    params.set('supportSell', 'false')
+  }
+
   // because we're dark as well
   params.set('darkMode', 'true')
   params.set('redirectURL', currentUrl)

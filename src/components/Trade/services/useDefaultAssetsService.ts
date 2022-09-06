@@ -72,8 +72,11 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     isUninitialized: isBuyAssetFiatRateUninitialized,
     isLoading: isBuyAssetFiatRateLoading,
   } = useGetUsdRateQuery(buyAssetFiatRateArgs)
-  const { data: defaultAssetFiatRateData, isLoading: isDefaultAssetFiatRateLoading } =
-    useGetUsdRateQuery(defaultAssetFiatRateArgs)
+  const {
+    data: defaultAssetFiatRateData,
+    isLoading: isDefaultAssetFiatRateLoading,
+    isUninitialized: isDefaultAssetFiatRateUninitialized,
+  } = useGetUsdRateQuery(defaultAssetFiatRateArgs)
 
   const buyAssetId = useMemo(() => {
     if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair.sellAssetId)
@@ -126,7 +129,12 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
             sellAsset: assets[defaultAssetIdPair!.sellAssetId],
           }
         // Use FOX/ETH as a fallback, though only if we have a response confirming the defaults aren't supported
-        case !(isBuyAssetFiatRateLoading || isDefaultAssetFiatRateLoading):
+        case !(
+          isBuyAssetFiatRateLoading ||
+          isDefaultAssetFiatRateLoading ||
+          isBuyAssetFiatRateUninitialized ||
+          isDefaultAssetFiatRateUninitialized
+        ):
           return {
             buyAsset: assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
             sellAsset: assets[ethAssetId],
@@ -139,15 +147,12 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     if (assetPair) {
       ;(async () => {
         const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
-        setValue('action', TradeAmountInputField.SELL_CRYPTO)
-        setValue('amount', '0')
-        setValue(
-          'buyTradeAsset.asset',
-          receiveAddress
-            ? assetPair.buyAsset
-            : assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
-        )
-        setValue('sellTradeAsset.asset', receiveAddress ? assetPair.sellAsset : assets[ethAssetId])
+        if (receiveAddress) {
+          setValue('action', TradeAmountInputField.SELL_CRYPTO)
+          setValue('amount', '0')
+          setValue('buyTradeAsset.asset', assetPair.buyAsset)
+          setValue('sellTradeAsset.asset', assetPair.sellAsset)
+        }
       })()
     }
   }, [
@@ -158,7 +163,9 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     defaultAssetIdPair,
     getReceiveAddressFromBuyAsset,
     isBuyAssetFiatRateLoading,
+    isBuyAssetFiatRateUninitialized,
     isDefaultAssetFiatRateLoading,
+    isDefaultAssetFiatRateUninitialized,
     previousBuyAssetId,
     setValue,
   ])

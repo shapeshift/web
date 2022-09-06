@@ -112,7 +112,7 @@
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^7.1.4",
     "@visx/axis": "^2.10.0",
-    "@visx/brush": "^2.12.2",
+    "@visx/brush": "^2.10.1",
     "@visx/gradient": "^2.10.0",
     "@visx/responsive": "^2.10.0",
     "@visx/shape": "^2.10.0",

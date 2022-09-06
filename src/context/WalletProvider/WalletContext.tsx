@@ -2,7 +2,7 @@ import React, { createContext } from 'react'
 
 import { ActionTypes } from './actions'
 import { KeyManager } from './KeyManager'
-import type { DeviceState, InitialState } from './WalletProvider'
+import type { DeviceState, InitialState, KeyManagerWithProvider } from './WalletProvider'
 
 export interface IWalletContext {
   state: InitialState
@@ -13,6 +13,7 @@ export interface IWalletContext {
   load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void
   connectDemo: () => Promise<void>
+  onProviderChange: (localWalletType: KeyManagerWithProvider) => Promise<void>
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

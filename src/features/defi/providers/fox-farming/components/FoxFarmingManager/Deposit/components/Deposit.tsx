@@ -15,6 +15,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -34,7 +35,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const opportunity = state?.opportunity
-  const { getLpTokenPrice } = useFoxEthLiquidityPool()
+  const { accountAddress } = useFoxEth()
+  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountAddress)
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,

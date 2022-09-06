@@ -7,13 +7,14 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import {
   AssetId,
   cosmosChainId,
+  ethAssetId,
   ethChainId,
   fromAssetId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
@@ -35,6 +36,8 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
   const { connectedEvmChainId } = useEvm()
   const { setValue } = useFormContext<TradeState<KnownChainIds>>()
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
+  const [defaultAssetFiatRateArgs, setDefaultAssetFiatRateArgs] =
+    useState<UsdRateInputArg>(skipToken)
   const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<[AssetId, AssetId]>()
 
   const featureFlags = useAppSelector(selectFeatureFlags)
@@ -62,7 +65,13 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     setDefaultAssetIdPair([defaultSellAssetId, defaultBuyAssetId])
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
 
-  const { data: buyAssetFiatRateData } = useGetUsdRateQuery(buyAssetFiatRateArgs)
+  const {
+    data: buyAssetFiatRateData,
+    isUninitialized: isBuyAssetFiatRateUninitialized,
+    isLoading: isBuyAssetFiatRateLoading,
+  } = useGetUsdRateQuery(buyAssetFiatRateArgs)
+  const { data: defaultAssetFiatRateData, isLoading: isDefaultAssetFiatRateLoading } =
+    useGetUsdRateQuery(defaultAssetFiatRateArgs)
 
   const buyAssetId = useMemo(() => {
     if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair[0])
@@ -85,16 +94,49 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     [buyAssetId, defaultAssetIdPair],
   )
 
-  const setInitialAssets = useCallback(() => {
+  useEffect(() => {
+    // Do this lazily to reduce network requests - once we know we failed to get a fiat rate for the buy asset
+    if (!buyAssetFiatRateData && defaultAssetIdPair && !isBuyAssetFiatRateUninitialized) {
+      setDefaultAssetFiatRateArgs({
+        buyAssetId: defaultAssetIdPair?.[1],
+        sellAssetId: defaultAssetIdPair?.[0],
+        rateAssetId: defaultAssetIdPair?.[1],
+      })
+    }
+  }, [buyAssetFiatRateData, defaultAssetIdPair, isBuyAssetFiatRateUninitialized])
+
+  useEffect(() => {
     if (buyAssetId !== previousBuyAssetId) return
     // TODO: update Swapper to have an proper way to validate a pair is supported.
-    if (buyAssetFiatRateData && defaultAssetIdPair && buyAssetId) {
-      setValue('buyTradeAsset.asset', assets[buyAssetId])
-      setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
+    if (defaultAssetIdPair) {
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', '0')
+      // If the swapper supports the buy asset with the default sell asset, use that pair
+      if (buyAssetFiatRateData && buyAssetId) {
+        setValue('buyTradeAsset.asset', assets[buyAssetId])
+        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
+        // If the swapper supports the default buy asset with the default sell asset, use the default pair
+      } else if (defaultAssetFiatRateData && !isBuyAssetFiatRateLoading) {
+        setValue('buyTradeAsset.asset', assets[defaultAssetIdPair[1]])
+        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
+        // Use FOX/ETH as a fallback, though only once we have a response confirming the defaults aren't supported
+      } else if (!isBuyAssetFiatRateLoading && !isDefaultAssetFiatRateLoading) {
+        setValue(
+          'buyTradeAsset.asset',
+          assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
+        )
+        setValue('sellTradeAsset.asset', assets[ethAssetId])
+      }
     }
-  }, [assets, buyAssetFiatRateData, previousBuyAssetId, buyAssetId, defaultAssetIdPair, setValue])
-
-  useEffect(() => setInitialAssets(), [setInitialAssets])
+  }, [
+    assets,
+    buyAssetFiatRateData,
+    buyAssetId,
+    defaultAssetFiatRateData,
+    defaultAssetIdPair,
+    isBuyAssetFiatRateLoading,
+    isDefaultAssetFiatRateLoading,
+    previousBuyAssetId,
+    setValue,
+  ])
 }

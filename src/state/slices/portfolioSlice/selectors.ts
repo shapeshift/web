@@ -604,6 +604,11 @@ export const selectPortfolioAssets = createSelector(
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
+export const selectPortfolioChainIds = createDeepEqualOutputSelector(
+  selectPortfolioAccountIds,
+  accountIds => Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
+)
+
 /**
  * selects portfolio account ids that *can* contain an assetId
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX

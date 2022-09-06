@@ -1,21 +1,25 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Circle, Collapse, IconButton, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
+import { ChainId } from '@shapeshiftoss/caip'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountRow } from './AccountRow'
 
 type ChainRowProps = {
-  color: string
-  title: string
+  chainId: ChainId
 }
 
-export const ChainRow: React.FC<ChainRowProps> = ({ color, title }) => {
+export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
   const history = useHistory()
+  const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
+  const { color, name } = asset
   return (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold'>
       <Stack
@@ -27,7 +31,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ color, title }) => {
       >
         <Stack direction='row' fontSize='md' alignItems='center' spacing={4}>
           <Circle size={8} borderWidth={2} borderColor={color} />
-          <RawText>{title}</RawText>
+          <RawText>{name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>
           <Amount.Fiat value='100' />

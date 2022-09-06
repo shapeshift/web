@@ -1,11 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { type ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import {
-  type GetTradeQuoteInput,
-  type TradeQuote,
-  type UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
+import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -13,8 +9,6 @@ import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
   type TradeQuoteInputCommonArgs,
-  getBestSwapperFromArgs,
-  getFormFees,
   getUtxoParams,
   isSupportedNoneUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -24,12 +18,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
-import {
-  selectAccountSpecifiers,
-  selectFeatureFlags,
-  selectFeeAssetById,
-  selectFiatToUsdRate,
-} from 'state/slices/selectors'
+import { selectAccountSpecifiers, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
@@ -63,10 +52,6 @@ export const useTradeQuoteService = () => {
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
-  )
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // API
   const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
@@ -137,22 +122,6 @@ export const useTradeQuoteService = () => {
 
   // Set trade quote
   useEffect(() => {
-    ;(async () => {
-      if (sellAsset && buyAsset && tradeQuote) {
-        const bestSwapper = await getBestSwapperFromArgs(
-          buyAsset.assetId,
-          sellAsset.assetId,
-          featureFlags,
-        )
-        const formFees = getFormFees({
-          trade: tradeQuote as TradeQuote<ChainId>,
-          sellAsset,
-          tradeFeeSource: bestSwapper.name,
-          feeAsset: sellFeeAsset,
-        })
-        setValue('fees', formFees)
-        setValue('quote', tradeQuote)
-      }
-    })()
-  }, [tradeQuote, setValue, sellAsset, sellFeeAsset, buyAsset, featureFlags])
+    tradeQuote && setValue('quote', tradeQuote)
+  }, [tradeQuote, setValue])
 }

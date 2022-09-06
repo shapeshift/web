@@ -9,7 +9,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
-The Fees Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
+The Fees Service is responsible for reacting to changes to quote and trades, and updating the fees accordingly.
 The only mutation is on TradeState's fees property.
 */
 export const useFeesService = () => {
@@ -32,16 +32,14 @@ export const useFeesService = () => {
 
   useEffect(() => {
     const feeTrade = trade ?? quote
-    ;(async () => {
-      if (sellAsset && bestTradeSwapper && feeTrade) {
-        const formFees = getFormFees({
-          trade: feeTrade,
-          sellAsset,
-          tradeFeeSource: bestTradeSwapper.name,
-          feeAsset: sellFeeAsset,
-        })
-        setValue('fees', formFees)
-      }
-    })()
+    if (sellAsset && bestTradeSwapper && feeTrade) {
+      const formFees = getFormFees({
+        trade: feeTrade,
+        sellAsset,
+        tradeFeeSource: bestTradeSwapper.name,
+        feeAsset: sellFeeAsset,
+      })
+      setValue('fees', formFees)
+    }
   }, [bestTradeSwapper, quote, sellAsset, sellFeeAsset, setValue, trade])
 }

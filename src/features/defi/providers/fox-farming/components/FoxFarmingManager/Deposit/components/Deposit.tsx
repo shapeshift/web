@@ -35,8 +35,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const opportunity = state?.opportunity
-  const { connectedWalletEthAddress } = useFoxEth()
-  const { getLpTokenPrice } = useFoxEthLiquidityPool(connectedWalletEthAddress)
+  const { accountAddress } = useFoxEth()
+  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountAddress)
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,

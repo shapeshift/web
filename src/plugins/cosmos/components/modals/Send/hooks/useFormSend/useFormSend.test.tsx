@@ -3,6 +3,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
+import * as reactRedux from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -103,7 +104,17 @@ const textTxToSign = {
 const testSignedTx = 'someFakeTxHash'
 
 describe('useFormSend', () => {
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
   it('handles successfully sending a tx with ATOM address', async () => {
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 118,
+          accountNumber: 0,
+        },
+      },
+    })
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
@@ -145,6 +156,15 @@ describe('useFormSend', () => {
   })
 
   it('handles a failure while sending a tx', async () => {
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 118,
+          accountNumber: 0,
+        },
+      },
+    })
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({

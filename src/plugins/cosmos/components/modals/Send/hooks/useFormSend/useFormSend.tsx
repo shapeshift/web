@@ -31,9 +31,10 @@ export const useFormSend = () => {
           KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
         >
         if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
+        if (!acctMetaData?.[data.accountId])
+          throw new Error(`cosmos: no accountMetaData for ${data.accountId}`)
         const { bip44Params } = acctMetaData[data.accountId]
-        if (!bip44Params)
-          throw new Error(`useFormSend: no bip44Params for accountId ${data.accountId}`)
+        if (!bip44Params) throw new Error(`cosmos: no bip44Params for accountId ${data.accountId}`)
 
         const value = bnOrZero(data.cryptoAmount)
           .times(bn(10).exponentiatedBy(data.asset.precision))

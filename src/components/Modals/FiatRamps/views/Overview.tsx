@@ -36,7 +36,11 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ChainIdType } from 'state/slices/portfolioSlice/utils'
-import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
+import {
+  selectMarketDataById,
+  selectPortfolioAccountBalances,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
@@ -66,7 +70,6 @@ type OverviewProps = GenerateAddressProps & {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
-  accountAddress: string | null
   accountId: AccountId | null
 }
 
@@ -131,7 +134,6 @@ export const Overview: React.FC<OverviewProps> = ({
   setChainId,
   chainAdapterManager,
   handleAccountIdChange,
-  accountAddress,
   accountId,
 }) => {
   const translate = useTranslate()
@@ -147,6 +149,26 @@ export const Overview: React.FC<OverviewProps> = ({
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, selectedAsset?.assetId ?? ''),
   )
+  const [accountAddress, setAccountAddress] = useState<string | null>(null)
+
+  // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
+  // once web/#2632 got merged
+  const accountMeta = useAppSelector(selectPortfolioAccountMetadata)[accountId ?? '']
+  const accountType = accountMeta?.accountType
+  const bip44Params = accountMeta?.bip44Params
+  useEffect(() => {
+    if (!(wallet && bip44Params && selectedAsset)) return
+    ;(async () => {
+      const { chainId } = fromAssetId(selectedAsset.assetId)
+      const chainAdapter = chainAdapterManager.get(chainId)!
+      const selectedAccountAddress = await chainAdapter.getAddress({
+        wallet,
+        accountType,
+        bip44Params,
+      })
+      setAccountAddress(selectedAccountAddress)
+    })()
+  }, [accountType, wallet, bip44Params, selectedAsset, chainAdapterManager])
   const minimumSellThreshold = useMemo(
     () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
     [fiatRampProvider],

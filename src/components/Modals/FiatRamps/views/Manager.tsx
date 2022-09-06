@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { AccountId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { AccountId, ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
   supportsCosmos,
@@ -93,7 +93,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const accountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: selectedAsset?.assetId ?? '' }),
   )
-  const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const [accountId, setAccountId] = useState<AccountId | null>(null)
 
   useEffect(() => {
@@ -103,11 +102,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
 
   const handleAccountIdChange = useCallback((accountId: AccountId) => {
     if (!accountId) return
-    ;(async () => {
-      const accountAddress = fromAccountId(accountId).account
-      setAccountAddress(accountAddress)
-      setAccountId(accountId)
-    })()
+    setAccountId(accountId)
   }, [])
 
   useEffect(() => {
@@ -225,7 +220,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             fiatRampProvider={fiatRampProvider}
             ensName={ensName}
             handleAccountIdChange={handleAccountIdChange}
-            accountAddress={accountAddress}
             accountId={accountId}
           />
         </Route>

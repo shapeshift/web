@@ -54,6 +54,7 @@ import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
   AccountMetadataById,
   PortfolioAccountBalances,
+  PortfolioAccountBalancesById,
   PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
   PortfolioAssets,
@@ -621,12 +622,6 @@ export const selectPortfolioAssets = createSelector(
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
-export const selectPortfolioChainIds = createDeepEqualOutputSelector(
-  selectPortfolioAccountIds,
-  (accountIds): ChainId[] =>
-    Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
-)
-
 export const selectPortfolioAccountIdsByChainId = createDeepEqualOutputSelector(
   selectPortfolioAccountIds,
   selectChainIdParamFromFilter,
@@ -668,24 +663,22 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
 export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
   selectPortfolioFiatAccountBalances,
   selectBalanceThreshold,
-  (
-    portfolioFiatAccountBalances,
-    balanceThreshold,
-  ): { [k: AccountSpecifier]: { [k: AssetId]: string } } => {
-    return Object.entries(portfolioFiatAccountBalances).reduce<{
-      [k: AccountSpecifier]: { [k: AssetId]: string }
-    }>((acc, [accountId, assetBalanceObj]) => {
-      const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
-        .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-        .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetFiatBalance]) => {
-          if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
-          acc[assetId] = assetFiatBalance
-          return acc
-        }, {})
+  (portfolioFiatAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
+    return Object.entries(portfolioFiatAccountBalances).reduce<PortfolioAccountBalancesById>(
+      (acc, [accountId, assetBalanceObj]) => {
+        const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
+          .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+          .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetFiatBalance]) => {
+            if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
+            acc[assetId] = assetFiatBalance
+            return acc
+          }, {})
 
-      acc[accountId] = sortedAssetsByFiatBalances
-      return acc
-    }, {})
+        acc[accountId] = sortedAssetsByFiatBalances
+        return acc
+      },
+      {},
+    )
   },
 )
 
@@ -773,6 +766,12 @@ export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector
     )
     return sortedAccountBalancesByChainBuckets
   },
+)
+
+export const selectPortfolioChainIds = createDeepEqualOutputSelector(
+  selectPortfolioAccountIdsSortedFiat,
+  (accountIds): ChainId[] =>
+    Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
 )
 
 export const selectPortfolioIsEmpty = createSelector(

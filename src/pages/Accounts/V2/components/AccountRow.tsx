@@ -64,7 +64,10 @@ export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) =>
   const { color } = feeAsset
 
   const assetRows = useMemo(
-    () => assetIds.map(assetId => <ChildAssetRow accountId={accountId} assetId={assetId} />),
+    () =>
+      assetIds.map(assetId => (
+        <ChildAssetRow key={assetId} accountId={accountId} assetId={assetId} />
+      )),
     [accountId, assetIds],
   )
 

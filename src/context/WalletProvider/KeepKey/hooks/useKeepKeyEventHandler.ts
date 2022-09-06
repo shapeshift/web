@@ -122,6 +122,10 @@ export const useKeepKeyEventHandler = (
         case MessageType.PINMATRIXACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
+        // A bit tricky but if we receive this event, the device is obviously not waiting for interaction
+        case MessageType.ETHEREUMGETADDRESS:
+          setDeviceState({ awaitingDeviceInteraction: false })
+          break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:
           switch (message?.code) {

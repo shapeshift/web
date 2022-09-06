@@ -69,6 +69,7 @@ import {
 type ParamFilter = {
   assetId: AssetId
   accountId: AccountSpecifier
+  chainId: ChainId
   accountSpecifier: string
   validatorAddress: PubKey
   supportsCosmosSdk: boolean
@@ -105,6 +106,7 @@ const FEE_ASSET_IDS = [
 ]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
+const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
 const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
@@ -349,6 +351,21 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParamFromFilter,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId],
+)
+
+export const selectPortfolioFiatBalanceByChainId = createSelector(
+  selectPortfolioFiatBalances,
+  selectChainIdParamFromFilter,
+
+  (portfolioFiatBalances, chainId) => {
+    return Object.entries(portfolioFiatBalances)
+      .reduce((acc, [assetId, fiatBalance]) => {
+        if (fromAssetId(assetId).chainId !== chainId) return acc
+        acc = acc.plus(bnOrZero(fiatBalance))
+        return acc
+      }, bn(0))
+      .toFixed(2)
+  },
 )
 
 export const selectPortfolioFiatBalanceByFilter = createSelector(

@@ -173,6 +173,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                     scriptType,
                   },
                 ])
+
                 if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
 
                 const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)

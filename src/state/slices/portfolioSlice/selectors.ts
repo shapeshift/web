@@ -15,7 +15,7 @@ import {
   ltcAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
@@ -953,7 +953,7 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   selectStakingDataByAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
-  (stakingDataByValidator, validatorAddress, assetId): cosmos.UndelegationEntry[] => {
+  (stakingDataByValidator, validatorAddress, assetId): cosmossdk.UndelegationEntry[] => {
     const validatorStakingData = stakingDataByValidator?.[validatorAddress]?.[assetId]
 
     if (!validatorStakingData?.undelegations?.length) return []
@@ -1056,7 +1056,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()
-      const undelegatedEntries: cosmos.UndelegationEntry[] =
+      const undelegatedEntries: cosmossdk.UndelegationEntry[] =
         stakingDataByValidator?.[validatorId]?.[assetId]?.undelegations ?? []
       const totalDelegations = bnOrZero(delegatedAmount)
         .plus(

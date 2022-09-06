@@ -22,6 +22,7 @@ import {
   supportsETH,
   supportsEthSwitchChain,
   supportsOsmosis,
+  supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
@@ -208,6 +209,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               }
               if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
                 if (!supportsOsmosis(wallet)) continue
+              }
+              if (chainReference === CHAIN_REFERENCE.ThorchainMainnet) {
+                if (!supportsThorchain(wallet)) continue
               }
 
               const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })

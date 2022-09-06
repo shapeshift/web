@@ -17,14 +17,14 @@ const moduleLogger = logger.child({ namespace: ['useStakingAction'] })
 type StakingInput =
   | {
       asset: Asset
-      chainSpecific: cosmos.BuildTxInput
+      chainSpecific: cosmossdk.BuildTxInput
       validator: string
       action: StakingAction.Claim
       value?: string
     }
   | {
       asset: Asset
-      chainSpecific: cosmos.BuildTxInput
+      chainSpecific: cosmossdk.BuildTxInput
       validator: string
       action: StakingAction.Stake | StakingAction.Unstake
       value: string
@@ -56,7 +56,7 @@ export const useStakingAction = () => {
         if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
           switch (action) {
             case StakingAction.Claim: {
-              result = await (adapter as unknown as cosmossdk.cosmos.ChainAdapter) // TODO: fix types
+              result = await (adapter as unknown as cosmos.ChainAdapter) // TODO: fix types
                 .buildClaimRewardsTransaction({
                   wallet,
                   validator,
@@ -66,9 +66,7 @@ export const useStakingAction = () => {
               break
             }
             case StakingAction.Stake: {
-              result = await (
-                adapter as unknown as cosmossdk.cosmos.ChainAdapter
-              ).buildDelegateTransaction({
+              result = await (adapter as unknown as cosmos.ChainAdapter).buildDelegateTransaction({
                 wallet,
                 validator,
                 value,
@@ -78,15 +76,15 @@ export const useStakingAction = () => {
               break
             }
             case StakingAction.Unstake: {
-              result = await (
-                adapter as unknown as cosmossdk.cosmos.ChainAdapter
-              ).buildUndelegateTransaction({
-                wallet,
-                validator,
-                value,
-                chainSpecific,
-                memo,
-              })
+              result = await (adapter as unknown as cosmos.ChainAdapter).buildUndelegateTransaction(
+                {
+                  wallet,
+                  validator,
+                  value,
+                  chainSpecific,
+                  memo,
+                },
+              )
               break
             }
             default: {

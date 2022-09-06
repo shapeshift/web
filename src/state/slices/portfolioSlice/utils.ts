@@ -16,6 +16,7 @@ import {
   fromChainId,
   ltcChainId,
   osmosisChainId,
+  thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
@@ -102,6 +103,8 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       return 'Cosmos'
     case osmosisChainId:
       return 'Osmosis'
+    case thorchainChainId:
+      return 'Thorchain'
     case dogeChainId:
       return 'Dogecoin'
     case ltcChainId:

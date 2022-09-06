@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/chain-adapters'
+import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -16,7 +16,7 @@ export type PubKey = string
 type SingleValidatorDataArgs = { accountSpecifier: string; chainId: ChainId }
 
 export type Validators = {
-  validators: cosmos.Validator[]
+  validators: cosmossdk.Validator[]
 }
 
 export type ValidatorData = {
@@ -25,7 +25,7 @@ export type ValidatorData = {
 }
 
 export type ValidatorDataByPubKey = {
-  [k: PubKey]: cosmos.Validator
+  [k: PubKey]: cosmossdk.Validator
 }
 
 const initialState: ValidatorData = {
@@ -35,7 +35,7 @@ const initialState: ValidatorData = {
 
 const updateOrInsertValidatorData = (
   validatorDataState: ValidatorData,
-  validators: cosmos.Validator[],
+  validators: cosmossdk.Validator[],
 ) => {
   validators.forEach(validator => {
     validatorDataState.validatorIds.push(validator.address)
@@ -50,8 +50,9 @@ export const validatorData = createSlice({
     clear: () => initialState,
     upsertValidatorData: (
       validatorDataState,
-      { payload }: { payload: { validators: cosmos.Validator[] } },
+      { payload }: { payload: { validators: cosmossdk.Validator[] } },
     ) => {
+      if (!payload.validators) return
       updateOrInsertValidatorData(validatorDataState, payload.validators)
     },
   },
@@ -64,7 +65,7 @@ export const validatorDataApi = createApi({
   // The first won't noticeably change given the Million fiat precision we use, and the former effectively won't noticeably change either in such timeframe
   keepUnusedDataFor: 300,
   endpoints: build => ({
-    getValidatorData: build.query<cosmos.Validator, SingleValidatorDataArgs>({
+    getValidatorData: build.query<cosmossdk.Validator, SingleValidatorDataArgs>({
       queryFn: async ({ accountSpecifier, chainId }, { dispatch, getState }) => {
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId } = (getState() as any).portfolio.accounts as PortfolioAccounts
@@ -90,6 +91,8 @@ export const validatorDataApi = createApi({
             try {
               const data = await adapter.getValidator(validatorId)
 
+              if (!data) return
+
               dispatch(
                 validatorData.actions.upsertValidatorData({
                   validators: [data],
@@ -109,7 +112,7 @@ export const validatorDataApi = createApi({
           }
         })
 
-        return { data: {} as cosmos.Validator }
+        return { data: {} as cosmossdk.Validator }
       },
     }),
   }),

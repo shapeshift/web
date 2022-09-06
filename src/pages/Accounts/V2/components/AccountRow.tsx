@@ -13,9 +13,7 @@ import {
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AccountId, CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
@@ -23,6 +21,7 @@ import { accountIdToLabel, firstFourLastFour } from 'state/slices/portfolioSlice
 import {
   selectAccountNumberByAccountId,
   selectFeeAssetByChainId,
+  selectPortfolioAssetIdsByAccountId,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -57,12 +56,17 @@ const makeTitle = (accountId: AccountId, asset: Asset) => {
 export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
-  const history = useHistory()
   const filter = useMemo(() => ({ assetId: '', accountId }), [accountId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
+  const assetIds = useAppSelector(s => selectPortfolioAssetIdsByAccountId(s, filter))
   const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, fromAccountId(accountId).chainId))
   const { color } = feeAsset
+
+  const assetRows = useMemo(
+    () => assetIds.map(assetId => <ChildAssetRow accountId={accountId} assetId={assetId} />),
+    [accountId, assetIds],
+  )
 
   return (
     <ListItem>
@@ -99,37 +103,8 @@ export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) =>
           onClick={onToggle}
         />
       </Flex>
-
       <NestedList as={Collapse} in={isOpen} pr={0}>
-        <ListItem>
-          <ChildAssetRow
-            title='Asset Name'
-            subtitle='Asset Subtitle'
-            fiatBalance='100'
-            cryptoBalance='100'
-            symbol='ETH'
-            icon={{ src: 'https://assets.coincap.io/assets/icons/256/eth.png' }}
-            onClick={() => history.push('/dashboard')}
-          />
-          <ChildAssetRow
-            title='Asset Name'
-            subtitle='Asset Subtitle'
-            fiatBalance='100'
-            cryptoBalance='100'
-            symbol='ETH'
-            icon={{ icon: <FaCode />, bg: `${color}20`, color }}
-            onClick={() => history.push('/dashboard')}
-          />
-          <ChildAssetRow
-            title='Asset Name'
-            subtitle='Asset Subtitle'
-            fiatBalance='100'
-            cryptoBalance='100'
-            symbol='ETH'
-            icon={{ src: 'https://assets.coincap.io/assets/icons/256/eth.png' }}
-            onClick={() => history.push('/dashboard')}
-          />
-        </ListItem>
+        <ListItem>{assetRows}</ListItem>
       </NestedList>
     </ListItem>
   )

@@ -613,6 +613,8 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
   selectPortfolioAccountIds,
   selectAssetIdParamFromFilter,
   (accountIds, assetId): AccountId[] => {
+    // early return for scenarios where assetId is not available yet
+    if (!assetId) return []
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },

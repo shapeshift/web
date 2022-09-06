@@ -34,7 +34,10 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRamp, supportedFiatRamps } from '../config'
@@ -64,6 +67,7 @@ type OverviewProps = GenerateAddressProps & {
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
   accountAddress: string | null
+  accountId: AccountId | null
 }
 
 type AddressOrNameFull = string
@@ -128,6 +132,7 @@ export const Overview: React.FC<OverviewProps> = ({
   chainAdapterManager,
   handleAccountIdChange,
   accountAddress,
+  accountId,
 }) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
@@ -138,6 +143,33 @@ export const Overview: React.FC<OverviewProps> = ({
   } = useWallet()
   const multiAccountsEnabled = useFeatureFlag('MultiAccounts')
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, selectedAsset?.assetId ?? ''),
+  )
+  const minimumSellThreshold = useMemo(
+    () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
+    [fiatRampProvider],
+  )
+  const hasEnoughBalance = useMemo(
+    () =>
+      bnOrZero(
+        multiAccountsEnabled
+          ? (accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']) ?? 0
+          : selectedAsset?.cryptoBalance,
+      )
+        .times(marketData.price)
+        .gte(minimumSellThreshold),
+    [
+      accountBalances,
+      accountId,
+      marketData.price,
+      minimumSellThreshold,
+      multiAccountsEnabled,
+      selectedAsset?.assetId,
+      selectedAsset?.cryptoBalance,
+    ],
+  )
 
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
@@ -280,7 +312,7 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Flex>
         )}
-        {selectedAsset?.isBelowSellThreshold && (
+        {selectedAsset && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
           <Alert status='error' variant={'solid'}>
             <AlertIcon />
             <Text
@@ -295,7 +327,7 @@ export const Overview: React.FC<OverviewProps> = ({
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
+          disabled={!selectedAsset || (fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance)}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(

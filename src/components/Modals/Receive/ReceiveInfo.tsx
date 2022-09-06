@@ -32,7 +32,6 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,7 +39,6 @@ import { ReceiveRoutes } from './ReceiveCommon'
 
 type ReceivePropsType = {
   asset: Asset
-  accountId?: AccountSpecifier
 } & RouteComponentProps
 
 export const ReceiveInfo = ({ asset }: ReceivePropsType) => {

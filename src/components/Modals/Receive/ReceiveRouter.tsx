@@ -35,9 +35,7 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
         <Route
           path={ReceiveRoutes.Info}
           component={(props: RouteComponentProps) =>
-            /* selectedAccount && */ selectedAsset ? (
-              <ReceiveInfo asset={selectedAsset} {...props} />
-            ) : null
+            selectedAsset ? <ReceiveInfo asset={selectedAsset} {...props} /> : null
           }
         />
         <Route

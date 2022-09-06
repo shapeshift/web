@@ -10,7 +10,7 @@ import {
   TradeQuote,
   UtxoSupportedChainIds,
 } from '../../../api'
-import { bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
+import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
@@ -18,8 +18,11 @@ import { MAX_THORCHAIN_TRADE, THOR_MINIMUM_PADDING } from '../utils/constants'
 import { estimateTradeFee } from '../utils/estimateTradeFee/estimateTradeFee'
 import { getThorTxInfo as getEthThorTxInfo } from '../utils/ethereum/utils/getThorTxData'
 import { getTradeRate } from '../utils/getTradeRate/getTradeRate'
+import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { getBtcTxFees } from '../utils/txFeeHelpers/btcTxFees/getBtcTxFees'
 import { getEthTxFees } from '../utils/txFeeHelpers/ethTxFees/getEthTxFees'
+
+const MINIMUM_USD_TRADE_AMOUNT = bn(1)
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
 
@@ -52,7 +55,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       buyAsset.precision,
     )
 
-    const tradeFee = await estimateTradeFee(deps, buyAsset)
+    const estimatedTradeFee = await estimateTradeFee(deps, buyAsset)
+
+    const buyAssetUsdRate = await getUsdRate({ deps, input: { assetId: buyAsset.assetId } })
+    const minTradeFeeAmount = MINIMUM_USD_TRADE_AMOUNT.div(buyAssetUsdRate)
+
+    const tradeFee = minTradeFeeAmount.gt(estimatedTradeFee)
+      ? minTradeFeeAmount.toString()
+      : estimatedTradeFee
 
     const sellAssetTradeFee = bnOrZero(tradeFee).dividedBy(bnOrZero(rate))
 

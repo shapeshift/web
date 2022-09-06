@@ -30,7 +30,7 @@ Web3.mockImplementation(() => ({
 const mockedAxios = jest.mocked(thorService, true)
 
 const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimum: '3.67346938775510204082',
+  minimum: '7.795654563912575051016',
   maximum: '100000000000000000000000000',
   sellAmount: '10000000000000000000', // 1000 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -38,7 +38,7 @@ const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     fee: '700000',
     chainSpecific: { estimatedGas: '100000', approvalFee: '700000', gasPrice: '7' },
-    tradeFee: '0.00024',
+    tradeFee: '0.00050931609817562157',
   },
   rate: '0.0000784',
   sources: [{ name: 'thorchain', proportion: '1' }],
@@ -78,8 +78,18 @@ describe('getTradeQuote', () => {
 
     // Mock midgard api calls in 'getThorTxInfo' and 'getPriceRatio'
     mockedAxios.get.mockImplementation((url) => {
-      const isPoolResponse = url.includes('pools')
-      const data = isPoolResponse ? [ethMidgardPool, foxMidgardPool] : addressData
+      const isPoolsResponse = url.includes('pools')
+      const isPoolResponse = url.includes('pool') && !isPoolsResponse
+      const data = (() => {
+        switch (true) {
+          case isPoolResponse:
+            return ethMidgardPool
+          case isPoolsResponse:
+            return [ethMidgardPool, foxMidgardPool]
+          default:
+            return addressData
+        }
+      })()
       return Promise.resolve({ data })
     })
 

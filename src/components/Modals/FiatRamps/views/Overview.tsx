@@ -13,6 +13,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import {
+  AccountId,
   avalancheChainId,
   bchChainId,
   btcChainId,
@@ -26,9 +27,11 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ChainIdType } from 'state/slices/portfolioSlice/utils'
@@ -59,6 +62,8 @@ type OverviewProps = GenerateAddressProps & {
   chainId: ChainIdType
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
+  handleAccountIdChange: (accountId: AccountId) => void
+  accountAddress: string | null
 }
 
 type AddressOrNameFull = string
@@ -121,17 +126,18 @@ export const Overview: React.FC<OverviewProps> = ({
   chainId,
   setChainId,
   chainAdapterManager,
+  handleAccountIdChange,
+  accountAddress,
 }) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
   const { fiatRamps } = useModal()
-
-  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
-
   const {
     state: { wallet },
   } = useWallet()
+  const multiAccountsEnabled = useFeatureFlag('MultiAccounts')
+  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
 
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
@@ -233,37 +239,45 @@ export const Overview: React.FC<OverviewProps> = ({
         </Button>
         {selectedAsset && (
           <Flex flexDirection='column' mb='10px'>
-            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px'></Text>
-            <InputGroup size='md'>
-              <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-              <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
-                <IconButton
-                  icon={<CopyIcon />}
-                  aria-label='copy-icon'
-                  size='sm'
-                  isRound
-                  variant='ghost'
-                  onClick={handleCopyClick}
-                />
-                {supportsAddressVerifying && (
+            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
+            {multiAccountsEnabled ? (
+              <AccountDropdown
+                assetId={selectedAsset.assetId}
+                onChange={handleAccountIdChange}
+                buttonProps={{ variant: 'solid' }}
+              />
+            ) : (
+              <InputGroup size='md'>
+                <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
+                <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                   <IconButton
-                    icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                    onClick={handleVerify}
-                    aria-label='check-icon'
+                    icon={<CopyIcon />}
+                    aria-label='copy-icon'
                     size='sm'
-                    color={
-                      shownOnDisplay
-                        ? 'green.500'
-                        : shownOnDisplay === false
-                        ? 'red.500'
-                        : 'gray.500'
-                    }
                     isRound
                     variant='ghost'
+                    onClick={handleCopyClick}
                   />
-                )}
-              </InputRightElement>
-            </InputGroup>
+                  {supportsAddressVerifying && (
+                    <IconButton
+                      icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                      onClick={handleVerify}
+                      aria-label='check-icon'
+                      size='sm'
+                      color={
+                        shownOnDisplay
+                          ? 'green.500'
+                          : shownOnDisplay === false
+                          ? 'red.500'
+                          : 'gray.500'
+                      }
+                      isRound
+                      variant='ghost'
+                    />
+                  )}
+                </InputRightElement>
+              </InputGroup>
+            )}
           </Flex>
         )}
         {selectedAsset?.isBelowSellThreshold && (
@@ -287,7 +301,7 @@ export const Overview: React.FC<OverviewProps> = ({
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
               selectedAsset?.assetId || '',
-              addressFull || '',
+              (multiAccountsEnabled ? accountAddress : addressFull) || '',
             )
           }
         >

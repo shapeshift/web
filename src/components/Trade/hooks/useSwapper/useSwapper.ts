@@ -292,7 +292,7 @@ export const useSwapper = () => {
           sendMax: false,
           receiveAddress,
         })
-      } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         const sellAssetChainAdapter = getChainAdapterManager().get(
@@ -433,7 +433,7 @@ export const useSwapper = () => {
                 sellAssetAccountNumber: 0,
                 receiveAddress,
               })
-            } else if (chainNamespace === CHAIN_NAMESPACE.Bitcoin) {
+            } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
               const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               const sellAssetChainAdapter = getChainAdapterManager().get(
@@ -606,11 +606,11 @@ export const useSwapper = () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         const fees = getEvmFees()
         setValue('fees', fees)
         break
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
           tradeFee: trade.feeData.tradeFee,
@@ -619,7 +619,7 @@ export const useSwapper = () => {
         setValue('fees', fees)
         break
       }
-      case CHAIN_NAMESPACE.Bitcoin:
+      case CHAIN_NAMESPACE.Utxo:
         {
           const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 

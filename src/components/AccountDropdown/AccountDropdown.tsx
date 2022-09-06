@@ -102,8 +102,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
        */
       const { chainNamespace } = fromChainId(chainId)
       switch (chainNamespace) {
-        // note - conceptually this is really CHAIN_NAMESPACE.UTXO
-        case CHAIN_NAMESPACE.Bitcoin: {
+        case CHAIN_NAMESPACE.Utxo: {
           return accountIdToLabel(accountId)
         }
         default: {

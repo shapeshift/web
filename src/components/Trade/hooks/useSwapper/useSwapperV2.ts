@@ -1,15 +1,21 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { Swapper, SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
+import { filterAssetsByIds, getFirstReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
 import { type TradeState } from 'components/Trade/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+
+const moduleLogger = logger.child({ namespace: ['useSwapper'] })
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
@@ -32,29 +38,12 @@ export const useSwapper = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const [receiveAddress, setReceiveAddress] = useState<string | null>()
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-
-  // useEffects
-  useEffect(() => {
-    ;(async () => {
-      flags && setSwapperManager(await getSwapperManager(flags))
-    })()
-  }, [flags])
-
-  useEffect(() => {
-    if (buyAssetId && sellAssetId) {
-      ;(async () => {
-        const swapper = await swapperManager.getBestSwapper({
-          buyAssetId,
-          sellAssetId,
-        })
-        setBestTradeSwapper(swapper)
-      })()
-    }
-  }, [buyAssetId, sellAssetId, swapperManager])
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -65,6 +54,25 @@ export const useSwapper = () => {
       return filterAssetsByIds(assets, sellableAssetIds)
     },
     [assetIds, swapperManager],
+  )
+
+  const getReceiveAddressFromBuyAsset = useCallback(
+    async (buyAsset: Asset) => {
+      const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
+      const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
+      if (!(chainAdapter && wallet)) return
+      try {
+        return await getFirstReceiveAddress({
+          accountSpecifiersList,
+          buyAsset,
+          chainAdapter,
+          wallet,
+        })
+      } catch (e) {
+        moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
+      }
+    },
+    [accountSpecifiersList, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
@@ -89,11 +97,46 @@ export const useSwapper = () => {
     return approvalNeeded
   }, [bestTradeSwapper, quote, wallet])
 
+  // useEffects
+  useEffect(() => {
+    if (buyAssetId && sellAssetId) {
+      ;(async () => {
+        const swapper = await swapperManager.getBestSwapper({
+          buyAssetId,
+          sellAssetId,
+        })
+        setBestTradeSwapper(swapper)
+      })()
+    }
+  }, [buyAssetId, sellAssetId, swapperManager])
+
+  useEffect(() => {
+    ;(async () => {
+      flags && setSwapperManager(await getSwapperManager(flags))
+    })()
+  }, [flags])
+
+  useEffect(() => {
+    const buyAsset = buyTradeAsset?.asset
+    if (!buyAsset) return
+    ;(async () => {
+      // TODO: get the actual receive address instead of the first
+      try {
+        const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
+        setReceiveAddress(receiveAddress)
+      } catch (e) {
+        setReceiveAddress(null)
+      }
+    })()
+  }, [buyTradeAsset?.asset, getReceiveAddressFromBuyAsset])
+
   return {
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperManager,
     checkApprovalNeeded,
     bestTradeSwapper,
+    receiveAddress,
+    getReceiveAddressFromBuyAsset,
   }
 }

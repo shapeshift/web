@@ -158,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const { chainNamespace, chainReference } = fromChainId(chainId)
 
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               if (!supportsBTC(wallet)) continue
 
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
@@ -186,7 +186,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               break
             }
 
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
                 if (!supportsETH(wallet)) continue
               }
@@ -202,7 +202,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               accMeta[accountId] = { bip44Params }
               break
             }
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
                 if (!supportsCosmos(wallet)) continue
               }

@@ -91,8 +91,9 @@ export const useSwapper = () => {
   )
 
   const checkApprovalNeeded = useCallback(async (): Promise<boolean> => {
-    if (!bestTradeSwapper) throw new Error('no swapper available')
-    if (!wallet) throw new Error('no wallet available')
+    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!wallet) throw new Error('No wallet available')
+    if (!quote) throw new Error('No quote available')
     const { approvalNeeded } = await bestTradeSwapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }, [bestTradeSwapper, quote, wallet])

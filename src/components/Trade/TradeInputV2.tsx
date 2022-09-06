@@ -99,7 +99,7 @@ export const TradeInput = () => {
   }
 
   const handleSendMax = () => {
-    if (!sellTradeAsset?.asset) return
+    if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
       sellFeeAsset,

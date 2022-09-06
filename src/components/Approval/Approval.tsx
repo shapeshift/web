@@ -73,6 +73,10 @@ export const Approval = () => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const approveContract = async () => {
+    if (!quote) {
+      moduleLogger.error('No quote available')
+      return
+    }
     try {
       if (!isConnected) {
         /**
@@ -103,9 +107,9 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         await updateTrade({
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: quote?.sellAmount,
+          sellAsset: quote.sellAsset,
+          buyAsset: quote.buyAsset,
+          amount: quote.sellAmount,
         })
 
         history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
@@ -167,7 +171,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${quote.sellAsset.explorerAddressLink}${quote.allowanceContract}`}
+                href={`${quote?.sellAsset.explorerAddressLink}${quote?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal

@@ -37,7 +37,7 @@ export type TradeState<C extends ChainId> = {
   fees?: DisplayFeeData<C>
   action: TradeAmountInputField | undefined
   isExactAllowance?: boolean
-  quote: TradeQuote<C>
+  quote?: TradeQuote<C>
   trade: Trade<C> | CowTrade<C>
   /** @deprecated use native react hook form errors instead */
   quoteError: string | null

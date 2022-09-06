@@ -168,6 +168,16 @@ describe.each([
         ]),
     )
 
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
+        },
+      },
+    })
+
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
     await result.current.handleSend(formData)
@@ -216,6 +226,16 @@ describe.each([
         ]),
     )
 
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
+        },
+      },
+    })
+
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddress)
@@ -260,6 +280,16 @@ describe.each([
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
         ]),
     )
+
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
+        },
+      },
+    })
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
@@ -311,6 +341,16 @@ describe.each([
         ]),
     )
 
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
+        },
+      },
+    })
+
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
     await result.current.handleSend(formDataEnsAddress)
@@ -350,6 +390,16 @@ describe.each([
           [KnownChainIds.EthereumMainnet, mockEthereumAdapter],
         ]),
     )
+
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
+        },
+      },
+    })
 
     const { result } = renderHook(() => useFormSend())
     await expect(result.current.handleSend(formData)).rejects.toThrow()

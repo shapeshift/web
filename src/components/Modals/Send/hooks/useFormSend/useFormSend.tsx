@@ -44,6 +44,9 @@ export const useFormSend = () => {
         const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
 
+        if (!acctMetaData?.[data.accountId])
+          throw new Error(`useFormSend: no accountMetaData for ${data.accountId}`)
+
         const value = bnOrZero(data.cryptoAmount)
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)

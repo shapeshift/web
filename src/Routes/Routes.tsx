@@ -1,5 +1,5 @@
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
@@ -56,6 +56,19 @@ export const Routes = () => {
     connectDemo,
   ])
 
+  const privateRoutesList = useMemo(
+    () =>
+      appRoutes.map((route, index) => {
+        const MainComponent = route.main
+        return (
+          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+            <Layout>{MainComponent && <MainComponent />}</Layout>
+          </PrivateRoute>
+        )
+      }),
+    [appRoutes, hasWallet],
+  )
+
   return (
     <Switch location={background || location}>
       <Route path='/demo'>
@@ -70,14 +83,7 @@ export const Routes = () => {
           ) : null
         }}
       </Route>
-      {appRoutes.map((route, index) => {
-        const MainComponent = route.main
-        return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
-            <Layout>{MainComponent && <MainComponent />}</Layout>
-          </PrivateRoute>
-        )
-      })}
+      {privateRoutesList}
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>

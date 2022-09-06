@@ -72,7 +72,7 @@ export const WalletViewsSwitch = () => {
     }
   }, [history, initialRoute])
 
-  const __routes = useMemo(
+  const walletRoutesList = useMemo(
     () =>
       type
         ? SUPPORTED_WALLETS[type].routes.map(route => {
@@ -118,7 +118,7 @@ export const WalletViewsSwitch = () => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {__routes}
+                {walletRoutesList}
                 <Route path={'/select'} children={() => <SelectModal />} />
                 <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>

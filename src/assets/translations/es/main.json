@@ -22,6 +22,7 @@
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
     "claim": "Reclamar",
+    "withdrawAndClaim": "Retirar y Reclamar",
     "overview": "Vista Rápida",
     "getStarted": "Iniciar",
     "connectWallet": "Conectar Billetera",
@@ -112,6 +113,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -123,7 +125,9 @@
     "fundsFrom": "Los fondos se enviarán desde",
     "headerLabel": "Compra/Vende criptomonedas",
     "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}",
-    "usOnly": "Solamente - EEUU"
+    "usOnly": "Solamente - EEUU",
+    "noKYC": "SIN KYC",
+    "nonUS": "NO-USA"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +264,7 @@
     "tvl": "TVL",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Finalizado",
     "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
@@ -309,7 +314,9 @@
         "info": {
           "title": "Información sobre retiro",
           "description": "Ingrese la cantidad de %{asset} que desea retirar.",
-          "yieldyDescription": "Ingrese la cantidad de %{asset} que desea retirar. Los retiros posteriores se combinarán y restablecerán el tiempo de retiro."
+          "yieldyDescription": "Ingrese la cantidad de %{asset} que desea retirar. Los retiros posteriores se combinarán y restablecerán el tiempo de retiro.",
+          "farmingExpiredDescription": "Este contrato de recompensas ha finalizado. Debes retirar todo tu saldo.",
+          "rewardsInfo": "Recompensas que recibirá"
         }
       },
       "approve": {
@@ -345,7 +352,9 @@
     "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones",
     "demoMode": "Modo Demo",
-    "clickToConnect": "Haga clic para conectar una billetera"
+    "clickToConnect": "Haga clic para conectar una billetera",
+    "wallet": "Billetera",
+    "explore": "Explore"
   },
   "transactionRow": {
     "send": "Enviado %{symbol}",
@@ -375,6 +384,8 @@
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "revoke": "Revocar",
+        "infinite": "Infinito ∞",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -394,7 +405,9 @@
         "claimWithdraw": "Retirar monto a reclamar"
       },
       "erc20": {
-        "approve": "Aprobar"
+        "approve": "Aprobar",
+        "revoke": "Revocar",
+        "infinite": "Infinito ∞"
       }
     },
     "unknown": "Transacción"
@@ -572,6 +585,20 @@
           "required": "Se requiere confirmación de contraseña",
           "length": "Su contraseña debe tener al menos %{longitud} caracteres",
           "maxLength": "El apodo debe tener %{longitud} caracteres como máximo"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Hacer una copia de seguridad de mi billetera",
+        "enterPassword": "Ingrese su contraseña para continuar",
+        "testTitle": "Verifique su Frase Secreta de Recuperación",
+        "info": {
+          "title": "Su Frase Secreta de Recuperación",
+          "description": "Escriba estas 12 palabras y guárdelas de forma segura fuera de línea. Esta frase de 12 palabras se usa para recuperar las claves privadas de su billetera.",
+          "warning": "Nota: si pierde su Frase de recuperación secreta, ShapeShift no puede ayudarlo a recuperar su billetera y sus fondos se perderán para siempre."
+        },
+        "success": {
+          "title": "Éxito",
+          "description": "Has hecho una copia de seguridad de tu billetera. Recuerde guardar su Frase Secreta de Recuperación en un lugar seguro."
         }
       }
     },
@@ -1182,7 +1209,8 @@
     }
   },
   "accounts": {
-    "accounts": "Cuentas"
+    "accounts": "Cuentas",
+    "selectAccount": "Seleccione una Cuenta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1236,6 +1264,7 @@
     "status": "Estado",
     "transactionType": "Tipo de Transacción",
     "minerFee": "Tarifa de Minero",
+    "approvalAmount": "Aprobar Cantidad",
     "unknownType": "Transacción",
     "from": "Desde",
     "to": "Para",

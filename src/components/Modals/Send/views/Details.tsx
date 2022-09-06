@@ -65,17 +65,7 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
-  if (
-    !(
-      asset &&
-      asset.name &&
-      asset.assetId &&
-      !isNil(cryptoAmount) &&
-      cryptoSymbol &&
-      !isNil(fiatAmount) &&
-      fiatSymbol
-    )
-  ) {
+  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 

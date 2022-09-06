@@ -71,17 +71,7 @@ export const Details = () => {
     toggleCurrency,
   } = useSendDetails()
 
-  if (
-    !(
-      asset &&
-      asset.name &&
-      asset.assetId &&
-      !isNil(cryptoAmount) &&
-      cryptoSymbol &&
-      !isNil(fiatAmount) &&
-      fiatSymbol
-    )
-  ) {
+  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 

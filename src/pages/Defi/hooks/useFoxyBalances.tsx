@@ -27,6 +27,7 @@ export function useFoxyBalances() {
     ;(async () => {
       const chainAdapter = getChainAdapterManager().get(KnownChainIds.EthereumMainnet)
       if (!chainAdapter || !wallet) return
+      // TODO accountNumber needs to come from account metadata
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       const userAddress = await chainAdapter.getAddress({ wallet, bip44Params })
       setUserAddress(userAddress)

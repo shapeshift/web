@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId, CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
+import { AccountId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -42,7 +42,6 @@ const makeTitle = (accountId: AccountId, asset: Asset) => {
     case CHAIN_NAMESPACE.Utxo: {
       return accountIdToLabel(accountId)
     }
-    // TODO(0xdef1cafe): better shortening for cosmos
     case CHAIN_NAMESPACE.CosmosSdk:
     case CHAIN_NAMESPACE.Evm: {
       return firstFourLastFour(account)
@@ -56,17 +55,25 @@ const makeTitle = (accountId: AccountId, asset: Asset) => {
 export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const filter = useMemo(() => ({ assetId: '', accountId }), [accountId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const assetIds = useAppSelector(s => selectPortfolioAssetIdsByAccountId(s, filter))
   const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
-  const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, fromAccountId(accountId).chainId))
+  const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const { color } = feeAsset
 
   const assetRows = useMemo(
     () => assetIds.map(assetId => <ChildAssetRow accountId={accountId} assetId={assetId} />),
     [accountId, assetIds],
   )
+
+  const isUtxoChain = useMemo(
+    () => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo,
+    [chainId],
+  )
+
+  const fontFamily = useMemo(() => (!isUtxoChain ? 'monospace' : ''), [isUtxoChain])
 
   return (
     <ListItem>
@@ -78,12 +85,13 @@ export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) =>
           height='auto'
           iconSpacing={4}
           leftIcon={
-            <Avatar bg={`${color}20`} color={color} size='sm' name={accountNumber.toString()} />
+            // space in string interpolation is not a bug - see Chakra UI Avatar docs
+            <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />
           }
           {...rest}
         >
           <Stack alignItems='flex-start' spacing={0}>
-            <RawText color='var(--chakra-colors-chakra-body-text)'>
+            <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
               {makeTitle(accountId, feeAsset)}
             </RawText>
             <RawText fontSize='sm' color='gray.500'>
@@ -94,14 +102,16 @@ export const AccountRow: React.FC<AccountRowProps> = ({ accountId, ...rest }) =>
             <Amount.Fiat value={fiatBalance} />
           </Stack>
         </Button>
-        <IconButton
-          size='sm'
-          variant='ghost'
-          isActive={isOpen}
-          aria-label='Expand Account'
-          icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          onClick={onToggle}
-        />
+        {!isUtxoChain && (
+          <IconButton
+            size='sm'
+            variant='ghost'
+            isActive={isOpen}
+            aria-label='Expand Account'
+            icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
+            onClick={onToggle}
+          />
+        )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>
         <ListItem>{assetRows}</ListItem>

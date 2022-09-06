@@ -22,6 +22,7 @@ const AccountHeader = () => {
 }
 
 export const Accounts = () => {
+  // TODO(0xdef1cafe): selectPortfolioChainIdsSortedFiat
   const chainIds = useSelector(selectPortfolioChainIds)
   const chainRows = useMemo(
     () => chainIds.map(chainId => <ChainRow chainId={chainId} />),

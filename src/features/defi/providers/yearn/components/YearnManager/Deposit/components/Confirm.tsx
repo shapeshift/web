@@ -9,7 +9,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -32,7 +32,10 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
 
-export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Confirm: React.FC<StepComponentProps & { accountNumber: number | undefined }> = ({
+  onNext,
+  accountNumber,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -62,21 +65,21 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
-
-  const handleDeposit = async () => {
-    try {
-      if (
-        !(
-          state.userAddress &&
-          assetReference &&
-          walletState.wallet &&
-          supportsETH(walletState.wallet) &&
-          opportunity
-        )
+  const handleDeposit = useCallback(async () => {
+    if (
+      !(
+        dispatch &&
+        accountNumber &&
+        state?.userAddress &&
+        assetReference &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        opportunity
       )
-        return
+    )
+      return
 
+    try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
@@ -91,6 +94,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
+        accountNumber,
       })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -105,7 +109,23 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    accountNumber,
+    asset.precision,
+    assetReference,
+    dispatch,
+    onNext,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.opportunity?.positionAsset.assetId,
+    state?.userAddress,
+    toast,
+    translate,
+    walletState.wallet,
+    yearnInvestor,
+  ])
+
+  if (!state || !dispatch) return null
 
   const handleCancel = () => {
     onNext(DefiStep.Info)

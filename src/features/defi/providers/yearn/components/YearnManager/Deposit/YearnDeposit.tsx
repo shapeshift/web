@@ -1,5 +1,5 @@
 import { Center, useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
@@ -20,6 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -38,7 +39,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnDeposit'],
 })
 
-export const YearnDeposit = () => {
+export const YearnDeposit: React.FC<{
+  onAccountChange: (accountId: AccountId) => void
+  accountId: AccountId | null
+}> = ({ onAccountChange: handleAccountChange, accountId }) => {
   const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
@@ -95,12 +99,15 @@ export const YearnDeposit = () => {
     })
   }
 
+  const filter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: props => <Deposit {...props} onAccountChange={handleAccountChange} />,
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -111,14 +118,14 @@ export const YearnDeposit = () => {
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: props => <Confirm {...props} accountNumber={accountNumber} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [vaultAddress, asset.symbol, translate])
+  }, [accountNumber, handleAccountChange, vaultAddress, asset.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

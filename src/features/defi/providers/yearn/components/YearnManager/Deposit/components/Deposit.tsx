@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiAction,
@@ -28,7 +28,9 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Deposit: React.FC<
+  StepComponentProps & { onAccountChange: (accountId: AccountId) => void }
+> = ({ onNext, onAccountChange: handleAccountChange }) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -200,6 +202,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <ReusableDeposit
+      onAccountChange={handleAccountChange}
       asset={asset}
       apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

@@ -1,4 +1,4 @@
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import {
   Field,
   Withdraw as ReusableWithdraw,
@@ -30,7 +30,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'Withdraw', 'Withdraw'],
 })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Withdraw: React.FC<
+  StepComponentProps & { onAccountChange: (accountId: AccountId) => void }
+> = ({ onAccountChange: handleAccountChange, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
@@ -148,6 +150,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        onAccountChange={handleAccountChange}
         asset={underlyingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{

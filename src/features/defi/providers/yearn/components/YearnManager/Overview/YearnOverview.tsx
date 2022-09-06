@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -19,6 +19,7 @@ import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSelectedLocale,
@@ -29,7 +30,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
 })
 
-export const YearnOverview = () => {
+export const YearnOverview: React.FC<{ onAccountChange: (accountId: AccountId) => void }> = ({
+  onAccountChange: handleAccountChange,
+}) => {
   const { yearn: api } = useYearn()
   const translate = useTranslate()
   const toast = useToast()
@@ -83,6 +86,8 @@ export const YearnOverview = () => {
     })()
   }, [api, vaultAddress, chainId, toast, translate])
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -93,6 +98,7 @@ export const YearnOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

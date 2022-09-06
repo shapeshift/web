@@ -1,5 +1,4 @@
 import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
-import { getConfig } from 'config'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -7,6 +6,7 @@ import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
 import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
+import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
@@ -37,7 +37,7 @@ export interface SupportedFiatRampConfig {
   tags?: string[]
   logo: string
   isImplemented: boolean
-  isActive: boolean
+  isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
   minimumSellThreshold?: number
@@ -72,14 +72,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
     isImplemented: true,
-    isActive: true,
+    isActive: () => true,
     minimumSellThreshold: 5,
   },
   Banxa: {
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
     isImplemented: true,
-    isActive: true,
+    isActive: () => true,
     minimumSellThreshold: 50,
     supportsBuy: true,
     supportsSell: true,
@@ -106,7 +106,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
     isImplemented: true,
-    isActive: true,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {
@@ -129,7 +129,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
     isImplemented: true,
-    isActive: true,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
@@ -154,7 +154,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: [],
     logo: OnRamperLogo,
     isImplemented: true,
-    isActive: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
+    isActive: featureFlags => featureFlags.OnRamperFiatRamp,
     supportsBuy: true,
     supportsSell: true,
     minimumSellThreshold: 0,

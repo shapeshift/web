@@ -152,7 +152,7 @@ export const selectBIP44ParamsByAccountId = createSelector(
 
 export const selectAccountNumberByAccountId = createSelector(
   selectBIP44ParamsByAccountId,
-  (bip44Params): number => bip44Params?.accountNumber,
+  (bip44Params): number | undefined => bip44Params?.accountNumber,
 )
 
 export const selectAccountTypeByAccountId = createSelector(

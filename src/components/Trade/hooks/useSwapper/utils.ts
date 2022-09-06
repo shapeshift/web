@@ -57,6 +57,8 @@ type GetFormFeesArgs = {
   feeAsset: Asset
 }
 
+export type AssetIdTradePair = { buyAssetId: AssetId; sellAssetId: AssetId }
+
 // Type guards
 export const isSupportedUtxoSwappingChain = (
   chainId: ChainId,
@@ -209,22 +211,26 @@ export const getBestSwapperFromArgs = async (
 export const getDefaultAssetIdPairByChainId = (
   buyAssetChainId: ChainId | undefined,
   featureFlags: FeatureFlags,
-): AssetId[] => {
+): AssetIdTradePair => {
   const osmosisEnabled = featureFlags.Osmosis
-  const ethFoxPair = [
-    ethAssetId,
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' as AssetId,
-  ]
+  const ethFoxPair = {
+    sellAssetId: ethAssetId,
+    buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  }
   switch (buyAssetChainId) {
     case KnownChainIds.AvalancheMainnet:
-      return [
-        avalancheAssetId,
-        'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab' as AssetId,
-      ]
+      return {
+        sellAssetId: avalancheAssetId,
+        buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+      }
     case KnownChainIds.CosmosMainnet:
-      return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
+      return osmosisEnabled
+        ? { sellAssetId: cosmosAssetId, buyAssetId: osmosisAssetId }
+        : ethFoxPair
     case KnownChainIds.OsmosisMainnet:
-      return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
+      return osmosisEnabled
+        ? { sellAssetId: osmosisAssetId, buyAssetId: cosmosAssetId }
+        : ethFoxPair
     case KnownChainIds.EthereumMainnet:
     default:
       return ethFoxPair

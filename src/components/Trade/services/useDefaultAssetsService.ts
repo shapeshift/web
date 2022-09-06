@@ -17,7 +17,10 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
+import {
+  AssetIdTradePair,
+  getDefaultAssetIdPairByChainId,
+} from 'components/Trade/hooks/useSwapper/utils'
 import { TradeAmountInputField, TradeState } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -38,7 +41,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [defaultAssetFiatRateArgs, setDefaultAssetFiatRateArgs] =
     useState<UsdRateInputArg>(skipToken)
-  const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<[AssetId, AssetId]>()
+  const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
 
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
@@ -58,11 +61,8 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     const maybeBuyAssetChainId = routeBuyAssetId
       ? fromAssetId(routeBuyAssetId).chainId
       : maybeWalletChainId
-    const [defaultSellAssetId, defaultBuyAssetId] = getDefaultAssetIdPairByChainId(
-      maybeBuyAssetChainId,
-      featureFlags,
-    )
-    setDefaultAssetIdPair([defaultSellAssetId, defaultBuyAssetId])
+    const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
+    setDefaultAssetIdPair(defaultAssetIdPair)
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
 
   const {
@@ -74,10 +74,10 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     useGetUsdRateQuery(defaultAssetFiatRateArgs)
 
   const buyAssetId = useMemo(() => {
-    if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair[0])
+    if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair.sellAssetId)
       return routeBuyAssetId
 
-    return defaultAssetIdPair?.[1]
+    return defaultAssetIdPair?.buyAssetId
   }, [defaultAssetIdPair, routeBuyAssetId])
 
   const previousBuyAssetId = usePrevious(buyAssetId)
@@ -88,7 +88,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
       buyAssetId &&
       setBuyAssetFiatRateArgs({
         buyAssetId,
-        sellAssetId: defaultAssetIdPair[0],
+        sellAssetId: defaultAssetIdPair.sellAssetId,
         rateAssetId: buyAssetId,
       }),
     [buyAssetId, defaultAssetIdPair],
@@ -98,9 +98,9 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     // Do this lazily to reduce network requests - once we know we failed to get a fiat rate for the buy asset
     if (!buyAssetFiatRateData && defaultAssetIdPair && !isBuyAssetFiatRateUninitialized) {
       setDefaultAssetFiatRateArgs({
-        buyAssetId: defaultAssetIdPair?.[1],
-        sellAssetId: defaultAssetIdPair?.[0],
-        rateAssetId: defaultAssetIdPair?.[1],
+        buyAssetId: defaultAssetIdPair.buyAssetId,
+        sellAssetId: defaultAssetIdPair.sellAssetId,
+        rateAssetId: defaultAssetIdPair.buyAssetId,
       })
     }
   }, [buyAssetFiatRateData, defaultAssetIdPair, isBuyAssetFiatRateUninitialized])
@@ -114,11 +114,11 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
       // If the swapper supports the buy asset with the default sell asset, use that pair
       if (buyAssetFiatRateData && buyAssetId) {
         setValue('buyTradeAsset.asset', assets[buyAssetId])
-        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
+        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair.sellAssetId])
         // If the swapper supports the default buy asset with the default sell asset, use the default pair
       } else if (defaultAssetFiatRateData && !isBuyAssetFiatRateLoading) {
-        setValue('buyTradeAsset.asset', assets[defaultAssetIdPair[1]])
-        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair[0]])
+        setValue('buyTradeAsset.asset', assets[defaultAssetIdPair.buyAssetId])
+        setValue('sellTradeAsset.asset', assets[defaultAssetIdPair.sellAssetId])
         // Use FOX/ETH as a fallback, though only once we have a response confirming the defaults aren't supported
       } else if (!isBuyAssetFiatRateLoading && !isDefaultAssetFiatRateLoading) {
         setValue(

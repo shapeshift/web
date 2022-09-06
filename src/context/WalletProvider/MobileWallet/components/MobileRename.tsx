@@ -34,6 +34,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
       if (
         isValidLabel(label) &&
         location.state.vault?.id &&
+        // Ask the mobile app to update the label on the wallet
         (await updateWallet(location.state.vault.id, { label }))
       ) {
         history.goBack()

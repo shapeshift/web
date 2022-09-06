@@ -72,6 +72,9 @@ export const WalletViewsSwitch = () => {
     }
   }, [history, initialRoute])
 
+  /**
+   * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
+   */
   const walletRoutesList = useMemo(
     () =>
       type

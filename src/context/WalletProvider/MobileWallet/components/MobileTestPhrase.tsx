@@ -34,18 +34,11 @@ const moduleLogger = mobileLogger.child({
 export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
-  // const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
-
-  // const onCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   // Check the captcha in case the captcha has been validated
-  //   setHasAlreadySaved(e.target.checked)
-  //   return
-  // }
 
   const { vault } = location.state
 
@@ -155,35 +148,6 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
               ),
             )}
         </Wrap>
-        {/*{isLegacyWallet && (*/}
-        {/*  <Box>*/}
-        {/*    <Box position='relative' mb={8} mt={10}>*/}
-        {/*      <Divider />*/}
-        {/*      <Text*/}
-        {/*        translation={'common.or'}*/}
-        {/*        transform='translate(-50%, -50%)'*/}
-        {/*        left='50%'*/}
-        {/*        position='absolute'*/}
-        {/*        color='gray.500'*/}
-        {/*      />*/}
-        {/*    </Box>*/}
-        {/*    <Checkbox mb={4} spacing={4} onChange={onCheck} isChecked={hasAlreadySaved}>*/}
-        {/*      <Text*/}
-        {/*        fontSize='sm'*/}
-        {/*        translation={'walletProvider.shapeShift.legacy.alreadySavedConfirm'}*/}
-        {/*      />*/}
-        {/*    </Checkbox>*/}
-        {/*    <Button*/}
-        {/*      colorScheme='blue'*/}
-        {/*      width='full'*/}
-        {/*      size='md'*/}
-        {/*      isDisabled={!hasAlreadySaved}*/}
-        {/*      onClick={() => history.push('/mobile/password', { vault })}*/}
-        {/*    >*/}
-        {/*      <Text translation={'common.skip'} />*/}
-        {/*    </Button>*/}
-        {/*  </Box>*/}
-        {/*)}*/}
       </ModalBody>
     </>
   )

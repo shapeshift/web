@@ -5,6 +5,10 @@ import type { MobileWalletInfoWithMnemonic, RevocableObject } from './types'
 
 type Info = Partial<MobileWalletInfoWithMnemonic>
 
+/**
+ * Privately store a wallet and it's mnemonic
+ * Private variable is used to prevent leaking the information
+ */
 class Wallet {
   #info: Info
 
@@ -44,9 +48,12 @@ class Wallet {
   }
 
   generateMnemonic() {
-    this.#info.mnemonic = generateMnemonic()
+    this.mnemonic = generateMnemonic()
   }
 
+  /**
+   * Convert the class into JSON that can be passed back to the mobile app
+   */
   toJSON() {
     return { ...this.#info }
   }
@@ -54,5 +61,9 @@ class Wallet {
 
 export type RevocableWallet = RevocableObject<Wallet>
 
+/**
+ * Creates a Wallet instance that is wrapped in a revocable Proxy
+ * This allows us to purge the mnemonic from memory after loading it into HDWallet
+ */
 export const createRevocableWallet: (wallet: Info) => RevocableWallet = wallet =>
   new (Revocable(Wallet))(wallet)

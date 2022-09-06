@@ -29,6 +29,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
         { name: values.name, mnemonicLength: values.mnemonic.length },
         'Import a wallet',
       )
+      // Save the wallet in the mobile app
       const vault = await addWallet({
         mnemonic: values.mnemonic.toLowerCase().trim(),
         label: values.name.trim(),

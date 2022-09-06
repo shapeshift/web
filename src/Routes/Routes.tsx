@@ -56,6 +56,10 @@ export const Routes = () => {
     connectDemo,
   ])
 
+  /**
+   * Memoize the route list to avoid unnecessary cascading re-renders
+   * It should only re-render if the wallet changes
+   */
   const privateRoutesList = useMemo(
     () =>
       appRoutes.map((route, index) => {

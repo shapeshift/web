@@ -10,6 +10,10 @@ export const MobileConfig: Omit<SupportedWalletInfo, 'routes'> = {
   name: 'ShapeShift Mobile',
 }
 
+/**
+ * A logger with a namespace so components can make child loggers on one line
+ * (no need to repeat this part of the namespace in each child)
+ */
 export const mobileLogger = logger.child({
   namespace: ['WalletProvider', 'MobileWallet'],
 })

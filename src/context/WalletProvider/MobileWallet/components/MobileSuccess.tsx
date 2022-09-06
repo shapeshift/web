@@ -28,7 +28,6 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       if (!vault) return
       const adapter = state.adapters?.get(KeyManager.Native)!
       try {
-        await new Promise(resolve => setTimeout(resolve, 250))
         const deviceId = vault.id ?? ''
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
@@ -49,8 +48,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
             },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+          setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           setLocalNativeWalletName(walletLabel)
           return setIsSuccessful(true)
         }

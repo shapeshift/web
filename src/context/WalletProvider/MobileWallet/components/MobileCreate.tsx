@@ -102,6 +102,7 @@ export const MobileCreate = () => {
     }
 
     return () => {
+      // Revoke the `Tag` components that have a mnemonic word stored in them
       revoker.revoke()
     }
   }, [setWords, revoker, vault])

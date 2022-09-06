@@ -13,6 +13,7 @@ export type RevocableObject<T> = T & {
 }
 
 export interface MobileLocationState {
+  // This is passed between setup screens and then revoked when done
   vault?: RevocableWallet
   isLegacyWallet?: boolean
   error?: {

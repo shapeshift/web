@@ -10,10 +10,10 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
   type TradeQuoteInputCommonArgs,
   getBestSwapperFromArgs,
-  getFirstReceiveAddress,
   getFormFees,
   getUtxoParams,
   isSupportedNoneUtxoSwappingChain,
@@ -54,6 +54,7 @@ export const useTradeQuoteService = () => {
     state: { wallet },
   } = useWallet()
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
+  const { receiveAddress } = useSwapper()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -74,7 +75,7 @@ export const useTradeQuoteService = () => {
   // Trigger trade quote query
   useEffect(() => {
     const sellTradeAssetAmount = sellTradeAsset?.amount
-    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount) {
+    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount && receiveAddress) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -82,12 +83,6 @@ export const useTradeQuoteService = () => {
         if (!chainAdapter)
           throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
-        const receiveAddress = await getFirstReceiveAddress({
-          accountSpecifiersList,
-          buyAsset,
-          chainAdapter,
-          wallet,
-        })
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await (async () => {
           const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
             sellAmount: toBaseUnit(sellTradeAssetAmount, sellAsset.precision),
@@ -131,6 +126,7 @@ export const useTradeQuoteService = () => {
     amount,
     buyAsset,
     buyTradeAsset,
+    receiveAddress,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellAssetAccount,

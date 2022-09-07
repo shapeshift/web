@@ -54,11 +54,11 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const chainAdapter = chainAdapterManager.get(chainId)
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountMeta = useAppSelector(state =>
+  const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
-  const accountType = accountMeta?.accountType
-  const bip44Params = accountMeta?.bip44Params
+  const accountType = accountMetadata?.accountType
+  const bip44Params = accountMetadata?.bip44Params
 
   useEffect(() => {
     ;(async () => {

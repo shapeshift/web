@@ -2,10 +2,12 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Circle, Collapse, IconButton, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
@@ -21,13 +23,14 @@ type ChainRowProps = {
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
-  // const history = useHistory()
+  const history = useHistory()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByChainId(s, filter))
   const accountIdsByAccountNumber = useAppSelector(s =>
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
+
   const { color, name } = asset
 
   const accountRows = useMemo(() => {
@@ -37,10 +40,15 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         accountNumber={Number(accountNumber)}
         accountIds={accountIds}
         chainId={chainId}
-        // onClick={() => history.push(`accounts/${accountNumber}`)}
+        onClick={
+          // accountIds is strictly length 1 per accountNumber for account-based chains
+          !isUtxoAccountId(accountIds[0])
+            ? () => history.push(`accounts/${accountIds[0]}`)
+            : undefined
+        }
       />
     ))
-  }, [accountIdsByAccountNumber, chainId])
+  }, [accountIdsByAccountNumber, chainId, history])
 
   return (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold'>

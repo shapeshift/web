@@ -41,7 +41,7 @@ const AssetInputLoaded: React.FC<AssetInputLoadedProps> = props => {
   return <AssetInput balance={balance} fiatBalance={fiatBalance} {...props} />
 }
 
-type TradeAssetInputProps = {
+export type TradeAssetInputProps = {
   assetId?: AssetId
 } & AssetInputProps
 

@@ -35,7 +35,7 @@ export const useSwapper = () => {
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -117,7 +117,7 @@ export const useSwapper = () => {
     if (!buyTradeAsset?.asset) throw new Error('Missing buyTradeAsset.asset')
     if (!wallet) throw new Error('Missing wallet')
     if (!receiveAddress) throw new Error('Missing receiveAddress')
-    if (!sellAssetAccount) throw new Error('Missing sellAssetAccount')
+    if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
@@ -135,7 +135,7 @@ export const useSwapper = () => {
         chainId: sellAssetChainId,
       })
     } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
-      const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
+      const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
       if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
       const sellAssetChainAdapter = getChainAdapterManager().get(
         sellAssetChainId,
@@ -158,7 +158,7 @@ export const useSwapper = () => {
     buyTradeAsset?.asset,
     receiveAddress,
     sellAsset,
-    sellAssetAccount,
+    sellAssetAccountId,
     sellTradeAsset?.amount,
     sellTradeAsset?.asset,
     wallet,

@@ -29,7 +29,7 @@ export const useTradeQuoteService = () => {
   const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
 
@@ -81,8 +81,8 @@ export const useTradeQuoteService = () => {
               ...tradeQuoteInputCommonArgs,
               chainId: sellAsset.chainId,
             }
-          } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccount) {
-            const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
+          } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccountId) {
+            const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
             if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
             const sellAssetChainAdapter = getChainAdapterManager().get(
               sellAsset.chainId,
@@ -113,7 +113,7 @@ export const useTradeQuoteService = () => {
     receiveAddress,
     selectedCurrencyToUsdRate,
     sellAsset,
-    sellAssetAccount,
+    sellAssetAccountId,
     sellTradeAsset,
     setValue,
     wallet,

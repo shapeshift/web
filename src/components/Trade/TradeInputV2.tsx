@@ -40,7 +40,7 @@ export const TradeInput = () => {
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
 
   const translate = useTranslate()
 
@@ -49,7 +49,7 @@ export const TradeInput = () => {
   )
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
-      accountId: sellAssetAccount,
+      accountId: sellAssetAccountId,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
@@ -149,10 +149,10 @@ export const TradeInput = () => {
   }
 
   const onSellAssetChangeAccount = (accountId: AccountId) =>
-    setValue('selectedSellAssetAccount', accountId)
+    setValue('selectedSellAssetAccountId', accountId)
 
   const onBuyAssetChangeAccount = (accountId: AccountId) =>
-    setValue('selectedBuyAssetAccount', accountId)
+    setValue('selectedBuyAssetAccountId', accountId)
 
   return (
     <SlideTransition>

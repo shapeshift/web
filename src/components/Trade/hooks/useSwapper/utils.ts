@@ -74,9 +74,9 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
 }
 
-export const getUtxoParams = (sellAssetAccount: string) => {
-  if (!sellAssetAccount) throw new Error('No UTXO account specifier')
-  return accountIdToUtxoParams(sellAssetAccount, 0)
+export const getUtxoParams = (sellAssetAccountId: string) => {
+  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {

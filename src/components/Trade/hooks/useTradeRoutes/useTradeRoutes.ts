@@ -31,15 +31,15 @@ export const useTradeRoutes = (): {
       if (isBuy) {
         setValue('buyTradeAsset.asset', asset)
         isSameAsset && setValue('sellTradeAsset.asset', previousBuyTradeAsset.asset)
-        setValue('selectedBuyAssetAccount', undefined)
-        setValue('buyAssetAccount', undefined)
+        setValue('selectedBuyAssetAccountId', undefined)
+        setValue('buyAssetAccountId', undefined)
       }
 
       if (isSell) {
         setValue('sellTradeAsset.asset', asset)
         isSameAsset && setValue('buyTradeAsset.asset', previousSellTradeAsset.asset)
-        setValue('selectedSellAssetAccount', undefined)
-        setValue('sellAssetAccount', undefined)
+        setValue('selectedSellAssetAccountId', undefined)
+        setValue('sellAssetAccountId', undefined)
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)

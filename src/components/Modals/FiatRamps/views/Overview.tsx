@@ -20,6 +20,7 @@ import {
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  fromAccountId,
   fromAssetId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
@@ -35,6 +36,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import {
   selectMarketDataById,
@@ -115,6 +117,10 @@ const generateAddresses: GenerateAddresses = props => {
   }
 }
 
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'Views', 'Overview'],
+})
+
 export const Overview: React.FC<OverviewProps> = ({
   fiatRampProvider,
   onIsSelectingAsset,
@@ -153,22 +159,33 @@ export const Overview: React.FC<OverviewProps> = ({
 
   // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
   // once web/#2632 got merged
-  const accountMeta = useAppSelector(selectPortfolioAccountMetadata)[accountId ?? '']
-  const accountType = accountMeta?.accountType
-  const bip44Params = accountMeta?.bip44Params
+  const accountsMeta = useAppSelector(selectPortfolioAccountMetadata)
+
   useEffect(() => {
-    if (!(wallet && bip44Params && selectedAsset)) return
+    if (!(wallet && accountId && selectedAsset)) return
+    const { chainId: assetChainId } = fromAssetId(selectedAsset.assetId)
+    const { chainId: accountChainId } = fromAccountId(accountId)
+    // race condition between selected asset and selected account
+    if (assetChainId !== accountChainId) return
+    const chainAdapter = chainAdapterManager.get(assetChainId)
+    if (!chainAdapter) return
+    const accountMeta = accountsMeta[accountId]
+    const accountType = accountMeta?.accountType
+    const bip44Params = accountMeta?.bip44Params
+    if (!bip44Params) return
     ;(async () => {
-      const { chainId } = fromAssetId(selectedAsset.assetId)
-      const chainAdapter = chainAdapterManager.get(chainId)!
-      const selectedAccountAddress = await chainAdapter.getAddress({
-        wallet,
-        accountType,
-        bip44Params,
-      })
-      setAccountAddress(selectedAccountAddress)
+      try {
+        const selectedAccountAddress = await chainAdapter.getAddress({
+          wallet,
+          accountType,
+          bip44Params,
+        })
+        setAccountAddress(selectedAccountAddress)
+      } catch (error) {
+        moduleLogger.error(error, 'Error getting address')
+      }
     })()
-  }, [accountType, wallet, bip44Params, selectedAsset, chainAdapterManager])
+  }, [wallet, selectedAsset, chainAdapterManager, accountId, accountsMeta])
   const minimumSellThreshold = useMemo(
     () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
     [fiatRampProvider],
@@ -177,7 +194,7 @@ export const Overview: React.FC<OverviewProps> = ({
     () =>
       bnOrZero(
         multiAccountsEnabled
-          ? (accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']) ?? 0
+          ? accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']
           : selectedAsset?.cryptoBalance,
       )
         .times(marketData.price)
@@ -334,7 +351,7 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Flex>
         )}
-        {selectedAsset && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
+        {selectedAsset && accountId && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
           <Alert status='error' variant={'solid'}>
             <AlertIcon />
             <Text

@@ -25,8 +25,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
 import { ChainIdType, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import { selectPortfolioAccountIdsByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { FiatRamp } from '../config'
 import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
@@ -65,6 +63,8 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
+  // TODO: once MultiAccounts feature flag was removed, we can get rid of this
+  // whole addresses, since AccountDropdown will manage this part
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [bchAddress, setBchAddress] = useState<string>('')
@@ -90,18 +90,9 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const {
     state: { wallet },
   } = useWallet()
-  const accountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, { assetId: selectedAsset?.assetId ?? '' }),
-  )
   const [accountId, setAccountId] = useState<AccountId | null>(null)
 
-  useEffect(() => {
-    if (!accountIds.length) return
-    setAccountId(accountIds[0])
-  }, [accountIds])
-
   const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    if (!accountId) return
     setAccountId(accountId)
   }, [])
 

@@ -11,11 +11,8 @@ import {
   osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { type EvmChainId, ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
-  type BuildTradeInput,
-  type GetTradeQuoteInput,
   type Swapper,
   type Trade,
   type TradeQuote,
@@ -23,53 +20,17 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { type DisplayFeeData } from 'components/Trade/types'
+import {
+  type AssetIdTradePair,
+  type DisplayFeeData,
+  type GetFirstReceiveAddress,
+  type GetFormFeesArgs,
+  type SupportedSwappingChain,
+} from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-
-// Types
-type SupportedSwappingChain =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.OsmosisMainnet
-  | KnownChainIds.CosmosMainnet
-
-type GetFirstReceiveAddressArgs = {
-  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
-  buyAsset: Asset
-  chainAdapter: ChainAdapter<ChainId>
-  wallet: HDWallet
-}
-
-type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
-
-export type TradeQuoteInputCommonArgs = Pick<
-  GetTradeQuoteInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
->
-
-export type BuildTradeInputCommonArgs = Pick<
-  BuildTradeInput,
-  | 'sellAmount'
-  | 'sellAsset'
-  | 'buyAsset'
-  | 'sendMax'
-  | 'sellAssetAccountNumber'
-  | 'receiveAddress'
-  | 'wallet'
->
-
-type GetFormFeesArgs = {
-  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
-  sellAsset: Asset
-  tradeFeeSource: string
-  feeAsset: Asset
-}
-
-export type AssetIdTradePair = { buyAssetId: AssetId; sellAssetId: AssetId }
 
 // Type guards
 export const isSupportedUtxoSwappingChain = (

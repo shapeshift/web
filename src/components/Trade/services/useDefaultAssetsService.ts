@@ -1,11 +1,7 @@
-/*
-The Default Asset Service is responsible for populating the trade widget with initial assets.
-It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
-*/
 import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import {
-  AssetId,
+  type AssetId,
   cosmosChainId,
   ethAssetId,
   ethChainId,
@@ -18,11 +14,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
 import {
-  AssetIdTradePair,
-  getDefaultAssetIdPairByChainId,
-} from 'components/Trade/hooks/useSwapper/utils'
-import { TradeAmountInputField, TradeState } from 'components/Trade/types'
+  type AssetIdTradePair,
+  type TradeState,
+  TradeAmountInputField,
+} from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
@@ -30,6 +27,10 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+The Default Asset Service is responsible for populating the trade widget with initial assets.
+It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
+*/
 export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
   type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
   type UsdRateInputArg = UsdRateQueryInput[0]

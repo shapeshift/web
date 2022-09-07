@@ -8,14 +8,13 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
-  type BuildTradeInputCommonArgs,
   filterAssetsByIds,
   getFirstReceiveAddress,
   getUtxoParams,
   isSupportedNoneUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { type TradeState } from 'components/Trade/types'
+import { type BuildTradeInputCommonArgs, type TradeState } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -139,7 +138,7 @@ export const useSwapper = () => {
       const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
       if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
       const sellAssetChainAdapter = getChainAdapterManager().get(
-        sellAsset.chainId,
+        sellAssetChainId,
       ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
       const { xpub } = await sellAssetChainAdapter.getPublicKey(
         wallet,

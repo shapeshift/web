@@ -1,12 +1,17 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import { type ChainId } from '@shapeshiftoss/caip'
+import { type ChainId, AssetId } from '@shapeshiftoss/caip'
+import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  type BuildTradeInput,
   type CowTrade,
+  type GetTradeQuoteInput,
   type QuoteFeeData,
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
@@ -57,3 +62,43 @@ export enum TradeRoutePaths {
   BuySelect = '/trade/select/buy',
   AccountSelect = '/trade/select/account',
 }
+
+export type SupportedSwappingChain =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.OsmosisMainnet
+  | KnownChainIds.CosmosMainnet
+
+type GetFirstReceiveAddressArgs = {
+  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
+  buyAsset: Asset
+  chainAdapter: ChainAdapter<ChainId>
+  wallet: HDWallet
+}
+
+export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
+
+export type TradeQuoteInputCommonArgs = Pick<
+  GetTradeQuoteInput,
+  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
+>
+
+export type BuildTradeInputCommonArgs = Pick<
+  BuildTradeInput,
+  | 'sellAmount'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'sendMax'
+  | 'sellAssetAccountNumber'
+  | 'receiveAddress'
+  | 'wallet'
+>
+
+export type GetFormFeesArgs = {
+  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+  sellAsset: Asset
+  tradeFeeSource: string
+  feeAsset: Asset
+}
+
+export type AssetIdTradePair = { buyAssetId: AssetId; sellAssetId: AssetId }

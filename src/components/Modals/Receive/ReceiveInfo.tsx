@@ -19,7 +19,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
+import { AccountId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -65,7 +65,8 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
       if (!(wallet && chainAdapter)) return
       if (!bip44Params) return
       // if (chainAdapter.isAccountTypeRequired() && !accountType) return
-      if (CHAIN_NAMESPACE.Utxo === asset.chainId && !accountType) return
+      const { chainNamespace } = fromChainId(asset.chainId)
+      if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
@@ -90,8 +91,8 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
 
   const handleVerify = async () => {
     if (!(wallet && chainAdapter && receiveAddress)) return
-    // if (chainAdapter.isAccountTypeRequired() && !accountType) return
-    if (CHAIN_NAMESPACE.Utxo === asset.chainId && !accountType) return
+    const { chainNamespace } = fromChainId(asset.chainId)
+    if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,

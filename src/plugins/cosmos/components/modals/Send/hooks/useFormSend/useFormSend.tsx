@@ -20,7 +20,7 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const acctMetaData = useSelector(selectPortfolioAccountMetadata)
+  const acctMetadata = useSelector(selectPortfolioAccountMetadata)
   type CosmosSdkChainFees = FeeData<KnownChainIds.CosmosMainnet> &
     FeeData<KnownChainIds.OsmosisMainnet>
 
@@ -31,9 +31,9 @@ export const useFormSend = () => {
           KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
         >
         if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
-        if (!acctMetaData?.[data.accountId])
-          throw new Error(`cosmos: no accountMetaData for ${data.accountId}`)
-        const { bip44Params } = acctMetaData[data.accountId]
+        if (!acctMetadata?.[data.accountId])
+          throw new Error(`cosmos: no accountMetadata for ${data.accountId}`)
+        const { bip44Params } = acctMetadata[data.accountId]
         if (!bip44Params) throw new Error(`cosmos: no bip44Params for accountId ${data.accountId}`)
 
         const value = bnOrZero(data.cryptoAmount)

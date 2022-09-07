@@ -357,14 +357,16 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
 )
 
 export const selectPortfolioFiatBalanceByChainId = createSelector(
-  selectPortfolioFiatBalances,
+  selectPortfolioFiatAccountBalances,
   selectChainIdParamFromFilter,
-
-  (portfolioFiatBalances, chainId) => {
-    return Object.entries(portfolioFiatBalances)
-      .reduce((acc, [assetId, fiatBalance]) => {
-        if (fromAssetId(assetId).chainId !== chainId) return acc
-        acc = acc.plus(bnOrZero(fiatBalance))
+  (fiatAccountBalances, chainId): string => {
+    return Object.entries(fiatAccountBalances)
+      .reduce((acc, [accountId, accountBalanceByAssetId]) => {
+        // use the outer accumulator
+        if (fromAccountId(accountId).chainId !== chainId) return acc
+        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          acc = acc.plus(bnOrZero(assetBalance))
+        })
         return acc
       }, bn(0))
       .toFixed(2)

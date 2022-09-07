@@ -61,7 +61,7 @@ export type AssetInputProps = {
   errors?: FieldError
   percentOptions: number[]
   icons?: string[]
-  onChangeAccount?: AccountDropdownProps['onChange']
+  onAccountIdChange?: AccountDropdownProps['onChange']
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -82,7 +82,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   percentOptions = [0.25, 0.5, 0.75, 1],
   icons,
   children,
-  onChangeAccount,
+  onAccountIdChange: handleAccountIdChange,
 }) => {
   const {
     number: { localeParts },
@@ -186,11 +186,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           )}
         </Stack>
       )}
-      {onChangeAccount && assetId && (
+      {handleAccountIdChange && assetId && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           <AccountDropdown
             assetId={assetId}
-            onChange={onChangeAccount}
+            onChange={handleAccountIdChange}
             buttonProps={{ variant: 'solid' }}
           />
         </Stack>

@@ -169,7 +169,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
-            onChangeAccount={onSellAssetChangeAccount}
+            onAccountIdChange={onSellAssetChangeAccount}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -199,7 +199,7 @@ export const TradeInput = () => {
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
-            onChangeAccount={onBuyAssetChangeAccount}
+            onAccountIdChange={onBuyAssetChangeAccount}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>

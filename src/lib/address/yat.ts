@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getConfig } from 'config'
 import { toChecksumAddress } from 'web3-utils'
 
 // validate a yat
@@ -30,7 +31,7 @@ export const validateYat: ValidateYat = async ({ value }) =>
 export const resolveYat: ResolveYat = async args => {
   try {
     const { data } = await axios.get<YatResponse>(
-      `${process.env.REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
+      `${getConfig().REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
     )
     if (data.error) return ''
 

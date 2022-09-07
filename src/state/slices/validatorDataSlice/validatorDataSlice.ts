@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ChainId } from '@shapeshiftoss/caip'
-import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { cosmossdk, CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -79,7 +79,9 @@ export const validatorDataApi = createApi({
           : [validatorAddress]
 
         const chainAdapters = getChainAdapterManager()
-        const adapter = chainAdapters.get(chainId) as cosmos.ChainAdapter | undefined
+        const adapter = chainAdapters.get(chainId) as
+          | CosmosSdkBaseAdapter<CosmosSdkChainId>
+          | undefined
         if (!adapter) {
           return {
             error: { data: `No adapter available for chainId ${chainId}`, status: 404 },

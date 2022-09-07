@@ -12,12 +12,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -109,11 +105,15 @@ export const OpportunityCard = ({
 
   const getOpportunityName = () => {
     if (opportunityName) return opportunityName
+
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
-    if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))
+
+    if (chainId === cosmosChainId || chainId === osmosisChainId) return moniker
+
+    if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
-    if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) return moniker
+    }
   }
 
   return (

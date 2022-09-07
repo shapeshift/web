@@ -1,6 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
-import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { CosmosSdkChainId, FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -32,7 +31,7 @@ export type SendInput = {
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<ChainId>
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<CosmosSdkChainId>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string

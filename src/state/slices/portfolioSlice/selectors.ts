@@ -14,6 +14,7 @@ import {
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
@@ -99,6 +100,7 @@ const FEE_ASSET_IDS = [
   bchAssetId,
   cosmosAssetId,
   osmosisAssetId,
+  thorchainAssetId,
   dogeAssetId,
   ltcAssetId,
   avalancheAssetId,

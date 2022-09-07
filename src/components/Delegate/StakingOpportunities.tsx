@@ -1,12 +1,8 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
@@ -46,9 +42,16 @@ export const ValidatorName = ({
   const assetIcon = useMemo(() => {
     if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
 
-    let cosmostationChainName = ''
-    if (isCosmosChainId(chainId)) cosmostationChainName = 'cosmoshub'
-    if (isOsmosisChainId(chainId)) cosmostationChainName = 'osmosis'
+    const cosmostationChainName = (() => {
+      switch (chainId) {
+        case cosmosChainId:
+          return 'cosmoshub'
+        case osmosisChainId:
+          return 'osmosis'
+        default:
+          return ''
+      }
+    })()
 
     return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
   }, [isStaking, validatorAddress, chainId])

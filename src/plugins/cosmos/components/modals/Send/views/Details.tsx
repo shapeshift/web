@@ -95,8 +95,6 @@ export const Details = () => {
       <ModalBody>
         <AccountDropdown assetId={asset.assetId} onChange={handleAccountChange} />
         <AccountCard
-          // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
-          // So we're going to cast it since we already did a runtime check that the object exists
           asset={asset}
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}

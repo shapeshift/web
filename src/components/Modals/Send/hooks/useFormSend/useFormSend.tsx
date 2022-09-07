@@ -36,7 +36,7 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
   const { supportedEvmChainIds } = useEvm()
-  const acctMetadata = useSelector(selectPortfolioAccountMetadata)
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -44,7 +44,7 @@ export const useFormSend = () => {
         const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
 
-        if (!acctMetadata?.[data.accountId])
+        if (!accountMetadata?.[data.accountId])
           throw new Error(`useFormSend: no accountMetadata for ${data.accountId}`)
 
         const value = bnOrZero(data.cryptoAmount)
@@ -55,7 +55,7 @@ export const useFormSend = () => {
 
         const { estimatedFees, feeType, address: to } = data
 
-        const { bip44Params, accountType } = acctMetadata[data.accountId]
+        const { bip44Params, accountType } = accountMetadata[data.accountId]
         if (!bip44Params) {
           throw new Error(`useFormSend: no bip44Params for accountId ${data.accountId}`)
         }

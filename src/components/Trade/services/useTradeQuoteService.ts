@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
   getUtxoParams,
-  isSupportedNoneUtxoSwappingChain,
+  isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
 import { type TradeQuoteInputCommonArgs, type TradeState } from 'components/Trade/types'
@@ -76,7 +76,7 @@ export const useTradeQuoteService = () => {
             sellAssetAccountNumber: 0,
             receiveAddress,
           }
-          if (isSupportedNoneUtxoSwappingChain(sellAsset?.chainId)) {
+          if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
             return {
               ...tradeQuoteInputCommonArgs,
               chainId: sellAsset.chainId,

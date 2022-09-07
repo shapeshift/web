@@ -11,7 +11,7 @@ import {
   filterAssetsByIds,
   getFirstReceiveAddress,
   getUtxoParams,
-  isSupportedNoneUtxoSwappingChain,
+  isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
 import { type BuildTradeInputCommonArgs, type TradeState } from 'components/Trade/types'
@@ -129,7 +129,7 @@ export const useSwapper = () => {
       receiveAddress,
     }
     const sellAssetChainId = sellAsset.chainId
-    if (isSupportedNoneUtxoSwappingChain(sellAssetChainId)) {
+    if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,

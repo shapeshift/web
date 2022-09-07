@@ -40,7 +40,7 @@ export const isSupportedUtxoSwappingChain = (
   return chainNamespace === CHAIN_NAMESPACE.Utxo
 }
 
-export const isSupportedNoneUtxoSwappingChain = (
+export const isSupportedNonUtxoSwappingChain = (
   chainId: ChainId,
 ): chainId is SupportedSwappingChain => {
   return (

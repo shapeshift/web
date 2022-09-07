@@ -26,6 +26,7 @@ import {
 import {
   selectAssets,
   selectFeeAssetByChainId,
+  selectPortfolioAccountBalanceByAccountNumberAndChainId,
   selectPortfolioAssetIdsByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -82,7 +83,10 @@ export const AccountNumberRow: React.FC<AccountRowProps> = ({
   const assets = useSelector(selectAssets)
   const accountId = useMemo(() => accountIds[0], [accountIds]) // all accountIds belong to the same chain
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
-  const fiatBalance = '123' // selectPortfolioAccountBalanceByAccountNumberAndChainId?
+  const filter = useMemo(() => ({ accountNumber, chainId }), [accountNumber, chainId])
+  const fiatBalance = useAppSelector(s =>
+    selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
+  )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const { color } = feeAsset
 

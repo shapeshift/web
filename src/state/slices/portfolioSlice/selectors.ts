@@ -70,6 +70,7 @@ import {
 type ParamFilter = {
   assetId: AssetId
   accountId: AccountSpecifier
+  accountNumber: number
   chainId: ChainId
   accountSpecifier: string
   validatorAddress: PubKey
@@ -109,6 +110,7 @@ const FEE_ASSET_IDS = [
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
+const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
 const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
 
@@ -740,6 +742,25 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
       },
       {},
     )
+  },
+)
+
+export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSelector(
+  selectPortfolioTotalFiatBalanceByAccount,
+  selectPortfolioAccountMetadata,
+  selectAccountNumberParamFromFilter,
+  selectChainIdParamFromFilter,
+  (accountBalances, accountMetadata, accountNumberString, chainId): string => {
+    const accountNumber = parseInt(accountNumberString.toString())
+    if (isNaN(accountNumber))
+      throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
+    return Object.entries(accountBalances)
+      .reduce((acc, [accountId, accountBalance]) => {
+        if (fromAccountId(accountId).chainId !== chainId) return acc
+        if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return acc
+        return acc.plus(bnOrZero(accountBalance))
+      }, bn(0))
+      .toFixed(2)
   },
 )
 

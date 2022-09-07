@@ -7,13 +7,13 @@ import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
+import { KeepKeyFactoryState } from 'context/WalletProvider/KeepKey/components/FactoryState'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
 import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
 import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/components/RecoverySentenceInvalid'
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
-import { WipedSuccessfully } from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { DemoConfig } from './DemoWallet/config'
@@ -90,7 +90,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPin },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
-      { path: KeepKeyRoutes.WipeSuccessful, component: WipedSuccessfully },
+      { path: KeepKeyRoutes.FactoryState, component: KeepKeyFactoryState },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
       { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
       { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },

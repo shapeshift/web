@@ -19,7 +19,7 @@ import { addWallet } from '../mobileMessageHandlers'
 type FormValues = { mnemonic: string; name: string }
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileImport'],
+  namespace: ['components', 'MobileImport'],
 })
 
 export const MobileImport = ({ history }: RouteComponentProps) => {

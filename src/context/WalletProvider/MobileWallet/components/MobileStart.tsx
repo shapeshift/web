@@ -5,9 +5,11 @@ import { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
-import { hasWallets } from '../mobileMessageHandlers'
+import { getWalletCount } from '../mobileMessageHandlers'
 
-const moduleLogger = mobileLogger.child({ namespace: [''] })
+const moduleLogger = mobileLogger.child({
+  namespace: ['components', 'MobileStart'],
+})
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
@@ -15,7 +17,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const localWallets = await hasWallets()
+        const localWallets = await getWalletCount()
         setHasLocalWallet(localWallets > 0)
       } catch (e) {
         moduleLogger.error(e, 'Error checking for wallets')

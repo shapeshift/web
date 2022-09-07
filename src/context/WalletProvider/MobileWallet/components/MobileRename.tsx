@@ -19,7 +19,7 @@ const isValidLabel = (label: unknown): label is string => {
 }
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileRename'],
+  namespace: ['components', 'MobileRename'],
 })
 
 export const MobileRename = ({ history, location }: MobileSetupProps) => {

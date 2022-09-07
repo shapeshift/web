@@ -1,3 +1,4 @@
+import omit from 'lodash/omit'
 import {
   createRevocableWallet,
   RevocableWallet,
@@ -14,9 +15,9 @@ type Command =
   | 'deleteWallet'
   | 'updateWallet'
   | 'hasWallet'
-  | 'hasWallets'
   | 'addWallet'
   | 'listWallets'
+  | 'getWalletCount'
 
 type Message =
   | {
@@ -34,13 +35,15 @@ type Message =
       mnemonic: string
     }
   | {
-      cmd: 'listWallets' | 'hasWallets'
+      cmd: 'listWallets' | 'getWalletCount'
     }
 
 export type MessageFromMobileApp = {
   id: number
   result: unknown
 }
+
+const moduleLogger = mobileLogger.child({ namespace: ['lib', 'mobileWallet'] })
 
 /**
  * Create a Promise that sends a message and waits for the matching response
@@ -64,6 +67,8 @@ const postMessage = async <T>(msg: Message): Promise<T> => {
       }
       // Make sure that the Promise doesn't hang forever
       setTimeout(() => {
+        // @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+        // No effect if `eventListener` has already been removed
         window.removeEventListener('message', eventListener)
         reject(new Error('PostMessage timed out'))
       }, 10000)
@@ -72,19 +77,18 @@ const postMessage = async <T>(msg: Message): Promise<T> => {
 
       window.ReactNativeWebView?.postMessage(JSON.stringify({ ...msg, id }))
     } catch (e) {
+      moduleLogger.error(e, omit(msg, 'mnemonic'), 'Error communicating with the mobile app')
       reject(e)
     }
   })
 }
-
-const moduleLogger = mobileLogger.child({ namespace: ['lib', 'mobileWallet'] })
 
 /**
  * Get a list of available wallets stored in the mobile app
  *
  * The list does not include the mnemonic for the wallets
  */
-export const listWallets = () => {
+export const listWallets = (): Promise<RevocableWallet[]> => {
   moduleLogger.trace({ fn: 'listWallets' }, 'List Wallets')
   return postMessage<RevocableWallet[]>({ cmd: 'listWallets' })
 }
@@ -94,25 +98,25 @@ export const listWallets = () => {
  *
  * The ID is provided in the `listWallets` call
  */
-export const getWallet = async (key: string) => {
+export const getWallet = async (key: string): Promise<RevocableWallet | null> => {
   moduleLogger.trace({ fn: 'getWallet', key }, 'Get Wallet')
   const wallet = await postMessage<MobileWalletInfoWithMnemonic | null>({ cmd: 'getWallet', key })
   return wallet ? createRevocableWallet(wallet) : null
 }
 
 /**
- * Returns `true` if the mobile app has at least 1 saved wallet
+ * Returns the number of wallets available from the mobile app
  */
-export const hasWallets = () => {
-  moduleLogger.trace({ fn: 'hasWallets' }, 'Has Wallets')
+export const getWalletCount = (): Promise<number> => {
+  moduleLogger.trace({ fn: 'getWalletCount' }, 'Number of Wallets')
   // mobile app returns the number of wallets saved
-  return postMessage<number>({ cmd: 'hasWallets' })
+  return postMessage<number>({ cmd: 'getWalletCount' })
 }
 
 /**
  * Returns `true` is a given wallet by `ID` exists in the mobile app
  */
-export const hasWallet = (key: string) => {
+export const hasWallet = (key: string): Promise<boolean> => {
   moduleLogger.trace({ fn: 'hasWallet', key }, 'Has Wallet')
   return postMessage<boolean>({ cmd: 'hasWallet', key })
 }
@@ -120,9 +124,9 @@ export const hasWallet = (key: string) => {
 /**
  * Rename a wallet
  */
-export const updateWallet = (key: string, wallet: { label: string }) => {
-  moduleLogger.trace({ fn: 'updateWallet', key, wallet }, 'Update Wallet')
-  return postMessage<boolean>({ cmd: 'updateWallet', key, label: wallet.label })
+export const updateWallet = (key: string, walletInfo: { label: string }): Promise<boolean> => {
+  moduleLogger.trace({ fn: 'updateWallet', key, wallet: walletInfo }, 'Update Wallet')
+  return postMessage<boolean>({ cmd: 'updateWallet', key, label: walletInfo.label })
 }
 
 /**
@@ -132,12 +136,14 @@ export const updateWallet = (key: string, wallet: { label: string }) => {
  *
  * This is the only way to get save a wallet in the mobile app as the mobile app
  * generates the IDs and keeps track of a list of wallets by ID.
- * @param wallet
  */
-export const addWallet = async (wallet: { label: string; mnemonic: string }) => {
+export const addWallet = async (walletInfo: {
+  label: string
+  mnemonic: string
+}): Promise<RevocableWallet | null> => {
   moduleLogger.trace({ fn: 'addWallet' }, 'Add Wallet')
-  const w = await postMessage<MobileWalletInfo | null>({ cmd: 'addWallet', ...wallet })
-  return w ? createRevocableWallet({ ...w, mnemonic: wallet.mnemonic }) : null
+  const newWallet = await postMessage<MobileWalletInfo | null>({ cmd: 'addWallet', ...walletInfo })
+  return newWallet ? createRevocableWallet({ ...newWallet, mnemonic: walletInfo.mnemonic }) : null
 }
 
 /**
@@ -145,10 +151,10 @@ export const addWallet = async (wallet: { label: string; mnemonic: string }) => 
  *
  * This DOES NOT save the wallet to the mobile app
  */
-export const createWallet = () => {
-  const w = createRevocableWallet({})
-  w.generateMnemonic()
-  return w
+export const createWallet = (): RevocableWallet => {
+  const newWallet = createRevocableWallet({})
+  newWallet.generateMnemonic()
+  return newWallet
 }
 
 /**
@@ -156,7 +162,7 @@ export const createWallet = () => {
  *
  * This operation cannot be undone.
  */
-export const deleteWallet = (key: string) => {
+export const deleteWallet = (key: string): Promise<boolean> => {
   moduleLogger.trace({ fn: 'deleteWallet', key }, 'Delete Wallet')
   return postMessage<boolean>({ cmd: 'deleteWallet', key })
 }

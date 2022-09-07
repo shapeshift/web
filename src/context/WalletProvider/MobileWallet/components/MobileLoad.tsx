@@ -31,7 +31,7 @@ import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
 import { RevocableWallet } from '../RevocableWallet'
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileLoad'],
+  namespace: ['components', 'MobileLoad'],
 })
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {

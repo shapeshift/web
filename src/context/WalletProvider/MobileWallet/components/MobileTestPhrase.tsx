@@ -1,5 +1,4 @@
 import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -10,10 +9,8 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
-import { Revocable } from '../RevocableWallet'
+import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
-
-const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
@@ -28,7 +25,7 @@ type TestState = {
 }
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileTestPhrase'],
+  namespace: ['components', 'MobileTestPhrase'],
 })
 
 export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {

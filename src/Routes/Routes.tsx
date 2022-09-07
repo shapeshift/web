@@ -62,10 +62,10 @@ export const Routes = () => {
    */
   const privateRoutesList = useMemo(
     () =>
-      appRoutes.map((route, index) => {
+      appRoutes.map(route => {
         const MainComponent = route.main
         return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute key={'privateRoute'} path={route.path} exact hasWallet={hasWallet}>
             <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )

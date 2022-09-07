@@ -1,3 +1,4 @@
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import React from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -7,10 +8,7 @@ import type { RevocableWallet } from './RevocableWallet'
 
 export type { NativeWalletValues }
 
-export type RevocableObject<T> = T & {
-  readonly revoke: () => void
-  readonly addRevoker: (revoker: () => void) => void
-}
+export type RevocableObject<T> = T & crypto.Isolation.Engines.Default.Revocable
 
 export interface MobileLocationState {
   // This is passed between setup screens and then revoked when done

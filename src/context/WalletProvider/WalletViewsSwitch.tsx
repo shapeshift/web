@@ -83,7 +83,7 @@ export const WalletViewsSwitch = () => {
             return !Component ? null : (
               <Route
                 exact
-                key={`${type}_${String(route.path)}`}
+                key={'route'}
                 path={route.path}
                 render={routeProps => <Component {...routeProps} />}
               />

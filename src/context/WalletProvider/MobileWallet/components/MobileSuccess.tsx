@@ -15,7 +15,7 @@ import { MobileConfig, mobileLogger } from '../config'
 import { MobileSetupProps } from '../types'
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileSuccess'],
+  namespace: ['components', 'MobileSuccess'],
 })
 
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
@@ -32,7 +32,6 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
 
-        moduleLogger.warn({ deviceId, mnemonic }, 'TEST')
         if (mnemonic) {
           await wallet.loadDevice({ mnemonic, deviceId })
           const { name, icon } = MobileConfig

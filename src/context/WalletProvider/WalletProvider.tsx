@@ -314,7 +314,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const load = useCallback(() => {
-    const fnLogger = moduleLogger.child({ namespace: ['load'] })
+    const fnLogger = moduleLogger.child({ fn: ['load'] })
 
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()

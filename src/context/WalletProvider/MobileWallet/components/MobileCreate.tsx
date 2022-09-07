@@ -13,7 +13,6 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
 import { range } from 'lodash'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
@@ -23,13 +22,11 @@ import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
 import { addWallet, createWallet } from '../mobileMessageHandlers'
-import { Revocable, RevocableWallet } from '../RevocableWallet'
+import { Revocable, revocable, RevocableWallet } from '../RevocableWallet'
 import { MobileLocationState } from '../types'
 
-const revocable = native.crypto.Isolation.Engines.Default.revocable
-
 const moduleLogger = mobileLogger.child({
-  namespace: ['WalletProvider', 'MobileWallet', 'components', 'MobileCreate'],
+  namespace: ['components', 'MobileCreate'],
 })
 
 export const MobileCreate = () => {
@@ -153,10 +150,10 @@ export const MobileCreate = () => {
               try {
                 setIsSaving(true)
                 vault.label = label
-                const w = await addWallet({ label, mnemonic: vault.mnemonic })
-                if (w) {
-                  w.mnemonic = vault.mnemonic
-                  history.push('/mobile/create-test', { vault: w, isLegacyWallet: false })
+                const newWallet = await addWallet({ label, mnemonic: vault.mnemonic })
+                if (newWallet) {
+                  newWallet.mnemonic = vault.mnemonic
+                  history.push('/mobile/create-test', { vault: newWallet, isLegacyWallet: false })
                 }
               } catch (e) {
                 moduleLogger.error(e, 'Error saving new wallet')

@@ -1062,7 +1062,7 @@
         "header": "Saved Wallets",
         "body": "Loading your saved wallet... Enter your password when prompted.",
         "button": "Continue",
-        "confirmForget": "Are you sure you want to forget %{wallet}?\n\nTHIS CANNOT BE UNDONE."
+        "confirmForget": "Are you sure you want to forget %{wallet}?"
       },
       "import": {
         "header": "Import your wallet",

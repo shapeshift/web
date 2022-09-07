@@ -98,6 +98,7 @@ export interface InitialState {
   showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   deviceState: DeviceState
+  disconnectOnCloseModal: boolean
 }
 
 const initialState: InitialState = {
@@ -117,6 +118,7 @@ const initialState: InitialState = {
   showBackButton: true,
   keepKeyPinRequestType: null,
   deviceState: initialDeviceState,
+  disconnectOnCloseModal: false,
 }
 
 export const isKeyManagerWithProvider = (
@@ -243,9 +245,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
+        showBackButton: false,
+        disconnectOnCloseModal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        initialRoute: KeepKeyRoutes.WipeSuccessful,
+        initialRoute: KeepKeyRoutes.FactoryState,
       }
     case WalletActions.OPEN_KEEPKEY_RECOVERY:
       return {

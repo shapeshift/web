@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { TradeState } from 'components/Trade/types'
+import { type TradeState } from 'components/Trade/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 

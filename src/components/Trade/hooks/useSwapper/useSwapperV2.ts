@@ -112,12 +112,12 @@ export const useSwapper = () => {
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
-    if (!sellTradeAsset?.amount) throw new Error('No sellTradeAsset.amount')
-    if (!sellTradeAsset?.asset) throw new Error('No sellTradeAsset?.asset')
-    if (!buyTradeAsset?.asset) throw new Error('No buyTradeAsset?.asset')
-    if (!wallet) throw new Error('No wallet')
-    if (!receiveAddress) throw new Error('No receiveAddress')
-    if (!sellAssetAccount) throw new Error('No sellAssetAccount')
+    if (!sellTradeAsset?.amount) throw new Error('Missing sellTradeAsset.amount')
+    if (!sellTradeAsset?.asset) throw new Error('Missing sellTradeAsset.asset')
+    if (!buyTradeAsset?.asset) throw new Error('Missing buyTradeAsset.asset')
+    if (!wallet) throw new Error('Missing wallet')
+    if (!receiveAddress) throw new Error('Missing receiveAddress')
+    if (!sellAssetAccount) throw new Error('Missing sellAssetAccount')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
@@ -165,6 +165,7 @@ export const useSwapper = () => {
   ])
 
   // useEffects
+  // Set the bestTradeSwapper when the trade assets change
   useEffect(() => {
     if (buyAssetId && sellAssetId) {
       ;(async () => {
@@ -183,6 +184,7 @@ export const useSwapper = () => {
     })()
   }, [flags])
 
+  // Set the receiveAddress when the buy asset changes
   useEffect(() => {
     const buyAsset = buyTradeAsset?.asset
     if (!buyAsset) return

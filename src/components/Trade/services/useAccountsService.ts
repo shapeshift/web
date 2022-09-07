@@ -1,15 +1,15 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { TradeState } from 'components/Trade/types'
+import { type TradeState } from 'components/Trade/types'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
-The Accounts Service is responsible for reacting to changes to trade assets, and updating trade accounts accordingly.
-The only mutation is on TradeState's sellAssetAccount property.
+The Accounts Service is responsible for reacting to changes to trade assets and selected accounts.
+It mutates TradeState's sellAssetAccount and buyAssetAccount properties.
 */
 export const useAccountsService = () => {
   // Form hooks

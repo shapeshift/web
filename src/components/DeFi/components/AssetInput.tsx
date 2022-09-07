@@ -8,13 +8,16 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import {
+  type AccountDropdownProps,
+  AccountDropdown,
+} from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -58,7 +61,7 @@ export type AssetInputProps = {
   errors?: FieldError
   percentOptions: number[]
   icons?: string[]
-  onChangeAccount?: (accountId: AccountId) => void
+  onChangeAccount?: AccountDropdownProps['onChange']
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({

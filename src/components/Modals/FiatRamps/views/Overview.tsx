@@ -17,11 +17,13 @@ import {
   avalancheChainId,
   bchChainId,
   btcChainId,
+  CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
+  fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
@@ -159,7 +161,7 @@ export const Overview: React.FC<OverviewProps> = ({
 
   // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
   // once web/#2632 got merged
-  const accountsMeta = useAppSelector(selectPortfolioAccountMetadata)
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
 
   useEffect(() => {
     if (!(wallet && accountId && selectedAsset)) return
@@ -169,10 +171,12 @@ export const Overview: React.FC<OverviewProps> = ({
     if (assetChainId !== accountChainId) return
     const chainAdapter = chainAdapterManager.get(assetChainId)
     if (!chainAdapter) return
-    const accountMeta = accountsMeta[accountId]
+    const accountMeta = accountMetadata[accountId]
     const accountType = accountMeta?.accountType
     const bip44Params = accountMeta?.bip44Params
     if (!bip44Params) return
+    const { chainNamespace } = fromChainId(accountChainId)
+    if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
     ;(async () => {
       try {
         const selectedAccountAddress = await chainAdapter.getAddress({
@@ -185,7 +189,7 @@ export const Overview: React.FC<OverviewProps> = ({
         moduleLogger.error(error, 'Error getting address')
       }
     })()
-  }, [wallet, selectedAsset, chainAdapterManager, accountId, accountsMeta])
+  }, [wallet, selectedAsset, chainAdapterManager, accountId, accountMetadata])
   const minimumSellThreshold = useMemo(
     () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
     [fiatRampProvider],

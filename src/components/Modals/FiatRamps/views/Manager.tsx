@@ -8,7 +8,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   matchPath,
   MemoryRouter,
@@ -91,10 +91,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     state: { wallet },
   } = useWallet()
   const [accountId, setAccountId] = useState<AccountId | null>(null)
-
-  const handleAccountIdChange = useCallback((accountId: AccountId) => {
-    setAccountId(accountId)
-  }, [])
 
   useEffect(() => {
     ;(async () => {
@@ -210,7 +206,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             setChainId={setChainId}
             fiatRampProvider={fiatRampProvider}
             ensName={ensName}
-            handleAccountIdChange={handleAccountIdChange}
+            handleAccountIdChange={setAccountId}
             accountId={accountId}
           />
         </Route>

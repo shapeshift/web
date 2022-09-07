@@ -27,7 +27,9 @@ export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSour
 export type TradeState<C extends ChainId> = {
   sellTradeAsset: TradeAsset | undefined
   sellAssetAccount: AccountSpecifier | undefined
-  selectedAssetAccount: AccountSpecifier | undefined
+  buyAssetAccount: AccountSpecifier | undefined
+  selectedSellAssetAccount?: AccountSpecifier
+  selectedBuyAssetAccount?: AccountSpecifier
   buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string | undefined
   fiatBuyAmount: string | undefined

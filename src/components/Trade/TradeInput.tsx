@@ -64,7 +64,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     feeAssetFiatRate,
     quoteError,
     sellAssetAccount,
-    selectedAssetAccount,
+    selectedSellAssetAccount,
     action,
     amount,
   ] = useWatch({
@@ -75,7 +75,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       'feeAssetFiatRate',
       'quoteError',
       'sellAssetAccount',
-      'selectedAssetAccount',
+      'selectedSellAssetAccount',
       'action',
       'amount',
     ],
@@ -86,7 +86,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     TS['feeAssetFiatRate'],
     TS['quoteError'],
     TS['sellAssetAccount'],
-    TS['selectedAssetAccount'],
+    TS['selectedSellAssetAccount'],
     TS['action'],
     TS['amount'],
   ]
@@ -106,8 +106,8 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   useEffect(() => {
     if (!shouldShowAccountSelection) {
-      // Cleanup selectedAssetAccount on component unmount when not in the context of a sell asset with multiple accounts
-      setValue('selectedAssetAccount', undefined)
+      // Cleanup selectedSellAssetAccount on component unmount when not in the context of a sell asset with multiple accounts
+      setValue('selectedSellAssetAccount', undefined)
     }
   }, [setValue, shouldShowAccountSelection])
 
@@ -138,10 +138,10 @@ export const TradeInput = ({ history }: RouterProps) => {
     () =>
       setValue(
         'sellAssetAccount',
-        selectedAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
+        selectedSellAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
       ),
     [
-      selectedAssetAccount,
+      selectedSellAssetAccount,
       highestFiatBalanceAccount,
       setValue,
       sellTradeAsset,
@@ -285,7 +285,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
       setValue('sellTradeAsset', currentBuyAsset)
       setValue('buyTradeAsset', currentSellAsset)
-      setValue('selectedAssetAccount', undefined)
+      setValue('selectedSellAssetAccount', undefined)
       setValue('sellAssetAccount', undefined)
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', bnOrZero(buyTradeAsset.amount).toString())

@@ -31,12 +31,14 @@ export const useTradeRoutes = (): {
       if (isBuy) {
         setValue('buyTradeAsset.asset', asset)
         isSameAsset && setValue('sellTradeAsset.asset', previousBuyTradeAsset.asset)
+        setValue('selectedBuyAssetAccount', undefined)
+        setValue('buyAssetAccount', undefined)
       }
 
       if (isSell) {
         setValue('sellTradeAsset.asset', asset)
         isSameAsset && setValue('buyTradeAsset.asset', previousSellTradeAsset.asset)
-        setValue('selectedAssetAccount', undefined)
+        setValue('selectedSellAssetAccount', undefined)
         setValue('sellAssetAccount', undefined)
       }
 

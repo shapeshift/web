@@ -14,37 +14,66 @@ The only mutation is on TradeState's sellAssetAccount property.
 export const useAccountsService = () => {
   // Form hooks
   const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const selectedAssetAccount = useWatch({ control, name: 'selectedAssetAccount' })
+  const selectedSellAssetAccount = useWatch({ control, name: 'selectedSellAssetAccount' })
+  const selectedBuyAssetAccount = useWatch({ control, name: 'selectedBuyAssetAccount' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
+  const buyAssetId = buyTradeAsset?.asset?.assetId
 
   // Selectors
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
-  const highestFiatBalanceAccount = useAppSelector(state =>
+  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
+  const highestFiatBalanceSellAccount = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',
+    }),
+  )
+  const highestFiatBalanceBuyAccount = useAppSelector(state =>
+    selectHighestFiatBalanceAccountByAssetId(state, {
+      assetId: buyAssetId ?? '',
     }),
   )
   const sellAssetAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
   )
+  const buyAssetAccountSpecifier = useAppSelector(state =>
+    selectFirstAccountSpecifierByChainId(state, buyAsset?.chainId ?? ''),
+  )
 
+  // Set sellAssetAccount
   useEffect(
     () =>
       setValue(
         'sellAssetAccount',
-        selectedAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
+        selectedSellAssetAccount ?? highestFiatBalanceSellAccount ?? sellAssetAccountSpecifier,
       ),
     [
-      selectedAssetAccount,
-      highestFiatBalanceAccount,
+      selectedSellAssetAccount,
+      highestFiatBalanceSellAccount,
       setValue,
       sellTradeAsset,
       buyTradeAsset,
       sellAssetAccountSpecifier,
+    ],
+  )
+
+  // Set buyAssetAccount
+  useEffect(
+    () =>
+      setValue(
+        'buyAssetAccount',
+        selectedBuyAssetAccount ?? highestFiatBalanceBuyAccount ?? buyAssetAccountSpecifier,
+      ),
+    [
+      buyAssetAccountSpecifier,
+      highestFiatBalanceBuyAccount,
+      selectedBuyAssetAccount,
+      setValue,
+      sellTradeAsset,
+      buyTradeAsset,
     ],
   )
 }

@@ -27,11 +27,10 @@ const AssetInputLoading = () => {
   )
 }
 
-type AssetInputLoadedProps = {
-  assetId: AssetId
-} & AssetInputProps
+type AssetInputLoadedProps = AssetInputProps & { assetId: AssetId }
 
-const AssetInputLoaded: React.FC<AssetInputLoadedProps> = ({ assetId, ...rest }) => {
+const AssetInputLoaded: React.FC<AssetInputLoadedProps> = props => {
+  const { assetId } = props
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const balance = useAppSelector(state =>
@@ -39,7 +38,7 @@ const AssetInputLoaded: React.FC<AssetInputLoadedProps> = ({ assetId, ...rest })
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  return <AssetInput balance={balance} fiatBalance={fiatBalance} {...rest} />
+  return <AssetInput balance={balance} fiatBalance={fiatBalance} {...props} />
 }
 
 type TradeAssetInputProps = {

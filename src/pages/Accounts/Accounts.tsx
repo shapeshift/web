@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectPortfolioChainIds } from 'state/slices/selectors'
+import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
 import { ChainRow } from './components/ChainRow'
 
@@ -26,7 +26,7 @@ const AccountHeader = () => {
 }
 
 export const Accounts = () => {
-  const chainIds = useSelector(selectPortfolioChainIds)
+  const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
   const chainRows = useMemo(
     () => chainIds.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
     [chainIds],

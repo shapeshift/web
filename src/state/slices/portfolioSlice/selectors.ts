@@ -362,9 +362,9 @@ export const selectPortfolioFiatBalanceByChainId = createSelector(
   (fiatAccountBalances, chainId): string => {
     return Object.entries(fiatAccountBalances)
       .reduce((acc, [accountId, accountBalanceByAssetId]) => {
-        // use the outer accumulator
         if (fromAccountId(accountId).chainId !== chainId) return acc
         Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          // use the outer accumulator
           acc = acc.plus(bnOrZero(assetBalance))
         })
         return acc
@@ -801,7 +801,7 @@ export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector
   },
 )
 
-export const selectPortfolioChainIds = createDeepEqualOutputSelector(
+export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(
   selectPortfolioAccountIdsSortedFiat,
   (accountIds): ChainId[] =>
     Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),

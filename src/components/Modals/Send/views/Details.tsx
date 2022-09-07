@@ -13,7 +13,6 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
 import { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import { useCallback } from 'react'
@@ -41,7 +40,7 @@ export const Details = () => {
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
     control,
-  })
+  }) as Partial<SendInput>
 
   const handleAccountChange = useCallback(
     (accountId: AccountId) => setValue(SendFormFields.AccountId, accountId),
@@ -88,11 +87,11 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <AccountDropdown assetId={(asset as Asset).assetId} onChange={handleAccountChange} />
+        <AccountDropdown assetId={asset.assetId} onChange={handleAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists
-          asset={asset as Asset}
+          asset={asset}
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}

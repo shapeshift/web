@@ -15,7 +15,6 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
 import { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import { useCallback, useMemo } from 'react'
@@ -49,7 +48,7 @@ export const Details = () => {
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
     useWatch({
       control,
-    })
+    }) as Partial<SendInput>
 
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
@@ -94,11 +93,11 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <AccountDropdown assetId={(asset as Asset).assetId} onChange={handleAccountChange} />
+        <AccountDropdown assetId={asset.assetId} onChange={handleAccountChange} />
         <AccountCard
           // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
           // So we're going to cast it since we already did a runtime check that the object exists
-          asset={asset as Asset}
+          asset={asset}
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}

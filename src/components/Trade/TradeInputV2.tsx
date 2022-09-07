@@ -114,8 +114,8 @@ export const TradeInput = () => {
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     moduleLogger.info(values, 'debugging logger')
     try {
-      const approveNeeded = await checkApprovalNeeded()
-      if (approveNeeded) {
+      const isApproveNeeded = await checkApprovalNeeded()
+      if (isApproveNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
         return
       }

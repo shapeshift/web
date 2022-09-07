@@ -2,19 +2,18 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Circle, Collapse, IconButton, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import {
   selectFeeAssetByChainId,
-  selectPortfolioAccountIdsByChainId,
+  selectPortfolioAccountsGroupedByNumberByChainId,
   selectPortfolioFiatBalanceByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AccountRow } from './AccountRow'
+import { AccountNumberRow } from './AccountNumberRow'
 
 type ChainRowProps = {
   chainId: ChainId
@@ -22,22 +21,26 @@ type ChainRowProps = {
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const { isOpen, onToggle } = useDisclosure()
-  const history = useHistory()
+  // const history = useHistory()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByChainId(s, filter))
-  const chainAccountIds = useAppSelector(s => selectPortfolioAccountIdsByChainId(s, filter))
+  const accountIdsByAccountNumber = useAppSelector(s =>
+    selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
+  )
   const { color, name } = asset
 
   const accountRows = useMemo(() => {
-    return chainAccountIds.map(accountId => (
-      <AccountRow
-        key={accountId}
-        accountId={accountId}
-        onClick={() => history.push(`accounts/${accountId}`)}
+    return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
+      <AccountNumberRow
+        key={accountNumber}
+        accountNumber={Number(accountNumber)}
+        accountIds={accountIds}
+        chainId={chainId}
+        // onClick={() => history.push(`accounts/${accountNumber}`)}
       />
     ))
-  }, [chainAccountIds, history])
+  }, [accountIdsByAccountNumber, chainId])
 
   return (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold'>

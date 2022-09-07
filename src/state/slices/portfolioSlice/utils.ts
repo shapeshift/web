@@ -116,6 +116,12 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
+export const isUtxoAccountId = (accountId: AccountId): boolean =>
+  fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+export const isUtxoChainId = (chainId: ChainId): boolean =>
+  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
   // the only way we get an accountId, is from a chainAdapter that supports that chain
   // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter

@@ -622,11 +622,21 @@ export const selectPortfolioAssets = createSelector(
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
-export const selectPortfolioAccountIdsByChainId = createDeepEqualOutputSelector(
-  selectPortfolioAccountIds,
+export type PortfolioAccountsGroupedByNumber = { [k: number]: AccountId[] }
+
+export const selectPortfolioAccountsGroupedByNumberByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (accountIds, chainId): AccountId[] =>
-    accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId),
+  (accountMetadata, chainId): PortfolioAccountsGroupedByNumber => {
+    const initial: PortfolioAccountsGroupedByNumber = {}
+    return Object.entries(accountMetadata).reduce((acc, [accountId, metadata]) => {
+      if (fromAccountId(accountId).chainId !== chainId) return acc
+      const { accountNumber } = metadata.bip44Params
+      if (!acc[accountNumber]) acc[accountNumber] = []
+      acc[accountNumber].push(accountId)
+      return acc
+    }, initial)
+  },
 )
 
 /**

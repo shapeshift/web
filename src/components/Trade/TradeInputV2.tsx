@@ -24,7 +24,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
-  const { checkApprovalNeeded } = useSwapper()
+  const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -119,6 +119,8 @@ export const TradeInput = () => {
         history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
         return
       }
+      const trade = await getTrade()
+      setValue('trade', trade)
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')

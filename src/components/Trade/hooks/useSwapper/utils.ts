@@ -14,6 +14,7 @@ import {
 import { type EvmChainId, ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  type BuildTradeInput,
   type GetTradeQuoteInput,
   type Swapper,
   type Trade,
@@ -30,7 +31,7 @@ import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // Types
-type SupportedSwappingChains =
+type SupportedSwappingChain =
   | KnownChainIds.EthereumMainnet
   | KnownChainIds.AvalancheMainnet
   | KnownChainIds.OsmosisMainnet
@@ -48,6 +49,17 @@ type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<stri
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
   'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
+>
+
+export type BuildTradeInputCommonArgs = Pick<
+  BuildTradeInput,
+  | 'sellAmount'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'sendMax'
+  | 'sellAssetAccountNumber'
+  | 'receiveAddress'
+  | 'wallet'
 >
 
 type GetFormFeesArgs = {
@@ -69,7 +81,7 @@ export const isSupportedUtxoSwappingChain = (
 
 export const isSupportedNoneUtxoSwappingChain = (
   chainId: ChainId,
-): chainId is SupportedSwappingChains => {
+): chainId is SupportedSwappingChain => {
   return (
     chainId === KnownChainIds.EthereumMainnet ||
     chainId === KnownChainIds.AvalancheMainnet ||

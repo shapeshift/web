@@ -1,3 +1,4 @@
+import { useAccountsService } from 'components/Trade/services/useAccountsService'
 import { useFeesService } from 'components/Trade/services/useFeesService'
 import { useFiatRateService } from 'components/Trade/services/useFiatRateService'
 import { useTradeAmountService } from 'components/Trade/services/useTradeAmountService'
@@ -12,4 +13,5 @@ export const useSwapperService = () => {
   useTradeAmountService()
   useTradeQuoteService()
   useFeesService()
+  useAccountsService()
 }

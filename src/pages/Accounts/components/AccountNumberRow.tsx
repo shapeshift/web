@@ -93,6 +93,14 @@ export const AccountNumberRow: React.FC<AccountRowProps> = ({
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const { color } = feeAsset
 
+  /**
+   * for UTXO chains, we want to display accounts aggregated by accountNumber first,
+   * then script type second, e.g. bitcoin Account #0, then Legacy/Segwit/Segwit Native
+   * i.e. there can be multiple accounts per accountNumber
+   *
+   * for account-based chains, there can only be one account per accountNumber
+   * so we aggregate by account, then assets belonging to that account
+   */
   const accountEntries = useMemo(
     () =>
       isUtxoAccount ? (

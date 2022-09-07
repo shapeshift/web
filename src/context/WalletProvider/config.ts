@@ -1,4 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
@@ -14,7 +15,6 @@ import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/c
 import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { RouteProps } from 'react-router-dom'
 
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'

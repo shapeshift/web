@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -9,7 +9,7 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -23,6 +23,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,9 +35,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountNumber: number | undefined }> = ({
+export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
   onNext,
-  accountNumber,
+  accountId,
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -73,11 +74,19 @@ export const Confirm: React.FC<StepComponentProps & { accountNumber: number | un
   const feeAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
+
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountMetaData = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+
+  const bip44Params = accountMetaData?.bip44Params
+
   const handleConfirm = useCallback(async () => {
     if (
       !(
         dispatch &&
-        accountNumber &&
+        bip44Params &&
         state?.userAddress &&
         assetReference &&
         walletState.wallet &&
@@ -102,7 +111,7 @@ export const Confirm: React.FC<StepComponentProps & { accountNumber: number | un
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
-        accountNumber,
+        bip44Params,
       })
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -112,7 +121,7 @@ export const Confirm: React.FC<StepComponentProps & { accountNumber: number | un
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    accountNumber,
+    accountId,
     asset.precision,
     assetReference,
     dispatch,

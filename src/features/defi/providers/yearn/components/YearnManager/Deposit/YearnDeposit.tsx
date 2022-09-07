@@ -20,7 +20,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -99,9 +98,6 @@ export const YearnDeposit: React.FC<{
     })
   }
 
-  const filter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
       [DefiStep.Info]: {
@@ -118,14 +114,14 @@ export const YearnDeposit: React.FC<{
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: ownProps => <Confirm {...ownProps} accountNumber={accountNumber} />,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [accountNumber, handleAccountChange, vaultAddress, asset.symbol, translate])
+  }, [accountId, handleAccountChange, vaultAddress, asset.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

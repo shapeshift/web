@@ -14,7 +14,6 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
 import { range } from 'lodash'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
@@ -24,7 +23,7 @@ import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
 import { addWallet, createWallet } from '../mobileMessageHandlers'
-import { RevocableWallet } from '../RevocableWallet'
+import { Revocable, RevocableWallet } from '../RevocableWallet'
 import { MobileLocationState } from '../types'
 
 const revocable = native.crypto.Isolation.Engines.Default.revocable

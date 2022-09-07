@@ -1,6 +1,5 @@
 import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -11,6 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
+import { Revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
 
 const revocable = native.crypto.Isolation.Engines.Default.revocable

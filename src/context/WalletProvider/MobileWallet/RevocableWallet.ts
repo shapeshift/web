@@ -1,7 +1,11 @@
-import { Revocable } from '@shapeshiftoss/hdwallet-native-vault/dist/util'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import { generateMnemonic, validateMnemonic } from 'bip39'
 
 import type { MobileWalletInfoWithMnemonic, RevocableObject } from './types'
+
+export type Revocable = crypto.Isolation.Engines.Default.Revocable
+export const Revocable = crypto.Isolation.Engines.Default.Revocable
+export const revocable = crypto.Isolation.Engines.Default.revocable
 
 type Info = Partial<MobileWalletInfoWithMnemonic>
 

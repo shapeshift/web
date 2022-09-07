@@ -1,4 +1,5 @@
 import entries from 'lodash/entries'
+import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
 import { fromAssetId } from '../../assetId/assetId'
@@ -50,9 +51,6 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
 } as Record<AssetId, string>
-
-const invert = <T extends Record<string, string>>(data: T) =>
-  Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
 const banxaTickerToAssetIdMap = invert(AssetIdToBanxaTickerMap)
 

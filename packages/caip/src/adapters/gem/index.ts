@@ -1,3 +1,4 @@
+import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
 const assetIdToGemAssetIdMap = {
@@ -26,9 +27,6 @@ const assetIdToGemAssetIdMap = {
   'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
   'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yearn-finance',
 } as Record<string, string>
-
-const invert = <T extends Record<string, string>>(data: T) =>
-  Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
 const gemAssetIdToAssetIdMap = invert(assetIdToGemAssetIdMap)
 

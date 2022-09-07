@@ -10,6 +10,7 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -41,6 +42,7 @@ export const Address = () => {
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   if (!asset) return null
   const { chainId } = asset
+  const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
   const handleNext = () => history.push(SendRoutes.Details)
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
@@ -96,7 +98,7 @@ export const Address = () => {
             }}
           />
         </FormControl>
-        {isYatFeatureEnabled && <YatBanner mt={6} />}
+        {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}
       </ModalBody>
       <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>

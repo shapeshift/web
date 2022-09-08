@@ -312,6 +312,10 @@
           "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque."
         }
       },
+      "claim": {
+        "info": {
+        }
+      },
       "approve": {
         "title": "Aprovar"
       },
@@ -572,6 +576,12 @@
           "length": "Sua senha deve ter pelo menos %{length} caracteres",
           "maxLength": "O apelido deve ter no máximo %{length} caracteres"
         }
+      },
+      "backupPassphrase": {
+        "info": {
+        },
+        "success": {
+        }
       }
     },
     "stake": {
@@ -655,6 +665,8 @@
         "success": "Você depositou com sucesso em %{opportunity}.",
         "failed": "Há um problema com seu depósito."
       }
+    },
+    "claim": {
     },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
@@ -771,6 +783,12 @@
         "SGD": "Dólar de Singapura",
         "ILS": "Shekel israelense",
         "IDR": "rupia indonésia"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+      },
+      "notice": {
       }
     }
   },
@@ -1286,6 +1304,12 @@
         "neverCollectPersonalInformations": "Nunca coletar chaves, endereços, transações, saldos ou qualquer informação pessoal",
         "neverCollectIp": "Nunca coletar seu endereço IP completo",
         "neverSellData": "Nunca vender dados com fins lucrativos"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
       }
     }
   }

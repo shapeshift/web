@@ -6,6 +6,7 @@ import {
   CHAIN_NAMESPACE,
   cosmosAssetId,
   ethAssetId,
+  foxAssetId,
   fromAssetId,
   fromChainId,
   osmosisAssetId,
@@ -188,7 +189,7 @@ export const getDefaultAssetIdPairByChainId = (
   const osmosisEnabled = featureFlags.Osmosis
   const ethFoxPair = {
     sellAssetId: ethAssetId,
-    buyAssetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    buyAssetId: foxAssetId,
   }
   switch (buyAssetChainId) {
     case KnownChainIds.AvalancheMainnet:

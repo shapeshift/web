@@ -34,7 +34,7 @@ const getBestSwapper = jest.fn()
 const getQuote = () => ETHCHAIN_QUOTE
 const approvalNeeded = jest.fn()
 const wallet = {} as HDWallet
-const sellAssetAccount = 'eip155:1:0x8a65ac0e23f31979db06ec62af62b132a6df4741'
+const sellAssetAccountId = 'eip155:1:0x8a65ac0e23f31979db06ec62af62b132a6df4741'
 const selectedCurrencyToUsdRate = bn(1)
 const sellTradeAsset: TradeAsset = {
   amount: '20',
@@ -62,7 +62,7 @@ function setup({
     sellTradeAsset,
     buyTradeAsset,
     trade,
-    sellAssetAccount,
+    sellAssetAccountId,
     isExactAllowance,
     sellAssetFiatRate,
     buyAssetFiatRate,

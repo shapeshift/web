@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -72,7 +72,11 @@ export const Approval = () => {
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const approveContract = async () => {
+  const approveContract = useCallback(async () => {
+    if (!quote) {
+      moduleLogger.error('No quote available')
+      return
+    }
     try {
       if (!isConnected) {
         /**
@@ -103,9 +107,9 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         await updateTrade({
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: quote?.sellAmount,
+          sellAsset: quote.sellAsset,
+          buyAsset: quote.buyAsset,
+          amount: quote.sellAmount,
         })
 
         history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
@@ -113,7 +117,17 @@ export const Approval = () => {
     } catch (e) {
       showErrorToast(e)
     }
-  }
+  }, [
+    approve,
+    checkApprovalNeeded,
+    dispatch,
+    fiatRate,
+    history,
+    isConnected,
+    quote,
+    showErrorToast,
+    updateTrade,
+  ])
 
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
@@ -167,7 +181,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${quote.sellAsset.explorerAddressLink}${quote.allowanceContract}`}
+                href={`${quote?.sellAsset.explorerAddressLink}${quote?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal

@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId, ethAssetId, ethChainId } from 'test/mocks/accounts'
+import { btcAssetId, btcChainId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { mockStore } from 'test/mocks/store'
 import { ReduxState } from 'state/reducer'
 

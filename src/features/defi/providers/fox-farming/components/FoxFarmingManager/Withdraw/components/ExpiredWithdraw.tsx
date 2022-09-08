@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import {
   Withdraw as ReusableWithdraw,
   WithdrawValues,
@@ -9,7 +9,6 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

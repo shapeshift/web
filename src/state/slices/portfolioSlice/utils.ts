@@ -432,6 +432,9 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case ethChainId:
       return supportsETH(wallet)
     case btcChainId:
+    case ltcChainId:
+    case dogeChainId:
+    case bchChainId:
       return supportsBTC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)

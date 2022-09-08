@@ -46,14 +46,20 @@ type UtxoAccountEntriesProps = {
 
 const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
   const { assetId } = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
-  const entries = useMemo(
-    () =>
-      accountIds.map(accountId => (
-        <AccountEntryRow key={`${assetId}-${accountId}`} accountId={accountId} assetId={assetId} />
-      )),
+  return useMemo(
+    () => (
+      <>
+        {accountIds.map(accountId => (
+          <AccountEntryRow
+            key={`${assetId}-${accountId}`}
+            accountId={accountId}
+            assetId={assetId}
+          />
+        ))}
+      </>
+    ),
     [accountIds, assetId],
   )
-  return <>{entries}</>
 }
 
 type AccountBasedChainEntriesProps = {
@@ -65,14 +71,16 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     () => Object.keys(accountAssetBalancesSortedFiat[accountId]),
     [accountAssetBalancesSortedFiat, accountId],
   )
-  const entries = useMemo(
-    () =>
-      assetIds.map(assetId => (
-        <AccountEntryRow key={assetId} accountId={accountId} assetId={assetId} />
-      )),
+  return useMemo(
+    () => (
+      <>
+        {assetIds.map(assetId => (
+          <AccountEntryRow key={assetId} accountId={accountId} assetId={assetId} />
+        ))}
+      </>
+    ),
     [accountId, assetIds],
   )
-  return <>{entries}</>
 }
 
 export const AccountNumberRow: React.FC<AccountRowProps> = ({

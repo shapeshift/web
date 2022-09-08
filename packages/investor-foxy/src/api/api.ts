@@ -385,7 +385,7 @@ export class FoxyApi {
   async approve(input: ApproveInput): Promise<string> {
     const {
       amount,
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       tokenContractAddress,
       userAddress,
@@ -409,7 +409,6 @@ export class FoxyApi {
       })
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const estimatedGas = estimatedGasBN.toString()
     const payload = {
@@ -446,7 +445,7 @@ export class FoxyApi {
   async deposit(input: TxInput): Promise<string> {
     const {
       amountDesired,
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       contractAddress,
       userAddress,
@@ -475,7 +474,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -493,7 +491,7 @@ export class FoxyApi {
   async withdraw(input: WithdrawInput): Promise<string> {
     const {
       amountDesired,
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       contractAddress,
       userAddress,
@@ -525,7 +523,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -612,7 +609,7 @@ export class FoxyApi {
 
   async claimWithdraw(input: ClaimWithdrawal): Promise<string> {
     const {
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       contractAddress,
       userAddress,
@@ -641,7 +638,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -729,7 +725,7 @@ export class FoxyApi {
   }
 
   async sendWithdrawalRequests(input: TxInputWithoutAmount): Promise<string> {
-    const { accountNumber = 0, dryRun = false, contractAddress, userAddress, wallet } = input
+    const { bip44Params, dryRun = false, contractAddress, userAddress, wallet } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet || !contractAddress) throw new Error('Missing inputs')
 
@@ -751,7 +747,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -771,7 +766,7 @@ export class FoxyApi {
   async addLiquidity(input: TxInput): Promise<string> {
     const {
       amountDesired,
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       contractAddress,
       userAddress,
@@ -799,7 +794,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -819,7 +813,7 @@ export class FoxyApi {
   async removeLiquidity(input: TxInput): Promise<string> {
     const {
       amountDesired,
-      accountNumber = 0,
+      bip44Params,
       dryRun = false,
       contractAddress,
       userAddress,
@@ -846,7 +840,6 @@ export class FoxyApi {
 
     const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
     const estimatedGas = estimatedGasBN.toString()
-    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,

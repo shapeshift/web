@@ -22,7 +22,7 @@ export type AllowanceInput = {
 
 export type ApproveInput = {
   amount?: string
-  accountNumber?: number
+  bip44Params: BIP44Params
   dryRun?: boolean
   tokenContractAddress: string
   contractAddress: string
@@ -36,7 +36,7 @@ export type EstimateGasApproveInput = Pick<
 >
 
 export type TxInput = {
-  accountNumber?: number
+  bip44Params: BIP44Params
   dryRun?: boolean
   tokenContractAddress?: string
   userAddress: string

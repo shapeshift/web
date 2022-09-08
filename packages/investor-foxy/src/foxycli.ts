@@ -106,6 +106,11 @@ const main = async (): Promise<void> => {
         contractAddress,
         userAddress,
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('approve', response)
     } catch (e) {
@@ -121,6 +126,11 @@ const main = async (): Promise<void> => {
         amountDesired: bnOrZero(amount),
         userAddress,
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('stake', response)
     } catch (e) {
@@ -137,6 +147,11 @@ const main = async (): Promise<void> => {
         type: WithdrawType.DELAYED,
         userAddress,
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('unstake', response)
     } catch (e) {
@@ -152,6 +167,11 @@ const main = async (): Promise<void> => {
         type: WithdrawType.INSTANT,
         userAddress,
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('instantUnstake', response)
     } catch (e) {
@@ -167,6 +187,11 @@ const main = async (): Promise<void> => {
         claimAddress,
         userAddress,
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('claimWithdraw', response)
     } catch (e) {
@@ -182,6 +207,11 @@ const main = async (): Promise<void> => {
         userAddress,
         amountDesired: bnOrZero(amount),
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('addLiquidity', response)
     } catch (e) {
@@ -197,6 +227,11 @@ const main = async (): Promise<void> => {
         userAddress,
         amountDesired: bnOrZero(amount),
         wallet,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('removeLiquidity', response)
     } catch (e) {
@@ -222,6 +257,11 @@ const main = async (): Promise<void> => {
       const response = await api.getTimeUntilClaimable({
         contractAddress: foxyStakingContractAddress,
         userAddress,
+        bip44Params: {
+          accountNumber: 0,
+          coinType: 60,
+          purpose: 44,
+        },
       })
       console.info('getTimeUntilClaim', response)
     } catch (e) {

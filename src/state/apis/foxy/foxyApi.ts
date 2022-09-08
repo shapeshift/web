@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId, CHAIN_REFERENCE, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, AssetId, CHAIN_REFERENCE, ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -13,6 +13,7 @@ import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlic
 import {
   selectAssets,
   selectMarketData,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioAssetBalances,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -24,6 +25,7 @@ const TOKEMAK_STATS_URL = getConfig().REACT_APP_TOKEMAK_STATS_URL
 const TOKEMAK_TFOX_POOL_ADDRESS = '0x808d3e6b23516967ceae4f17a5f9038383ed5311'
 
 type GetFoxyBalancesInput = {
+  accountId: AccountId
   userAddress: string
   foxyApr: string
 }
@@ -127,6 +129,7 @@ async function getFoxyOpportunities(
   api: FoxyApi,
   userAddress: string,
   foxyApr: string,
+  bip44Params: BIP44Params,
 ) {
   const acc: Record<string, FoxyOpportunity> = {}
   try {
@@ -136,6 +139,7 @@ async function getFoxyOpportunities(
       const withdrawInfo = await api.getWithdrawInfo({
         contractAddress: opportunity.contractAddress,
         userAddress,
+        bip44Params,
       })
       const rewardTokenAssetId = toAssetId({
         chainId: opportunity.chain,
@@ -182,7 +186,7 @@ export const foxyApi = createApi({
   reducerPath: 'foxyApi',
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
-      queryFn: async ({ userAddress, foxyApr }, injected) => {
+      queryFn: async ({ userAddress, accountId, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {
@@ -211,12 +215,27 @@ export const foxyApi = createApi({
         const assets = selectAssets(state)
         const balances = selectPortfolioAssetBalances(state)
 
+        // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
+        const accountFilter = { accountId }
+        const accountMetaData = selectPortfolioAccountMetadataByAccountId(state, accountFilter)
+        const bip44Params = accountMetaData?.bip44Params
+
+        if (!bip44Params) {
+          return {
+            error: {
+              error: `Accountmetadata for account ${accountId} is not loaded`,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+
         try {
           const foxyOpportunities = await getFoxyOpportunities(
             balances,
             foxy,
             userAddress,
             foxyApr ?? '',
+            bip44Params,
           )
 
           const totalBalance = makeTotalBalance(foxyOpportunities, assets, marketData)

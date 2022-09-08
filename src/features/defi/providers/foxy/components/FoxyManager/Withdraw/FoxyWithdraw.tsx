@@ -1,5 +1,5 @@
 import { Center } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -14,6 +14,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -40,7 +41,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyWithdraw'],
 })
 
-export const FoxyWithdraw = () => {
+export const FoxyWithdraw: React.FC<{
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: AccountId | null
+}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { foxy: api } = useFoxy()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -114,25 +118,25 @@ export const FoxyWithdraw = () => {
         description: translate('defi.steps.withdraw.info.yieldyDescription', {
           asset: underlyingAsset.symbol,
         }),
-        component: Withdraw,
+        component: ownProps => (
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
-        props: {
-          contractAddress,
-        },
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
+        props: { contractAddress },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [contractAddress, translate, underlyingAsset.symbol])
+  }, [accountId, handleAccountIdChange, contractAddress, translate, underlyingAsset.symbol])
 
   const handleBack = () => {
     history.push({

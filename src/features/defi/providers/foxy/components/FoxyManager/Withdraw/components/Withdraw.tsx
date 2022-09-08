@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import {
   Field,
@@ -12,9 +12,10 @@ import {
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -22,6 +23,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,7 +38,12 @@ export type FoxyWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Withdraw: React.FC<
+  StepComponentProps & {
+    accountId: AccountId | null
+    onAccountIdChange: AccountDropdownProps['onChange']
+  }
+> = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -89,6 +96,13 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
   )
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountMetaData = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+
+  const bip44Params = accountMetaData?.bip44Params
+
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
       if (!state?.userAddress || !dispatch || !rewardId || !api) return
@@ -130,6 +144,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
               ).decimalPlaces(0),
               userAddress: state.userAddress,
               type: withdraw.withdrawType,
+              bip44Params,
             }),
             api.getGasPrice(),
           ])
@@ -214,6 +229,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     [
       api,
       asset.precision,
+      bip44Params,
       contractAddress,
       dispatch,
       onNext,
@@ -250,6 +266,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{

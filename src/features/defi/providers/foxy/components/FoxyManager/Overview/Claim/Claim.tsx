@@ -1,3 +1,4 @@
+import { AccountId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import {
   DefiAction,
@@ -12,7 +13,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
-export const Claim = () => {
+export const FoxyClaim: React.FC<{
+  accountId: AccountId | null
+}> = ({ accountId }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
@@ -30,7 +33,7 @@ export const Claim = () => {
     <SlideTransition>
       <MemoryRouter>
         <DefiModalHeader onBack={handleBack} title={translate('common.claim')} />
-        <ClaimRoutes onBack={handleBack} />
+        <ClaimRoutes onBack={handleBack} accountId={accountId} />
       </MemoryRouter>
     </SlideTransition>
   )

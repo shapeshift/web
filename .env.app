@@ -14,7 +14,6 @@ REACT_APP_PENDO_UNSAFE_DESIGNER_MODE=false
 REACT_APP_REFERRER=no-referrer
 
 # unchained
-REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
 REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL=https://api.avalanche.shapeshift.com
@@ -36,3 +35,6 @@ REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
 
 # nodes
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com/lcd
+
+# thorchain
+REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2

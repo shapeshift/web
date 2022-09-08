@@ -29,6 +29,14 @@ import { KeyManager } from './KeyManager'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskConfig } from './MetaMask/config'
+import { MobileCreate } from './MobileWallet/components/MobileCreate'
+import { MobileImport } from './MobileWallet/components/MobileImport'
+import { MobileLoad } from './MobileWallet/components/MobileLoad'
+import { MobileRename } from './MobileWallet/components/MobileRename'
+import { MobileStart } from './MobileWallet/components/MobileStart'
+import { MobileSuccess } from './MobileWallet/components/MobileSuccess'
+import { MobileTestPhrase } from './MobileWallet/components/MobileTestPhrase'
+import { MobileConfig } from './MobileWallet/config'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
 import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
 import { LegacyLoginSuccess } from './NativeWallet/components/LegacyLoginSuccess'
@@ -65,6 +73,21 @@ export interface SupportedWalletInfo {
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
+  [KeyManager.Mobile]: {
+    ...MobileConfig,
+    routes: [
+      { path: '/mobile/connect', component: MobileStart },
+      { path: '/mobile/load', component: MobileLoad },
+      { path: '/mobile/rename', component: MobileRename },
+      { path: '/mobile/import', component: MobileImport },
+      { path: '/mobile/create', component: MobileCreate },
+      { path: '/mobile/create-test', component: MobileTestPhrase },
+      { path: '/mobile/success', component: MobileSuccess },
+    ],
+    // @TODO: Update
+    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
+    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+  },
   [KeyManager.Native]: {
     ...NativeConfig,
     routes: [

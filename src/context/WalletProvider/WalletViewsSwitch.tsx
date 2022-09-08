@@ -10,7 +10,7 @@ import {
 import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
 import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
@@ -80,6 +80,27 @@ export const WalletViewsSwitch = () => {
     }
   }, [history, initialRoute])
 
+  /**
+   * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
+   */
+  const walletRoutesList = useMemo(
+    () =>
+      type
+        ? SUPPORTED_WALLETS[type].routes.map(route => {
+            const Component = route.component
+            return !Component ? null : (
+              <Route
+                exact
+                key={'route'}
+                path={route.path}
+                render={routeProps => <Component {...routeProps} />}
+              />
+            )
+          })
+        : [],
+    [type],
+  )
+
   return (
     <>
       <Modal
@@ -108,19 +129,7 @@ export const WalletViewsSwitch = () => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {type &&
-                  SUPPORTED_WALLETS[type].routes.map(route => {
-                    const Component = route.component
-                    return !Component ? null : (
-                      <Route
-                        key='walletViewRoute'
-                        exact
-                        path={route.path}
-                        render={routeProps => <Component {...routeProps} />}
-                      />
-                    )
-                  })}
-
+                {walletRoutesList}
                 <Route path={'/select'} children={() => <SelectModal />} />
                 <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>

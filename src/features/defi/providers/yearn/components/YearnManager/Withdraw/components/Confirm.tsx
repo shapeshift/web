@@ -121,9 +121,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | nul
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    accountId,
     asset.precision,
     assetReference,
+    bip44Params,
     dispatch,
     onNext,
     opportunity,

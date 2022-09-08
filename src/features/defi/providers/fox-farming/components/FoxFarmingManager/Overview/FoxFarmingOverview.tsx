@@ -32,7 +32,6 @@ export const FoxFarmingOverview = () => {
     foxFarmingOpportunities,
     farmingLoading: loading,
   } = useFoxEth()
-  console.log({ handleAccountIdChange })
   const opportunity = useMemo(
     () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
     [contractAddress, foxFarmingOpportunities],

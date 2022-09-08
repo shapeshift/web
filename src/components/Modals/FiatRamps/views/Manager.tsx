@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { AccountId, ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
   supportsCosmos,
@@ -63,6 +63,8 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
+  // TODO: once MultiAccounts feature flag was removed, we can get rid of this
+  // whole addresses, since AccountDropdown will manage this part
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [bchAddress, setBchAddress] = useState<string>('')
@@ -88,6 +90,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [accountId, setAccountId] = useState<AccountId | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -203,6 +206,8 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             setChainId={setChainId}
             fiatRampProvider={fiatRampProvider}
             ensName={ensName}
+            handleAccountIdChange={setAccountId}
+            accountId={accountId}
           />
         </Route>
         {fiatRampProvider && (

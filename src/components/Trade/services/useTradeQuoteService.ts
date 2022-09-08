@@ -1,35 +1,23 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { type ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import {
-  type GetTradeQuoteInput,
-  type TradeQuote,
-  type UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
+import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
-  type TradeQuoteInputCommonArgs,
-  getBestSwapperFromArgs,
-  getFormFees,
   getUtxoParams,
-  isSupportedNoneUtxoSwappingChain,
+  isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { type TradeState } from 'components/Trade/types'
+import { type TradeQuoteInputCommonArgs, type TradeState } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
-import {
-  selectAccountSpecifiers,
-  selectFeatureFlags,
-  selectFeeAssetById,
-  selectFiatToUsdRate,
-} from 'state/slices/selectors'
+import { selectAccountSpecifiers, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
@@ -41,7 +29,7 @@ export const useTradeQuoteService = () => {
   const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
 
@@ -63,10 +51,6 @@ export const useTradeQuoteService = () => {
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
-  )
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // API
   const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
@@ -92,13 +76,13 @@ export const useTradeQuoteService = () => {
             sellAssetAccountNumber: 0,
             receiveAddress,
           }
-          if (isSupportedNoneUtxoSwappingChain(sellAsset?.chainId)) {
+          if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
             return {
               ...tradeQuoteInputCommonArgs,
               chainId: sellAsset.chainId,
             }
-          } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccount) {
-            const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
+          } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccountId) {
+            const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
             if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
             const sellAssetChainAdapter = getChainAdapterManager().get(
               sellAsset.chainId,
@@ -129,7 +113,7 @@ export const useTradeQuoteService = () => {
     receiveAddress,
     selectedCurrencyToUsdRate,
     sellAsset,
-    sellAssetAccount,
+    sellAssetAccountId,
     sellTradeAsset,
     setValue,
     wallet,
@@ -137,22 +121,6 @@ export const useTradeQuoteService = () => {
 
   // Set trade quote
   useEffect(() => {
-    ;(async () => {
-      if (sellAsset && buyAsset && tradeQuote) {
-        const bestSwapper = await getBestSwapperFromArgs(
-          buyAsset.assetId,
-          sellAsset.assetId,
-          featureFlags,
-        )
-        const formFees = getFormFees({
-          trade: tradeQuote as TradeQuote<ChainId>,
-          sellAsset,
-          tradeFeeSource: bestSwapper.name,
-          feeAsset: sellFeeAsset,
-        })
-        setValue('fees', formFees)
-        setValue('quote', tradeQuote)
-      }
-    })()
-  }, [tradeQuote, setValue, sellAsset, sellFeeAsset, buyAsset, featureFlags])
+    tradeQuote && setValue('quote', tradeQuote)
+  }, [tradeQuote, setValue])
 }

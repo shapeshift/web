@@ -8,11 +8,16 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { PropsWithChildren, useRef, useState } from 'react'
 import { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import {
+  type AccountDropdownProps,
+  AccountDropdown,
+} from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -40,6 +45,7 @@ const CryptoInput = (props: InputProps) => (
 )
 
 export type AssetInputProps = {
+  assetId?: AssetId
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
@@ -55,9 +61,11 @@ export type AssetInputProps = {
   errors?: FieldError
   percentOptions: number[]
   icons?: string[]
+  onAccountIdChange?: AccountDropdownProps['onChange']
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
+  assetId,
   assetSymbol,
   assetIcon,
   onChange = () => {},
@@ -74,6 +82,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   percentOptions = [0.25, 0.5, 0.75, 1],
   icons,
   children,
+  onAccountIdChange: handleAccountIdChange,
 }) => {
   const {
     number: { localeParts },
@@ -175,6 +184,15 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               onClick={onMaxClick}
             />
           )}
+        </Stack>
+      )}
+      {handleAccountIdChange && assetId && (
+        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
+          <AccountDropdown
+            assetId={assetId}
+            onChange={handleAccountIdChange}
+            buttonProps={{ variant: 'solid' }}
+          />
         </Stack>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}

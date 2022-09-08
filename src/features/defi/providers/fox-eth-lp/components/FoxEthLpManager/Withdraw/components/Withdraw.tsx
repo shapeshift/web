@@ -1,4 +1,4 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import {
   Field,
   Withdraw as ReusableWithdraw,
@@ -9,7 +9,6 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -29,6 +28,7 @@ import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {

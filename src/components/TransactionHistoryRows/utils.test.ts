@@ -1,5 +1,6 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { MarketData } from '@shapeshiftoss/types'
 import { mockMarketData } from 'test/mocks/marketData'
@@ -26,8 +27,8 @@ describe('TransactionHistoryRow/utils', () => {
       maxSupply: '1000001337',
     })
     const foxAsset = {
-      assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      chainId: 'eip155:1',
+      assetId: foxAssetId,
+      chainId: ethChainId,
       name: 'Fox',
       precision: 18,
       color: '#222E51',

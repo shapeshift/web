@@ -548,12 +548,6 @@
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
       },
-      "wiped": {
-        "header": "KeepKey apagada com sucesso",
-        "body": "Você redefiniu com sucesso sua KeepKey para os padrões de fábrica. Agora você pode restaurar usando uma frase de recuperação existente ou criar uma nova carteira.",
-        "createButton": "Criar uma nova carteira",
-        "recoverButton": "Recuperar carteira"
-      },
       "recoverySentenceEntry": {
         "header": "Digite sua frase de recuperação",
         "body": "Use a legenda embaralhada do teclado em sua KeepKey, digite as primeiras 4 letras de cada palavra. Se houver menos de 4 letras na palavra, pressione Enter, pressione a barra de espaço ou clique em próximo quando terminar de digitar.",

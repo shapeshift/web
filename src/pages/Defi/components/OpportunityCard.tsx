@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   isCosmosChainId,
@@ -36,10 +36,7 @@ type OpportunityCardProps = {
 } & EarnOpportunityType
 
 const getOverrideIconFromAssetId = (assetId: AssetId, assets: AssetsById): string => {
-  const overrideAssetIds: Record<AssetId, AssetId> = {
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d':
-      'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-  }
+  const overrideAssetIds: Record<AssetId, AssetId> = { [foxAssetId]: foxyAssetId }
   const overrideAssetId = overrideAssetIds[assetId] ?? assetId
   return assets[overrideAssetId]?.icon ?? ''
 }

@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { AssetId, foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpOpportunityName,
@@ -10,7 +10,7 @@ import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
+import { OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
@@ -18,7 +18,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
-      [FOX_ASSET_ID]: [
+      [foxAssetId]: [
         {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
@@ -75,7 +75,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           ],
         },
       ],
-      [FOXY_ASSET_ID]: [
+      [foxyAssetId]: [
         {
           type: OpportunityTypes.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',

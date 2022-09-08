@@ -66,7 +66,8 @@
     "showDetails": "Zeige Details",
     "hideDetails": "Details ausblenden",
     "walletSupportsETHOnly": "Nur Ethereum",
-    "loadingText": "Wird geladen..."
+    "loadingText": "Wird geladen...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -86,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Regenbogen",
+      "totalChart": "💰 Gesamt",
       "addAsset": "Vermögenswert hinzufügen",
       "yourAssets": "Ihr Vermögen",
       "asset": "Vermögenswert",
@@ -319,6 +322,12 @@
           "rewardsInfo": "Belohnungen, die Sie erhalten"
         }
       },
+      "claim": {
+        "info": {
+          "title": "Forderungsinfo",
+          "description": "Abheben der beim Farmen angesammelten Token"
+        }
+      },
       "approve": {
         "title": "Genehmigen"
       },
@@ -430,6 +439,7 @@
     "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio."
   },
   "trade": {
+    "trade": "Handeln",
     "allowance": "Genehmigung",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
@@ -446,10 +456,14 @@
     "needPermission": "benötigt Ihre Erlaubnis, Ihre %{symbol} zu verwenden",
     "whyNeedThis": "Warum muss ich das tun?",
     "estimatedGasFee": "Geschätzte Gasgebühr",
+    "receiveInclFee": "Erhalten (inkl. Gebühren)",
     "approvingAsset": "%{symbol} wird genehmigt",
     "viewTransaction": "Transaktion anzeigen",
     "unlimited": "Unbegrenzt",
     "exact": "Genau",
+    "expectedAmount": "Erwarteter Betrag",
+    "beforeFees": "Vor Gebühren",
+    "minAmountAfterSlippage": "Min. erwarteter Betrag nach Marktabweichung (%{slippage}%)",
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
@@ -682,6 +696,9 @@
         "failed": "Es gab ein Problem mit Ihrer Einzahlung."
       }
     },
+    "claim": {
+      "claimFrom": "Forderung von %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Abzuhebender Betrag",
       "withdrawFrom": "Abheben von %{opportunity}",
@@ -733,6 +750,7 @@
       "amountToDeposit": "Einzuzahlender Betrag",
       "amountToStake": "Betrag für Staking",
       "amountToWithdraw": "Abzuhebender Betrag",
+      "amountToClaim": "Forderungsbetrag",
       "withdrawFrom": "Abhebung von",
       "depositTo": "Einzahlung an",
       "averageApy": "Durchschnittlicher jährlicher Zinsertrag",
@@ -797,6 +815,19 @@
         "SGD": "Singapur-Dollar",
         "ILS": "Israelischer Schekel",
         "IDR": "Indonesische Rupiah"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Ihre Wallet wurde importiert!",
+        "body": "Willkommen bei der neuen ShapeShift-App.",
+        "primaryCta": "Fortsetzen"
+      },
+      "notice": {
+        "header": "Die Anmeldung mit E-Mail ist veraltet. Sichern jetzt Sie Ihre Wallet!",
+        "body": "Wenn Sie jemals den Zugriff auf Ihr Gerät verlieren, benötigen Sie Ihre geheime Wiederherstellungsphrase, um wieder Zugriff auf Ihr Vermögen zu erhalten.",
+        "primaryCta": "Holen Sie sich die geheime Wiederherstellungsphrase",
+        "secondaryCta": "Ich kenne bereits meine geheime Wiederherstellungsphrase"
       }
     }
   },
@@ -1205,7 +1236,9 @@
   },
   "accounts": {
     "accounts": "Konten",
-    "selectAccount": "Wählen Sie ein Konto aus"
+    "selectAccount": "Wählen Sie ein Konto aus",
+    "addAccount": "Konto hinzufügen",
+    "accountNumber": "Konto #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1313,6 +1346,14 @@
         "neverCollectPersonalInformations": "Sammelt niemals Schlüssel, Adressen, Transaktionen, Guthaben oder persönliche Informationen",
         "neverCollectIp": "Niemals Ihren vollständige IP-Adresse aufzeichnen",
         "neverSellData": "Niemals Ihre Daten zwecks Profit verkaufen"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Holen Sie sich Yat",
+        "description": "Yat ist Ihr universeller Emoji-Benutzername, Webseiten-URL, Zahlungsadresse und mehr."
       }
     }
   }

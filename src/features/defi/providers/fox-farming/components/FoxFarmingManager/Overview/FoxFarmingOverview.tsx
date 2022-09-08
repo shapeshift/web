@@ -28,10 +28,11 @@ export const FoxFarmingOverview = () => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const {
-    setAccountId: handleAccountChange,
+    setAccountId: handleAccountIdChange,
     foxFarmingOpportunities,
     farmingLoading: loading,
   } = useFoxEth()
+  console.log({ handleAccountIdChange })
   const opportunity = useMemo(
     () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
     [contractAddress, foxFarmingOpportunities],
@@ -85,7 +86,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={rewardAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

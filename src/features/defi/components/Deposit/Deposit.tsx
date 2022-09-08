@@ -77,6 +77,8 @@ export const Deposit = ({
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
 
+  console.log({ handleAccountIdChange })
+
   const {
     control,
     setValue,

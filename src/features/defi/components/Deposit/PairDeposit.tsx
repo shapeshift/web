@@ -1,11 +1,11 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -43,7 +43,7 @@ type DepositProps = {
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
-  onAccountChange?: (accountId: AccountId) => void
+  onAccountIdChange?: AccountDropdownProps['onChange']
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
@@ -81,7 +81,7 @@ export const PairDeposit = ({
   fiatInputValidation1,
   fiatInputValidation2,
   isLoading,
-  onAccountChange,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
   syncPair = true,
@@ -220,7 +220,7 @@ export const PairDeposit = ({
             assetSymbol={asset1.symbol}
             balance={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
-            onAccountChange={onAccountChange}
+            onAccountIdChange={handleAccountIdChange}
             onMaxClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
@@ -235,7 +235,7 @@ export const PairDeposit = ({
             assetSymbol={asset2.symbol}
             balance={cryptoAmountAvailable2}
             fiatBalance={fiatAmountAvailable2}
-            onAccountChange={onAccountChange}
+            onAccountIdChange={handleAccountIdChange}
             onMaxClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}
             errors={cryptoError2 || fiatError2}

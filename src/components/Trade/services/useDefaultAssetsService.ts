@@ -5,6 +5,7 @@ import {
   cosmosChainId,
   ethAssetId,
   ethChainId,
+  foxAssetId,
   fromAssetId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
@@ -137,7 +138,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
           isDefaultAssetFiatRateUninitialized
         ):
           return {
-            buyAsset: assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
+            buyAsset: assets[foxAssetId],
             sellAsset: assets[ethAssetId],
           }
         default:
@@ -148,9 +149,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     if (assetPair) {
       ;(async () => {
         const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
-        const buyAsset = receiveAddress
-          ? assetPair.buyAsset
-          : assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+        const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
         const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
         setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', '0')

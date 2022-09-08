@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import {
   ChainAdapter,
   ethereum,
@@ -24,12 +24,12 @@ import { useAppSelector } from 'state/store'
 import erc20abi from '../abis/erc20abi.json'
 import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
 import {
-  foxAssetId,
   foxEthLpAssetId,
   MAX_ALLOWANCE,
   UNISWAP_V2_ROUTER_ADDRESS,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from '../constants'
+
 const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
 
 const ethersProvider = getEthersProvider()

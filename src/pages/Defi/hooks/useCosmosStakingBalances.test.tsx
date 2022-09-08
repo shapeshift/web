@@ -1,10 +1,7 @@
+import { cosmosAssetId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
 import { PropsWithChildren } from 'react'
-import {
-  cosmosAssetId,
-  mockCosmosAccount,
-  mockCosmosAccountWithStakingData,
-} from 'test/mocks/accounts'
+import { mockCosmosAccount, mockCosmosAccountWithStakingData } from 'test/mocks/accounts'
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'

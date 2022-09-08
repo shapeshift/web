@@ -1,3 +1,15 @@
+# [@shapeshiftoss/investor-yearn-v6.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v5.0.1...@shapeshiftoss/investor-yearn-v6.0.0) (2022-09-08)
+
+
+### Features
+
+* **investor-yearn:** accept bip44Params in signAndBroadcast input ([#1014](https://github.com/shapeshift/lib/issues/1014)) ([dc65033](https://github.com/shapeshift/lib/commit/dc65033851000a476db4f3ac073d26c40094969c))
+
+
+### BREAKING CHANGES
+
+* **investor-yearn:** signAndBroadcast now accepts an optional bip44Params property and will throw if not passed.
+
 # [@shapeshiftoss/investor-yearn-v5.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v5.0.0...@shapeshiftoss/investor-yearn-v5.0.1) (2022-09-02)
 
 # [@shapeshiftoss/investor-yearn-v5.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v4.1.1...@shapeshiftoss/investor-yearn-v5.0.0) (2022-09-02)

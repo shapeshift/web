@@ -29,6 +29,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -44,7 +45,7 @@ const moduleLogger = logger.child({
 
 export const FoxyDeposit: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { foxy: api } = useFoxy()
   const translate = useTranslate()

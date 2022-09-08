@@ -1,3 +1,4 @@
+import { Nullable } from 'types/common'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   type ButtonProps,
@@ -93,7 +94,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
-  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
+  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>()
   const isDropdownDisabled = disabled || accountIds.length <= 1
 
   /**

@@ -27,6 +27,7 @@ import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
 import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import { Nullable } from 'types/common'
 
 import type { FiatRamp } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
@@ -93,7 +94,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const {
     state: { wallet },
   } = useWallet()
-  const [accountId, setAccountId] = useState<AccountId | null>(null)
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
 
   useEffect(() => {
     ;(async () => {

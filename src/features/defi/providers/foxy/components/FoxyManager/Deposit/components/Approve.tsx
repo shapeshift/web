@@ -25,13 +25,14 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { Nullable } from 'types/common'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
-export const Approve: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+export const Approve: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
   accountId,
   onNext,
 }) => {

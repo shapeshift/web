@@ -6,8 +6,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 
 import { SendInput } from '../../Form'
+
+const moduleLogger = logger.child({ namespace: ['cosmos', 'useFormSend'] })
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -30,6 +33,7 @@ export const useFormSend = () => {
       const adapter = chainAdapterManager.get(
         data.asset.chainId,
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+
       if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
 
       const value = bnOrZero(data.cryptoAmount)
@@ -74,7 +78,9 @@ export const useFormSend = () => {
           position: 'top-right',
         })
       }, 5000)
-    } catch (error) {
+    } catch (err) {
+      moduleLogger.error(err, 'handleSend:')
+
       toast({
         title: translate('modals.send.errorTitle', {
           asset: data.asset.name,

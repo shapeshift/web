@@ -28,6 +28,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

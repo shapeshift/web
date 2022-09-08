@@ -92,7 +92,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | nu
     try {
       if (
         state?.loading ||
-        !(state?.userAddress && rewardId && walletState.wallet && api && dispatch)
+        !(state?.userAddress && rewardId && walletState.wallet && api && dispatch && bip44Params)
       )
         return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })

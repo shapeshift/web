@@ -101,7 +101,7 @@ export const Withdraw: React.FC<
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
-      if (!state?.userAddress || !dispatch || !rewardId || !api) return
+      if (!(state?.userAddress && dispatch && rewardId && api && bip44Params)) return
 
       const getApproveGasEstimate = async () => {
         if (!state.userAddress) return

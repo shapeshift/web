@@ -44,13 +44,13 @@ export type AccountDropdownProps = {
   onChange: (accountId: AccountId) => void
   accountId?: AccountId // FIXME: Implement
   autoSelectHighestBalance?: boolean // FIXME: Implement
-  disableSelection?: boolean // FIXME: Implement
+  disableSelection?: boolean
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps // FIXME: Implement
 }
 
 export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
-  const { assetId, buttonProps, onChange } = props
+  const { assetId, buttonProps, onChange, disableSelection } = props
   const { chainId } = fromAssetId(assetId)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -63,6 +63,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
+  const isSelectionDisabled = disableSelection || accountIds.length <= 1
 
   /**
    * react on selectedAccountId change
@@ -188,8 +189,9 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
         iconSpacing={0}
         as={Button}
         size='sm'
-        rightIcon={<ChevronDownIcon />}
+        rightIcon={isSelectionDisabled ? null : <ChevronDownIcon />}
         variant='ghost'
+        disabled={isSelectionDisabled}
         {...buttonProps}
       >
         <Stack direction='row' alignItems='center'>

@@ -7,14 +7,14 @@
     "cancel": "Annuler",
     "close": "Fermer",
     "continue": "Continuer",
-    "approve": "Approuver",
+    "approve": "Autoriser",
     "confirm": "Confirmer",
     "reject": "Rejeter",
     "connected": "Connecté",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
     "insufficientFunds": "Fonds insuffisants",
-    "estimatedGas": "Estimation des frais de carburant",
+    "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
     "insufficientAmountForGas": "Solde ETH insuffisant pour couvrir les frais de carburant",
     "invalidAddress": "Adresse invalide",
@@ -22,6 +22,7 @@
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
     "claim": "Réclamer",
+    "withdrawAndClaim": "Retirer et réclamer",
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
@@ -55,7 +56,7 @@
     "settings": "Paramètres",
     "joinDiscord": "Rejoindre Discord",
     "legalDated": "Daté : Janvier 2022",
-    "approveOnWallet": "Approuver sur le porte-monnaie",
+    "approveOnWallet": "Autoriser sur le porte-monnaie",
     "confirmOnWallet": "Confirmer sur le porte-monnaie",
     "login": "Connexion",
     "verify": "Vérifier",
@@ -65,7 +66,8 @@
     "showDetails": "Afficher les détails",
     "hideDetails": "Cacher les détails",
     "walletSupportsETHOnly": "Ethereum seulement",
-    "loadingText": "Chargement..."
+    "loadingText": "Chargement...",
+    "txId": "ID Tx"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -85,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Arc-en-ciel",
+      "totalChart": "💰 Total",
       "addAsset": "Ajouter un actif",
       "yourAssets": "Vos actifs",
       "asset": "Actif",
@@ -112,6 +116,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Bientôt disponible ...",
     "buy": "Acheter",
     "sell": "Vendre",
@@ -123,7 +128,9 @@
     "fundsFrom": "Les fonds seront envoyés depuis",
     "headerLabel": "Acheter/Vendre des cryptos",
     "insufficientCryptoAmountToSell": "Le montant minimum à vendre est de $%{amount}",
-    "usOnly": "Uniquement aux USA"
+    "usOnly": "Uniquement aux USA",
+    "noKYC": "Sans KYC",
+    "nonUS": "Hors USA"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -195,7 +202,7 @@
       },
       "foxFarmingOverview": {
         "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
-        "body": "Approuvez et misez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
+        "body": "Autorisez et misez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
         "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
         "cta": "Déposer des jetons LP ETH-FOX maintenant",
         "foxFarmingBalance": "Solde de jetons LP ETH-FOX",
@@ -260,6 +267,7 @@
     "tvl": "TVL",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Terminé",
     "balance": "Solde",
     "defi": "DeFi",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
@@ -309,11 +317,19 @@
         "info": {
           "title": "Informations sur le retrait",
           "description": "Entrez le montant en %{asset} que vous souhaitez retirer.",
-          "yieldyDescription": "Entrez le montant en %{asset} que vous souhaitez retirer. Les retraits suivants seront combinés et réinitialiseront la durée du retrait."
+          "yieldyDescription": "Entrez le montant en %{asset} que vous souhaitez retirer. Les retraits suivants seront combinés et réinitialiseront la durée du retrait.",
+          "farmingExpiredDescription": "Ce contrat de récompenses de farming est terminé. Vous devez retirer la totalité de votre solde.",
+          "rewardsInfo": "Récompenses que vous recevrez"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "Info sur la réclamation",
+          "description": "Retirer les jetons de farming accumulés"
         }
       },
       "approve": {
-        "title": "Approuver"
+        "title": "Autoriser"
       },
       "confirm": {
         "title": "Confirmer"
@@ -345,7 +361,9 @@
     "foxToken": "Opportunités FOX",
     "featureFlags": "Indicateurs de fonctionnalité",
     "demoMode": "Mode démo",
-    "clickToConnect": "Cliquez pour connecter un porte-monnaie"
+    "clickToConnect": "Cliquez pour connecter un porte-monnaie",
+    "wallet": "Porte-monnaie",
+    "explore": "Explorer"
   },
   "transactionRow": {
     "send": "Envoyé",
@@ -368,13 +386,15 @@
     "parser": {
       "weth": {
         "deposit": "Déposer",
-        "approve": "Approuver",
+        "approve": "Autoriser",
         "withdraw": "Retirer",
         "receive": "Recevoir"
       },
       "yearn": {
         "deposit": "Déposer",
-        "approve": "Approuver",
+        "approve": "Autoriser",
+        "revoke": "Révoquer",
+        "infinite": "Infini ∞",
         "withdraw": "Retirer",
         "receive": "Recevoir"
       },
@@ -394,7 +414,9 @@
         "claimWithdraw": "Réclamer un retrait"
       },
       "erc20": {
-        "approve": "Approuver"
+        "approve": "Autoriser",
+        "revoke": "Révoquer",
+        "infinite": "Infini ∞"
       }
     },
     "unknown": "Transaction"
@@ -417,6 +439,7 @@
     "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
   },
   "trade": {
+    "trade": "Échanger",
     "allowance": "Allocation",
     "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
@@ -429,14 +452,18 @@
     "confirmDetails": "Confirmer les détails",
     "confirmAndTrade": "Confirmer et échanger",
     "complete": "Échange terminé",
-    "approveAsset": "Approuver l'interaction avec %{symbol}",
+    "approveAsset": "Autoriser l'interaction avec %{symbol}",
     "needPermission": "Nous avons besoin de votre permission pour utiliser vos %{symbol}",
     "whyNeedThis": "Pourquoi dois-je faire cela ?",
-    "estimatedGasFee": "Estimation des frais de carburant",
-    "approvingAsset": "Approbation de %{symbol}",
+    "estimatedGasFee": "Frais de carburant estimés",
+    "receiveInclFee": "Recevoir (frais inclus)",
+    "approvingAsset": "Autoriser les %{symbol}",
     "viewTransaction": "Voir la transaction",
     "unlimited": "Illimitée",
     "exact": "Exacte",
+    "expectedAmount": "Montant attendu",
+    "beforeFees": "Avant frais",
+    "minAmountAfterSlippage": "Montant minimum attendu après glissement/slippage (%{slippage}%)",
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
@@ -446,8 +473,8 @@
     "errors": {
       "title": "Il y a eu un problème",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
-      "amountTooSmall": "Montant insuffisant. Le montant minimum de transaction pour cette paire est de %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Montant insuffisant. Le montant de vente pour cette paire est inférieur aux frais.",
+      "amountTooSmall": "Minimum : %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
       "negativeMax": "Fonds insuffisants pour les frais de minage sur cette transaction. Frais de minage estimés : %{estimatedMinerFee}",
       "invalidMax": "Montant invalide. Le montant maximal de la transaction pour cette paire est de %{maxLimit}.",
       "insufficientFunds": "Fonds insuffisants pour les frais de minage et le montant",
@@ -468,9 +495,9 @@
       "depositAddressRequired": "Impossible d'exécuter un devis ETH sans une adresse de DEX",
       "sellAssetNetworkAndSymbolRequired": "Le réseau de l'actif et son symbole sont tous deux nécessaires pour exécuter un devis",
       "hdwalletInvalidConfig": "Une erreur s'est produite lors de la communication avec votre porte-monnaie matériel",
-      "allowanceRequiredFailed": "Une erreur s'est produite lors de l'approbation de l'allocation requise pour l'échange.",
-      "checkApprovalNeededFailed": "Une erreur s'est produite lors de la vérification de l'approbation de votre échange.",
-      "approveInfiniteFailed": "Une erreur s'est produite lors de l'approbation de votre échange.",
+      "allowanceRequiredFailed": "Une erreur s'est produite lors de l'autorisation de l'allocation requise pour l'échange.",
+      "checkApprovalNeededFailed": "Une erreur s'est produite lors de la vérification de l'autorisation de votre échange.",
+      "approveInfiniteFailed": "Une erreur s'est produite lors de l'autorisation de votre échange.",
       "buildTradeFailed": "Une erreur s'est produite lors de la mise en œuvre de votre échange.",
       "grantAllowanceFailed": "Une erreur s'est produite lors de l'octroi de l'allocation.",
       "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
@@ -566,6 +593,20 @@
           "length": "Votre mot de passe doit contenir au moins %{length} caractères",
           "maxLength": "Le surnom doit contenir au maximum %{length} caractères"
         }
+      },
+      "backupPassphrase": {
+        "menuItem": "Sauvegarder mon porte-monnaie",
+        "enterPassword": "Entrez votre mot de passe pour continuer",
+        "testTitle": "Vérifier votre phrase de récupération secrète",
+        "info": {
+          "title": "Votre phrase secrète de récupération",
+          "description": "Écrivez ces 12 mots et stockez-les en toute sécurité hors ligne. Cette phrase de 12 mots est utilisée pour récupérer les clés privées de votre porte-monnaie.",
+          "warning": "Remarque : si vous perdez votre phrase secrète de récupération, ShapeShift ne peut pas vous aider à récupérer votre porte-monnaie et vos fonds seront perdus pour toujours."
+        },
+        "success": {
+          "title": "Succès",
+          "description": "Vous avez sauvegardé votre porte-monnaie. N'oubliez pas de stocker votre phrase secrète de récupération dans un endroit sûr."
+        }
       }
     },
     "stake": {
@@ -650,6 +691,9 @@
         "failed": "Il y a eu un problème avec votre dépôt."
       }
     },
+    "claim": {
+      "claimFrom": "Réclamer depuis %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
       "withdrawFrom": "Retirer de %{opportunity}",
@@ -683,7 +727,7 @@
       "body": "a besoin de votre permission pour utiliser vos %{asset}",
       "learnMore": "Pourquoi dois-je faire cela ?",
       "depositFee": "Il y aura des frais de carburant séparés à déposer.",
-      "estimatedGas": "Estimation des frais de carburant",
+      "estimatedGas": "Frais de carburant estimés",
       "confirm": "Confirmer",
       "reject": "Rejeter"
     },
@@ -701,6 +745,7 @@
       "amountToDeposit": "Montant à déposer",
       "amountToStake": "Montant à miser",
       "amountToWithdraw": "Montant à retirer",
+      "amountToClaim": "Montant à réclamer",
       "withdrawFrom": "Retirer de",
       "depositTo": "Déposer sur",
       "averageApy": "APY moyen",
@@ -710,7 +755,7 @@
       "withdrawDelayedTime": "7 à 14 jours",
       "xDays": "%{unbondingDays} jours",
       "estimatedReturns": "Rendements annuels estimés*",
-      "estimatedGas": "Estimation des frais de carburant",
+      "estimatedGas": "Frais de carburant estimés",
       "notEnoughGas": "Solde en %{assetSymbol} insuffisant pour couvrir le carburant",
       "preFooter": "Les récompenses s'accumulent automatiquement",
       "signBroadcast": "Signer & diffuser",
@@ -726,7 +771,7 @@
       "transactionId": "ID TX",
       "averageApy": "APY moyen",
       "estimatedReturns": "Rendements annuels estimés*",
-      "estimatedGas": "Estimation des frais de carburant",
+      "estimatedGas": "Frais de carburant estimés",
       "gasUsed": "Total des frais de carburant",
       "continue": "Voir la transaction",
       "position": "Voir la position",
@@ -765,6 +810,19 @@
         "SGD": "Dollar singapourien",
         "ILS": "Shekel israélien",
         "IDR": "Roupie indonésienne"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Votre porte-monnaie a été importé !",
+        "body": "Bienvenue dans la nouvelle app ShapeShift.",
+        "primaryCta": "Continuer"
+      },
+      "notice": {
+        "header": "La connexion par e-mail est progressivement abandonnée. Sauvegardez votre porte-monnaie maintenant !",
+        "body": "Si jamais vous perdez l'accès à votre appareil, vous aurez besoin de votre phrase de récupération secrète pour récupérer vos fonds.",
+        "primaryCta": "Obtenir la phrase de récupération secrète",
+        "secondaryCta": "Je connais déjà ma phrase récupération secrète"
       }
     }
   },
@@ -1172,7 +1230,10 @@
     }
   },
   "accounts": {
-    "accounts": "Comptes"
+    "accounts": "Comptes",
+    "selectAccount": "Sélectionner un compte",
+    "addAccount": "Ajouter un compte",
+    "accountNumber": "Compte #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1226,6 +1287,7 @@
     "status": "Statut",
     "transactionType": "Type de transaction",
     "minerFee": "Frais de minage",
+    "approvalAmount": "Montant autorisé",
     "unknownType": "Transaction",
     "from": "De",
     "to": "À",
@@ -1279,6 +1341,14 @@
         "neverCollectPersonalInformations": "Ne collecte jamais de clés, d'adresses, de transactions, de soldes ou d'autres informations personnelles",
         "neverCollectIp": "Ne collecte jamais votre adresse IP complète",
         "neverSellData": "Ne vend jamais des données à des fins lucratives"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Obtenir un Yat",
+        "description": "Votre Yat est votre nom d'utilisateur emoji universel, l'URL de votre site Web, votre adresse de paiement, etc."
       }
     }
   }

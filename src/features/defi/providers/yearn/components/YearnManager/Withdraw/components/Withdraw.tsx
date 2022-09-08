@@ -1,4 +1,4 @@
-import { AccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import {
   Field,
   Withdraw as ReusableWithdraw,
@@ -12,6 +12,7 @@ import {
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -31,8 +32,8 @@ const moduleLogger = logger.child({
 })
 
 export const Withdraw: React.FC<
-  StepComponentProps & { onAccountChange: (accountId: AccountId) => void }
-> = ({ onAccountChange: handleAccountChange, onNext }) => {
+  StepComponentProps & { onAccountIdChange: AccountDropdownProps['onChange'] }
+> = ({ onAccountIdChange: handleAccountIdChange, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
@@ -150,7 +151,7 @@ export const Withdraw: React.FC<
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
-        onAccountChange={handleAccountChange}
+        onAccountIdChange={handleAccountIdChange}
         asset={underlyingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{

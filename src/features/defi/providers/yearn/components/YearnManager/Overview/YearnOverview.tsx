@@ -12,6 +12,7 @@ import {
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -30,8 +31,8 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
 })
 
-export const YearnOverview: React.FC<{ onAccountChange: (accountId: AccountId) => void }> = ({
-  onAccountChange: handleAccountChange,
+export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['onChange'] }> = ({
+  onAccountIdChange: handleAccountIdChange,
 }) => {
   const { yearn: api } = useYearn()
   const translate = useTranslate()
@@ -98,7 +99,7 @@ export const YearnOverview: React.FC<{ onAccountChange: (accountId: AccountId) =
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountIdChange } : {})}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

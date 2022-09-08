@@ -39,9 +39,9 @@ const moduleLogger = logger.child({
 })
 
 export const YearnWithdraw: React.FC<{
-  onAccountChange: (accountId: AccountId) => void
+  onAccountIdChange: (accountId: AccountId) => void
   accountId: AccountId | null
-}> = ({ onAccountChange: handleAccountChange, accountId }) => {
+}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
@@ -115,7 +115,7 @@ export const YearnWithdraw: React.FC<{
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: ownProps => <Withdraw {...ownProps} onAccountChange={handleAccountChange} />,
+        component: ownProps => <Withdraw {...ownProps} onAccountIdChange={handleAccountIdChange} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -126,7 +126,7 @@ export const YearnWithdraw: React.FC<{
         component: Status,
       },
     }
-  }, [accountId, translate, underlyingAsset.symbol, handleAccountChange])
+  }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])
 
   if (loading || !asset || !marketData)
     return (

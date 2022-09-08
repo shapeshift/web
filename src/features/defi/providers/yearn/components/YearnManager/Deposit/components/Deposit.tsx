@@ -12,6 +12,7 @@ import qs from 'qs'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -29,8 +30,8 @@ import { DepositContext } from '../DepositContext'
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
 
 export const Deposit: React.FC<
-  StepComponentProps & { onAccountChange: (accountId: AccountId) => void }
-> = ({ onNext, onAccountChange: handleAccountChange }) => {
+  StepComponentProps & { onAccountIdChange: AccountDropdownProps['onChange'] }
+> = ({ onNext, onAccountIdChange: handleAccountIdChange }) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -202,7 +203,7 @@ export const Deposit: React.FC<
 
   return (
     <ReusableDeposit
-      onAccountChange={handleAccountChange}
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

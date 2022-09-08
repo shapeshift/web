@@ -12,8 +12,8 @@ import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
+  selectBIP44ParamsByAccountId,
   selectMarketData,
-  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioAssetBalances,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -217,8 +217,7 @@ export const foxyApi = createApi({
 
         // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
         const accountFilter = { accountId }
-        const accountMetaData = selectPortfolioAccountMetadataByAccountId(state, accountFilter)
-        const bip44Params = accountMetaData?.bip44Params
+        const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
 
         if (!bip44Params) {
           return {

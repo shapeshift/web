@@ -22,8 +22,8 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -97,11 +97,7 @@ export const Withdraw: React.FC<
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountMetaData = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
-  )
-
-  const bip44Params = accountMetaData?.bip44Params
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {

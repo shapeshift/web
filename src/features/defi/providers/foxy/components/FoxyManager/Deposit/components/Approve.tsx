@@ -20,8 +20,8 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -90,11 +90,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: AccountId | nul
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountMetaData = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
-  )
-
-  const bip44Params = accountMetaData?.bip44Params
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleApprove = useCallback(async () => {
     if (

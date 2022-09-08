@@ -66,7 +66,8 @@
     "showDetails": "Mostrar detalles",
     "hideDetails": "Ocultar detalles",
     "walletSupportsETHOnly": "Solo Ethereum",
-    "loadingText": "Cargando..."
+    "loadingText": "Cargando...",
+    "txId": "ID Tx"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -86,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Arcoiris",
+      "totalChart": "💰 Total",
       "addAsset": "Agregar activo",
       "yourAssets": "Sus activos",
       "asset": "Activos",
@@ -319,6 +322,12 @@
           "rewardsInfo": "Recompensas que recibirá"
         }
       },
+      "claim": {
+        "info": {
+          "title": "Información de reclamo",
+          "description": "Retirar los tokens acumulados en farming"
+        }
+      },
       "approve": {
         "title": "Aprobar"
       },
@@ -430,6 +439,7 @@
     "noSupportedAssets": "No hay activos soportados en la billetera."
   },
   "trade": {
+    "trade": "Intercambiar",
     "allowance": "Tolerancia",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
@@ -446,10 +456,14 @@
     "needPermission": "Necesitamos su permiso para usar su %{symbol}",
     "whyNeedThis": "¿Por qué necesito hacer esto?",
     "estimatedGasFee": "Tarifa estimada de gas",
+    "receiveInclFee": "Recibir (incl. tarifas)",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
     "unlimited": "Ilimitado",
     "exact": "Exacto",
+    "expectedAmount": "Cantidad esperada",
+    "beforeFees": "Antes de las tarifas",
+    "minAmountAfterSlippage": "mín. cantidad esperada después del deslizamiento (%{slippage}%)",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
@@ -684,6 +698,9 @@
         "failed": "Hubo un problema con su depósito."
       }
     },
+    "claim": {
+      "claimFrom": "Reclamar de %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
       "withdrawFrom": "Retirar de %{oportunidad}",
@@ -735,6 +752,7 @@
       "amountToDeposit": "Cantidad a Depositar",
       "amountToStake": "Cantidad a Stake",
       "amountToWithdraw": "Cantidad a Retirar",
+      "amountToClaim": "Monto a Reclamar",
       "withdrawFrom": "Retiro de",
       "depositTo": "Depositar A",
       "averageApy": "APY Promedio",
@@ -799,6 +817,19 @@
         "SGD": "Dolar de Singapur",
         "ILS": "Shekel Israelí",
         "IDR": "Rupia Indonesia"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "¡Tu billetera ha sido importada!",
+        "body": "Bienvenido a la nueva app ShapeShift.",
+        "primaryCta": "Continuar"
+      },
+      "notice": {
+        "header": "El inicio de sesión con correo electrónico está en desuso. ¡Haz una copia de seguridad de tu billetera ahora!",
+        "body": "Si alguna vez pierde el acceso a su dispositivo, necesita su frase de recuperación secreta para recuperar sus fondos.",
+        "primaryCta": "Obtener Frase de Recuperación secreta",
+        "secondaryCta": "Ya tengo mi frase secreta de recuperación"
       }
     }
   },
@@ -1210,7 +1241,9 @@
   },
   "accounts": {
     "accounts": "Cuentas",
-    "selectAccount": "Seleccione una Cuenta"
+    "selectAccount": "Seleccione una Cuenta",
+    "addAccount": "Añadir Cuenta",
+    "accountNumber": "Cuenta #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1318,6 +1351,14 @@
         "neverCollectPersonalInformations": "Nunca recopila claves, direcciones, transacciones, saldos o cualquier información personal",
         "neverCollectIp": "Nunca recopila su dirección IP completa",
         "neverSellData": "Nunca vende datos con fines de lucro"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Consigue un Yat",
+        "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
       }
     }
   }

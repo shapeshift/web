@@ -41,7 +41,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     lpEthBalance: ethBalance,
     lpLoading: loading,
     accountAddress,
-    setAccountId: handleAccountChange,
+    setAccountId: handleAccountIdChange,
   } = useFoxEth()
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
@@ -189,7 +189,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
-        {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+        {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || loading}

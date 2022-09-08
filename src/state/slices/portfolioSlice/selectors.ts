@@ -754,7 +754,7 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSele
   selectChainIdParamFromFilter,
   (accountBalances, accountMetadata, accountNumberString, chainId): string => {
     const accountNumber = parseInt(accountNumberString.toString())
-    if (isNaN(accountNumber))
+    if (!Number.isInteger(accountNumber))
       throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
     return Object.entries(accountBalances)
       .reduce((acc, [accountId, accountBalance]) => {

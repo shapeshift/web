@@ -35,6 +35,7 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
@@ -105,7 +106,7 @@ type FoxEthProviderProps = {
 }
 
 type IFoxLpAndFarmingOpportunitiesContext = {
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
   setAccountId: (accountId: AccountId) => void
   totalBalance: string
   lpFoxBalance: string | null
@@ -155,7 +156,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
-  const [accountId, setAccountId] = useState<AccountId | null>(null)
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress)
 
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)

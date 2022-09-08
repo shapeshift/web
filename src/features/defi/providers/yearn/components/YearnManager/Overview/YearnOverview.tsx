@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
-import { AccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { Overview } from 'features/defi/components/Overview/Overview'

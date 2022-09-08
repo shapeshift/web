@@ -14,6 +14,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -39,7 +40,7 @@ const moduleLogger = logger.child({
 })
 
 export const YearnWithdraw: React.FC<{
-  onAccountIdChange: (accountId: AccountId) => void
+  onAccountIdChange: AccountDropdownProps['onChange']
   accountId: AccountId | null
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { yearn: api } = useYearn()

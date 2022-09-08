@@ -99,7 +99,7 @@ export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountIdChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

@@ -63,6 +63,11 @@ const main = async (): Promise<void> => {
     wallet,
     tx: depositPreparedTx,
     feePriority: 'fast',
+    bip44Params: {
+      accountNumber: 0,
+      coinType: 60,
+      purpose: 44,
+    },
   })
   console.info(
     JSON.stringify(

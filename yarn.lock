@@ -2994,6 +2994,11 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
+"@shapeshiftoss/types@8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.1.0.tgz#a087f3b89fd68bb07749a75de4afbb5314850711"
+  integrity sha512-/sDoPB5tHWzcMjF/si66ZkZuzcp4JuTGi7AhQoUUeigYNHD5PHjOER4L60MnKSLIyDX8T+yF8335Zq6U5Q6Hag==
+
 "@shapeshiftoss/unchained-client@^9.5.0":
   version "9.9.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-9.9.0.tgz#093ba1f9f9ce04b07a027eeba2ba9ad32c4f86ba"

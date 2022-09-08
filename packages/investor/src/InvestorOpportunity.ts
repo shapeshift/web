@@ -1,4 +1,5 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { BIP44Params } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 
 import { FeePriority } from './Extensions'
@@ -103,5 +104,6 @@ export abstract class InvestorOpportunity<TxType = unknown, MetaData = unknown> 
     tx: TxType
     /** Specify the user's preferred fee priority (fast/average/slow) */
     feePriority?: FeePriority
+    bip44Params?: BIP44Params
   }) => Promise<string>
 }

@@ -9,6 +9,7 @@ import {
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { BIP44Params } from '@shapeshiftoss/types'
 import { type ChainId, type Vault, type VaultMetadata, Yearn } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
@@ -176,12 +177,16 @@ export class YearnOpportunity
     wallet: HDWallet
     tx: PreparedTransaction
     feePriority?: FeePriority
+    bip44Params?: BIP44Params
   }): Promise<string> {
-    const { wallet, tx, feePriority } = input
+    const { bip44Params, wallet, tx, feePriority } = input
+
+    if (!bip44Params) throw new Error('bip44Params required for signAndBroadcast')
+
     const feeSpeed: FeePriority = feePriority ? feePriority : 'fast'
     const chainAdapter = this.#internals.chainAdapter
 
-    const path = toPath(chainAdapter.buildBIP44Params({ accountNumber: 0 }))
+    const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
     const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultipier[feeSpeed]).toString())
     const txToSign: ETHSignTx = {

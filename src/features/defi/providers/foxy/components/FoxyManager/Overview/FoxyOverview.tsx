@@ -99,7 +99,7 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountIdChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

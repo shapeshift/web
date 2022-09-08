@@ -12,7 +12,6 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import React, { PropsWithChildren, ReactNode } from 'react'
 import {
@@ -24,6 +23,7 @@ import {
   useWatch,
 } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { SliderIcon } from 'components/Icons/Slider'
@@ -60,7 +60,7 @@ type WithdrawProps = {
   fiatInputValidation?: ControllerProps['rules']
   // Asset market data
   marketData: MarketData
-  onAccountIdChange?: (accountId: AccountId) => void
+  onAccountIdChange?: AccountDropdownProps['onChange']
   // Array of the % options
   percentOptions: number[]
   // Show withdraw types

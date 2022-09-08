@@ -1,11 +1,11 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId } from '@shapeshiftoss/caip'
 import { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
 import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -31,7 +31,7 @@ type DepositProps = {
   enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
-  onAccountIdChange?: (accountId: AccountId) => void
+  onAccountIdChange?: AccountDropdownProps['onChange']
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean

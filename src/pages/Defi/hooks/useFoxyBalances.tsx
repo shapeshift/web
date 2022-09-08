@@ -47,8 +47,6 @@ export function useFoxyBalances() {
     [userAddress],
   )
 
-  console.log({ accountId })
-
   const foxyBalances = useGetFoxyBalancesQuery(
     {
       userAddress: userAddress!,

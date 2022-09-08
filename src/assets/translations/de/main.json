@@ -520,12 +520,6 @@
         "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
       },
-      "wiped": {
-        "header": "KeepKey erfolgreich gelöscht",
-        "body": "Sie haben Ihren KeepKey erfolgreich auf die Werkseinstellungen zurückgesetzt. Sie können jetzt mit einer vorhandenen Wiederherstellungsphrase  wiederherstellen oder eine neue Wallet erstellen.",
-        "createButton": "Erstellen Sie eine neue Wallet",
-        "recoverButton": "Wallet wiederherstellen"
-      },
       "recoverySentenceEntry": {
         "header": "Geben Sie Ihren Wiederherstellungssatz ein",
         "body": "Geben Sie mithilfe der verschlüsselten Tastaturdarstellung auf Ihrem KeepKey die ersten 4 Buchstaben jedes Wortes ein. Wenn das Wort weniger als 4 Buchstaben enthält, drücken Sie die Eingabetaste, drücken Sie die Leertaste oder klicken Sie auf Weiter, wenn Sie mit der Eingabe fertig sind.",

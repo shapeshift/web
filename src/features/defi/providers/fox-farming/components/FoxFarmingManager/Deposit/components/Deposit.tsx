@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiAction,
@@ -7,7 +7,6 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'

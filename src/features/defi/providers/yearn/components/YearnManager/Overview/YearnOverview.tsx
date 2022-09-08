@@ -12,6 +12,7 @@ import {
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -19,6 +20,7 @@ import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSelectedLocale,
@@ -29,7 +31,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
 })
 
-export const YearnOverview = () => {
+export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['onChange'] }> = ({
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { yearn: api } = useYearn()
   const translate = useTranslate()
   const toast = useToast()
@@ -83,6 +87,8 @@ export const YearnOverview = () => {
     })()
   }, [api, vaultAddress, chainId, toast, translate])
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -93,6 +99,7 @@ export const YearnOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

@@ -3815,10 +3815,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.0.0.tgz#e09d81a8463a7a5e9e7229959ee07ad4c0cfe37f"
-  integrity sha512-alv45/2vEr7Pp90eM3uEG582P25Uf8lPDc0QhWveVwWyJf3Ecy3er73n/3KK35ZoO1pW0nUOTT38DU1EgNZ6+A==
+"@shapeshiftoss/caip@^8.1.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.2.0.tgz#0b62b4b36df084cf57d576205a2dc3bcf262aacf"
+  integrity sha512-O3q484IrNZLQ8hh2WkIhrqv4hhERGL9gIKsOQMr3yoMLIfJsK8zWbxedL5zCiX39+W+TcuQAgVhUAb7xfp0f5w==
 
 "@shapeshiftoss/chain-adapters@^9.0.1":
   version "9.0.1"
@@ -4053,10 +4053,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-yearn@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-5.0.1.tgz#8bbed751cd218735669de20caecf46a551b39d7a"
-  integrity sha512-3Fa1W4FUgLUif0CfNfSGNk2jWyn9mdEmzf4gXsnqQMOTELi37cUxTLUiIWyhw9by0o3jG6Ei1qT9xxwxbsK9gQ==
+"@shapeshiftoss/investor-yearn@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-6.0.0.tgz#017336698f1cf7f639f856c07e30d3063ccceedc"
+  integrity sha512-yN9r9Y/0NgYl3f0WZgQOt8zoP6MPSBg8jYLWzEMdZcpZu+4bDH72xdZsELJlZBBdGw/DBqcmnq717ED6WcXf2g==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

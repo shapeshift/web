@@ -56,7 +56,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   const filter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, accountNumber)
+  const { utxoParams, accountType } = accountIdToUtxoParams(accountId, accountNumber ?? 0)
 
   useEffect(() => {
     ;(async () => {

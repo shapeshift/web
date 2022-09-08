@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import {
   DefiAction,
@@ -7,7 +7,6 @@ import {
   DefiQueryParams,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
@@ -19,7 +18,11 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeatureFlags,
+  selectPortfolioCryptoBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
@@ -35,7 +38,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const opportunity = state?.opportunity
-  const { accountAddress } = useFoxEth()
+  const { accountAddress, setAccountId: handleAccountIdChange } = useFoxEth()
   const { getLpTokenPrice } = useFoxEthLiquidityPool(accountAddress)
   const {
     allowance: foxFarmingAllowance,
@@ -153,6 +156,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     ],
   )
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   if (!state || !dispatch || !opportunity) return null
 
   const handleCancel = browserHistory.goBack
@@ -205,6 +210,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }}
       marketData={marketData}
       onCancel={handleCancel}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

@@ -22,8 +22,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -76,11 +76,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | nul
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountMetaData = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
-  )
-
-  const bip44Params = accountMetaData?.bip44Params
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleConfirm = useCallback(async () => {
     if (

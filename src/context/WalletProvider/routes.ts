@@ -1,5 +1,5 @@
 export enum KeepKeyRoutes {
-  WipeSuccessful = '/keepkey/new',
+  FactoryState = '/keepkey/new',
   Connect = '/keepkey/connect',
   Success = '/keepkey/success',
   Passphrase = '/keepkey/passphrase',

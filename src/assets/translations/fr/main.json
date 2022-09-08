@@ -521,12 +521,6 @@
         "infoSecond": "Ne partagez jamais votre phrase de récupération, elle donne accès à tous vos fonds.",
         "awaitingButtonPress": "Suivez les étapes sur votre KeepKey pour afficher votre phrase de récupération. Écrivez-la !"
       },
-      "wiped": {
-        "header": "KeepKey effacé avec succès",
-        "body": "Vous avez réinitialisé avec succès votre KeepKey avec les paramètres d'usine. Vous pouvez maintenant le restaurer à l'aide d'une phrase de récupération existante ou créer un nouveau porte-monnaie.",
-        "createButton": "Créer un nouveau porte-monnaie",
-        "recoverButton": "Récupérer le porte-monnaie"
-      },
       "recoverySentenceEntry": {
         "header": "Entrez votre phrase de récupération",
         "body": "À l'aide de la légende du clavier brouillé sur votre KeepKey, entrez les 4 premières lettres de chaque mot. S'il y a moins de 4 lettres dans le mot, appuyez sur Entrée, appuyez sur la barre d'espace ou cliquez sur Suivant lorsque vous avez fini de les entrer.",

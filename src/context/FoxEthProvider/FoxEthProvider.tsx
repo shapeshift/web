@@ -1,4 +1,4 @@
-import { AccountId, ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { AccountId, ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -7,7 +7,6 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { getLpTokenPrice } from 'features/defi/providers/fox-eth-lp/api'
 import {
-  foxAssetId,
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
@@ -21,15 +20,14 @@ import {
 } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import React, { createContext, useContext, useMemo } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectFeatureFlags } from 'state/slices/selectors'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectTxById,

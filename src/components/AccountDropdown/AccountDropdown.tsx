@@ -38,7 +38,7 @@ import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
 
-type AccountDropdownProps = {
+export type AccountDropdownProps = {
   assetId: AssetId
   buttonProps?: ButtonProps
   onChange: (accountId: AccountId) => void

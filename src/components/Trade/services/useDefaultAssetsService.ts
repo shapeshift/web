@@ -1,14 +1,11 @@
-/*
-The Default Asset Service is responsible for populating the trade widget with initial assets.
-It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
-*/
 import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import {
-  AssetId,
+  type AssetId,
   cosmosChainId,
   ethAssetId,
   ethChainId,
+  foxAssetId,
   fromAssetId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
@@ -18,11 +15,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
 import {
-  AssetIdTradePair,
-  getDefaultAssetIdPairByChainId,
-} from 'components/Trade/hooks/useSwapper/utils'
-import { TradeAmountInputField, TradeState } from 'components/Trade/types'
+  type AssetIdTradePair,
+  type TradeState,
+  TradeAmountInputField,
+} from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
@@ -30,6 +28,10 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+The Default Asset Service is responsible for populating the trade widget with initial assets.
+It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
+*/
 export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
   type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
   type UsdRateInputArg = UsdRateQueryInput[0]
@@ -136,7 +138,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
           isDefaultAssetFiatRateUninitialized
         ):
           return {
-            buyAsset: assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'],
+            buyAsset: assets[foxAssetId],
             sellAsset: assets[ethAssetId],
           }
         default:
@@ -147,9 +149,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     if (assetPair) {
       ;(async () => {
         const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
-        const buyAsset = receiveAddress
-          ? assetPair.buyAsset
-          : assets['eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d']
+        const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
         const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
         setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', '0')

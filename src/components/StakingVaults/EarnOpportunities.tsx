@@ -1,11 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities,
 } from 'features/defi/helpers/normalizeOpportunity'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'

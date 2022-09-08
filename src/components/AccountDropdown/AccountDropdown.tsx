@@ -1,7 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
+  type ButtonProps,
+  type MenuItemOptionProps,
   Button,
-  ButtonProps,
   Menu,
   MenuButton,
   MenuList,
@@ -10,8 +11,8 @@ import {
   Text,
 } from '@chakra-ui/react'
 import {
-  AccountId,
-  AssetId,
+  type AccountId,
+  type AssetId,
   btcChainId,
   CHAIN_NAMESPACE,
   fromAssetId,
@@ -40,8 +41,12 @@ import { AccountSegment } from './AccountSegement'
 
 export type AccountDropdownProps = {
   assetId: AssetId
-  buttonProps?: ButtonProps
   onChange: (accountId: AccountId) => void
+  accountId?: AccountId // FIXME: Implement
+  autoSelectHighestBalance?: boolean // FIXME: Implement
+  disableSelection?: boolean // FIXME: Implement
+  buttonProps?: ButtonProps
+  listProps?: MenuItemOptionProps // FIXME: Implement
 }
 
 export const AccountDropdown: React.FC<AccountDropdownProps> = props => {

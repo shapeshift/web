@@ -191,7 +191,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           <AccountDropdown
             assetId={assetId}
             onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'solid' }}
+            buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
           />
         </Stack>
       )}

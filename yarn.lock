@@ -4053,10 +4053,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-yearn@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-5.0.1.tgz#8bbed751cd218735669de20caecf46a551b39d7a"
-  integrity sha512-3Fa1W4FUgLUif0CfNfSGNk2jWyn9mdEmzf4gXsnqQMOTELi37cUxTLUiIWyhw9by0o3jG6Ei1qT9xxwxbsK9gQ==
+"@shapeshiftoss/investor-yearn@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-6.0.0.tgz#017336698f1cf7f639f856c07e30d3063ccceedc"
+  integrity sha512-yN9r9Y/0NgYl3f0WZgQOt8zoP6MPSBg8jYLWzEMdZcpZu+4bDH72xdZsELJlZBBdGw/DBqcmnq717ED6WcXf2g==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

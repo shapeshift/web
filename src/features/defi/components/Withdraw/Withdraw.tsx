@@ -60,7 +60,7 @@ type WithdrawProps = {
   fiatInputValidation?: ControllerProps['rules']
   // Asset market data
   marketData: MarketData
-  onAccountChange?: (accountId: AccountId) => void
+  onAccountIdChange?: (accountId: AccountId) => void
   // Array of the % options
   percentOptions: number[]
   // Show withdraw types
@@ -102,7 +102,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   enableSlippage = false,
   fiatInputValidation,
   handlePercentClick,
-  onAccountChange,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   isLoading,
   percentOptions,
@@ -178,7 +178,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
           cryptoAmount={cryptoAmount?.value}
-          onAccountChange={onAccountChange}
+          onAccountIdChange={handleAccountIdChange}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
           fiatAmount={fiatAmount?.value}
           showFiatAmount={true}

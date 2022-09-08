@@ -31,7 +31,7 @@ type DepositProps = {
   enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
-  onAccountChange?: (accountId: AccountId) => void
+  onAccountIdChange?: (accountId: AccountId) => void
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
@@ -68,7 +68,7 @@ export const Deposit = ({
   cryptoInputValidation,
   fiatInputValidation,
   isLoading,
-  onAccountChange,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
   inputIcons,
@@ -153,7 +153,7 @@ export const Deposit = ({
           <AssetInput
             cryptoAmount={cryptoAmount?.value}
             assetId={asset.assetId}
-            onAccountChange={onAccountChange}
+            onAccountIdChange={handleAccountIdChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}

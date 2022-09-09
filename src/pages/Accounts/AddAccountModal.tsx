@@ -74,7 +74,8 @@ export const AddAccountModal = () => {
       const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
       const asset = assets[assetId]
       const { name, icon } = asset
-      const chainOptionsProps = { chainId, setSelectedChainId, name, icon }
+      const key = chainId
+      const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
       return <ChainOption {...chainOptionsProps} />
     })
   }, [assets, chainIds])
@@ -130,7 +131,7 @@ export const AddAccountModal = () => {
             </Box>
             <Box bgColor='whiteAlpha.100' pl={4} pr={4} pb={2} borderRadius={8}>
               <Stack flexDirection='row' alignItems={'center'}>
-                <Icon color='blue.400' as={FaInfoCircle} size='md' mr={3} />
+                <Icon color='blue.400' as={FaInfoCircle} mr={3} />
                 <RawText color={noteColor} fontSize='sm'>
                   {translate('accounts.requiresPriorTxHistory')}
                 </RawText>

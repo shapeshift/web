@@ -43,7 +43,7 @@ export interface Transfer {
   assetId: string
   type: TransferType
   totalValue: string
-  components: Array<{ value: string }>
+  components: { value: string }[]
   token?: Token
 }
 
@@ -69,7 +69,7 @@ export interface StandardTx {
   fee?: Fee
   status: TxStatus
   trade?: Trade
-  transfers: Array<Transfer>
+  transfers: Transfer[]
   txid: string
 }
 

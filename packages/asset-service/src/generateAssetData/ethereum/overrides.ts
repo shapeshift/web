@@ -1,7 +1,7 @@
 import { Asset } from '../../service/AssetService'
 import { ethereum } from '../baseAssets'
 
-export const overrideTokens: Array<Asset> = [
+export const overrideTokens: Asset[] = [
   // example overriding FOX token with custom values instead of goingecko
   {
     assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',

@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const weth: Array<JsonFragment> = [
+const weth: JsonFragment[] = [
   {
     constant: true,
     inputs: [],

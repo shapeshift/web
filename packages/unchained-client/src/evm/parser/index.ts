@@ -21,7 +21,7 @@ export class BaseTransactionParser<T extends Tx> {
 
   protected readonly provider: ethers.providers.JsonRpcProvider
 
-  private parsers: Array<SubParser<T>> = []
+  private parsers: SubParser<T>[] = []
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
@@ -39,7 +39,7 @@ export class BaseTransactionParser<T extends Tx> {
     this.parsers.unshift(parser)
   }
 
-  protected registerParsers(parsers: Array<SubParser<T>>): void {
+  protected registerParsers(parsers: SubParser<T>[]): void {
     parsers.forEach((parser) => this.registerParser(parser))
   }
 

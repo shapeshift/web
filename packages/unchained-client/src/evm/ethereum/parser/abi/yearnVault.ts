@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const yearnVault: Array<JsonFragment> = [
+const yearnVault: JsonFragment[] = [
   {
     name: 'Transfer',
     inputs: [

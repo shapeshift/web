@@ -116,7 +116,7 @@ interface TradeBase<C extends ChainId> {
   sellAmount: string
   feeData: QuoteFeeData<C>
   rate: string
-  sources: Array<SwapSource>
+  sources: SwapSource[]
   buyAsset: Asset
   sellAsset: Asset
   sellAssetAccountNumber: number

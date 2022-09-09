@@ -52,7 +52,8 @@
     "simple-import-sort/imports": [
       "error"
     ],
-    "object-shorthand": "error"
+    "object-shorthand": "error",
+    "@typescript-eslint/array-type": "error"
   },
   "overrides": [
     {

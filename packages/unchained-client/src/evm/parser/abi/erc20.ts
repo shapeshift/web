@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const erc20: Array<JsonFragment> = [
+const erc20: JsonFragment[] = [
   {
     inputs: [
       {

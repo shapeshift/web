@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const shapeShiftRouter: Array<JsonFragment> = [
+const shapeShiftRouter: JsonFragment[] = [
   {
     inputs: [
       {

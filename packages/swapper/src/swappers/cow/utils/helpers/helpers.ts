@@ -32,7 +32,7 @@ export const ORDER_TYPE_FIELDS = [
 /**
  * EIP-712 typed data type definitions.
  */
-export declare type TypedDataTypes = Record<string, Array<TypedDataField>>
+export declare type TypedDataTypes = Record<string, TypedDataField[]>
 
 export type CowSwapOrder = {
   sellToken: string

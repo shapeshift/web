@@ -57,14 +57,14 @@ export interface ChainAdapterArgs {
 
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   defaultBIP44Params: BIP44Params
-  supportedChainIds: Array<ChainId>
+  supportedChainIds: ChainId[]
   chainId: EvmChainId
 }
 
 export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
   protected readonly chainId: EvmChainId
   protected readonly defaultBIP44Params: BIP44Params
-  protected readonly supportedChainIds: Array<ChainId>
+  protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
     http: unchained.ethereum.V1Api | unchained.avalanche.V1Api
     ws: unchained.ws.Client<unchained.evm.types.Tx>

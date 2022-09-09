@@ -67,8 +67,8 @@ export interface ChainAdapterArgs {
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
   defaultBIP44Params: BIP44Params
   defaultUtxoAccountType: UtxoAccountType
-  supportedChainIds: Array<ChainId>
-  supportedAccountTypes: Array<UtxoAccountType>
+  supportedChainIds: ChainId[]
+  supportedAccountTypes: UtxoAccountType[]
   chainId: UtxoChainId
 }
 
@@ -77,8 +77,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   protected readonly coinName: string
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly defaultUtxoAccountType: UtxoAccountType
-  protected readonly supportedChainIds: Array<ChainId>
-  protected readonly supportedAccountTypes: Array<UtxoAccountType>
+  protected readonly supportedChainIds: ChainId[]
+  protected readonly supportedAccountTypes: UtxoAccountType[]
   protected readonly providers: {
     http:
       | unchained.bitcoin.V1Api
@@ -89,7 +89,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   protected assetId: AssetId
-  protected accountAddresses: Record<string, Array<string>> = {}
+  protected accountAddresses: Record<string, string[]> = {}
   protected parser: unchained.utxo.BaseTransactionParser<unchained.utxo.types.Tx>
 
   protected constructor(args: UtxoBaseAdapterArgs) {
@@ -121,7 +121,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     return this.chainId
   }
 
-  getSupportedAccountTypes(): Array<UtxoAccountType> {
+  getSupportedAccountTypes(): UtxoAccountType[] {
     return this.supportedAccountTypes
   }
 
@@ -253,7 +253,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const { inputs, outputs } = coinSelectResult
 
-      const signTxInputs: Array<BTCSignTxInput> = []
+      const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
         if (!input.path) continue
 
@@ -374,8 +374,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       cursor: input.cursor,
     })
 
-    const getAddresses = (tx: unchained.utxo.types.Tx): Array<string> => {
-      const addresses: Array<string> = []
+    const getAddresses = (tx: unchained.utxo.types.Tx): string[] => {
+      const addresses: string[] = []
 
       tx.vin?.forEach((vin) => {
         if (!vin.addresses) return

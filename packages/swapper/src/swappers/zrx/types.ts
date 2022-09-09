@@ -9,7 +9,7 @@ export type ZrxCommonResponse = {
   buyAmount: string
   sellAmount: string
   allowanceTarget: string
-  sources: Array<SwapSource>
+  sources: SwapSource[]
 }
 
 export type ZrxPriceResponse = ZrxCommonResponse & {

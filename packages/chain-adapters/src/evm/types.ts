@@ -4,7 +4,7 @@ import { AssetBalance } from '../types'
 
 export type Account = {
   nonce: number
-  tokens?: Array<AssetBalance>
+  tokens?: AssetBalance[]
 }
 
 export type FeeData = {

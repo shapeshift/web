@@ -27,7 +27,7 @@ export type CowSwapGetTradesElement = {
   txHash: string
 }
 
-export type CowSwapGetTradesResponse = Array<CowSwapGetTradesElement>
+export type CowSwapGetTradesResponse = CowSwapGetTradesElement[]
 
 export interface CowTrade<C extends ChainId> extends Trade<C> {
   feeAmountInSellToken: string

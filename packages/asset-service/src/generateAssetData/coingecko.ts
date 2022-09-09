@@ -20,12 +20,9 @@ type TokenList = {
   logoURI: string
   keywords: string[]
   timestamp: string
-  tokens: Array<Token>
+  tokens: Token[]
 }
-export async function getAssets(
-  chainId: ChainId,
-  overrideAssets: Array<Asset> = [],
-): Promise<Asset[]> {
+export async function getAssets(chainId: ChainId, overrideAssets: Asset[] = []): Promise<Asset[]> {
   const { category, explorer, explorerAddressLink, explorerTxLink } = (() => {
     switch (chainId) {
       case ethChainId:
@@ -49,7 +46,7 @@ export async function getAssets(
 
   const { data } = await axios.get<TokenList>(`https://tokens.coingecko.com/${category}/all.json`)
 
-  return data.tokens.reduce<Array<Asset>>((prev, token) => {
+  return data.tokens.reduce<Asset[]>((prev, token) => {
     try {
       // blacklist wormhole assets - users can't hold a balance and we don't support wormholes
       if (token.name.toLowerCase().includes('wormhole')) return prev

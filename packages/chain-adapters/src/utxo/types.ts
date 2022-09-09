@@ -4,7 +4,7 @@ import { GetAddressInputBase } from '../types'
 
 export type Account = {
   /** Derived addresses and associated balances if account is xpub based (gap limit 20) */
-  addresses?: Array<Address>
+  addresses?: Address[]
   /** Next unused change address index for current account if account is xpub based */
   nextChangeAddressIndex?: number
   /** Next unused receive address index for current account if account is xpub based */
@@ -45,7 +45,7 @@ export type Vout = {
 }
 
 export type ScriptPubKey = {
-  addresses: Array<string>
+  addresses: string[]
   type: string
   reqSigs: number
   hex: string
@@ -60,8 +60,8 @@ export type NodeTransaction = {
   vsize: number
   weight: number
   locktime: number
-  vin: Array<Vin>
-  vout: Array<Vout>
+  vin: Vin[]
+  vout: Vout[]
   hex: string
   blockhash: string
   confirmations: number

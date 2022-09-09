@@ -40,7 +40,7 @@ export type ChainAdapter<T extends ChainId> = {
    * For UTXO coins, that's the list of UTXO account types
    * For other networks, this is unimplemented, and left as a responsibility of the consumer.
    */
-  getSupportedAccountTypes?(): Array<UtxoAccountType>
+  getSupportedAccountTypes?(): UtxoAccountType[]
   /**
    * Get the balance of an address
    */

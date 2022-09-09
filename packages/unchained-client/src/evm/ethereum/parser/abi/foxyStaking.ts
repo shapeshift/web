@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const foxyStaking: Array<JsonFragment> = [
+const foxyStaking: JsonFragment[] = [
   {
     inputs: [
       {

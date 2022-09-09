@@ -1,6 +1,6 @@
 import { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const uniV2: Array<JsonFragment> = [
+const uniV2: JsonFragment[] = [
   {
     inputs: [
       { internalType: 'address', name: '_factory', type: 'address' },

@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -10,7 +10,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -25,6 +25,7 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -37,7 +38,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | null }> = ({
+  onNext,
+  accountId,
+}) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -71,7 +75,9 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
+      ? bnOrZero(
+          bn(state?.withdraw.cryptoAmount ?? '0').times(state?.foxyFeePercentage ?? '0'),
+        ).toString()
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
@@ -79,11 +85,16 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     try {
-      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading || !api) return
+      if (
+        state?.loading ||
+        !(state?.userAddress && rewardId && walletState.wallet && api && dispatch && bip44Params)
+      )
+        return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
@@ -95,6 +106,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           type: state.withdraw.withdrawType,
+          bip44Params,
         }),
         api.getGasPrice(),
       ])
@@ -118,7 +130,22 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
-  }
+  }, [
+    api,
+    asset.precision,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    onNext,
+    rewardId,
+    state?.loading,
+    state?.userAddress,
+    state?.withdraw.cryptoAmount,
+    state?.withdraw.withdrawType,
+    walletState.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))

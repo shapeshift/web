@@ -1,4 +1,4 @@
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
@@ -20,10 +20,11 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
+  accountId: AccountId | null
   onBack: () => void
 }
 
-export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
+export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, assetReference, chainId } = query
   const assetNamespace = 'erc20'
@@ -45,6 +46,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
           <Route exact path='/'>
             <ClaimConfirm
               assetId={stakingAssetId}
+              accountId={accountId}
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}

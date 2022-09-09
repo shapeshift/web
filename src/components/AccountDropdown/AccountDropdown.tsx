@@ -42,7 +42,7 @@ import { AccountSegment } from './AccountSegement'
 export type AccountDropdownProps = {
   assetId: AssetId
   onChange: (accountId: AccountId) => void
-  accountId?: AccountId // FIXME: Implement
+  accountId?: AccountId
   autoSelectHighestBalance?: boolean // FIXME: Implement
   disableSelection?: boolean
   buttonProps?: ButtonProps
@@ -50,7 +50,13 @@ export type AccountDropdownProps = {
 }
 
 export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
-  const { assetId, buttonProps, onChange, disableSelection } = props
+  const {
+    assetId,
+    buttonProps,
+    onChange: handleChange,
+    disableSelection,
+    accountId: accountIdFromArgs,
+  } = props
   const { chainId } = fromAssetId(assetId)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -71,21 +77,24 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   useEffect(() => {
     if (isEmpty(accountMetadata)) return
     if (!selectedAccountId) return
-    onChange(selectedAccountId)
-  }, [accountMetadata, selectedAccountId, onChange])
+    handleChange(selectedAccountId)
+  }, [accountMetadata, selectedAccountId, handleChange])
 
   /**
-   * react on accountIds
+   * react on accountIds on first render
    */
   useEffect(() => {
-    if (!accountIds.length) return
-    const accountId = accountIds[0] // default to the first when we receive them
-    accountId !== selectedAccountId && setSelectedAccountId(accountId) // don't set to same thing again
+    if (!accountIds.length) return // FIXME: returning here puts the button in a bad state
+    const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === accountIdFromArgs)
+    const firstAccountId = accountIds[0]
+    // Use the first accountId if we don't have a valid accountIdFromArgs
+    const preSelectedAccountId = validatedAccountIdFromArgs || firstAccountId
+    firstAccountId !== selectedAccountId && setSelectedAccountId(preSelectedAccountId) // don't set to same thing again
     // this effect sets selectedAccountId for the first render when we receive accountIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds])
+  }, [assetId, accountIds, accountIdFromArgs])
 
-  const onClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
+  const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 
   /**
    * memoized view bits and bobs
@@ -146,14 +155,14 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
           title={translate('accounts.accountNumber', { accountNumber })}
           subtitle={''} // hide me until we have the option to "nickname" accounts
         />
-        {accountIds.map((accountId, index) => (
+        {accountIds.map((iterAccountId, index) => (
           <AccountChildOption
-            key={`${accountId}-${index}`}
-            title={makeTitle(accountId)}
-            cryptoBalance={fromBaseUnit(accountBalances[accountId][assetId], asset.precision)}
+            key={`${iterAccountId}-${index}`}
+            title={makeTitle(iterAccountId)}
+            cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
             symbol={asset.symbol}
-            isChecked={selectedAccountId === accountId}
-            onClick={() => onClick(accountId)}
+            isChecked={selectedAccountId === iterAccountId}
+            onClick={() => handleClick(iterAccountId)}
           />
         ))}
       </>
@@ -166,7 +175,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
     accountMetadata,
     asset,
     translate,
-    onClick,
+    handleClick,
     selectedAccountId,
   ])
 

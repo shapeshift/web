@@ -1,4 +1,5 @@
 # .git-blame-ignore-revs
+
 # chore: enforce and add trailing commas (#1437)
 9287cd7ad557150b4900e010c1e87b189df2eb90
 # chore: add array-type lint rule (#2685)

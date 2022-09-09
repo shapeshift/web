@@ -67,13 +67,15 @@ export type PortfolioAssets = {
   [k: AssetId]: Asset
 }
 
-export type PortfolioAccountBalances = {
-  byId: {
-    [k: AccountSpecifier]: {
-      // these are granular balances of this asset for this account
-      [k: AssetId]: string // balance for asset in base units
-    }
+export type PortfolioAccountBalancesById = {
+  [k: AccountSpecifier]: {
+    // these are granular balances of this asset for this account
+    [k: AssetId]: string // balance for asset in base units
   }
+}
+
+export type PortfolioAccountBalances = {
+  byId: PortfolioAccountBalancesById
   ids: AccountSpecifier[]
 }
 

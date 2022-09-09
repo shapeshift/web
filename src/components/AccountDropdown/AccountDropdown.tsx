@@ -20,7 +20,7 @@ import {
   ltcChainId,
 } from '@shapeshiftoss/caip'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -46,16 +46,17 @@ export type AccountDropdownProps = {
   autoSelectHighestBalance?: boolean // FIXME: Implement
   disableSelection?: boolean
   buttonProps?: ButtonProps
-  listProps?: MenuItemOptionProps // FIXME: Implement
+  listProps?: MenuItemOptionProps
 }
 
-export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
+export const AccountDropdown: FC<AccountDropdownProps> = props => {
   const {
     assetId,
     buttonProps,
     onChange: handleChange,
     disableSelection,
     accountId: accountIdFromArgs,
+    listProps,
   } = props
   const { chainId } = fromAssetId(assetId)
 
@@ -163,20 +164,24 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
             symbol={asset.symbol}
             isChecked={selectedAccountId === iterAccountId}
             onClick={() => handleClick(iterAccountId)}
+            {...listProps}
           />
         ))}
       </>
     ))
   }, [
-    assetId,
-    chainId,
-    accountBalances,
     accountIds,
+    chainId,
+    asset.name,
+    asset.precision,
+    asset.symbol,
     accountMetadata,
-    asset,
     translate,
-    handleClick,
+    accountBalances,
+    assetId,
     selectedAccountId,
+    listProps,
+    handleClick,
   ])
 
   /**

@@ -19,8 +19,10 @@ import {
   fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
+import sortBy from 'lodash/sortBy'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -166,10 +168,29 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         .reverse()
         .value()
 
+    const getAccountIdsSortedScriptType = (accountIds: AccountId[]): AccountId[] => {
+      const utxoAccountTypeToPriorityOrder = (accountType: UtxoAccountType | undefined) => {
+        switch (accountType) {
+          case UtxoAccountType.SegwitNative:
+            return 0
+          case UtxoAccountType.SegwitP2sh:
+            return 1
+          case UtxoAccountType.P2pkh:
+            return 2
+          // We found something else, put it at the end
+          default:
+            return 3
+        }
+      }
+      return sortBy(accountIds, accountId =>
+        utxoAccountTypeToPriorityOrder(accountMetadata[accountId].accountType),
+      )
+    }
+
     return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
-      const maybeSortedAccountIds = autoSelectHighestBalance
+      const sortedAccountIds = autoSelectHighestBalance
         ? getAccountIdsSortedByBalance(accountIds)
-        : accountIds
+        : getAccountIdsSortedScriptType(accountIds)
       return (
         <>
           <AccountSegment
@@ -177,7 +198,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             title={translate('accounts.accountNumber', { accountNumber })}
             subtitle={''} // hide me until we have the option to "nickname" accounts
           />
-          {maybeSortedAccountIds.map((iterAccountId, index) => (
+          {sortedAccountIds.map((iterAccountId, index) => (
             <AccountChildOption
               key={`${iterAccountId}-${index}`}
               title={makeTitle(iterAccountId)}

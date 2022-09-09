@@ -29,6 +29,7 @@ import { ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadata,
@@ -43,7 +44,7 @@ export type AccountDropdownProps = {
   assetId: AssetId
   onChange: (accountId: AccountId) => void
   accountId?: AccountId
-  autoSelectHighestBalance?: boolean // FIXME: Implement
+  autoSelectHighestBalance?: boolean
   disableSelection?: boolean
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
@@ -57,6 +58,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = props => {
     disableSelection,
     accountId: accountIdFromArgs,
     listProps,
+    autoSelectHighestBalance,
   } = props
   const { chainId } = fromAssetId(assetId)
 
@@ -69,6 +71,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = props => {
   const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const highestFiatBalanceAccountId = useAppSelector(state =>
+    selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
+  )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
   const isSelectionDisabled = disableSelection || accountIds.length <= 1
 
@@ -89,7 +94,10 @@ export const AccountDropdown: FC<AccountDropdownProps> = props => {
     const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === accountIdFromArgs)
     const firstAccountId = accountIds[0]
     // Use the first accountId if we don't have a valid accountIdFromArgs
-    const preSelectedAccountId = validatedAccountIdFromArgs || firstAccountId
+    const preSelectedAccountId =
+      validatedAccountIdFromArgs ??
+      (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
+      firstAccountId
     firstAccountId !== selectedAccountId && setSelectedAccountId(preSelectedAccountId) // don't set to same thing again
     // this effect sets selectedAccountId for the first render when we receive accountIds
     // eslint-disable-next-line react-hooks/exhaustive-deps

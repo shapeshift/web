@@ -150,7 +150,9 @@ export const Overview: React.FC<OverviewProps> = ({
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
-  const { fiatRamps } = useModal()
+  const {
+    fiatRamps: { close: handleFiatRampsClose },
+  } = useModal()
   const {
     state: { wallet },
   } = useWallet()
@@ -385,7 +387,7 @@ export const Overview: React.FC<OverviewProps> = ({
         >
           <Text translation='common.continue' />
         </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
+        <Button width='full' size='lg' variant='ghost' onClick={handleFiatRampsClose}>
           <Text translation='common.cancel' />
         </Button>
       </Flex>

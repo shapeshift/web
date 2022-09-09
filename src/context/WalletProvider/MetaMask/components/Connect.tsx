@@ -113,7 +113,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       headerText={'walletProvider.metaMask.connect.header'}
       bodyText={'walletProvider.metaMask.connect.body'}
       buttonText={'walletProvider.metaMask.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

@@ -168,8 +168,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         .reverse()
         .value()
 
-    const getAccountIdsSortedScriptType = (accountIds: AccountId[]): AccountId[] => {
-      const utxoAccountTypeToPriorityOrder = (accountType: UtxoAccountType | undefined) => {
+    const getAccountIdsSortedByUtxoAccountType = (accountIds: AccountId[]): AccountId[] => {
+      const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
         switch (accountType) {
           case UtxoAccountType.SegwitNative:
             return 0
@@ -183,14 +183,14 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         }
       }
       return sortBy(accountIds, accountId =>
-        utxoAccountTypeToPriorityOrder(accountMetadata[accountId].accountType),
+        utxoAccountTypeToDisplayPriority(accountMetadata[accountId].accountType),
       )
     }
 
     return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
       const sortedAccountIds = autoSelectHighestBalance
         ? getAccountIdsSortedByBalance(accountIds)
-        : getAccountIdsSortedScriptType(accountIds)
+        : getAccountIdsSortedByUtxoAccountType(accountIds)
       return (
         <>
           <AccountSegment

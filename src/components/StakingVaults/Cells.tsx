@@ -27,7 +27,7 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
-  icons?: Array<string>
+  icons?: string[]
   opportunityName?: string
 }
 

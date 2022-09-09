@@ -67,7 +67,7 @@ export type AgentParseResult = {
 
 export interface Pendo {
   VERSION?: string
-  _q: Array<unknown>
+  _q: unknown[]
   initialize(params: PendoInitializeParams): void
   identify(): void
   updateOptions(): void

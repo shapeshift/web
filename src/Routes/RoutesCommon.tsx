@@ -23,7 +23,7 @@ import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import { Route as NestedRoute, RouteCategory } from './helpers'
 
-export const routes: Array<NestedRoute> = [
+export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',

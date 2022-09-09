@@ -24,7 +24,7 @@ describe('makeBuckets', () => {
     const balances = {
       [ethAssetId]: ethBalance,
     }
-    ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
+    ;(Object.values(HistoryTimeframe) as HistoryTimeframe[]).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {

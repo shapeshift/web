@@ -2,17 +2,17 @@ import { Avatar, Button, ButtonProps, Flex, ListItem, Stack } from '@chakra-ui/r
 import { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAccountNumberByAccountId,
-  selectAssetById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
-} from 'state/slices/selectors'
+  selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+} from 'state/slices/portfolioSlice/selectors'
+import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AccountEntryProps = {
@@ -26,8 +26,10 @@ export const AccountEntryRow: React.FC<AccountEntryProps> = ({ accountId, assetI
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
-  const cryptoBalance = useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, filter))
-  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
+  const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesIncludingStaking)
+  const fiatBalances = useSelector(selectPortfolioAccountsFiatBalancesIncludingStaking)
+  const cryptoBalance = cryptoBalances?.[accountId]?.[assetId]
+  const fiatBalance = fiatBalances?.[accountId]?.[assetId]
   const { icon, name, symbol } = asset
 
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])

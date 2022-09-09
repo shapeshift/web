@@ -30,7 +30,7 @@ import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
 import { createCachedSelector } from 're-reselect'
 import { BridgeAsset } from 'components/Bridge/types'
-import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -354,23 +354,6 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParamFromFilter,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId],
-)
-
-export const selectPortfolioFiatBalanceByChainId = createSelector(
-  selectPortfolioFiatAccountBalances,
-  selectChainIdParamFromFilter,
-  (fiatAccountBalances, chainId): string => {
-    return Object.entries(fiatAccountBalances)
-      .reduce((acc, [accountId, accountBalanceByAssetId]) => {
-        if (fromAccountId(accountId).chainId !== chainId) return acc
-        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
-          // use the outer accumulator
-          acc = acc.plus(bnOrZero(assetBalance))
-        })
-        return acc
-      }, bn(0))
-      .toFixed(2)
-  },
 )
 
 export const selectPortfolioFiatBalanceByFilter = createSelector(
@@ -747,25 +730,6 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
   },
 )
 
-export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSelector(
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioAccountMetadata,
-  selectAccountNumberParamFromFilter,
-  selectChainIdParamFromFilter,
-  (accountBalances, accountMetadata, accountNumberString, chainId): string => {
-    const accountNumber = parseInt(accountNumberString.toString())
-    if (!Number.isInteger(accountNumber))
-      throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
-    return Object.entries(accountBalances)
-      .reduce((acc, [accountId, accountBalance]) => {
-        if (fromAccountId(accountId).chainId !== chainId) return acc
-        if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return acc
-        return acc.plus(bnOrZero(accountBalance))
-      }, bn(0))
-      .toFixed(2)
-  },
-)
-
 export const selectPortfolioAllocationPercentByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
@@ -801,10 +765,162 @@ export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector
   },
 )
 
+/**
+ * selects all accounts in PortfolioAccountBalancesById form, including all
+ * delegation, undelegation, and redelegation balances, with base unit crypto balances
+ */
+export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  selectPortfolioAccountBalances,
+  (accounts, accountBalances): PortfolioAccountBalancesById => {
+    return Object.entries(accounts).reduce((acc, [accountId, account]) => {
+      Object.values(account?.stakingDataByValidatorId ?? {}).forEach(stakingDataByAccountId => {
+        Object.values(stakingDataByAccountId).forEach(stakingData => {
+          const { delegations, redelegations, undelegations } = stakingData
+          const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
+          const combined = [...delegations, ...redelegationEntries, ...undelegations]
+          combined.forEach(({ assetId, amount }) => {
+            acc[accountId][assetId] = bnOrZero(acc[accountId][assetId]).plus(amount).toString()
+          })
+        })
+      })
+      return acc
+    }, cloneDeep(accountBalances))
+  },
+)
+
+export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAccountsCryptoBalancesIncludingStaking,
+    (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+      return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
+        acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
+          innerAcc[assetId] = fromBaseUnit(cryptoBalance, assets[assetId].precision)
+          return innerAcc
+        }, cloneDeep(account))
+        return acc
+      }, cloneDeep(portfolioAccountsCryptoBalances))
+    },
+  )
+
+/**
+ * this returns the same shape as the input selector selectPortfolioAccountsCryptoBalancesIncludingStaking
+ * but with values converted into fiat, and sorted by fiat at all levels
+ */
+export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketData,
+  selectPortfolioAccountsCryptoBalancesIncludingStaking,
+  (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+    const initial: { [k: AccountId]: { [k: AssetId]: string } } = {}
+    const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce(
+      (acc, [accountId, account]) => {
+        const entries: [AssetId, BigNumber][] = Object.entries(account).map(
+          ([assetId, cryptoBalance]) => {
+            const { precision } = assets[assetId]
+            const price = marketData[assetId]?.price ?? 0
+            return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
+          },
+        )
+
+        const fiatAccountSorted = Object.fromEntries(
+          entries
+            .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
+            .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
+        )
+        acc[accountId] = fiatAccountSorted
+        return acc
+      },
+      initial,
+    )
+
+    // reduce each account once
+    const fiatAccountIdTotalEntries: [AccountId, BigNumber][] = Object.entries(
+      fiatAccountEntries,
+    ).map(([accountId, account]) => [
+      accountId,
+      Object.values(account).reduce((acc, cur) => acc.plus(cur), bn(0)),
+    ])
+
+    // sort by account value
+    const sortedAccountEntries = fiatAccountIdTotalEntries.sort(([, accountA], [, accountB]) =>
+      accountA.gt(accountB) ? -1 : 1,
+    )
+
+    const final: PortfolioAccountBalancesById = {}
+    return sortedAccountEntries.reduce((acc, [accountId]) => {
+      final[accountId] = fiatAccountEntries[accountId]
+      return acc
+    }, final)
+  },
+)
+
+/**
+ * this returns the same shape as the input selector, but with the balance threshold applied
+ */
+export const selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold =
+  createDeepEqualOutputSelector(
+    selectPortfolioAccountsFiatBalancesIncludingStaking,
+    selectBalanceThreshold,
+    (portfolioAccountsFiatBalances, balanceThreshold): PortfolioAccountBalancesById => {
+      const initial: PortfolioAccountBalancesById = {}
+      return Object.entries(portfolioAccountsFiatBalances).reduce((acc, [accountId, account]) => {
+        Object.entries(account).forEach(([assetId, fiatBalance]) => {
+          if (bnOrZero(fiatBalance).lt(bnOrZero(balanceThreshold))) return
+          if (!acc[accountId]) acc[accountId] = {}
+          acc[accountId][assetId] = fiatBalance
+        }, cloneDeep(account))
+        return acc
+      }, initial)
+    },
+  )
+
 export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioAccountIdsSortedFiat,
-  (accountIds): ChainId[] =>
-    Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId))),
+  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  (input): ChainId[] =>
+    Array.from(new Set(Object.keys(input).map(accountId => fromAccountId(accountId).chainId))),
+)
+
+export const selectPortfolioFiatBalanceByChainId = createSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectChainIdParamFromFilter,
+  (fiatAccountBalances, chainId): string => {
+    return Object.entries(fiatAccountBalances)
+      .reduce((acc, [accountId, accountBalanceByAssetId]) => {
+        if (fromAccountId(accountId).chainId !== chainId) return acc
+        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          // use the outer accumulator
+          acc = acc.plus(bnOrZero(assetBalance))
+        })
+        return acc
+      }, bn(0))
+      .toFixed(2)
+  },
+)
+
+export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectPortfolioAccountMetadata,
+  selectAccountNumberParamFromFilter,
+  selectChainIdParamFromFilter,
+  (accountBalances, accountMetadata, accountNumberString, chainId): string => {
+    const accountNumber = parseInt(accountNumberString.toString())
+    if (!Number.isInteger(accountNumber))
+      throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
+    return Object.entries(accountBalances)
+      .reduce((acc, [accountId, accountBalanceByAssetId]) => {
+        if (fromAccountId(accountId).chainId !== chainId) return acc
+        if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return acc
+        return acc.plus(
+          Object.values(accountBalanceByAssetId).reduce(
+            (innerAcc, cur) => innerAcc.plus(bnOrZero(cur)),
+            bn(0),
+          ),
+        )
+      }, bn(0))
+      .toFixed(2)
+  },
 )
 
 export const selectPortfolioIsEmpty = createSelector(

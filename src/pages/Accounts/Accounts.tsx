@@ -31,6 +31,7 @@ export const Accounts = () => {
     () => chainIds.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
     [chainIds],
   )
+
   return (
     <Main titleComponent={<AccountHeader />}>
       <List ml={0} mt={0} spacing={4}>

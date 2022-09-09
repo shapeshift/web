@@ -7,7 +7,7 @@ export const PairIcons = ({
   iconBoxSize,
   ...styleProps
 }: {
-  icons: Array<string>
+  icons: string[]
   iconBoxSize?: string
   iconSize?: ThemingProps<'Avatar'>['size']
 } & FlexProps): JSX.Element => {

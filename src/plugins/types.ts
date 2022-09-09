@@ -11,7 +11,7 @@ export interface Plugin {
   featureFlag?: keyof FeatureFlags
   onLoad?: () => void
   providers?: {
-    chainAdapters?: Array<[ChainId, () => ChainAdapter<ChainId>]>
+    chainAdapters?: [ChainId, () => ChainAdapter<ChainId>][]
   }
   routes?: Route[]
 }

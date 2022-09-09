@@ -17,9 +17,9 @@ import {
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
-import { entries, flip, toNumber } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
+import entries from 'lodash/entries'
 import flow from 'lodash/flow'
 import head from 'lodash/head'
 import keys from 'lodash/keys'
@@ -29,6 +29,7 @@ import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import sum from 'lodash/sum'
 import toLower from 'lodash/toLower'
+import toNumber from 'lodash/toNumber'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
@@ -857,34 +858,14 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
   },
 )
 
-/**
- * this returns the same shape as the input selector, but with the balance threshold applied
- */
-export const selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold =
-  createDeepEqualOutputSelector(
-    selectPortfolioAccountsFiatBalancesIncludingStaking,
-    selectBalanceThreshold,
-    (portfolioAccountsFiatBalances, balanceThreshold): PortfolioAccountBalancesById => {
-      const initial: PortfolioAccountBalancesById = {}
-      return Object.entries(portfolioAccountsFiatBalances).reduce((acc, [accountId, account]) => {
-        Object.entries(account).forEach(([assetId, fiatBalance]) => {
-          if (bnOrZero(fiatBalance).lt(bnOrZero(balanceThreshold))) return
-          if (!acc[accountId]) acc[accountId] = {}
-          acc[accountId][assetId] = fiatBalance
-        }, cloneDeep(account))
-        return acc
-      }, initial)
-    },
-  )
-
 export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
   (input): ChainId[] =>
     Array.from(new Set(Object.keys(input).map(accountId => fromAccountId(accountId).chainId))),
 )
 
 export const selectPortfolioFiatBalanceByChainId = createSelector(
-  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
   selectChainIdParamFromFilter,
   (fiatAccountBalances, chainId): string => {
     return Object.entries(fiatAccountBalances)
@@ -901,7 +882,7 @@ export const selectPortfolioFiatBalanceByChainId = createSelector(
 )
 
 export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSelector(
-  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
   selectPortfolioAccountMetadata,
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,

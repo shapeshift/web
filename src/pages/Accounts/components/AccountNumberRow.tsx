@@ -27,7 +27,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
-  selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -67,7 +67,7 @@ type AccountBasedChainEntriesProps = {
 }
 const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ accountId }) => {
   const accountAssetBalancesSortedFiat = useSelector(
-    selectPortfolioAccountsFiatBalancesIncludingStakingAboveBalanceThreshold,
+    selectPortfolioAccountsFiatBalancesIncludingStaking,
   )
   const assetIds = useMemo(
     () => Object.keys(accountAssetBalancesSortedFiat[accountId]),

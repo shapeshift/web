@@ -56,6 +56,20 @@ export type AccountDropdownProps = {
   listProps?: MenuItemOptionProps
 }
 
+const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
+  switch (accountType) {
+    case UtxoAccountType.SegwitNative:
+      return 0
+    case UtxoAccountType.SegwitP2sh:
+      return 1
+    case UtxoAccountType.P2pkh:
+      return 2
+    // We found something else, put it at the end
+    default:
+      return 3
+  }
+}
+
 export const AccountDropdown: FC<AccountDropdownProps> = ({
   assetId,
   buttonProps,
@@ -123,6 +137,24 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     [accountMetadata, selectedAccountId],
   )
 
+  const getAccountIdsSortedByUtxoAccountType = useCallback(
+    (accountIds: AccountId[]): AccountId[] => {
+      return sortBy(accountIds, accountId =>
+        utxoAccountTypeToDisplayPriority(accountMetadata[accountId].accountType),
+      )
+    },
+    [accountMetadata],
+  )
+
+  const getAccountIdsSortedByBalance = useCallback(
+    (accountIds: AccountId[]): AccountId[] =>
+      chain(accountIds)
+        .sortBy(accountIds, accountId => bnOrZero(accountBalances[accountId][assetId]).toNumber())
+        .reverse()
+        .value(),
+    [accountBalances, assetId],
+  )
+
   const menuOptions = useMemo(() => {
     const makeTitle = (accountId: AccountId) => {
       /**
@@ -162,31 +194,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
       return acc
     }, initial)
 
-    const getAccountIdsSortedByBalance = (accountIds: AccountId[]): AccountId[] =>
-      chain(accountIds)
-        .sortBy(accountIds, accountId => bnOrZero(accountBalances[accountId][assetId]).toNumber())
-        .reverse()
-        .value()
-
-    const getAccountIdsSortedByUtxoAccountType = (accountIds: AccountId[]): AccountId[] => {
-      const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
-        switch (accountType) {
-          case UtxoAccountType.SegwitNative:
-            return 0
-          case UtxoAccountType.SegwitP2sh:
-            return 1
-          case UtxoAccountType.P2pkh:
-            return 2
-          // We found something else, put it at the end
-          default:
-            return 3
-        }
-      }
-      return sortBy(accountIds, accountId =>
-        utxoAccountTypeToDisplayPriority(accountMetadata[accountId].accountType),
-      )
-    }
-
     return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
       const sortedAccountIds = autoSelectHighestBalance
         ? getAccountIdsSortedByBalance(accountIds)
@@ -220,10 +227,12 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     asset.precision,
     asset.symbol,
     accountMetadata,
+    autoSelectHighestBalance,
+    getAccountIdsSortedByBalance,
+    getAccountIdsSortedByUtxoAccountType,
+    translate,
     accountBalances,
     assetId,
-    autoSelectHighestBalance,
-    translate,
     selectedAccountId,
     disabled,
     listProps,

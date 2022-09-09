@@ -1,7 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
+  type ButtonProps,
+  type MenuItemOptionProps,
   Button,
-  ButtonProps,
   Menu,
   MenuButton,
   MenuList,
@@ -10,24 +11,29 @@ import {
   Text,
 } from '@chakra-ui/react'
 import {
-  AccountId,
-  AssetId,
+  type AccountId,
+  type AssetId,
   btcChainId,
   CHAIN_NAMESPACE,
   fromAssetId,
   fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import sortBy from 'lodash/sortBy'
+import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
+import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadata,
@@ -40,12 +46,39 @@ import { AccountSegment } from './AccountSegement'
 
 export type AccountDropdownProps = {
   assetId: AssetId
-  buttonProps?: ButtonProps
   onChange: (accountId: AccountId) => void
+  defaultAccountId?: AccountId
+  // Auto-selects the account with the highest balance, and sorts the account list descending by balance
+  autoSelectHighestBalance?: boolean
+  // Prevents accounts in the dropdown from being selected
+  disabled?: boolean
+  buttonProps?: ButtonProps
+  listProps?: MenuItemOptionProps
 }
 
-export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
-  const { assetId, buttonProps, onChange } = props
+const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
+  switch (accountType) {
+    case UtxoAccountType.SegwitNative:
+      return 0
+    case UtxoAccountType.SegwitP2sh:
+      return 1
+    case UtxoAccountType.P2pkh:
+      return 2
+    // We found something else, put it at the end
+    default:
+      return 3
+  }
+}
+
+export const AccountDropdown: FC<AccountDropdownProps> = ({
+  assetId,
+  buttonProps,
+  onChange: handleChange,
+  disabled,
+  defaultAccountId,
+  listProps,
+  autoSelectHighestBalance,
+}) => {
   const { chainId } = fromAssetId(assetId)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -57,7 +90,11 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const highestFiatBalanceAccountId = useAppSelector(state =>
+    selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
+  )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
+  const isDropdownDisabled = disabled || accountIds.length <= 1
 
   /**
    * react on selectedAccountId change
@@ -65,21 +102,27 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   useEffect(() => {
     if (isEmpty(accountMetadata)) return
     if (!selectedAccountId) return
-    onChange(selectedAccountId)
-  }, [accountMetadata, selectedAccountId, onChange])
+    handleChange(selectedAccountId)
+  }, [accountMetadata, selectedAccountId, handleChange])
 
   /**
-   * react on accountIds
+   * react on accountIds on first render
    */
   useEffect(() => {
     if (!accountIds.length) return
-    const accountId = accountIds[0] // default to the first when we receive them
-    accountId !== selectedAccountId && setSelectedAccountId(accountId) // don't set to same thing again
+    const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === defaultAccountId)
+    const firstAccountId = accountIds[0]
+    // Use the first accountId if we don't have a valid defaultAccountId
+    const preSelectedAccountId =
+      validatedAccountIdFromArgs ??
+      (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
+      firstAccountId
+    firstAccountId !== selectedAccountId && setSelectedAccountId(preSelectedAccountId) // don't set to same thing again
     // this effect sets selectedAccountId for the first render when we receive accountIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds])
+  }, [assetId, accountIds, defaultAccountId])
 
-  const onClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
+  const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 
   /**
    * memoized view bits and bobs
@@ -92,6 +135,24 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
   const accountNumber = useMemo(
     () => selectedAccountId && accountMetadata[selectedAccountId].bip44Params.accountNumber,
     [accountMetadata, selectedAccountId],
+  )
+
+  const getAccountIdsSortedByUtxoAccountType = useCallback(
+    (accountIds: AccountId[]): AccountId[] => {
+      return sortBy(accountIds, accountId =>
+        utxoAccountTypeToDisplayPriority(accountMetadata[accountId].accountType),
+      )
+    },
+    [accountMetadata],
+  )
+
+  const getAccountIdsSortedByBalance = useCallback(
+    (accountIds: AccountId[]): AccountId[] =>
+      chain(accountIds)
+        .sortBy(accountIds, accountId => bnOrZero(accountBalances[accountId][assetId]).toNumber())
+        .reverse()
+        .value(),
+    [accountBalances, assetId],
   )
 
   const menuOptions = useMemo(() => {
@@ -133,35 +194,49 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
       return acc
     }, initial)
 
-    return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => (
-      <>
-        <AccountSegment
-          key={accountNumber}
-          title={translate('accounts.accountNumber', { accountNumber })}
-          subtitle={''} // hide me until we have the option to "nickname" accounts
-        />
-        {accountIds.map((accountId, index) => (
-          <AccountChildOption
-            key={`${accountId}-${index}`}
-            title={makeTitle(accountId)}
-            cryptoBalance={fromBaseUnit(accountBalances[accountId][assetId], asset.precision)}
-            symbol={asset.symbol}
-            isChecked={selectedAccountId === accountId}
-            onClick={() => onClick(accountId)}
+    return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
+      const sortedAccountIds = autoSelectHighestBalance
+        ? getAccountIdsSortedByBalance(accountIds)
+        : getAccountIdsSortedByUtxoAccountType(accountIds)
+      return (
+        <>
+          <AccountSegment
+            key={accountNumber}
+            title={translate('accounts.accountNumber', { accountNumber })}
+            subtitle={''} // hide me until we have the option to "nickname" accounts
           />
-        ))}
-      </>
-    ))
+          {sortedAccountIds.map((iterAccountId, index) => (
+            <AccountChildOption
+              key={`${iterAccountId}-${index}`}
+              title={makeTitle(iterAccountId)}
+              cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
+              symbol={asset.symbol}
+              isChecked={selectedAccountId === iterAccountId}
+              onClick={() => handleClick(iterAccountId)}
+              isDisabled={disabled}
+              {...listProps}
+            />
+          ))}
+        </>
+      )
+    })
   }, [
-    assetId,
-    chainId,
-    accountBalances,
     accountIds,
+    chainId,
+    asset.name,
+    asset.precision,
+    asset.symbol,
     accountMetadata,
-    asset,
+    autoSelectHighestBalance,
+    getAccountIdsSortedByBalance,
+    getAccountIdsSortedByUtxoAccountType,
     translate,
-    onClick,
+    accountBalances,
+    assetId,
     selectedAccountId,
+    disabled,
+    listProps,
+    handleClick,
   ])
 
   /**
@@ -183,8 +258,9 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = props => {
         iconSpacing={0}
         as={Button}
         size='sm'
-        rightIcon={<ChevronDownIcon />}
+        rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
         variant='ghost'
+        disabled={isDropdownDisabled}
         {...buttonProps}
       >
         <Stack direction='row' alignItems='center'>

@@ -19,11 +19,13 @@ import {
   fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
+import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -44,22 +46,23 @@ export type AccountDropdownProps = {
   assetId: AssetId
   onChange: (accountId: AccountId) => void
   accountId?: AccountId
+  // Auto-selects the account with the highest balance, and sorts the account list descending by balance
   autoSelectHighestBalance?: boolean
+  // Prevents accounts in the dropdown from being selected
   disableSelection?: boolean
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
 }
 
-export const AccountDropdown: FC<AccountDropdownProps> = props => {
-  const {
-    assetId,
-    buttonProps,
-    onChange: handleChange,
-    disableSelection,
-    accountId: accountIdFromArgs,
-    listProps,
-    autoSelectHighestBalance,
-  } = props
+export const AccountDropdown: FC<AccountDropdownProps> = ({
+  assetId,
+  buttonProps,
+  onChange: handleChange,
+  disableSelection,
+  accountId: accountIdFromArgs,
+  listProps,
+  autoSelectHighestBalance,
+}) => {
   const { chainId } = fromAssetId(assetId)
 
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -157,26 +160,37 @@ export const AccountDropdown: FC<AccountDropdownProps> = props => {
       return acc
     }, initial)
 
-    return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => (
-      <>
-        <AccountSegment
-          key={accountNumber}
-          title={translate('accounts.accountNumber', { accountNumber })}
-          subtitle={''} // hide me until we have the option to "nickname" accounts
-        />
-        {accountIds.map((iterAccountId, index) => (
-          <AccountChildOption
-            key={`${iterAccountId}-${index}`}
-            title={makeTitle(iterAccountId)}
-            cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
-            symbol={asset.symbol}
-            isChecked={selectedAccountId === iterAccountId}
-            onClick={() => handleClick(iterAccountId)}
-            {...listProps}
+    const getAccountIdsSortedByBalance = (accountIds: AccountId[]): AccountId[] =>
+      chain(accountIds)
+        .sortBy(accountIds, accountId => bnOrZero(accountBalances[accountId][assetId]).toNumber())
+        .reverse()
+        .value()
+
+    return Object.entries(accountIdsByNumberAndType).map(([accountNumber, accountIds]) => {
+      const maybeSortedAccountIds = autoSelectHighestBalance
+        ? getAccountIdsSortedByBalance(accountIds)
+        : accountIds
+      return (
+        <>
+          <AccountSegment
+            key={accountNumber}
+            title={translate('accounts.accountNumber', { accountNumber })}
+            subtitle={''} // hide me until we have the option to "nickname" accounts
           />
-        ))}
-      </>
-    ))
+          {maybeSortedAccountIds.map((iterAccountId, index) => (
+            <AccountChildOption
+              key={`${iterAccountId}-${index}`}
+              title={makeTitle(iterAccountId)}
+              cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
+              symbol={asset.symbol}
+              isChecked={selectedAccountId === iterAccountId}
+              onClick={() => handleClick(iterAccountId)}
+              {...listProps}
+            />
+          ))}
+        </>
+      )
+    })
   }, [
     accountIds,
     chainId,
@@ -184,9 +198,10 @@ export const AccountDropdown: FC<AccountDropdownProps> = props => {
     asset.precision,
     asset.symbol,
     accountMetadata,
-    translate,
     accountBalances,
     assetId,
+    autoSelectHighestBalance,
+    translate,
     selectedAccountId,
     listProps,
     handleClick,

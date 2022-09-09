@@ -1,5 +1,6 @@
 # .git-blame-ignore-revs
 
-# chore: add trailing comma lint rule (https://github.com/shapeshift/lib/pull/975)
+# chore: add trailing comma lint rule (#975)
 505516c23b582ff1cd2d684b6c84a117157e3423
-# TODO: Replace me with the hash of this commit
+# chore: add array-type lint rule (#1017)
+cfd28ee08c22be19069c5b88d025deb5fc699cef

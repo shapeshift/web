@@ -10,6 +10,11 @@
     "prettier",
     "simple-import-sort"
   ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
   "env": {
     "browser": true,
     "jest/globals": true

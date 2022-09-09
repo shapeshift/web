@@ -15,12 +15,16 @@ import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/u
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type AccountEntryProps = {
+type AccountEntryRowProps = {
   accountId: AccountId
   assetId: AssetId
 } & ButtonProps
 
-export const AccountEntryRow: React.FC<AccountEntryProps> = ({ accountId, assetId, ...rest }) => {
+export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
+  accountId,
+  assetId,
+  ...buttonProps
+}) => {
   const history = useHistory()
   const translate = useTranslate()
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
@@ -55,7 +59,7 @@ export const AccountEntryRow: React.FC<AccountEntryProps> = ({ accountId, assetI
         iconSpacing={4}
         leftIcon={<Avatar size='sm' src={icon} />}
         onClick={() => history.push(generatePath('/accounts/:accountId/:assetId', filter))}
-        {...rest}
+        {...buttonProps}
       >
         <Stack alignItems='flex-start' spacing={0} flex={1}>
           <RawText color='var(--chakra-colors-chakra-body-text)'>{title}</RawText>

@@ -26,10 +26,10 @@ const AccountHeader = () => {
 }
 
 export const Accounts = () => {
-  const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
+  const portfolioChainIdsSortedFiat = useSelector(selectPortfolioChainIdsSortedFiat)
   const chainRows = useMemo(
-    () => chainIds.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
-    [chainIds],
+    () => portfolioChainIdsSortedFiat.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
+    [portfolioChainIdsSortedFiat],
   )
 
   return (

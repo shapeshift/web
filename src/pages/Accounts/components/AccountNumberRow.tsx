@@ -33,7 +33,7 @@ import { useAppSelector } from 'state/store'
 
 import { AccountEntryRow } from './AccountEntryRow'
 
-type AccountRowProps = {
+type AccountNumberRowProps = {
   accountNumber: number
   accountIds: AccountId[]
   chainId: ChainId
@@ -85,11 +85,11 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
   )
 }
 
-export const AccountNumberRow: React.FC<AccountRowProps> = ({
+export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   accountIds,
   accountNumber,
   chainId,
-  ...rest
+  ...buttonProps
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
@@ -144,7 +144,7 @@ export const AccountNumberRow: React.FC<AccountRowProps> = ({
             // space in string interpolation is not a bug - see Chakra UI Avatar docs
             <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />
           }
-          {...rest}
+          {...buttonProps}
         >
           <Stack alignItems='flex-start' spacing={0}>
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>

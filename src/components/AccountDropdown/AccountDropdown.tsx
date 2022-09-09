@@ -95,7 +95,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
    * react on accountIds on first render
    */
   useEffect(() => {
-    if (!accountIds.length) return // FIXME: returning here puts the button in a bad state
+    if (!accountIds.length) return
     const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === accountIdFromArgs)
     const firstAccountId = accountIds[0]
     // Use the first accountId if we don't have a valid accountIdFromArgs

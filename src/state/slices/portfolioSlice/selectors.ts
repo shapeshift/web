@@ -620,7 +620,7 @@ export const selectPortfolioAssets = createSelector(
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
-export type PortfolioAccountsGroupedByNumber = { [k: number]: AccountId[] }
+export type PortfolioAccountsGroupedByNumber = { [accountNumber: number]: AccountId[] }
 
 export const selectPortfolioAccountsGroupedByNumberByChainId = createDeepEqualOutputSelector(
   selectPortfolioAccountMetadata,
@@ -787,8 +787,8 @@ export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepE
   selectPortfolioAccountBalances,
   (accounts, accountBalances): PortfolioAccountBalancesById => {
     return Object.entries(accounts).reduce((acc, [accountId, account]) => {
-      Object.values(account?.stakingDataByValidatorId ?? {}).forEach(stakingDataByAccountId => {
-        Object.values(stakingDataByAccountId).forEach(stakingData => {
+      Object.values(account?.stakingDataByValidatorId ?? {}).forEach(stakingDataByAssetId => {
+        Object.values(stakingDataByAssetId).forEach(stakingData => {
           const { delegations, redelegations, undelegations } = stakingData
           const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
           const combined = [...delegations, ...redelegationEntries, ...undelegations]
@@ -869,8 +869,10 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
 
 export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(
   selectPortfolioAccountsFiatBalancesIncludingStaking,
-  (input): ChainId[] =>
-    Array.from(new Set(Object.keys(input).map(accountId => fromAccountId(accountId).chainId))),
+  (fiatAccountBalances): ChainId[] =>
+    Array.from(
+      new Set(Object.keys(fiatAccountBalances).map(accountId => fromAccountId(accountId).chainId)),
+    ),
 )
 
 export const selectPortfolioFiatBalanceByChainId = createSelector(

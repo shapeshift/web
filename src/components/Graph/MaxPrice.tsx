@@ -37,11 +37,10 @@ export const MaxPrice = ({ label, yText, xScale, stroke, width, xDate }: LineCha
     [width],
   )
 
-  const xText = useMemo(() => makeTextPos(xScale(xDate) || 0).x, [makeTextPos, xDate, xScale])
-  const textAnchor = useMemo(
-    () => makeTextPos(xScale(xDate) || 0).anchor,
-    [makeTextPos, xDate, xScale],
-  )
+  const xScaleDate = useMemo(() => xScale(xDate), [xDate, xScale])
+  const textPos = useMemo(() => makeTextPos(xScaleDate || 0), [makeTextPos, xScaleDate])
+  const xText = useMemo(() => textPos.x, [textPos.x])
+  const textAnchor = useMemo(() => textPos.anchor, [textPos.anchor])
 
   return (
     <g>

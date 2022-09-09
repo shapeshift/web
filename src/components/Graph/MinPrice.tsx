@@ -1,6 +1,6 @@
 import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 export interface LineChartProps {
   xScale: AxisScale<number>
@@ -37,8 +37,9 @@ export const MinPrice = ({ label, yText, xScale, stroke, width, xDate }: LineCha
     },
     [width],
   )
-  const xText = makeTextPos(xPos || 0).x
-  const textAnchor = makeTextPos(xPos || 0).anchor
+  const textPos = useMemo(() => makeTextPos(xPos || 0), [makeTextPos, xPos])
+  const xText = useMemo(() => textPos.x, [textPos.x])
+  const textAnchor = useMemo(() => textPos.anchor, [textPos.anchor])
 
   return (
     <g>

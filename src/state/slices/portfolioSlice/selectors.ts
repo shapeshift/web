@@ -875,7 +875,7 @@ export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(
     ),
 )
 
-export const selectPortfolioFiatBalanceByChainId = createSelector(
+export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createSelector(
   selectPortfolioAccountsFiatBalancesIncludingStaking,
   selectChainIdParamFromFilter,
   (fiatAccountBalances, chainId): string => {

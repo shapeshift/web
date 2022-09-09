@@ -11,7 +11,7 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
-  selectPortfolioFiatBalanceByChainId,
+  selectPortfolioTotalBalanceByChainIdIncludeStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,7 +26,9 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const history = useHistory()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
-  const chainFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByChainId(s, filter))
+  const chainFiatBalance = useAppSelector(s =>
+    selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
+  )
   const accountIdsByAccountNumber = useAppSelector(s =>
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )

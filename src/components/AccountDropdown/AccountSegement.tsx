@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react'
+import { type FC } from 'react'
 import { RawText } from 'components/Text'
 
 type AccountGroupProps = {
@@ -6,7 +7,7 @@ type AccountGroupProps = {
   subtitle?: string
 }
 
-export const AccountSegment: React.FC<AccountGroupProps> = ({ title, subtitle }) => (
+export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
   <Stack
     direction='row'
     px={4}

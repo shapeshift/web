@@ -47,7 +47,7 @@ import { AccountSegment } from './AccountSegement'
 export type AccountDropdownProps = {
   assetId: AssetId
   onChange: (accountId: AccountId) => void
-  accountId?: AccountId
+  defaultAccountId?: AccountId
   // Auto-selects the account with the highest balance, and sorts the account list descending by balance
   autoSelectHighestBalance?: boolean
   // Prevents accounts in the dropdown from being selected
@@ -61,7 +61,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   buttonProps,
   onChange: handleChange,
   disabled,
-  accountId: accountIdFromArgs,
+  defaultAccountId,
   listProps,
   autoSelectHighestBalance,
 }) => {
@@ -96,9 +96,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
    */
   useEffect(() => {
     if (!accountIds.length) return
-    const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === accountIdFromArgs)
+    const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === defaultAccountId)
     const firstAccountId = accountIds[0]
-    // Use the first accountId if we don't have a valid accountIdFromArgs
+    // Use the first accountId if we don't have a valid defaultAccountId
     const preSelectedAccountId =
       validatedAccountIdFromArgs ??
       (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
@@ -106,7 +106,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     firstAccountId !== selectedAccountId && setSelectedAccountId(preSelectedAccountId) // don't set to same thing again
     // this effect sets selectedAccountId for the first render when we receive accountIds
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds, accountIdFromArgs])
+  }, [assetId, accountIds, defaultAccountId])
 
   const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 

@@ -80,7 +80,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
-  const isSelectionDisabled = disableSelection || accountIds.length <= 1
+  const isDropdownDisabled = disableSelection || accountIds.length <= 1
 
   /**
    * react on selectedAccountId change
@@ -206,6 +206,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
               symbol={asset.symbol}
               isChecked={selectedAccountId === iterAccountId}
               onClick={() => handleClick(iterAccountId)}
+              isDisabled={disableSelection}
               {...listProps}
             />
           ))}
@@ -224,6 +225,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     autoSelectHighestBalance,
     translate,
     selectedAccountId,
+    disableSelection,
     listProps,
     handleClick,
   ])
@@ -247,9 +249,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         iconSpacing={0}
         as={Button}
         size='sm'
-        rightIcon={isSelectionDisabled ? null : <ChevronDownIcon />}
+        rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
         variant='ghost'
-        disabled={isSelectionDisabled}
+        disabled={isDropdownDisabled}
         {...buttonProps}
       >
         <Stack direction='row' alignItems='center'>

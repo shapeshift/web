@@ -17,17 +17,20 @@ import {
 } from '@shapeshiftoss/caip'
 import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
-import { maxBy } from 'lodash'
+import { entries, flip, toNumber } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import flow from 'lodash/flow'
 import head from 'lodash/head'
 import keys from 'lodash/keys'
 import map from 'lodash/map'
+import maxBy from 'lodash/maxBy'
 import reduce from 'lodash/reduce'
 import size from 'lodash/size'
+import sum from 'lodash/sum'
 import toLower from 'lodash/toLower'
 import uniq from 'lodash/uniq'
+import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
 import { BridgeAsset } from 'components/Bridge/types'
 import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -789,6 +792,9 @@ export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepE
   },
 )
 
+/**
+ * same PortfolioAccountBalancesById shape, but human crypto balances
+ */
 export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
   createDeepEqualOutputSelector(
     selectAssets,
@@ -813,46 +819,41 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
   selectMarketData,
   selectPortfolioAccountsCryptoBalancesIncludingStaking,
   (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
-    const initial: { [k: AccountId]: { [k: AssetId]: string } } = {}
-    const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce(
-      (acc, [accountId, account]) => {
-        const entries: [AssetId, BigNumber][] = Object.entries(account).map(
-          ([assetId, cryptoBalance]) => {
-            const { precision } = assets[assetId]
-            const price = marketData[assetId]?.price ?? 0
-            return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
-          },
-        )
+    const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
+      [k: AccountId]: { [k: AssetId]: string }
+    }>((acc, [accountId, account]) => {
+      const entries: [AssetId, BigNumber][] = Object.entries(account).map(
+        ([assetId, cryptoBalance]) => {
+          const { precision } = assets[assetId]
+          const price = marketData[assetId]?.price ?? 0
+          return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
+        },
+      )
 
-        const fiatAccountSorted = Object.fromEntries(
-          entries
-            .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
-            .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
-        )
-        acc[accountId] = fiatAccountSorted
-        return acc
-      },
-      initial,
-    )
-
-    // reduce each account once
-    const fiatAccountIdTotalEntries: [AccountId, BigNumber][] = Object.entries(
-      fiatAccountEntries,
-    ).map(([accountId, account]) => [
-      accountId,
-      Object.values(account).reduce((acc, cur) => acc.plus(cur), bn(0)),
-    ])
-
-    // sort by account value
-    const sortedAccountEntries = fiatAccountIdTotalEntries.sort(([, accountA], [, accountB]) =>
-      accountA.gt(accountB) ? -1 : 1,
-    )
-
-    const final: PortfolioAccountBalancesById = {}
-    return sortedAccountEntries.reduce((acc, [accountId]) => {
-      final[accountId] = fiatAccountEntries[accountId]
+      const fiatAccountSorted = Object.fromEntries(
+        entries
+          .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
+          .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
+      )
+      acc[accountId] = fiatAccountSorted
       return acc
-    }, final)
+    }, {})
+
+    const sumValues: (obj: Record<AssetId, string>) => number = obj =>
+      sum(values(obj).map(toNumber))
+
+    return (
+      entries(fiatAccountEntries)
+        // sum each account
+        .map<[string, number]>(([accountId, account]) => [accountId, sumValues(account)])
+        // sort by account balance
+        .sort(([, sumA], [, sumB]) => (sumA > sumB ? -1 : 1))
+        // return sorted accounts
+        .reduce<PortfolioAccountBalancesById>((acc, [accountId]) => {
+          acc[accountId] = fiatAccountEntries[accountId]
+          return acc
+        }, {})
+    )
   },
 )
 

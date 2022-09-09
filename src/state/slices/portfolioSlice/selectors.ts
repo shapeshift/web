@@ -620,23 +620,6 @@ export const selectPortfolioAssets = createSelector(
 export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
-export type PortfolioAccountsGroupedByNumber = { [accountNumber: number]: AccountId[] }
-
-export const selectPortfolioAccountsGroupedByNumberByChainId = createDeepEqualOutputSelector(
-  selectPortfolioAccountMetadata,
-  selectChainIdParamFromFilter,
-  (accountMetadata, chainId): PortfolioAccountsGroupedByNumber => {
-    const initial: PortfolioAccountsGroupedByNumber = {}
-    return Object.entries(accountMetadata).reduce((acc, [accountId, metadata]) => {
-      if (fromAccountId(accountId).chainId !== chainId) return acc
-      const { accountNumber } = metadata.bip44Params
-      if (!acc[accountNumber]) acc[accountNumber] = []
-      acc[accountNumber].push(accountId)
-      return acc
-    }, initial)
-  },
-)
-
 /**
  * selects portfolio account ids that *can* contain an assetId
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
@@ -913,6 +896,26 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createSele
         )
       }, bn(0))
       .toFixed(2)
+  },
+)
+
+export type PortfolioAccountsGroupedByNumber = { [accountNumber: number]: AccountId[] }
+
+export const selectPortfolioAccountsGroupedByNumberByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectPortfolioAccountMetadata,
+  selectChainIdParamFromFilter,
+  (accountBalances, accountMetadata, chainId): PortfolioAccountsGroupedByNumber => {
+    return Object.keys(accountBalances).reduce<PortfolioAccountsGroupedByNumber>(
+      (acc, accountId) => {
+        if (fromAccountId(accountId).chainId !== chainId) return acc
+        const { accountNumber } = accountMetadata[accountId].bip44Params
+        if (!acc[accountNumber]) acc[accountNumber] = []
+        acc[accountNumber].push(accountId)
+        return acc
+      },
+      {},
+    )
   },
 )
 

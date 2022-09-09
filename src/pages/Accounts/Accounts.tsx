@@ -18,10 +18,14 @@ import { ChainRow } from './components/ChainRow'
 const isMultiAccountSupportedWallet = (wallet: HDWallet | null): boolean => {
   if (!wallet) return false
   switch (getLocalWalletType()) {
+    /**
+     * currently - these are the only three wallets that *safely* support the concept of multi account.
+     * there may be some WalletConnect wallets that do, but we can't interrogate the underlying wallet
+     * that WalletConnect is proxying to us.
+     */
     case KeyManager.Native:
     case KeyManager.KeepKey:
     case KeyManager.XDefi:
-    case KeyManager.MetaMask: // remove me
       return true
     default:
       return false

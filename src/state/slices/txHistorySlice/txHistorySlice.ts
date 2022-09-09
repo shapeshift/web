@@ -236,7 +236,7 @@ export const txHistory = createSlice({
   },
 })
 
-type AllTxHistoryArgs = { accountSpecifiersList: Array<AccountSpecifierMap> }
+type AllTxHistoryArgs = { accountSpecifiersList: AccountSpecifierMap[] }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap

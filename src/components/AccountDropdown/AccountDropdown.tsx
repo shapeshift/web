@@ -51,7 +51,7 @@ export type AccountDropdownProps = {
   // Auto-selects the account with the highest balance, and sorts the account list descending by balance
   autoSelectHighestBalance?: boolean
   // Prevents accounts in the dropdown from being selected
-  disableSelection?: boolean
+  disabled?: boolean
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
 }
@@ -60,7 +60,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   assetId,
   buttonProps,
   onChange: handleChange,
-  disableSelection,
+  disabled,
   accountId: accountIdFromArgs,
   listProps,
   autoSelectHighestBalance,
@@ -80,7 +80,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
-  const isDropdownDisabled = disableSelection || accountIds.length <= 1
+  const isDropdownDisabled = disabled || accountIds.length <= 1
 
   /**
    * react on selectedAccountId change
@@ -206,7 +206,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
               symbol={asset.symbol}
               isChecked={selectedAccountId === iterAccountId}
               onClick={() => handleClick(iterAccountId)}
-              isDisabled={disableSelection}
+              isDisabled={disabled}
               {...listProps}
             />
           ))}
@@ -225,7 +225,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     autoSelectHighestBalance,
     translate,
     selectedAccountId,
-    disableSelection,
+    disabled,
     listProps,
     handleClick,
   ])

@@ -1,6 +1,6 @@
 import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useMemo } from 'react'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'

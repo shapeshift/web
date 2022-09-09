@@ -31,7 +31,7 @@ export type AssetWithBalance = {
 } & Asset
 
 type OverviewProps = {
-  onAccountChange?: (accountId: AccountId) => void
+  onAccountIdChange?: (accountId: AccountId) => void
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
   name: string
@@ -47,7 +47,7 @@ type OverviewProps = {
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
-  onAccountChange,
+  onAccountIdChange,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -115,10 +115,10 @@ export const Overview: React.FC<OverviewProps> = ({
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}
                   </RawText>
-                  {onAccountChange ? (
+                  {onAccountIdChange ? (
                     <AccountDropdown
                       assetId={asset.assetId}
-                      onChange={onAccountChange}
+                      onChange={onAccountIdChange}
                       buttonProps={{ height: 5, variant: 'solid' }}
                     />
                   ) : (

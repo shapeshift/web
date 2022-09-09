@@ -71,3 +71,5 @@ module.exports = async (on: any, config: any) => {
 
   return config
 }
+
+export {}

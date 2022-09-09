@@ -27,7 +27,7 @@ export type EarnOpportunityType = {
   moniker?: string
   showAssetSymbol?: boolean
   isLoaded: boolean
-  icons?: Array<string>
+  icons?: string[]
   // overrides any name down the road
   opportunityName?: string
 }

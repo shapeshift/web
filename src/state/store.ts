@@ -52,7 +52,7 @@ export const clearState = () => {
  * remove the blacklist for local debugging, but don't commit it
  */
 const actionSanitizer = (action: any) => {
-  const marketDataBlackList = Object.keys(marketData.actions).reduce<Array<string>>((acc, k) => {
+  const marketDataBlackList = Object.keys(marketData.actions).reduce<string[]>((acc, k) => {
     if (k.startsWith('set')) acc.push(`marketData/${k}`)
     return acc
   }, [])

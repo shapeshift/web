@@ -1,4 +1,5 @@
 export enum KeyManager {
+  Mobile = 'mobile',
   Native = 'native',
   KeepKey = 'keepkey',
   MetaMask = 'metamask',

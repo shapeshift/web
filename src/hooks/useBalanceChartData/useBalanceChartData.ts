@@ -73,7 +73,7 @@ type BucketMeta = {
 }
 
 type MakeBucketsReturn = {
-  buckets: Array<Bucket>
+  buckets: Bucket[]
   meta: BucketMeta
 }
 
@@ -111,7 +111,7 @@ export const makeBuckets: MakeBuckets = args => {
 
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
-    return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
+    return (acc: Bucket[], _cur: unknown, idx: number) => {
       const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []

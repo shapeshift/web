@@ -1,13 +1,5 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  ButtonProps,
-  Input,
-  SimpleGrid,
-  SimpleGridProps,
-} from '@chakra-ui/react'
+import type { ButtonProps, SimpleGridProps } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'

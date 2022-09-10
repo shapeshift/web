@@ -1,11 +1,5 @@
-import {
-  Icon,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputProps,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import type { InputProps } from '@chakra-ui/react'
+import { Icon, Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'

@@ -10,7 +10,7 @@ import {
 import * as bip39 from 'bip39'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'

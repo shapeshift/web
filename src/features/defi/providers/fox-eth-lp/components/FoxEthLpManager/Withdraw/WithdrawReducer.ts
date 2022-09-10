@@ -1,8 +1,5 @@
-import {
-  FoxEthLpWithdrawActions,
-  FoxEthLpWithdrawActionType,
-  FoxEthLpWithdrawState,
-} from './WithdrawCommon'
+import type { FoxEthLpWithdrawActions, FoxEthLpWithdrawState } from './WithdrawCommon'
+import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: FoxEthLpWithdrawState = {
   txid: null,

@@ -14,9 +14,10 @@ import {
   useColorModeValue,
   Wrap,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import range from 'lodash/range'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'

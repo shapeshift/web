@@ -1,11 +1,5 @@
-import {
-  AssetId,
-  ChainId,
-  cosmosAssetId,
-  cosmosChainId,
-  osmosisAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export enum StakingAction {

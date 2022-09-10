@@ -1,4 +1,4 @@
-import { InitialState } from 'context/WalletProvider/WalletProvider'
+import type { InitialState } from 'context/WalletProvider/WalletProvider'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 

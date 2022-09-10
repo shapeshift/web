@@ -1,19 +1,19 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiAction,
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'

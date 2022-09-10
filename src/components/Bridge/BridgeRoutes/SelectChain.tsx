@@ -1,12 +1,13 @@
 import { Button, Circle, Stack } from '@chakra-ui/react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
-import { BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
+import type { BridgeChain, BridgeState } from '../types'
+import { BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = {

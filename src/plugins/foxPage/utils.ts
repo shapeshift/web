@@ -1,9 +1,10 @@
-import { Contract } from '@ethersproject/contracts'
+import type { Contract } from '@ethersproject/contracts'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { TokenAmount } from '@uniswap/sdk'
+import type { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
-import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BN } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 

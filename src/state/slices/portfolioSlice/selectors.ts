@@ -1,12 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  AccountId,
-  AssetId,
   avalancheAssetId,
   bchAssetId,
   btcAssetId,
-  ChainId,
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
@@ -15,8 +13,8 @@ import {
   ltcAssetId,
   osmosisAssetId,
 } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import entries from 'lodash/entries'
@@ -33,17 +31,18 @@ import toNumber from 'lodash/toNumber'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
-import { BridgeAsset } from 'components/Bridge/types'
-import { BigNumber, BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BridgeAsset } from 'components/Bridge/types'
+import type { BigNumber, BN } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
-import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -53,9 +52,9 @@ import {
   getDefaultValidatorAddressFromAccountId,
   getDefaultValidatorAddressFromAssetId,
 } from '../validatorDataSlice/utils'
-import { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
-import {
+import type {
   AccountMetadata,
   AccountMetadataById,
   PortfolioAccountBalances,

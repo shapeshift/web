@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { ClaimableToken } from '@shapeshiftoss/investor-idle'
+import type { ClaimableToken } from '@shapeshiftoss/investor-idle'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'

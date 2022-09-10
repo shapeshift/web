@@ -1,4 +1,4 @@
-import { bitcoin } from '@shapeshiftoss/unchained-client'
+import type { bitcoin } from '@shapeshiftoss/unchained-client'
 
 export const makeBtcAccount = (): bitcoin.Account => {
   return {

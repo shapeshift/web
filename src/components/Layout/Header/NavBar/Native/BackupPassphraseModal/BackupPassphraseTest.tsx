@@ -12,7 +12,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'

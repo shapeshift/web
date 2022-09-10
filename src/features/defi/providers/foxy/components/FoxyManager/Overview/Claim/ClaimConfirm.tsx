@@ -8,7 +8,8 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AccountId, ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'

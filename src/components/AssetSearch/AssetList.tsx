@@ -1,5 +1,5 @@
-import { ListProps } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { ListProps } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'

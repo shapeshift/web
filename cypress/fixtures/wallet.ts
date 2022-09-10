@@ -1,4 +1,4 @@
-import { FlattenedJWE } from 'jose/dist/types/types'
+import type { FlattenedJWE } from 'jose/dist/types/types'
 
 interface NativeWallet {
   key: string

@@ -1,4 +1,4 @@
-import { ethereum } from '@shapeshiftoss/unchained-client'
+import type { ethereum } from '@shapeshiftoss/unchained-client'
 
 export const makeEthAccount = (): ethereum.Account => {
   return {

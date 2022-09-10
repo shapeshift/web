@@ -1,5 +1,5 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useSelector } from 'react-redux'
 import { Bridge } from 'components/Bridge/Bridge'
 import { Card } from 'components/Card/Card'

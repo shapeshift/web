@@ -1,7 +1,7 @@
 import createCachedSelector from 're-reselect'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 
-import { Flag } from './preferencesSlice'
+import type { Flag } from './preferencesSlice'
 
 export const selectFeatureFlags = (state: ReduxState) => state.preferences.featureFlags
 

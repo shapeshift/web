@@ -1,9 +1,9 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
-import { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
 /*
  * we can't retrieve an xpub from an address, but we can derive

@@ -1,4 +1,4 @@
-import { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
+import type { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
 import {
   Box,
   Button,
@@ -13,7 +13,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { KeyboardEvent, MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'

@@ -1,6 +1,6 @@
 import { TallyHoAdapter } from '@shapeshiftoss/hdwallet-tallyho'
 import { TallyHoIcon } from 'components/Icons/TallyHoIcon'
-import { SupportedWalletInfo } from 'context/WalletProvider/config'
+import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const TallyHoConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: TallyHoAdapter,

@@ -12,7 +12,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { ExternalOpportunity } from '../../FoxCommon'
+import type { ExternalOpportunity } from '../../FoxCommon'
 
 type FoxOtherOpportunityPanelRowProps = {
   opportunity: ExternalOpportunity

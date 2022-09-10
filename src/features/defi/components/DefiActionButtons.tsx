@@ -1,5 +1,6 @@
-import { Box, Button, ButtonProps, Stack, Tooltip } from '@chakra-ui/react'
-import {
+import type { ButtonProps } from '@chakra-ui/react'
+import { Box, Button, Stack, Tooltip } from '@chakra-ui/react'
+import type {
   DefiAction,
   DefiParams,
   DefiQueryParams,

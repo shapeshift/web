@@ -1,6 +1,6 @@
 import { NotAllowedIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import { Text } from '../../../components/Text'
 

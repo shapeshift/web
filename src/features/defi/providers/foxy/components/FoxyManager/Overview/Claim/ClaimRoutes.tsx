@@ -1,5 +1,9 @@
-import { AccountId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'

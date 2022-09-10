@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { FoxEthLpDepositActions, FoxEthLpDepositState } from './DepositCommon'
+import type { FoxEthLpDepositActions, FoxEthLpDepositState } from './DepositCommon'
 
 interface IDepositContext {
   state: FoxEthLpDepositState | null

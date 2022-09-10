@@ -1,6 +1,6 @@
-import { AxisScale } from '@visx/axis'
+import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 export interface LineChartProps {
   xScale: AxisScale<number>

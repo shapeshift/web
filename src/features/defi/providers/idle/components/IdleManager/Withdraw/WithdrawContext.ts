@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { IdleWithdrawActions, IdleWithdrawState } from './WithdrawCommon'
+import type { IdleWithdrawActions, IdleWithdrawState } from './WithdrawCommon'
 
 interface IWithdrawContext {
   state: IdleWithdrawState | null

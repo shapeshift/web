@@ -1,19 +1,16 @@
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'

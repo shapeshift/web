@@ -1,4 +1,4 @@
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 export enum TxStatus {
   PENDING = 'pending',

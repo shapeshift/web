@@ -1,6 +1,8 @@
-import { Box, Button, ButtonProps, forwardRef, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
+import { Box, Button, forwardRef, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { memo } from 'react'
-import { NavLinkProps, useLocation } from 'react-router-dom'
+import type { NavLinkProps } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { breakpoints } from 'theme/theme'
 
 type SidebarLinkProps = {

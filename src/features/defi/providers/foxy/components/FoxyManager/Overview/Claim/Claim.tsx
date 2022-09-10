@@ -1,10 +1,10 @@
-import { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router'

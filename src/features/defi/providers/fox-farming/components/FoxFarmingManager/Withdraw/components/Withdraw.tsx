@@ -1,18 +1,15 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'

@@ -1,4 +1,4 @@
-import { Context } from 'mocha'
+import type { Context } from 'mocha'
 import path from 'path'
 import { parse as parseUrl } from 'url'
 

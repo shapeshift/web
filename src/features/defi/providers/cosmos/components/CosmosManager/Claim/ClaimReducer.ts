@@ -1,11 +1,7 @@
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
-import {
-  CosmosClaimActions,
-  CosmosClaimActionType,
-  CosmosClaimState,
-  TxStatus,
-} from './ClaimCommon'
+import type { CosmosClaimActions, CosmosClaimState } from './ClaimCommon'
+import { CosmosClaimActionType, TxStatus } from './ClaimCommon'
 
 export const initialState: CosmosClaimState = {
   txid: null,

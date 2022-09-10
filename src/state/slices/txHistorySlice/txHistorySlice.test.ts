@@ -6,7 +6,8 @@ import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/t
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
-import { RebasesState, TxHistory, txHistory, TxsState } from './txHistorySlice'
+import type { RebasesState, TxHistory, TxsState } from './txHistorySlice'
+import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
 
 describe('txHistorySlice', () => {

@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 export const SubMenuBody: React.FC<PropsWithChildren> = ({ children }) => {
   return (

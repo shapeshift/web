@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
-import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import { CurrencyFormat } from './CurrencyFormat'
 import { FiatCurrencies } from './FiatCurrencies'

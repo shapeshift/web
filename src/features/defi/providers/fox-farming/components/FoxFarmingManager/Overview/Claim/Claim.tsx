@@ -1,8 +1,8 @@
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'

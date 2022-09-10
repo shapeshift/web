@@ -7,7 +7,7 @@ import {
   ModalHeader,
   Spinner,
 } from '@chakra-ui/react'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Text } from 'components/Text'
 
 export type ConnectModalProps = {

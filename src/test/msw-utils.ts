@@ -1,5 +1,7 @@
-import { setupWorker, SetupWorkerApi } from 'msw'
-import { setupServer, SetupServerApi } from 'msw/node'
+import type { SetupWorkerApi } from 'msw'
+import { setupWorker } from 'msw'
+import type { SetupServerApi } from 'msw/node'
+import { setupServer } from 'msw/node'
 
 function setupMsw() {
   let worker: SetupWorkerApi | undefined

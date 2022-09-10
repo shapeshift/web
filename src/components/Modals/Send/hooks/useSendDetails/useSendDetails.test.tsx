@@ -2,7 +2,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { mocked } from 'jest-mock'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
@@ -11,7 +11,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataById,

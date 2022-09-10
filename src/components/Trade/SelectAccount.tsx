@@ -1,14 +1,15 @@
 import { Stack } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useFormContext } from 'react-hook-form'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { TradeRoutePaths, TradeState } from 'components/Trade/types'
+import type { TradeState } from 'components/Trade/types'
+import { TradeRoutePaths } from 'components/Trade/types'
 import { WithBackButton } from 'components/Trade/WithBackButton'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -25,7 +26,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
   }
 
   const handleClick = (accountId: AccountSpecifier) => {
-    setValue('selectedAssetAccount', accountId)
+    setValue('selectedSellAssetAccountId', accountId)
     history.push(TradeRoutePaths.Input)
   }
 

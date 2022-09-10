@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
 import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'

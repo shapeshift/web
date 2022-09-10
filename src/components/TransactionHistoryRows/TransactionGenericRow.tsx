@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -12,11 +12,11 @@ import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTi
 import { Direction } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
 import { ApproveIcon } from './components/ApproveIcon'
-import { getTxMetadataWithAssetId } from './utils'
+import type { getTxMetadataWithAssetId } from './utils'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)

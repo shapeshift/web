@@ -1,10 +1,5 @@
-import {
-  Avatar,
-  AvatarProps,
-  Circle,
-  useColorModeValue,
-  useMultiStyleConfig,
-} from '@chakra-ui/react'
+import type { AvatarProps } from '@chakra-ui/react'
+import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

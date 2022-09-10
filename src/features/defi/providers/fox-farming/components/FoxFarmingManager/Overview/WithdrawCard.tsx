@@ -1,10 +1,10 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  DefiAction,
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'

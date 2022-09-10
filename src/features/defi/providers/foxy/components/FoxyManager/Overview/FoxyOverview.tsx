@@ -4,27 +4,35 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectMarketDataById, selectSelectedLocale } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeatureFlags,
+  selectMarketDataById,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const FoxyOverview = () => {
+export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['onChange'] }> = ({
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -58,6 +66,8 @@ export const FoxyOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   const apy = opportunity?.apy
   if (isFoxyBalancesLoading || !opportunity) {
     return (
@@ -89,6 +99,7 @@ export const FoxyOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

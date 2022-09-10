@@ -1,6 +1,7 @@
 import { Switch } from '@chakra-ui/react'
 import { Row } from 'components/Row/Row'
-import { FeatureFlags, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

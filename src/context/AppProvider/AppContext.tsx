@@ -8,12 +8,11 @@ import {
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import {
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
-  UtxoBaseAdapter,
-  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
@@ -33,10 +32,8 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import {
-  AccountSpecifierMap,
-  accountSpecifiers,
-} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -45,7 +42,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,

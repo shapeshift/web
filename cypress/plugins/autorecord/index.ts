@@ -1,3 +1,4 @@
+import type { Context } from 'mocha'
 import path from 'path'
 import { parse as parseUrl } from 'url'
 
@@ -76,7 +77,7 @@ export function autoRecord() {
     })
   })
 
-  beforeEach(function () {
+  beforeEach(function (this: Context) {
     currentTestId = this.currentTest?.title || ''
     // Reset routes before each test case
     routes = []

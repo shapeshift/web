@@ -1,4 +1,4 @@
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 

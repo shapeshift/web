@@ -1,5 +1,5 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
 import {
   isCosmosChainId,
   isOsmosisChainId,

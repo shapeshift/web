@@ -9,9 +9,10 @@ import { RawText } from 'components/Text'
 import { logger } from 'lib/logger'
 import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { AppDispatch, clearState, useAppSelector } from 'state/store'
+import type { AppDispatch } from 'state/store'
+import { clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
 const moduleLogger = logger.child({ namespace: ['Flags'] })

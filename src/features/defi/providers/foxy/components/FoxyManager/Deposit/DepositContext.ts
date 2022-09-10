@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
+import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
 
 export interface IDepositContext {
   state: FoxyDepositState | null

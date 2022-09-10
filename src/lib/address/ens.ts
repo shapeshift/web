@@ -4,7 +4,7 @@ import { CHAIN_REFERENCE, ethChainId } from '@shapeshiftoss/caip'
 import memoize from 'lodash/memoize'
 import { getWeb3ProviderByChainId } from 'lib/web3-provider'
 
-import {
+import type {
   ResolveVanityAddress,
   ResolveVanityAddressReturn,
   ReverseLookupVanityAddress,

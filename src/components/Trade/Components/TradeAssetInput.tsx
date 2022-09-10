@@ -1,8 +1,9 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import React from 'react'
-import { AssetInput, AssetInputProps } from 'components/DeFi/components/AssetInput'
+import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
+import { AssetInput } from 'components/DeFi/components/AssetInput'
 import {
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -27,11 +28,10 @@ const AssetInputLoading = () => {
   )
 }
 
-type AssetInputLoadedProps = {
-  assetId: AssetId
-} & AssetInputProps
+type AssetInputLoadedProps = AssetInputProps & { assetId: AssetId }
 
-const AssetInputLoaded: React.FC<AssetInputLoadedProps> = ({ assetId, ...rest }) => {
+const AssetInputLoaded: React.FC<AssetInputLoadedProps> = props => {
+  const { assetId } = props
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const balance = useAppSelector(state =>
@@ -39,10 +39,10 @@ const AssetInputLoaded: React.FC<AssetInputLoadedProps> = ({ assetId, ...rest })
   )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  return <AssetInput balance={balance} fiatBalance={fiatBalance} {...rest} />
+  return <AssetInput balance={balance} fiatBalance={fiatBalance} {...props} />
 }
 
-type TradeAssetInputProps = {
+export type TradeAssetInputProps = {
   assetId?: AssetId
 } & AssetInputProps
 

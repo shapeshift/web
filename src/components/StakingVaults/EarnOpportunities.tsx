@@ -1,11 +1,10 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import {
-  EarnOpportunityType,
-  useNormalizeOpportunities,
-} from 'features/defi/helpers/normalizeOpportunity'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -15,7 +14,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

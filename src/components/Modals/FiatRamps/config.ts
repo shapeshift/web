@@ -1,4 +1,5 @@
-import { adapters, AssetId, btcAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters, btcAssetId } from '@shapeshiftoss/caip'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -16,7 +17,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
-import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import type { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],

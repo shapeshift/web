@@ -1,4 +1,4 @@
-import { AxisScale } from '@visx/axis'
+import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
 
 export interface LineChartProps {

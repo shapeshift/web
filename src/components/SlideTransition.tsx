@@ -1,5 +1,6 @@
 import { Center } from '@chakra-ui/react'
-import { HTMLMotionProps, motion } from 'framer-motion'
+import type { HTMLMotionProps } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 import { CircularProgress } from './CircularProgress/CircularProgress'
 

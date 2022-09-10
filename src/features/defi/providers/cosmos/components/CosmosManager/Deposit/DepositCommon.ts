@@ -1,8 +1,8 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { BigNumber } from 'lib/bignumber/bignumber'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 type SupportedCosmosOpportunity = {
   type: DefiType

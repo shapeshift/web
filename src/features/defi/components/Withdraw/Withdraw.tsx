@@ -11,19 +11,14 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { MarketData } from '@shapeshiftoss/types'
-import React, { PropsWithChildren, ReactNode } from 'react'
-import {
-  ControllerProps,
-  ControllerRenderProps,
-  FieldValues,
-  useController,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { MarketData } from '@shapeshiftoss/types'
+import type { PropsWithChildren, ReactNode } from 'react'
+import React from 'react'
+import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
+import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { SliderIcon } from 'components/Icons/Slider'

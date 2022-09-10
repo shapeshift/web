@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { type TradeState } from 'components/Trade/types'

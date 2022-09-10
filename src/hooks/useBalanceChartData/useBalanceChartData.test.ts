@@ -1,14 +1,15 @@
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
+import type { Bucket } from './useBalanceChartData'
 import {
-  Bucket,
   bucketEvents,
   calculateBucketPrices,
   makeBuckets,

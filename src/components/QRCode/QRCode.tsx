@@ -1,4 +1,5 @@
-import { Center, Image, ImageProps, Spinner } from '@chakra-ui/react'
+import type { ImageProps } from '@chakra-ui/react'
+import { Center, Image, Spinner } from '@chakra-ui/react'
 import qrImage from 'qr-image'
 
 type QRCodeProps = {

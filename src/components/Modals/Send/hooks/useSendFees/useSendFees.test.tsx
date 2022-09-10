@@ -1,12 +1,12 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 

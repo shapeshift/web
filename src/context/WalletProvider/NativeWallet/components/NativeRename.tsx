@@ -11,13 +11,14 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
 
-import { NativeSetupProps, NativeWalletValues } from '../types'
+import type { NativeSetupProps, NativeWalletValues } from '../types'
 const moduleLogger = logger.child({ namespace: ['NativeRename'] })
 
 export const NativeRename = ({ history, location }: NativeSetupProps) => {

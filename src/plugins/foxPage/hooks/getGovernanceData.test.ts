@@ -1,4 +1,5 @@
-import { BoardroomGovernanceResult, parseGovernanceData } from './getGovernanceData'
+import type { BoardroomGovernanceResult } from './getGovernanceData'
+import { parseGovernanceData } from './getGovernanceData'
 
 const EMPTY_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId1',

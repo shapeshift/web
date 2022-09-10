@@ -1,12 +1,12 @@
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
-import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
+import type { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
 import { Link, useColorModeValue } from '@chakra-ui/react'
-import { ThemeTypings } from '@chakra-ui/styled-system'
-import { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
-import { InterpolationOptions } from 'node-polyglot'
-import { CSSProperties } from 'react'
+import type { ThemeTypings } from '@chakra-ui/styled-system'
+import type { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
+import type { InterpolationOptions } from 'node-polyglot'
+import type { CSSProperties } from 'react'
 import { RawText, Text } from 'components/Text'
 
 type ExpandedMenuItemProps = {

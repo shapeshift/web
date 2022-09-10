@@ -1,5 +1,5 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import { ChainId } from '@shapeshiftoss/caip'
 
 export const chainIdToLabel = (chainId: ChainId): string => {
   switch (chainId) {

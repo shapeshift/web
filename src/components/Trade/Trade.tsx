@@ -1,10 +1,10 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
-import { TradeState } from './types'
+import type { TradeState } from './types'
 
 export type TradeProps = {
   defaultBuyAssetId?: AssetId

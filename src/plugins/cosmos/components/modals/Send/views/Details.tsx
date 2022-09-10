@@ -15,7 +15,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import isNil from 'lodash/isNil'
 import { useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'

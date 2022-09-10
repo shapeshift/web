@@ -1,19 +1,18 @@
 import { useToast } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
-  SwapError,
-  SwapErrorTypes,
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import type { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
   Swapper,
-  SwapperManager,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   UtxoSupportedChainIds,
 } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorTypes, SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -21,14 +20,15 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
+import type { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
-import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,

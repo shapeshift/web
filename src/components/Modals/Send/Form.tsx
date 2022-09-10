@@ -1,20 +1,15 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
-import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import {
-  Redirect,
-  Route,
-  RouteComponentProps,
-  Switch,
-  useHistory,
-  useLocation,
-} from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

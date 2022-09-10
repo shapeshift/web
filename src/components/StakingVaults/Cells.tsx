@@ -9,8 +9,8 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'

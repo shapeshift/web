@@ -9,12 +9,12 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@chakra-ui/react'
-import {
+import type {
   Html5QrcodeError,
-  Html5QrcodeErrorTypes,
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
+import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
 import { useState } from 'react'
 import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

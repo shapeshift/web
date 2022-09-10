@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -28,7 +28,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { MobileConfig, mobileLogger } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
-import { RevocableWallet } from '../RevocableWallet'
+import type { RevocableWallet } from '../RevocableWallet'
 
 const moduleLogger = mobileLogger.child({
   namespace: ['components', 'MobileLoad'],

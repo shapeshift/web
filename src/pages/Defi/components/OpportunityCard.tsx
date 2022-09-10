@@ -11,9 +11,10 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   isCosmosChainId,
   isOsmosisChainId,
@@ -27,7 +28,7 @@ import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

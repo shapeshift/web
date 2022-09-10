@@ -1,4 +1,4 @@
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string

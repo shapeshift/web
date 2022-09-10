@@ -8,7 +8,7 @@ import {
   ModalHeader,
   SimpleGrid,
 } from '@chakra-ui/react'
-import { Event } from '@shapeshiftoss/hdwallet-core'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'

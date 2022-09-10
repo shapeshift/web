@@ -2,7 +2,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { CosmosDepositActions, CosmosDepositActionType, CosmosDepositState } from './DepositCommon'
+import type { CosmosDepositActions, CosmosDepositState } from './DepositCommon'
+import { CosmosDepositActionType } from './DepositCommon'
 
 export const initialState: CosmosDepositState = {
   txid: null,

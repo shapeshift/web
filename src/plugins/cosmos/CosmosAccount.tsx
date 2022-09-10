@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'

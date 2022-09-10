@@ -4,8 +4,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import { FiatRamp } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 
 type AssetSelectProps = {

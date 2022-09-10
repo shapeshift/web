@@ -1,18 +1,18 @@
 import { useToast } from '@chakra-ui/react'
 import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { DepositValues, PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
-import {
-  DefiAction,
+import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
+import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import qs from 'qs'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'

@@ -16,7 +16,7 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
-import { TransactionRowProps } from './TransactionRow'
+import type { TransactionRowProps } from './TransactionRow'
 import { AssetTypes, getTxMetadataWithAssetId, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionContract = ({

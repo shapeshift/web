@@ -1,4 +1,5 @@
-import { AssetId, foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpOpportunityName,
@@ -10,7 +11,8 @@ import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
+import type { OpportunitiesBucket } from '../FoxCommon'
+import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()

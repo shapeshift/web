@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router'
+import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'

@@ -1,22 +1,20 @@
 import { useToast } from '@chakra-ui/react'
-import { AccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'

@@ -1,4 +1,5 @@
-import { Center, CenterProps, useColorModeValue } from '@chakra-ui/react'
+import type { CenterProps } from '@chakra-ui/react'
+import { Center, useColorModeValue } from '@chakra-ui/react'
 
 export const IconCircle: React.FC<CenterProps> = ({ children, ...rest }) => {
   return (

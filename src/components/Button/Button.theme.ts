@@ -1,5 +1,6 @@
-import { ComponentStyleConfig } from '@chakra-ui/react'
-import { mode, StyleFunctionProps, transparentize } from '@chakra-ui/theme-tools'
+import type { ComponentStyleConfig } from '@chakra-ui/react'
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
+import { mode, transparentize } from '@chakra-ui/theme-tools'
 
 export const ButtonStyle: ComponentStyleConfig = {
   // style object for base or default style

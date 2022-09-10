@@ -2,10 +2,11 @@
 /* eslint-disable import/no-default-export */
 
 import { Center, Container, Tooltip } from '@chakra-ui/react'
-import { Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { TestProviders } from 'test/TestProviders'
 
-import { HelperTooltip, HelperTooltipProps } from './HelperTooltip'
+import type { HelperTooltipProps } from './HelperTooltip'
+import { HelperTooltip } from './HelperTooltip'
 
 export default {
   title: 'Overlay/HelperTooltip',

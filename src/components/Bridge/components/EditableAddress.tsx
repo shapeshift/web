@@ -11,7 +11,7 @@ import {
 import { useController, useFormContext } from 'react-hook-form'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
-import { BridgeState } from '../types'
+import type { BridgeState } from '../types'
 
 const EditControls: React.FC<{ value: string }> = ({ value }) => {
   const { isEditing, getSubmitButtonProps, getCancelButtonProps, getEditButtonProps } =

@@ -1,8 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { ButtonProps } from '@chakra-ui/react'
 import {
   Avatar,
   Button,
-  ButtonProps,
   Collapse,
   Flex,
   IconButton,
@@ -10,7 +10,8 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import { AccountId, ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'

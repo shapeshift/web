@@ -1,6 +1,6 @@
 import { AddIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Stack } from '@chakra-ui/react'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'

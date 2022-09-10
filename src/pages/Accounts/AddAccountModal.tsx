@@ -20,7 +20,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -28,8 +28,12 @@ import { useSelector } from 'react-redux'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectCanAddAccountByChainId,
+  selectPortfolioChainIdsSortedFiat,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type ChainOptionProps = {
   chainId: ChainId
@@ -61,6 +65,10 @@ export const AddAccountModal = () => {
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
   const [selectedChainId, setSelectedChainId] = useState<ChainId>(firstChainId)
+
+  const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
+  const isAbleToAddAccount = useAppSelector(s => selectCanAddAccountByChainId(s, filter))
+
   const { addAccount } = useModal()
   const { close, isOpen } = addAccount
 
@@ -129,18 +137,25 @@ export const AddAccountModal = () => {
                 </MenuList>
               </Menu>
             </Box>
-            <Box bgColor='whiteAlpha.100' pl={4} pr={4} pb={2} borderRadius={8}>
-              <Stack flexDirection='row' alignItems={'center'}>
-                <Icon color='blue.400' as={FaInfoCircle} mr={3} />
-                <RawText color={noteColor} fontSize='sm'>
-                  {translate('accounts.requiresPriorTxHistory')}
-                </RawText>
-              </Stack>
-            </Box>
+            {!isAbleToAddAccount && (
+              <Box bgColor='whiteAlpha.100' pl={4} pr={4} pb={2} borderRadius={8}>
+                <Stack flexDirection='row' alignItems={'center'}>
+                  <Icon color='blue.400' as={FaInfoCircle} mr={3} />
+                  <RawText color={noteColor} fontSize='sm'>
+                    {translate('accounts.requiresPriorTxHistory')}
+                  </RawText>
+                </Stack>
+              </Box>
+            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme='blue' width='full' onClick={handleAddAccount}>
+          <Button
+            colorScheme='blue'
+            width='full'
+            disabled={!isAbleToAddAccount}
+            onClick={handleAddAccount}
+          >
             {translate('accounts.addAccount')}
           </Button>
         </ModalFooter>

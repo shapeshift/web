@@ -19,6 +19,7 @@ import {
   ModalOverlay,
   Stack,
   useColorModeValue,
+  useToast,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -64,6 +65,7 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
 
 export const AddAccountModal = () => {
   const translate = useTranslate()
+  const toast = useToast()
   const dispatch = useDispatch()
 
   const {
@@ -123,9 +125,19 @@ export const AddAccountModal = () => {
       })
       dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
       dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+      const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
+      const { name } = assets[assetId]
+      toast({
+        position: 'top-right',
+        title: `New ${name} Account Added`,
+        description: `You can now use ${name} Account #${accountNumber}`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      })
       close()
     })()
-  }, [close, dispatch, nextAccountNumber, selectedChainId, wallet])
+  }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, wallet])
 
   const noteColor = useColorModeValue('black', 'white')
   if (!asset) return null

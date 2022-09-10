@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -33,6 +33,8 @@ export const ChangePin = () => {
     setDeviceState,
   } = useWallet()
   const toast = useToast()
+  const pinButtonsBackground = useColorModeValue('gray.200', 'gray.600')
+  const pinButtonsBackgroundHover = useColorModeValue('gray.100', 'gray.500')
 
   const translationType = (() => {
     switch (keepKeyPinRequestType) {
@@ -109,7 +111,13 @@ export const ChangePin = () => {
               translationType={translationType}
               gridMaxWidth={'175px'}
               confirmButtonSize={'md'}
-              buttonsProps={{ size: 'sm', p: 2, height: 12 }}
+              buttonsProps={{
+                size: 'sm',
+                p: 2,
+                height: 12,
+                background: pinButtonsBackground,
+                _hover: { background: pinButtonsBackgroundHover },
+              }}
               gridProps={{ spacing: 2 }}
             />
             <Button width='full' onClick={handleCancel} mt={2}>

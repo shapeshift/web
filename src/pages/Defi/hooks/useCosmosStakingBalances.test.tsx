@@ -40,7 +40,7 @@ function setup() {
   )
 
   store.dispatch(
-    accountSpecifiers.actions.setAccountSpecifiers([
+    accountSpecifiers.actions.upsertAccountSpecifiers([
       { 'cosmos:cosmoshub-4': 'cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669' },
     ]),
   )

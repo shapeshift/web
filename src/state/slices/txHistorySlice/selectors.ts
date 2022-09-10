@@ -187,30 +187,35 @@ export const selectRebasesByFilter = createSelector(
  * note - there can be multiple accountIds sharing the same accountNumber - e.g. BTC legacy/segwit/segwit native
  * are all separate accounts that share the same account number
  */
-export const selectCanAddAccountByChainId = createSelector(
+export const selectMaybeNextAccountNumberByChainId = createSelector(
   selectTxIdsByAccountId,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (txIdsByAccountId, accountMetadata, chainId): boolean => {
+  (txIdsByAccountId, accountMetadata, chainId): [boolean, number] => {
+    // returns [isAbleToAddNextAccount, nextAccountNumber]
     // filter accounts by chain id
     const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
       accountMetadata,
     ).filter(([accountId, _metadata]) => fromAccountId(accountId).chainId === chainId)
 
     // grab the highest account number
-    const highestAccountNumber: number = Math.max(
+    const currentHighestAccountNumber: number = Math.max(
       ...accountMetadataEntriesByChainId.map(([, { bip44Params }]) => bip44Params.accountNumber),
     )
 
     // filter for highest account number, and map back to accountIds
     const highestAccountNumberAccountsIds: AccountId[] = accountMetadataEntriesByChainId
-      .filter(([_accountId, { bip44Params }]) => bip44Params.accountNumber === highestAccountNumber)
+      .filter(
+        ([_accountId, { bip44Params }]) =>
+          bip44Params.accountNumber === currentHighestAccountNumber,
+      )
       .map(([accountId]) => accountId)
 
     // at least one of the account ids with the highest account number must have some tx history
     const result = highestAccountNumberAccountsIds.some(accountId =>
       Boolean((txIdsByAccountId[accountId] ?? []).length),
     )
-    return result
+    const nextAccountNumber = currentHighestAccountNumber + 1
+    return [result, nextAccountNumber]
   },
 )

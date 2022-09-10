@@ -21,16 +21,21 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
-  selectCanAddAccountByChainId,
+  selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedFiat,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -59,6 +64,11 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
 
 export const AddAccountModal = () => {
   const translate = useTranslate()
+  const dispatch = useDispatch()
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const assets = useSelector(selectAssets)
   const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
@@ -67,7 +77,9 @@ export const AddAccountModal = () => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId>(firstChainId)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
-  const isAbleToAddAccount = useAppSelector(s => selectCanAddAccountByChainId(s, filter))
+  const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
+    selectMaybeNextAccountNumberByChainId(s, filter),
+  )
 
   const { addAccount } = useModal()
   const { close, isOpen } = addAccount
@@ -94,8 +106,26 @@ export const AddAccountModal = () => {
   }, [assets, selectedChainId])
 
   const handleAddAccount = useCallback(() => {
-    close()
-  }, [close])
+    if (!wallet) return
+    ;(async () => {
+      const accountNumber = nextAccountNumber
+      const chainIds = [selectedChainId]
+      const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
+        accountNumber,
+        chainIds,
+        wallet,
+      })
+
+      // TODO(0xdef1cafe): temporary transform for backwards compatibility until we kill accountSpecifiersSlice
+      const accountSpecifiersPayload = Object.keys(accountMetadataByAccountId).map(accountId => {
+        const { chainId, account } = fromAccountId(accountId)
+        return { [chainId]: account }
+      })
+      dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
+      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+      close()
+    })()
+  }, [close, dispatch, nextAccountNumber, selectedChainId, wallet])
 
   const noteColor = useColorModeValue('black', 'white')
   if (!asset) return null

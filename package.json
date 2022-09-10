@@ -118,6 +118,7 @@
     "@visx/shape": "^2.10.0",
     "@visx/tooltip": "^2.10.0",
     "@visx/xychart": "^2.12.2",
+    "@wagmi/core": "^0.5.5",
     "@walletconnect/web3-provider": "^1.7.8",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.26.1",
@@ -173,6 +174,7 @@
     "simplex-noise": "^3.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "wagmi": "^0.6.5",
     "web-vitals": "^2.1.4",
     "web3": "1.7.4"
   },

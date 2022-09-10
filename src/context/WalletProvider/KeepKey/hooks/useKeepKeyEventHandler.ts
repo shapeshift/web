@@ -28,13 +28,19 @@ export const useKeepKeyEventHandler = (
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
-      const { message_enum, message, from_wallet } = event
+      const { message_enum, message_type, message, from_wallet } = event
 
       const fnLogger = moduleLogger.child({
         namespace: ['handleEvent'],
         defaultFields: { deviceId, event },
       })
       fnLogger.trace('Handling Event')
+
+      if (message_type === MessageType.PINREQUEST || message.message === MessageType.PINCHANGED) {
+        setDeviceState({
+          isLoading: false,
+        })
+      }
 
       switch (message_enum) {
         case MessageType.SUCCESS:

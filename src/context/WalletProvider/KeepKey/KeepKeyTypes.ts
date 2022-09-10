@@ -93,6 +93,8 @@ export enum MessageType {
   RESETDEVICE = 14,
   SIGNTX = 15,
   FEATURES = 17,
+  PINREQUEST = 'PIN_REQUEST',
+  PINCHANGED = 'PIN changed',
   PINMATRIXREQUEST = 18,
   PINMATRIXACK = 19,
   CANCEL = 20,

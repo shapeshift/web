@@ -1,6 +1,7 @@
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Text } from 'components/Text'
@@ -28,7 +29,7 @@ export const ChangePin = () => {
     dispatch,
     state: {
       keepKeyPinRequestType,
-      deviceState: { awaitingDeviceInteraction, isUpdatingPin },
+      deviceState: { awaitingDeviceInteraction, isUpdatingPin, isLoading },
     },
     setDeviceState,
   } = useWallet()
@@ -101,28 +102,35 @@ export const ChangePin = () => {
   const setting = 'PIN'
 
   const shouldDisplayPinView = isUpdatingPin && !awaitingDeviceInteraction
+  console.log(isLoading, 'loading state')
 
   const renderPinState: JSX.Element = (() => {
     return shouldDisplayPinView ? (
       <>
         <SubMenuBody>
           <Box textAlign='center'>
-            <KeepKeyPin
-              translationType={translationType}
-              gridMaxWidth={'175px'}
-              confirmButtonSize={'md'}
-              buttonsProps={{
-                size: 'sm',
-                p: 2,
-                height: 12,
-                background: pinButtonsBackground,
-                _hover: { background: pinButtonsBackgroundHover },
-              }}
-              gridProps={{ spacing: 2 }}
-            />
-            <Button width='full' onClick={handleCancel} mt={2}>
-              <Text translation={`common.cancel`} />
-            </Button>
+            {isLoading ? (
+              <CircularProgress size='5' />
+            ) : (
+              <>
+                <KeepKeyPin
+                  translationType={translationType}
+                  gridMaxWidth={'175px'}
+                  confirmButtonSize={'md'}
+                  buttonsProps={{
+                    size: 'sm',
+                    p: 2,
+                    height: 12,
+                    background: pinButtonsBackground,
+                    _hover: { background: pinButtonsBackgroundHover },
+                  }}
+                  gridProps={{ spacing: 2 }}
+                />
+                <Button width='full' onClick={handleCancel} mt={2}>
+                  <Text translation={`common.cancel`} />
+                </Button>
+              </>
+            )}
           </Box>
         </SubMenuBody>
       </>

@@ -56,6 +56,9 @@ export const KeepKeyPin = ({
 
   const handleSubmit = async () => {
     setError(null)
+    setDeviceState({
+      isLoading: true,
+    })
     setLoading(true)
     const pin = pinFieldRef.current?.value
     if (pin && pin.length > 0) {

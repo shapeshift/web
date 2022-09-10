@@ -9,7 +9,8 @@
     "jest",
     "prettier",
     "simple-import-sort",
-    "@shapeshiftoss/logger"
+    "@shapeshiftoss/logger",
+    "eslint-plugin-react-memo"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -74,5 +75,6 @@
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-handler-names": "error",
     "@shapeshiftoss/logger/no-native-console": "error"
+    "react-memo/require-usememo": "warn"
   }
 }

@@ -102,7 +102,6 @@ export const ChangePin = () => {
   const setting = 'PIN'
 
   const shouldDisplayPinView = isUpdatingPin && !awaitingDeviceInteraction
-  console.log(isLoading, 'loading state')
 
   const renderPinState: JSX.Element = (() => {
     return shouldDisplayPinView ? (

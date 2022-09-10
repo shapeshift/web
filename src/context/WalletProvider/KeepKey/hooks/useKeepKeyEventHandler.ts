@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 import { logger } from 'lib/logger'
+import { poll } from 'lib/poll/poll'
 
 import { ButtonRequestType, FailureType, MessageType } from '../KeepKeyTypes'
 
@@ -36,7 +37,7 @@ export const useKeepKeyEventHandler = (
       })
       fnLogger.trace('Handling Event')
 
-      if (message_type === MessageType.PINREQUEST || message.message === MessageType.PINCHANGED) {
+      if (message_type === MessageType.PINREQUEST || message?.message === MessageType.PINCHANGED) {
         setDeviceState({
           isLoading: false,
         })
@@ -95,6 +96,29 @@ export const useKeepKeyEventHandler = (
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PASSPHRASEACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
+          // KeepKey doesn't send a successfull response on passphrase sent request
+          // So, we need to poll to keep the DeviceState synced
+          poll({
+            fn: async () => {
+              const id = keyring.getAlias(deviceId)
+              const wallet = keyring.get(id)
+              // It will await forever until the device is not waiting for interaction anymore
+              // because getFeatures is not working in case the device is waiting an interaction
+              const walletFeatures = await wallet?.getFeatures()
+
+              return walletFeatures
+            },
+            validate: () => {
+              // If it goes through the validate method, it means that the keepkey could be queried
+              // so we can safely guess that it's not waiting for interaction anymore
+              setDeviceState({ awaitingDeviceInteraction: false })
+              return true
+            },
+            interval: 2000,
+            maxAttempts: 30,
+          })
+
           break
         case MessageType.PINMATRIXREQUEST:
           setDeviceState({ awaitingDeviceInteraction: false })
@@ -127,10 +151,6 @@ export const useKeepKeyEventHandler = (
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PINMATRIXACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          break
-        // A bit tricky but if we receive this event, the device is obviously not waiting for interaction
-        case MessageType.ETHEREUMGETADDRESS:
-          setDeviceState({ awaitingDeviceInteraction: false })
           break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:

@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/layout'
 import type { TabProps } from '@chakra-ui/react'
 import { SkeletonText, Tab, useColorModeValue } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -23,22 +24,37 @@ export const FoxTab: React.FC<FoxTabProps> = ({
 }) => {
   const bgHover = useColorModeValue('gray.100', 'gray.750')
 
-  return (
-    <Tab
-      _selected={{
+  const tabStyleProps = useMemo(
+    () => ({
+      _selected: {
         bg: { base: 'none', md: bgHover },
         borderColor: 'primary',
         borderWidth: { base: 0, md: '2px' },
-      }}
-      _focus={{ borderWidth: '0' }}
+      },
+      _focus: { borderWidth: '0' },
+      borderWidth: { base: 0, md: '1px' },
+      _hover: { textDecoration: 'none', bg: { base: 'none', md: bgHover } },
+    }),
+    [bgHover],
+  )
+
+  const assetIconContainerSpaceProps = useMemo(
+    () => ({
+      mb: { base: 0, md: 6 },
+      mr: { base: 2, md: 0 },
+    }),
+    [],
+  )
+
+  return (
+    <Tab
       borderRadius='xl'
       borderColor={bgHover}
-      borderWidth={{ base: 0, md: '1px' }}
       bg={'none'}
-      _hover={{ textDecoration: 'none', bg: { base: 'none', md: bgHover } }}
       textAlign='left'
       p={0}
       onClick={onClick}
+      {...tabStyleProps}
       {...props}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>
@@ -48,7 +64,7 @@ export const FoxTab: React.FC<FoxTabProps> = ({
           display='flex'
           flexDirection={{ base: 'row', md: 'column' }}
         >
-          <Flex mb={{ base: 0, md: 6 }} mr={{ base: 2, md: 0 }} alignItems='center'>
+          <Flex alignItems='center' {...assetIconContainerSpaceProps}>
             <AssetIcon src={assetIcon} boxSize='8' zIndex={2} />
           </Flex>
           <SkeletonText isLoaded={true} noOfLines={2}>

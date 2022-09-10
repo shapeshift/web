@@ -1,18 +1,19 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
-import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Button, Link, ResponsiveValue, Skeleton, Text as CText } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
-import qs from 'qs'
-import { useCallback, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import type { Property } from 'csstype'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
+import qs from 'qs'
+import { useCallback, useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router'
 
 import type { ExternalOpportunity } from '../../FoxCommon'
 
@@ -27,7 +28,6 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     state: { wallet },
     dispatch,
   } = useWallet()
-  const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
   const { defiOpportunity } = useDefiOpportunity(opportunity)
   const hasActivePosition = bnOrZero(defiOpportunity?.fiatAmount).gt(0) ?? false
   const history = useHistory()
@@ -35,6 +35,14 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   const wrapperLinkProps = useMemo(
     () => (defiOpportunity ? {} : { as: Link, isExternal: true, href: opportunity.link }),
     [defiOpportunity, opportunity.link],
+  )
+
+  const opportunityIconsContainerWidth = useMemo(() => ({ base: 'auto', md: '40%' }), [])
+  const opportunityCtaContainerDisplay = useMemo(() => ({ base: 'none', md: 'block' }), [])
+  const assetIconBoxSize = useMemo(() => ({ base: 6, md: 8 }), [])
+  const apyContainerTextAlign: ResponsiveValue<Property.TextAlign> = useMemo(
+    () => ({ base: 'right', md: 'center' }),
+    [],
   )
 
   const handleClick = useCallback(() => {
@@ -83,7 +91,6 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     <Flex
       justifyContent='space-between'
       flexDirection='row'
-      _hover={{ bg: hoverOpportunityBg, textDecoration: 'none' }}
       px={4}
       py={4}
       borderRadius={8}
@@ -91,12 +98,12 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       cursor='pointer'
       {...wrapperLinkProps}
     >
-      <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
+      <Flex flexDirection='row' alignItems='center' width={opportunityIconsContainerWidth}>
         {opportunity.icons.map((iconSrc, i) => (
           <AssetIcon
             key={iconSrc}
             src={iconSrc}
-            boxSize={{ base: 6, md: 8 }}
+            boxSize={assetIconBoxSize}
             mr={i === opportunity.icons.length - 1 ? 2 : 0}
             ml={i === 0 ? 0 : '-3.5'}
           />
@@ -105,10 +112,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           {opportunity.title}
         </CText>
       </Flex>
-      <Skeleton
-        isLoaded={opportunity.isLoaded ? true : false}
-        textAlign={{ base: 'right', md: 'center' }}
-      >
+      <Skeleton isLoaded={opportunity.isLoaded ? true : false} textAlign={apyContainerTextAlign}>
         <Box>
           <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
           <Box
@@ -121,7 +125,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           </Box>
         </Box>
       </Skeleton>
-      <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
+      <Box alignSelf='center' display={opportunityCtaContainerDisplay}>
         <Skeleton isLoaded={isOpportunityButtonReady} textAlign='center'>
           {defiOpportunity ? (
             <Button colorScheme='blue' onClick={handleClick}>

@@ -1,6 +1,6 @@
 import { Box, Stat, StatArrow, StatNumber, Text } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -25,6 +25,15 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
+
+  const buttonGroupProps = useMemo(
+    () => ({
+      display: 'flex',
+      width: 'full',
+      justifyContent: 'space-between',
+    }),
+    [],
+  )
 
   return (
     <Card>
@@ -66,11 +75,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
         <TimeControls
           onChange={setTimeframe}
           defaultTime={timeframe}
-          buttonGroupProps={{
-            display: 'flex',
-            width: 'full',
-            justifyContent: 'space-between',
-          }}
+          buttonGroupProps={buttonGroupProps}
         />
       </Card.Footer>
     </Card>

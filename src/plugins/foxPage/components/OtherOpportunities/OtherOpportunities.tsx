@@ -43,7 +43,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
         </Flex>
         <Text translation={description} color='gray.500' />
       </Card.Header>
-      <Accordion defaultIndex={[0]} allowToggle allowMultiple>
+      <Accordion defaultIndex={0} allowToggle allowMultiple>
         {renderRows}
       </Accordion>
     </Card>

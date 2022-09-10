@@ -23,7 +23,9 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
   title,
 }) => {
   const translate = useTranslate()
+
   const borderColor = useColorModeValue('gray.150', 'gray.700')
+  const lastOfTypeStyle = useMemo(() => ({ borderBottomWidth: 0 }), [])
 
   const renderRows = useMemo(() => {
     return opportunities?.map((opportunity, index) => (
@@ -32,7 +34,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
   }, [opportunities])
 
   return (
-    <AccordionItem borderColor={borderColor} _last={{ borderBottomWidth: 0 }}>
+    <AccordionItem borderColor={borderColor} _last={lastOfTypeStyle}>
       <AccordionButton px={6} py={4}>
         <Box flex='1' textAlign='left' fontWeight='semibold'>
           {translate(title)}

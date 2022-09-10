@@ -76,7 +76,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     [walletSupportsETH],
   )
 
-  const onGetAssetClick = useCallback(() => {
+  const handleGetAssetClick = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -90,6 +90,8 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       state: { background: location },
     })
   }, [asset.chainId, history, location])
+
+  const externalLinkIcon = useMemo(() => <ExternalLinkIcon />, [])
 
   return (
     <Card display='block' borderRadius={8}>
@@ -117,7 +119,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               </SkeletonText>
               <Stack width='full'>
                 {!isFoxAsset && (
-                  <Button onClick={onGetAssetClick} colorScheme={'blue'} mb={2} size='lg'>
+                  <Button onClick={handleGetAssetClick} colorScheme={'blue'} mb={2} size='lg'>
                     <CText>
                       {translate('plugins.foxPage.getAsset', {
                         assetSymbol: asset.symbol,
@@ -131,7 +133,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     mb={2}
                     size='lg'
                     as={Link}
-                    leftIcon={<ExternalLinkIcon />}
+                    leftIcon={externalLinkIcon}
                     href={BuyFoxCoinbaseUrl}
                     isExternal
                   >
@@ -171,7 +173,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     mb={6}
                     size='lg'
                     as={Link}
-                    leftIcon={<ExternalLinkIcon />}
+                    leftIcon={externalLinkIcon}
                     href={TradeFoxyElasticSwapUrl}
                     isExternal
                   >

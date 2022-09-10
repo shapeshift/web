@@ -1,5 +1,7 @@
 import { Flex, Text } from '@chakra-ui/layout'
+import type { FlexboxProps, SpaceProps } from '@chakra-ui/react'
 import { SkeletonText } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -12,14 +14,28 @@ type TotalProps = {
 export const Total = ({ icons, fiatAmount }: TotalProps) => {
   const translate = useTranslate()
 
+  const flexContainerDirection: FlexboxProps['flexDirection'] = useMemo(
+    () => ({ base: 'row-reverse', md: 'column' }),
+    [],
+  )
+  const flexContainerAlignItems: FlexboxProps['alignItems'] = useMemo(
+    () => ({ base: 'center', md: 'flex-start' }),
+    [],
+  )
+  const flexContainerJustifyContent: FlexboxProps['justifyContent'] = useMemo(
+    () => ({ base: 'space-between', md: 'flex-start' }),
+    [],
+  )
+  const assetIconsFlexContainerMb: SpaceProps['mb'] = useMemo(() => ({ base: 0, md: 6 }), [])
+
   return (
     <Flex
       p={4}
-      flexDirection={{ base: 'row-reverse', md: 'column' }}
-      alignItems={{ base: 'center', md: 'flex-start' }}
-      justifyContent={{ base: 'space-between', md: 'flex-start' }}
+      flexDirection={flexContainerDirection}
+      alignItems={flexContainerAlignItems}
+      justifyContent={flexContainerJustifyContent}
     >
-      <Flex mb={{ base: 0, md: 6 }} flexDirection='row'>
+      <Flex mb={assetIconsFlexContainerMb} flexDirection='row'>
         {icons.map((icon, index) => (
           <AssetIcon
             key={icon}

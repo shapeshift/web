@@ -63,7 +63,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
 
-  const { data, isLoading, isSuccess } = useEnsName({
+  const { data: ensName, isSuccess: isEnsNameLoaded } = useEnsName({
     address: receiveAddress,
     enabled: asset.chainId === KnownChainIds.EthereumMainnet,
     cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
@@ -95,10 +95,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   ])
 
   useEffect(() => {
-    if (isSuccess && data) {
-      setEnsReceiveAddress(data)
+    if (isEnsNameLoaded && ensName) {
+      setEnsReceiveAddress(ensName)
     }
-  }, [data, isLoading, isSuccess])
+  }, [ensName, isEnsNameLoaded])
 
   const handleVerify = async () => {
     if (!(wallet && chainAdapter && receiveAddress)) return

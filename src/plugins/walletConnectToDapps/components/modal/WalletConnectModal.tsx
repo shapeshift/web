@@ -1,8 +1,8 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
-import React, { FC } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
+import React, { FC } from 'react'
 
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
@@ -12,9 +12,6 @@ type EarnModalProps = {
   onClose(): void
 }
 
-/**
- * Earn modal is linked to the router. When closed we return to the previous/background route
- */
 export const WalletConnectModal: FC<EarnModalProps> = ({ children, isOpen, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>

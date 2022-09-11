@@ -1,4 +1,4 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
@@ -16,8 +16,6 @@ import {
 } from './useBalanceChartData'
 
 const mockedDate = '2021-11-20T00:00:00Z'
-
-const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
 describe('makeBuckets', () => {
   it('can make buckets', () => {

@@ -52,6 +52,7 @@ import {
 import { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import { selectAccountSpecifiers } from './../accountSpecifiersSlice/selectors'
 import {
+  AccountMetadata,
   AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
@@ -144,6 +145,12 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   accountMetadata => accountMetadata,
 )
 
+export const selectPortfolioAccountMetadataByAccountId = createSelector(
+  selectPortfolioAccountMetadata,
+  selectAccountIdParamFromFilter,
+  (accountMetadata, accountId): AccountMetadata => accountMetadata[accountId],
+)
+
 export const selectBIP44ParamsByAccountId = createSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,
@@ -152,7 +159,7 @@ export const selectBIP44ParamsByAccountId = createSelector(
 
 export const selectAccountNumberByAccountId = createSelector(
   selectBIP44ParamsByAccountId,
-  (bip44Params): number => bip44Params.accountNumber,
+  (bip44Params): number | undefined => bip44Params?.accountNumber,
 )
 
 export const selectAccountTypeByAccountId = createSelector(
@@ -613,6 +620,8 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
   selectPortfolioAccountIds,
   selectAssetIdParamFromFilter,
   (accountIds, assetId): AccountId[] => {
+    // early return for scenarios where assetId is not available yet
+    if (!assetId) return []
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },

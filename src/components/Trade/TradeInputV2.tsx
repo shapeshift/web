@@ -5,7 +5,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/services/useSwapperService'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,7 +17,7 @@ import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlic
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
-import { TradeAssetInput } from './Components/TradeAssetInput'
+import { TradeAssetInput, TradeAssetInputProps } from './Components/TradeAssetInput'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 
@@ -23,6 +25,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -38,7 +41,7 @@ export const TradeInput = () => {
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
 
   const translate = useTranslate()
 
@@ -47,7 +50,7 @@ export const TradeInput = () => {
   )
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
-      accountId: sellAssetAccount,
+      accountId: sellAssetAccountId,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
@@ -96,8 +99,8 @@ export const TradeInput = () => {
     }
   }
 
-  const handleSendMax = () => {
-    if (!sellTradeAsset?.asset) return
+  const handleSendMax: TradeAssetInputProps['onMaxClick'] = () => {
+    if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
       sellFeeAsset,
@@ -112,14 +115,20 @@ export const TradeInput = () => {
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
     moduleLogger.info(values, 'debugging logger')
     try {
-      // TODO: Check if approval needed
+      const isApproveNeeded = await checkApprovalNeeded()
+      if (isApproveNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
+        return
+      }
+      const trade = await getTrade()
+      setValue('trade', trade)
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
     }
   }
 
-  const onSellAssetInputChange = (value: string, isFiat: boolean | undefined) => {
+  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
     if (isFiat) {
       sellAmountFiat.onChange(value)
@@ -129,7 +138,7 @@ export const TradeInput = () => {
     handleInputChange(action, value)
   }
 
-  const onBuyAssetInputChange = (value: string, isFiat: boolean | undefined) => {
+  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
     buyAmountCrypto.onChange(value)
     if (isFiat) {
@@ -139,6 +148,12 @@ export const TradeInput = () => {
     }
     handleInputChange(action, value)
   }
+
+  const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
+    setValue('selectedSellAssetAccountId', accountId)
+
+  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
+    setValue('selectedBuyAssetAccountId', accountId)
 
   return (
     <SlideTransition>
@@ -155,6 +170,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
+            onAccountIdChange={handleSellAccountIdChange}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -184,6 +200,7 @@ export const TradeInput = () => {
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
+            onAccountIdChange={handleBuyAccountIdChange}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>

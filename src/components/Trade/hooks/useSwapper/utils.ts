@@ -6,15 +6,14 @@ import {
   CHAIN_NAMESPACE,
   cosmosAssetId,
   ethAssetId,
+  foxAssetId,
   fromAssetId,
   fromChainId,
   osmosisAssetId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { type EvmChainId, ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
-  type GetTradeQuoteInput,
   type Swapper,
   type Trade,
   type TradeQuote,
@@ -22,40 +21,17 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { type DisplayFeeData } from 'components/Trade/types'
+import {
+  type AssetIdTradePair,
+  type DisplayFeeData,
+  type GetFirstReceiveAddress,
+  type GetFormFeesArgs,
+  type SupportedSwappingChain,
+} from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
-
-// Types
-type SupportedSwappingChains =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.OsmosisMainnet
-  | KnownChainIds.CosmosMainnet
-
-type GetFirstReceiveAddressArgs = {
-  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
-  buyAsset: Asset
-  chainAdapter: ChainAdapter<ChainId>
-  wallet: HDWallet
-}
-
-type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
-
-export type TradeQuoteInputCommonArgs = Pick<
-  GetTradeQuoteInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
->
-
-type GetFormFeesArgs = {
-  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
-  sellAsset: Asset
-  tradeFeeSource: string
-  feeAsset: Asset
-}
 
 // Type guards
 export const isSupportedUtxoSwappingChain = (
@@ -65,9 +41,9 @@ export const isSupportedUtxoSwappingChain = (
   return chainNamespace === CHAIN_NAMESPACE.Utxo
 }
 
-export const isSupportedNoneUtxoSwappingChain = (
+export const isSupportedNonUtxoSwappingChain = (
   chainId: ChainId,
-): chainId is SupportedSwappingChains => {
+): chainId is SupportedSwappingChain => {
   return (
     chainId === KnownChainIds.EthereumMainnet ||
     chainId === KnownChainIds.AvalancheMainnet ||
@@ -99,9 +75,9 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
 }
 
-export const getUtxoParams = (sellAssetAccount: string) => {
-  if (!sellAssetAccount) throw new Error('No UTXO account specifier')
-  return accountIdToUtxoParams(sellAssetAccount, 0)
+export const getUtxoParams = (sellAssetAccountId: string) => {
+  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
@@ -209,22 +185,26 @@ export const getBestSwapperFromArgs = async (
 export const getDefaultAssetIdPairByChainId = (
   buyAssetChainId: ChainId | undefined,
   featureFlags: FeatureFlags,
-): AssetId[] => {
+): AssetIdTradePair => {
   const osmosisEnabled = featureFlags.Osmosis
-  const ethFoxPair = [
-    ethAssetId,
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' as AssetId,
-  ]
+  const ethFoxPair = {
+    sellAssetId: ethAssetId,
+    buyAssetId: foxAssetId,
+  }
   switch (buyAssetChainId) {
     case KnownChainIds.AvalancheMainnet:
-      return [
-        avalancheAssetId,
-        'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab' as AssetId,
-      ]
+      return {
+        sellAssetId: avalancheAssetId,
+        buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+      }
     case KnownChainIds.CosmosMainnet:
-      return osmosisEnabled ? [cosmosAssetId, osmosisAssetId] : ethFoxPair
+      return osmosisEnabled
+        ? { sellAssetId: cosmosAssetId, buyAssetId: osmosisAssetId }
+        : ethFoxPair
     case KnownChainIds.OsmosisMainnet:
-      return osmosisEnabled ? [osmosisAssetId, cosmosAssetId] : ethFoxPair
+      return osmosisEnabled
+        ? { sellAssetId: osmosisAssetId, buyAssetId: cosmosAssetId }
+        : ethFoxPair
     case KnownChainIds.EthereumMainnet:
     default:
       return ethFoxPair

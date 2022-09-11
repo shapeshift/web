@@ -4,6 +4,8 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import React, { FC } from 'react'
 
+import { SignMessageConfirmation } from './SignMessageConfirmation'
+
 type EarnModalProps = {
   isOpen: boolean
   children: React.ReactNode
@@ -31,7 +33,15 @@ export const WalletConnectModal: FC<EarnModalProps> = ({ children, isOpen, onClo
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>
-        {children}
+        <SignMessageConfirmation
+          message='Message to sign...'
+          dapp={{
+            name: 'Rainbow',
+            image:
+              'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+            url: 'https://dework.xyz',
+          }}
+        />
       </ModalContent>
     </Modal>
   )

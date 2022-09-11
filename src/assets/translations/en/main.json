@@ -1357,7 +1357,13 @@
     },
     "walletConnectToDapps": {
       "modal": {
-        "title": "WalletConnect"
+        "title": "WalletConnect",
+        "signMessage": {
+          "signingFrom": "Signing From",
+          "requestFrom": "Request From",
+          "message": "Message",
+          "description": "You will need to confirm signing this message with your connected wallet."
+        }
       }
     }
   },

@@ -12,7 +12,7 @@ import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
 import { updateWallet } from '../mobileMessageHandlers'
-import { MobileSetupProps } from '../types'
+import type { MobileSetupProps } from '../types'
 
 const isValidLabel = (label: unknown): label is string => {
   return typeof label === 'string' && label.length > 0 && label.length < 65

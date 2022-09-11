@@ -1,6 +1,6 @@
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
-import { TradeOpportunitiesBucket } from './components/TradeOpportunities'
+import type { TradeOpportunitiesBucket } from './components/TradeOpportunities'
 
 export const TrimmedDescriptionLength = 191
 

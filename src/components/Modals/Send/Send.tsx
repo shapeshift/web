@@ -1,9 +1,10 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { Form } from './Form'

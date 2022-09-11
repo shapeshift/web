@@ -3,11 +3,11 @@ import { Center } from '@chakra-ui/react'
 import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -28,7 +28,7 @@ export const FoxFarmingOverview = () => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const {
-    setAccountId: handleAccountChange,
+    setAccountId: handleAccountIdChange,
     foxFarmingOpportunities,
     farmingLoading: loading,
   } = useFoxEth()
@@ -85,7 +85,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={rewardAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

@@ -1,11 +1,11 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
@@ -17,7 +17,8 @@ import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlic
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
-import { TradeAssetInput, TradeAssetInputProps } from './Components/TradeAssetInput'
+import type { TradeAssetInputProps } from './Components/TradeAssetInput'
+import { TradeAssetInput } from './Components/TradeAssetInput'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 

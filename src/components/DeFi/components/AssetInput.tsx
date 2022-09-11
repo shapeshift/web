@@ -1,17 +1,18 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { InputProps } from '@chakra-ui/react'
 import {
   Button,
   FormControl,
   FormErrorMessage,
   Input,
-  InputProps,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { PropsWithChildren, useRef, useState } from 'react'
-import { FieldError } from 'react-hook-form'
+import type { PropsWithChildren } from 'react'
+import { useRef, useState } from 'react'
+import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import {
@@ -191,7 +192,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           <AccountDropdown
             assetId={assetId}
             onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'solid' }}
+            buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
           />
         </Stack>
       )}

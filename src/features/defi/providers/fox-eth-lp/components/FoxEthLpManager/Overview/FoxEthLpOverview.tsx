@@ -17,7 +17,7 @@ export const FoxEthLpOverview = () => {
     lpFoxBalance: foxBalance,
     lpEthBalance: ethBalance,
     lpLoading: loading,
-    setAccountId: handleAccountChange,
+    setAccountId: handleAccountIdChange,
   } = useFoxEth()
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
@@ -41,7 +41,7 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

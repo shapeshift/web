@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -10,7 +10,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
 
-import { SendInput } from '../../Form'
+import type { SendInput } from '../../Form'
 
 export const useFormSend = () => {
   const toast = useToast()

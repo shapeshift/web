@@ -2,7 +2,7 @@ import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { Resolution } from '@unstoppabledomains/resolution'
 import { getConfig } from 'config'
 import last from 'lodash/last'
-import {
+import type {
   ResolveVanityAddress,
   ReverseLookupVanityAddress,
   ValidateVanityAddress,

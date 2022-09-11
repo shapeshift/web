@@ -8,7 +8,7 @@ import { useAppSelector } from 'state/store'
 
 import type { SendInput } from './Form'
 import { SendFormFields } from './SendCommon'
-import { FeePrice } from './views/Confirm'
+import type { FeePrice } from './views/Confirm'
 
 type TxFeeRadioGroupProps = {
   fees: FeePrice | null

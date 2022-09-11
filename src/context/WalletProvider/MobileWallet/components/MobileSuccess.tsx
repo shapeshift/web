@@ -1,5 +1,5 @@
 import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -12,7 +12,7 @@ import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { MobileConfig, mobileLogger } from '../config'
-import { MobileSetupProps } from '../types'
+import type { MobileSetupProps } from '../types'
 
 const moduleLogger = mobileLogger.child({
   namespace: ['components', 'MobileSuccess'],

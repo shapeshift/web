@@ -1,11 +1,16 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type {
+  HistoryData,
+  HistoryTimeframe,
+  MarketCapResult,
+  MarketData,
+} from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 

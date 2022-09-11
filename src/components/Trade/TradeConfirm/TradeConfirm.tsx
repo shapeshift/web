@@ -39,7 +39,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { TradeRoutePaths, TS } from '../types'
+import type { TS } from '../types'
+import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'

@@ -1,7 +1,8 @@
 import { Center } from '@chakra-ui/react'
-import { AnimatePresence, HTMLMotionProps } from 'framer-motion'
-import { ReactNode } from 'react'
-import { Route } from 'Routes/helpers'
+import type { HTMLMotionProps } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
+import type { ReactNode } from 'react'
+import type { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 

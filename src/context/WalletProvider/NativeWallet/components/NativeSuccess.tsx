@@ -2,7 +2,7 @@ import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 
 import { useNativeSuccess } from '../hooks/useNativeSuccess'
-import { NativeSetupProps } from '../types'
+import type { NativeSetupProps } from '../types'
 
 export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })

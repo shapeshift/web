@@ -1,10 +1,10 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
@@ -12,7 +12,7 @@ import { useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'

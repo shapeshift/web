@@ -2,7 +2,7 @@ import { Center, Fade, SlideFade } from '@chakra-ui/react'
 import { ParentSize } from '@visx/responsive'
 import { isEmpty } from 'lodash'
 import { useMemo } from 'react'
-import { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
+import type { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'

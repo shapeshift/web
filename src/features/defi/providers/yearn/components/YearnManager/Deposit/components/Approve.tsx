@@ -3,12 +3,12 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-yearn'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'

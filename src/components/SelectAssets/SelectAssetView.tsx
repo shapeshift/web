@@ -1,13 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useEffect } from 'react'
-import {
-  Redirect,
-  Route,
-  RouteComponentProps,
-  Switch,
-  useHistory,
-  useLocation,
-} from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'

@@ -1,7 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 
 import { ReceiveRoutes } from './ReceiveCommon'

@@ -4,7 +4,8 @@
 import { Container } from '@chakra-ui/react'
 
 import { AssetInput } from './components/AssetInput'
-import { FormField, FormFieldProps } from './components/FormField'
+import type { FormFieldProps } from './components/FormField'
+import { FormField } from './components/FormField'
 
 export default {
   title: 'Forms/FormField',

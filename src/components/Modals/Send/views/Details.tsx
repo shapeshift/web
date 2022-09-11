@@ -13,7 +13,7 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

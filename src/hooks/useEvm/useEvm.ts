@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'

@@ -1,13 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import {
-  Circle,
-  CircularProgressLabel,
-  Collapse,
-  Stack,
-  StackProps,
-  useColorModeValue,
-} from '@chakra-ui/react'
-import { ReactNode } from 'react'
+import type { StackProps } from '@chakra-ui/react'
+import { Circle, CircularProgressLabel, Collapse, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
 

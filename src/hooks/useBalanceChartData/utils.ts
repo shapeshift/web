@@ -1,6 +1,6 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import type { HistoryData } from '@shapeshiftoss/types'
 
-import { BalanceChartData } from './useBalanceChartData'
+import type { BalanceChartData } from './useBalanceChartData'
 
 export const makeBalanceChartData = (total: HistoryData[] = []): BalanceChartData => ({
   total,

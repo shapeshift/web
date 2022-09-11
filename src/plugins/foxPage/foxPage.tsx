@@ -15,7 +15,8 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { AssetId, foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -48,7 +49,8 @@ import { Layout } from './components/Layout'
 import { MainOpportunity } from './components/MainOpportunity'
 import { OtherOpportunities } from './components/OtherOpportunities/OtherOpportunities'
 import { Total } from './components/Total'
-import { TradeOpportunities, TradeOpportunitiesBucket } from './components/TradeOpportunities'
+import type { TradeOpportunitiesBucket } from './components/TradeOpportunities'
+import { TradeOpportunities } from './components/TradeOpportunities'
 import { foxTradeOpportunitiesBuckets, foxyTradeOpportunitiesBuckets } from './FoxCommon'
 import { useOtherOpportunities } from './hooks/useOtherOpportunities'
 

@@ -15,7 +15,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
 import { useCallback, useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -26,8 +26,7 @@ import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
-import { SendFormFields } from 'components/Modals/Send/SendCommon'
-import { SendRoutes } from 'components/Modals/Send/SendCommon'
+import { SendFormFields, SendRoutes } from 'components/Modals/Send/SendCommon'
 import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'

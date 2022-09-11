@@ -1,6 +1,6 @@
 import { ethAssetId as mockEthAssetId, foxAssetId as mockFoxAssetId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { mockChainAdapters } from 'test/mocks/portfolio'

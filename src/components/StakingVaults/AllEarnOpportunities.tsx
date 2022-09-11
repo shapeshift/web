@@ -1,10 +1,8 @@
 import { Box } from '@chakra-ui/react'
 import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
-import {
-  EarnOpportunityType,
-  useNormalizeOpportunities,
-} from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'

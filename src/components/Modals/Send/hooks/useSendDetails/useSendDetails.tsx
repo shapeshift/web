@@ -1,5 +1,6 @@
-import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import {
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
@@ -10,10 +11,12 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { estimateFees, EstimateFeesInput } from 'components/Modals/Send/utils'
+import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {

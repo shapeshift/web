@@ -1,5 +1,5 @@
 import { Center } from '@chakra-ui/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 import { CircularProgress } from './CircularProgress/CircularProgress'
 

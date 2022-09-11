@@ -1,8 +1,9 @@
 import './style.css'
 
-import { TextProps } from '@chakra-ui/react'
+import type { TextProps } from '@chakra-ui/react'
 import { Link } from '@chakra-ui/react'
-import parse, { domToReact, Element, HTMLReactParserOptions } from 'html-react-parser'
+import type { HTMLReactParserOptions } from 'html-react-parser'
+import parse, { domToReact, Element } from 'html-react-parser'
 import { Link as RouterLink } from 'react-router-dom'
 import { RawText } from 'components/Text'
 

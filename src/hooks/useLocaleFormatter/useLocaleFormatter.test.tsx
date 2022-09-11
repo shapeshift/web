@@ -1,11 +1,13 @@
 import 'lib/polyfills'
 
-import { renderHook, RenderHookResult } from '@testing-library/react'
+import type { RenderHookResult } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 
-import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
+import type { FiatParts, NumberFormatter, NumberValue } from './useLocaleFormatter'
+import { useLocaleFormatter } from './useLocaleFormatter'
 
 type Scenario = [string, FiatTypeEnum, string[]]
 

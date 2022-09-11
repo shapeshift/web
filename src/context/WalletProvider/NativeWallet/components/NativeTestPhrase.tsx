@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
+import type { NativeSetupProps } from '../types'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable

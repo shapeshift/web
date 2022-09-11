@@ -1,6 +1,6 @@
 import { btcAssetId, btcChainId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { mockStore } from 'test/mocks/store'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 
 import { selectIsPortfolioLoaded } from './selectors'
 

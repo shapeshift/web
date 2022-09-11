@@ -18,12 +18,14 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps, useHistory } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'

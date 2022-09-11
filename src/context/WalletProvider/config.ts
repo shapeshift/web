@@ -1,5 +1,5 @@
-import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { RouteProps } from 'react-router-dom'
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'

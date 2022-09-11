@@ -1,5 +1,6 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import { type ChainId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { type ChainId } from '@shapeshiftoss/caip'
 import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -10,8 +11,8 @@ import {
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {

@@ -5,7 +5,7 @@ import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
+import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
 type EarnStatProps = {
   label: string

@@ -1,5 +1,6 @@
 import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
-import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
+import { mode } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'

@@ -1,4 +1,5 @@
-import { List, ListProps } from '@chakra-ui/react'
+import type { ListProps } from '@chakra-ui/react'
+import { List } from '@chakra-ui/react'
 import { forwardRef, useColorModeValue } from '@chakra-ui/system'
 
 export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {

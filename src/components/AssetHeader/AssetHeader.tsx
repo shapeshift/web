@@ -1,9 +1,9 @@
 import { Box, Flex, Heading, Image, SkeletonCircle } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,

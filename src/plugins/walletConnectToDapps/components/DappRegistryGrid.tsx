@@ -25,7 +25,7 @@ interface RegistryItem {
   image: string
 }
 
-const registry: RegistryItem[] = require('../registry.json')
+const registryItems: RegistryItem[] = require('../registry.json')
 
 const pageSize = 20
 

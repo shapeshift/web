@@ -25,7 +25,6 @@ const isMultiAccountSupportedWallet = (wallet: HDWallet | null): boolean => {
      */
     case KeyManager.Native:
     case KeyManager.KeepKey:
-    case KeyManager.XDefi:
       return true
     default:
       return false

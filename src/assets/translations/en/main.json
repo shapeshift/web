@@ -1354,6 +1354,11 @@
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
       }
+    },
+    "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect"
+      }
     }
   },
   "features": {

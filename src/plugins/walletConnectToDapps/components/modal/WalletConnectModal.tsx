@@ -35,6 +35,7 @@ export const WalletConnectModal: FC<EarnModalProps> = ({ children, isOpen, onClo
         </ModalHeader>
         <SignMessageConfirmation
           message='Message to sign...'
+          isLoading={false}
           dapp={{
             name: 'Rainbow',
             image:

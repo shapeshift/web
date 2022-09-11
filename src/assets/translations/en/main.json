@@ -1362,7 +1362,9 @@
           "signingFrom": "Signing From",
           "requestFrom": "Request From",
           "message": "Message",
-          "description": "You will need to confirm signing this message with your connected wallet."
+          "description": "You will need to confirm signing this message with your connected wallet.",
+          "confirm": "Confirm",
+          "reject": "Reject"
         }
       }
     }

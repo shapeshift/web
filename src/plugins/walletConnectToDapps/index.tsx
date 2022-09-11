@@ -1,6 +1,6 @@
-import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 import { type Plugins } from 'plugins/types'
 import { RouteCategory } from 'Routes/helpers'
+import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 
 import { WalletConnectToDapps } from './WalletConnectToDapps'
 

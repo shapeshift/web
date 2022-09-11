@@ -19,7 +19,7 @@ export const WalletConnectIcon = createIcon({
 })
 
 export const WalletConnectCurrentColorIcon = createIcon({
-  displayName: 'WalletConnectIcon',
+  displayName: 'WalletConnectCurrentColorIcon',
   path: (
     <svg>
       <path

@@ -9,42 +9,38 @@ import {
   Link,
   SimpleGrid,
   Stack,
-  Text as PlainText
+  Text as PlainText,
 } from '@chakra-ui/react'
-import { Text } from 'components/Text'
 import { FC, useEffect, useMemo } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
+import { Text } from 'components/Text'
 
+import { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
 
-interface RegistryItem {
-  category: string
-  id: string
-  homepage: string
-  name: string
-  image: string
-}
+const registryItems: RegistryItem[] = require('../registry.json')
 
-const registry: RegistryItem[] = require('../registry.json')
-
-const pageSize = 20
+const PAGE_SIZE = 20
 
 export const DappRegistryGrid: FC = () => {
-  const { register, watch, setValue } = useForm<{ search: string; page: number }>({
+  const { register, setValue, control } = useForm<{ search: string; page: number }>({
     mode: 'onChange',
     defaultValues: { search: '', page: 0 },
   })
 
-  const search = watch('search')
-  const page = watch('page')
+  const search = useWatch({ control, name: 'search' })
+  const page = useWatch({ control, name: 'page' })
   useEffect(() => setValue('page', 0), [search, setValue])
 
   const filteredListings = useMemo(
-    () => registry.filter(l => !search || l.name.toLowerCase().includes(search.toLowerCase())),
+    () =>
+      registryItems.filter(
+        registryItem => !search || registryItem.name.toLowerCase().includes(search.toLowerCase()),
+      ),
     [search],
   )
 
-  const maxPage = Math.floor(filteredListings.length / pageSize)
+  const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 
   return (
     <Box>
@@ -69,7 +65,7 @@ export const DappRegistryGrid: FC = () => {
         <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
       </Stack>
       <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
-        {filteredListings.slice(page * pageSize, (page + 1) * pageSize).map(listing => (
+        {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
           <Link key={listing.id} href={listing.homepage} isExternal>
             <Box borderRadius='lg' p={2} position='relative' overflow='hidden'>
               <Image

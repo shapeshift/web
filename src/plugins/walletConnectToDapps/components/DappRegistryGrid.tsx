@@ -15,6 +15,8 @@ import { Text } from 'components/Text'
 import { FC, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { PageInput } from './PageInput'
+
 interface RegistryItem {
   category: string
   id: string
@@ -30,10 +32,7 @@ const pageSize = 20
 export const DappRegistryGrid: FC = () => {
   const { register, watch, setValue } = useForm<{ search: string; page: number }>({
     mode: 'onChange',
-    defaultValues: {
-      search: '',
-      page: 0,
-    },
+    defaultValues: { search: '', page: 0 },
   })
 
   const search = watch('search')
@@ -44,6 +43,8 @@ export const DappRegistryGrid: FC = () => {
     () => registry.filter(l => !search || l.name.toLowerCase().includes(search.toLowerCase())),
     [search],
   )
+
+  const maxPage = Math.floor(filteredListings.length / pageSize)
 
   return (
     <Box>
@@ -65,9 +66,10 @@ export const DappRegistryGrid: FC = () => {
             />
           </InputGroup>
         </Box>
+        <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
       </Stack>
       <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
-        {filteredListings.slice(page * pageSize, pageSize).map(listing => (
+        {filteredListings.slice(page * pageSize, (page + 1) * pageSize).map(listing => (
           <Link key={listing.id} href={listing.homepage} isExternal>
             <Box borderRadius='lg' p={2} position='relative' overflow='hidden'>
               <Image

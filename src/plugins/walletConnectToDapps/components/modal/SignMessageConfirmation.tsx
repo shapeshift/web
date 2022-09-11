@@ -37,7 +37,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
           mb={4}
         />
         <Card bg={useColorModeValue('white', 'gray.850')} borderRadius='md'>
-          <HStack align='center' px={4} py={3}>
+          <HStack align='center' pl={4}>
             <Image borderRadius='full' boxSize='24px' src={dapp.image} />
             <RawText fontWeight='semibold' flex={1}>
               {dapp.name}
@@ -46,7 +46,6 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
               <IconButton
                 icon={<ExternalLinkIcon />}
                 variant='ghost'
-                size='small'
                 aria-label={dapp.name}
                 colorScheme='gray'
               />

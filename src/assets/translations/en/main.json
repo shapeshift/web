@@ -1358,6 +1358,7 @@
     "walletConnectToDapps": {
       "modal": {
         "title": "WalletConnect",
+        "ethereum": "Ethereum",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

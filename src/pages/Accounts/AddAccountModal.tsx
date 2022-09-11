@@ -129,15 +129,15 @@ export const AddAccountModal = () => {
       const { name } = assets[assetId]
       toast({
         position: 'top-right',
-        title: `New ${name} Account Added`,
-        description: `You can now use ${name} Account #${accountNumber}`,
+        title: translate('accounts.newAccountAdded', { name }),
+        description: translate('accounts.youCanNowUse', { name, accountNumber }),
         status: 'success',
         duration: 5000,
         isClosable: true,
       })
       close()
     })()
-  }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, wallet])
+  }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, translate, wallet])
 
   const noteColor = useColorModeValue('black', 'white')
   if (!asset) return null

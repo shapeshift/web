@@ -26,14 +26,18 @@ export const ExplorationBanner: FC = () => (
         </Box>
 
         <Stack direction='row'>
-          <Button colorScheme='blue' size='sm' onClick={() => alert('get started :)')}>
+          <Button
+            colorScheme='blue'
+            size='sm'
+            onClick={() => alert('TODO: dApp connection flow (will be done in a future PR)')}
+          >
             <Text translation='plugins.walletConnectToDapps.getStarted' />
           </Button>
           <Button
             colorScheme='blue'
             size='sm'
             variant='ghost'
-            onClick={() => alert('learn more :)')}
+            onClick={() => alert('TODO: open ZenDesk article')}
           >
             <Text translation='plugins.walletConnectToDapps.learnMore' />
           </Button>

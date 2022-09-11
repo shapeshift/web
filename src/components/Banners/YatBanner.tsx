@@ -1,4 +1,5 @@
-import { Flex, Link, LinkProps, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import type { LinkProps } from '@chakra-ui/react'
+import { Flex, Link, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'

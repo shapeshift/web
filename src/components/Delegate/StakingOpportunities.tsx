@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
-import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import {
@@ -10,15 +11,15 @@ import {
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import { Row } from 'react-table'
+import type { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { OpportunitiesDataFull } from 'state/slices/selectors'
 import {
-  OpportunitiesDataFull,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectStakingOpportunitiesDataFull,

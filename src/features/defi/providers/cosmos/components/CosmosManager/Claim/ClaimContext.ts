@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { CosmosClaimActions, CosmosClaimState } from './ClaimCommon'
+import type { CosmosClaimActions, CosmosClaimState } from './ClaimCommon'
 
 export interface IClaimContext {
   state: CosmosClaimState | null

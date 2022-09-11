@@ -1,5 +1,6 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 

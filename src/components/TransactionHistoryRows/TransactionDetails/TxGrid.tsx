@@ -1,5 +1,5 @@
 import { SimpleGrid } from '@chakra-ui/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 type TxGridProps = { compactMode?: boolean } & PropsWithChildren
 

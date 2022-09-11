@@ -4,7 +4,8 @@ import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, NavLink, useLocation, useParams } from 'react-router-dom'
-import { pathTo, Route } from 'Routes/helpers'
+import type { Route } from 'Routes/helpers'
+import { pathTo } from 'Routes/helpers'
 
 type MenuLinkProps = {
   index: number

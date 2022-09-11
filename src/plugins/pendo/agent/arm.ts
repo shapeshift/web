@@ -4,7 +4,7 @@ import { logger } from 'lib/logger'
 import { deferred } from '../utils'
 import { fixupTables } from './fixups'
 import { parseAgent } from './parse'
-import { PendoEnv, PendoInitializeParams, Window } from './types'
+import type { PendoEnv, PendoInitializeParams, Window } from './types'
 
 declare const window: Window & typeof globalThis
 

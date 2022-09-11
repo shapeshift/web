@@ -6,13 +6,13 @@ import React, { FC } from 'react'
 
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
-type EarnModalProps = {
+type WalletConnectModalProps = {
   isOpen: boolean
   children: React.ReactNode
   onClose(): void
 }
 
-export const WalletConnectModal: FC<EarnModalProps> = ({ children, isOpen, onClose }) => {
+export const WalletConnectModal: FC<WalletConnectModalProps> = ({ isOpen, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>
       <ModalOverlay />

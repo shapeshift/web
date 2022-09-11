@@ -1,4 +1,4 @@
-import { IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 export enum DepositPath {

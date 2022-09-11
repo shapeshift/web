@@ -1,11 +1,13 @@
-import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { MergedSerializableOpportunity, useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
@@ -27,7 +29,7 @@ export type EarnOpportunityType = {
   moniker?: string
   showAssetSymbol?: boolean
   isLoaded: boolean
-  icons?: Array<string>
+  icons?: string[]
   // overrides any name down the road
   opportunityName?: string
 }

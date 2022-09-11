@@ -1,42 +1,22 @@
 import { useToast } from '@chakra-ui/react'
 import {
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
   cosmosChainId,
   ethChainId,
-  fromChainId,
+  fromAccountId,
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import {
-  bip32ToAddressNList,
-  supportsBTC,
-  supportsCosmos,
-  supportsETH,
-  supportsEthSwitchChain,
-  supportsOsmosis,
-} from '@shapeshiftoss/hdwallet-core'
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import {
-  AccountSpecifierMap,
-  accountSpecifiers,
-} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -45,12 +25,10 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
-  selectAssets,
   selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
@@ -65,6 +43,8 @@ import {
 } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
+
+import { deriveAccountIdsAndMetadata } from '../../lib/account/account'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
@@ -83,14 +63,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
-  const chainAdapterManager = getChainAdapterManager()
   const {
-    state: {
-      wallet,
-      deviceState: { disposition },
-    },
+    state: { wallet },
   } = useWallet()
-  const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
   const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
@@ -145,91 +120,30 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * break this at your peril
    */
   useEffect(() => {
-    if (isEmpty(assetsById)) return
     if (!wallet) return
     ;(async () => {
       try {
-        const acc: AccountSpecifierMap[] = []
-        const accMeta: AccountMetadataById = {}
-        for (const chainId of supportedChains) {
-          const adapter = chainAdapterManager.get(chainId)
-          if (!adapter) continue
+        const accountNumber = 0
+        const chainIds = supportedChains
+        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
+          accountNumber,
+          chainIds,
+          wallet,
+        })
 
-          const { chainNamespace, chainReference } = fromChainId(chainId)
+        // TODO(0xdef1cafe): temporary transform for backwards compatibility until we kill accountSpecifiersSlice
+        const accountSpecifiersPayload = Object.keys(accountMetadataByAccountId).map(accountId => {
+          const { chainId, account } = fromAccountId(accountId)
+          return { [chainId]: account }
+        })
 
-          switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Utxo: {
-              if (!supportsBTC(wallet)) continue
-
-              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-
-              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
-                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: utxoAdapter.getCoinName(),
-                    addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-
-                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
-
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-                if (!pubkey) continue
-
-                acc.push({ [chainId]: pubkey })
-                const accountId = toAccountId({ chainId, account: pubkey })
-                accMeta[accountId] = { bip44Params, accountType }
-              }
-              break
-            }
-
-            case CHAIN_NAMESPACE.Evm: {
-              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
-                if (!supportsETH(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
-                if (!supportsEthSwitchChain(wallet)) continue
-              }
-
-              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
-              const pubkey = await adapter.getAddress({ bip44Params, wallet })
-              if (!pubkey) continue
-              const accountId = toAccountId({ chainId, account: pubkey.toLowerCase() })
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              accMeta[accountId] = { bip44Params }
-              break
-            }
-            case CHAIN_NAMESPACE.CosmosSdk: {
-              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
-                if (!supportsCosmos(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
-                if (!supportsOsmosis(wallet)) continue
-              }
-
-              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
-              const pubkey = await adapter.getAddress({ bip44Params, wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
-              const accountId = toAccountId({ chainId, account: pubkey })
-              accMeta[accountId] = { bip44Params }
-              break
-            }
-            default:
-              break
-          }
-        }
-
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
-        dispatch(portfolio.actions.setAccountMetadata(accMeta))
+        dispatch(accountSpecifiers.actions.setAccountSpecifiers(accountSpecifiersPayload))
+        dispatch(portfolio.actions.setAccountMetadata(accountMetadataByAccountId))
       } catch (e) {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
+  }, [dispatch, wallet, supportedChains])
 
   // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
   useEffect(() => {

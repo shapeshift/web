@@ -13,13 +13,15 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
 
-import { loginErrors, LoginResponseError, NativeWalletValues, RateLimitError } from '../types'
+import type { LoginResponseError, NativeWalletValues, RateLimitError } from '../types'
+import { loginErrors } from '../types'
 import { FriendlyCaptcha } from './Captcha'
 
 export const LegacyLogin = () => {

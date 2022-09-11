@@ -1,4 +1,5 @@
-import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
@@ -6,6 +7,8 @@ import {
   reverseLookupUnstoppableDomain,
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
+import { resolveYat, validateYat } from 'lib/address/yat'
+import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -14,9 +17,17 @@ type VanityAddressValidatorsByChainId = {
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
-const vanityAddressValidatorsByChain: VanityAddressValidatorsByChainId = {
-  [btcChainId]: [validateUnstoppableDomain],
-  [ethChainId]: [validateEnsDomain, validateUnstoppableDomain],
+const getVanityAddressValidatorsByChain = (): VanityAddressValidatorsByChainId => {
+  const flags = store.getState().preferences.featureFlags
+
+  return {
+    [btcChainId]: [validateUnstoppableDomain],
+    [ethChainId]: [
+      ...(flags.Yat ? [validateYat] : []),
+      validateEnsDomain,
+      validateUnstoppableDomain,
+    ],
+  }
 }
 
 type ValidateVanityAddressArgs = {
@@ -29,6 +40,7 @@ export type ValidateVanityAddress = (
 ) => Promise<ValidateVanityAddressReturn>
 
 export const validateVanityAddress: ValidateVanityAddress = async args => {
+  const vanityAddressValidatorsByChain = getVanityAddressValidatorsByChain()
   const validators = vanityAddressValidatorsByChain[args.chainId] ?? []
   for (const validator of validators) {
     try {
@@ -55,12 +67,18 @@ type VanityAddressResolversByChainId = {
   [k: ChainId]: ResolveVanityAddress[]
 }
 
-const vanityResolversByChainId: VanityAddressResolversByChainId = {
-  [btcChainId]: [resolveUnstoppableDomain],
-  [ethChainId]: [resolveEnsDomain, resolveUnstoppableDomain],
+const getVanityResolversByChainId = (): VanityAddressResolversByChainId => {
+  const flags = store.getState().preferences.featureFlags
+
+  return {
+    [btcChainId]: [resolveUnstoppableDomain],
+    [ethChainId]: [...(flags.Yat ? [resolveYat] : []), resolveEnsDomain, resolveUnstoppableDomain],
+  }
 }
 
 export const resolveVanityAddress: ResolveVanityAddress = async args => {
+  const vanityResolversByChainId = getVanityResolversByChainId()
+
   for (const resolver of vanityResolversByChainId[args.chainId]) {
     try {
       const result = await resolver(args)

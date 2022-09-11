@@ -7,8 +7,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 export type BoardroomGovernanceResult = {
   currentState: string
   title: string
-  choices: Array<string>
-  results: Array<{ total: number; choice: number }>
+  choices: string[]
+  results: { total: number; choice: number }[]
   refId: string
 }
 
@@ -16,10 +16,10 @@ export type ParsedBoardroomGovernanceResult = {
   refId: string
   title: string
   choices: string[]
-  results: Array<{
+  results: {
     absolute: string
     percent: string
-  }>
+  }[]
 }
 
 const BOARDROOM_API_BASE_URL = getConfig().REACT_APP_BOARDROOM_API_BASE_URL

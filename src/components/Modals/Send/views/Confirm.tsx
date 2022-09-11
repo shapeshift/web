@@ -12,7 +12,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -24,7 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendInput } from '../Form'
+import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendRoutes } from '../SendCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'

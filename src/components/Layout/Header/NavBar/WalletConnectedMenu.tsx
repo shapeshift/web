@@ -10,7 +10,7 @@ import {
   WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
-import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
+import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'

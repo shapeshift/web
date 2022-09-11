@@ -1,10 +1,9 @@
-import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
-import { KeyManager } from './KeyManager'
-import type { Adapters, InitialState } from './WalletProvider'
-import { DeviceState } from './WalletProvider'
+import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
+import type { KeyManager } from './KeyManager'
+import type { Adapters, InitialState, WalletInfo } from './WalletProvider'
+import type { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -32,13 +31,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
       type: WalletActions.SET_WALLET
-      payload: {
-        wallet: HDWallet | null
-        name: string
-        icon: ComponentWithAs<'svg', IconProps>
-        deviceId: string
-        meta?: { label: string }
-      }
+      payload: WalletInfo & { wallet: HDWallet | null }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_IS_DEMO_WALLET; payload: boolean }

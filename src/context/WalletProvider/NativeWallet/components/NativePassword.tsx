@@ -13,13 +13,14 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
 
-import { NativeSetupProps, NativeWalletValues } from '../types'
+import type { NativeSetupProps, NativeWalletValues } from '../types'
 const moduleLogger = logger.child({ namespace: ['NativePassword'] })
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {

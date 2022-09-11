@@ -1,9 +1,10 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { ListChildComponentProps } from 'react-window'
+import type { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
+import type { FiatRampAsset } from '../../FiatRampsCommon'
+import { FiatRampAction } from '../../FiatRampsCommon'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const asset: FiatRampAsset = data.items[index]

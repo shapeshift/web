@@ -1,4 +1,5 @@
-import { IdleWithdrawActions, IdleWithdrawActionType, IdleWithdrawState } from './WithdrawCommon'
+import type { IdleWithdrawActions, IdleWithdrawState } from './WithdrawCommon'
+import { IdleWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: IdleWithdrawState = {
   txid: null,

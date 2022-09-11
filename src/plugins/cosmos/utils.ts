@@ -1,6 +1,6 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { cosmos, cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, cosmossdk, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 

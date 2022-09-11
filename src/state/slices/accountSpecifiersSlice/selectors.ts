@@ -1,6 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 
 import { createDeepEqualOutputSelector } from './../../selector-utils'
 

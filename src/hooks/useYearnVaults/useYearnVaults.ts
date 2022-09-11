@@ -1,5 +1,5 @@
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
+import type { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useCallback, useEffect, useState } from 'react'
 
 type UseYearnVaults = () => SerializableOpportunity[]

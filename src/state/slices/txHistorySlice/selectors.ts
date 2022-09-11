@@ -25,6 +25,11 @@ export const selectTxIds = createDeepEqualOutputSelector(
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
 
+export const selectIsTxHistoryLoading = createSelector(
+  selectTxHistoryStatus,
+  (txHistoryStatus): boolean => txHistoryStatus === 'loading',
+)
+
 const selectTxIdParam = createCachedSelector(
   (_state: ReduxState, txId: string) => txId,
   txId => txId,
@@ -189,9 +194,13 @@ export const selectRebasesByFilter = createSelector(
  */
 export const selectMaybeNextAccountNumberByChainId = createSelector(
   selectTxIdsByAccountId,
+  selectTxHistoryStatus,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (txIdsByAccountId, accountMetadata, chainId): [boolean, number] => {
+  (txIdsByAccountId, txHistoryStatus, accountMetadata, chainId): [boolean, number] => {
+    // we can't know if an account has transacted until txHistory is loaded
+    if (txHistoryStatus === 'loading') return [false, -1]
+
     // filter accounts by chain id
     const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
       accountMetadata,

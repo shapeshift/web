@@ -192,7 +192,6 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
   (txIdsByAccountId, accountMetadata, chainId): [boolean, number] => {
-    // returns [isAbleToAddNextAccount, nextAccountNumber]
     // filter accounts by chain id
     const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
       accountMetadata,
@@ -212,10 +211,10 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
       .map(([accountId]) => accountId)
 
     // at least one of the account ids with the highest account number must have some tx history
-    const result = highestAccountNumberAccountsIds.some(accountId =>
+    const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(accountId =>
       Boolean((txIdsByAccountId[accountId] ?? []).length),
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
-    return [result, nextAccountNumber]
+    return [isAbleToAddNextAccount, nextAccountNumber]
   },
 )

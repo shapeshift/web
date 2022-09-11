@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 
 /*
  * Article for context -- https://sneas.github.io/blog/react-nested-navigation/

@@ -1,22 +1,20 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -30,6 +28,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { contractAddress } = query
   const opportunity = state?.opportunity
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
+  const { setAccountId: handleAccountIdChange } = useFoxEth()
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -37,6 +36,8 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
+
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
@@ -150,6 +151,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           validate: { validateFiatAmount },
         }}
         marketData={marketData}
+        {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !totalFiatBalance}

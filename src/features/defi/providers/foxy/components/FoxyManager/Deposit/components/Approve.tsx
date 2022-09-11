@@ -1,24 +1,29 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
@@ -26,7 +31,10 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
-export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Approve: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+  accountId,
+  onNext,
+}) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
@@ -50,39 +58,53 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
   // user info
   const { state: walletState } = useWallet()
 
-  if (!state || !dispatch) return null
+  const getDepositGasEstimate = useCallback(
+    async (deposit: DepositValues) => {
+      if (!state?.userAddress || !assetReference || !api) return
+      try {
+        const [gasLimit, gasPrice] = await Promise.all([
+          api.estimateDepositGas({
+            tokenContractAddress: assetReference,
+            contractAddress,
+            amountDesired: bnOrZero(deposit.cryptoAmount)
+              .times(`1e+${asset.precision}`)
+              .decimalPlaces(0),
+            userAddress: state.userAddress,
+          }),
+          api.getGasPrice(),
+        ])
+        return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      } catch (error) {
+        moduleLogger.error(
+          { fn: 'getDepositGasEstimate', error },
+          'Error getting deposit gas estimate',
+        )
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [api, asset.precision, assetReference, contractAddress, state?.userAddress, toast, translate],
+  )
 
-  const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !assetReference || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateDepositGas({
-          tokenContractAddress: assetReference,
-          contractAddress,
-          amountDesired: bnOrZero(deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress,
-        }),
-        api.getGasPrice(),
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const handleApprove = useCallback(async () => {
+    if (
+      !(
+        assetReference &&
+        state?.userAddress &&
+        walletState.wallet &&
+        api &&
+        dispatch &&
+        bip44Params
       )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
-
-  const handleApprove = async () => {
-    if (!assetReference || !state.userAddress || !walletState.wallet || !api) return
+    )
+      return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       await api.approve({
@@ -91,6 +113,7 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
         userAddress: state.userAddress,
         wallet: walletState.wallet,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        bip44Params,
       })
       await poll({
         fn: () =>
@@ -126,7 +149,23 @@ export const Approve: React.FC<StepComponentProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    api,
+    asset.precision,
+    assetReference,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    getDepositGasEstimate,
+    onNext,
+    state?.deposit,
+    state?.userAddress,
+    toast,
+    translate,
+    walletState.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove

@@ -4,7 +4,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
+import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
 type EarnStatProps = {
   label: string

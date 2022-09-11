@@ -1,8 +1,5 @@
-import {
-  FoxFarmingDepositActions,
-  FoxFarmingDepositActionType,
-  FoxFarmingDepositState,
-} from './DepositCommon'
+import type { FoxFarmingDepositActions, FoxFarmingDepositState } from './DepositCommon'
+import { FoxFarmingDepositActionType } from './DepositCommon'
 
 export const initialState: FoxFarmingDepositState = {
   txid: null,

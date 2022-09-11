@@ -11,7 +11,7 @@ import {
   utxoChainIds,
 } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
@@ -22,7 +22,7 @@ import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
-import { SendInput } from '../../Form'
+import type { SendInput } from '../../Form'
 
 const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
 

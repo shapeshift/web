@@ -1,5 +1,5 @@
-import { Fetcher, Token } from '@uniswap/sdk'
-import { providers } from 'ethers'
+import type { Fetcher, Token } from '@uniswap/sdk'
+import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 

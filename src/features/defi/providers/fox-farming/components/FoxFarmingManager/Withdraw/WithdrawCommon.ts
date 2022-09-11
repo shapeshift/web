@@ -1,4 +1,4 @@
-import { FoxFarmingEarnOpportunityType } from 'state/slices/foxEthSlice/foxEthCommon'
+import type { FoxFarmingEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string

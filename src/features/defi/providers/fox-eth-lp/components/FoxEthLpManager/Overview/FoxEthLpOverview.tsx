@@ -1,12 +1,12 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { foxAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
+import { foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
   selectAssetById,
   selectFeatureFlags,
@@ -18,7 +18,7 @@ import { useAppSelector } from 'state/store'
 export const FoxEthLpOverview = () => {
   const opportunity = useAppSelector(selectFoxEthLpOpportunity)
   const { underlyingFoxAmount, underlyingEthAmount } = opportunity
-  const { setAccountId: handleAccountChange } = useFoxEth()
+  const { setAccountId: handleAccountIdChange } = useFoxEth()
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -40,7 +40,7 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

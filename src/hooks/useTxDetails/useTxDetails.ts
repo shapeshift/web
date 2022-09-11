@@ -1,18 +1,18 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import { MarketData } from '@shapeshiftoss/types'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import type { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/address/ens'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly

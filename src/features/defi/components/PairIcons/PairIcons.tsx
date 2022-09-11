@@ -1,4 +1,5 @@
-import { Flex, FlexProps, ThemingProps, useColorModeValue } from '@chakra-ui/react'
+import type { FlexProps, ThemingProps } from '@chakra-ui/react'
+import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { AssetIcon } from 'components/AssetIcon'
 
 export const PairIcons = ({
@@ -7,7 +8,7 @@ export const PairIcons = ({
   iconBoxSize,
   ...styleProps
 }: {
-  icons: Array<string>
+  icons: string[]
   iconBoxSize?: string
   iconSize?: ThemingProps<'Avatar'>['size']
 } & FlexProps): JSX.Element => {

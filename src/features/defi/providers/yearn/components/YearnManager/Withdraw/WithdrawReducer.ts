@@ -1,4 +1,5 @@
-import { YearnWithdrawActions, YearnWithdrawActionType, YearnWithdrawState } from './WithdrawCommon'
+import type { YearnWithdrawActions, YearnWithdrawState } from './WithdrawCommon'
+import { YearnWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: YearnWithdrawState = {
   txid: null,

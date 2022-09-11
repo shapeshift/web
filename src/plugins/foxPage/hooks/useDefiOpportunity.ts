@@ -1,5 +1,5 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useEffect, useState } from 'react'
 import {
   selectFeatureFlags,
@@ -8,7 +8,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ExternalOpportunity } from '../FoxCommon'
+import type { ExternalOpportunity } from '../FoxCommon'
 
 export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)

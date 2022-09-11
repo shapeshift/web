@@ -1,4 +1,4 @@
-import { BoxProps } from '@chakra-ui/react'
+import type { BoxProps } from '@chakra-ui/react'
 import { Row as RowStyle } from 'components/Row/Row'
 import { Text } from 'components/Text'
 

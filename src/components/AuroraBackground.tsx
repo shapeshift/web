@@ -1,4 +1,5 @@
-import { CSSProperties, useEffect, useRef } from 'react'
+import type { CSSProperties } from 'react'
+import { useEffect, useRef } from 'react'
 import SimplexNoise from 'simplex-noise'
 
 const rayCount = 300

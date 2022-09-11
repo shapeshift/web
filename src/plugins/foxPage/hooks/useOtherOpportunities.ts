@@ -1,4 +1,5 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpOpportunityName,
@@ -12,7 +13,8 @@ import {
   useGetFoxFarmingContractMetricsQuery,
 } from 'state/slices/foxEthSlice/foxEthSlice'
 
-import { FOX_ASSET_ID, FOXY_ASSET_ID, OpportunitiesBucket, OpportunityTypes } from '../FoxCommon'
+import type { OpportunitiesBucket } from '../FoxCommon'
+import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
@@ -20,7 +22,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpMetricsQuery()
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
-      [FOX_ASSET_ID]: [
+      [foxAssetId]: [
         {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
@@ -77,7 +79,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           ],
         },
       ],
-      [FOXY_ASSET_ID]: [
+      [foxyAssetId]: [
         {
           type: OpportunityTypes.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',

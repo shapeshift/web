@@ -1,14 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useEffect } from 'react'
-import {
-  Redirect,
-  Route,
-  RouteComponentProps,
-  Switch,
-  useHistory,
-  useLocation,
-} from 'react-router-dom'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectPortfolioAccounts } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

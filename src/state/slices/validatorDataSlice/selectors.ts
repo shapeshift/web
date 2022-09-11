@@ -1,8 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { cosmos } from '@shapeshiftoss/chain-adapters'
-import { ReduxState } from 'state/reducer'
+import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { ReduxState } from 'state/reducer'
 
-import { PubKey, ValidatorData, ValidatorDataByPubKey } from './validatorDataSlice'
+import type { PubKey, ValidatorData, ValidatorDataByPubKey } from './validatorDataSlice'
 
 export const selectValidatorAddress = (_state: ReduxState, validatorAddress: PubKey) =>
   validatorAddress

@@ -8,12 +8,13 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeWalletValues } from '../types'
+import type { NativeWalletValues } from '../types'
 
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {

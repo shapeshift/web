@@ -3,7 +3,8 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],

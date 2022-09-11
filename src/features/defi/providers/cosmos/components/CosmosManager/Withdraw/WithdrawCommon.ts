@@ -1,9 +1,12 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { WithdrawType } from '@shapeshiftoss/types'
-import { Field as WithdrawField, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { BigNumber } from 'lib/bignumber/bignumber'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { WithdrawType } from '@shapeshiftoss/types'
+import type {
+  Field as WithdrawField,
+  WithdrawValues,
+} from 'features/defi/components/Withdraw/Withdraw'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 
 type SupportedCosmosOpportunity = {
   type: DefiType

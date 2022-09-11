@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
 import {
-  foxAssetId,
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
@@ -24,12 +24,8 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
-import {
-  farmingOpportunities,
-  FoxEthLpEarnOpportunityType,
-  FoxFarmingEarnOpportunityType,
-  lpOpportunity,
-} from './foxEthCommon'
+import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
 type FoxEthState = {

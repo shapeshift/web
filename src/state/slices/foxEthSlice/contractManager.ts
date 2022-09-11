@@ -1,4 +1,5 @@
-import { Contract, ContractInterface } from '@ethersproject/contracts'
+import type { ContractInterface } from '@ethersproject/contracts'
+import { Contract } from '@ethersproject/contracts'
 
 import { ethersProvider } from './utils'
 

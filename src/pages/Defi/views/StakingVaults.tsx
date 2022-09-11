@@ -8,7 +8,7 @@ import {
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
@@ -24,7 +24,6 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxAssetId } from 'state/slices/foxEthSlice/constants'
 import {
   useGetFoxEthLpMetricsQuery,
   useGetFoxFarmingContractMetricsQuery,

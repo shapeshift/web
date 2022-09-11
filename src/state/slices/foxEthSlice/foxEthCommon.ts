@@ -1,6 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 import {
   FOX_FARMING_V1_CONTRACT_ADDRESS,

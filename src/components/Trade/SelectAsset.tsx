@@ -1,5 +1,5 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { RouteComponentProps } from 'react-router-dom'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { RouteComponentProps } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'

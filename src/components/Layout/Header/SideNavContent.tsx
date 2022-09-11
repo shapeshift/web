@@ -1,5 +1,6 @@
 import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'

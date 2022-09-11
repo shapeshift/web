@@ -6,7 +6,7 @@ import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { selectTxHistoryStatus } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { TransactionsLoading } from './TransactionsLoading'

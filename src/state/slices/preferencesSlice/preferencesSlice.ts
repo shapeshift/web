@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -23,6 +23,7 @@ export type FeatureFlags = {
   RainbowCharts: boolean
   MultiAccounts: boolean
   SwapperV2: boolean
+  WalletConnectToDapps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -57,6 +58,7 @@ const initialState: Preferences = {
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
+    WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

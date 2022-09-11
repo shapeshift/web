@@ -1,4 +1,4 @@
-import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import type { Keyring } from '@shapeshiftoss/hdwallet-core'
 import isArray from 'lodash/isArray'
 import join from 'lodash/join'
 import { useEffect } from 'react'

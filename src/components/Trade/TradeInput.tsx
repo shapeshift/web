@@ -1,15 +1,15 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapErrorTypes } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { InterpolationOptions } from 'node-polyglot'
+import type { SwapErrorTypes } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { RouterProps } from 'react-router-dom'
+import type { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -38,7 +38,8 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'
-import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
+import type { TradeState } from './types'
+import { TradeAmountInputField, TradeRoutePaths } from './types'
 
 type TS = TradeState<KnownChainIds>
 
@@ -63,8 +64,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     sellTradeAsset,
     feeAssetFiatRate,
     quoteError,
-    sellAssetAccount,
-    selectedAssetAccount,
+    sellAssetAccountId,
+    selectedSellAssetAccountId,
     action,
     amount,
   ] = useWatch({
@@ -74,8 +75,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       'sellTradeAsset',
       'feeAssetFiatRate',
       'quoteError',
-      'sellAssetAccount',
-      'selectedAssetAccount',
+      'sellAssetAccountId',
+      'selectedSellAssetAccountId',
       'action',
       'amount',
     ],
@@ -85,8 +86,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     TS['sellTradeAsset'],
     TS['feeAssetFiatRate'],
     TS['quoteError'],
-    TS['sellAssetAccount'],
-    TS['selectedAssetAccount'],
+    TS['sellAssetAccountId'],
+    TS['selectedSellAssetAccountId'],
     TS['action'],
     TS['amount'],
   ]
@@ -106,8 +107,8 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   useEffect(() => {
     if (!shouldShowAccountSelection) {
-      // Cleanup selectedAssetAccount on component unmount when not in the context of a sell asset with multiple accounts
-      setValue('selectedAssetAccount', undefined)
+      // Cleanup selectedSellAssetAccountId on component unmount when not in the context of a sell asset with multiple accounts
+      setValue('selectedSellAssetAccountId', undefined)
     }
   }, [setValue, shouldShowAccountSelection])
 
@@ -125,10 +126,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const filter = useMemo(
     () => ({
       assetId: sellAssetId ?? '',
-      accountId: sellAssetAccount ?? '',
+      accountId: sellAssetAccountId ?? '',
       accountSpecifier: sellAssetAccountSpecifier,
     }),
-    [sellAssetAccountSpecifier, sellAssetAccount, sellAssetId],
+    [sellAssetAccountSpecifier, sellAssetAccountId, sellAssetId],
   )
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, filter),
@@ -137,11 +138,11 @@ export const TradeInput = ({ history }: RouterProps) => {
   useEffect(
     () =>
       setValue(
-        'sellAssetAccount',
-        selectedAssetAccount ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
+        'sellAssetAccountId',
+        selectedSellAssetAccountId ?? highestFiatBalanceAccount ?? sellAssetAccountSpecifier,
       ),
     [
-      selectedAssetAccount,
+      selectedSellAssetAccountId,
       highestFiatBalanceAccount,
       setValue,
       sellTradeAsset,
@@ -151,11 +152,13 @@ export const TradeInput = ({ history }: RouterProps) => {
   )
 
   const updateQuoteClosure = useCallback(() => {
-    const sellAssetChainId = sellAssetAccount ? fromAccountId(sellAssetAccount).chainId : undefined
+    const sellAssetChainId = sellAssetAccountId
+      ? fromAccountId(sellAssetAccountId).chainId
+      : undefined
     if (
       buyTradeAsset?.asset &&
       sellTradeAsset?.asset &&
-      sellAssetAccount &&
+      sellAssetAccountId &&
       sellAssetChainId === sellTradeAsset.asset.chainId
     ) {
       updateQuote({
@@ -172,7 +175,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     amount,
     buyTradeAsset?.asset,
     selectedCurrencyToUsdRate,
-    sellAssetAccount,
+    sellAssetAccountId,
     sellTradeAsset?.asset,
     updateQuote,
   ])
@@ -207,7 +210,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccount)) return
+    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccountId)) return
     setIsUpdatingTrade(true)
 
     try {
@@ -285,8 +288,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       if (!(sellTradeAsset?.asset && buyTradeAsset?.asset)) return
       setValue('sellTradeAsset', currentBuyAsset)
       setValue('buyTradeAsset', currentSellAsset)
-      setValue('selectedAssetAccount', undefined)
-      setValue('sellAssetAccount', undefined)
+      setValue('selectedSellAssetAccountId', undefined)
+      setValue('sellAssetAccountId', undefined)
       setValue('action', TradeAmountInputField.SELL_CRYPTO)
       setValue('amount', bnOrZero(buyTradeAsset.amount).toString())
     } catch (e) {
@@ -415,11 +418,11 @@ export const TradeInput = ({ history }: RouterProps) => {
                 data-test='trade-form-token-input-row-sell'
               />
             </FormControl>
-            {shouldShowAccountSelection && sellAssetAccount && (
+            {shouldShowAccountSelection && sellAssetAccountId && (
               <AssetAccountRow
-                accountId={sellAssetAccount}
+                accountId={sellAssetAccountId}
                 assetId={sellTradeAsset?.asset?.assetId}
-                key={sellAssetAccount}
+                key={sellAssetAccountId}
                 onClick={() => history.push(TradeRoutePaths.AccountSelect)}
               />
             )}

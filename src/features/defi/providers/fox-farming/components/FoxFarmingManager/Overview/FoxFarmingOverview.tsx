@@ -1,14 +1,13 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -35,7 +34,7 @@ export const FoxFarmingOverview = () => {
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
-  const { setAccountId: handleAccountChange } = useFoxEth()
+  const { setAccountId: handleAccountIdChange } = useFoxEth()
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -84,7 +83,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={stakingAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

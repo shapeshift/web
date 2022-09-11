@@ -1,4 +1,5 @@
-import { Box, Button, ButtonProps, Flex, Icon, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
+import { Box, Button, Flex, Icon, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text/Text'

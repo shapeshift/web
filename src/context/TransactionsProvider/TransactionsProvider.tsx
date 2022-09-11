@@ -13,7 +13,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
-import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdByAddress,
@@ -54,7 +54,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // account specifiers changing will trigger this effect
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    moduleLogger.info('unsubscribing txs')
+    moduleLogger.debug('unsubscribing txs')
     supportedChains.forEach(chainId => chainAdapterManager.get(chainId)?.unsubscribeTxs())
     setIsSubscribed(false)
     // setting isSubscribed to false will trigger this effect
@@ -86,7 +86,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
               await Promise.all(
                 supportedAccountTypes.map(async accountType => {
-                  moduleLogger.info({ chainId, accountType }, 'subscribing txs')
+                  moduleLogger.debug({ chainId, accountType }, 'subscribing txs')
 
                   const accountParams = accountType
                     ? utxoAccountParams(chainId, accountType, 0)

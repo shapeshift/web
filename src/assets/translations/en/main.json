@@ -1379,5 +1379,9 @@
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
+  },
+  "gasInput": {
+    "gasPrice": "Gas Price",
+    "gasPriceTooltip": "TODO"
   }
 }

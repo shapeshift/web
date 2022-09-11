@@ -10,9 +10,10 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { FC } from 'react'
+import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
+import { GasInput } from 'components/DeFi/components/GasInput'
 import { RawText, Text } from 'components/Text'
 
 type Props = {
@@ -29,6 +30,8 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
   const translate = useTranslate()
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
+      <GasInput />
+
       <Box>
         <Text
           fontWeight='medium'

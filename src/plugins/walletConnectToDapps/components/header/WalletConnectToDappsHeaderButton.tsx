@@ -1,11 +1,11 @@
 import { Button } from '@chakra-ui/react'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { FC, useState } from 'react'
+import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 
 import { WalletConnectModal } from '../modal/WalletConnectModal'
 
 export const WalletConnectToDappsHeaderButton: FC = () => {
-  const [isOpen, setOpen] = useState(true)
+  const [isOpen, setOpen] = useState(false)
   return (
     <>
       <Button

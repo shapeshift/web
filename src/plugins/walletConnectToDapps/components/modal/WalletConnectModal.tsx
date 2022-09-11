@@ -1,8 +1,8 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
+import React, { FC } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
-import React, { FC } from 'react'
 
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 

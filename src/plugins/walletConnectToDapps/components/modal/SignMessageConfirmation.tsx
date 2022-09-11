@@ -1,9 +1,19 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, HStack, IconButton, Image, Link, useColorModeValue, VStack } from '@chakra-ui/react'
-import { Card } from 'components/Card/Card'
-import { RawText, Text } from 'components/Text'
+import {
+  Box,
+  Button,
+  Divider,
+  HStack,
+  IconButton,
+  Image,
+  Link,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { RawText, Text } from 'components/Text'
 
 type Props = {
   message: string

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.3...@shapeshiftoss/swapper-v11.1.0) (2022-09-12)
+
+
+### Features
+
+* add THORChain support ([#1010](https://github.com/shapeshift/lib/issues/1010)) ([d7c3b72](https://github.com/shapeshift/lib/commit/d7c3b72bbda9795f87fa8f73c35926c95026a3c2))
+
 # [@shapeshiftoss/swapper-v11.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.2...@shapeshiftoss/swapper-v11.0.3) (2022-09-09)
 
 # [@shapeshiftoss/swapper-v11.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.1...@shapeshiftoss/swapper-v11.0.2) (2022-09-06)

@@ -6,26 +6,7 @@ import {
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-<<<<<<< HEAD
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import {
-  bip32ToAddressNList,
-  supportsBTC,
-  supportsCosmos,
-  supportsETH,
-  supportsEthSwitchChain,
-  supportsOsmosis,
-  supportsThorchain,
-} from '@shapeshiftoss/hdwallet-core'
-=======
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
->>>>>>> develop
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
@@ -140,87 +121,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!wallet) return
     ;(async () => {
       try {
-<<<<<<< HEAD
-        const acc: AccountSpecifierMap[] = []
-        const accMeta: AccountMetadataById = {}
-        for (const chainId of supportedChains) {
-          const adapter = chainAdapterManager.get(chainId)
-          if (!adapter) continue
-
-          const { chainNamespace, chainReference } = fromChainId(chainId)
-
-          switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Utxo: {
-              if (!supportsBTC(wallet)) continue
-
-              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-
-              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
-                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: utxoAdapter.getCoinName(),
-                    addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-
-                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
-
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-                if (!pubkey) continue
-
-                acc.push({ [chainId]: pubkey })
-                const accountId = toAccountId({ chainId, account: pubkey })
-                accMeta[accountId] = { bip44Params, accountType }
-              }
-              break
-            }
-
-            case CHAIN_NAMESPACE.Evm: {
-              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
-                if (!supportsETH(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
-                if (!supportsEthSwitchChain(wallet)) continue
-              }
-
-              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
-              const pubkey = await adapter.getAddress({ bip44Params, wallet })
-              if (!pubkey) continue
-              const accountId = toAccountId({ chainId, account: pubkey.toLowerCase() })
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              accMeta[accountId] = { bip44Params }
-              break
-            }
-            case CHAIN_NAMESPACE.CosmosSdk: {
-              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
-                if (!supportsCosmos(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
-                if (!supportsOsmosis(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.ThorchainMainnet) {
-                if (!supportsThorchain(wallet)) continue
-              }
-
-              const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
-              const pubkey = await adapter.getAddress({ bip44Params, wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
-              const accountId = toAccountId({ chainId, account: pubkey })
-              accMeta[accountId] = { bip44Params }
-              break
-            }
-            default:
-              break
-          }
-        }
-
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
-        dispatch(portfolio.actions.setAccountMetadata(accMeta))
-=======
         const accountNumber = 0
         const chainIds = supportedChains
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
@@ -237,7 +137,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
         dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
->>>>>>> develop
       } catch (e) {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }

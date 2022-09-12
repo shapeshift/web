@@ -112,7 +112,7 @@ const FEE_ASSET_IDS = [
 ]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
-const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
+export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')

@@ -135,8 +135,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           return { [chainId]: account }
         })
 
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(accountSpecifiersPayload))
-        dispatch(portfolio.actions.setAccountMetadata(accountMetadataByAccountId))
+        dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
+        dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       } catch (e) {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }

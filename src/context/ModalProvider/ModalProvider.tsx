@@ -9,6 +9,7 @@ import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcom
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
+import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { ModalContext } from './ModalContext'
 
@@ -24,6 +25,7 @@ const MODALS = {
   consentOptin: OptInModal,
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
+  addAccount: AddAccountModal,
 }
 
 // state

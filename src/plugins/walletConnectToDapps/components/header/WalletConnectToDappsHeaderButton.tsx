@@ -1,5 +1,6 @@
 import { Button } from '@chakra-ui/react'
-import { FC, useState } from 'react'
+import type { FC } from 'react'
+import { useState } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 
 import { WalletConnectModal } from '../modal/WalletConnectModal'

@@ -10,10 +10,12 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { FC } from 'react'
+import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
+
+import { WalletSummaryCard } from './WalletSummaryCard'
 
 type Props = {
   message: string
@@ -35,9 +37,12 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
           translation='plugins.walletConnectToDapps.modal.signMessage.signingFrom'
           mb={4}
         />
-        <Card bg={useColorModeValue('white', 'gray.850')} p={4} borderRadius='md'>
-          Wallet summary...
-        </Card>
+        <WalletSummaryCard
+          address='0x03ed759b696b62774D02156a189F6E176C15b3a3'
+          name='My Wallet'
+          url='https://etherscan.com/address/0x03ed759b696b62774D02156a189F6E176C15b3a3'
+          balance={10}
+        />
       </Box>
 
       <Box>

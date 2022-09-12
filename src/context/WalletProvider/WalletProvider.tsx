@@ -290,6 +290,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
       return { ...state, ...resetProperties }
+    // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
       const { deviceState } = state
       return {

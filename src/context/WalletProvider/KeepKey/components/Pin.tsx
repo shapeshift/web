@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
+import { useCallback } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
@@ -43,11 +44,14 @@ export const KeepKeyPin = () => {
 
   const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
 
-  const handlePinPress = (value: number) => {
-    if (pinFieldRef?.current) {
-      pinFieldRef.current.value += value.toString()
-    }
-  }
+  const handlePinPress = useCallback(
+    (value: number) => {
+      if (pinFieldRef?.current) {
+        pinFieldRef.current.value += value.toString()
+      }
+    },
+    [pinFieldRef],
+  )
 
   const handleSubmit = async () => {
     setError(null)

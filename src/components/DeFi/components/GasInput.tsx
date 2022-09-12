@@ -1,12 +1,10 @@
-import type { ThemeTypings } from '@chakra-ui/react'
 import {
   Box,
   Divider,
   FormControl,
-  HStack,
+  HStack, NumberInput,
   Radio,
-  RadioGroup,
-  useColorModeValue,
+  RadioGroup, SimpleGrid, ThemeTypings, useColorModeValue,
   VStack
 } from '@chakra-ui/react'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -25,6 +23,7 @@ type GasOption = {
 }
 
 const DEFAULT_OPTIONS: GasOption[] = [
+  // TODO: translate
   { label: 'Slow', duration: '~ 10 mins', color: 'green.200' },
   { label: 'Fast', duration: '~ 3 mins', color: 'blue.200' },
   { label: 'Faster', duration: '~ 3 seconds', color: 'red.400' },
@@ -48,12 +47,11 @@ export const GasInput: FC<GasInputProps> = () => {
         <HelperTooltip label={translate('gasInput.gasPriceTooltip')}>
           <Text
             color='gray.500'
-            fontSize='sm'
             fontWeight='medium'
-            translation='gasInput.gasPrice'
+            translation='gasInput.gasPrice.tooltip'
           />
         </HelperTooltip>
-        <Text fontSize='sm' fontWeight='medium' translation='gasInput.gasPrice' />
+        <Text fontWeight='medium' translation='gasInput.gasPrice.label' />
       </HStack>
 
       <Box borderWidth={1} borderRadius='lg' borderColor={borderColor}>
@@ -69,7 +67,7 @@ export const GasInput: FC<GasInputProps> = () => {
                   px={4}
                   py={2}
                 >
-                  <Radio colorScheme='blue'>
+                  <Radio color='blue'>
                     <HStack>
                       <RawText>{option.label}</RawText>
                       <RawText color='gray.500' flex={1}>
@@ -82,6 +80,31 @@ export const GasInput: FC<GasInputProps> = () => {
                 <Divider />
               </>
             ))}
+            <HStack width='full'>
+              <Radio color='blue'>
+                <Text translation="gasInput.custom" />
+              </Radio>
+            </HStack>
+            <SimpleGrid
+              templateColumns={{base: '1fr repeat(1, 1fr)',
+                md: '1fr repeat(2, 1fr)',
+              }}
+            >
+              <Box>
+                <HelperTooltip label={translate('gasInput.base.tooltip')}>
+                  <Text mb='8px' translation="gasInput.base.label" />
+                </HelperTooltip>
+                <NumberInput placeholder='Number...' />
+              </Box>
+              <Box>
+                <HelperTooltip label={translate('gasInput.priority.tooltip')}>
+                  <Text mb='8px' translation="gasInput.priority.label" />
+                </HelperTooltip>
+                <NumberInput placeholder='Number...' />
+              </Box>
+            </SimpleGrid>
+
+
           </VStack>
         </RadioGroup>
       </Box>

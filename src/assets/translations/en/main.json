@@ -1381,7 +1381,18 @@
     }
   },
   "gasInput": {
-    "gasPrice": "Gas Price",
-    "gasPriceTooltip": "TODO"
+    "gasPrice": {
+      "label": "Gas Price",
+      "tooltip": "TODO"
+    },
+    "base": {
+      "label": "Base",
+      "tooltip": "Some tooltip"
+    },
+    "priority": {
+      "label": "Priority",
+      "tooltip": "Some tooltip"
+    },
+    "custom": "Custom"
   }
 }

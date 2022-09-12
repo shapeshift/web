@@ -19,7 +19,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -58,8 +57,6 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   // notify
   const toast = useToast()
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   if (!state || !dispatch) return null
 
@@ -206,7 +203,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       marketData1={foxMarketData}
       marketData2={ethMarketData}
       onCancel={handleCancel}
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

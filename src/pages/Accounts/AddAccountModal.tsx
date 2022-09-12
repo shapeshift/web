@@ -182,11 +182,9 @@ export const AddAccountModal = () => {
               </Menu>
             </Box>
             {!isAbleToAddAccount && (
-              <Alert>
-                <AlertIcon color='blue.400' as={FaInfoCircle} />
-                <AlertDescription fontSize={'sm'}>
-                  {translate('accounts.requiresPriorTxHistory')}
-                </AlertDescription>
+              <Alert size='sm'>
+                <AlertIcon as={FaInfoCircle} />
+                <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
               </Alert>
             )}
           </Stack>

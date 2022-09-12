@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.0.2...@shapeshiftoss/asset-service-v8.1.0) (2022-09-12)
+
+
+### Features
+
+* add THORChain support ([#1010](https://github.com/shapeshift/lib/issues/1010)) ([d7c3b72](https://github.com/shapeshift/lib/commit/d7c3b72bbda9795f87fa8f73c35926c95026a3c2))
+
 # [@shapeshiftoss/asset-service-v8.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.0.1...@shapeshiftoss/asset-service-v8.0.2) (2022-09-09)
 
 # [@shapeshiftoss/asset-service-v8.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.0.0...@shapeshiftoss/asset-service-v8.0.1) (2022-09-02)

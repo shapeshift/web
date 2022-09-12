@@ -28,7 +28,7 @@ import {
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { Nullable } from 'types/common'
+import type { Nullable } from 'types/common'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'

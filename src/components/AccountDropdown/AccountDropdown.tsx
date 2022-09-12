@@ -1,4 +1,3 @@
-import { Nullable } from 'types/common'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   type ButtonProps,
@@ -40,6 +39,7 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'

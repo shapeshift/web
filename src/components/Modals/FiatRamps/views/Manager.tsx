@@ -27,7 +27,7 @@ import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
 import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import { Nullable } from 'types/common'
+import type { Nullable } from 'types/common'
 
 import type { FiatRamp } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'

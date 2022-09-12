@@ -8,7 +8,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { Nullable } from 'types/common'
+import type { Nullable } from 'types/common'
 
 import { YearnDeposit } from './Deposit/YearnDeposit'
 import { YearnOverview } from './Overview/YearnOverview'

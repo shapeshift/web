@@ -10,7 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { Nullable } from 'types/common'
+import type { Nullable } from 'types/common'
 
 import { ClaimRoutes } from './ClaimRoutes'
 

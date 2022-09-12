@@ -8,7 +8,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { Nullable } from 'types/common'
+import type { Nullable } from 'types/common'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyClaim } from './Overview/Claim/Claim'

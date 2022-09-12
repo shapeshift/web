@@ -1,4 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
@@ -6,6 +7,11 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
+import {
+  selectChainIdParamFromFilter,
+  selectPortfolioAccountMetadata,
+} from '../portfolioSlice/selectors'
 import type { Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
@@ -18,6 +24,11 @@ export const selectTxIds = createDeepEqualOutputSelector(
 )
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
+
+export const selectIsTxHistoryLoading = createSelector(
+  selectTxHistoryStatus,
+  (txHistoryStatus): boolean => txHistoryStatus === 'loading',
+)
 
 const selectTxIdParam = createCachedSelector(
   (_state: ReduxState, txId: string) => txId,
@@ -172,4 +183,47 @@ export const selectRebasesByFilter = createSelector(
   selectRebasesById,
   selectRebaseIdsByFilter,
   (rebasesById, rebaseIds) => rebaseIds.map(rebaseId => rebasesById[rebaseId]),
+)
+
+/**
+ * to be able to add an account for a chain, we want to ensure there is some tx history
+ * on the current highest accountNumber accountIds
+ *
+ * note - there can be multiple accountIds sharing the same accountNumber - e.g. BTC legacy/segwit/segwit native
+ * are all separate accounts that share the same account number
+ */
+export const selectMaybeNextAccountNumberByChainId = createSelector(
+  selectTxIdsByAccountId,
+  selectTxHistoryStatus,
+  selectPortfolioAccountMetadata,
+  selectChainIdParamFromFilter,
+  (txIdsByAccountId, txHistoryStatus, accountMetadata, chainId): [boolean, number | null] => {
+    // we can't know if an account has transacted until txHistory is loaded
+    if (txHistoryStatus === 'loading') return [false, null]
+
+    // filter accounts by chain id
+    const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
+      accountMetadata,
+    ).filter(([accountId, _metadata]) => fromAccountId(accountId).chainId === chainId)
+
+    // grab the highest account number
+    const currentHighestAccountNumber: number = Math.max(
+      ...accountMetadataEntriesByChainId.map(([, { bip44Params }]) => bip44Params.accountNumber),
+    )
+
+    // filter for highest account number, and map back to accountIds
+    const highestAccountNumberAccountsIds: AccountId[] = accountMetadataEntriesByChainId
+      .filter(
+        ([_accountId, { bip44Params }]) =>
+          bip44Params.accountNumber === currentHighestAccountNumber,
+      )
+      .map(([accountId]) => accountId)
+
+    // at least one of the account ids with the highest account number must have some tx history
+    const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(accountId =>
+      Boolean((txIdsByAccountId[accountId] ?? []).length),
+    )
+    const nextAccountNumber = currentHighestAccountNumber + 1
+    return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
+  },
 )

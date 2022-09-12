@@ -802,7 +802,7 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value",
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",
@@ -1247,7 +1247,12 @@
     "accounts": "Accounts",
     "selectAccount": "Select an Account",
     "addAccount": "Add Account",
-    "accountNumber": "Account #%{accountNumber}"
+    "accountNumber": "Account #%{accountNumber}",
+    "accountChain": "Account Chain",
+    "selectChain": "Select the chain you would like to create an account for.",
+    "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
+    "newAccountAdded": "New %{name} Account added",
+    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

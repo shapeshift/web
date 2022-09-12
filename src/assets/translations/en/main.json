@@ -802,7 +802,7 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value",
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",

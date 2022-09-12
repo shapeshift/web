@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -17,8 +17,8 @@ export const COSMOS_UNBONDING_DAYS = '21'
 export const OSMOSIS_UNBONDING_DAYS = '14'
 
 export const supportsStaking = (chainId: ChainId) => {
-  if (chainId === cosmosAssetId) return true
-  if (chainId === osmosisAssetId) return true
+  if (chainId === cosmosChainId) return true
+  if (chainId === osmosisChainId) return true
   return false
 }
 

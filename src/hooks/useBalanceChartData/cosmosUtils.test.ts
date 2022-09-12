@@ -1,5 +1,5 @@
 import { merge } from 'lodash'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { excludeTransaction } from './cosmosUtils'
 

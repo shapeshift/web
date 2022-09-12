@@ -1,7 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { OptInModalBody } from 'plugins/pendo/components/OptInModal/OptInModalBody'
 
 export default {

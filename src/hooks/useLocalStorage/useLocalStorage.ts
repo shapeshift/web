@@ -1,4 +1,5 @@
-import { Dispatch, useCallback, useEffect, useState } from 'react'
+import type { Dispatch } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export function useLocalStorage<T>(
   key: string,

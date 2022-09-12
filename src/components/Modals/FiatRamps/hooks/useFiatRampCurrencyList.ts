@@ -7,8 +7,9 @@ import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import { supportedFiatRamps } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'hooks', 'useFiatRampCurrencyList'],

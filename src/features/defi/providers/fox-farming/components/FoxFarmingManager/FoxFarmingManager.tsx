@@ -1,8 +1,8 @@
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'

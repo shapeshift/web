@@ -1,5 +1,5 @@
-import { crypto } from '@shapeshiftoss/hdwallet-native'
-import React from 'react'
+import type { crypto } from '@shapeshiftoss/hdwallet-native'
+import type React from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 

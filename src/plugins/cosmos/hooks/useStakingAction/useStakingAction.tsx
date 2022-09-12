@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { Asset } from '@shapeshiftoss/asset-service'
 import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+=======
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
+>>>>>>> develop
 import {
   isStakingChainAdapter,
   StakingAction,

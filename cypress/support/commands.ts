@@ -25,7 +25,7 @@ const walletDb = getWalletDbInstance()
 
 // @ts-ignore
 class FakeDate extends Date {
-  constructor(date) {
+  constructor(date: Date) {
     super(date)
     if (date) {
       return new Date(date)
@@ -83,6 +83,7 @@ Cypress.Commands.add('login', () => {
         // in order to record and stub requests with timestamps in query we need to use fixed date
         // `cy.clock` does this, except when you call `cy.visit` from `before`
         // so you need to overwrite it manually
+        // @ts-ignore - this is a gross hack to override the Date object constructor. Don't do this at home.
         win.Date = FakeDate
       },
     })

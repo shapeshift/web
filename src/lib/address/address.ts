@@ -1,4 +1,5 @@
-import { btcChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {

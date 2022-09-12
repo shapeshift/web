@@ -1,13 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import {
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
   cosmosChainId,
   ethChainId,
-  fromChainId,
+  fromAccountId,
   osmosisChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
+<<<<<<< HEAD
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -24,20 +23,19 @@ import {
   supportsOsmosis,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+=======
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+>>>>>>> develop
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import {
-  AccountSpecifierMap,
-  accountSpecifiers,
-} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -46,18 +44,15 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
-  selectAssets,
   selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectSelectedCurrency,
   selectSelectedLocale,
-  selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
@@ -66,6 +61,8 @@ import {
 } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
+
+import { deriveAccountIdsAndMetadata } from '../../lib/account/account'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
@@ -84,21 +81,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
-  const chainAdapterManager = getChainAdapterManager()
   const {
-    state: {
-      wallet,
-      deviceState: { disposition },
-    },
+    state: { wallet },
   } = useWallet()
-  const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
   const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -146,10 +137,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * break this at your peril
    */
   useEffect(() => {
-    if (isEmpty(assetsById)) return
     if (!wallet) return
     ;(async () => {
       try {
+<<<<<<< HEAD
         const acc: AccountSpecifierMap[] = []
         const accMeta: AccountMetadataById = {}
         for (const chainId of supportedChains) {
@@ -229,11 +220,29 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
         dispatch(portfolio.actions.setAccountMetadata(accMeta))
+=======
+        const accountNumber = 0
+        const chainIds = supportedChains
+        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
+          accountNumber,
+          chainIds,
+          wallet,
+        })
+
+        // TODO(0xdef1cafe): temporary transform for backwards compatibility until we kill accountSpecifiersSlice
+        const accountSpecifiersPayload = Object.keys(accountMetadataByAccountId).map(accountId => {
+          const { chainId, account } = fromAccountId(accountId)
+          return { [chainId]: account }
+        })
+
+        dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
+        dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+>>>>>>> develop
       } catch (e) {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
+  }, [dispatch, wallet, supportedChains])
 
   // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
   useEffect(() => {
@@ -253,10 +262,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
   }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
 
-  // once portfolio and transaction history are done loading, fetch remaining chain specific data
+  // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
@@ -310,13 +318,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })
     // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds, txHistoryStatus])
+  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds])
 
-  // once the portfolio and transaction history are done loading, fetch market data for all portfolio assets
+  // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
     if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
 
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
@@ -329,7 +336,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
+  }, [dispatch, isPortfolioLoaded, portfolioAssetIds])
 
   /**
    * fetch forex spot and history for user's selected currency

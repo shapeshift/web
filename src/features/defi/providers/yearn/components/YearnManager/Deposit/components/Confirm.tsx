@@ -1,19 +1,20 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -22,17 +23,22 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
 
-export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
+  onNext,
+  accountId,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -62,21 +68,24 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleDeposit = async () => {
-    try {
-      if (
-        !(
-          state.userAddress &&
-          assetReference &&
-          walletState.wallet &&
-          supportsETH(walletState.wallet) &&
-          opportunity
-        )
+  const handleDeposit = useCallback(async () => {
+    if (
+      !(
+        dispatch &&
+        bip44Params &&
+        state?.userAddress &&
+        assetReference &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        opportunity
       )
-        return
+    )
+      return
 
+    try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
@@ -91,6 +100,7 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
+        bip44Params,
       })
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -105,7 +115,23 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    bip44Params,
+    asset.precision,
+    assetReference,
+    dispatch,
+    onNext,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.opportunity?.positionAsset.assetId,
+    state?.userAddress,
+    toast,
+    translate,
+    walletState.wallet,
+    yearnInvestor,
+  ])
+
+  if (!state || !dispatch) return null
 
   const handleCancel = () => {
     onNext(DefiStep.Info)

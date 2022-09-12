@@ -1,4 +1,5 @@
-import { Stack, StackDivider, StackProps, useColorModeValue } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useState } from 'react'
 

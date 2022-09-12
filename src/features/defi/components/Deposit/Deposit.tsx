@@ -1,10 +1,12 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
-import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
+import type { ControllerProps } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -30,6 +32,7 @@ type DepositProps = {
   enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
+  onAccountIdChange?: AccountDropdownProps['onChange']
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
@@ -66,6 +69,7 @@ export const Deposit = ({
   cryptoInputValidation,
   fiatInputValidation,
   isLoading,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
   inputIcons,
@@ -149,6 +153,8 @@ export const Deposit = ({
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             cryptoAmount={cryptoAmount?.value}
+            assetId={asset.assetId}
+            onAccountIdChange={handleAccountIdChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}

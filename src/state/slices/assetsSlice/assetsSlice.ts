@@ -1,11 +1,13 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, avalancheChainId, osmosisChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { avalancheChainId, osmosisChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 let service: AssetService | undefined = undefined

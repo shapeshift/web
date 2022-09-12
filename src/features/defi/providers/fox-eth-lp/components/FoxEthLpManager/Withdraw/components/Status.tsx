@@ -4,7 +4,10 @@ import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

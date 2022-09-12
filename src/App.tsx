@@ -1,6 +1,7 @@
 import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
-import { ToastId, useToast } from '@chakra-ui/toast'
+import type { ToastId } from '@chakra-ui/toast'
+import { useToast } from '@chakra-ui/toast'
 import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

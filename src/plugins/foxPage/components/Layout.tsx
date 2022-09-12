@@ -1,5 +1,5 @@
 import { Box, Container, Text, useColorModeValue } from '@chakra-ui/react'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { AssetIcon } from 'components/AssetIcon'
 

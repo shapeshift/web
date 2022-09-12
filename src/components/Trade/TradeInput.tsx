@@ -1,15 +1,15 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapErrorTypes } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { InterpolationOptions } from 'node-polyglot'
+import type { SwapErrorTypes } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { RouterProps } from 'react-router-dom'
+import type { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -38,7 +38,8 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'
-import { TradeAmountInputField, TradeRoutePaths, TradeState } from './types'
+import type { TradeState } from './types'
+import { TradeAmountInputField, TradeRoutePaths } from './types'
 
 type TS = TradeState<KnownChainIds>
 

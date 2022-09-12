@@ -1,6 +1,7 @@
 import { adapters } from '@shapeshiftoss/caip'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 
 export const getBanxaAssets = () => {
   const banxaAssets = adapters.getSupportedBanxaAssets()

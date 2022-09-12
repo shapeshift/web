@@ -1,8 +1,5 @@
-import {
-  FoxFarmingWithdrawActions,
-  FoxFarmingWithdrawActionType,
-  FoxFarmingWithdrawState,
-} from './WithdrawCommon'
+import type { FoxFarmingWithdrawActions, FoxFarmingWithdrawState } from './WithdrawCommon'
+import { FoxFarmingWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: FoxFarmingWithdrawState = {
   txid: null,

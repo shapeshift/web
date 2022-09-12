@@ -1,6 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
-import { Box, Center, CenterProps, Container, Flex, Heading, Text } from '@chakra-ui/react'
+import type { CenterProps } from '@chakra-ui/react'
+import { Box, Center, Container, Flex, Heading, Text } from '@chakra-ui/react'
 import { Fragment } from 'react'
 
 import { theme } from './theme'

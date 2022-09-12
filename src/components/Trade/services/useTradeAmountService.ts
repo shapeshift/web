@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'

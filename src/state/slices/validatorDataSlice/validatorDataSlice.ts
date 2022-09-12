@@ -1,12 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { ChainId } from '@shapeshiftoss/caip'
-import { cosmossdk, CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type {
+  cosmossdk,
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
+import type { PortfolioAccounts } from '../portfolioSlice/portfolioSliceCommon'
 import { getDefaultValidatorAddressFromChainId } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })

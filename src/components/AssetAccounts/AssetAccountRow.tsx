@@ -1,21 +1,22 @@
+import type { SimpleGridProps } from '@chakra-ui/react'
 import {
   Box,
   Flex,
   SimpleGrid,
-  SimpleGridProps,
   Stack,
   Tag,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,

@@ -1,5 +1,5 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useState } from 'react'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'

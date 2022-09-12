@@ -1,8 +1,10 @@
-import { AssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigNumber } from 'bignumber.js'
+import type { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import fill from 'lodash/fill'
@@ -21,10 +23,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type {
   PortfolioAssets,
   PortfolioBalancesById,
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -41,7 +43,7 @@ import {
   selectTxHistoryStatus,
   selectTxsByFilter,
 } from 'state/slices/selectors'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
@@ -73,7 +75,7 @@ type BucketMeta = {
 }
 
 type MakeBucketsReturn = {
-  buckets: Array<Bucket>
+  buckets: Bucket[]
   meta: BucketMeta
 }
 
@@ -111,7 +113,7 @@ export const makeBuckets: MakeBuckets = args => {
 
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
-    return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
+    return (acc: Bucket[], _cur: unknown, idx: number) => {
       const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []

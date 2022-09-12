@@ -1,9 +1,10 @@
-import { Divider, Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { Divider, Stack, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
+import type { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { YatBanner } from 'components/Banners/YatBanner'
 import { Text } from 'components/Text'
@@ -14,9 +15,10 @@ import { MainNavLink } from './MainNavLink'
 
 type NavBarProps = {
   isCompact?: boolean
+  onClick?: () => void
 } & StackProps
 
-export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
+export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
@@ -61,6 +63,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
                 leftIcon={item.icon}
                 href={item.path}
                 to={item.path}
+                onClick={onClick}
                 label={translate(item.label)}
                 aria-label={translate(item.label)}
                 data-test={`navigation-${item.label.split('.')[1]}-button`}

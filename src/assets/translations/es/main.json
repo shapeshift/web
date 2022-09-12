@@ -22,6 +22,7 @@
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
     "claim": "Reclamar",
+    "withdrawAndClaim": "Retirar y Reclamar",
     "overview": "Vista Rápida",
     "getStarted": "Iniciar",
     "connectWallet": "Conectar Billetera",
@@ -65,7 +66,8 @@
     "showDetails": "Mostrar detalles",
     "hideDetails": "Ocultar detalles",
     "walletSupportsETHOnly": "Solo Ethereum",
-    "loadingText": "Cargando..."
+    "loadingText": "Cargando...",
+    "txId": "ID Tx"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -85,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Arcoiris",
+      "totalChart": "💰 Total",
       "addAsset": "Agregar activo",
       "yourAssets": "Sus activos",
       "asset": "Activos",
@@ -112,6 +116,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -123,7 +128,9 @@
     "fundsFrom": "Los fondos se enviarán desde",
     "headerLabel": "Compra/Vende criptomonedas",
     "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}",
-    "usOnly": "Solamente - EEUU"
+    "usOnly": "Solamente - EEUU",
+    "noKYC": "SIN KYC",
+    "nonUS": "NO-USA"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +267,7 @@
     "tvl": "TVL",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Finalizado",
     "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
@@ -309,7 +317,15 @@
         "info": {
           "title": "Información sobre retiro",
           "description": "Ingrese la cantidad de %{asset} que desea retirar.",
-          "yieldyDescription": "Ingrese la cantidad de %{asset} que desea retirar. Los retiros posteriores se combinarán y restablecerán el tiempo de retiro."
+          "yieldyDescription": "Ingrese la cantidad de %{asset} que desea retirar. Los retiros posteriores se combinarán y restablecerán el tiempo de retiro.",
+          "farmingExpiredDescription": "Este contrato de recompensas ha finalizado. Debes retirar todo tu saldo.",
+          "rewardsInfo": "Recompensas que recibirá"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "Información de reclamo",
+          "description": "Retirar los tokens acumulados en farming"
         }
       },
       "approve": {
@@ -345,7 +361,9 @@
     "foxToken": "FOX Opportunities",
     "featureFlags": "Indicadores de Funciones",
     "demoMode": "Modo Demo",
-    "clickToConnect": "Haga clic para conectar una billetera"
+    "clickToConnect": "Haga clic para conectar una billetera",
+    "wallet": "Billetera",
+    "explore": "Explore"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -375,6 +393,8 @@
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "revoke": "Revocar",
+        "infinite": "Infinito ∞",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -394,7 +414,9 @@
         "claimWithdraw": "Retirar monto a reclamar"
       },
       "erc20": {
-        "approve": "Aprobar"
+        "approve": "Aprobar",
+        "revoke": "Revocar",
+        "infinite": "Infinito ∞"
       }
     },
     "unknown": "Transacción"
@@ -417,6 +439,7 @@
     "noSupportedAssets": "No hay activos soportados en la billetera."
   },
   "trade": {
+    "trade": "Intercambiar",
     "allowance": "Tolerancia",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
@@ -433,10 +456,14 @@
     "needPermission": "Necesitamos su permiso para usar su %{symbol}",
     "whyNeedThis": "¿Por qué necesito hacer esto?",
     "estimatedGasFee": "Tarifa estimada de gas",
+    "receiveInclFee": "Recibir (incl. tarifas)",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
     "unlimited": "Ilimitado",
     "exact": "Exacto",
+    "expectedAmount": "Cantidad esperada",
+    "beforeFees": "Antes de las tarifas",
+    "minAmountAfterSlippage": "mín. cantidad esperada después del deslizamiento (%{slippage}%)",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
@@ -567,6 +594,20 @@
           "length": "Su contraseña debe tener al menos %{longitud} caracteres",
           "maxLength": "El apodo debe tener %{longitud} caracteres como máximo"
         }
+      },
+      "backupPassphrase": {
+        "menuItem": "Hacer una copia de seguridad de mi billetera",
+        "enterPassword": "Ingrese su contraseña para continuar",
+        "testTitle": "Verifique su Frase Secreta de Recuperación",
+        "info": {
+          "title": "Su Frase Secreta de Recuperación",
+          "description": "Escriba estas 12 palabras y guárdelas de forma segura fuera de línea. Esta frase de 12 palabras se usa para recuperar las claves privadas de su billetera.",
+          "warning": "Nota: si pierde su Frase de recuperación secreta, ShapeShift no puede ayudarlo a recuperar su billetera y sus fondos se perderán para siempre."
+        },
+        "success": {
+          "title": "Éxito",
+          "description": "Has hecho una copia de seguridad de tu billetera. Recuerde guardar su Frase Secreta de Recuperación en un lugar seguro."
+        }
       }
     },
     "stake": {
@@ -651,6 +692,9 @@
         "failed": "Hubo un problema con su depósito."
       }
     },
+    "claim": {
+      "claimFrom": "Reclamar de %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Cantidad a retirar",
       "withdrawFrom": "Retirar de %{oportunidad}",
@@ -702,6 +746,7 @@
       "amountToDeposit": "Cantidad a Depositar",
       "amountToStake": "Cantidad a Stake",
       "amountToWithdraw": "Cantidad a Retirar",
+      "amountToClaim": "Monto a Reclamar",
       "withdrawFrom": "Retiro de",
       "depositTo": "Depositar A",
       "averageApy": "APY Promedio",
@@ -766,6 +811,19 @@
         "SGD": "Dolar de Singapur",
         "ILS": "Shekel Israelí",
         "IDR": "Rupia Indonesia"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "¡Tu billetera ha sido importada!",
+        "body": "Bienvenido a la nueva app ShapeShift.",
+        "primaryCta": "Continuar"
+      },
+      "notice": {
+        "header": "El inicio de sesión con correo electrónico está en desuso. ¡Haz una copia de seguridad de tu billetera ahora!",
+        "body": "Si alguna vez pierde el acceso a su dispositivo, necesita su frase de recuperación secreta para recuperar sus fondos.",
+        "primaryCta": "Obtener Frase de Recuperación secreta",
+        "secondaryCta": "Ya tengo mi frase secreta de recuperación"
       }
     }
   },
@@ -1176,7 +1234,10 @@
     }
   },
   "accounts": {
-    "accounts": "Cuentas"
+    "accounts": "Cuentas",
+    "selectAccount": "Seleccione una Cuenta",
+    "addAccount": "Añadir Cuenta",
+    "accountNumber": "Cuenta #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1230,6 +1291,7 @@
     "status": "Estado",
     "transactionType": "Tipo de Transacción",
     "minerFee": "Tarifa de Minero",
+    "approvalAmount": "Aprobar Cantidad",
     "unknownType": "Transacción",
     "from": "Desde",
     "to": "Para",
@@ -1283,6 +1345,14 @@
         "neverCollectPersonalInformations": "Nunca recopila claves, direcciones, transacciones, saldos o cualquier información personal",
         "neverCollectIp": "Nunca recopila su dirección IP completa",
         "neverSellData": "Nunca vende datos con fines de lucro"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Consigue un Yat",
+        "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
       }
     }
   }

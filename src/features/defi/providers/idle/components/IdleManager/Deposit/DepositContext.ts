@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { IdleDepositActions, IdleDepositState } from './DepositCommon'
+import type { IdleDepositActions, IdleDepositState } from './DepositCommon'
 
 interface IDepositContext {
   state: IdleDepositState | null

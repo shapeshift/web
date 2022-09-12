@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -8,7 +8,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
-import { SendInput } from '../../Form'
+import type { SendInput } from '../../Form'
 
 const moduleLogger = logger.child({ namespace: ['cosmos', 'useFormSend'] })
 

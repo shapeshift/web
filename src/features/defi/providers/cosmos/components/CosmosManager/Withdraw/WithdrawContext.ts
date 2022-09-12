@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { CosmosWithdrawActions, CosmosWithdrawState } from './WithdrawCommon'
+import type { CosmosWithdrawActions, CosmosWithdrawState } from './WithdrawCommon'
 
 interface IWithdrawContext {
   state: CosmosWithdrawState | null

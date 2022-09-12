@@ -1,7 +1,10 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import dayjs from 'dayjs'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'

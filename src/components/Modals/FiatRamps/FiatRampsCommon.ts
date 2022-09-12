@@ -1,4 +1,4 @@
-import { BigNumber } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 
 export enum FiatRampsRoutes {
   Select = '/fiat-ramp/select',

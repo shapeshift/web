@@ -3,17 +3,17 @@ import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshifto
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'

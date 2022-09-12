@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { YearnDepositActions, YearnDepositState } from './DepositCommon'
+import type { YearnDepositActions, YearnDepositState } from './DepositCommon'
 
 interface IDepositContext {
   state: YearnDepositState | null

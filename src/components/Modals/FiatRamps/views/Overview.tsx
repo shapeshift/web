@@ -12,8 +12,8 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
-  AccountId,
   avalancheChainId,
   bchChainId,
   btcChainId,
@@ -26,8 +26,9 @@ import {
   fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type { Dispatch, SetStateAction } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -39,17 +40,20 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import {
   selectMarketDataById,
   selectPortfolioAccountBalances,
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import { supportedFiatRamps } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type GenerateAddressProps = {
@@ -74,7 +78,7 @@ type OverviewProps = GenerateAddressProps & {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
 }
 
 type AddressOrNameFull = string
@@ -147,7 +151,9 @@ export const Overview: React.FC<OverviewProps> = ({
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
-  const { fiatRamps } = useModal()
+  const {
+    fiatRamps: { close: handleFiatRampsClose },
+  } = useModal()
   const {
     state: { wallet },
   } = useWallet()
@@ -382,7 +388,7 @@ export const Overview: React.FC<OverviewProps> = ({
         >
           <Text translation='common.continue' />
         </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
+        <Button width='full' size='lg' variant='ghost' onClick={handleFiatRampsClose}>
           <Text translation='common.cancel' />
         </Button>
       </Flex>

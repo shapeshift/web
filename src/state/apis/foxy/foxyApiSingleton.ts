@@ -1,4 +1,4 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'

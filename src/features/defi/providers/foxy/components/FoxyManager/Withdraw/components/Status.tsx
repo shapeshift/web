@@ -4,7 +4,10 @@ import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'

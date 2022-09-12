@@ -1,17 +1,18 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { Overview } from 'features/defi/components/Overview/Overview'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -19,6 +20,7 @@ import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSelectedLocale,
@@ -29,7 +31,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
 })
 
-export const YearnOverview = () => {
+export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['onChange'] }> = ({
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { yearn: api } = useYearn()
   const translate = useTranslate()
   const toast = useToast()
@@ -83,6 +87,8 @@ export const YearnOverview = () => {
     })()
   }, [api, vaultAddress, chainId, toast, translate])
 
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -93,6 +99,7 @@ export const YearnOverview = () => {
 
   return (
     <Overview
+      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

@@ -14,7 +14,8 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import { range } from 'lodash'
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -22,8 +23,9 @@ import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
 import { addWallet, createWallet } from '../mobileMessageHandlers'
-import { Revocable, revocable, RevocableWallet } from '../RevocableWallet'
-import { MobileLocationState } from '../types'
+import type { RevocableWallet } from '../RevocableWallet'
+import { Revocable, revocable } from '../RevocableWallet'
+import type { MobileLocationState } from '../types'
 
 const moduleLogger = mobileLogger.child({
   namespace: ['components', 'MobileCreate'],

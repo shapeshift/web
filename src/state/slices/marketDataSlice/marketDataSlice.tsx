@@ -1,15 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import {
+import type { AssetId } from '@shapeshiftoss/caip'
+import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
+  SupportedFiatCurrencies,
+} from '@shapeshiftoss/market-service'
+import {
   findByFiatSymbol,
   findPriceHistoryByFiatSymbol,
   MarketServiceManager,
-  SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'

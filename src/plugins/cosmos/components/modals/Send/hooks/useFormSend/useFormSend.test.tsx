@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
+import type { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'

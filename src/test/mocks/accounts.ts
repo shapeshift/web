@@ -8,7 +8,8 @@ import {
   ethChainId,
   foxAssetId,
 } from '@shapeshiftoss/caip'
-import { type Account, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { type Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'

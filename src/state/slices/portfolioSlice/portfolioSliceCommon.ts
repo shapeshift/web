@@ -1,9 +1,9 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
-import { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
-import { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
 /*
  * we can't retrieve an xpub from an address, but we can derive
@@ -67,13 +67,15 @@ export type PortfolioAssets = {
   [k: AssetId]: Asset
 }
 
-export type PortfolioAccountBalances = {
-  byId: {
-    [k: AccountSpecifier]: {
-      // these are granular balances of this asset for this account
-      [k: AssetId]: string // balance for asset in base units
-    }
+export type PortfolioAccountBalancesById = {
+  [k: AccountSpecifier]: {
+    // these are granular balances of this asset for this account
+    [k: AssetId]: string // balance for asset in base units
   }
+}
+
+export type PortfolioAccountBalances = {
+  byId: PortfolioAccountBalancesById
   ids: AccountSpecifier[]
 }
 

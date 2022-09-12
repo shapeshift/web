@@ -1,6 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { ethAssetId, ethChainId, foxAssetId, toAccountId } from '@shapeshiftoss/caip'
-import {
+import type {
   ChainAdapter,
   ethereum,
   EvmBaseAdapter,
@@ -8,8 +8,9 @@ import {
   FeeData,
 } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import isNumber from 'lodash/isNumber'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useMemo } from 'react'
@@ -96,7 +97,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const addLiquidity = useCallback(
     async (foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !accountNumber || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const value = bnOrZero(ethAmount)
@@ -197,7 +198,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const removeLiquidity = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !accountNumber || !uniswapRouterContract || !wallet) return
+        if (!accountAddress || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
@@ -426,7 +427,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
 
   const approve = useCallback(
     async (forWithdrawal?: boolean) => {
-      if (!wallet || !accountNumber) return
+      if (!wallet || !isNumber(accountNumber)) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       const data = contract.interface.encodeFunctionData('approve', [
         UNISWAP_V2_ROUTER_ADDRESS,

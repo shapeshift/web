@@ -1,5 +1,5 @@
-import { BoxProps } from '@chakra-ui/react'
-import {
+import type { BoxProps } from '@chakra-ui/react'
+import type {
   UseColumnOrderInstanceProps,
   UseColumnOrderState,
   UseExpandedHooks,

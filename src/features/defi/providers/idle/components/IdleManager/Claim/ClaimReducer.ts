@@ -1,4 +1,5 @@
-import { IdleClaimActions, IdleClaimActionType, IdleClaimState } from './ClaimCommon'
+import type { IdleClaimActions, IdleClaimState } from './ClaimCommon'
+import { IdleClaimActionType } from './ClaimCommon'
 
 export const initialState: IdleClaimState = {
   txid: null,

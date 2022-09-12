@@ -1,6 +1,8 @@
-import { AxisScale } from '@visx/axis'
+import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { useCallback } from 'react'
+import { useMemo } from 'react'
 
 export interface LineChartProps {
   xScale: AxisScale<number>
@@ -19,24 +21,33 @@ export interface LineChartProps {
 }
 
 export const MaxPrice = ({ label, yText, xScale, stroke, width, xDate }: LineChartProps) => {
-  const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
-    const offsetWidth = width / 2
-    const buffer = 16
-    const end = width - offsetWidth
-    if (x < offsetWidth) {
-      return { x: x + buffer, anchor: 'start' }
-    } else if (x > end) {
-      return { x, anchor: 'end' }
-    } else {
-      return { x, anchor: 'start' }
-    }
-  }
+  const makeTextPos = useCallback(
+    (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
+      const offsetWidth = width / 2
+      const buffer = 16
+      const end = width - offsetWidth
+      if (x < offsetWidth) {
+        return { x: x + buffer, anchor: 'start' }
+      } else if (x > end) {
+        return { x, anchor: 'end' }
+      } else {
+        return { x, anchor: 'start' }
+      }
+    },
+    [width],
+  )
+
+  const xScaleDate = useMemo(() => xScale(xDate), [xDate, xScale])
+  const textPos = useMemo(() => makeTextPos(xScaleDate || 0), [makeTextPos, xScaleDate])
+  const xText = useMemo(() => textPos.x, [textPos.x])
+  const textAnchor = useMemo(() => textPos.anchor, [textPos.anchor])
+
   return (
     <g>
       <Text
-        x={handleTextPos(xScale(xDate) || 0).x}
+        x={xText}
         y={yText}
-        textAnchor={handleTextPos(xScale(xDate) || 0).anchor}
+        textAnchor={textAnchor}
         fill={stroke}
         fontSize='12px'
         dy='-0.5rem'

@@ -1,5 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter, cosmos } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'

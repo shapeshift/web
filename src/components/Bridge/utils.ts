@@ -1,15 +1,10 @@
 import { EvmChain, GasToken } from '@axelar-network/axelarjs-sdk'
-import {
-  AssetId,
-  avalancheChainId,
-  ChainId,
-  ethChainId,
-  fromAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAxelarQuerySdk } from 'components/Bridge/axelarQuerySdkSingleton'
-import { AxelarChainName, AxelarChainNames, BridgeAsset } from 'components/Bridge/types'
+import type { AxelarChainName, BridgeAsset } from 'components/Bridge/types'
+import { AxelarChainNames } from 'components/Bridge/types'
 
 export const wrapAxelarAssetIdFromEthereumToAvalanche = (assetId: AssetId): AssetId | null => {
   const chainId = KnownChainIds.AvalancheMainnet

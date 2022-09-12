@@ -9,19 +9,19 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AccountId } from '@shapeshiftoss/caip'
-import { PropsWithChildren, useMemo } from 'react'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { PropsWithChildren } from 'react'
+import { useMemo } from 'react'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
-import {
-  AssetDescriptionTeaser,
-  AssetDescriptionTeaserProps,
-} from 'components/AssetDescriptionTeaser'
+import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
+import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 
-import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
+import type { DefiActionButtonProps } from '../DefiActionButtons'
+import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 
 export type AssetWithBalance = {
@@ -31,7 +31,7 @@ export type AssetWithBalance = {
 } & Asset
 
 type OverviewProps = {
-  onAccountChange?: (accountId: AccountId) => void
+  onAccountIdChange?: (accountId: AccountId) => void
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
   name: string
@@ -47,7 +47,7 @@ type OverviewProps = {
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
-  onAccountChange,
+  onAccountIdChange,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -115,10 +115,10 @@ export const Overview: React.FC<OverviewProps> = ({
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}
                   </RawText>
-                  {onAccountChange ? (
+                  {onAccountIdChange ? (
                     <AccountDropdown
                       assetId={asset.assetId}
-                      onChange={onAccountChange}
+                      onChange={onAccountIdChange}
                       buttonProps={{ height: 5, variant: 'solid' }}
                     />
                   ) : (

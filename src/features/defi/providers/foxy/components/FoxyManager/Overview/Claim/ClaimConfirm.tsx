@@ -8,10 +8,11 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -24,10 +25,16 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
+  accountId: Nullable<AccountId>
   assetId: AssetId
   amount?: string
   contractAddress: string
@@ -40,6 +47,7 @@ const moduleLogger = logger.child({
 })
 
 export const ClaimConfirm = ({
+  accountId,
   assetId,
   amount,
   contractAddress,
@@ -70,8 +78,11 @@ export const ClaimConfirm = ({
 
   const toast = useToast()
 
-  const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !userAddress || !foxy) return
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const handleConfirm = useCallback(async () => {
+    if (!(walletState.wallet && contractAddress && userAddress && foxy && bip44Params)) return
     setLoading(true)
     try {
       const txid = await foxy.claimWithdraw({
@@ -79,6 +90,7 @@ export const ClaimConfirm = ({
         userAddress,
         wallet: walletState.wallet,
         contractAddress,
+        bip44Params,
       })
       history.push('/status', {
         txid,
@@ -99,9 +111,23 @@ export const ClaimConfirm = ({
     } finally {
       setLoading(false)
     }
-  }
+  }, [
+    amount,
+    assetId,
+    bip44Params,
+    chainId,
+    contractAddress,
+    estimatedGas,
+    foxy,
+    history,
+    toast,
+    translate,
+    userAddress,
+    walletState?.wallet,
+  ])
 
   useEffect(() => {
+    if (!bip44Params) return
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
@@ -114,6 +140,7 @@ export const ClaimConfirm = ({
             userAddress,
             contractAddress,
             wallet: walletState.wallet,
+            bip44Params,
           }),
           foxy.getGasPrice(),
           foxy.canClaimWithdraw({ contractAddress, userAddress }),
@@ -128,6 +155,7 @@ export const ClaimConfirm = ({
       }
     })()
   }, [
+    bip44Params,
     chainAdapterManager,
     contractAddress,
     feeAsset.precision,

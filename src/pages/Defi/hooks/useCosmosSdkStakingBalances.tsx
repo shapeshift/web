@@ -1,9 +1,10 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/unchained-client'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { cosmos } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ActiveStakingOpportunity } from 'state/slices/selectors'
 import {
-  ActiveStakingOpportunity,
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,

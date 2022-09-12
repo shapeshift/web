@@ -12,7 +12,7 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -44,7 +44,7 @@ type TestState = {
 
 export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const { goBack: handleBackClick, ...history } = useHistory()
   const {
     backupNativePassphrase: {
       props: { preventClose },
@@ -127,7 +127,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={history.goBack}
+        onClick={handleBackClick}
       />
       <ModalHeader pt={4}>
         <Text translation={'modals.shapeShift.backupPassphrase.testTitle'} />

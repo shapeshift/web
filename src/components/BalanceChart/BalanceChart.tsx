@@ -1,11 +1,11 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 type BalanceChartArgs = {
   assetIds: AssetId[]

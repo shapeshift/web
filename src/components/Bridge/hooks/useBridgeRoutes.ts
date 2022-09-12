@@ -6,7 +6,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
-import { AxelarChainNames, BridgeAsset, BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
+import type { BridgeAsset, BridgeChain, BridgeState } from '../types'
+import { AxelarChainNames, BridgeRoutePaths } from '../types'
 const moduleLogger = logger.child({ namespace: ['useBridgeRoutes'] })
 
 export const useBridgeRoutes = (): {

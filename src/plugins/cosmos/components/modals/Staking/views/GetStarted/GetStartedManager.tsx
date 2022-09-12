@@ -1,11 +1,8 @@
 import { MemoryRouter, Route, Switch, useHistory } from 'react-router-dom'
 
 import { GetStarted } from './GetStarted'
-import {
-  GetStartedManagerProps,
-  GetStartedManagerRoutes,
-  GetStartedRouterProps,
-} from './GetStartedCommon'
+import type { GetStartedManagerProps, GetStartedRouterProps } from './GetStartedCommon'
+import { GetStartedManagerRoutes } from './GetStartedCommon'
 import { LearnMore } from './LearnMore'
 
 export const entries = [GetStartedManagerRoutes.GetStarted, GetStartedManagerRoutes.LearnMore]

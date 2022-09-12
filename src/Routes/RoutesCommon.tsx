@@ -21,9 +21,10 @@ import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { Route as NestedRoute, RouteCategory } from './helpers'
+import type { Route as NestedRoute } from './helpers'
+import { RouteCategory } from './helpers'
 
-export const routes: Array<NestedRoute> = [
+export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',

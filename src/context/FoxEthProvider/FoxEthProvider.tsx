@@ -1,10 +1,11 @@
-import { AccountId, ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { getLpTokenPrice } from 'features/defi/providers/fox-eth-lp/api'
 import {
   foxEthLpAssetId,

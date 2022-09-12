@@ -13,7 +13,7 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { logger } from 'lib/logger'
-import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdByAddress,

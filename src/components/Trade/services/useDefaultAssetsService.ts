@@ -10,7 +10,7 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'

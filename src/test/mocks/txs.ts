@@ -2,7 +2,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',

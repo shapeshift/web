@@ -10,7 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { LocationState } from '../types'
+import type { LocationState } from '../types'
 
 export const LegacyLoginSuccess = () => {
   const history = useHistory()

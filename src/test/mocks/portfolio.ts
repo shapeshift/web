@@ -1,5 +1,5 @@
 import { avalancheAssetId, btcAssetId, cosmosAssetId, ethAssetId } from '@shapeshiftoss/caip'
-import { Account } from '@shapeshiftoss/chain-adapters'
+import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { accountToPortfolio } from 'state/slices/portfolioSlice/utils'
 

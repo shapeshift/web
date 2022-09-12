@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'

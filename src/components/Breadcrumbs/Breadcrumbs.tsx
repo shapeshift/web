@@ -1,5 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
-import withBreadcrumbs, { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import type { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { selectAssetById } from 'state/slices/selectors'

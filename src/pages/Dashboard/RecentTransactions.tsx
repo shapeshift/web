@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { selectLastNTxIds } from 'state/slices/selectors'
 
 export const RecentTransactions = () => {

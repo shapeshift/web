@@ -1,3 +1,4 @@
+import type { ToastId } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -6,11 +7,11 @@ import {
   CloseButton,
   Link,
   Text,
-  ToastId,
   useToast,
 } from '@chakra-ui/react'
-import { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
   createContext,
   useCallback,
@@ -22,7 +23,7 @@ import React, {
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { RadioOption } from 'components/Radio/Radio'
+import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'

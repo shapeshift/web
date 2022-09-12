@@ -3,7 +3,10 @@ import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'

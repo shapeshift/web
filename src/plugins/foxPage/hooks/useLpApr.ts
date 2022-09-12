@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'

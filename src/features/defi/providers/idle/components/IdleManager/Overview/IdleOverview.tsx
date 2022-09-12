@@ -1,16 +1,17 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
-import { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
-import { AssetWithBalance, Overview } from 'features/defi/components/Overview/Overview'
-import {
-  DefiAction,
+import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import { Overview } from 'features/defi/components/Overview/Overview'
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'

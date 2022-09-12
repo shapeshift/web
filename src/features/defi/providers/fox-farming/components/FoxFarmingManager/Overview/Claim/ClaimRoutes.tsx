@@ -1,5 +1,8 @@
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'

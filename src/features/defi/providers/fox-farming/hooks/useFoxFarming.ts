@@ -1,6 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
-import {
+import type {
   ChainAdapter,
   ethereum,
   EvmBaseAdapter,
@@ -8,7 +8,7 @@ import {
   FeeData,
 } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import isNumber from 'lodash/isNumber'
 import { getEthersProvider } from 'plugins/foxPage/utils'

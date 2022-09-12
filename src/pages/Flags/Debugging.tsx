@@ -62,6 +62,8 @@ export const Debugging = () => {
     })()
   }, [isLocalhost])
 
+  const handleReloadClick = window.location.reload
+
   return (
     <Stack my={8} spacing={4} flex={1}>
       <Card>
@@ -122,7 +124,7 @@ export const Debugging = () => {
           </Row>
         </Card.Body>
         <Card.Footer>
-          <Button onClick={window.location.reload} colorScheme='blue'>
+          <Button onClick={handleReloadClick} colorScheme='blue'>
             Reload
           </Button>
         </Card.Footer>

@@ -1,6 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 type CalculateAmountsArgs = {

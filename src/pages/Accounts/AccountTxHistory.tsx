@@ -6,7 +6,7 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { MatchParams } from './Account'
+import type { MatchParams } from './Account'
 
 export const AccountTxHistory: React.FC = () => {
   const { accountId } = useParams<MatchParams>()

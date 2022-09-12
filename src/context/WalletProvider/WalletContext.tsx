@@ -1,7 +1,8 @@
-import React, { createContext } from 'react'
+import type React from 'react'
+import { createContext } from 'react'
 
-import { ActionTypes } from './actions'
-import { KeyManager } from './KeyManager'
+import type { ActionTypes } from './actions'
+import type { KeyManager } from './KeyManager'
 import type { DeviceState, InitialState, KeyManagerWithProvider } from './WalletProvider'
 
 export interface IWalletContext {

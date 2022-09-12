@@ -1,5 +1,6 @@
-import { forwardRef, Text as CText, TextProps } from '@chakra-ui/react'
-import Polyglot from 'node-polyglot'
+import type { TextProps } from '@chakra-ui/react'
+import { forwardRef, Text as CText } from '@chakra-ui/react'
+import type Polyglot from 'node-polyglot'
 import { useTranslate } from 'react-polyglot'
 
 export type TextPropTypes = TextProps & {

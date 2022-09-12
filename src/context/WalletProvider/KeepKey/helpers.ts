@@ -1,5 +1,5 @@
-import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
-import { KeyboardEvent } from 'react'
+import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import type { KeyboardEvent } from 'react'
 import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 
 export const isValidInput = (
@@ -38,7 +38,7 @@ export const isLetter = (str: string) => {
 }
 
 export const inputValuesReducer = (
-  currentValues: Array<string | undefined>,
+  currentValues: (string | undefined)[],
   newValue: string | undefined,
   newValueIndex: number,
 ) => {

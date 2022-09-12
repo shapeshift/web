@@ -11,7 +11,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -24,7 +24,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeRoutePaths, TS } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'

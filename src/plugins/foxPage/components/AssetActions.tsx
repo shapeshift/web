@@ -11,7 +11,8 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
-import { AssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'

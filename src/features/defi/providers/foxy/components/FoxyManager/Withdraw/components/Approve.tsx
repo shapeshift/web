@@ -1,23 +1,28 @@
 import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
@@ -27,7 +32,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Approve'],
 })
 
-export const Approve = ({ onNext }: StepComponentProps) => {
+export const Approve: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+  accountId,
+  onNext,
+}) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -55,42 +63,59 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   // user info
   const { state: walletState } = useWallet()
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !rewardId || !api) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateWithdrawGas({
-          tokenContractAddress: rewardId,
-          contractAddress,
-          amountDesired: bnOrZero(
-            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-          ).decimalPlaces(0),
-          userAddress: state.userAddress,
-          type: state.withdraw.withdrawType,
-        }),
-        api.getGasPrice(),
-      ])
-      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
-      return returVal
-    } catch (error) {
-      moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
-      const fundsError =
-        error instanceof Error && error.message.includes('Not enough funds in reserve')
-      toast({
-        position: 'top-right',
-        description: fundsError
-          ? translate('defi.notEnoughFundsInReserve')
-          : translate('common.somethingWentWrong'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+  const getWithdrawGasEstimate = useCallback(
+    async (withdraw: WithdrawValues) => {
+      if (!(state?.userAddress && rewardId && api && dispatch && bip44Params)) return
+      try {
+        const [gasLimit, gasPrice] = await Promise.all([
+          api.estimateWithdrawGas({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            amountDesired: bnOrZero(
+              bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+            ).decimalPlaces(0),
+            userAddress: state.userAddress,
+            type: state.withdraw.withdrawType,
+            bip44Params,
+          }),
+          api.getGasPrice(),
+        ])
+        const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+        return returVal
+      } catch (error) {
+        moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
+        const fundsError =
+          error instanceof Error && error.message.includes('Not enough funds in reserve')
+        toast({
+          position: 'top-right',
+          description: fundsError
+            ? translate('defi.notEnoughFundsInReserve')
+            : translate('common.somethingWentWrong'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [
+      api,
+      asset.precision,
+      bip44Params,
+      contractAddress,
+      dispatch,
+      rewardId,
+      state?.userAddress,
+      state?.withdraw.withdrawType,
+      toast,
+      translate,
+    ],
+  )
 
-  const handleApprove = async () => {
-    if (!rewardId || !state.userAddress || !walletState.wallet || !api) return
+  const handleApprove = useCallback(async () => {
+    if (!(rewardId && state?.userAddress && walletState.wallet && api && dispatch && bip44Params))
+      return
     try {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       await api.approve({
@@ -98,6 +123,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
         contractAddress,
         userAddress: state.userAddress,
         wallet: walletState.wallet,
+        bip44Params,
       })
       await poll({
         fn: () =>
@@ -132,7 +158,23 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    api,
+    asset.precision,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    getWithdrawGasEstimate,
+    onNext,
+    rewardId,
+    state?.userAddress,
+    state?.withdraw,
+    toast,
+    translate,
+    walletState.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove

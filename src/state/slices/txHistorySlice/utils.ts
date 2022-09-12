@@ -1,9 +1,9 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import union from 'lodash/union'
 
-import { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
-import { Tx } from './txHistorySlice'
+import type { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
+import type { Tx } from './txHistorySlice'
 
 type TxIndex = string
 

@@ -4028,10 +4028,10 @@
     "@shapeshiftoss/hdwallet-core" "1.29.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-5.0.1.tgz#1b8befc2335bd89103d3a3556a1d6d2856f806c2"
-  integrity sha512-q/rj1ofOdyiS8xbYZOJ3DOyulEoR7nmLILTQeVHZ7XEPaY+sfO2Cb+WU70xzlu0/gG84PIej5tM0s6rU82sUeg==
+"@shapeshiftoss/investor-foxy@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-6.0.0.tgz#54df35400ec6525e841db0fb81c7091c0554d601"
+  integrity sha512-rlaivMFnWszGH8QZrE6RwNnmXv1WhrrVfxDozqlC68WMOXHjLjy19As/J8YYhxK9r7RX+N2UasNnDs7BGGCSwg==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"
@@ -9829,10 +9829,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress@^10.4.0:
-  version "10.4.0"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.4.0.tgz#bb5b3b6588ad49eff172fecf5778cc0da2980e4e"
-  integrity sha512-OM7F8MRE01SHQRVVzunid1ZK1m90XTxYnl+7uZfIrB4CYqUDCrZEeSyCXzIbsS6qcaijVCAhqDL60SxG8N6hew==
+cypress@^10.7.0:
+  version "10.7.0"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-10.7.0.tgz#2d37f8b9751c6de33ee48639cb7e67a2ce593231"
+  integrity sha512-gTFvjrUoBnqPPOu9Vl5SBHuFlzx/Wxg/ZXIz2H4lzoOLFelKeF7mbwYUOzgzgF0oieU2WhJAestQdkgwJMMTvQ==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"

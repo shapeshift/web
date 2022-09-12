@@ -1,8 +1,6 @@
 import omit from 'lodash/omit'
-import {
-  createRevocableWallet,
-  RevocableWallet,
-} from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import { createRevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,

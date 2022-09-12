@@ -1,8 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { DisplayFeeData } from '../components/Trade/types'
+import type { DisplayFeeData } from '../components/Trade/types'
 
 export const BTC: Asset = {
   chainId: btcChainId,

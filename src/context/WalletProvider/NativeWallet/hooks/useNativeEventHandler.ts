@@ -1,8 +1,10 @@
-import { Event } from '@shapeshiftoss/hdwallet-core'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
-import { Dispatch, useEffect } from 'react'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { InitialState } from 'context/WalletProvider/WalletProvider'
+import type { Dispatch } from 'react'
+import { useEffect } from 'react'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
+import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['NativeWallet'] })

@@ -1,16 +1,16 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
   btcChainId,
-  ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
   ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  HDWallet,
   supportsBTC,
   supportsCosmos,
   supportsETH,

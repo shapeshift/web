@@ -13,8 +13,8 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -30,7 +30,7 @@ import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectTotalCryptoBalanceWithDelegations,
   selectTotalFiatBalanceWithDelegations,

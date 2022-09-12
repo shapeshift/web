@@ -1,10 +1,12 @@
-import { adapters, AssetId, avalancheChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters, avalancheChainId, fromAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { store } from 'state/store'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'MtPelerin'],

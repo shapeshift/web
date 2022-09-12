@@ -1,9 +1,9 @@
-import { AccountId } from '@shapeshiftoss/caip'
-import {
-  DefiAction,
+import type { AccountId } from '@shapeshiftoss/caip'
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'

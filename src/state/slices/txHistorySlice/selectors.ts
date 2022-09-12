@@ -1,12 +1,12 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { Tx, TxId } from './txHistorySlice'
+import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import type { Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,

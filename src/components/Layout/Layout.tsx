@@ -1,4 +1,5 @@
-import { Container, ContainerProps, Flex } from '@chakra-ui/react'
+import type { ContainerProps } from '@chakra-ui/react'
+import { Container, Flex } from '@chakra-ui/react'
 import React from 'react'
 
 import { Header } from './Header/Header'

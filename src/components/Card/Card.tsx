@@ -1,10 +1,5 @@
-import {
-  Box,
-  BoxProps,
-  createStylesContext,
-  ThemingProps,
-  useMultiStyleConfig,
-} from '@chakra-ui/react'
+import type { BoxProps, ThemingProps } from '@chakra-ui/react'
+import { Box, createStylesContext, useMultiStyleConfig } from '@chakra-ui/react'
 
 export type CardProps = BoxProps & ThemingProps
 

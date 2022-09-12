@@ -5,7 +5,7 @@ import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTran
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { MatchParams } from './AccountToken'
+import type { MatchParams } from './AccountToken'
 
 export const AccountTokenTxHistory: React.FC = () => {
   const { accountId, assetId } = useParams<MatchParams>()

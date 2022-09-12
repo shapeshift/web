@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
-import { AccountId, ethChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
   supportsCosmos,
@@ -9,12 +10,12 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
   MemoryRouter,
   Redirect,
   Route,
-  RouteComponentProps,
   Switch,
   useHistory,
   useLocation,
@@ -24,10 +25,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
-import { ChainIdType, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 
-import { FiatRamp } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 

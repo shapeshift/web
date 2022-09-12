@@ -1,9 +1,9 @@
 import { Grid, Stack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

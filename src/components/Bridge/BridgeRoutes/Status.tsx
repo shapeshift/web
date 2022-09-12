@@ -23,7 +23,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { BridgeRoutePaths, BridgeState } from '../types'
+import type { BridgeState } from '../types'
+import { BridgeRoutePaths } from '../types'
 
 export const Status = () => {
   const { reset } = useFormContext<BridgeState>()

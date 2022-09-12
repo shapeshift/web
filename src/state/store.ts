@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+import type { TypedUseSelectorHook } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { foxyApi } from './apis/foxy/foxyApi'
-import { apiSlices, reducer, ReduxState, slices } from './reducer'
+import type { ReduxState } from './reducer'
+import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
@@ -52,7 +54,7 @@ export const clearState = () => {
  * remove the blacklist for local debugging, but don't commit it
  */
 const actionSanitizer = (action: any) => {
-  const marketDataBlackList = Object.keys(marketData.actions).reduce<Array<string>>((acc, k) => {
+  const marketDataBlackList = Object.keys(marketData.actions).reduce<string[]>((acc, k) => {
     if (k.startsWith('set')) acc.push(`marketData/${k}`)
     return acc
   }, [])

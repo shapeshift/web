@@ -11,11 +11,12 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type * as native from '@shapeshiftoss/hdwallet-native'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
@@ -25,7 +26,7 @@ import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { NativeWalletValues } from '../types'
+import type { NativeWalletValues } from '../types'
 
 export const EnterPassword = () => {
   const translate = useTranslate()

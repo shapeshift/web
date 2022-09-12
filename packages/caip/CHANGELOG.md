@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.2.0...@shapeshiftoss/caip-v8.3.0) (2022-09-12)
+
+
+### Features
+
+* add THORChain support ([#1010](https://github.com/shapeshift/lib/issues/1010)) ([d7c3b72](https://github.com/shapeshift/lib/commit/d7c3b72bbda9795f87fa8f73c35926c95026a3c2))
+
 # [@shapeshiftoss/caip-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.1.0...@shapeshiftoss/caip-v8.2.0) (2022-09-07)
 
 

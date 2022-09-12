@@ -84,6 +84,16 @@
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
+      },
+      "thorchain": {
+        "inputSpec": "https://dev-api.thorchain.shapeshift.com/swagger",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/thorchain",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
       }
     }
   }

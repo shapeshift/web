@@ -105,3 +105,16 @@ export const avax: Asset = {
   explorerAddressLink: 'https://snowtrace.io/address/',
   explorerTxLink: 'https://snowtrace.io/tx/',
 }
+
+export const thorchain: Asset = {
+  assetId: caip.thorchainAssetId,
+  chainId: caip.thorchainChainId,
+  name: 'THORChain',
+  symbol: 'RUNE',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
+  explorer: 'https://viewblock.io/thorchain',
+  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+}

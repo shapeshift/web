@@ -85,6 +85,16 @@
           "useSingleRequestParameter": true
         }
       }
+    },
+    "thorchain": {
+      "inputSpec": "http://api.thorchain.localhost/swagger",
+      "generatorName": "typescript-axios",
+      "output": "#{cwd}/src/generated/thorchain",
+      "reservedWordsMappings": { "in": "in" },
+      "additionalProperties": {
+        "supportsES6": "true",
+        "useSingleRequestParameter": true
+      }
     }
   }
 }

@@ -48,6 +48,21 @@ const makeBtcMockCoincapResponse = () => ({
   explorer: 'https://blockchain.info/',
 })
 
+const makeThorchainMockCoincapResponse = () => ({
+  id: 'thorchain',
+  rank: '65',
+  symbol: 'RUNE',
+  name: 'THORChain',
+  supply: '330688061.3344559700000000',
+  maxSupply: '500000000.0000000000000000',
+  marketCapUsd: '657476102.4209547026470565',
+  volumeUsd24Hr: '62707742.6988409953177376',
+  priceUsd: '1.9882063469959601',
+  changePercent24Hr: '-3.0298851309669810',
+  vwap24Hr: '2.0280215210735477',
+  explorer: 'https://explorer.binance.org/asset/RUNE-B1A',
+})
+
 const makeCosmosMockCoincapResponse = () => ({
   id: 'cosmos',
   rank: '24',
@@ -124,6 +139,7 @@ describe('adapters:coincap:utils', () => {
         makeBtcMockCoincapResponse(),
         makeCosmosMockCoincapResponse(),
         makeOsmosisMockCoincapResponse(),
+        makeThorchainMockCoincapResponse(),
       ])
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {
@@ -141,9 +157,11 @@ describe('adapters:coincap:utils', () => {
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
         },
-
         'cosmos:osmosis-1': {
           'cosmos:osmosis-1/slip44:118': 'osmosis',
+        },
+        'cosmos:thorchain-mainnet-v1': {
+          'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',
         },
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',

@@ -234,7 +234,7 @@ export const performIbcTransfer = async (
       ],
       gas,
     },
-    signatures: null,
+    signatures: [],
     msg: [
       {
         type: 'cosmos-sdk/MsgTransfer',
@@ -313,7 +313,7 @@ export const buildTradeTx = async ({
       ],
       gas,
     },
-    signatures: null,
+    signatures: [],
     msg: [
       {
         type: 'osmosis/gamm/swap-exact-amount-in',

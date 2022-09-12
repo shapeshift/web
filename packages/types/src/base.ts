@@ -15,6 +15,7 @@ export enum KnownChainIds {
   LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
   CosmosMainnet = 'cosmos:cosmoshub-4',
   OsmosisMainnet = 'cosmos:osmosis-1',
+  ThorchainMainnet = 'cosmos:thorchain-mainnet-v1',
 }
 
 export enum WithdrawType {

@@ -23,6 +23,7 @@ export const dogecoinAssetMap = { [constants.dogeAssetId]: 'dogecoin' }
 export const litecoinAssetMap = { [constants.ltcAssetId]: 'litecoin' }
 export const cosmosAssetMap = { [constants.cosmosAssetId]: 'cosmos' }
 export const osmosisAssetMap = { [constants.osmosisAssetId]: 'osmosis' }
+export const thorchainAssetMap = { [constants.thorchainAssetId]: 'thorchain' }
 
 interface Flavoring<FlavorT> {
   _type?: FlavorT

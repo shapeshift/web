@@ -67,6 +67,15 @@ const makeOsmosisMockCoingeckoResponse = () => ({
   platforms: {},
 })
 
+const makeThorchainMockCoingeckoResponse = () => ({
+  id: 'thorchain',
+  symbol: 'rune',
+  name: 'THORChain',
+  platforms: {
+    thorchain: '',
+  },
+})
+
 jest.mock('fs', () => ({
   promises: {
     writeFile: jest.fn(async () => undefined),
@@ -102,6 +111,7 @@ describe('adapters:coingecko:utils', () => {
         makeBtcMockCoingeckoResponse(),
         makeCosmosMockCoingeckoResponse(),
         makeOsmosisMockCoingeckoResponse(),
+        makeThorchainMockCoingeckoResponse(),
         makeAvalancheMockCoingeckoResponse(),
       ])
       const expected = {
@@ -122,6 +132,9 @@ describe('adapters:coingecko:utils', () => {
         },
         'cosmos:osmosis-1': {
           'cosmos:osmosis-1/slip44:118': 'osmosis',
+        },
+        'cosmos:thorchain-mainnet-v1': {
+          'cosmos:thorchain-mainnet-v1/slip44:931': 'thorchain',
         },
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',

@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy'
 
 import { Asset, AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin } from './baseAssets'
+import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as ethereum from './ethereum'
 import * as osmosis from './osmosis'
 import assetOverrides from './overrides.json'
@@ -31,6 +31,7 @@ const generateAssetData = async () => {
     dogecoin,
     litecoin,
     atom,
+    thorchain,
     ...ethAssets,
     ...osmosisAssets,
     ...avalancheAssets,

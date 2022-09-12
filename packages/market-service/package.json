@@ -37,17 +37,17 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^7.13.0",
-    "@shapeshiftoss/investor-foxy": "^4.0.2",
+    "@shapeshiftoss/chain-adapters": "^9.0.1",
+    "@shapeshiftoss/investor-foxy": "^5.0.1",
     "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^9.5.0"
+    "@shapeshiftoss/unchained-client": "^10.0.1"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^7.13.0",
-    "@shapeshiftoss/investor-foxy": "^4.0.2",
+    "@shapeshiftoss/chain-adapters": "^9.0.1",
+    "@shapeshiftoss/investor-foxy": "^5.0.1",
     "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^9.5.0",
+    "@shapeshiftoss/unchained-client": "^10.0.1",
     "limiter": "^2.1.0"
   }
 }

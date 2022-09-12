@@ -6,7 +6,7 @@
     "storageDir": "~/.openapitools",
     "generators": {
       "avalanche": {
-        "inputSpec": "https://dev-api.avalanche.shapeshift.com/swagger.json",
+        "inputSpec": "https://api.avalanche.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/avalanche",
         "reservedWordsMappings": { "in": "in" },
@@ -26,7 +26,7 @@
         }
       },
       "bitcoincash": {
-        "inputSpec": "https://dev-api.bitcoincash.shapeshift.com/swagger.json",
+        "inputSpec": "https://api.bitcoincash.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/bitcoincash",
         "reservedWordsMappings": { "in": "in" },
@@ -46,7 +46,7 @@
         }
       },
       "dogecoin": {
-        "inputSpec": "https://dev-api.dogecoin.shapeshift.com/swagger.json",
+        "inputSpec": "https://api.dogecoin.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/dogecoin",
         "reservedWordsMappings": { "in": "in" },
@@ -66,7 +66,7 @@
         }
       },
       "litecoin": {
-        "inputSpec": "https://dev-api.litecoin.shapeshift.com/swagger.json",
+        "inputSpec": "https://api.litecoin.shapeshift.com/swagger.json",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/litecoin",
         "reservedWordsMappings": { "in": "in" },
@@ -76,9 +76,19 @@
         }
       },
       "osmosis": {
-        "inputSpec": "https://dev-api.osmosis.shapeshift.com/swagger",
+        "inputSpec": "https://api.osmosis.shapeshift.com/swagger",
         "generatorName": "typescript-axios",
         "output": "#{cwd}/src/generated/osmosis",
+        "reservedWordsMappings": { "in": "in" },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "thorchain": {
+        "inputSpec": "https://api.thorchain.shapeshift.com/swagger",
+        "generatorName": "typescript-axios",
+        "output": "#{cwd}/src/generated/thorchain",
         "reservedWordsMappings": { "in": "in" },
         "additionalProperties": {
           "supportsES6": "true",

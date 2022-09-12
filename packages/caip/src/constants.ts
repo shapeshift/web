@@ -13,6 +13,7 @@ export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const osmosisAssetId: AssetId = 'cosmos:osmosis-1/slip44:118'
+export const thorchainAssetId: AssetId = 'cosmos:thorchain-mainnet-v1/slip44:931'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const bchChainId: ChainId = 'bip122:000000000000000000651ef99cb9fcbe'
@@ -24,6 +25,7 @@ export const avalancheChainId: ChainId = 'eip155:43114'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
+export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v1'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -51,6 +53,7 @@ export const CHAIN_REFERENCE = {
   CosmosHubVega: 'vega-testnet',
   OsmosisMainnet: 'osmosis-1',
   OsmosisTestnet: 'osmo-testnet-1',
+  ThorchainMainnet: 'thorchain-mainnet-v1',
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
 } as const
 
@@ -71,6 +74,7 @@ export const ASSET_REFERENCE = {
   Ethereum: '60',
   Cosmos: '118',
   Osmosis: '118',
+  Thorchain: '931',
   BitcoinCash: '145',
   AvalancheC: '9000',
 } as const
@@ -94,6 +98,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.CosmosHubVega,
     CHAIN_REFERENCE.OsmosisMainnet,
     CHAIN_REFERENCE.OsmosisTestnet,
+    CHAIN_REFERENCE.ThorchainMainnet,
   ],
 })
 

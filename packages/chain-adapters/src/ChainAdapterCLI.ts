@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 
 import { ChainAdapter as CosmosChainAdapter } from './cosmossdk/cosmos'
 import { ChainAdapter as OsmosisChainAdapter } from './cosmossdk/osmosis'
+import { ChainAdapter as ThorchainChainAdapter } from './cosmossdk/thorchain'
 import { ChainAdapter as EthereumChainAdapter } from './evm/ethereum'
 import { ChainAdapter as BitcoinChainAdapter } from './utxo/bitcoin'
 import { ChainAdapter as DogecoinChainAdapter } from './utxo/dogecoin'
@@ -44,7 +45,7 @@ const ethChainAdapter = new EthereumChainAdapter({
 
 const cosmosChainAdapter = new CosmosChainAdapter({
   providers: {
-    ws: new unchained.ws.Client<unchained.cosmos.Tx>('wss://dev-api.cosmos.shapeshift.com'),
+    ws: new unchained.ws.Client<unchained.cosmossdk.Tx>('wss://dev-api.cosmos.shapeshift.com'),
     http: new unchained.cosmos.V1Api(
       new unchained.cosmos.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' }),
     ),
@@ -54,12 +55,24 @@ const cosmosChainAdapter = new CosmosChainAdapter({
 
 const osmosisChainAdapter = new OsmosisChainAdapter({
   providers: {
-    ws: new unchained.ws.Client<unchained.osmosis.Tx>('wss://dev-api.ethereum.shapeshift.com'),
+    ws: new unchained.ws.Client<unchained.cosmossdk.Tx>('wss://dev-api.osmosis.shapeshift.com'),
     http: new unchained.osmosis.V1Api(
-      new unchained.osmosis.Configuration({ basePath: 'https://dev-api.cosmos.shapeshift.com' }),
+      new unchained.osmosis.Configuration({ basePath: 'https://dev-api.osmosis.shapeshift.com' }),
     ),
   },
   coinName: 'Osmosis',
+})
+
+const thorchainChainAdapter = new ThorchainChainAdapter({
+  providers: {
+    ws: new unchained.ws.Client<unchained.cosmossdk.Tx>('wss://dev-api.thorchain.shapeshift.com'),
+    http: new unchained.thorchain.V1Api(
+      new unchained.thorchain.Configuration({
+        basePath: 'https://dev-api.thorchain.shapeshift.com',
+      }),
+    ),
+  },
+  coinName: 'Thorchain',
 })
 
 const adapters = {
@@ -68,6 +81,7 @@ const adapters = {
   eth: ethChainAdapter,
   cosmos: cosmosChainAdapter,
   osmo: osmosisChainAdapter,
+  thorchain: thorchainChainAdapter,
 } as const
 
 const getWallet = async (): Promise<NativeHDWallet> => {
@@ -285,6 +299,51 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
   }
 }
 
+// @ts-ignore:nextLine
+const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
+  const chainAdapter = adapters.thorchain
+  const bip44Params = chainAdapter.buildBIP44Params({})
+
+  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  console.log('thorchain: address:', address)
+
+  const account = await chainAdapter.getAccount(address)
+  console.log('thorchain: account:', account)
+
+  const txHistory = await chainAdapter.getTxHistory({ pubkey: address })
+  console.log('thorchain: txHistory:', txHistory)
+
+  await chainAdapter.subscribeTxs(
+    { wallet, bip44Params },
+    (msg) => console.log('thorchain: tx:', msg),
+    (err) => console.log(err),
+  )
+
+  // send thorchain example
+  try {
+    const feeData = await chainAdapter.getFeeData({ sendMax: false })
+
+    const unsignedTx = await chainAdapter.buildSendTransaction({
+      to: 'thor1wfpvj3txl0z82wfm6kvagfyagsmzvpyrg3c9fm',
+      value: '99000',
+      wallet,
+      bip44Params,
+      chainSpecific: { gas: feeData.average.chainSpecific.gasLimit, fee: feeData.average.txFee },
+    })
+    console.log('cosmos: unsignedTx:', JSON.stringify(unsignedTx, null, 2))
+
+    if (broadcast) {
+      const txid = await chainAdapter.signAndBroadcastTransaction({
+        wallet,
+        txToSign: unsignedTx.txToSign,
+      })
+      console.log('thorchain: txid:', txid)
+    }
+  } catch (err) {
+    console.log('thorchain: tx error:', err.message)
+  }
+}
+
 const main = async () => {
   try {
     const wallet = await getWallet()
@@ -292,6 +351,7 @@ const main = async () => {
     await testBitcoin(wallet)
     await testEthereum(wallet)
     await testCosmos(wallet)
+    await testThorchain(wallet)
   } catch (err) {
     console.error(err)
   }

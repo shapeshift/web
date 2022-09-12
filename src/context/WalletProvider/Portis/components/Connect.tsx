@@ -63,7 +63,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
       headerText={'walletProvider.portis.connect.header'}
       bodyText={'walletProvider.portis.connect.body'}
       buttonText={'walletProvider.portis.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

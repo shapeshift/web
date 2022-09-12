@@ -1,5 +1,6 @@
 import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
+import { useCallback, useMemo } from 'react'
 
 export interface LineChartProps {
   xScale: AxisScale<number>
@@ -20,24 +21,32 @@ export interface LineChartProps {
 
 export const MinPrice = ({ label, yText, xScale, stroke, width, xDate }: LineChartProps) => {
   const xPos = xScale(xDate)
-  const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
-    const offsetWidth = width / 2
-    const buffer = 16
-    const end = width - offsetWidth
-    if (x < offsetWidth) {
-      return { x: x + buffer, anchor: 'start' }
-    } else if (x > end) {
-      return { x, anchor: 'end' }
-    } else {
-      return { x, anchor: 'start' }
-    }
-  }
+
+  const makeTextPos = useCallback(
+    (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
+      const offsetWidth = width / 2
+      const buffer = 16
+      const end = width - offsetWidth
+      if (x < offsetWidth) {
+        return { x: x + buffer, anchor: 'start' }
+      } else if (x > end) {
+        return { x, anchor: 'end' }
+      } else {
+        return { x, anchor: 'start' }
+      }
+    },
+    [width],
+  )
+  const textPos = useMemo(() => makeTextPos(xPos || 0), [makeTextPos, xPos])
+  const xText = useMemo(() => textPos.x, [textPos.x])
+  const textAnchor = useMemo(() => textPos.anchor, [textPos.anchor])
+
   return (
     <g>
       <Text
-        x={handleTextPos(xPos || 0).x}
+        x={xText}
         y={yText}
-        textAnchor={handleTextPos(xPos || 0).anchor}
+        textAnchor={textAnchor}
         fill={stroke}
         fontSize='12px'
         dy='1rem'

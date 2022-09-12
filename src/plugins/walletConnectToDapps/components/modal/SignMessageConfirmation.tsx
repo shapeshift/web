@@ -8,12 +8,12 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
-import type { FC } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
+import type { FC } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { WalletSummaryCard } from './WalletSummaryCard'
 
@@ -73,7 +73,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
               fontWeight='medium'
               mb={1}
             />
-            <RawText fontWeight='medium' color='gray'>
+            <RawText fontWeight='medium' color='gray.500'>
               {message}
             </RawText>
           </Box>
@@ -82,7 +82,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
 
       <Text
         fontWeight='medium'
-        color='gray'
+        color='gray.500'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
 

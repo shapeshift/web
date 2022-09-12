@@ -32,7 +32,7 @@ export const KeepKeyLabel = () => {
       moduleLogger.error(e)
       toast({
         title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
+        description: e?.message?.message ?? translate('common.somethingWentWrong'),
         status: 'error',
         isClosable: true,
       })

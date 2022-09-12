@@ -1383,15 +1383,15 @@
   "gasInput": {
     "gasPrice": {
       "label": "Gas Price",
-      "tooltip": "TODO"
+      "tooltip": "TODO: Gas Price Tooltip"
     },
     "base": {
       "label": "Base",
-      "tooltip": "Some tooltip"
+      "tooltip": "TODO: base Tooltip"
     },
     "priority": {
       "label": "Priority",
-      "tooltip": "Some tooltip"
+      "tooltip": "TODO: priority Tooltip"
     },
     "custom": "Custom"
   }

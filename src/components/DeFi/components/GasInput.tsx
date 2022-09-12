@@ -3,6 +3,7 @@ import {
   Divider,
   FormControl,
   HStack, NumberInput,
+  NumberInputField,
   Radio,
   RadioGroup, SimpleGrid, ThemeTypings, useColorModeValue,
   VStack
@@ -44,14 +45,13 @@ export const GasInput: FC<GasInputProps> = () => {
       pb={4}
     >
       <HStack justifyContent='space-between' mb={4}>
-        <HelperTooltip label={translate('gasInput.gasPriceTooltip')}>
+        <HelperTooltip label={translate('gasInput.gasPrice.tooltip')}>
           <Text
             color='gray.500'
             fontWeight='medium'
-            translation='gasInput.gasPrice.tooltip'
+            translation='gasInput.gasPrice.label'
           />
         </HelperTooltip>
-        <Text fontWeight='medium' translation='gasInput.gasPrice.label' />
       </HStack>
 
       <Box borderWidth={1} borderRadius='lg' borderColor={borderColor}>
@@ -80,31 +80,31 @@ export const GasInput: FC<GasInputProps> = () => {
                 <Divider />
               </>
             ))}
-            <HStack width='full'>
-              <Radio color='blue'>
-                <Text translation="gasInput.custom" />
-              </Radio>
-            </HStack>
-            <SimpleGrid
-              templateColumns={{base: '1fr repeat(1, 1fr)',
-                md: '1fr repeat(2, 1fr)',
-              }}
-            >
-              <Box>
-                <HelperTooltip label={translate('gasInput.base.tooltip')}>
-                  <Text mb='8px' translation="gasInput.base.label" />
-                </HelperTooltip>
-                <NumberInput placeholder='Number...' />
-              </Box>
-              <Box>
-                <HelperTooltip label={translate('gasInput.priority.tooltip')}>
-                  <Text mb='8px' translation="gasInput.priority.label" />
-                </HelperTooltip>
-                <NumberInput placeholder='Number...' />
-              </Box>
-            </SimpleGrid>
-
-
+            <Box px={4} py={2} width='full'>
+              <HStack width='full'>
+                <Radio color='blue'>
+                  <Text translation="gasInput.custom" />
+                </Radio>
+              </HStack>
+              <SimpleGrid mt={2} spacing={4} templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}>
+                <Box>
+                  <HelperTooltip label={translate('gasInput.base.tooltip')}>
+                    <Text translation="gasInput.base.label" color='gray.500' fontWeight='medium' />
+                  </HelperTooltip>
+                  <NumberInput borderColor={borderColor} mt={2}>
+                    <NumberInputField placeholder='Number...' />
+                  </NumberInput>
+                </Box>
+                <Box>
+                  <HelperTooltip label={translate('gasInput.priority.tooltip')}>
+                    <Text translation="gasInput.priority.label" color='gray.500' fontWeight='medium' />
+                  </HelperTooltip>
+                  <NumberInput borderColor={borderColor} mt={2}>
+                  <NumberInputField placeholder='Number...' />
+                  </NumberInput>
+                </Box>
+              </SimpleGrid>
+            </Box>
           </VStack>
         </RadioGroup>
       </Box>

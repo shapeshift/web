@@ -39,7 +39,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     })
 
     this.assetId = thorchainAssetId
-    this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
+    this.parser = new unchained.thorchain.TransactionParser({ chainId: this.chainId })
   }
 
   getDisplayName() {

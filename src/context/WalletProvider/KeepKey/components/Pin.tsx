@@ -1,6 +1,8 @@
 import type { ButtonProps, SimpleGridProps } from '@chakra-ui/react'
 import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
+import type { KeyboardEvent } from 'react'
+import { useCallback } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
@@ -27,6 +29,7 @@ export const KeepKeyPin = ({
 }: KeepKeyPinProps) => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isPinEmpty, setIsPinEmpty] = useState(true)
   const {
     setDeviceState,
     state: {
@@ -40,11 +43,16 @@ export const KeepKeyPin = ({
 
   const pinFieldRef = useRef<HTMLInputElement | null>(null)
 
-  const handlePinPress = (value: number) => {
-    if (pinFieldRef?.current) {
-      pinFieldRef.current.value += value.toString()
-    }
-  }
+  const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
+
+  const handlePinPress = useCallback(
+    (value: number) => {
+      if (pinFieldRef?.current) {
+        pinFieldRef.current.value += value.toString()
+      }
+    },
+    [pinFieldRef],
+  )
 
   const handleSubmit = async () => {
     setError(null)
@@ -83,7 +91,26 @@ export const KeepKeyPin = ({
     }
   }
 
-  const pinNumbers = [7, 8, 9, 4, 5, 6, 1, 2, 3]
+  const handleKeyboardInput = (e: KeyboardEvent) => {
+    // We can't allow tabbing between inputs or the focused element gets out of sync with the KeepKey
+    if (e.key === 'Tab') e.preventDefault()
+
+    if (e.key === 'Backspace') return
+
+    if (e.key === 'Enter') {
+      handleSubmit()
+      return
+    }
+
+    if (!pinNumbers.includes(Number(e.key))) {
+      e.preventDefault()
+      return
+    } else {
+      e.preventDefault()
+      handlePinPress(Number(e.key))
+      return
+    }
+  }
 
   useEffect(() => {
     /**
@@ -118,6 +145,10 @@ export const KeepKeyPin = ({
     }
   }, [deviceId, keyring])
 
+  useEffect(() => {
+    pinFieldRef.current?.focus()
+  }, [])
+
   return (
     <>
       <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
@@ -135,7 +166,10 @@ export const KeepKeyPin = ({
             key={number}
             size={'lg'}
             p={8}
-            onClick={() => handlePinPress(number)}
+            onClick={() => {
+              handlePinPress(number)
+              setIsPinEmpty(!pinFieldRef.current?.value)
+            }}
             {...buttonsProps}
           >
             <CircleIcon boxSize={4} />
@@ -149,6 +183,8 @@ export const KeepKeyPin = ({
         variant='filled'
         mb={6}
         autoComplete='one-time-code'
+        onKeyDown={handleKeyboardInput}
+        onKeyUp={() => setIsPinEmpty(!pinFieldRef.current?.value)}
       />
       {error && (
         <Alert status='error'>
@@ -163,7 +199,7 @@ export const KeepKeyPin = ({
         size={confirmButtonSize ?? 'lg'}
         colorScheme='blue'
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={loading || isPinEmpty}
       >
         <Text translation={`walletProvider.keepKey.${translationType}.button`} />
       </Button>

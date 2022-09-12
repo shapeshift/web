@@ -64,7 +64,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
         </Flex>
       )}
 
-      <NavBar isCompact={isCompact} mt={6} />
+      <NavBar isCompact={isCompact} mt={6} onClick={() => handleClick()} />
       <Stack width='full' mt={6}>
         <MainNavLink
           variant='ghost'

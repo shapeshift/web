@@ -18,11 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectPortfolioCryptoBalanceByAssetId,
-} from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoBalanceByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
@@ -156,8 +152,6 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
     ],
   )
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
-
   if (!state || !dispatch || !opportunity) return null
 
   const handleCancel = browserHistory.goBack
@@ -210,7 +204,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }}
       marketData={marketData}
       onCancel={handleCancel}
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

@@ -18,7 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -41,8 +41,6 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
@@ -137,7 +135,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
-        {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+        onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}

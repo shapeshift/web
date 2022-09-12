@@ -20,7 +20,6 @@ import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectSelectedLocale,
@@ -87,8 +86,6 @@ export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['
     })()
   }, [api, vaultAddress, chainId, toast, translate])
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
-
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -99,7 +96,7 @@ export const YearnOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

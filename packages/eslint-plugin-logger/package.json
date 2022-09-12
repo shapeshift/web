@@ -1,0 +1,15 @@
+{
+  "name": "@shapeshiftoss/eslint-plugin-logger",
+  "description": "An eslint plugin disallowing console.* in favor of their moduleLogger equivalent",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@types/eslint-scope": "^3.7.4",
+    "@typescript-eslint/utils": "^5.33.1"
+  }
+}

@@ -10,11 +10,12 @@ import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Nullable } from 'types/common'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
 export const FoxyClaim: React.FC<{
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
 }> = ({ accountId }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()

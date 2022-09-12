@@ -39,6 +39,7 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
@@ -93,7 +94,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
-  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>()
+  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>()
   const isDropdownDisabled = disabled || accountIds.length <= 1
 
   /**

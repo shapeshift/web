@@ -31,9 +31,10 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
   assetId: AssetId
   amount?: string
   contractAddress: string

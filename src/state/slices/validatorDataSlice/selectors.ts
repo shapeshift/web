@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { ReduxState } from 'state/reducer'
 
 import type { PubKey, ValidatorData, ValidatorDataByPubKey } from './validatorDataSlice'
@@ -16,7 +16,7 @@ export const selectValidators = createSelector(
 export const selectValidatorByAddress = createSelector(
   selectValidatorData,
   selectValidatorAddress,
-  (stakingData, validatorAddress): cosmos.Validator | null => {
+  (stakingData, validatorAddress): cosmossdk.Validator | null => {
     return stakingData.byValidator[validatorAddress] || null
   },
 )

@@ -1,6 +1,6 @@
 import { Center, CircularProgress } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -57,9 +57,9 @@ export const CosmosClaim = () => {
         if (!cosmosOpportunity) return
 
         const chainAdapterManager = getChainAdapterManager()
-        const chainAdapter = chainAdapterManager.get(chainId) as unknown as
-          | cosmossdk.cosmos.ChainAdapter
-          | cosmossdk.osmosis.ChainAdapter
+        const chainAdapter = chainAdapterManager.get(
+          chainId,
+        ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
         const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
 

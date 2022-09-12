@@ -1,13 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
@@ -20,11 +16,12 @@ import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunitiesDataFull } from 'state/slices/selectors'
 import {
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
+  selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -47,9 +44,16 @@ export const ValidatorName = ({
   const assetIcon = useMemo(() => {
     if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
 
-    let cosmostationChainName = ''
-    if (isCosmosChainId(chainId)) cosmostationChainName = 'cosmoshub'
-    if (isOsmosisChainId(chainId)) cosmostationChainName = 'osmosis'
+    const cosmostationChainName = (() => {
+      switch (chainId) {
+        case cosmosChainId:
+          return 'cosmoshub'
+        case osmosisChainId:
+          return 'osmosis'
+        default:
+          return ''
+      }
+    })()
 
     return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
   }, [isStaking, validatorAddress, chainId])

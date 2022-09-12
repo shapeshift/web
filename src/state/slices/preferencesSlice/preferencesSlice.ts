@@ -12,7 +12,8 @@ export type FeatureFlags = {
   FoxLP: boolean
   FoxFarming: boolean
   Avalanche: boolean
-  Thor: boolean
+  Thorchain: boolean
+  ThorSwap: boolean
   CowSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
@@ -47,7 +48,8 @@ const initialState: Preferences = {
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
-    Thor: getConfig().REACT_APP_FEATURE_THOR,
+    Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
+    ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,

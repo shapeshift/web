@@ -1,3 +1,5 @@
+import 'eventemitter2'
+
 /**
  * Override the type definitions of EventEmitter2
  *

@@ -110,6 +110,7 @@ export const AddAccountModal = () => {
   const handleAddAccount = useCallback(() => {
     if (!wallet) return
     if (!selectedChainId) return
+    if (!nextAccountNumber) return
     ;(async () => {
       const accountNumber = nextAccountNumber
       const chainIds = [selectedChainId]

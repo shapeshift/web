@@ -197,9 +197,9 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
   selectTxHistoryStatus,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (txIdsByAccountId, txHistoryStatus, accountMetadata, chainId): [boolean, number] => {
+  (txIdsByAccountId, txHistoryStatus, accountMetadata, chainId): [boolean, number | null] => {
     // we can't know if an account has transacted until txHistory is loaded
-    if (txHistoryStatus === 'loading') return [false, -1]
+    if (txHistoryStatus === 'loading') return [false, null]
 
     // filter accounts by chain id
     const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
@@ -224,6 +224,6 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
       Boolean((txIdsByAccountId[accountId] ?? []).length),
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
-    return [isAbleToAddNextAccount, nextAccountNumber]
+    return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
   },
 )

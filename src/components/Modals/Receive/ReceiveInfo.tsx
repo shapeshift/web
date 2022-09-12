@@ -185,14 +185,15 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
               textAlign='center'
               mt={8}
               bg='white'
+              boxShadow='lg'
             >
               <Card.Body display='inline-block' textAlign='center' p={6}>
-                <AccountDropdown
-                  assetId={asset.assetId}
-                  onChange={setAccountId}
-                  buttonProps={{ height: 5, variant: 'solid' }}
-                />
                 <LightMode>
+                  <AccountDropdown
+                    assetId={asset.assetId}
+                    onChange={setAccountId}
+                    buttonProps={{ variant: 'solid', width: 'full' }}
+                  />
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>

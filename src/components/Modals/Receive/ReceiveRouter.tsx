@@ -21,6 +21,10 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
     history.push(ReceiveRoutes.Info)
   }
 
+  const handleSelectBack = () => {
+    history.push(ReceiveRoutes.Info)
+  }
+
   useEffect(() => {
     if (!selectedAsset && !asset) {
       history.push(ReceiveRoutes.Select)
@@ -42,7 +46,7 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
         <Route
           path={ReceiveRoutes.Select}
           component={(props: RouteComponentProps) => (
-            <SelectAssetRouter onClick={handleAssetSelect} {...props} />
+            <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} {...props} />
           )}
         />
       </Switch>

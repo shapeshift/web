@@ -70,6 +70,10 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
     history.push(SendRoutes.Address)
   }
 
+  const handleSelectBack = () => {
+    history.push(SendRoutes.Address)
+  }
+
   const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') event.preventDefault()
   }
@@ -83,7 +87,11 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
             <Route
               path={SendRoutes.Select}
               component={(props: RouteComponentProps) => (
-                <SelectAssetRouter onClick={handleAssetSelect} {...props} />
+                <SelectAssetRouter
+                  onBack={handleSelectBack}
+                  onClick={handleAssetSelect}
+                  {...props}
+                />
               )}
             />
             <Route path={SendRoutes.Address} component={Address} />

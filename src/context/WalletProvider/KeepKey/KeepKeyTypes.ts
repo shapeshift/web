@@ -76,6 +76,11 @@ export enum PinMatrixRequestType {
   NEWSECOND = 3,
 }
 
+export enum Message {
+  PINREQUEST = 'PIN_REQUEST',
+  PINCHANGED = 'PIN changed',
+}
+
 export enum MessageType {
   INITIALIZE = 0,
   PING = 1,
@@ -93,8 +98,6 @@ export enum MessageType {
   RESETDEVICE = 14,
   SIGNTX = 15,
   FEATURES = 17,
-  PINREQUEST = 'PIN_REQUEST',
-  PINCHANGED = 'PIN changed',
   PINMATRIXREQUEST = 18,
   PINMATRIXACK = 19,
   CANCEL = 20,

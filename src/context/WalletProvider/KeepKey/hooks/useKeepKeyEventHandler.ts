@@ -10,7 +10,7 @@ import type { DeviceState, InitialState } from 'context/WalletProvider/WalletPro
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 
-import { ButtonRequestType, FailureType, MessageType } from '../KeepKeyTypes'
+import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
 
 const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 
@@ -40,9 +40,9 @@ export const useKeepKeyEventHandler = (
       })
       fnLogger.trace('Handling Event')
 
-      if (message_type === MessageType.PINREQUEST || message?.message === MessageType.PINCHANGED) {
+      if (message_type === Message.PINREQUEST || message?.message === Message.PINCHANGED) {
         setDeviceState({
-          isLoading: false,
+          isDeviceLoading: false,
         })
       }
 

@@ -29,13 +29,13 @@ export const ChangePin = () => {
     dispatch,
     state: {
       keepKeyPinRequestType,
-      deviceState: { awaitingDeviceInteraction, isUpdatingPin, isLoading },
+      deviceState: { awaitingDeviceInteraction, isUpdatingPin, isDeviceLoading },
     },
     setDeviceState,
   } = useWallet()
   const toast = useToast()
-  const pinButtonsBackground = useColorModeValue('gray.200', 'gray.600')
-  const pinButtonsBackgroundHover = useColorModeValue('gray.100', 'gray.500')
+  const pinButtonBackground = useColorModeValue('gray.200', 'gray.600')
+  const pinButtonBackgroundHover = useColorModeValue('gray.100', 'gray.500')
 
   const translationType = (() => {
     switch (keepKeyPinRequestType) {
@@ -51,25 +51,28 @@ export const ChangePin = () => {
   const handleCancel = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleChangePinBackClick'] })
 
-    await keepKeyWallet?.cancel().catch(e => {
-      fnLogger.error(e, 'Error cancelling new PIN...')
-      toast({
-        title: translate('common.error'),
-        description: e?.message?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
+    await keepKeyWallet
+      ?.cancel()
+      .catch(e => {
+        fnLogger.error(e, 'Error cancelling new PIN...')
+        toast({
+          title: translate('common.error'),
+          description: e?.message?.message ?? translate('common.somethingWentWrong'),
+          status: 'error',
+          isClosable: true,
+        })
       })
-    })
-
-    setDeviceState({
-      isUpdatingPin: false,
-    })
+      .finally(() => {
+        setDeviceState({
+          isUpdatingPin: false,
+        })
+      })
   }
 
   const handleHeaderBackClick = async () => {
     await handleCancel()
 
-    handleBackClick()
+    await handleBackClick()
   }
 
   const handleChangePin = async () => {
@@ -83,32 +86,35 @@ export const ChangePin = () => {
 
     dispatch({ type: WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE })
 
-    await keepKeyWallet?.changePin().catch(e => {
-      fnLogger.error(e, 'Error applying new PIN')
-      toast({
-        title: translate('common.error'),
-        description: e?.message?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
+    await keepKeyWallet
+      ?.changePin()
+      .catch(e => {
+        fnLogger.error(e, 'Error applying new PIN')
+        toast({
+          title: translate('common.error'),
+          description: e?.message?.message ?? translate('common.somethingWentWrong'),
+          status: 'error',
+          isClosable: true,
+        })
       })
-    })
-
-    setDeviceState({
-      isUpdatingPin: false,
-    })
+      .finally(() => {
+        setDeviceState({
+          isUpdatingPin: false,
+        })
+      })
 
     fnLogger.trace('PIN Changed')
   }
   const setting = 'PIN'
 
-  const shouldDisplayPinView = isUpdatingPin && !awaitingDeviceInteraction
+  const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction
 
-  const renderPinState: JSX.Element = (() => {
-    return shouldDisplayPinView ? (
+  const renderedPinState: JSX.Element = (() => {
+    return shouldDisplayEntryPinView ? (
       <>
         <SubMenuBody>
           <Box textAlign='center'>
-            {isLoading ? (
+            {isDeviceLoading ? (
               <CircularProgress size='5' />
             ) : (
               <>
@@ -120,8 +126,8 @@ export const ChangePin = () => {
                     size: 'sm',
                     p: 2,
                     height: 12,
-                    background: pinButtonsBackground,
-                    _hover: { background: pinButtonsBackgroundHover },
+                    background: pinButtonBackground,
+                    _hover: { background: pinButtonBackgroundHover },
                   }}
                   gridProps={{ spacing: 2 }}
                 />
@@ -156,7 +162,7 @@ export const ChangePin = () => {
   return (
     <SubMenuContainer>
       <Flex flexDir='column'>
-        {!shouldDisplayPinView ? (
+        {!shouldDisplayEntryPinView ? (
           <SubmenuHeader
             title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
               setting,
@@ -167,7 +173,7 @@ export const ChangePin = () => {
         ) : (
           <SubmenuHeader title={translate(`walletProvider.keepKey.${translationType}.header`)} />
         )}
-        {renderPinState}
+        {renderedPinState}
       </Flex>
     </SubMenuContainer>
   )

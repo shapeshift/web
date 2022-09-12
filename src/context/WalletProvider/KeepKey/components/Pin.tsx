@@ -49,7 +49,7 @@ export const KeepKeyPin = ({
   const handleSubmit = async () => {
     setError(null)
     setDeviceState({
-      isLoading: true,
+      isDeviceLoading: true,
     })
     setLoading(true)
     const pin = pinFieldRef.current?.value

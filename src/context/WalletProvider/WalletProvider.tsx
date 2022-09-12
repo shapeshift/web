@@ -69,7 +69,7 @@ export type DeviceState = {
   recoveryCharacterIndex: number | undefined
   recoveryWordIndex: number | undefined
   isUpdatingPin: boolean | undefined
-  isLoading: boolean | undefined
+  isDeviceLoading: boolean | undefined
 }
 
 const initialDeviceState: DeviceState = {
@@ -81,7 +81,7 @@ const initialDeviceState: DeviceState = {
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
   isUpdatingPin: false,
-  isLoading: false,
+  isDeviceLoading: false,
 }
 export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
 
@@ -186,7 +186,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         recoverWithPassphrase = deviceState.recoverWithPassphrase,
         recoveryEntropy = deviceState.recoveryEntropy,
         isUpdatingPin = deviceState.isUpdatingPin,
-        isLoading = deviceState.isLoading,
+        isDeviceLoading = deviceState.isDeviceLoading,
       } = action.payload
       return {
         ...state,
@@ -198,7 +198,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           recoverWithPassphrase,
           recoveryEntropy,
           isUpdatingPin,
-          isLoading,
+          isDeviceLoading,
         },
       }
     }

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.0.1...@shapeshiftoss/investor-v2.1.0) (2022-09-12)
+
+
+### Features
+
+* add THORChain support ([#1010](https://github.com/shapeshift/lib/issues/1010)) ([d7c3b72](https://github.com/shapeshift/lib/commit/d7c3b72bbda9795f87fa8f73c35926c95026a3c2))
+
 # [@shapeshiftoss/investor-v2.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.0.0...@shapeshiftoss/investor-v2.0.1) (2022-09-09)
 
 # [@shapeshiftoss/investor-v2.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v1.0.2...@shapeshiftoss/investor-v2.0.0) (2022-09-08)

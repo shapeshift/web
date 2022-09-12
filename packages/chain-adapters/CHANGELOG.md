@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v9.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.0...@shapeshiftoss/chain-adapters-v9.1.1) (2022-09-12)
+
+
+### Bug Fixes
+
+* use thorchain tx parser ([#1020](https://github.com/shapeshift/lib/issues/1020)) ([62d51cf](https://github.com/shapeshift/lib/commit/62d51cfd824bfef02c7f00376102ddae07665f57))
+
 # [@shapeshiftoss/chain-adapters-v9.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.0.2...@shapeshiftoss/chain-adapters-v9.1.0) (2022-09-12)
 
 

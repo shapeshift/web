@@ -8,13 +8,14 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
-import type { FC } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { Card } from 'components/Card/Card'
 import { GasInput } from 'components/DeFi/components/GasInput'
 import { RawText, Text } from 'components/Text'
+import { FC, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 type Props = {
   message: string
@@ -28,9 +29,10 @@ type Props = {
 
 export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading }) => {
   const translate = useTranslate()
+  const [gasInputValue, setGasInputValue] = useState<FeeDataKey>();
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
-      <GasInput />
+      <GasInput value={gasInputValue} onChange={setGasInputValue} />
 
       <Box>
         <Text

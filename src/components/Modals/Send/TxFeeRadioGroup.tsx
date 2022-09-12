@@ -1,8 +1,8 @@
 import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
+import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,7 +26,7 @@ function getFeeColor(key: FeeDataKey): string {
   }
 }
 
-function getFeeTranslation(key: FeeDataKey): string {
+export function getFeeTranslation(key: FeeDataKey): string {
   switch (key) {
     case FeeDataKey.Slow:
       return 'modals.send.sendForm.slow'

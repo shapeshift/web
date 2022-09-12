@@ -1,10 +1,12 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Avatar,
   Box,
   Button,
   forwardRef,
-  Icon,
   Menu,
   MenuButton,
   MenuItemOption,
@@ -18,7 +20,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
@@ -141,7 +142,6 @@ export const AddAccountModal = () => {
     })()
   }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, translate, wallet])
 
-  const noteColor = useColorModeValue('black', 'white')
   if (!asset) return null
   const { name, icon } = asset
 
@@ -182,14 +182,12 @@ export const AddAccountModal = () => {
               </Menu>
             </Box>
             {!isAbleToAddAccount && (
-              <Box bgColor='whiteAlpha.100' pl={4} pr={4} pb={2} borderRadius={8}>
-                <Stack flexDirection='row' alignItems={'center'}>
-                  <Icon color='blue.400' as={FaInfoCircle} mr={3} />
-                  <RawText color={noteColor} fontSize='sm'>
-                    {translate('accounts.requiresPriorTxHistory')}
-                  </RawText>
-                </Stack>
-              </Box>
+              <Alert>
+                <AlertIcon color='blue.400' as={FaInfoCircle} />
+                <AlertDescription fontSize={'sm'}>
+                  {translate('accounts.requiresPriorTxHistory')}
+                </AlertDescription>
+              </Alert>
             )}
           </Stack>
         </ModalBody>

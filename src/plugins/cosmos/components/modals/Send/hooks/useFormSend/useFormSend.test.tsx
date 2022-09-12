@@ -105,7 +105,7 @@ const testSignedTx = 'someFakeTxHash'
 
 describe('useFormSend', () => {
   const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
-  it('handles successfully sending a tx with ATOM address', async () => {
+  beforeEach(() => {
     useSelectorMock.mockReturnValue({
       [formData[SendFormFields.AccountId]]: {
         bip44Params: {
@@ -115,6 +115,8 @@ describe('useFormSend', () => {
         },
       },
     })
+  })
+  it('handles successfully sending a tx with ATOM address', async () => {
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
@@ -156,15 +158,6 @@ describe('useFormSend', () => {
   })
 
   it('handles a failure while sending a tx', async () => {
-    useSelectorMock.mockReturnValue({
-      [formData[SendFormFields.AccountId]]: {
-        bip44Params: {
-          purpose: 44,
-          coinType: 118,
-          accountNumber: 0,
-        },
-      },
-    })
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({

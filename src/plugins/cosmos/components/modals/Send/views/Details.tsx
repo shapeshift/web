@@ -39,19 +39,23 @@ import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 
 const MAX_MEMO_LENGTH = 256
 
-type SendDetailsProps = {
-  accountId?: AccountId
-}
-
-export const Details: React.FC<SendDetailsProps> = ({ accountId }) => {
+export const Details = () => {
   const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
-    useWatch({
-      control,
-    }) as Partial<SendInput>
+  const {
+    asset,
+    accountId,
+    cryptoAmount,
+    cryptoSymbol,
+    fiatAmount,
+    fiatSymbol,
+    amountFieldError,
+    memo,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
 
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'

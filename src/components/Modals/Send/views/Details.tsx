@@ -33,18 +33,15 @@ import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
-type SendDetailsProps = {
-  accountId?: AccountId
-}
-
-export const Details: React.FC<SendDetailsProps> = ({ accountId }) => {
+export const Details = () => {
   const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
-    control,
-  }) as Partial<SendInput>
+  const { asset, accountId, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
 
   const handleAccountChange = useCallback(
     (accountId: AccountId) => setValue(SendFormFields.AccountId, accountId),

@@ -16,11 +16,9 @@ import {
   type AssetId,
   btcChainId,
   CHAIN_NAMESPACE,
-  cosmosChainId,
   fromAssetId,
   fromChainId,
   ltcChainId,
-  osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
@@ -115,7 +113,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
    * react on accountIds on first render
    */
   useEffect(() => {
-    debugger
     if (!accountIds.length) return
     const validatedAccountIdFromArgs = accountIds.find(accountId => accountId === defaultAccountId)
     const firstAccountId = accountIds[0]
@@ -253,10 +250,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
    * the effectful logic above will still run for other chains, and return the first account
    * via the onChange callback on mount, but nothing will be visually rendered
    */
-  const existingMultiAccountChainIds = useMemo(
-    () => [btcChainId, ltcChainId, cosmosChainId, osmosisChainId],
-    [],
-  )
+  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
   const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
   if (!isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
 

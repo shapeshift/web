@@ -37,7 +37,7 @@ export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ pr
       onClose={handleClose}
     >
       <ModalOverlay />
-      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+      <ModalContent justifyContent='center' pt={3} pb={6}>
         <MemoryRouter initialEntries={entries}>
           <Switch>
             <Route path='/'>

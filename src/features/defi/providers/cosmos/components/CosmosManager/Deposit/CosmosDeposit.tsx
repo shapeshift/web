@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -11,6 +12,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -22,6 +24,7 @@ import { logger } from 'lib/logger'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
   selectValidatorByAddress,
@@ -39,7 +42,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosDeposit'],
 })
 
-export const CosmosDeposit = () => {
+export const CosmosDeposit: React.FC<{
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: AccountId | null
+}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -66,6 +72,10 @@ export const CosmosDeposit = () => {
       ),
     [opportunities, contractAddress],
   )
+
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   useEffect(() => {
     ;(async () => {
       try {
@@ -75,7 +85,7 @@ export const CosmosDeposit = () => {
         const chainAdapter = chainAdapterManager.get(chainId)
         if (!(walletState.wallet && contractAddress && chainAdapter && apr)) return
 
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        const address = await chainAdapter.getAddress({ bip44Params, wallet: walletState.wallet })
 
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
@@ -87,7 +97,7 @@ export const CosmosDeposit = () => {
         moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
-  }, [chainId, cosmosOpportunity, apr, contractAddress, walletState.wallet])
+  }, [bip44Params, chainId, cosmosOpportunity, apr, contractAddress, walletState.wallet])
 
   const handleBack = () => {
     history.push({
@@ -104,18 +114,20 @@ export const CosmosDeposit = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [asset.symbol, translate])
+  }, [accountId, handleAccountIdChange, asset.symbol, translate])
 
   if (loading || !asset || !marketData) {
     return (

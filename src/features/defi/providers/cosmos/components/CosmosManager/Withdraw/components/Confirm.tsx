@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -13,7 +14,7 @@ import {
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -26,6 +27,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -38,7 +40,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+  onNext,
+  accountId,
+}) => {
   const [gasLimit, setGasLimit] = useState<string | null>(null)
   const [gasPrice, setGasPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(WithdrawContext)
@@ -89,16 +94,29 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
+    if (
+      state?.loading ||
+      !(
+        bip44Params &&
+        dispatch &&
+        gasLimit &&
+        gasPrice &&
+        state?.userAddress &&
+        walletState?.wallet
+      )
+    )
+      return
+
     try {
-      if (!state.userAddress || !walletState.wallet || state.loading || !gasLimit || !gasPrice)
-        return
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: true })
 
       const broadcastTxId = await handleStakingAction({
         asset,
+        bip44Params,
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
@@ -126,7 +144,22 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
     }
-  }
+  }, [
+    asset,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    gasLimit,
+    gasPrice,
+    handleStakingAction,
+    onNext,
+    state?.loading,
+    state?.userAddress,
+    state?.withdraw.cryptoAmount,
+    walletState?.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))

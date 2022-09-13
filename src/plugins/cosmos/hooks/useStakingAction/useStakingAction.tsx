@@ -1,5 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import {
   isStakingChainAdapter,
   StakingAction,
@@ -19,21 +20,21 @@ const shapeshiftValidators = [
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 ]
 
-type StakingInput =
+type StakingInput = {
+  asset: Asset
+  chainSpecific: cosmossdk.BuildTxInput
+  validator: string
+  bip44Params: BIP44Params
+} & (
   | {
-      asset: Asset
-      chainSpecific: cosmossdk.BuildTxInput
-      validator: string
       action: StakingAction.Claim
       value?: string
     }
   | {
-      asset: Asset
-      chainSpecific: cosmossdk.BuildTxInput
-      validator: string
       action: StakingAction.Stake | StakingAction.Unstake
       value: string
     }
+)
 
 export const useStakingAction = () => {
   const chainAdapterManager = getChainAdapterManager()
@@ -42,7 +43,7 @@ export const useStakingAction = () => {
   } = useWallet()
 
   const handleStakingAction = async (data: StakingInput) => {
-    const { chainSpecific, validator, action, value, asset } = data
+    const { bip44Params, chainSpecific, validator, action, value, asset } = data
 
     if (!wallet) return
 
@@ -66,6 +67,7 @@ export const useStakingAction = () => {
         switch (action) {
           case StakingAction.Claim:
             return adapter.buildClaimRewardsTransaction({
+              bip44Params,
               wallet,
               validator,
               chainSpecific,
@@ -73,6 +75,7 @@ export const useStakingAction = () => {
             })
           case StakingAction.Stake:
             return adapter.buildDelegateTransaction({
+              bip44Params,
               wallet,
               validator,
               value,
@@ -81,6 +84,7 @@ export const useStakingAction = () => {
             })
           case StakingAction.Unstake:
             return adapter.buildUndelegateTransaction({
+              bip44Params,
               wallet,
               validator,
               value,

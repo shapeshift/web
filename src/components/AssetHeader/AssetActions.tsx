@@ -36,7 +36,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () => (isConnected ? send.open({ asset }) : handleWalletModalOpen())
+  const handleSendClick = () =>
+    isConnected ? send.open({ asset, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)

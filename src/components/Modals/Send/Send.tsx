@@ -1,5 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
@@ -20,9 +21,10 @@ export const entries = [
 
 type SendModalProps = {
   asset: Asset
+  accountId?: AccountId
 }
 
-export const SendModal = ({ asset }: SendModalProps) => {
+export const SendModal = ({ asset, accountId }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -40,7 +42,7 @@ export const SendModal = ({ asset }: SendModalProps) => {
                 return chainNamespace === CHAIN_NAMESPACE.CosmosSdk ? (
                   <CosmosForm asset={asset} {...props} />
                 ) : (
-                  <Form asset={asset} {...props} />
+                  <Form asset={asset} accountId={accountId} {...props} />
                 )
               }}
             />

@@ -63,8 +63,8 @@ export const Details = () => {
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
       setValue(CosmosSendFormFields.AccountId, accountId)
-      setValue(CosmosSendFormFields.CryptoAmount, accountId)
-      setValue(CosmosSendFormFields.FiatAmount, accountId)
+      setValue(CosmosSendFormFields.CryptoAmount, '')
+      setValue(CosmosSendFormFields.FiatAmount, '')
     },
     [setValue],
   )

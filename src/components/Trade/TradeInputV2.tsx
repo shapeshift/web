@@ -2,7 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useController, useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -10,6 +10,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/services/useSwapperService'
+import { useTradeAmounts } from 'components/Trade/services/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -26,6 +27,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -43,6 +45,8 @@ export const TradeInput = () => {
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
+  const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
 
   const translate = useTranslate()
 
@@ -56,34 +60,12 @@ export const TradeInput = () => {
     }),
   )
 
-  const { field: sellAmountCrypto } = useController({
-    name: 'sellTradeAsset.amount',
-    control,
-    rules: { required: true },
-  })
-  const { field: sellAmountFiat } = useController({
-    name: 'fiatSellAmount',
-    control,
-    rules: { required: true },
-  })
-
-  const { field: buyAmountFiat } = useController({
-    name: 'fiatBuyAmount',
-    control,
-    rules: { required: true },
-  })
-
-  const { field: buyAmountCrypto } = useController({
-    name: 'buyTradeAsset.amount',
-    control,
-    rules: { required: true },
-  })
-
-  const toCryptoAmountAfterFees = bnOrZero(buyAmountCrypto?.value).minus(bnOrZero(fees?.tradeFee))
+  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(fees?.tradeFee))
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
     setValue('action', action)
+    setTradeAmounts({ amount, action })
   }
 
   const handleToggle = () => {
@@ -93,8 +75,6 @@ export const TradeInput = () => {
       if (!(currentSellTradeAsset?.asset && currentBuyTradeAsset?.asset)) return
       setValue('sellTradeAsset', currentBuyTradeAsset)
       setValue('buyTradeAsset', currentSellTradeAsset)
-      setValue('action', TradeAmountInputField.SELL_CRYPTO)
-      setValue('amount', bnOrZero(currentBuyTradeAsset.amount).toString())
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -111,6 +91,8 @@ export const TradeInput = () => {
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
+
+    setTradeAmounts({ amount: maxSendAmount, action: TradeAmountInputField.SELL_CRYPTO })
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
@@ -131,22 +113,11 @@ export const TradeInput = () => {
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
-    if (isFiat) {
-      sellAmountFiat.onChange(value)
-    } else {
-      sellAmountCrypto.onChange(value)
-    }
     handleInputChange(action, value)
   }
 
   const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
-    buyAmountCrypto.onChange(value)
-    if (isFiat) {
-      buyAmountFiat.onChange(value)
-    } else {
-      buyAmountCrypto.onChange(value)
-    }
     handleInputChange(action, value)
   }
 
@@ -164,8 +135,8 @@ export const TradeInput = () => {
             assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={sellAmountCrypto?.value}
-            fiatAmount={sellAmountFiat.value}
+            cryptoAmount={sellTradeAsset?.amount}
+            fiatAmount={fiatSellAmount}
             isSendMaxDisabled={!quote}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
@@ -196,8 +167,8 @@ export const TradeInput = () => {
             assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={buyAmountCrypto?.value}
-            fiatAmount={buyAmountFiat.value}
+            cryptoAmount={buyTradeAsset?.amount}
+            fiatAmount={fiatBuyAmount}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
@@ -215,10 +186,10 @@ export const TradeInput = () => {
             isLoading={!quote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={toCryptoAmountAfterFees.toString()}
-            beforeFees={buyAmountCrypto?.value ?? ''}
+            beforeFees={buyTradeAsset?.amount ?? ''}
             protocolFee={fees?.tradeFee}
             shapeShiftFee='0'
-            minAmountAfterSlippage={buyAmountCrypto?.value ?? ''}
+            minAmountAfterSlippage={buyTradeAsset?.amount ?? ''}
           />
         </Stack>
         <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>

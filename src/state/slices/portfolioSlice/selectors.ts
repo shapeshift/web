@@ -12,9 +12,11 @@ import {
   fromAssetId,
   ltcAssetId,
   osmosisAssetId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { maxBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import difference from 'lodash/difference'
 import entries from 'lodash/entries'
@@ -22,7 +24,6 @@ import flow from 'lodash/flow'
 import head from 'lodash/head'
 import keys from 'lodash/keys'
 import map from 'lodash/map'
-import maxBy from 'lodash/maxBy'
 import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import sum from 'lodash/sum'
@@ -111,13 +112,14 @@ const FEE_ASSET_IDS = [
   bchAssetId,
   cosmosAssetId,
   osmosisAssetId,
+  thorchainAssetId,
   dogeAssetId,
   ltcAssetId,
   avalancheAssetId,
 ]
 
 const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
-const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
+export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
@@ -1142,7 +1144,7 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   selectStakingDataByAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
-  (stakingDataByValidator, validatorAddress, assetId): cosmos.UndelegationEntry[] => {
+  (stakingDataByValidator, validatorAddress, assetId): cosmossdk.UndelegationEntry[] => {
     const validatorStakingData = stakingDataByValidator?.[validatorAddress]?.[assetId]
 
     if (!validatorStakingData?.undelegations?.length) return []
@@ -1245,7 +1247,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()
-      const undelegatedEntries: cosmos.UndelegationEntry[] =
+      const undelegatedEntries: cosmossdk.UndelegationEntry[] =
         stakingDataByValidator?.[validatorId]?.[assetId]?.undelegations ?? []
       const totalDelegations = bnOrZero(delegatedAmount)
         .plus(

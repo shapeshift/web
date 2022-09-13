@@ -14,7 +14,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -36,8 +36,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
@@ -151,7 +149,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           validate: { validateFiatAmount },
         }}
         marketData={marketData}
-        {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+        onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !totalFiatBalance}

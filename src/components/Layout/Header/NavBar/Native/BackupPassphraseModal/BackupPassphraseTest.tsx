@@ -44,7 +44,7 @@ type TestState = {
 
 export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const { goBack: handleBackClick, ...history } = useHistory()
   const {
     backupNativePassphrase: {
       props: { preventClose },
@@ -127,7 +127,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={history.goBack}
+        onClick={handleBackClick}
       />
       <ModalHeader pt={4}>
         <Text translation={'modals.shapeShift.backupPassphrase.testTitle'} />

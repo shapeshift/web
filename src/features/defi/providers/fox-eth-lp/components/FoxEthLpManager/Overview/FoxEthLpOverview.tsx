@@ -9,7 +9,6 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectFoxEthLpOpportunity,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -27,7 +26,6 @@ export const FoxEthLpOverview = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: lpAsset.assetId, selectedLocale })
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
   if (!opportunity || !opportunity.isLoaded) {
     return (
       <DefiModalContent>
@@ -40,7 +38,7 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

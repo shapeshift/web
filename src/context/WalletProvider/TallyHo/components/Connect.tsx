@@ -121,7 +121,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       headerText={'walletProvider.tallyHo.connect.header'}
       bodyText={'walletProvider.tallyHo.connect.body'}
       buttonText={'walletProvider.tallyHo.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

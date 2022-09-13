@@ -18,7 +18,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectFoxFarmingOpportunityByContractAddress,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -50,7 +49,6 @@ export const FoxFarmingOverview = () => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
     return (
@@ -83,7 +81,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
       name={opportunity.opportunityName ?? ''}
       icons={opportunity.icons}

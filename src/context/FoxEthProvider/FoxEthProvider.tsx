@@ -27,6 +27,7 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
@@ -40,7 +41,7 @@ type FoxEthProviderProps = {
 }
 
 type IFoxEthContext = {
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
   setAccountId: (accountId: AccountId) => void
   accountAddress: string
   onOngoingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
@@ -71,7 +72,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
   const [accountAddress, setAccountAddress] = useState<string>('')
-  const [accountId, setAccountId] = useState<AccountId | null>(null)
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const readyToFetchLpData = isPortfolioLoaded && wallet && supportsETH(wallet)
   const readyToFetchFarmingData = readyToFetchLpData && foxEthLpMarketData.price !== '0'
 

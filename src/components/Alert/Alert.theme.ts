@@ -9,7 +9,14 @@ export const AlertStyle = {
     },
   },
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    sm: {
+      description: {
+        fontSize: 'sm',
+        lineHeight: 'normal',
+      },
+    },
+  },
   // Styles for the visual style variations
   variants: {
     'update-box': (props: Record<string, any>) => ({

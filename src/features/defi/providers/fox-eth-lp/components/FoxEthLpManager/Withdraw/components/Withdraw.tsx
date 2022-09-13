@@ -18,7 +18,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectFoxEthLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
@@ -58,8 +57,6 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
   )
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
@@ -173,7 +170,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           validate: { validateFiatAmount },
         }}
         marketData={assetMarketData}
-        {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+        onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || !opportunity.isLoaded}

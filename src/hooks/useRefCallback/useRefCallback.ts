@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
-
-type Nullable<T> = T | null
+import type { Nullable } from 'types/common'
 
 type RefCallback<T> = {
   onInit: (node: Nullable<T>) => void

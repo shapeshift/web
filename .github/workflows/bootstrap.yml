@@ -29,9 +29,12 @@ env:
   REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: https://dev-api.osmosis.shapeshift.com
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: wss://dev-api.osmosis.shapeshift.com
+  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: https://dev-api.thorchain.shapeshift.com
+  REACT_APP_UNCHAINED_THORCHAIN_WS_URL: wss://dev-api.thorchain.shapeshift.com
 
   REACT_APP_COSMOS_NODE_URL: https://cosmoshub-4--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/
   REACT_APP_OSMOSIS_NODE_URL: https://osmosis-1--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/
+  REACT_APP_THORCHAIN_NODE_URL: https://daemon.thorchain.shapeshift.com/lcd
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_AVALANCHE_NODE_URL: https://api.avax.network/ext/bc/C/rpc
 

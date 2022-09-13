@@ -78,7 +78,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       headerText={'walletProvider.keplr.connect.header'}
       bodyText={'walletProvider.keplr.connect.body'}
       buttonText={'walletProvider.keplr.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

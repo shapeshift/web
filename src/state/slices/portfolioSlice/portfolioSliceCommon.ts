@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
@@ -25,10 +25,10 @@ import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type AccountSpecifier = string
 export type Staking = {
-  delegations: cosmos.Delegation[]
-  redelegations: cosmos.Redelegation[]
-  undelegations: cosmos.UndelegationEntry[]
-  rewards: cosmos.Reward[]
+  delegations: cosmossdk.Delegation[]
+  redelegations: cosmossdk.Redelegation[]
+  undelegations: cosmossdk.UndelegationEntry[]
+  rewards: cosmossdk.Reward[]
 }
 
 type StakingDataParsedByAccountSpecifier = Record<AccountSpecifier, Staking>

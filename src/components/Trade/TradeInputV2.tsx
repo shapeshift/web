@@ -48,6 +48,7 @@ export const TradeInput = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
+  const slippage = useWatch({ control, name: 'slippage' })
 
   const translate = useTranslate()
 
@@ -191,7 +192,7 @@ export const TradeInput = () => {
             beforeFees={buyTradeAsset?.amount ?? ''}
             protocolFee={protocolFee}
             shapeShiftFee='0'
-            minAmountAfterSlippage={buyTradeAsset?.amount ?? ''}
+            slippage={slippage}
           />
         </Stack>
         <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>

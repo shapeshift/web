@@ -19,6 +19,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       sellTradeAsset: { amount: '0' },
       buyTradeAsset: { amount: '0' },
       isExactAllowance: false,
+      slippage: 0.002,
     },
   })
 

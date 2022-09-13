@@ -13,6 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -22,7 +23,7 @@ type ReceiveSummaryProps = {
   beforeFees?: string
   protocolFee?: string
   shapeShiftFee?: string
-  minAmountAfterSlippage?: string
+  slippage: number
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
@@ -32,16 +33,21 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   beforeFees,
   protocolFee,
   shapeShiftFee,
-  minAmountAfterSlippage,
+  slippage,
   isLoading,
   ...rest
 }) => {
+  console.log('xxx ReceiveSummary protocolFee', protocolFee)
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure()
   const summaryBg = useColorModeValue('gray.50', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
+
+  const minAmountAfterSlippage = bnOrZero(beforeFees)
+    .times(1 - slippage)
+    .toString()
   return (
     <>
       <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>

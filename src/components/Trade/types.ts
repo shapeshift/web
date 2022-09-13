@@ -51,6 +51,7 @@ export type TradeState<C extends ChainId> = {
   quoteError: string | null
   amount: string
   receiveAddress: string | null // TODO: Implement
+  slippage: number
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

@@ -16,7 +16,10 @@ export const CardStyle = {
   sizes: {
     md: {
       header: {
-        px: 6,
+        px: {
+          base: 4,
+          md: 6,
+        },
         py: 4,
       },
       heading: {
@@ -25,7 +28,10 @@ export const CardStyle = {
       },
       body: {
         py: 4,
-        px: 6,
+        px: {
+          base: 4,
+          md: 6,
+        },
       },
       footer: {
         py: 4,

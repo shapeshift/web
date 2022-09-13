@@ -160,8 +160,8 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
               revocable(
                 <Button
                   key={index}
-                  flex='1'
-                  minW='30%'
+                  flexGrow={4}
+                  flexBasis='auto'
                   variant='ghost-filled'
                   colorScheme='blue'
                   onClick={() => handleClick(index)}

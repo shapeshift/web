@@ -50,7 +50,7 @@ export const Layout = ({ children, icon, title, description }: FoxLayoutProps) =
         </Box>
       </Box>
 
-      <Container px={{ base: 4, md: 20 }} maxW='container.xl'>
+      <Container px={{ base: 0, md: 20 }} maxW='container.xl'>
         {children}
       </Container>
     </>

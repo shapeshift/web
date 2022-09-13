@@ -3,26 +3,18 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  selectAccountIdsByAssetId,
-  selectAssetById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
 }
 
-export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
+export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.chainId
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
-  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
   const { name, symbol, icon } = asset || {}
 
   const {
@@ -31,7 +23,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const filter = useMemo(() => ({ assetId }), [assetId])
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )
@@ -49,11 +41,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
         </Box>
       </Flex>
       {walletSupportsChain ? (
-        <AssetActions
-          assetId={assetId}
-          accountId={accountId ? accountId : singleAccount}
-          cryptoBalance={cryptoBalance}
-        />
+        <AssetActions assetId={assetId} cryptoBalance={cryptoBalance} />
       ) : null}
     </Flex>
   )

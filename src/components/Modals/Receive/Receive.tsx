@@ -3,7 +3,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { RouteComponentProps } from 'react-router-dom'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveRouter } from './ReceiveRouter'
@@ -11,11 +10,10 @@ import { ReceiveRouter } from './ReceiveRouter'
 export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 
 type ReceivePropsType = {
-  asset?: Asset
-  accountId?: AccountSpecifier
+  asset: Asset
 }
 
-const Receive = ({ asset }: ReceivePropsType) => {
+const Receive: React.FC<ReceivePropsType> = ({ asset }) => {
   const { receive } = useModal()
   const { close, isOpen } = receive
 

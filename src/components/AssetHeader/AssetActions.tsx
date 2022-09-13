@@ -10,17 +10,15 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
   cryptoBalance: string
 }
 
-export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+export const AssetActions: React.FC<AssetActionProps> = ({ assetId, cryptoBalance }) => {
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
   const { send, receive } = useModal()
@@ -38,8 +36,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleSendClick = () => (isConnected ? send.open({ asset }) : handleWalletModalOpen())
-  const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
+  const handleReceiveClick = () => (isConnected ? receive.open({ asset }) : handleWalletModalOpen())
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const { assetReference } = fromAssetId(asset.assetId)

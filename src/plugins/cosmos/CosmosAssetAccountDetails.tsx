@@ -21,7 +21,7 @@ type AssetDetailsProps = {
 }
 
 export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => (
-  <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
+  <Main titleComponent={<AssetHeader assetId={assetId} />}>
     <Stack alignItems='flex-start' spacing={4} mx='auto' direction={{ base: 'column', xl: 'row' }}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />

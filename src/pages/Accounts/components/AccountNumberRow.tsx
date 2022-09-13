@@ -141,6 +141,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
           flex={1}
           height='auto'
           iconSpacing={4}
+          fontSize={{ base: 'sm', md: 'md' }}
           leftIcon={
             // space in string interpolation is not a bug - see Chakra UI Avatar docs
             <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />

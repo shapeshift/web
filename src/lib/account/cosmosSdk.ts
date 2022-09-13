@@ -1,7 +1,7 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmosSdkChainIds } from '@shapeshiftoss/chain-adapters'
-import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+import { supportsCosmos, supportsOsmosis, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -21,6 +21,9 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
       }
       if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
         if (!supportsOsmosis(wallet)) continue
+      }
+      if (chainReference === CHAIN_REFERENCE.ThorchainMainnet) {
+        if (!supportsThorchain(wallet)) continue
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })

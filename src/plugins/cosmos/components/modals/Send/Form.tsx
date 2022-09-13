@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
@@ -19,14 +19,14 @@ import { SendFormFields } from './SendCommon'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 
-export type SendInput<T extends ChainId = ChainId> = {
+export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.Memo]?: string
   [SendFormFields.AccountId]: AccountId
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<CosmosSdkChainId>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string

@@ -133,6 +133,7 @@ describe('useFormSend', () => {
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
       signTransaction: () => Promise.resolve(testSignedTx),
+      signAndBroadcastTransaction: () => Promise.resolve(testSignedTx),
     }
 
     const mockCosmosAdapter = {

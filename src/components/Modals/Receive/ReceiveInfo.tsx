@@ -41,21 +41,22 @@ import { ReceiveRoutes } from './ReceiveCommon'
 
 type ReceivePropsType = {
   asset: Asset
+  accountId?: AccountId
 } & RouteComponentProps
 
-export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
+export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
-  const [accountId, setAccountId] = useState<AccountId | null>(null)
+  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const chainAdapterManager = getChainAdapterManager()
   const history = useHistory()
   const { chainId, name, symbol } = asset
   const { wallet } = state
   const chainAdapter = chainAdapterManager.get(chainId)
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId: selectedAccountId ?? '' }), [selectedAccountId])
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
@@ -191,7 +192,8 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                 <LightMode>
                   <AccountDropdown
                     assetId={asset.assetId}
-                    onChange={setAccountId}
+                    defaultAccountId={selectedAccountId || undefined}
+                    onChange={setSelectedAccountId}
                     buttonProps={{ variant: 'solid', width: 'full' }}
                   />
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>

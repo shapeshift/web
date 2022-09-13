@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,13 +10,12 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   cryptoBalance: string
 }
 

@@ -1,4 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -9,10 +10,11 @@ import { ReceiveRoutes } from './ReceiveCommon'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
-  asset?: Asset
+  asset: Asset
+  accountId?: AccountId
 }
-export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
+export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
+  const [selectedAsset, setSelectedAsset] = useState<Asset>(asset)
   const location = useLocation()
   const history = useHistory()
 
@@ -40,7 +42,9 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
         <Route
           path={ReceiveRoutes.Info}
           component={(props: RouteComponentProps) =>
-            selectedAsset ? <ReceiveInfo asset={selectedAsset} {...props} /> : null
+            selectedAsset ? (
+              <ReceiveInfo asset={selectedAsset} accountId={accountId} {...props} />
+            ) : null
           }
         />
         <Route

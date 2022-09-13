@@ -14,6 +14,7 @@ import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -71,7 +72,8 @@ export const TradeInput = () => {
     setValue('buyTradeAsset.amount', initialAmount)
   }, [setValue])
 
-  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(fees?.tradeFee))
+  const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
+  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
@@ -198,7 +200,7 @@ export const TradeInput = () => {
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={toCryptoAmountAfterFees.toString()}
             beforeFees={buyTradeAsset?.amount ?? ''}
-            protocolFee={fees?.tradeFee}
+            protocolFee={protocolFee}
             shapeShiftFee='0'
             minAmountAfterSlippage={buyTradeAsset?.amount ?? ''}
           />

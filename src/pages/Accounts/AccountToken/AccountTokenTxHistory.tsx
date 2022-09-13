@@ -12,7 +12,7 @@ export const AccountTokenTxHistory: React.FC = () => {
   const assetIdParam = decodeURIComponent(assetId)
   const asset = useAppSelector(state => selectAssetById(state, assetIdParam))
   return !asset ? null : (
-    <Main titleComponent={<AssetHeader assetId={assetIdParam} />}>
+    <Main titleComponent={<AssetHeader assetId={assetIdParam} accountId={accountId} />}>
       <AssetTransactionHistory
         assetId={assetIdParam}
         accountId={accountId}

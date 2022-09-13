@@ -26,7 +26,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TrimmedDescriptionLength } from '../FoxCommon'
@@ -47,6 +47,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId
 
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const accountId = accountIds?.[0]
+
   const {
     state: { isConnected },
     dispatch,
@@ -54,7 +57,8 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const { receive } = useModal()
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleReceiveClick = () => (isConnected ? receive.open({ asset }) : handleWalletModalOpen())
+  const handleReceiveClick = () =>
+    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
 
   const onGetAssetClick = () => {
     history.push({

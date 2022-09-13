@@ -26,7 +26,7 @@ type AssetDetailsProps = {
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   return (
-    <Main titleComponent={<AssetHeader assetId={assetId} />}>
+    <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}

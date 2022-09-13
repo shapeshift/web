@@ -2,7 +2,6 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -61,16 +60,6 @@ export const TradeInput = () => {
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
-
-  // Initialize the trade input fields with the default values of '0'
-  useEffect(() => {
-    const initialAmount = '0'
-    setValue('amount', initialAmount)
-    setValue('fiatSellAmount', initialAmount)
-    setValue('fiatBuyAmount', initialAmount)
-    setValue('sellTradeAsset.amount', initialAmount)
-    setValue('buyTradeAsset.amount', initialAmount)
-  }, [setValue])
 
   const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
   const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))

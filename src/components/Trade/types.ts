@@ -37,8 +37,8 @@ export type TradeState<C extends ChainId> = {
   selectedSellAssetAccountId?: AccountSpecifier
   selectedBuyAssetAccountId?: AccountSpecifier
   buyTradeAsset: TradeAsset | undefined
-  fiatSellAmount: string | undefined
-  fiatBuyAmount: string | undefined
+  fiatSellAmount: string
+  fiatBuyAmount: string
   sellAssetFiatRate: string
   buyAssetFiatRate: string
   feeAssetFiatRate: string
@@ -49,7 +49,7 @@ export type TradeState<C extends ChainId> = {
   trade?: Trade<C> | CowTrade<C>
   /** @deprecated use native react hook form errors instead */
   quoteError: string | null
-  amount: string | null
+  amount: string
   receiveAddress: string | null // TODO: Implement
 }
 

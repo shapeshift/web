@@ -55,6 +55,7 @@ export const useFormSend = () => {
         memo,
         value,
         wallet,
+        bip44Params,
         chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
         sendMax: data.sendMax,
       })

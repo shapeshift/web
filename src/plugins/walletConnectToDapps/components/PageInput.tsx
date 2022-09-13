@@ -25,7 +25,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         variant='ghost'
         icon={<ArrowBackIcon />}
         disabled={value <= 0}
-        style={{ height: 38 }}
+        style={{ height: 36 }}
         onClick={prevPage}
       />
       <Text textAlign='center' minWidth={16}>
@@ -36,7 +36,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         variant='ghost'
         icon={<ArrowForwardIcon />}
         disabled={value >= max}
-        style={{ height: 38 }}
+        style={{ height: 36 }}
         onClick={nextPage}
       />
     </HStack>

@@ -9,11 +9,11 @@ import {
   Link,
   SimpleGrid,
   Stack,
-  Text as PlainText,
+  Text as PlainText
 } from '@chakra-ui/react'
+import { Text } from 'components/Text'
 import { FC, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { Text } from 'components/Text'
 
 import { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
@@ -55,6 +55,7 @@ export const DappRegistryGrid: FC = () => {
             </InputLeftElement>
             <Input
               {...register('search')}
+              autoComplete='off'
               type='text'
               placeholder='Search'
               pl={10}
@@ -67,7 +68,13 @@ export const DappRegistryGrid: FC = () => {
       <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
         {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
           <Link key={listing.id} href={listing.homepage} isExternal>
-            <Box borderRadius='lg' p={2} position='relative' overflow='hidden'>
+            <Box
+              borderRadius='lg'
+              p={2}
+              position='relative'
+              overflow='hidden'
+              _hover={{ opacity: 0.8, transition: 'opacity 0.2s ease-in-out' }}
+            >
               <Image
                 src={listing.image}
                 style={{

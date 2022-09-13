@@ -1,3 +1,5 @@
+import 'eventemitter2'
+
 /**
  * Override the type definitions of EventEmitter2
  *
@@ -74,6 +76,11 @@ export enum PinMatrixRequestType {
   CURRENT = 1,
   NEWFIRST = 2,
   NEWSECOND = 3,
+}
+
+export enum Message {
+  PINREQUEST = 'PIN_REQUEST',
+  PINCHANGED = 'PIN changed',
 }
 
 export enum MessageType {

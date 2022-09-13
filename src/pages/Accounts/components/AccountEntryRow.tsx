@@ -58,6 +58,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         width='full'
         height='auto'
         iconSpacing={4}
+        fontSize={{ base: 'sm', md: 'md' }}
         leftIcon={<Avatar size='sm' src={icon} />}
         onClick={() => history.push(generatePath('/accounts/:accountId/:assetId', filter))}
         {...buttonProps}

@@ -121,7 +121,7 @@ export const TransactionGenericRow = ({
       fontWeight='inherit'
       variant='unstyled'
       w='full'
-      p={4}
+      p={{ base: 2, md: 4 }}
       onClick={() => toggleOpen()}
     >
       <SimpleGrid

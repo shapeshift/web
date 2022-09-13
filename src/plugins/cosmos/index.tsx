@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -31,11 +31,11 @@ export default function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                const ws = new unchained.ws.Client<unchained.cosmossdk.Tx>(
                   getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL,
                 )
 
-                return new cosmossdk.cosmos.ChainAdapter({
+                return new cosmos.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Cosmos',
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly

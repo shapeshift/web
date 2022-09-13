@@ -14,7 +14,8 @@ import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { type BuildTradeInputCommonArgs, type TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -31,7 +32,7 @@ It does not mutate state.
 */
 export const useSwapper = () => {
   // Form hooks
-  const { control } = useFormContext<TradeState<KnownChainIds>>()
+  const { control } = useFormContext<TS>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })

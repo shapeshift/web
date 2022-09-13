@@ -28,13 +28,14 @@ import {
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
   onNext,
   accountId,
 }) => {

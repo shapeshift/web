@@ -8,6 +8,7 @@ import foxPage from 'plugins/foxPage'
 import litecoin from 'plugins/litecoin'
 import osmosis from 'plugins/osmosis'
 import pendo from 'plugins/pendo'
+import thorchain from 'plugins/thorchain'
 import walletConnectToDapps from 'plugins/walletConnectToDapps'
 
 export const activePlugins = [
@@ -22,4 +23,5 @@ export const activePlugins = [
   avalanche,
   pendo,
   walletConnectToDapps,
+  thorchain,
 ]

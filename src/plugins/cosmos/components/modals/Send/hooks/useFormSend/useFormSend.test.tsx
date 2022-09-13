@@ -3,6 +3,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FeeData } from '@shapeshiftoss/chain-adapters/dist/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
+import * as reactRedux from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -103,6 +104,18 @@ const textTxToSign = {
 const testSignedTx = 'someFakeTxHash'
 
 describe('useFormSend', () => {
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
+  beforeEach(() => {
+    useSelectorMock.mockReturnValue({
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 118,
+          accountNumber: 0,
+        },
+      },
+    })
+  })
   it('handles successfully sending a tx with ATOM address', async () => {
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
@@ -120,6 +133,7 @@ describe('useFormSend', () => {
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve({ txToSign: textTxToSign }),
       signTransaction: () => Promise.resolve(testSignedTx),
+      signAndBroadcastTransaction: () => Promise.resolve(testSignedTx),
     }
 
     const mockCosmosAdapter = {

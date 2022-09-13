@@ -7,8 +7,8 @@ export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {
   return (
     <List
       px={{ base: 2, md: 4 }}
-      ml={{ base: 6, md: 8 }}
-      borderLeftWidth={1}
+      ml={{ base: 2, md: 8 }}
+      borderLeftWidth={{ base: 0, md: 1 }}
       borderColor={borderColor}
       ref={ref}
       {...props}

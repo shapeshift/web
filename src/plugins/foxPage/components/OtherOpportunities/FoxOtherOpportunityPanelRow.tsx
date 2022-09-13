@@ -35,9 +35,9 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   return (
     <Flex
       justifyContent='space-between'
-      flexDirection={'row'}
+      flexDirection='row'
       _hover={{ bg: hoverOpportunityBg, textDecoration: 'none' }}
-      px={{ base: 2, md: 4 }}
+      px={4}
       py={4}
       borderRadius={8}
       {...wrapperLinkProps}
@@ -56,7 +56,10 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           {opportunity.title}
         </CText>
       </Flex>
-      <Skeleton isLoaded={opportunity.isLoaded ? true : false} textAlign='center'>
+      <Skeleton
+        isLoaded={opportunity.isLoaded ? true : false}
+        textAlign={{ base: 'right', md: 'center' }}
+      >
         <Box>
           <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
           <Box
@@ -69,7 +72,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           </Box>
         </Box>
       </Skeleton>
-      <Box alignSelf='center' display={{ base: 'none', sm: 'block' }}>
+      <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
         <Skeleton isLoaded={defiOpportunity?.isLoaded ?? true} textAlign='center'>
           {defiOpportunity ? (
             <Button

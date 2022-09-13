@@ -13,7 +13,7 @@ export const TransactionDate = ({ blockTime }: { blockTime: number }) => {
       color='gray.700'
       lineHeight='taller'
       whiteSpace='nowrap'
-      px={4}
+      px={{ base: 2, md: 4 }}
     >
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)

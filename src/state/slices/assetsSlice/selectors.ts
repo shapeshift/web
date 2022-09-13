@@ -94,6 +94,8 @@ const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.Cosmos
           case CHAIN_REFERENCE.OsmosisMainnet:
             return ASSET_REFERENCE.Osmosis
+          case CHAIN_REFERENCE.ThorchainMainnet:
+            return ASSET_REFERENCE.Thorchain
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

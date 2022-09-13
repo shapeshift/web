@@ -53,30 +53,50 @@ export const MainOpportunity = ({
         <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
       </Card.Header>
       <Card.Body>
-        <Flex justifyContent='space-between' flexDirection={{ base: 'column', md: 'row' }}>
-          <Box>
+        <Flex
+          width='full'
+          justifyContent='space-between'
+          gap={4}
+          flexDirection={{ base: 'column', md: 'row' }}
+        >
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
               <Box color='green.400' fontSize={'xl'}>
                 <Amount.Percent value={apy} />
               </Box>
             </Skeleton>
-          </Box>
-          <Box>
+          </Flex>
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat color='inherit' fontSize={'xl'} fontWeight='semibold' value={tvl} />
             </Skeleton>
-          </Box>
-          <Box>
+          </Flex>
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />
             <CText color='inherit' fontSize={'xl'}>
               {balance}
             </CText>
-          </Box>
-          <Skeleton isLoaded={!isFoxyBalancesLoading} alignSelf='center'>
-            <Box>
-              <Button onClick={onClick} colorScheme={'blue'}>
+          </Flex>
+          <Skeleton width='full' isLoaded={!isFoxyBalancesLoading} alignSelf='center'>
+            <Box width='full'>
+              <Button width='full' onClick={onClick} colorScheme={'blue'}>
                 <CText>
                   {translate(
                     hasActiveStaking ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted',

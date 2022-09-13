@@ -15,9 +15,10 @@ import { MainNavLink } from './MainNavLink'
 
 type NavBarProps = {
   isCompact?: boolean
+  onClick?: () => void
 } & StackProps
 
-export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
+export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
@@ -62,6 +63,7 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
                 leftIcon={item.icon}
                 href={item.path}
                 to={item.path}
+                onClick={onClick}
                 label={translate(item.label)}
                 aria-label={translate(item.label)}
                 data-test={`navigation-${item.label.split('.')[1]}-button`}

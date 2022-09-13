@@ -68,7 +68,8 @@
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Select an Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -627,8 +628,8 @@
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "Token Address",
-      "addressInput": "Token Address, ENS or Yat",
+      "tokenAddress": "To Address",
+      "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
@@ -803,7 +804,7 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value",
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",
@@ -865,12 +866,12 @@
       },
       "newPin": {
         "header": "Enter Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Create a new PIN (up to 9 digits) using the layout display on your KeepKey.",
         "button": "Confirm"
       },
       "newPinConfirm": {
         "header": "Confirm Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
         "button": "Save PIN"
       },
       "settings": {
@@ -1248,7 +1249,12 @@
     "accounts": "Accounts",
     "selectAccount": "Select an Account",
     "addAccount": "Add Account",
-    "accountNumber": "Account #%{accountNumber}"
+    "accountNumber": "Account #%{accountNumber}",
+    "accountChain": "Account Chain",
+    "selectChain": "Select the chain you would like to create an account for.",
+    "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
+    "newAccountAdded": "New %{name} Account added",
+    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

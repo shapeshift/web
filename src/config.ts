@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
@@ -27,6 +28,9 @@ const validators = {
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
+  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_THORCHAIN_WS_URL: url(),
+  REACT_APP_THORCHAIN_NODE_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_AVALANCHE_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
@@ -54,7 +58,8 @@ const validators = {
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
-  REACT_APP_FEATURE_THOR: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN: bool({ default: false }),
+  REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),

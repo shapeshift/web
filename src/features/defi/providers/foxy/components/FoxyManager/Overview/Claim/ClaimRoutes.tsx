@@ -9,6 +9,7 @@ import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -24,7 +25,7 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
   onBack: () => void
 }
 

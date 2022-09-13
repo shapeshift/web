@@ -47,6 +47,7 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import type { FiatRamp } from '../config'
@@ -77,7 +78,7 @@ type OverviewProps = GenerateAddressProps & {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
 }
 
 type AddressOrNameFull = string

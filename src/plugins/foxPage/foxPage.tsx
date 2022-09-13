@@ -180,24 +180,26 @@ export const FoxPage = () => {
             {!isLargerThanMd && (
               <Box mb={4}>
                 <Menu>
-                  <MenuButton
-                    borderWidth='2px'
-                    borderColor='primary'
-                    height='auto'
-                    as={Button}
-                    rightIcon={<ChevronDownIcon />}
-                    bg={mobileTabBg}
-                    width='full'
-                  >
-                    {selectedAsset && (
-                      <FoxTab
-                        assetSymbol={selectedAsset.symbol}
-                        assetIcon={selectedAsset.icon}
-                        cryptoAmount={cryptoBalances[selectedAssetIndex]}
-                        fiatAmount={fiatBalances[selectedAssetIndex]}
-                      />
-                    )}
-                  </MenuButton>
+                  <Box mx={{ base: 4, md: 0 }}>
+                    <MenuButton
+                      borderWidth='2px'
+                      borderColor='primary'
+                      height='auto'
+                      as={Button}
+                      rightIcon={<ChevronDownIcon />}
+                      bg={mobileTabBg}
+                      width='full'
+                    >
+                      {selectedAsset && (
+                        <FoxTab
+                          assetSymbol={selectedAsset.symbol}
+                          assetIcon={selectedAsset.icon}
+                          cryptoAmount={cryptoBalances[selectedAssetIndex]}
+                          fiatAmount={fiatBalances[selectedAssetIndex]}
+                        />
+                      )}
+                    </MenuButton>
+                  </Box>
                   <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
                       <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>

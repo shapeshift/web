@@ -92,7 +92,11 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <AccountDropdown assetId={asset.assetId} onChange={handleAccountChange} />
+        <AccountDropdown
+          assetId={asset.assetId}
+          onChange={handleAccountChange}
+          buttonProps={{ width: 'full', mb: 2, variant: 'solid' }}
+        />
         <AccountCard
           asset={asset}
           isLoaded={!balancesLoading}

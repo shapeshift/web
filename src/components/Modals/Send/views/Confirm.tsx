@@ -65,6 +65,9 @@ export const Confirm = () => {
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
+  // We don't want this firing -- but need it for typing
+  const handleAccountChange = () => {}
+
   if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
     return null
 
@@ -104,7 +107,7 @@ export const Confirm = () => {
             </Row.Label>
             <Row.Value>
               <AccountDropdown
-                onChange={() => {}}
+                onChange={handleAccountChange}
                 assetId={asset.assetId}
                 defaultAccountId={accountId}
                 buttonProps={{ variant: 'solid' }}

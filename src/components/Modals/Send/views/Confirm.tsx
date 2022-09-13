@@ -17,6 +17,7 @@ import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -43,10 +44,18 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { vanityAddress, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } =
-    useWatch({
-      control,
-    })
+  const {
+    vanityAddress,
+    address,
+    asset,
+    cryptoAmount,
+    cryptoSymbol,
+    fiatAmount,
+    feeType,
+    accountId,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
   const { fees } = useSendFees()
 
   const amountWithFees = useMemo(() => {
@@ -89,6 +98,20 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
+          <Row alignItems='center'>
+            <Row.Label>
+              <Text translation='modals.send.confirm.sendFrom' />
+            </Row.Label>
+            <Row.Value>
+              <AccountDropdown
+                onChange={() => {}}
+                assetId={asset.assetId}
+                defaultAccountId={accountId}
+                buttonProps={{ variant: 'solid' }}
+                disabled
+              />
+            </Row.Value>
+          </Row>
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />

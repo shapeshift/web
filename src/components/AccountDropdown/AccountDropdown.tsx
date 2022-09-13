@@ -275,7 +275,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           <Text fontWeight='medium' color='grey.500'>
             {accountLabel}
           </Text>
-          <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>
       </MenuButton>
       <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>

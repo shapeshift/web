@@ -278,7 +278,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>
       </MenuButton>
-      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto'>
+      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
         <MenuOptionGroup defaultValue='asc' type='radio'>
           {menuOptions}
         </MenuOptionGroup>

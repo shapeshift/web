@@ -865,12 +865,12 @@
       },
       "newPin": {
         "header": "Enter Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Create a new PIN (up to 9 digits) using the layout display on your KeepKey.",
         "button": "Confirm"
       },
       "newPinConfirm": {
         "header": "Confirm Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
         "button": "Save PIN"
       },
       "settings": {

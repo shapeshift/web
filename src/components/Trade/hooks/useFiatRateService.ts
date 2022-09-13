@@ -1,9 +1,8 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { type TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
 import { type GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -18,7 +17,7 @@ export const useFiatRateService = () => {
   type UsdRateInputArg = UsdRateQueryInput[0]
 
   // Form hooks
-  const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue } = useFormContext<TS>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 

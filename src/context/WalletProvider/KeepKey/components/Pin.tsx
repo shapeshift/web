@@ -1,13 +1,5 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Input,
-  ModalBody,
-  ModalHeader,
-  SimpleGrid,
-} from '@chakra-ui/react'
+import type { ButtonProps, SimpleGridProps } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Input, SimpleGrid } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
 import { useCallback } from 'react'
@@ -15,16 +7,26 @@ import { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import {
-  FailureType,
-  MessageType,
-  PinMatrixRequestType,
-} from 'context/WalletProvider/KeepKey/KeepKeyTypes'
+import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 const moduleLogger = logger.child({ namespace: ['Pin'] })
 
-export const KeepKeyPin = () => {
+type KeepKeyPinProps = {
+  translationType: string
+  gridMaxWidth?: string | number
+  confirmButtonSize?: string
+  buttonsProps?: ButtonProps
+  gridProps?: SimpleGridProps
+}
+
+export const KeepKeyPin = ({
+  translationType,
+  gridMaxWidth,
+  confirmButtonSize,
+  buttonsProps,
+  gridProps,
+}: KeepKeyPinProps) => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [isPinEmpty, setIsPinEmpty] = useState(true)
@@ -33,7 +35,6 @@ export const KeepKeyPin = () => {
     state: {
       keyring,
       deviceId,
-      keepKeyPinRequestType,
       deviceState: { disposition },
     },
     dispatch,
@@ -55,6 +56,9 @@ export const KeepKeyPin = () => {
 
   const handleSubmit = async () => {
     setError(null)
+    setDeviceState({
+      isDeviceLoading: true,
+    })
     setLoading(true)
     const pin = pinFieldRef.current?.value
     if (pin && pin.length > 0) {
@@ -108,18 +112,6 @@ export const KeepKeyPin = () => {
     }
   }
 
-  // Use different translation text based on which type of PIN request we received
-  const translationType = (() => {
-    switch (keepKeyPinRequestType) {
-      case PinMatrixRequestType.NEWFIRST:
-        return 'newPin'
-      case PinMatrixRequestType.NEWSECOND:
-        return 'newPinConfirm'
-      default:
-        return 'pin'
-    }
-  })()
-
   useEffect(() => {
     /**
      * Handle errors reported by the KeepKey
@@ -159,54 +151,58 @@ export const KeepKeyPin = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={`walletProvider.keepKey.${translationType}.header`} />
-      </ModalHeader>
-      <ModalBody>
-        <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
-        <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
-          {pinNumbers.map(number => (
-            <Button
-              key={number}
-              size='lg'
-              p={8}
-              onClick={() => {
-                handlePinPress(number)
-                setIsPinEmpty(!pinFieldRef.current?.value)
-              }}
-            >
-              <CircleIcon boxSize={4} />
-            </Button>
-          ))}
-        </SimpleGrid>
-        <Input
-          type='password'
-          ref={pinFieldRef}
-          size='lg'
-          variant='filled'
-          mb={6}
-          autoComplete='one-time-code'
-          onKeyDown={handleKeyboardInput}
-          onKeyUp={() => setIsPinEmpty(!pinFieldRef.current?.value)}
-        />
-        {error && (
-          <Alert status='error'>
-            <AlertIcon />
-            <AlertDescription>
-              <Text translation={error} />
-            </AlertDescription>
-          </Alert>
-        )}
-        <Button
-          width='full'
-          size='lg'
-          colorScheme='blue'
-          onClick={handleSubmit}
-          disabled={loading || isPinEmpty}
-        >
-          <Text translation={`walletProvider.keepKey.${translationType}.button`} />
-        </Button>
-      </ModalBody>
+      <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
+      <SimpleGrid
+        columns={3}
+        spacing={6}
+        my={6}
+        maxWidth={gridMaxWidth ?? '250px'}
+        ml='auto'
+        mr='auto'
+        {...gridProps}
+      >
+        {pinNumbers.map(number => (
+          <Button
+            key={number}
+            size={'lg'}
+            p={8}
+            onClick={() => {
+              handlePinPress(number)
+              setIsPinEmpty(!pinFieldRef.current?.value)
+            }}
+            {...buttonsProps}
+          >
+            <CircleIcon boxSize={4} />
+          </Button>
+        ))}
+      </SimpleGrid>
+      <Input
+        type='password'
+        ref={pinFieldRef}
+        size='lg'
+        variant='filled'
+        mb={6}
+        autoComplete='one-time-code'
+        onKeyDown={handleKeyboardInput}
+        onKeyUp={() => setIsPinEmpty(!pinFieldRef.current?.value)}
+      />
+      {error && (
+        <Alert status='error'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={error} />
+          </AlertDescription>
+        </Alert>
+      )}
+      <Button
+        width='full'
+        size={confirmButtonSize ?? 'lg'}
+        colorScheme='blue'
+        onClick={handleSubmit}
+        disabled={loading || isPinEmpty}
+      >
+        <Text translation={`walletProvider.keepKey.${translationType}.button`} />
+      </Button>
     </>
   )
 }

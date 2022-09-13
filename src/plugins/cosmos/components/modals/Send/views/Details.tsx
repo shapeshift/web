@@ -39,7 +39,11 @@ import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 
 const MAX_MEMO_LENGTH = 256
 
-export const Details = () => {
+type SendDetailsProps = {
+  accountId?: AccountId
+}
+
+export const Details: React.FC<SendDetailsProps> = ({ accountId }) => {
   const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
@@ -94,6 +98,7 @@ export const Details = () => {
       <ModalBody>
         <AccountDropdown
           assetId={asset.assetId}
+          defaultAccountId={accountId}
           onChange={handleAccountChange}
           buttonProps={{ width: 'full', mb: 2, variant: 'solid' }}
         />

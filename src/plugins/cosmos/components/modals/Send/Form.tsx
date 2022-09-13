@@ -36,9 +36,10 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: Asset
+  accountId?: AccountId
 }
 
-export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
+export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
@@ -88,7 +89,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
               )}
             />
             <Route path={SendRoutes.Address} component={Address} />
-            <Route path={SendRoutes.Details} component={Details} />
+            <Route path={SendRoutes.Details} component={() => <Details accountId={accountId} />} />
             <Route path={SendRoutes.Scan} component={QrCodeScanner} />
             <Route path={SendRoutes.Confirm} component={Confirm} />
             <Redirect exact from='/' to={SendRoutes.Select} />

@@ -1,7 +1,7 @@
 {
   "name": "@shapeshiftoss/eslint-plugin-logger",
   "description": "An eslint plugin disallowing console.* in favor of their moduleLogger equivalent",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [

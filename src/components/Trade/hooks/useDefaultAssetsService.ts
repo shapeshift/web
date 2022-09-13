@@ -10,17 +10,13 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
-import {
-  type AssetIdTradePair,
-  type TradeState,
-  TradeAmountInputField,
-} from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { type AssetIdTradePair, TradeAmountInputField } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
@@ -40,7 +36,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     state: { wallet },
   } = useWallet()
   const { connectedEvmChainId } = useEvm()
-  const { setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { setValue } = useFormContext<TS>()
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [defaultAssetFiatRateArgs, setDefaultAssetFiatRateArgs] =
     useState<UsdRateInputArg>(skipToken)

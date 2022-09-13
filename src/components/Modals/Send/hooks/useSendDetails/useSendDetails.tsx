@@ -63,7 +63,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const address = useWatch<SendInput, SendFormFields.Address>({
     name: SendFormFields.Address,
   })
-  const accountSpecifier = useWatch<SendInput, SendFormFields.AccountId>({
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
 
@@ -77,26 +77,24 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state =>
       selectPortfolioCryptoHumanBalanceByFilter(state, {
         assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
 
   const fiatBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
-    ),
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, {
         assetId: feeAsset.assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
@@ -232,7 +230,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, chainNamespace, account } = fromAccountId(accountSpecifier)
+        const { chainId, chainNamespace, account } = fromAccountId(accountId)
         const adapter = chainAdapterManager.get(chainId)
         if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
@@ -366,7 +364,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
+    [accountId, estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
   )
 
   const toggleCurrency = () => {

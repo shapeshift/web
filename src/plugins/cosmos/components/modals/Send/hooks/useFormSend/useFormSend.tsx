@@ -2,11 +2,13 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
 
 import type { SendInput } from '../../Form'
 
@@ -20,6 +22,7 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const handleSend = async (data: SendInput) => {
     if (!wallet) return
@@ -35,6 +38,10 @@ export const useFormSend = () => {
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
 
       if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
+      if (!accountMetadata?.[data.accountId])
+        throw new Error(`cosmos: no accountMetadata for ${data.accountId}`)
+      const { bip44Params } = accountMetadata[data.accountId]
+      if (!bip44Params) throw new Error(`cosmos: no bip44Params for accountId ${data.accountId}`)
 
       const value = bnOrZero(data.cryptoAmount)
         .times(bn(10).exponentiatedBy(data.asset.precision))
@@ -48,6 +55,7 @@ export const useFormSend = () => {
         memo,
         value,
         wallet,
+        bip44Params,
         chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
         sendMax: data.sendMax,
       })

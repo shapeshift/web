@@ -74,7 +74,7 @@ import {
 
 type ParamFilter = {
   assetId: AssetId
-  accountId: AccountSpecifier
+  accountId: AccountId
   accountNumber: number
   chainId: ChainId
   accountSpecifier: string
@@ -83,7 +83,7 @@ type ParamFilter = {
 }
 type OptionalParamFilter = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   accountSpecifier?: string
   validatorAddress?: PubKey
   supportsCosmosSdk?: boolean

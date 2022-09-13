@@ -9,6 +9,7 @@ import {
   MenuOptionGroup,
   Stack,
   Text,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import {
   type AccountId,
@@ -81,6 +82,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   autoSelectHighestBalance,
 }) => {
   const { chainId } = fromAssetId(assetId)
+
+  const color = useColorModeValue('black', 'white')
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector((s: ReduxState) =>
@@ -261,11 +264,12 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         size='sm'
         rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
         variant='ghost'
+        color={color}
         disabled={isDropdownDisabled}
         {...buttonProps}
       >
         <Stack direction='row' alignItems='center'>
-          <RawText fontWeight='bold' color='var(--chakra-colors-chakra-body-text)'>
+          <RawText fontWeight='bold'>
             {translate('accounts.accountNumber', { accountNumber })}
           </RawText>
           <Text fontWeight='medium' color='grey.500'>
@@ -274,7 +278,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           <RawText fontFamily='monospace' color='gray.500'></RawText>
         </Stack>
       </MenuButton>
-      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto'>
+      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
         <MenuOptionGroup defaultValue='asc' type='radio'>
           {menuOptions}
         </MenuOptionGroup>

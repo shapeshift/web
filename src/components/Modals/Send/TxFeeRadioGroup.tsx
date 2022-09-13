@@ -92,7 +92,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             flexDir={{ base: 'row', md: 'column' }}
             variant='ghost'
             textAlign='left'
-            alignItems='flex-start'
+            alignItems={{ base: 'center', md: 'flex-start' }}
             justifyContent='space-between'
             key={`fee-${key}`}
             py={2}
@@ -101,7 +101,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             onClick={() => field.onChange(key)}
             isActive={activeFee === key}
           >
-            <Box fontSize='sm' mb={2} display='flex' alignItems='center'>
+            <Box fontSize='sm' mb={{ base: 0, md: 2 }} display='flex' alignItems='center'>
               <Radio
                 colorScheme={color}
                 id={key}

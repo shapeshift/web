@@ -44,7 +44,11 @@ export const Details = () => {
     }) as Partial<SendInput>
 
   const handleAccountChange = useCallback(
-    (accountId: AccountId) => setValue(SendFormFields.AccountId, accountId),
+    (accountId: AccountId) => {
+      setValue(SendFormFields.AccountId, accountId)
+      setValue(SendFormFields.CryptoAmount, '')
+      setValue(SendFormFields.FiatAmount, '')
+    },
     [setValue],
   )
 

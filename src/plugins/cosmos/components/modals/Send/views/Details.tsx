@@ -61,7 +61,11 @@ export const Details = () => {
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
   const handleAccountChange = useCallback(
-    (accountId: AccountId) => setValue(CosmosSendFormFields.AccountId, accountId),
+    (accountId: AccountId) => {
+      setValue(CosmosSendFormFields.AccountId, accountId)
+      setValue(CosmosSendFormFields.CryptoAmount, accountId)
+      setValue(CosmosSendFormFields.FiatAmount, accountId)
+    },
     [setValue],
   )
   const { send } = useModal()

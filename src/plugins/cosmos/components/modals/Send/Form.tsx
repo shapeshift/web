@@ -36,9 +36,10 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: Asset
+  accountId?: AccountId
 }
 
-export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
+export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
@@ -48,7 +49,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset }) => {
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
-      accountId: '',
+      accountId,
       address: '',
       memo: '',
       asset: initialAsset,

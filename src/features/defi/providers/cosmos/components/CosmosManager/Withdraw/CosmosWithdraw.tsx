@@ -76,7 +76,7 @@ export const CosmosWithdraw: React.FC<{
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId })
+  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(

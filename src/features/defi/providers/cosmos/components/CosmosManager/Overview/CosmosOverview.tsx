@@ -63,6 +63,7 @@ export const CosmosOverview: React.FC<{
   }, [chainId, wallet])
 
   const opportunities = useCosmosSdkStakingBalances({
+    accountId,
     assetId: stakingAssetId,
     supportsCosmosSdk,
   })

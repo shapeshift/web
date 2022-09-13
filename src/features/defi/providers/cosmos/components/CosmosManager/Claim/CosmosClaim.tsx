@@ -45,7 +45,7 @@ export const CosmosClaim: React.FC<{ accountId?: Nullable<AccountId> }> = ({ acc
     assetReference, // TODO: handle multiple denoms
   })
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId })
+  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(

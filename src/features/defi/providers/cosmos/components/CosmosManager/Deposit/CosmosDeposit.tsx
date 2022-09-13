@@ -64,7 +64,7 @@ export const CosmosDeposit: React.FC<{
 
   const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId })
+  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(

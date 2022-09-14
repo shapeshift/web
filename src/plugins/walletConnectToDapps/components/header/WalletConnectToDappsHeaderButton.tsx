@@ -1,32 +1,22 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuList } from '@chakra-ui/menu'
-import { Button, Divider, MenuDivider } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
+import { Button } from '@chakra-ui/react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
+import { useTranslate } from 'react-polyglot'
+import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
-  const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
-  const chainAdapterManager = getChainAdapterManager()
-
-  const dapp: any = null /*{
+  const dapp: any = !Math.random () ? null : {
     name: 'Uniswap',
+    link: 'app.uniswap.org',
+    image: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
     chainId: 1,
-  }*/
-  const connected = !!dapp
+    connected: true,
+    address: '0x123321123123321',
+  }
   const translate = useTranslate()
 
-  const chainName = useMemo(() => {
-    const name = chainAdapterManager
-      .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
-      ?.getDisplayName()
-
-    return name ?? 'Unsupported Network'
-  }, [chainAdapterManager, connectedEvmChainId, supportedEvmChainIds])
-
-  if (!connected) {
+  if (!dapp) {
     return (
       <Button leftIcon={<WalletConnectIcon />} rightIcon={<ChevronRightIcon />}>
         {translate('plugins.walletConnectToDapps.header.connectDapp')}
@@ -44,30 +34,8 @@ export const WalletConnectToDappsHeaderButton = () => {
       >
         {dapp.name}
       </MenuButton>
-      <MenuList p='10px' zIndex={2}>
-        <MenuGroup
-          title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
-          ml={3}
-          color='gray.500'
-        >
-          content goes here...
-        </MenuGroup>
-        <MenuDivider />
-        <MenuGroup
-          title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
-          ml={3}
-          color='gray.500'
-        >
-          content goes here...
-        </MenuGroup>
-        <Divider />
-        <MenuGroup
-          title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
-          ml={3}
-          color='gray.500'
-        >
-          content goes here...
-        </MenuGroup>
+      <MenuList>
+        <DappHeaderMenuSummary dapp={dapp} />
       </MenuList>
     </Menu>
   )

@@ -1366,7 +1366,13 @@
     "walletConnectToDapps": {
       "header": {
         "connectDapp": "Connect dApp",
-        "connectedDapp": "Connected dApp"
+        "connectedDapp": "Connected dApp",
+        "menu": {
+          "disconnect": "Disconnect",
+          "address": "Address",
+          "connected": "Connected",
+          "network": "Network"
+        }
       }
     }
   },

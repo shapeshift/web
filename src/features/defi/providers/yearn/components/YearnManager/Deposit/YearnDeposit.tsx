@@ -123,7 +123,7 @@ export const YearnDeposit: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, vaultAddress, asset.symbol, translate])

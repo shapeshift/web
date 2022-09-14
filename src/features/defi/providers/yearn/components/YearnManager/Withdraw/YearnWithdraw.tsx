@@ -128,7 +128,7 @@ export const YearnWithdraw: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])

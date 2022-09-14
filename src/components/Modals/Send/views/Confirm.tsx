@@ -105,12 +105,12 @@ export const Confirm = () => {
             <Row.Label>
               <Text translation='modals.send.confirm.sendFrom' />
             </Row.Label>
-            <Row.Value>
+            <Row.Value display='flex' alignItems='center'>
               <AccountDropdown
                 onChange={handleAccountChange}
                 assetId={asset.assetId}
                 defaultAccountId={accountId}
-                buttonProps={{ variant: 'solid' }}
+                buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
                 disabled
               />
             </Row.Value>

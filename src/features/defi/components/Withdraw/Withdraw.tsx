@@ -12,6 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { PropsWithChildren, ReactNode } from 'react'
 import React from 'react'
@@ -27,6 +28,7 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { Nullable } from 'types/common'
 
 export type FlexFieldProps = {
   control: any
@@ -42,6 +44,7 @@ type InputDefaultValue = {
 }
 
 type WithdrawProps = {
+  accountId?: Nullable<AccountId>
   asset: Asset
   // Users available amount
   cryptoAmountAvailable: string
@@ -88,6 +91,7 @@ export type WithdrawValues = {
 const DEFAULT_SLIPPAGE = '0.5'
 
 export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
   asset,
   marketData,
   cryptoAmountAvailable,
@@ -172,6 +176,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
+          accountId={accountId}
           cryptoAmount={cryptoAmount?.value}
           onAccountIdChange={handleAccountIdChange}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}

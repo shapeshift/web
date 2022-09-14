@@ -29,7 +29,7 @@ export const selectFoxFarmingOpportunityByContractAddress = createSelector(
     opportunities.find(opportunity => opportunity.contractAddress === contractAddress),
 )
 
-export const selectFarmContractsBalance = createDeepEqualOutputSelector(
+export const selectFarmContractsBalance = createSelector(
   selectFoxFarmingOpportunities,
   (farmingOpportunities): string => {
     const foxFarmingTotalCryptoAmount = farmingOpportunities.reduce(

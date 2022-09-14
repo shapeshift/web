@@ -75,6 +75,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const readyToFetchLpData = isPortfolioLoaded && wallet && supportsETH(wallet)
   const readyToFetchFarmingData = readyToFetchLpData && foxEthLpMarketData.price !== '0'
+  const readyToFetchLpAccountData =
+    readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0'
 
   useGetFoxEthLpMetricsQuery(undefined, {
     skip: !readyToFetchLpData,
@@ -82,12 +84,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const { refetch: refetchFoxEthLpAccountData } = useGetFoxEthLpAccountDataQuery(
     { accountAddress },
     {
-      skip: !(
-        readyToFetchLpData &&
-        accountAddress &&
-        foxLpEnabled &&
-        foxEthLpMarketData.price !== '0'
-      ),
+      skip: !readyToFetchLpAccountData,
     },
   )
 

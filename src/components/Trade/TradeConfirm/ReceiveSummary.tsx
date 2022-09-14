@@ -37,7 +37,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   isLoading,
   ...rest
 }) => {
-  console.log('xxx ReceiveSummary protocolFee', protocolFee)
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure()
   const summaryBg = useColorModeValue('gray.50', 'gray.800')

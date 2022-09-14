@@ -64,6 +64,7 @@ export const TradeInput = () => {
 
   const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
   const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))
+  const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
@@ -182,7 +183,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellTradeAsset?.asset?.symbol}
             buySymbol={buyTradeAsset?.asset?.symbol}
-            gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
+            gasFee={gasFee}
             rate={quote?.rate}
           />
           <ReceiveSummary

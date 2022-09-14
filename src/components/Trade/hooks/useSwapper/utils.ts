@@ -110,6 +110,7 @@ const getEvmFees = <T extends EvmChainId>(
   feeAsset: Asset,
   tradeFeeSource: string,
 ): DisplayFeeData<T> => {
+  // The "gas" fee paid to the network for the transaction
   const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
   const fee = feeBN.toString()
   const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
@@ -127,6 +128,7 @@ const getEvmFees = <T extends EvmChainId>(
       estimatedGas,
       totalFee,
     },
+    // The fee paid to the protocol for the transaction
     tradeFee: trade.feeData.tradeFee,
     tradeFeeSource,
   } as DisplayFeeData<T>

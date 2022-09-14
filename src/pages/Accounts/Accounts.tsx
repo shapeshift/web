@@ -18,12 +18,12 @@ const AccountHeader = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const [isMultiChainWallet, setIsMultiChainWallet] = useState<boolean>(false)
+  const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
   const isTxHistoryLoading = useSelector(selectIsTxHistoryLoading)
 
   useEffect(() => {
     if (!wallet) return
-    setIsMultiChainWallet(wallet.supportsBip44Accounts())
+    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
   }, [wallet])
 
   const { addAccount } = useModal()
@@ -34,7 +34,7 @@ const AccountHeader = () => {
       <Heading>
         <Text translation='accounts.accounts' />
       </Heading>
-      {isMultiAccountEnabled && isMultiChainWallet && (
+      {isMultiAccountEnabled && isMultiAccountWallet && (
         <Button
           isLoading={isTxHistoryLoading}
           loadingText={translate('accounts.addAccount')}

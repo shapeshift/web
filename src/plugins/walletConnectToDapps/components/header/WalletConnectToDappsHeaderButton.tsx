@@ -2,7 +2,9 @@ import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button } from '@chakra-ui/react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
+import { RawText } from 'components/Text'
 import { useTranslate } from 'react-polyglot'
+import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
@@ -28,11 +30,23 @@ export const WalletConnectToDappsHeaderButton = () => {
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
-        leftIcon={<WalletConnectIcon />}
+        leftIcon={(
+          <DappAvatar
+            name={dapp.name}
+            image={dapp.image}
+            connected={dapp.connected}
+            size={6}
+            connectedDotSize={2}
+            borderWidth={1}
+          />
+        )}
         rightIcon={<ChevronDownIcon />}
         width={{ base: 'full', md: 'auto' }}
+        textAlign='left'
       >
-        {dapp.name}
+        {/* TODO: when setting "flex: unset" or "flex-shrink: none" to the Button content parent, overflow isn't a problem */}
+        <RawText fontSize='sm'>{dapp.name}</RawText>
+        <RawText fontSize='xs' color='gray.500'>{dapp.link}</RawText>
       </MenuButton>
       <MenuList>
         <DappHeaderMenuSummary dapp={dapp} />

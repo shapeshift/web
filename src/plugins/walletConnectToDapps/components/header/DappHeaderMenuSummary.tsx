@@ -1,7 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
-import { Box, HStack, Image, MenuDivider, MenuItem, useColorModeValue, VStack } from '@chakra-ui/react'
-import { CircleIcon } from 'components/Icons/Circle'
+import { Box, HStack, MenuDivider, MenuItem, useColorModeValue, VStack } from '@chakra-ui/react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -9,6 +8,7 @@ import dayjs from 'dayjs'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { DappAvatar } from './DappAvatar'
 
 type Props = {
   dapp: {
@@ -46,15 +46,11 @@ export const DappHeaderMenuSummary: FC<Props> = ({dapp}) => {
         color='gray.500'
       >
         <HStack spacing={4} px={3} py={1}>
-          <Box position='relative'>
-            <Image
-              boxSize={8}
-              borderRadius='full'
-              src={dapp.image}
-              alt={dapp.name}
-            />
-            {dapp.connected && <CircleIcon color={connectedIconColor} w={3} h={3} borderRadius='full' position='absolute' bottom={-1} right={-1} borderWidth={2} borderColor={menuBg} />}
-          </Box>
+          <DappAvatar
+            name={dapp.name}
+            image={dapp.image}
+            connected={dapp.connected}
+          />
           <Box fontWeight='medium'>
             <RawText>{dapp.name}</RawText>
             <RawText fontSize='sm' color='gray.500'>{dapp.link}</RawText>

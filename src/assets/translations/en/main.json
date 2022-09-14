@@ -1362,6 +1362,12 @@
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
       }
+    },
+    "walletConnectToDapps": {
+      "header": {
+        "connectDapp": "Connect dApp",
+        "connectedDapp": "Connected dApp"
+      }
     }
   },
   "features": {

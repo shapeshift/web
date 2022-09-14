@@ -10,7 +10,6 @@ import {
   fromAssetId,
   fromChainId,
   osmosisAssetId,
-  toAccountId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
@@ -24,8 +23,8 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
-  type GetFirstReceiveAddress,
   type GetFormFeesArgs,
+  type GetSelectedReceiveAddress,
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -53,23 +52,11 @@ export const isSupportedNonUtxoSwappingChain = (
 }
 
 // Pure functions
-export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
-  accountSpecifiersList,
-  buyAsset,
+export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
   chainAdapter,
   wallet,
+  accountId,
 }) => {
-  const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-    specifiers => specifiers[buyAsset.chainId],
-  )
-
-  if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
-  const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
-  if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
-
-  const { chainId } = buyAsset
-  const accountId = toAccountId({ chainId, account })
-
   // TODO accountType and accountNumber need to come from account metadata
   const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
   return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
@@ -109,6 +96,7 @@ const getEvmFees = <T extends EvmChainId>(
   feeAsset: Asset,
   tradeFeeSource: string,
 ): DisplayFeeData<T> => {
+  // The "gas" fee paid to the network for the transaction
   const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
   const fee = feeBN.toString()
   const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
@@ -126,6 +114,7 @@ const getEvmFees = <T extends EvmChainId>(
       estimatedGas,
       totalFee,
     },
+    // The fee paid to the protocol for the transaction
     tradeFee: trade.feeData.tradeFee,
     tradeFeeSource,
   } as DisplayFeeData<T>

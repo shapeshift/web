@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { type Swapper, type UtxoSupportedChainIds, SwapperManager } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   filterAssetsByIds,
-  getFirstReceiveAddress,
+  getSelectedReceiveAddress,
   getUtxoParams,
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -20,7 +20,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
@@ -37,10 +36,11 @@ export const useSwapper = () => {
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
-  const buyAsset = sellTradeAsset?.asset
+  const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
 
@@ -55,7 +55,6 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -68,24 +67,22 @@ export const useSwapper = () => {
     [assetIds, swapperManager],
   )
 
-  const getReceiveAddressFromBuyAsset = useCallback(
-    async (buyAsset: Asset) => {
-      const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-      const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
-      if (!(chainAdapter && wallet)) return
-      try {
-        return await getFirstReceiveAddress({
-          accountSpecifiersList,
-          buyAsset,
-          chainAdapter,
-          wallet,
-        })
-      } catch (e) {
-        moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
-      }
-    },
-    [accountSpecifiersList, wallet],
-  )
+  const getReceiveAddressFromBuyAsset = useCallback(async () => {
+    if (!(buyAssetAccountId && wallet)) return
+    const { chainId: receiveAddressChainId } = fromAccountId(buyAssetAccountId)
+    // const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
+    const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
+    if (!chainAdapter) return
+    try {
+      return await getSelectedReceiveAddress({
+        chainAdapter,
+        wallet,
+        accountId: buyAssetAccountId,
+      })
+    } catch (e) {
+      moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
+    }
+  }, [buyAssetAccountId, wallet])
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
     (assets: Asset[]): Asset[] | undefined => {
@@ -192,7 +189,7 @@ export const useSwapper = () => {
     ;(async () => {
       // TODO: get the actual receive address instead of the first
       try {
-        const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
+        const receiveAddress = await getReceiveAddressFromBuyAsset()
         setReceiveAddress(receiveAddress)
       } catch (e) {
         setReceiveAddress(null)

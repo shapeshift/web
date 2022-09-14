@@ -10,7 +10,6 @@ import {
   fromAssetId,
   fromChainId,
   osmosisAssetId,
-  toAccountId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
@@ -53,23 +52,11 @@ export const isSupportedNonUtxoSwappingChain = (
 }
 
 // Pure functions
-export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
-  accountSpecifiersList,
-  buyAsset,
+export const getSelectedReceiveAddress: GetFirstReceiveAddress = async ({
   chainAdapter,
   wallet,
+  accountId,
 }) => {
-  const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-    specifiers => specifiers[buyAsset.chainId],
-  )
-
-  if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
-  const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
-  if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
-
-  const { chainId } = buyAsset
-  const accountId = toAccountId({ chainId, account })
-
   // TODO accountType and accountNumber need to come from account metadata
   const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
   return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })

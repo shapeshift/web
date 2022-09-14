@@ -23,8 +23,8 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
-  type GetFirstReceiveAddress,
   type GetFormFeesArgs,
+  type GetSelectedReceiveAddress,
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -52,7 +52,7 @@ export const isSupportedNonUtxoSwappingChain = (
 }
 
 // Pure functions
-export const getSelectedReceiveAddress: GetFirstReceiveAddress = async ({
+export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
   chainAdapter,
   wallet,
   accountId,

@@ -127,8 +127,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
 
       if (sendMax) {
         try {
-          const val = bnOrZero(account.balance).minus(gas)
-          if (val.isFinite() || val.lte(0)) {
+          const val = bnOrZero(account.balance).minus(fee)
+          if (!val.isFinite() || val.lte(0)) {
             throw new Error(`OsmosisChainAdapter: transaction value is invalid: ${val.toString()}`)
           }
           tx.value = val.toString()

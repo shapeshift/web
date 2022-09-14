@@ -20,6 +20,9 @@ import { toPath } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
+// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/thorchain/constants
+const OUTBOUND_FEE = '2000000'
+
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ThorchainMainnet
 
@@ -87,7 +90,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
         return signedTx.serialized
       } else {
-        throw new Error('Wallet does not support Osmosis.')
+        throw new Error('Wallet does not support Thorchain.')
       }
     } catch (err) {
       return ErrorHandler(err)
@@ -117,10 +120,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       const account = await this.getAccount(from)
 
+      // 0.02 RUNE is automatically charged on outbound transactions
+      // extraFee is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
+      const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+      const extraFee = feeMinusAutomaticOutboundFee.gt(0)
+        ? feeMinusAutomaticOutboundFee.toString()
+        : '0'
+
       if (sendMax) {
         try {
-          const val = bnOrZero(account.balance).minus(gas)
-          if (val.isFinite() || val.lte(0)) {
+          const val = bnOrZero(account.balance).minus(fee)
+          if (!val.isFinite() || val.lte(0)) {
             throw new Error(
               `ThorchainChainAdapter: transaction value is invalid: ${val.toString()}`,
             )
@@ -135,7 +145,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         fee: {
           amount: [
             {
-              amount: bnOrZero(fee).toString(),
+              amount: extraFee,
               denom: 'rune',
             },
           ],
@@ -180,11 +190,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }: Partial<GetFeeDataInput<KnownChainIds.ThorchainMainnet>>): Promise<
     FeeDataEstimate<KnownChainIds.ThorchainMainnet>
   > {
-    // static fee as defined by: https://daemon.thorchain.shapeshift.com/thorchain/constants
     return {
-      fast: { txFee: '2000000', chainSpecific: { gasLimit: '500000000' } },
-      average: { txFee: '2000000', chainSpecific: { gasLimit: '500000000' } },
-      slow: { txFee: '2000000', chainSpecific: { gasLimit: '500000000' } },
+      fast: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
+      average: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
+      slow: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
     }
   }
 
@@ -196,7 +205,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         const { data } = await this.providers.http.sendTx({ body: { rawTx: signedTx } })
         return data
       } else {
-        throw new Error('Wallet does not support Osmosis.')
+        throw new Error('Wallet does not support Thorchain.')
       }
     } catch (error) {
       return ErrorHandler(error)

@@ -114,7 +114,7 @@ export const thorchain: Asset = {
   precision: 8,
   color: '#33FF99',
   icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
-  explorer: 'https://viewblock.io/thorchain',
-  explorerAddressLink: 'https://viewblock.io/thorchain/address/',
-  explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  explorer: 'https://v2.viewblock.io/thorchain',
+  explorerAddressLink: 'https://v2.viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://v2.viewblock.io/thorchain/tx/',
 }

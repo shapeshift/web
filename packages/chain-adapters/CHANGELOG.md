@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v9.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.1...@shapeshiftoss/chain-adapters-v9.1.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* handle thorchain black magic fees correctly ([#1023](https://github.com/shapeshift/lib/issues/1023)) ([327dc6c](https://github.com/shapeshift/lib/commit/327dc6cf11d6332a6a3a530379985f477449868a))
+
 # [@shapeshiftoss/chain-adapters-v9.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.0...@shapeshiftoss/chain-adapters-v9.1.1) (2022-09-12)
 
 

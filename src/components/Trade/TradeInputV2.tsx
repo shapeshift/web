@@ -2,6 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -28,17 +29,12 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const {
-    control,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { isValid },
-  } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
 
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
@@ -100,6 +96,7 @@ export const TradeInput = () => {
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
+    setIsLoading(true)
     moduleLogger.info(values, 'debugging logger')
     try {
       const isApproveNeeded = await checkApprovalNeeded()
@@ -112,6 +109,8 @@ export const TradeInput = () => {
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -196,7 +195,13 @@ export const TradeInput = () => {
             slippage={slippage}
           />
         </Stack>
-        <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>
+        <Button
+          type='submit'
+          colorScheme='blue'
+          size='lg'
+          isDisabled={!quote}
+          isLoading={isLoading}
+        >
           {translate('trade.previewTrade')}
         </Button>
       </Stack>

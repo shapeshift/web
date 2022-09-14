@@ -63,6 +63,11 @@ export const Confirm = () => {
     return bnOrZero(fiatAmount).plus(fiatFee).toString()
   }, [fiatAmount, fees, feeType])
 
+  const cryptoAmountWithFees = useMemo(() => {
+    const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
+    return bnOrZero(cryptoAmount).plus(txFee).toString()
+  }, [cryptoAmount, fees, feeType])
+
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   // We don't want this firing -- but need it for typing
@@ -153,7 +158,7 @@ export const Confirm = () => {
                 textTransform='uppercase'
                 maximumFractionDigits={6}
                 symbol={cryptoSymbol}
-                value={cryptoAmount}
+                value={cryptoAmountWithFees}
               />
             </Row.Value>
             <Row.Label>

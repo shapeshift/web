@@ -188,13 +188,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {handleAccountIdChange && assetId && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          <AccountDropdown
-            assetId={assetId}
-            onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
-          />
-        </Stack>
+        <AccountDropdown
+          assetId={assetId}
+          onChange={handleAccountIdChange}
+          buttonProps={{ variant: 'ghost', width: 'full', paddingX: 4 }}
+        />
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (

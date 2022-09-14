@@ -1,6 +1,7 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { HStack, IconButton, Text, useColorModeValue } from '@chakra-ui/react'
-import { FC, useCallback } from 'react'
+import type { FC } from 'react'
+import { useCallback } from 'react'
 
 interface Props {
   value: number

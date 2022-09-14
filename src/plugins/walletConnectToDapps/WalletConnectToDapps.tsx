@@ -1,5 +1,5 @@
 import { Container, Stack } from '@chakra-ui/react'
-import { FC } from 'react'
+import type { FC } from 'react'
 
 import { DappRegistryGrid } from './components/DappRegistryGrid'
 import { ExplorationBanner } from './components/ExplorationBanner'

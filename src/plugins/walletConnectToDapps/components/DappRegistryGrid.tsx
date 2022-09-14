@@ -9,13 +9,14 @@ import {
   Link,
   SimpleGrid,
   Stack,
-  Text as PlainText
+  Text as PlainText,
 } from '@chakra-ui/react'
-import { Text } from 'components/Text'
-import { FC, useEffect, useMemo } from 'react'
+import type { FC } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { Text } from 'components/Text'
 
-import { RegistryItem } from '../types'
+import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
 
 const registryItems: RegistryItem[] = require('../registry.json')

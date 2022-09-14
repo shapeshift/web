@@ -147,6 +147,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     address: to,
     cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
     staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
+    enabled: tx.chainId === ethChainId,
   })
 
   const tradeType =

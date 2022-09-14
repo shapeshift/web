@@ -30,12 +30,16 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['CosmosDeposit:Deposit'] })
 
-export const Deposit: React.FC<
-  StepComponentProps & {
-    accountId: Nullable<AccountId>
-    onAccountIdChange: AccountDropdownProps['onChange']
-  }
-> = ({ onNext, accountId, onAccountIdChange: handleAccountIdChange }) => {
+type DepositProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  onNext,
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()

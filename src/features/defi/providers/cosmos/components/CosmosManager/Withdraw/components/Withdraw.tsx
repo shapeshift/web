@@ -35,12 +35,15 @@ export type CosmosWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<
-  StepComponentProps & {
-    accountId: AccountId | null
-    onAccountIdChange: AccountDropdownProps['onChange']
-  }
-> = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: AccountId | null
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()

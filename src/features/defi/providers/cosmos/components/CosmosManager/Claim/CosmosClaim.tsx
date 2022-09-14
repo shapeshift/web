@@ -33,7 +33,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
 })
 
-export const CosmosClaim: React.FC<{ accountId?: Nullable<AccountId> }> = ({ accountId }) => {
+type CosmosClaimProps = { accountId?: Nullable<AccountId> }
+
+export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, assetReference, chainId } = query

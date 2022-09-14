@@ -39,10 +39,14 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosWithdraw'],
 })
 
-export const CosmosWithdraw: React.FC<{
-  onAccountIdChange: AccountDropdownProps['onChange']
+type CosmosWithdrawProps = {
   accountId: AccountId | null
-}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
+  onAccountIdChange: handleAccountIdChange,
+  accountId,
+}) => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()

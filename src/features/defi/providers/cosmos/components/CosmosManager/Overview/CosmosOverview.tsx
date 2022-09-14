@@ -36,10 +36,15 @@ import type { Nullable } from 'types/common'
 import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const CosmosOverview: React.FC<{
+type CosmosOverviewProps = {
   accountId: Nullable<AccountId>
   onAccountIdChange: AccountDropdownProps['onChange']
-}> = ({ accountId, onAccountIdChange: handleAccountIdChange }) => {
+}
+
+export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query

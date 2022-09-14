@@ -37,10 +37,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Claim', 'Confirm'],
 })
 
-export const Confirm = ({
-  accountId,
-  onNext,
-}: StepComponentProps & { accountId?: Nullable<AccountId> }) => {
+type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
   const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()

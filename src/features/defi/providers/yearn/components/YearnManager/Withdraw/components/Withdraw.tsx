@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -7,7 +8,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -17,9 +18,10 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -29,8 +31,11 @@ const moduleLogger = logger.child({
 })
 
 export const Withdraw: React.FC<
-  StepComponentProps & { onAccountIdChange: AccountDropdownProps['onChange'] }
-> = ({ onAccountIdChange: handleAccountIdChange, onNext }) => {
+  StepComponentProps & {
+    accountId: Nullable<AccountId>
+    onAccountIdChange: AccountDropdownProps['onChange']
+  }
+> = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()
@@ -57,7 +62,8 @@ export const Withdraw: React.FC<
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const handlePercentClick = useCallback(
@@ -148,6 +154,7 @@ export const Withdraw: React.FC<
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={underlyingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

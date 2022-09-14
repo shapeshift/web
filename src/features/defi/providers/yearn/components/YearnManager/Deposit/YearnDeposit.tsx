@@ -106,11 +106,13 @@ export const YearnDeposit: React.FC<{
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: ownProps => <Deposit {...ownProps} onAccountIdChange={handleAccountIdChange} />,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
         props: {
           contractAddress: vaultAddress,
         },

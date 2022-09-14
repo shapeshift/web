@@ -42,12 +42,17 @@ type CosmosOverviewProps = {
 }
 
 export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
-  accountId,
+  accountId: defaultAccountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { defaultAccountId: queryAccountId, chainId, contractAddress, assetReference } = query
+
+  const accountId = useMemo(
+    () => defaultAccountId ?? queryAccountId,
+    [defaultAccountId, queryAccountId],
+  )
 
   const assetNamespace = 'slip44'
   const stakingAssetId = toAssetId({

@@ -538,17 +538,21 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       ).reduce((acc, account) => {
         Object.values(account?.stakingDataByValidatorId ?? {}).forEach(
           stakingDataByAccountSpecifier => {
-            Object.values(stakingDataByAccountSpecifier).forEach(stakingData => {
-              const { delegations, redelegations, undelegations } = stakingData
-              const redelegationEntries = redelegations.flatMap(
-                redelegation => redelegation.entries,
-              )
-              const combined = [...delegations, ...redelegationEntries, ...undelegations]
-              combined.forEach(entry => {
-                const { assetId, amount } = entry
-                acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
-              })
-            })
+            Object.entries(stakingDataByAccountSpecifier).forEach(
+              ([stakingAccountId, stakingData]) => {
+                // if passed an accountId filter, only aggregate for the given accountId
+                if (accountId && stakingAccountId !== accountId) return
+                const { delegations, redelegations, undelegations } = stakingData
+                const redelegationEntries = redelegations.flatMap(
+                  redelegation => redelegation.entries,
+                )
+                const combined = [...delegations, ...redelegationEntries, ...undelegations]
+                combined.forEach(entry => {
+                  const { assetId, amount } = entry
+                  acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+                })
+              },
+            )
           },
         )
         return acc

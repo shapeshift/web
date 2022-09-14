@@ -40,7 +40,7 @@ export const useSwapper = () => {
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
-  const buyAsset = sellTradeAsset?.asset
+  const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
 

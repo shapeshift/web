@@ -643,6 +643,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",

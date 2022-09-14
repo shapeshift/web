@@ -45,7 +45,7 @@ export const useStakingAction = () => {
   const handleStakingAction = async (data: StakingInput) => {
     const { bip44Params, chainSpecific, validator, action, value, asset } = data
 
-    if (!wallet) return
+    if (!(wallet && bip44Params)) return
 
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask

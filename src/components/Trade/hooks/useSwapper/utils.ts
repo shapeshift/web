@@ -71,9 +71,8 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   const accountId = toAccountId({ chainId, account })
 
   // TODO accountType and accountNumber need to come from account metadata
-  const { accountType } = accountIdToUtxoParams(accountId, 0)
-  const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
-  return await chainAdapter.getAddress({ wallet, accountType, bip44Params })
+  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
 }
 
 export const getUtxoParams = (sellAssetAccountId: string) => {

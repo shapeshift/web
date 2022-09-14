@@ -93,7 +93,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const txLink = useMemo(() => {
-    switch (trade?.sources[0].name) {
+    switch (trade?.sources[0]?.name) {
       case 'Osmosis':
         return `${osmosisAsset?.explorerTxLink}${sellTxid}`
       case 'CowSwap':

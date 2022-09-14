@@ -616,13 +616,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "Low",
-        "medium": "Medium",
-        "high": "High"
-      }
-    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
@@ -643,6 +636,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",

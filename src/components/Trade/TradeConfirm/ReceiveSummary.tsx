@@ -47,6 +47,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const minAmountAfterSlippage = bnOrZero(beforeFees)
     .times(1 - slippage)
     .toString()
+  const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+
   return (
     <>
       <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>
@@ -125,7 +127,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               <Divider />
               <Row>
                 <Row.Label>
-                  <Text translation={['trade.minAmountAfterSlippage', { slippage: '0.2' }]} />
+                  <Text
+                    translation={[
+                      'trade.minAmountAfterSlippage',
+                      { slippage: slippageAsPercentageString },
+                    ]}
+                  />
                 </Row.Label>
                 <Row.Value whiteSpace='nowrap'>
                   <Skeleton isLoaded={!isLoading}>

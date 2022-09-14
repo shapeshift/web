@@ -188,6 +188,7 @@ export const Deposit = ({
           isDisabled={!isValid}
           isLoading={isLoading}
           type='submit'
+          data-test='defi-modal-continue-button'
         >
           {translate(fieldError || 'common.continue')}
         </Button>

@@ -61,6 +61,7 @@ const AccountHeader = () => {
           leftIcon={<AddIcon />}
           colorScheme='blue'
           onClick={open}
+          data-test='add-account-button'
           disabled={isTxHistoryLoading}
         >
           <Text translation='accounts.addAccount' />

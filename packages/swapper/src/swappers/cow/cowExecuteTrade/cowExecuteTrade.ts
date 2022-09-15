@@ -1,5 +1,5 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { ethereum, SignMessageInput, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
+import { ethereum, SignMessageInput, toPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
@@ -79,7 +79,7 @@ export async function cowExecuteTrade(
     const bip44Params = ethereum.ChainAdapter.defaultBIP44Params
     const message: SignMessageInput<ETHSignMessage> = {
       messageToSign: {
-        addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
+        addressNList: bip32ToAddressNList(toPath(bip44Params)),
         message: ethers.utils.arrayify(orderDigest),
       },
       wallet,

@@ -197,7 +197,7 @@ describe('cowExecuteTrade', () => {
       (ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
     ).toHaveBeenCalledWith({
       messageToSign: {
-        addressNList: [2147483692, 2147483708, 2147483648],
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
       },
       wallet: tradeInput.wallet,
@@ -243,7 +243,7 @@ describe('cowExecuteTrade', () => {
       (ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
     ).toHaveBeenCalledWith({
       messageToSign: {
-        addressNList: [2147483692, 2147483708, 2147483648],
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
       },
       wallet: tradeInput.wallet,

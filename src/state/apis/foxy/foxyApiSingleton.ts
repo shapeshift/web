@@ -15,7 +15,7 @@ export const getFoxyApi = (): FoxyApi => {
     adapter: getChainAdapterManager().get(
       KnownChainIds.EthereumMainnet,
     ) as ChainAdapter<KnownChainIds.EthereumMainnet>,
-    providerUrl: getConfig().REACT_APP_ETHEREUM_INFURA_URL,
+    providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
     foxyAddresses,
   })
 

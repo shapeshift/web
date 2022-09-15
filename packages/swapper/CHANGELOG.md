@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.1.0...@shapeshiftoss/swapper-v11.1.1) (2022-09-15)
+
+
+### Bug Fixes
+
+* **swapper:** keepkey cow swap problem ([#1019](https://github.com/shapeshift/lib/issues/1019)) ([0359d8d](https://github.com/shapeshift/lib/commit/0359d8d4b8b08fd8967835b69cc4aa7ed75c1156))
+
 # [@shapeshiftoss/swapper-v11.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.0.3...@shapeshiftoss/swapper-v11.1.0) (2022-09-12)
 
 

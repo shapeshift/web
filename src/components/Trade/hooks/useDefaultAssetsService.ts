@@ -144,7 +144,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
     if (assetPair) {
       ;(async () => {
-        const receiveAddress = await getReceiveAddressFromBuyAsset()
+        const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
         const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
         const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
         setValue('action', TradeAmountInputField.SELL_CRYPTO)

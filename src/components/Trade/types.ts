@@ -12,6 +12,7 @@ import {
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
@@ -70,12 +71,20 @@ export type SupportedSwappingChain =
   | KnownChainIds.OsmosisMainnet
   | KnownChainIds.CosmosMainnet
 
+type GetFirstReceiveAddressArgs = {
+  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
+  buyAsset: Asset
+  chainAdapter: ChainAdapter<ChainId>
+  wallet: HDWallet
+}
+
 type GetSelectedReceiveAddressArgs = {
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
-  accountId: AccountId
+  buyAssetAccountId: AccountId
 }
 
+export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
 export type GetSelectedReceiveAddress = (args: GetSelectedReceiveAddressArgs) => Promise<string>
 
 export type TradeQuoteInputCommonArgs = Pick<

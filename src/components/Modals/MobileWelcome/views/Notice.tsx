@@ -1,5 +1,6 @@
 import { ArrowForwardIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, ModalBody, ModalFooter, Stack, useColorModeValue } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { SlideTransition } from 'components/SlideTransition'
@@ -16,15 +17,17 @@ export const Notice = () => {
     backupNativePassphrase: { open },
   } = useModal()
 
-  const handleRecoveryClick = () => {
+  const handleRecoveryClick = useCallback(() => {
     handleClose()
     open({ preventClose: true })
     store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
-  }
-  const handleDismissClick = () => {
+  }, [handleClose, open])
+
+  const handleDismissClick = useCallback(() => {
     handleClose()
     store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
-  }
+  }, [handleClose])
+
   return (
     <SlideTransition>
       <ModalBody>

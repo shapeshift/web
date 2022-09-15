@@ -51,7 +51,7 @@ export const App = () => {
   }, [shouldUpdate, toast, translate])
 
   useEffect(() => {
-    if (showWelcomeModal) {
+    if (showWelcomeModal && !isWelcomeModalOpen) {
       mobileWelcomeModal.open({})
     }
   }, [mobileWelcomeModal, showWelcomeModal])

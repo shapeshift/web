@@ -1,7 +1,6 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Drawer,
   DrawerContent,
   DrawerOverlay,

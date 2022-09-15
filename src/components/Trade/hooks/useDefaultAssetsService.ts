@@ -11,7 +11,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
@@ -36,7 +36,8 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     state: { wallet },
   } = useWallet()
   const { connectedEvmChainId } = useEvm()
-  const { setValue } = useFormContext<TS>()
+  const { setValue, control } = useFormContext<TS>()
+  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [defaultAssetFiatRateArgs, setDefaultAssetFiatRateArgs] =
     useState<UsdRateInputArg>(skipToken)
@@ -144,23 +145,22 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
     if (assetPair) {
       ;(async () => {
-        const receiveAddress = await getReceiveAddressFromBuyAsset()
-        const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
-        const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
+        const buyAsset = buyAssetAccountId ? assetPair.buyAsset : assets[foxAssetId]
+        const sellAsset = buyAssetAccountId ? assetPair.sellAsset : assets[ethAssetId]
         setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', '0')
         setValue('buyTradeAsset.asset', buyAsset)
         setValue('sellTradeAsset.asset', sellAsset)
       })()
     }
-    // We don't want to run this effect when getReceiveAddressFromBuyAsset changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     assets,
+    buyAssetAccountId,
     buyAssetFiatRateData,
     buyAssetId,
     defaultAssetFiatRateData,
     defaultAssetIdPair,
+    getReceiveAddressFromBuyAsset,
     isBuyAssetFiatRateLoading,
     isBuyAssetFiatRateUninitialized,
     isDefaultAssetFiatRateLoading,

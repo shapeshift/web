@@ -20,7 +20,7 @@ export const App = () => {
   const updateId = 'update-app'
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
-  const { mobileWelcomeModal } = useModal()
+  const { mobileWelcomeModal, isOpen: isWelcomeModalOpen } = useModal()
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')
@@ -51,7 +51,7 @@ export const App = () => {
   }, [shouldUpdate, toast, translate])
 
   useEffect(() => {
-    if (showWelcomeModal) {
+    if (showWelcomeModal && !isWelcomeModalOpen) {
       mobileWelcomeModal.open({})
     }
   }, [mobileWelcomeModal, showWelcomeModal])

@@ -23,7 +23,7 @@ const avalancheChain: Chain = {
   testnet: false,
 }
 
-const infuraApiKey = last(getConfig().REACT_APP_ETHEREUM_NODE_URL.split('/')) ?? ''
+const infuraApiKey = last(getConfig().REACT_APP_ETHEREUM_INFURA_URL.split('/')) ?? ''
 const { provider } = configureChains(
   [chain.mainnet, avalancheChain],
   [

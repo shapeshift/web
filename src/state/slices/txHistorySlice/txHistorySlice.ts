@@ -335,6 +335,10 @@ export const txHistoryApi = createApi({
               const pageSize = (() => {
                 switch (chainId) {
                   case KnownChainIds.AvalancheMainnet:
+                  case KnownChainIds.EthereumMainnet:
+                    /**
+                     * 2022-09-15 0xdef1cafe - adding EthereumMainnet due to temporarily degraded performance
+                     */
                     /**
                      * as of writing, the data source upstream from unchained can choke and timeout
                      * on a page size of 100 for avalanche tx history.

@@ -5,6 +5,8 @@ import { AccountsIcon } from 'components/Icons/Accounts'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { store } from 'state/store'
 
 export const Notice = () => {
   const translate = useTranslate()
@@ -17,6 +19,11 @@ export const Notice = () => {
   const handleRecoveryClick = () => {
     handleClose()
     open({ preventClose: true })
+    store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
+  }
+  const handleDismissClick = () => {
+    handleClose()
+    store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
   }
   return (
     <SlideTransition>
@@ -47,7 +54,7 @@ export const Notice = () => {
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>
-        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleClose}>
+        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleDismissClick}>
           {translate('modals.mobileWelcome.notice.secondaryCta')}
         </Button>
       </ModalFooter>

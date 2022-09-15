@@ -5,10 +5,13 @@ import { useToast } from '@chakra-ui/toast'
 import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
+import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
+import { selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
   const shouldUpdate = useHasAppUpdated()
@@ -16,6 +19,8 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
+  const showWelcomeModal = useSelector(selectShowWelcomeModal)
+  const { mobileWelcomeModal } = useModal()
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')
@@ -44,6 +49,12 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
+
+  useEffect(() => {
+    if (showWelcomeModal) {
+      mobileWelcomeModal.open({})
+    }
+  }, [mobileWelcomeModal, showWelcomeModal])
 
   return <Routes />
 }

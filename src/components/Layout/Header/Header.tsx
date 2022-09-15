@@ -1,6 +1,7 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
   Drawer,
   DrawerContent,
   DrawerOverlay,
@@ -15,6 +16,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -26,6 +28,7 @@ import { SideNavContent } from './SideNavContent'
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const history = useHistory()
+  const { mobileWelcomeModal } = useModal()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -128,6 +131,7 @@ export const Header = () => {
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
+              <Button onClick={() => mobileWelcomeModal.open({})}>Fire Some shit</Button>
             </Flex>
           </HStack>
         </HStack>

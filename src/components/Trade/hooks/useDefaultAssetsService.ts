@@ -11,7 +11,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
@@ -36,8 +36,7 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     state: { wallet },
   } = useWallet()
   const { connectedEvmChainId } = useEvm()
-  const { setValue, control } = useFormContext<TS>()
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
+  const { setValue } = useFormContext<TS>()
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [defaultAssetFiatRateArgs, setDefaultAssetFiatRateArgs] =
     useState<UsdRateInputArg>(skipToken)
@@ -145,8 +144,9 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
 
     if (assetPair) {
       ;(async () => {
-        const buyAsset = buyAssetAccountId ? assetPair.buyAsset : assets[foxAssetId]
-        const sellAsset = buyAssetAccountId ? assetPair.sellAsset : assets[ethAssetId]
+        const receiveAddress = await getReceiveAddressFromBuyAsset(assetPair.buyAsset)
+        const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
+        const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
         setValue('action', TradeAmountInputField.SELL_CRYPTO)
         setValue('amount', '0')
         setValue('buyTradeAsset.asset', buyAsset)
@@ -155,7 +155,6 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
     }
   }, [
     assets,
-    buyAssetAccountId,
     buyAssetFiatRateData,
     buyAssetId,
     defaultAssetFiatRateData,

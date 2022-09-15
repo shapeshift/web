@@ -42,9 +42,7 @@ export const useTradeQuoteService = () => {
     state: { wallet },
   } = useWallet()
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-
-  // Hooks
-  const { getReceiveAddressFromBuyAsset } = useSwapper()
+  const { receiveAddress } = useSwapper()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -61,10 +59,8 @@ export const useTradeQuoteService = () => {
   // Trigger trade quote query
   useEffect(() => {
     const sellTradeAssetAmount = sellTradeAsset?.amount
-    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount) {
+    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount && receiveAddress) {
       ;(async () => {
-        const receiveAddress = await getReceiveAddressFromBuyAsset()
-        if (!receiveAddress) return
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
 
@@ -114,7 +110,7 @@ export const useTradeQuoteService = () => {
     amount,
     buyAsset,
     buyTradeAsset,
-    getReceiveAddressFromBuyAsset,
+    receiveAddress,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellAssetAccountId,

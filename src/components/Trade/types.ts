@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -12,6 +12,7 @@ import {
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
@@ -71,9 +72,10 @@ export type SupportedSwappingChain =
   | KnownChainIds.CosmosMainnet
 
 type GetFirstReceiveAddressArgs = {
+  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
+  buyAsset: Asset
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
-  accountId: AccountId
 }
 
 export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>

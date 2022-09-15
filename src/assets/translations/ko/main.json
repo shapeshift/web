@@ -463,13 +463,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "낮음",
-        "medium": "중간",
-        "high": "높음"
-      }
-    },
     "send": {
       "getBalanceError": "지갑 잔액을 가져오는 중에 오류가 발생했습니다.",
       "broadcastingTransaction": "트랜잭션을 브로드캐스팅하는 중입니다.",

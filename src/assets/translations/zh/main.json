@@ -427,13 +427,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "低的",
-        "medium": "中等的",
-        "high": "高的"
-      }
-    },
     "send": {
       "getBalanceError": "获取钱包余额出现错误",
       "broadcastingTransaction": "广播交易中",

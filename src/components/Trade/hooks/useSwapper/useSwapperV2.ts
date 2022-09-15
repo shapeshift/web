@@ -10,6 +10,7 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import {
   filterAssetsByIds,
   getFirstReceiveAddress,
+  getSelectedReceiveAddress,
   getUtxoParams,
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -37,6 +38,7 @@ export const useSwapper = () => {
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -74,17 +76,25 @@ export const useSwapper = () => {
       const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
       if (!(chainAdapter && wallet)) return
       try {
-        return await getFirstReceiveAddress({
-          accountSpecifiersList,
-          buyAsset,
-          chainAdapter,
-          wallet,
-        })
+        const receiveAddress = await (async () =>
+          buyAssetAccountId
+            ? getSelectedReceiveAddress({
+                chainAdapter,
+                wallet,
+                buyAssetAccountId,
+              })
+            : getFirstReceiveAddress({
+                accountSpecifiersList,
+                buyAsset,
+                chainAdapter,
+                wallet,
+              }))()
+        return receiveAddress
       } catch (e) {
         moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
       }
     },
-    [accountSpecifiersList, wallet],
+    [accountSpecifiersList, buyAssetAccountId, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(

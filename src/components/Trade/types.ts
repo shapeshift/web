@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -78,7 +78,14 @@ type GetFirstReceiveAddressArgs = {
   wallet: HDWallet
 }
 
+type GetSelectedReceiveAddressArgs = {
+  chainAdapter: ChainAdapter<ChainId>
+  wallet: HDWallet
+  buyAssetAccountId: AccountId
+}
+
 export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
+export type GetSelectedReceiveAddress = (args: GetSelectedReceiveAddressArgs) => Promise<string>
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,

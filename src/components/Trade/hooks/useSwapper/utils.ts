@@ -21,6 +21,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import type { GetSelectedReceiveAddress } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
@@ -70,6 +71,16 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   const { chainId } = buyAsset
   const accountId = toAccountId({ chainId, account })
 
+  // TODO accountType and accountNumber need to come from account metadata
+  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
+}
+
+export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
+  chainAdapter,
+  wallet,
+  buyAssetAccountId: accountId,
+}) => {
   // TODO accountType and accountNumber need to come from account metadata
   const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
   return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })

@@ -7,6 +7,7 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useMemo } from 'react'
@@ -122,7 +123,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       try {
         const accountNumber = 0
-        const chainIds = supportedChains
+        const chainIds = supportedChains.filter(chainId => {
+          if (!getConfig().REACT_APP_EXCLUDE_ETHEREUM_DATA) return true
+          return chainId !== ethChainId
+        })
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
           accountNumber,
           chainIds,

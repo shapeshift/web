@@ -70,13 +70,13 @@ export type SupportedSwappingChain =
   | KnownChainIds.OsmosisMainnet
   | KnownChainIds.CosmosMainnet
 
-type GetSelectedReceiveAddressArgs = {
+type GetFirstReceiveAddressArgs = {
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
   accountId: AccountId
 }
 
-export type GetSelectedReceiveAddress = (args: GetSelectedReceiveAddressArgs) => Promise<string>
+export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,

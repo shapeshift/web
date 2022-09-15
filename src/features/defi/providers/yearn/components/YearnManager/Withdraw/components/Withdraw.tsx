@@ -30,12 +30,16 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'Withdraw', 'Withdraw'],
 })
 
-export const Withdraw: React.FC<
-  StepComponentProps & {
-    accountId: Nullable<AccountId>
-    onAccountIdChange: AccountDropdownProps['onChange']
-  }
-> = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { yearn: yearnInvestor } = useYearn()

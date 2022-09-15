@@ -40,7 +40,10 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import {
+  accountIdToFeeAssetId,
+  genericBalanceIncludingStakingByFilter,
+} from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -853,6 +856,20 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
         }, {})
     )
   },
+)
+
+export const selectFiatBalanceIncludingStakingByFilter = createSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
+  genericBalanceIncludingStakingByFilter,
+)
+
+export const selectCryptoBalanceIncludingStakingByFilter = createSelector(
+  selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
+  genericBalanceIncludingStakingByFilter,
 )
 
 export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(

@@ -8,7 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
 import { useRef, useState } from 'react'
@@ -25,6 +25,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
+import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
 import { MaxButtonGroup } from './MaxButtonGroup'
@@ -46,6 +47,7 @@ const CryptoInput = (props: InputProps) => (
 )
 
 export type AssetInputProps = {
+  accountId?: Nullable<AccountId>
   assetId?: AssetId
   assetSymbol: string
   assetIcon: string
@@ -66,6 +68,7 @@ export type AssetInputProps = {
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
+  accountId,
   assetId,
   assetSymbol,
   assetIcon,
@@ -188,13 +191,12 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {handleAccountIdChange && assetId && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          <AccountDropdown
-            assetId={assetId}
-            onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
-          />
-        </Stack>
+        <AccountDropdown
+          {...(accountId ? { defaultAccountId: accountId } : {})}
+          assetId={assetId}
+          onChange={handleAccountIdChange}
+          buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
+        />
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (

@@ -1,13 +1,10 @@
 import { AddIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Stack } from '@chakra-ui/react'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -15,35 +12,18 @@ import { selectIsTxHistoryLoading, selectPortfolioChainIdsSortedFiat } from 'sta
 
 import { ChainRow } from './components/ChainRow'
 
-// TODO(0xdef1cafe): delete me once hdwallet supports this concept
-const isMultiAccountSupportedWallet = (wallet: HDWallet | null): boolean => {
-  if (!wallet) return false
-  switch (getLocalWalletType()) {
-    /**
-     * currently - these are the only wallets that support the concept of multi account.
-     * there may be some WalletConnect wallets that do, but we can't interrogate the underlying wallet
-     * that WalletConnect is proxying to us.
-     */
-    case KeyManager.Native:
-    case KeyManager.KeepKey:
-      return true
-    default:
-      return false
-  }
-}
-
 const AccountHeader = () => {
   const translate = useTranslate()
   const isMultiAccountEnabled = useFeatureFlag('MultiAccounts')
   const {
     state: { wallet },
   } = useWallet()
-  const [isMultiChainWallet, setIsMultiChainWallet] = useState<boolean>(false)
+  const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
   const isTxHistoryLoading = useSelector(selectIsTxHistoryLoading)
 
   useEffect(() => {
     if (!wallet) return
-    setIsMultiChainWallet(isMultiAccountSupportedWallet(wallet))
+    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
   }, [wallet])
 
   const { addAccount } = useModal()
@@ -54,7 +34,7 @@ const AccountHeader = () => {
       <Heading>
         <Text translation='accounts.accounts' />
       </Heading>
-      {isMultiAccountEnabled && isMultiChainWallet && (
+      {isMultiAccountEnabled && isMultiAccountWallet && (
         <Button
           isLoading={isTxHistoryLoading}
           loadingText={translate('accounts.addAccount')}

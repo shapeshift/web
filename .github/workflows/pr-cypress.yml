@@ -72,6 +72,7 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 300 # seconds
           browser: chrome
+          headed: true
           group: 'Chrome tests'
         env:
           CYPRESS_PROJECT_ID: 'vpyrho'

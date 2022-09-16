@@ -68,6 +68,8 @@ export type DeviceState = {
   recoveryEntropy: Entropy
   recoveryCharacterIndex: number | undefined
   recoveryWordIndex: number | undefined
+  isUpdatingPin: boolean | undefined
+  isDeviceLoading: boolean | undefined
 }
 
 const initialDeviceState: DeviceState = {
@@ -78,6 +80,8 @@ const initialDeviceState: DeviceState = {
   recoveryEntropy: VALID_ENTROPY[0],
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
+  isUpdatingPin: false,
+  isDeviceLoading: false,
 }
 export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
 
@@ -171,7 +175,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
-    case WalletActions.SET_DEVICE_STATE:
+    case WalletActions.SET_PIN_REQUEST_TYPE:
+      return { ...state, keepKeyPinRequestType: action.payload }
+    case WalletActions.SET_DEVICE_STATE: {
       const { deviceState } = state
       const {
         awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
@@ -179,6 +185,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         disposition = deviceState.disposition,
         recoverWithPassphrase = deviceState.recoverWithPassphrase,
         recoveryEntropy = deviceState.recoveryEntropy,
+        isUpdatingPin = deviceState.isUpdatingPin,
+        isDeviceLoading = deviceState.isDeviceLoading,
       } = action.payload
       return {
         ...state,
@@ -189,8 +197,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           disposition,
           recoverWithPassphrase,
           recoveryEntropy,
+          isUpdatingPin,
+          isDeviceLoading,
         },
       }
+    }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -279,6 +290,17 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
       return { ...state, ...resetProperties }
+    // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
+    case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
+      const { deviceState } = state
+      return {
+        ...state,
+        deviceState: {
+          ...deviceState,
+          lastDeviceInteractionStatus: undefined,
+        },
+      }
+    }
     default:
       return state
   }

@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
@@ -120,11 +120,11 @@ describe.each([
 
   beforeEach(() => {
     useSelectorMock.mockReturnValue({
-      state: {
-        preferences: {
-          accountTypes: {
-            [KnownChainIds.BitcoinMainnet]: UtxoAccountType.SegwitP2sh,
-          },
+      [formData[SendFormFields.AccountId]]: {
+        bip44Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0,
         },
       },
     })

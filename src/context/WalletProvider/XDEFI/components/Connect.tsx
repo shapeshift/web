@@ -91,7 +91,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       headerText={'walletProvider.xdefi.connect.header'}
       bodyText={'walletProvider.xdefi.connect.body'}
       buttonText={'walletProvider.xdefi.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     />

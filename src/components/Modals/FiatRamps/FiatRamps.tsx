@@ -11,7 +11,7 @@ import { FiatRampsRouter } from './FiatRampsRouter'
 const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Manager]
 
 const FiatRampsContent = () => {
-  const history = useHistory()
+  const { goBack: handleBackClick } = useHistory()
   const location = useLocation()
 
   if (location.pathname === FiatRampsRoutes.Select) {
@@ -29,7 +29,7 @@ const FiatRampsContent = () => {
         <IconButton
           variant='ghost'
           icon={<ArrowBackIcon />}
-          onClick={history.goBack}
+          onClick={handleBackClick}
           size='sm'
           aria-label='Back'
           position={'absolute'}

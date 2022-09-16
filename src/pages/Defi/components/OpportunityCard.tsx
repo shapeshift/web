@@ -13,12 +13,14 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+  cosmosChainId,
+  foxAssetId,
+  foxyAssetId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -107,11 +109,15 @@ export const OpportunityCard = ({
 
   const getOpportunityName = () => {
     if (opportunityName) return opportunityName
+
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
-    if (!isCosmosChainId(chainId) && !isOsmosisChainId(chainId))
+
+    if (chainId === cosmosChainId || chainId === osmosisChainId) return moniker
+
+    if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
-    if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) return moniker
+    }
   }
 
   return (

@@ -27,11 +27,11 @@ export const accountSpecifiers = createSlice({
       moduleLogger.info('clearing account specifiers')
       return getInitialState()
     },
-    setAccountSpecifiers(state, { payload }: { payload: AccountSpecifierMap[] }) {
+    upsertAccountSpecifiers(state, { payload }: { payload: AccountSpecifierMap[] }) {
       // don't set to exactly the same thing and cause renders
       if (isEqual(state.accountSpecifiers, payload)) return
-      moduleLogger.info('dispatching account specifiers set action')
-      state.accountSpecifiers = payload
+      moduleLogger.info('upserting account specifiers')
+      state.accountSpecifiers = [...state.accountSpecifiers, ...payload]
     },
   },
 })

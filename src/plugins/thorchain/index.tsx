@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { osmosis } from '@shapeshiftoss/chain-adapters'
+import { thorchain } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -10,28 +10,28 @@ import { type Plugins } from 'plugins/types'
 export default function register(): Plugins {
   return [
     [
-      'osmosisChainAdapter',
+      'thorchainChainAdapter',
       {
-        name: 'osmosisChainAdapter',
-        featureFlag: 'Osmosis',
+        name: 'thorchainChainAdapter',
+        featureFlag: 'Thorchain',
         providers: {
           chainAdapters: [
             [
-              KnownChainIds.OsmosisMainnet,
+              KnownChainIds.ThorchainMainnet,
               () => {
-                const http = new unchained.osmosis.V1Api(
-                  new unchained.osmosis.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL,
+                const http = new unchained.thorchain.V1Api(
+                  new unchained.thorchain.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL,
                   }),
                 )
 
                 const ws = new unchained.ws.Client<unchained.cosmossdk.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
+                  getConfig().REACT_APP_UNCHAINED_THORCHAIN_WS_URL,
                 )
 
-                return new osmosis.ChainAdapter({
+                return new thorchain.ChainAdapter({
                   providers: { http, ws },
-                  coinName: 'Osmosis',
+                  coinName: 'Thorchain',
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
               },
             ],

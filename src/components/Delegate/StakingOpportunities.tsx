@@ -1,13 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, HStack, Skeleton, Tag, TagLabel } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
@@ -20,11 +16,12 @@ import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunitiesDataFull } from 'state/slices/selectors'
 import {
+  selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
+  selectMarketDataById,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -36,6 +33,7 @@ type ValidatorNameProps = {
   moniker: string
   isStaking: boolean
   validatorAddress: string
+  apr?: string
 }
 
 export const ValidatorName = ({
@@ -43,28 +41,40 @@ export const ValidatorName = ({
   isStaking,
   validatorAddress,
   chainId,
+  apr,
 }: ValidatorNameProps) => {
   const assetIcon = useMemo(() => {
     if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
 
-    let cosmostationChainName = ''
-    if (isCosmosChainId(chainId)) cosmostationChainName = 'cosmoshub'
-    if (isOsmosisChainId(chainId)) cosmostationChainName = 'osmosis'
+    const cosmostationChainName = (() => {
+      switch (chainId) {
+        case cosmosChainId:
+          return 'cosmoshub'
+        case osmosisChainId:
+          return 'osmosis'
+        default:
+          return ''
+      }
+    })()
 
     return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
   }, [isStaking, validatorAddress, chainId])
 
   return (
     <Box cursor='pointer'>
-      <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
-        <AssetIcon mr={8} src={assetIcon} boxSize='8' />
-        {isStaking ? (
-          <Tag colorScheme='blue'>
-            <TagLabel>{moniker}</TagLabel>
-          </Tag>
-        ) : (
+      <Flex alignItems='center' maxWidth='180px' gap={4}>
+        <AssetIcon src={assetIcon} boxSize='8' />
+        <Stack spacing={2} alignItems='flex-start'>
           <RawText fontWeight='bold'>{`${moniker}`}</RawText>
-        )}
+          {apr && (
+            <AprTag
+              display={{ base: 'inline-flex', md: 'none' }}
+              size='sm'
+              percentage={apr}
+              showAprSuffix
+            />
+          )}
+        </Stack>
       </Flex>
     </Box>
   )
@@ -122,6 +132,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
                 moniker={validator?.moniker}
                 isStaking={true}
                 chainId={asset?.chainId}
+                apr={validator?.apr}
               />
             </Skeleton>
           )
@@ -131,7 +142,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       {
         Header: <Text translation='defi.apr' />,
         id: 'apr',
-        display: { base: 'table-cell' },
+        display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
           const validator = row.original
           return (

@@ -8,7 +8,8 @@
   "plugins": [
     "jest",
     "prettier",
-    "simple-import-sort"
+    "simple-import-sort",
+    "@shapeshiftoss/logger"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -22,7 +23,6 @@
   "rules": {
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/no-autofocus": "off",
-    "no-console": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "prettier/prettier": [
       "error",
@@ -71,6 +71,8 @@
     "eqeqeq": "error",
     "react-hooks/exhaustive-deps": "error",
     "@typescript-eslint/array-type": "error",
-    "@typescript-eslint/consistent-type-imports": "error"
+    "@typescript-eslint/consistent-type-imports": "error",
+    "react/jsx-handler-names": "error",
+    "@shapeshiftoss/logger/no-native-console": "error"
   }
 }

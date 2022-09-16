@@ -132,8 +132,8 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               revocable(
                 <Button
                   key={index}
-                  flex='1'
-                  minW='30%'
+                  flexGrow={4}
+                  flexBasis='auto'
                   variant='ghost-filled'
                   colorScheme={invalidTries.includes(index) ? 'gray' : 'blue'}
                   isDisabled={invalidTries.includes(index)}

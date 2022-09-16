@@ -15,18 +15,18 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
-import { SendFormFields } from 'components/Modals/Send/SendCommon'
-import { SendRoutes } from 'components/Modals/Send/SendCommon'
+import { SendFormFields, SendRoutes } from 'components/Modals/Send/SendCommon'
 import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -40,18 +40,34 @@ import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 const MAX_MEMO_LENGTH = 256
 
 export const Details = () => {
-  const { control } = useFormContext<SendInput>()
+  const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
-    useWatch({
-      control,
-    })
+  const {
+    asset,
+    accountId,
+    cryptoAmount,
+    cryptoSymbol,
+    fiatAmount,
+    fiatSymbol,
+    amountFieldError,
+    memo,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
 
   const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
+  const handleAccountChange = useCallback(
+    (accountId: AccountId) => {
+      setValue(CosmosSendFormFields.AccountId, accountId)
+      setValue(CosmosSendFormFields.CryptoAmount, '')
+      setValue(CosmosSendFormFields.FiatAmount, '')
+    },
+    [setValue],
+  )
   const { send } = useModal()
   const {
     balancesLoading,
@@ -65,16 +81,7 @@ export const Details = () => {
     toggleCurrency,
   } = useSendDetails()
 
-  if (
-    !(
-      asset &&
-      asset?.name &&
-      !isNil(cryptoAmount) &&
-      cryptoSymbol &&
-      !isNil(fiatAmount) &&
-      fiatSymbol
-    )
-  ) {
+  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 
@@ -97,10 +104,14 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
+        <AccountDropdown
+          assetId={asset.assetId}
+          defaultAccountId={accountId}
+          onChange={handleAccountChange}
+          buttonProps={{ width: 'full', mb: 2, variant: 'solid' }}
+        />
         <AccountCard
-          // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
-          // So we're going to cast it since we already did a runtime check that the object exists
-          asset={asset as Asset}
+          asset={asset}
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}

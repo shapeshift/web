@@ -2,7 +2,6 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -12,7 +11,8 @@ import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { type TradeQuoteInputCommonArgs, type TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { type TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
@@ -26,7 +26,7 @@ The only mutation is on TradeState's quote property.
 */
 export const useTradeQuoteService = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue } = useFormContext<TS>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })

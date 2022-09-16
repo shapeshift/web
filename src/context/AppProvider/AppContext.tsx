@@ -34,7 +34,6 @@ import {
   selectPortfolioAssetIds,
   selectSelectedCurrency,
   selectSelectedLocale,
-  selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
@@ -72,7 +71,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -137,8 +135,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           return { [chainId]: account }
         })
 
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(accountSpecifiersPayload))
-        dispatch(portfolio.actions.setAccountMetadata(accountMetadataByAccountId))
+        dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
+        dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       } catch (e) {
         moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
       }
@@ -163,10 +161,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
   }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
 
-  // once portfolio and transaction history are done loading, fetch remaining chain specific data
+  // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
     if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
@@ -220,13 +217,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })
     // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds, txHistoryStatus])
+  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds])
 
-  // once the portfolio and transaction history are done loading, fetch market data for all portfolio assets
+  // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
     if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
 
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
@@ -239,7 +235,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
+  }, [dispatch, isPortfolioLoaded, portfolioAssetIds])
 
   /**
    * fetch forex spot and history for user's selected currency

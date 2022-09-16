@@ -1,25 +1,22 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect } from 'react'
+import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { type TradeState, TradeAmountInputField } from 'components/Trade/types'
+import type { TradeAmountInputField } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
 import { fromBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-/*
-The Trade Amount Service is responsible for reacting to changes to trade amounts and keeps all amounts in sync.
-It mutates the fiatSellAmount, fiatBuyAmount, buyTradeAsset.amount, and sellTradeAsset.amount properties of TradeState.
-*/
-export const useTradeAmountService = () => {
+export const useTradeAmounts = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue } = useFormContext<TS>()
   const buyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const amount = useWatch({ control, name: 'amount' })
-  const action = useWatch({ control, name: 'action' })
+
+  // Types
+  type setTradeAmountsArgs = { amount: string | null; action: TradeAmountInputField }
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -28,34 +25,27 @@ export const useTradeAmountService = () => {
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
 
-  // Get and set trade amounts
-  useEffect(() => {
-    if (sellAsset && buyAsset && amount) {
-      ;(async () => {
+  const setTradeAmounts = useCallback(
+    ({ amount, action }: setTradeAmountsArgs) => {
+      if (sellAsset && buyAsset && amount) {
         const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
           calculateAmounts({
             amount,
+            action,
             buyAsset,
             sellAsset,
             buyAssetUsdRate: buyAssetFiatRate,
             sellAssetUsdRate: sellAssetFiatRate,
-            action: action ?? TradeAmountInputField.SELL_CRYPTO,
             selectedCurrencyToUsdRate,
           })
         setValue('fiatSellAmount', fiatSellAmount)
         setValue('fiatBuyAmount', fiatBuyAmount)
         setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision))
         setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision))
-      })()
-    }
-  }, [
-    action,
-    amount,
-    buyAsset,
-    buyAssetFiatRate,
-    selectedCurrencyToUsdRate,
-    sellAsset,
-    sellAssetFiatRate,
-    setValue,
-  ])
+      }
+    },
+    [buyAsset, buyAssetFiatRate, selectedCurrencyToUsdRate, sellAsset, sellAssetFiatRate, setValue],
+  )
+
+  return { setTradeAmounts }
 }

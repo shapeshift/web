@@ -19,9 +19,9 @@ jobs:
       # leaving the Dashboard hanging: https://github.com/cypress-io/github-action/issues/48
       fail-fast: false
       matrix:
-        # Run 3 copies of the current job in parallel
+        # Run 1 copy of the current job in parallel
         # We can continue adding more as our test suite grows
-        containers: [1, 2, 3]
+        containers: [1]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

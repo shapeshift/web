@@ -8,8 +8,7 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, matchPath } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -22,6 +21,7 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+
 const moduleLogger = logger.child({ namespace: ['ConnectWallet'] })
 
 async function connectCypressWallet(
@@ -171,6 +171,7 @@ export const ConnectWallet = () => {
                   variant='outline'
                   onClick={connectDemo}
                   isLoading={state.isLoadingLocalWallet}
+                  data-test='connect-demo-wallet-button'
                 >
                   <Text translation='connectWalletPage.viewADemo' />
                 </Button>

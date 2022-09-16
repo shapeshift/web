@@ -12,11 +12,20 @@ describe('The Dashboard', () => {
     cy.clearIndexedDB()
   })
 
+  beforeEach(() => {
+    // Intercept all account requests relating to our test wallet
+    cy.mockAllRequests()
+  })
+
   it('supports log in via an imported Native wallet', () => {
     cy.visit('')
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
+
+    // Accept Pendo
+    cy.getBySel('consent-optin-continue-button').click()
+
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 
@@ -61,6 +70,7 @@ describe('The Dashboard', () => {
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
     cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-load-button').click()
     cy.getBySel('native-saved-wallet').should('have.length', 1)
@@ -76,24 +86,9 @@ describe('The Dashboard', () => {
     cy.clearIndexedDB().then(() => {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
+      cy.getBySel('consent-optin-continue-button').click()
       cy.getBySel('connect-wallet-native-button').click()
       cy.getBySel('wallet-native-load-button').should('be.disabled')
     })
-  })
-
-  it('support Portis log in', () => {
-    cy.clearLocalStorage()
-    cy.visit('')
-    // Open WalletProvider.SelectModal
-    cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('connect-wallet-portis-button').click()
-
-    // This would open an external page to log in with Portis, which is outside the scope of Cypress
-    // cy.getBySel('wallet-pair-button').click()
-
-    // We can't use UI for this bit:
-    // https://docs.cypress.io/guides/references/trade-offs#Same-origin
-    // Instead, we'll need to do this part programmatically using cy.request():
-    // https://docs.cypress.io/guides/references/best-practices#Visiting-external-sites
   })
 })

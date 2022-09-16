@@ -333,7 +333,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       adapter,
       accountAddress,
       contractAddress,
-      foxFarmingContract?.interface,
+      foxFarmingContract,
       lpAsset.precision,
       uniswapRouterContract,
       skip,
@@ -362,9 +362,10 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       adapter,
       accountAddress,
       contractAddress,
-      foxFarmingContract?.interface,
+      foxFarmingContract,
       lpAsset.precision,
       uniswapRouterContract,
+      skip,
     ],
   )
 

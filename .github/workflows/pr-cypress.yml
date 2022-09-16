@@ -66,6 +66,7 @@ jobs:
       - name: Cypress Run
         uses: cypress-io/github-action@v4
         with:
+          config: baseUrl=http://localhost:3000
           record: true
           start: yarn dev:silent
           parallel: true

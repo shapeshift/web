@@ -34,6 +34,9 @@ jobs:
           restore-keys: |
             cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
 
+      - name: Regenerate yarn cache
+        run: yarn install --frozen-lockfile
+
       - name: Cache Node Modules
         uses: actions/cache@v3
         with:

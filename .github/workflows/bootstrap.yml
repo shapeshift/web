@@ -42,12 +42,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
+      - name: Add environment variables
+        run: yarn env app
+
       - name: Install Cypress & Build Project
         uses: cypress-io/github-action@v4
         with:
           # Disable running of tests within install job
           runTests: false
-          build: yarn env app && yarn build
+          build: yarn build
 
       - name: Verify Cypress
         env:

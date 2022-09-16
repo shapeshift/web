@@ -46,7 +46,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const feeData = (await this.providers.http.getGasFees()).data
+    const feeData = await this.providers.http.getGasFees()
 
     const normalizationConstants = {
       fast: bn(1.2),
@@ -108,7 +108,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
 
     const data = contractData ?? (await getErc20Data(to, value, contractAddress))
 
-    const { data: gasLimit } = await this.providers.http.estimateGas({
+    const gasLimit = await this.providers.http.estimateGas({
       from,
       to: isErc20Send ? contractAddress : to,
       value: isErc20Send ? '0' : value,

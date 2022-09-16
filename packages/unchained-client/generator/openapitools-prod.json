@@ -2,14 +2,17 @@
   "$schema": "../../node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
-    "version": "5.4.0",
+    "version": "6.1.0",
     "storageDir": "~/.openapitools",
     "generators": {
       "avalanche": {
         "inputSpec": "https://api.avalanche.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/avalanche",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -17,9 +20,12 @@
       },
       "bitcoin": {
         "inputSpec": "https://api.bitcoin.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -27,9 +33,12 @@
       },
       "bitcoincash": {
         "inputSpec": "https://api.bitcoincash.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoincash",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -37,9 +46,12 @@
       },
       "cosmos": {
         "inputSpec": "https://api.cosmos.shapeshift.com/swagger",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/cosmos",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -47,9 +59,12 @@
       },
       "dogecoin": {
         "inputSpec": "https://api.dogecoin.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/dogecoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -57,9 +72,12 @@
       },
       "ethereum": {
         "inputSpec": "https://api.ethereum.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/ethereum",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -67,9 +85,12 @@
       },
       "litecoin": {
         "inputSpec": "https://api.litecoin.shapeshift.com/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/litecoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -77,9 +98,12 @@
       },
       "osmosis": {
         "inputSpec": "https://api.osmosis.shapeshift.com/swagger",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/osmosis",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -87,9 +111,12 @@
       },
       "thorchain": {
         "inputSpec": "https://api.thorchain.shapeshift.com/swagger",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/thorchain",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true

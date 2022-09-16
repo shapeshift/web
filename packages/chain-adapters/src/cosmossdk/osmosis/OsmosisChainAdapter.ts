@@ -487,8 +487,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     try {
       if (supportsOsmosis(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)
-        const { data } = await this.providers.http.sendTx({ body: { rawTx: signedTx } })
-        return data
+        return this.providers.http.sendTx({ body: { rawTx: signedTx } })
       } else {
         throw new Error('Wallet does not support Osmosis.')
       }

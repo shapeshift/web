@@ -125,11 +125,11 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     try {
       const account = await (async () => {
         if (this.providers.http instanceof unchained.thorchain.V1Api) {
-          const { data } = await this.providers.http.getAccount({ pubkey })
+          const data = await this.providers.http.getAccount({ pubkey })
           return { ...data, delegations: [], redelegations: [], undelegations: [], rewards: [] }
         }
 
-        const { data } = await this.providers.http.getAccount({ pubkey })
+        const data = await this.providers.http.getAccount({ pubkey })
 
         const delegations = data.delegations.map<Delegation>((delegation) => ({
           assetId: this.assetId,
@@ -189,7 +189,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
     try {
-      const { data } = await this.providers.http.getTxHistory({
+      const data = await this.providers.http.getTxHistory({
         pubkey: input.pubkey,
         pageSize: input.pageSize,
         cursor: input.cursor,
@@ -235,8 +235,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   async broadcastTransaction(hex: string): Promise<string> {
     try {
-      const { data } = await this.providers.http.sendTx({ body: { rawTx: hex } })
-      return data
+      return this.providers.http.sendTx({ body: { rawTx: hex } })
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -318,7 +317,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     if (this.providers.http instanceof unchained.thorchain.V1Api) return []
 
     try {
-      const { data } = await this.providers.http.getValidators()
+      const data = await this.providers.http.getValidators()
       return data.validators.map<Validator>((validator) => transformValidator(validator))
     } catch (err) {
       return ErrorHandler(err)
@@ -329,7 +328,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     if (this.providers.http instanceof unchained.thorchain.V1Api) return
 
     try {
-      const { data: validator } = await this.providers.http.getValidator({ pubkey: address })
+      const validator = await this.providers.http.getValidator({ pubkey: address })
       return transformValidator(validator)
     } catch (err) {
       return ErrorHandler(err)

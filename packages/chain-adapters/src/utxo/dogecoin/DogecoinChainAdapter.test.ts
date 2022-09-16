@@ -29,99 +29,91 @@ const getWallet = async (): Promise<HDWallet> => {
   return wallet
 }
 
-const getUtxosMockResponse = {
-  data: [
-    {
-      txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
-      vout: 1,
-      value: '7132554366',
-      height: 4312262,
-      confirmations: 30,
-      address: 'DHgFEkHSTxDmMEZqDw4Qp6HbXKUt1CRLVd',
-      path: "m/44'/3'/0'/1/13",
-    },
-  ],
-}
+const getUtxosMockResponse = [
+  {
+    txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
+    vout: 1,
+    value: '7132554366',
+    height: 4312262,
+    confirmations: 30,
+    address: 'DHgFEkHSTxDmMEZqDw4Qp6HbXKUt1CRLVd',
+    path: "m/44'/3'/0'/1/13",
+  },
+]
 
 const getAccountMockResponse = {
-  data: {
-    balance: '7332775620',
-    chain: 'dogecoin',
-    nextChangeAddressIndex: 0,
-    nextReceiveAddressIndex: 2,
-    network: 'MAINNET',
-    pubkey:
-      'xpub6LIERL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY',
-    symbol: 'DOGE',
-  },
+  balance: '7332775620',
+  chain: 'dogecoin',
+  nextChangeAddressIndex: 0,
+  nextReceiveAddressIndex: 2,
+  network: 'MAINNET',
+  pubkey:
+    'xpub6LIERL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY',
+  symbol: 'DOGE',
 }
 
 const getTransactionMockResponse = {
-  data: {
-    txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
-    hash: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
-    version: 1,
-    size: 223,
-    vsize: 223,
-    weight: 892,
-    locktime: 0,
-    vin: [
-      {
-        txid: 'feab0ffe497740fcc8bcab9c5b12872c4302e629ee8ccc35ed4f6057fc7a4580',
-        vout: 1,
-        scriptSig: {
-          asm: '3045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad[ALL] 027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
-          hex: '483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
-        },
-        sequence: 4294967295,
+  txid: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
+  hash: '8edffe2aca0056b3bba448ab0f4980c9ba22728aa47a1f7fc794718f051f21df',
+  version: 1,
+  size: 223,
+  vsize: 223,
+  weight: 892,
+  locktime: 0,
+  vin: [
+    {
+      txid: 'feab0ffe497740fcc8bcab9c5b12872c4302e629ee8ccc35ed4f6057fc7a4580',
+      vout: 1,
+      scriptSig: {
+        asm: '3045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad[ALL] 027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
+        hex: '483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126',
       },
-    ],
-    vout: [
-      {
-        value: 0.00031961,
-        n: 0,
-        scriptPubKey: {
-          asm: '0 0c0585f37ff3f9f127c9788941d6082cf7aa0121',
-          hex: '00140c0585f37ff3f9f127c9788941d6082cf7aa0121',
-          reqSigs: 1,
-          type: 'witness_v0_keyhash',
-          addresses: ['bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy'],
-        },
+      sequence: 4294967295,
+    },
+  ],
+  vout: [
+    {
+      value: 0.00031961,
+      n: 0,
+      scriptPubKey: {
+        asm: '0 0c0585f37ff3f9f127c9788941d6082cf7aa0121',
+        hex: '00140c0585f37ff3f9f127c9788941d6082cf7aa0121',
+        reqSigs: 1,
+        type: 'witness_v0_keyhash',
+        addresses: ['bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy'],
       },
-      {
-        value: 0.00057203,
-        n: 1,
-        scriptPubKey: {
-          asm: 'OP_DUP OP_HASH160 b22138dfe140e4611b98bdb728eed04beed754c4 OP_EQUALVERIFY OP_CHECKSIG',
-          hex: '76a914b22138dfe140e4611b98bdb728eed04beed754c488ac',
-          reqSigs: 1,
-          type: 'pubkeyhash',
-          addresses: ['1HEs5TpTvrWHDFqLqfZnXFLFc4hqHjHe5M'],
-        },
+    },
+    {
+      value: 0.00057203,
+      n: 1,
+      scriptPubKey: {
+        asm: 'OP_DUP OP_HASH160 b22138dfe140e4611b98bdb728eed04beed754c4 OP_EQUALVERIFY OP_CHECKSIG',
+        hex: '76a914b22138dfe140e4611b98bdb728eed04beed754c488ac',
+        reqSigs: 1,
+        type: 'pubkeyhash',
+        addresses: ['1HEs5TpTvrWHDFqLqfZnXFLFc4hqHjHe5M'],
       },
-    ],
-    hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
-    blockhash: '000000000000000000033c8ec44721d844aa63f4312d65261eb4c4d0cd4e0379',
-    confirmations: 2,
-    time: 1634662208,
-    blocktime: 1634662208,
-  },
+    },
+  ],
+  hex: '010000000180457afc57604fed35cc8cee29e602432c87125b9cabbcc8fc407749fe0fabfe010000006b483045022100cd627a0577d35454ced7f0a6ef8a3d3cf11c0f8696bda18062025478e0fc866002206c8ac559dc6bd851bdf00e33c1602fcaeee9d16b35d21b548529825f12dfe5ad0121027751a74f251ba2657ec2a2f374ce7d5ba1548359749823a59314c54a0670c126ffffffff02d97c0000000000001600140c0585f37ff3f9f127c9788941d6082cf7aa012173df0000000000001976a914b22138dfe140e4611b98bdb728eed04beed754c488ac00000000',
+  blockhash: '000000000000000000033c8ec44721d844aa63f4312d65261eb4c4d0cd4e0379',
+  confirmations: 2,
+  time: 1634662208,
+  blocktime: 1634662208,
 }
 
 const getNetworkFeesMockedResponse = {
-  data: {
-    fast: {
-      blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024,
-    },
-    average: {
-      blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024,
-    },
-    slow: {
-      blocksUntilConfirmation: 1,
-      satsPerKiloByte: 1024,
-    },
+  fast: {
+    blocksUntilConfirmation: 1,
+    satsPerKiloByte: 1024,
+  },
+  average: {
+    blocksUntilConfirmation: 1,
+    satsPerKiloByte: 1024,
+  },
+  slow: {
+    blocksUntilConfirmation: 1,
+    satsPerKiloByte: 1024,
   },
 }
 
@@ -185,14 +177,12 @@ describe('DogecoinChainAdapter', () => {
     it('should return account info for a specified address', async () => {
       args.providers.http = {
         getAccount: jest.fn().mockResolvedValue({
-          data: {
-            pubkey: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
-            balance: '100',
-            unconfirmedBalance: '50',
-            addresses: [],
-            nextChangeAddressIndex: 0,
-            nextReceiveAddressIndex: 0,
-          },
+          pubkey: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
+          balance: '100',
+          unconfirmedBalance: '50',
+          addresses: [],
+          nextChangeAddressIndex: 0,
+          nextReceiveAddressIndex: 0,
         }),
       } as any
 
@@ -332,7 +322,7 @@ describe('DogecoinChainAdapter', () => {
     it('is should correctly call broadcastTransaction', async () => {
       const sendDataResult = 'success'
       args.providers.http = {
-        sendTx: jest.fn().mockResolvedValue({ data: sendDataResult }),
+        sendTx: jest.fn().mockResolvedValue(sendDataResult),
       } as any
       const adapter = new dogecoin.ChainAdapter(args)
       const mockTx = '0x123'
@@ -346,7 +336,7 @@ describe('DogecoinChainAdapter', () => {
     it('should return current BTC network fees', async () => {
       args.providers.http = {
         getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
-        getUtxos: jest.fn().mockResolvedValue({ data: [] }),
+        getUtxos: jest.fn().mockResolvedValue([]),
       } as any
 
       const adapter = new dogecoin.ChainAdapter(args)

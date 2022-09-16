@@ -184,7 +184,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
-      const { data } = await this.providers.http.getAccount({ pubkey })
+      const data = await this.providers.http.getAccount({ pubkey })
 
       const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
 
@@ -212,7 +212,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
-    const { data } = await this.providers.http.getTxHistory({
+    const data = await this.providers.http.getTxHistory({
       pubkey: input.pubkey,
       pageSize: input.pageSize,
       cursor: input.cursor,
@@ -279,8 +279,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async broadcastTransaction(hex: string) {
-    const { data } = await this.providers.http.sendTx({ sendTxBody: { hex } })
-    return data
+    return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {

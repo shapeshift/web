@@ -74,39 +74,36 @@ describe('EthereumChainAdapter', () => {
     )
 
   const makeGetGasFeesMockedResponse = (overrideArgs?: {
-    data: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+    gasPrice?: string
+    maxFeePerGas?: string
+    maxPriorityFeePerGas?: string
   }) =>
     merge(
       {
-        data: {
-          gasPrice: '1',
-          maxFeePerGas: '300',
-          maxPriorityFeePerGas: '10',
-        },
+        gasPrice: '1',
+        maxFeePerGas: '300',
+        maxPriorityFeePerGas: '10',
       },
       overrideArgs,
     )
 
-  const makeEstimateGasMockedResponse = (overrideArgs?: { data: string }) =>
-    merge({ data: '21000' }, overrideArgs)
+  const makeEstimateGasMockedResponse = (overrideArgs?: string) => overrideArgs ?? '21000'
 
   const makeGetAccountMockResponse = (balance: {
     balance: string
     erc20Balance: string | undefined
   }) => ({
-    data: {
-      balance: balance.balance,
-      unconfirmedBalance: '0',
-      nonce: 2,
-      tokens: [
-        {
-          assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          balance: balance.erc20Balance,
-          type: 'ERC20',
-          contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        },
-      ],
-    },
+    balance: balance.balance,
+    unconfirmedBalance: '0',
+    nonce: 2,
+    tokens: [
+      {
+        assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+        balance: balance.erc20Balance,
+        type: 'ERC20',
+        contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      },
+    ],
   })
 
   const makeChainAdapterArgs = (overrideArgs?: {
@@ -476,7 +473,7 @@ describe('EthereumChainAdapter', () => {
       const expectedResult = 'success'
 
       const httpProvider = {
-        sendTx: jest.fn().mockResolvedValue({ data: expectedResult }),
+        sendTx: jest.fn().mockResolvedValue(expectedResult),
       } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })

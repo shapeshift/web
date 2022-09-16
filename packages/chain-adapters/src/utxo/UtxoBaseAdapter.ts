@@ -154,7 +154,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
-      const { data } = await this.providers.http.getAccount({ pubkey })
+      const data = await this.providers.http.getAccount({ pubkey })
 
       const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
 
@@ -236,7 +236,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const { xpub } = await this.getPublicKey(wallet, bip44Params, accountType)
-      const { data: utxos } = await this.providers.http.getUtxos({ pubkey: xpub })
+      const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
       const coinSelectResult = utxoSelect({
         utxos,
@@ -257,7 +257,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       for (const input of inputs) {
         if (!input.path) continue
 
-        const { data } = await this.providers.http.getTransaction({ txid: input.txid })
+        const data = await this.providers.http.getTransaction({ txid: input.txid })
 
         signTxInputs.push({
           addressNList: bip32ToAddressNList(input.path),
@@ -314,7 +314,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     if (!value) throw new Error('value is required')
     if (!pubkey) throw new Error('pubkey is required')
 
-    const { data } = await this.providers.http.getNetworkFees()
+    const data = await this.providers.http.getNetworkFees()
 
     if (
       !(data.fast?.satsPerKiloByte && data.average?.satsPerKiloByte && data.slow?.satsPerKiloByte)
@@ -327,7 +327,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       data.fast = data.average
     }
 
-    const { data: utxos } = await this.providers.http.getUtxos({ pubkey })
+    const utxos = await this.providers.http.getUtxos({ pubkey })
 
     const utxoSelectInput = { to, value, opReturnData, utxos, sendMax }
 
@@ -368,7 +368,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       await this.getAccount(input.pubkey)
     }
 
-    const { data } = await this.providers.http.getTxHistory({
+    const data = await this.providers.http.getTxHistory({
       pubkey: input.pubkey,
       pageSize: input.pageSize,
       cursor: input.cursor,
@@ -433,8 +433,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async broadcastTransaction(hex: string): Promise<string> {
-    const { data } = await this.providers.http.sendTx({ sendTxBody: { hex } })
-    return data
+    return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
   async subscribeTxs(

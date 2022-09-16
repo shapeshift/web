@@ -202,8 +202,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     try {
       if (supportsThorchain(wallet)) {
         const signedTx = await this.signTransaction(signTxInput)
-        const { data } = await this.providers.http.sendTx({ body: { rawTx: signedTx } })
-        return data
+        return this.providers.http.sendTx({ body: { rawTx: signedTx } })
       } else {
         throw new Error('Wallet does not support Thorchain.')
       }

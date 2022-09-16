@@ -2,14 +2,17 @@
   "$schema": "../../node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
-    "version": "5.4.0",
+    "version": "6.1.0",
     "storageDir": "~/.openapitools",
     "generators": {
       "avalanche": {
         "inputSpec": "http://api.avalanche.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/avalanche",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -17,9 +20,12 @@
       },
       "bitcoin": {
         "inputSpec": "http://api.bitcoin.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -27,9 +33,12 @@
       },
       "bitcoincash": {
         "inputSpec": "http://api.bitcoincash.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoincash",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -37,9 +46,12 @@
       },
       "cosmos": {
         "inputSpec": "http://api.cosmos.localhost/swagger",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/cosmos",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -47,9 +59,12 @@
       },
       "dogecoin": {
         "inputSpec": "http://api.dogecoin.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/dogecoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -57,9 +72,12 @@
       },
       "ethereum": {
         "inputSpec": "http://api.ethereum.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/ethereum",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -67,9 +85,12 @@
       },
       "litecoin": {
         "inputSpec": "http://api.litecoin.localhost/swagger.json",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/litecoin",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
@@ -77,23 +98,29 @@
       },
       "osmosis": {
         "inputSpec": "http://api.osmosis.localhost/swagger",
-        "generatorName": "typescript-axios",
+        "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/osmosis",
-        "reservedWordsMappings": { "in": "in" },
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
         "additionalProperties": {
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
-      }
-    },
-    "thorchain": {
-      "inputSpec": "http://api.thorchain.localhost/swagger",
-      "generatorName": "typescript-axios",
-      "output": "#{cwd}/src/generated/thorchain",
-      "reservedWordsMappings": { "in": "in" },
-      "additionalProperties": {
-        "supportsES6": "true",
-        "useSingleRequestParameter": true
+      },
+      "thorchain": {
+        "inputSpec": "http://api.thorchain.localhost/swagger",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/thorchain",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
       }
     }
   }

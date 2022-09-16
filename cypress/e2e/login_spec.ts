@@ -9,8 +9,7 @@ const password = Cypress.env('testPassword')
 describe('The Dashboard', () => {
   autoRecord()
 
-  before(() => {
-    cy.clearIndexedDB()
+  beforeEach(() => {
     cy.visit('')
   })
 
@@ -60,10 +59,7 @@ describe('The Dashboard', () => {
   })
 
   it('supports login via locally stored Native wallet', () => {
-    // Use this to clear the "localWallet" data and show the splash screen
-    cy.clearLocalStorage()
     // This will use the wallet created in `supports log in via an imported Native wallet`
-    cy.visit('')
     cy.getBySel('connect-wallet-button').click()
     cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()
@@ -74,16 +70,5 @@ describe('The Dashboard', () => {
     cy.getBySel('wallet-password-input').should('be.visible').type(password)
     cy.getBySel('wallet-password-submit-button').click()
     cy.url().should('equal', `${baseUrl}dashboard`)
-  })
-
-  it('cannot login natively when no local Native wallets', () => {
-    cy.clearLocalStorage()
-    cy.clearIndexedDB().then(() => {
-      cy.visit('')
-      cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('consent-optin-continue-button').click()
-      cy.getBySel('connect-wallet-native-button').click()
-      cy.getBySel('wallet-native-load-button').should('be.disabled')
-    })
   })
 })

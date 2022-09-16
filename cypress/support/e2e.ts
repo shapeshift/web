@@ -8,5 +8,7 @@ Cypress.on('uncaught:exception', err => {
   // Ignore exceptions from failed network requests
   if (err.message.includes('Failed to fetch')) return false
   // Ignore this exception thrown from Ethers.js
-  if (err.message.includes('call revert exception ')) return false
+  if (err.message.includes('call revert exception')) return false
+  // Ignore this exception
+  if (err.message.includes('Error: underlying network changed')) return false
 })

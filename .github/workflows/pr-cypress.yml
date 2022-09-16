@@ -69,6 +69,9 @@ jobs:
           npx cypress verify
           npx cypress info
 
+      - name: Add environment variables
+        run: yarn env app
+
       # Because of "record" and "parallel" parameters
       # our workers will load balance all found tests among themselves
       #

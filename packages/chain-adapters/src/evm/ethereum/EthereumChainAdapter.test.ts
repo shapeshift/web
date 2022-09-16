@@ -4,6 +4,7 @@
  * Test EthereumChainAdapter
  * @group unit
  */
+import { ASSET_REFERENCE, ethAssetId, ethChainId, fromChainId } from '@shapeshiftoss/caip'
 import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
@@ -17,6 +18,7 @@ import {
   SignTxInput,
   ValidAddressResultType,
 } from '../../types'
+import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
 import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
@@ -24,7 +26,6 @@ import * as ethereum from './EthereumChainAdapter'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 const ENS_NAME = 'vitalik.eth'
-const VALID_CHAIN_ID = 'eip155:1'
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 
@@ -126,24 +127,32 @@ describe('EthereumChainAdapter', () => {
       const args = makeChainAdapterArgs()
       const adapter = new ethereum.ChainAdapter(args)
       const chainId = adapter.getChainId()
-      expect(chainId).toEqual(VALID_CHAIN_ID)
+      expect(chainId).toEqual(ethChainId)
     })
+
     it('should return chainAdapter with valid chainId if called with valid chainId', () => {
       const args = makeChainAdapterArgs({ chainId: KnownChainIds.EthereumMainnet })
       const adapter = new ethereum.ChainAdapter(args)
       const chainId = adapter.getChainId()
-      expect(chainId).toEqual(VALID_CHAIN_ID)
+      expect(chainId).toEqual(ethChainId)
+    })
+  })
+
+  describe('getFeeAssetId', () => {
+    it('should return the correct fee assetId', () => {
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      expect(adapter.getFeeAssetId()).toEqual(ethAssetId)
     })
   })
 
   describe('getFeeData', () => {
-    it('should return current ETH network fees', async () => {
+    it('should return current network fees', async () => {
       const httpProvider = {
         estimateGas: jest.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
         getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.ethereum.V1Api
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
 
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
       const data = await adapter.getFeeData({
@@ -190,12 +199,12 @@ describe('EthereumChainAdapter', () => {
   })
 
   describe('getGasFeeData', () => {
-    it('should return current ETH network gas fees', async () => {
+    it('should return current network gas fees', async () => {
       const httpProvider = {
         getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
       } as unknown as unchained.ethereum.V1Api
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
 
+      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
       const data = await adapter.getGasFeeData()
@@ -222,21 +231,12 @@ describe('EthereumChainAdapter', () => {
     })
   })
 
-  const validAddressTuple = {
-    valid: true,
-    result: ValidAddressResultType.Valid,
-  }
-
-  const invalidAddressTuple = {
-    valid: false,
-    result: ValidAddressResultType.Invalid,
-  }
-
   describe('getAddress', () => {
-    it('returns ETH address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const bip44Params = { purpose: 44, coinType: 60, accountNumber: 0 }
+    const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+    const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+    const fn = jest.fn()
+
+    it('should return a valid address', async () => {
       const wallet = await getWallet()
       const res = await adapter.getAddress({ bip44Params, wallet })
 
@@ -244,13 +244,8 @@ describe('EthereumChainAdapter', () => {
     })
 
     it('should not show address on device by default', async () => {
-      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
-      const bip44Params = { purpose: 44, coinType: 60, accountNumber: 0 }
       const wallet = await getWallet()
-
-      wallet.ethGetAddress = jest
-        .fn()
-        .mockResolvedValue('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+      wallet.ethGetAddress = fn.mockResolvedValue('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
       await adapter.getAddress({ bip44Params, wallet })
 
@@ -261,79 +256,58 @@ describe('EthereumChainAdapter', () => {
     })
   })
 
+  const validAddressTuple = { valid: true, result: ValidAddressResultType.Valid }
+  const invalidAddressTuple = { valid: false, result: ValidAddressResultType.Invalid }
+
   describe('validateAddress', () => {
     it('should return true for a valid address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-      const expectedReturnValue = validAddressTuple
-      const res = await adapter.validateAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+      expect(res).toMatchObject(validAddressTuple)
     })
 
     it('should return false for an empty address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = ''
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateAddress('')
+      expect(res).toMatchObject(invalidAddressTuple)
     })
 
     it('should return false for an invalid address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = 'foobar'
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateAddress('foobar')
+      expect(res).toMatchObject(invalidAddressTuple)
     })
   })
 
   describe('validateEnsAddress', () => {
     it('should return true for a valid .eth address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = 'vitalik.eth'
-      const expectedReturnValue = validAddressTuple
-      const res = await adapter.validateEnsAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateEnsAddress(ENS_NAME)
+      expect(res).toMatchObject(validAddressTuple)
     })
 
     it('should return false for an empty address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = ''
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateEnsAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateEnsAddress('')
+      expect(res).toMatchObject(invalidAddressTuple)
     })
 
     it('should return false for an invalid address', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = 'foobar'
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateEnsAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateEnsAddress('foobar')
+      expect(res).toMatchObject(invalidAddressTuple)
     })
 
     it('should return false for a valid address directly followed by more chars', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = 'vitalik.ethfoobar'
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateEnsAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateEnsAddress(`${ENS_NAME}foobar`)
+      expect(res).toMatchObject(invalidAddressTuple)
     })
 
     it('should return false for a valid address in the middle of a string', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
-      const referenceAddress = 'asdadfvitalik.ethasdadf'
-      const expectedReturnValue = invalidAddressTuple
-      const res = await adapter.validateEnsAddress(referenceAddress)
-      expect(res).toMatchObject(expectedReturnValue)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateEnsAddress(`asdf${ENS_NAME}foobar`)
+      expect(res).toMatchObject(invalidAddressTuple)
     })
   })
 
@@ -351,10 +325,10 @@ describe('EthereumChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
-          chainId: 1,
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '0x0000000000000000',
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
@@ -379,10 +353,10 @@ describe('EthereumChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
-          chainId: 1,
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: 'notHexString',
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
@@ -396,15 +370,12 @@ describe('EthereumChainAdapter', () => {
 
   describe('signAndBroadcastTransaction', () => {
     it('should throw if no hash is returned by wallet.ethSendTx', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
+
       wallet.ethSendTx = async () => null
 
-      const tx = {
-        wallet,
-        txToSign: {},
-      } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
         /Error signing & broadcasting tx/,
@@ -412,17 +383,14 @@ describe('EthereumChainAdapter', () => {
     })
 
     it('should return the hash returned by wallet.ethSendTx', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
+
       wallet.ethSendTx = async () => ({
         hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
       })
 
-      const tx = {
-        wallet,
-        txToSign: {},
-      } as unknown as SignTxInput<ETHSignTx>
+      const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
       await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
         '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
@@ -432,15 +400,14 @@ describe('EthereumChainAdapter', () => {
 
   describe('signMessage', () => {
     it('should sign a properly formatted signMessageInput object', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
       const message: SignMessageInput<ETHSignMessage> = {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
       }
 
@@ -450,15 +417,16 @@ describe('EthereumChainAdapter', () => {
     })
 
     it('should throw if wallet.ethSignMessage returns null', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
+
       wallet.ethSignMessage = async () => null
+
       const message: SignMessageInput<ETHSignMessage> = {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
       }
 
@@ -489,14 +457,14 @@ describe('EthereumChainAdapter', () => {
 
   describe('buildSendTransaction', () => {
     it('should throw if passed tx has no "to" property', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
       const tx = {
         wallet: await getWallet(),
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
+
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
         'EthereumChainAdapter: to is required',
       )
@@ -527,14 +495,14 @@ describe('EthereumChainAdapter', () => {
     })
 
     it('should throw if passed tx has no "value" property', async () => {
-      const args = makeChainAdapterArgs()
-      const adapter = new ethereum.ChainAdapter(args)
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
       const tx = {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
+
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
         'EthereumChainAdapter: value is required',
       )
@@ -556,10 +524,11 @@ describe('EthereumChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
+
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
-          chainId: 1,
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -568,9 +537,11 @@ describe('EthereumChainAdapter', () => {
           value: numberToHex(value),
         },
       })
+
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
-    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if ETH balance is 0', async () => {
+
+    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -612,10 +583,11 @@ describe('EthereumChainAdapter', () => {
         chainSpecific: makeChainSpecific(),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
+
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
-          chainId: 1,
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -624,8 +596,10 @@ describe('EthereumChainAdapter', () => {
           value: expectedValue,
         },
       })
+
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
+
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
       const httpProvider = {
         getAccount: jest
@@ -644,10 +618,11 @@ describe('EthereumChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
+
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
-          chainId: 1,
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -656,8 +631,10 @@ describe('EthereumChainAdapter', () => {
           value: '0x0',
         },
       })
+
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
+
     it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
@@ -680,8 +657,8 @@ describe('EthereumChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
-          chainId: 1,
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -690,6 +667,7 @@ describe('EthereumChainAdapter', () => {
           value: '0x0',
         },
       })
+
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
@@ -746,10 +724,10 @@ describe('EthereumChainAdapter', () => {
 
       const expectedOutput = {
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
-          chainId: 1,
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '0x420',
           nonce: '0x2',
           gasLimit: '0x1c8',
@@ -787,10 +765,10 @@ describe('EthereumChainAdapter', () => {
 
       const expectedOutput = {
         txToSign: {
-          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
-          chainId: 1,
+          chainId: Number(fromChainId(ethChainId).chainReference),
           data: '0x420',
           nonce: '0x2',
           gasLimit: '0x1c8',
@@ -802,24 +780,28 @@ describe('EthereumChainAdapter', () => {
       expect(expectedOutput).toEqual(output)
     })
   })
+
   describe('getBIP44Params', () => {
-    const expectedCoinType = 60
     const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
-    it('should be coinType 60', async () => {
-      const r = adapter.getBIP44Params({ accountNumber: 0 })
-      expect(r.coinType).toStrictEqual(expectedCoinType)
+
+    it('should return the correct coinType', async () => {
+      const result = adapter.getBIP44Params({ accountNumber: 0 })
+      expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Ethereum))
     })
+
     it('should respect accountNumber', async () => {
-      const expected: BIP44Params[] = [
-        { purpose: 44, coinType: expectedCoinType, accountNumber: 0 },
-        { purpose: 44, coinType: expectedCoinType, accountNumber: 1 },
-        { purpose: 44, coinType: expectedCoinType, accountNumber: 2 },
+      const testCases: BIP44Params[] = [
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 0 },
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 1 },
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 2 },
       ]
-      for (let accountNumber = 0; accountNumber < expected.length; accountNumber++) {
-        const r = adapter.getBIP44Params({ accountNumber })
-        expect(r).toStrictEqual(expected[accountNumber])
-      }
+
+      testCases.forEach((expected) => {
+        const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
+        expect(result).toStrictEqual(expected)
+      })
     })
+
     it('should throw for negative accountNumber', async () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: -1 })

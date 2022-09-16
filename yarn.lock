@@ -2874,20 +2874,10 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.31.0", "@shapeshiftoss/hdwallet-core@^1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.31.0.tgz#5d559da8eaea8ee96bfb06a643818a4459941ed3"
-  integrity sha512-VZ1y4JfRcw1T+2wOgsFj1z+mE9+AE0vHTfJxuVAnptTI4TbtVlAExb4foJuQ+1OlUWQyjTabG+f3LAmtvdwFKg==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-core@^1.23.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.24.0.tgz#3a3c1b527d885b062f55cc4802da8e5c2600236a"
-  integrity sha512-2uL8hA9sQlNHNzZ73VjVskSjwI+YzyZ5w+wDqiftu1R7p7OEw7t0A375miLA0+tYQTMShGmzMosbErCBCPwYqg==
+"@shapeshiftoss/hdwallet-core@1.33.0", "@shapeshiftoss/hdwallet-core@^1.33.0":
+  version "1.33.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.33.0.tgz#dcc35bd4734b89c3b35c97639bb063c019d48e38"
+  integrity sha512-KGWC68ztYQ1wXI89DCce6EHu8m22p1UYvQrY1rKjUv9xgkIVKHJujDgZulf5DnKJqxfUf9wprsoHZ3e41xbmEg==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
@@ -2904,14 +2894,14 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-native@^1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.31.0.tgz#df0dd96d7bffefac55255c6e4bee57dbfa7178a7"
-  integrity sha512-OsOwiCFubPMVxs5GvcEnXlUAasU/nxopyIfQaXr0DRa7hOSsyxD8ih7oayvjSkBX8w+EG+MQ6m/U/s3oSqUpGg==
+"@shapeshiftoss/hdwallet-native@^1.33.0":
+  version "1.33.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.33.0.tgz#60dd26043ad9fada3f1c4382ea0a39a711350ccc"
+  integrity sha512-ErSkOiilmd5j2wuI0cixU9zNhYyqh8+jOtnIrtExUbWApJif3kclL5SqNtLoQ3HjoLPy4Pu8FCp3OpLSI8CHVg==
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
     "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
-    "@shapeshiftoss/hdwallet-core" "1.31.0"
+    "@shapeshiftoss/hdwallet-core" "1.33.0"
     "@shapeshiftoss/proto-tx-builder" "^0.3.0"
     "@zxing/text-encoding" "^0.9.0"
     bchaddrjs "^0.4.9"

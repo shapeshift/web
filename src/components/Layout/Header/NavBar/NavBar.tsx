@@ -63,6 +63,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
                 leftIcon={item.icon}
                 href={item.path}
                 to={item.path}
+                size='lg'
                 onClick={onClick}
                 label={translate(item.label)}
                 aria-label={translate(item.label)}

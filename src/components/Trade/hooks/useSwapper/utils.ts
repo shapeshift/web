@@ -21,6 +21,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import type { GetSelectedReceiveAddress } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
@@ -71,9 +72,18 @@ export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
   const accountId = toAccountId({ chainId, account })
 
   // TODO accountType and accountNumber need to come from account metadata
-  const { accountType } = accountIdToUtxoParams(accountId, 0)
-  const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
-  return await chainAdapter.getAddress({ wallet, accountType, bip44Params })
+  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
+}
+
+export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
+  chainAdapter,
+  wallet,
+  buyAssetAccountId: accountId,
+}) => {
+  // TODO accountType and accountNumber need to come from account metadata
+  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
+  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
 }
 
 export const getUtxoParams = (sellAssetAccountId: string) => {
@@ -110,6 +120,7 @@ const getEvmFees = <T extends EvmChainId>(
   feeAsset: Asset,
   tradeFeeSource: string,
 ): DisplayFeeData<T> => {
+  // The "gas" fee paid to the network for the transaction
   const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
   const fee = feeBN.toString()
   const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
@@ -127,6 +138,7 @@ const getEvmFees = <T extends EvmChainId>(
       estimatedGas,
       totalFee,
     },
+    // The fee paid to the protocol for the transaction
     tradeFee: trade.feeData.tradeFee,
     tradeFeeSource,
   } as DisplayFeeData<T>

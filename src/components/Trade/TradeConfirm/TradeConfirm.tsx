@@ -65,7 +65,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     fees,
     sellAssetFiatRate,
     buyAssetFiatRate,
-  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate'> = getValues()
+    slippage,
+  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate' | 'slippage'> =
+    getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
@@ -93,7 +95,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const txLink = useMemo(() => {
-    switch (trade?.sources[0].name) {
+    switch (trade?.sources[0]?.name) {
       case 'Osmosis':
         return `${osmosisAsset?.explorerTxLink}${sellTxid}`
       case 'CowSwap':
@@ -228,6 +230,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   beforeFees={buyAmountCryptoBeforeFees}
                   protocolFee={fees?.tradeFee}
                   shapeShiftFee='0'
+                  slippage={slippage}
                 />
               </Stack>
               <Stack spacing={4}>

@@ -153,13 +153,14 @@ export const useDefaultAssetsService = (routeBuyAssetId?: AssetId) => {
         setValue('sellTradeAsset.asset', sellAsset)
       })()
     }
+    // We don't want to run this effect when getReceiveAddressFromBuyAsset changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     assets,
     buyAssetFiatRateData,
     buyAssetId,
     defaultAssetFiatRateData,
     defaultAssetIdPair,
-    getReceiveAddressFromBuyAsset,
     isBuyAssetFiatRateLoading,
     isBuyAssetFiatRateUninitialized,
     isDefaultAssetFiatRateLoading,

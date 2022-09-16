@@ -40,7 +40,10 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import {
+  accountIdToFeeAssetId,
+  genericBalanceIncludingStakingByFilter,
+} from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
@@ -538,17 +541,21 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       ).reduce((acc, account) => {
         Object.values(account?.stakingDataByValidatorId ?? {}).forEach(
           stakingDataByAccountSpecifier => {
-            Object.values(stakingDataByAccountSpecifier).forEach(stakingData => {
-              const { delegations, redelegations, undelegations } = stakingData
-              const redelegationEntries = redelegations.flatMap(
-                redelegation => redelegation.entries,
-              )
-              const combined = [...delegations, ...redelegationEntries, ...undelegations]
-              combined.forEach(entry => {
-                const { assetId, amount } = entry
-                acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
-              })
-            })
+            Object.entries(stakingDataByAccountSpecifier).forEach(
+              ([stakingAccountId, stakingData]) => {
+                // if passed an accountId filter, only aggregate for the given accountId
+                if (accountId && stakingAccountId !== accountId) return
+                const { delegations, redelegations, undelegations } = stakingData
+                const redelegationEntries = redelegations.flatMap(
+                  redelegation => redelegation.entries,
+                )
+                const combined = [...delegations, ...redelegationEntries, ...undelegations]
+                combined.forEach(entry => {
+                  const { assetId, amount } = entry
+                  acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+                })
+              },
+            )
           },
         )
         return acc
@@ -849,6 +856,20 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
         }, {})
     )
   },
+)
+
+export const selectFiatBalanceIncludingStakingByFilter = createSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
+  genericBalanceIncludingStakingByFilter,
+)
+
+export const selectCryptoBalanceIncludingStakingByFilter = createSelector(
+  selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
+  genericBalanceIncludingStakingByFilter,
 )
 
 export const selectPortfolioChainIdsSortedFiat = createDeepEqualOutputSelector(

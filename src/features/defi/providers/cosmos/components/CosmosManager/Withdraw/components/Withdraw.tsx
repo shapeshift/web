@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -12,6 +13,7 @@ import { getFormFees } from 'plugins/cosmos/utils'
 import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,6 +25,7 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -33,7 +36,15 @@ export type CosmosWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -67,9 +78,10 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
+  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const cryptoStakeBalance = useAppSelector(state =>
     selectDelegationCryptoAmountByAssetIdAndValidator(state, {
-      accountSpecifier,
+      accountSpecifier: accountId ?? accountSpecifier,
       validatorAddress: contractAddress,
       assetId,
     }),
@@ -189,6 +201,8 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
         cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
         cryptoInputValidation={{

@@ -2,7 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -14,6 +14,7 @@ import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -28,17 +29,12 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const {
-    control,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { isValid },
-  } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
 
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
@@ -48,6 +44,7 @@ export const TradeInput = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
+  const slippage = useWatch({ control, name: 'slippage' })
 
   const translate = useTranslate()
 
@@ -61,17 +58,9 @@ export const TradeInput = () => {
     }),
   )
 
-  // Initialize the trade input fields with the default values of '0'
-  useEffect(() => {
-    const initialAmount = '0'
-    setValue('amount', initialAmount)
-    setValue('fiatSellAmount', initialAmount)
-    setValue('fiatBuyAmount', initialAmount)
-    setValue('sellTradeAsset.amount', initialAmount)
-    setValue('buyTradeAsset.amount', initialAmount)
-  }, [setValue])
-
-  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(fees?.tradeFee))
+  const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
+  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))
+  const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
@@ -107,6 +96,7 @@ export const TradeInput = () => {
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
+    setIsLoading(true)
     moduleLogger.info(values, 'debugging logger')
     try {
       const isApproveNeeded = await checkApprovalNeeded()
@@ -119,6 +109,8 @@ export const TradeInput = () => {
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -190,7 +182,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellTradeAsset?.asset?.symbol}
             buySymbol={buyTradeAsset?.asset?.symbol}
-            gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
+            gasFee={gasFee}
             rate={quote?.rate}
           />
           <ReceiveSummary
@@ -198,12 +190,18 @@ export const TradeInput = () => {
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={toCryptoAmountAfterFees.toString()}
             beforeFees={buyTradeAsset?.amount ?? ''}
-            protocolFee={fees?.tradeFee}
+            protocolFee={protocolFee}
             shapeShiftFee='0'
-            minAmountAfterSlippage={buyTradeAsset?.amount ?? ''}
+            slippage={slippage}
           />
         </Stack>
-        <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>
+        <Button
+          type='submit'
+          colorScheme='blue'
+          size='lg'
+          isDisabled={!quote}
+          isLoading={isLoading}
+        >
           {translate('trade.previewTrade')}
         </Button>
       </Stack>

@@ -54,21 +54,6 @@ jobs:
           name: build
           path: build
 
-      - name: Verify Cypress
-        env:
-          # Make sure every Cypress install prints minimal information
-          CI: 1
-        # cache path: Print the path to the Cypress cache folder
-        # cache list: Print all existing installed versions of Cypress
-        # verify: Verify that Cypress is installed correctly and is executable
-        # info: Prints information about Cypress and the current environment
-        run: |
-          npx cypress install
-          npx cypress cache path
-          npx cypress cache list
-          npx cypress verify
-          npx cypress info
-
       - name: Add environment variables
         run: yarn env app
 

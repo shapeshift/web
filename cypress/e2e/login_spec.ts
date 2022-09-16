@@ -11,11 +11,10 @@ describe('The Dashboard', () => {
 
   before(() => {
     cy.clearIndexedDB()
+    cy.visit('')
   })
 
   it('supports log in via an imported Native wallet', () => {
-    cy.visit('')
-
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
 

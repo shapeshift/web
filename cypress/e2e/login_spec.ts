@@ -14,6 +14,9 @@ describe('The Dashboard', () => {
   })
 
   it('supports log in via an imported Native wallet', () => {
+    cy.clearIndexedDB()
+    cy.clearLocalStorage()
+
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
 

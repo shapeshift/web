@@ -7,4 +7,6 @@ Cypress.on('uncaught:exception', err => {
   if (err.message.includes('hex data is odd-length')) return false
   // Ignore exceptions from failed network requests
   if (err.message.includes('Failed to fetch')) return false
+  // Ignore this exception thrown from Ethers.js
+  if (err.message.includes('call revert exception ')) return false
 })

@@ -66,14 +66,12 @@ jobs:
       - name: Cypress Run
         uses: cypress-io/github-action@v4
         with:
-          config: baseUrl=http://localhost:3000
           record: true
-          start: yarn dev:silent
+          start: yarn dev
           parallel: true
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 300 # seconds
+          wait-on-timeout: 500 # seconds
           browser: chrome
-          headed: true
           group: 'Chrome tests'
         env:
           CYPRESS_PROJECT_ID: 'vpyrho'

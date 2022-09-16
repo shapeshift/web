@@ -69,7 +69,8 @@
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
     "txId": "Tx ID",
-    "selectAsset": "Select an Asset"
+    "selectAsset": "Select an Asset",
+    "switchNetwork": "Switch Network"
   },
   "updateToast": {
     "body": "A new version of the app is available",

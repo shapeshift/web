@@ -15,7 +15,7 @@ describe('The Dashboard', () => {
   it('Trade widget works as expected', function () {
     cy.get('[data-test="token-row-sell-token-button"] > .chakra-text').should('have.text', 'ETH')
     cy.get('[data-test="token-row-buy-token-button"]').should('have.text', 'FOX')
-    cy.get('[data-test="swap-assets-button"] > svg > path').click()
+    cy.getBySel('data-test="swap-assets-button').click()
     cy.get('[data-test="token-row-sell-token-button"] > .chakra-text').should('have.text', 'FOX')
     cy.get('[data-test="token-row-buy-token-button"] > .chakra-text').should('have.text', 'ETH')
     cy.getBySel('trade-form-token-input-row-sell').find('input').type('300')

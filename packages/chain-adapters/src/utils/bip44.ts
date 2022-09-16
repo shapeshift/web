@@ -1,3 +1,4 @@
+import { addressNListToBIP32, bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params } from '@shapeshiftoss/types'
 
 export const toRootDerivationPath = (bip44Params: BIP44Params): string => {
@@ -26,4 +27,12 @@ export const fromPath = (path: string): BIP44Params => {
   const [purpose, coinType, accountNumber, isChangeNumber, index] = partsWithoutPrimes.map(Number)
   const isChange = Boolean(isChangeNumber)
   return { purpose, coinType, accountNumber, isChange, index }
+}
+
+export const toAddressNList = (bip44Params: BIP44Params): number[] => {
+  return bip32ToAddressNList(toPath(bip44Params))
+}
+
+export const fromAddressNList = (addressNList: number[]): BIP44Params => {
+  return fromPath(addressNListToBIP32(addressNList))
 }

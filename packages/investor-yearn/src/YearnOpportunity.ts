@@ -1,6 +1,6 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ChainAdapter, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -19,7 +19,7 @@ import { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
 import { erc20Abi, MAX_ALLOWANCE, ssRouterContractAddress, yv2VaultAbi } from './constants'
-import { bn, toPath } from './utils'
+import { bn } from './utils'
 import { bnOrZero } from './utils/bignumber'
 
 type YearnOpportunityDeps = {
@@ -186,8 +186,6 @@ export class YearnOpportunity
     const feeSpeed: FeePriority = feePriority ? feePriority : 'fast'
     const chainAdapter = this.#internals.chainAdapter
 
-    const path = toPath(bip44Params)
-    const addressNList = bip32ToAddressNList(path)
     const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultipier[feeSpeed]).toString())
     const txToSign: ETHSignTx = {
       ...tx,
@@ -196,7 +194,7 @@ export class YearnOpportunity
       gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
       nonce: numberToHex(tx.nonce),
       value: numberToHex(tx.value),
-      addressNList,
+      addressNList: toAddressNList(bip44Params),
     }
 
     if (wallet.supportsOfflineSigning()) {

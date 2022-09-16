@@ -1,10 +1,5 @@
 import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, osmosisAssetId } from '@shapeshiftoss/caip'
-import {
-  bip32ToAddressNList,
-  OsmosisSignTx,
-  OsmosisTx,
-  supportsOsmosis,
-} from '@shapeshiftoss/hdwallet-core'
+import { OsmosisSignTx, OsmosisTx, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -21,7 +16,7 @@ import {
   GetFeeDataInput,
   SignTxInput,
 } from '../../types'
-import { toPath } from '../../utils'
+import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
@@ -64,13 +59,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
 
   async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
-    const path = toPath(bip44Params)
-    const addressNList = bip32ToAddressNList(path)
 
     try {
       if (supportsOsmosis(wallet)) {
         const osmosisAddress = await wallet.osmosisGetAddress({
-          addressNList,
+          addressNList: toAddressNList(bip44Params),
           showDisplay: showOnDevice,
         })
         if (!osmosisAddress) {
@@ -119,8 +112,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       if (!to) throw new Error('OsmosisChainAdapter: to is required')
       if (!value) throw new Error('OsmosisChainAdapter: value is required')
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
 
       const account = await this.getAccount(from)
@@ -167,7 +158,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       }
 
       const txToSign: OsmosisSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
@@ -200,8 +191,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
       const { valid } = await super.validateAddress(from)
       if (!valid)
@@ -239,7 +228,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       }
 
       const txToSign: OsmosisSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
@@ -272,8 +261,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
       const { valid } = await super.validateAddress(from)
       if (!valid)
@@ -310,7 +297,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         memo,
       }
       const txToSign: OsmosisSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
@@ -341,8 +328,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           `OsmosisChainAdapter:buildDelegateTransaction invalid validator address ${validator}`,
         )
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
       const { valid } = await super.validateAddress(from)
       if (!valid)
@@ -375,7 +360,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         memo,
       }
       const txToSign: OsmosisSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,
@@ -414,8 +399,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
           `OsmosisChainAdapter:buildDelegateTransaction invalid toValidator or fromValidator address ${toValidator} ${fromValidator}`,
         )
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
       const { valid } = await super.validateAddress(from)
       if (!valid)
@@ -454,7 +437,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       }
 
       const txToSign: OsmosisSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.OsmosisMainnet,
         account_number: account.chainSpecific.accountNumber,

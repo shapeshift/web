@@ -1,6 +1,6 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { osmosis, toPath } from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { osmosis, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import axios from 'axios'
 import { find } from 'lodash'
 
@@ -217,13 +217,8 @@ export const performIbcTransfer = async (
     }
   })()
   const latestBlock = responseLatestBlock.data.block.header.height
-  const bip44Params = adapter.buildBIP44Params({
-    accountNumber: 0, // TODO: Use real accountNumbers
-  })
-  const path = toPath(bip44Params)
-  const addressNList = bip32ToAddressNList(path)
 
-  const tx1 = {
+  const tx: Osmosis.StdTx = {
     memo: '',
     fee: {
       amount: [
@@ -258,8 +253,8 @@ export const performIbcTransfer = async (
 
   const signed = await adapter.signTransaction({
     txToSign: {
-      tx: tx1,
-      addressNList,
+      tx,
+      addressNList: toAddressNList(adapter.buildBIP44Params({ accountNumber: 0 })), // TODO: dynamic account numbers
       chain_id: CHAIN_REFERENCE.OsmosisMainnet,
       account_number: accountNumber,
       sequence,
@@ -296,13 +291,7 @@ export const buildTradeTx = async ({
   const accountNumber = responseAccount.chainSpecific.accountNumber || '0'
   const sequence = responseAccount.chainSpecific.sequence || '0'
 
-  const bip44Params = adapter.buildBIP44Params({
-    accountNumber: 0, // TODO: Use real accountNumbers
-  })
-  const path = toPath(bip44Params)
-  const osmoAddressNList = bip32ToAddressNList(path)
-
-  const tx = {
+  const tx: Osmosis.StdTx = {
     memo: '',
     fee: {
       amount: [
@@ -338,7 +327,7 @@ export const buildTradeTx = async ({
   return {
     txToSign: {
       tx,
-      addressNList: osmoAddressNList,
+      addressNList: toAddressNList(adapter.buildBIP44Params({ accountNumber: 0 })), // TODO: dynamic account numbers
       chain_id: CHAIN_REFERENCE.OsmosisMainnet,
       account_number: accountNumber,
       sequence,

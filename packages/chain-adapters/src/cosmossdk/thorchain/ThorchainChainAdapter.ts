@@ -1,10 +1,5 @@
 import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
-import {
-  bip32ToAddressNList,
-  supportsThorchain,
-  ThorchainSignTx,
-  ThorchainTx,
-} from '@shapeshiftoss/hdwallet-core'
+import { supportsThorchain, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -16,7 +11,7 @@ import {
   GetFeeDataInput,
   SignTxInput,
 } from '../../types'
-import { toPath } from '../../utils'
+import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
@@ -59,13 +54,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
-    const path = toPath(bip44Params)
-    const addressNList = bip32ToAddressNList(path)
 
     try {
       if (supportsThorchain(wallet)) {
         const address = await wallet.thorchainGetAddress({
-          addressNList,
+          addressNList: toAddressNList(bip44Params),
           showDisplay: showOnDevice,
         })
         if (!address) {
@@ -114,8 +107,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       if (!to) throw new Error('ThorchainChainAdapter: to is required')
       if (!value) throw new Error('ThorchainChainAdapter: value is required')
 
-      const path = toPath(bip44Params)
-      const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
 
       const account = await this.getAccount(from)
@@ -171,7 +162,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       }
 
       const txToSign: ThorchainSignTx = {
-        addressNList,
+        addressNList: toAddressNList(bip44Params),
         tx: utx,
         chain_id: CHAIN_REFERENCE.ThorchainMainnet,
         account_number: account.chainSpecific.accountNumber,

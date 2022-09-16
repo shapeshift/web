@@ -1,6 +1,5 @@
 import { AssetId, ChainId, fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
-  bip32ToAddressNList,
   ETHSignMessage,
   ETHSignTx,
   ETHWallet,
@@ -31,7 +30,12 @@ import {
   ValidAddressResult,
   ValidAddressResultType,
 } from '../types'
-import { chainIdToChainLabel, getAssetNamespace, toPath, toRootDerivationPath } from '../utils'
+import {
+  chainIdToChainLabel,
+  getAssetNamespace,
+  toAddressNList,
+  toRootDerivationPath,
+} from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { Fees } from './types'
 import { getErc20Data } from './utils'
@@ -167,7 +171,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       })()
 
       const txToSign = {
-        addressNList: bip32ToAddressNList(toPath(bip44Params)),
+        addressNList: toAddressNList(bip44Params),
         value: numberToHex(isErc20Send ? '0' : tx.value),
         to: destAddress,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -298,7 +302,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
     const address = await (wallet as ETHWallet).ethGetAddress({
-      addressNList: bip32ToAddressNList(toPath(bip44Params)),
+      addressNList: toAddressNList(bip44Params),
       showDisplay: showOnDevice,
     })
 

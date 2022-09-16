@@ -1,6 +1,6 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ChainAdapter, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -24,7 +24,7 @@ import {
   referralAddress,
   ssRouterContractAddress,
 } from './constants'
-import { bn, bnOrZero, normalizeAmount, toPath } from './utils'
+import { bn, bnOrZero, normalizeAmount } from './utils'
 
 export type PreparedTransaction = {
   chainId: number
@@ -454,8 +454,6 @@ export class IdleOpportunity
     const feeSpeed: FeePriority = feePriority ? feePriority : 'fast'
     const chainAdapter = this.#internals.chainAdapter
 
-    const path = toPath(chainAdapter.buildBIP44Params({ accountNumber: 0 }))
-    const addressNList = bip32ToAddressNList(path)
     const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultipier[feeSpeed]).toString())
     const txToSign: ETHSignTx = {
       ...tx,
@@ -464,7 +462,7 @@ export class IdleOpportunity
       gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
       nonce: numberToHex(tx.nonce),
       value: numberToHex(tx.value),
-      addressNList,
+      addressNList: toAddressNList(chainAdapter.buildBIP44Params({ accountNumber: 0 })),
     }
 
     // console.log('signAndBroadcast', txToSign)

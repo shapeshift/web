@@ -35,7 +35,7 @@ import {
   accountTypeToScriptType,
   chainIdToChainLabel,
   convertXpubVersion,
-  toPath,
+  toAddressNList,
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
@@ -203,7 +203,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const index = bip44Params.index ?? (await getNextIndex())
       const address = await wallet.btcGetAddress({
-        addressNList: bip32ToAddressNList(toPath({ ...bip44Params, index })),
+        addressNList: toAddressNList({ ...bip44Params, index }),
         coin: this.coinName,
         scriptType: accountTypeToScriptType[accountType],
         showDisplay: showOnDevice,
@@ -270,8 +270,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const { chainSpecific } = await this.getAccount(xpub)
-      const { nextChangeAddressIndex } = chainSpecific
-      const changePath = toPath({ ...bip44Params, isChange: true, index: nextChangeAddressIndex })
+      const index = chainSpecific.nextChangeAddressIndex
+      const addressNList = toAddressNList({ ...bip44Params, isChange: true, index })
 
       const signTxOutputs = outputs.map<BTCSignTxOutput>((output) => {
         if (output.address) {
@@ -285,7 +285,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         return {
           addressType: BTCOutputAddressType.Change,
           amount: String(output.value),
-          addressNList: bip32ToAddressNList(changePath),
+          addressNList,
           scriptType: accountTypeToOutputScriptType[accountType],
           isChange: true,
         }

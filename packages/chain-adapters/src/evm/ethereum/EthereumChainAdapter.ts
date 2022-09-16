@@ -1,5 +1,5 @@
 import { ASSET_REFERENCE, AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { bip32ToAddressNList, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
@@ -15,7 +15,7 @@ import {
   ValidAddressResultType,
   ZrxGasApiResponse,
 } from '../../types'
-import { toPath } from '../../utils'
+import { toAddressNList } from '../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 import { Fees } from '../types'
@@ -80,7 +80,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       })()
 
       const txToSign: ETHSignTx = {
-        addressNList: bip32ToAddressNList(toPath(bip44Params)),
+        addressNList: toAddressNList(bip44Params),
         value: tx.value,
         to: tx.to,
         chainId: 1,

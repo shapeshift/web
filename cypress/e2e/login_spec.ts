@@ -8,13 +8,9 @@ const password = Cypress.env('testPassword')
 
 describe('The Dashboard', () => {
   autoRecord()
+
   before(() => {
     cy.clearIndexedDB()
-  })
-
-  beforeEach(() => {
-    // Intercept all account requests relating to our test wallet
-    cy.mockAllRequests()
   })
 
   it('supports log in via an imported Native wallet', () => {

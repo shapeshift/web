@@ -6,6 +6,7 @@ export default defineConfig({
   viewportHeight: 1920,
   defaultCommandTimeout: 60000,
   chromeWebSecurity: false,
+  pageLoadTimeout: 2000000,
   env: {
     forceRecord: false,
     cleanMocks: false,

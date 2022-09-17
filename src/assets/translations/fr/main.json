@@ -18,6 +18,7 @@
     "relayerGasFee": "Frais de carburant du relayeur",
     "insufficientAmountForGas": "Solde ETH insuffisant pour couvrir les frais de carburant",
     "invalidAddress": "Adresse invalide",
+    "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -67,7 +68,8 @@
     "hideDetails": "Cacher les détails",
     "walletSupportsETHOnly": "Ethereum seulement",
     "loadingText": "Chargement...",
-    "txId": "ID Tx"
+    "txId": "ID Tx",
+    "selectAsset": "Sélectionnez un actif"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -548,6 +550,12 @@
         "infoSecond": "Ne partagez jamais votre phrase de récupération, elle donne accès à tous vos fonds.",
         "awaitingButtonPress": "Suivez les étapes sur votre KeepKey pour afficher votre phrase de récupération. Écrivez-la !"
       },
+      "factoryState": {
+        "header": "Commencer avec KeepKey",
+        "body": "Votre KeepKey est réglé sur les paramètres d'usine par défaut. Créez un nouveau porte-monnaie ou restaurez un porte-monnaie à l'aide de votre phrase de récupération secrète",
+        "createButton": "Créer un nouveau porte-monnaie",
+        "recoverButton": "Récupérer un porte-monnaie"
+      },
       "recoverySentenceEntry": {
         "header": "Entrez votre phrase de récupération",
         "body": "À l'aide de la légende du clavier brouillé sur votre KeepKey, entrez les 4 premières lettres de chaque mot. S'il y a moins de 4 lettres dans le mot, appuyez sur Entrée, appuyez sur la barre d'espace ou cliquez sur Suivant lorsque vous avez fini de les entrer.",
@@ -609,24 +617,12 @@
         }
       }
     },
-    "stake": {
-      "amountToStake": "Montant à miser",
-      "stakeYour": "Miser vos %{opportunity}",
-      "estimatedReturns": "Rendements annuels estimés*",
-      "estimateDisclaimer": "*Les estimations fluctuent selon les conditions du marché.",
-      "footerDisclaimer": "En continuant, vous acceptez nos",
-      "footerDisclaimerLink": "conditions d'utilisation.",
-      "status": {
-        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
-        "success": "Vous avez effectué avec succès le mise de vos %{opportunity}.",
-        "failed": "Il y a eu un problème avec votre transaction de mise."
-      }
-    },
     "send": {
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
       "tokenAddress": "Adresse du jeton",
+      "addressInput": "Adresse de destination, ENS ou Yat",
       "scanQrCode": "Scanner code QR",
       "permissionsButton": "Réessayer",
       "sent": "%{asset} envoyé",
@@ -693,6 +689,19 @@
     },
     "claim": {
       "claimFrom": "Réclamer depuis %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Montant à miser",
+      "stakeYour": "Miser vos %{opportunity}",
+      "estimatedReturns": "Rendements annuels estimés*",
+      "estimateDisclaimer": "*Les estimations fluctuent selon les conditions du marché.",
+      "footerDisclaimer": "En continuant, vous acceptez nos",
+      "footerDisclaimerLink": "conditions d'utilisation.",
+      "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué avec succès le mise de vos %{opportunity}.",
+        "failed": "Il y a eu un problème avec votre transaction de mise."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
@@ -1233,7 +1242,12 @@
     "accounts": "Comptes",
     "selectAccount": "Sélectionner un compte",
     "addAccount": "Ajouter un compte",
-    "accountNumber": "Compte #%{accountNumber}"
+    "accountNumber": "Compte #%{accountNumber}",
+    "accountChain": "Chaîne du compte",
+    "selectChain": "Sélectionnez la chaîne pour laquelle vous souhaitez créer un compte.",
+    "requiresPriorTxHistory": "Vous ne pouvez ajouter un nouveau compte que si le ou les comptes existants ont déjà un historique de transactions",
+    "newAccountAdded": "Nouveau compte %{name} ajouté",
+    "youCanNowUse": "Vous pouvez maintenant utiliser %{name} Compte #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1296,7 +1310,6 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Acheter des %{assetSymbol} sur Coinbase",
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",

@@ -18,6 +18,7 @@
     "relayerGasFee": "Relayer-Gasgebühr",
     "insufficientAmountForGas": "Nicht genug ETH, um Gas zu decken",
     "invalidAddress": "Ungültige Adresse",
+    "invalidAddressOrYat": "Ungültige Adresse oder Yat",
     "deposit": "Einzahlen",
     "withdraw": "Abheben",
     "withdrawal": "Abhebung",
@@ -34,7 +35,6 @@
     "darkTheme": "Dunkle Farben",
     "lightTheme": "Helle Farben",
     "rename": "Umbenennen",
-    "forget": "Vergessen?",
     "pending": "Ausstehend",
     "available": "Verfügbar",
     "or": "oder",
@@ -547,6 +547,12 @@
         "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
       },
+      "factoryState": {
+        "header": "Beginnen Sie mit Keepkey",
+        "body": "Ihr KeepKey wurde auf die Werkseinstellungen zurückgesetzt. Erstellen Sie eine neue Brieftasche oder stellen Sie eine Wallet mit Ihrer geheimen Wiederherstellungsphrase wieder her",
+        "createButton": "Erstellen Sie eine neue Wallet",
+        "recoverButton": "Wallet wiederherstellen"
+      },
       "recoverySentenceEntry": {
         "header": "Geben Sie Ihren Wiederherstellungssatz ein",
         "body": "Geben Sie mithilfe der verschlüsselten Tastaturdarstellung auf Ihrem KeepKey die ersten 4 Buchstaben jedes Wortes ein. Wenn das Wort weniger als 4 Buchstaben enthält, drücken Sie die Eingabetaste, drücken Sie die Leertaste oder klicken Sie auf Weiter, wenn Sie mit der Eingabe fertig sind.",
@@ -608,24 +614,12 @@
         }
       }
     },
-    "stake": {
-      "amountToStake": "Betrag für Staking",
-      "stakeYour": "Stake Ihre %{opportunity}",
-      "estimatedReturns": "Geschätzte jährliche Rendite*",
-      "estimateDisclaimer": "*Schätzungen schwanken je nach Marktbedingungen.",
-      "footerDisclaimer": "Indem Sie fortfahren, stimmen Sie unseren",
-      "footerDisclaimerLink": "Nutzungsbedingungen zu.",
-      "status": {
-        "pending": "Ihre Transaktion wurde übermittelt und eine Bestätigung steht noch aus.",
-        "success": "Sie haben Ihre %{opportunity} erfolgreich gestaked.",
-        "failed": "Es gab ein Problem mit Ihrer Staking-Transaktion."
-      }
-    },
     "send": {
       "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
       "tokenAddress": "Token Adresse",
+      "addressInput": "Token Addresse, ENS oder Yat",
       "scanQrCode": "QR-Code scannen",
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
@@ -692,6 +686,19 @@
     },
     "claim": {
       "claimFrom": "Forderung von %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Betrag für Staking",
+      "stakeYour": "Stake Ihre %{opportunity}",
+      "estimatedReturns": "Geschätzte jährliche Rendite*",
+      "estimateDisclaimer": "*Schätzungen schwanken je nach Marktbedingungen.",
+      "footerDisclaimer": "Indem Sie fortfahren, stimmen Sie unseren",
+      "footerDisclaimerLink": "Nutzungsbedingungen zu.",
+      "status": {
+        "pending": "Ihre Transaktion wurde übermittelt und eine Bestätigung steht noch aus.",
+        "success": "Sie haben Ihre %{opportunity} erfolgreich gestaked.",
+        "failed": "Es gab ein Problem mit Ihrer Staking-Transaktion."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Abzuhebender Betrag",
@@ -1094,8 +1101,6 @@
         "5th": "5.",
         "6th": "6.",
         "7th": "7.",
-        "8th": "8.",
-        "9th": "9.",
         "10th": "10.",
         "11th": "11.",
         "12th": "12.",

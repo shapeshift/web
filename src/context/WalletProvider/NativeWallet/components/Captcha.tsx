@@ -1,6 +1,7 @@
 import { getConfig } from 'config'
 import { WidgetInstance } from 'friendly-challenge'
 import { useEffect, useRef } from 'react'
+import { isMobile } from 'lib/globals'
 
 type FriendlyCaptchaProps = {
   handleCaptcha(solution: string | any): void
@@ -28,7 +29,9 @@ export const FriendlyCaptcha = ({ handleCaptcha, solution }: FriendlyCaptchaProp
       })
     }
 
-    return () => widget.current?.destroy?.()
+    // In the mobile app, this unmount function destroys the CAPTCHA before it renders
+    // Removing this still works with BACK and CLOSE
+    return () => void (!isMobile && widget.current?.destroy?.())
   }, [container, handleCaptcha])
 
   return (

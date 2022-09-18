@@ -201,7 +201,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </SkeletonText>
           </Row.Value>
         </Row>
-        <Button colorScheme='blue' onClick={handleConfirm} isLoading={state.loading}>
+        <Button
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          onClick={handleConfirm}
+          isLoading={state.loading}
+        >
           {translate('defi.modals.claim.confirmClaim')}
         </Button>
       </Stack>

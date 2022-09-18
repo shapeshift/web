@@ -42,9 +42,9 @@ const FoxFarmCTA = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
-  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
-  const { lpApr, isLpAprLoaded } = useLpApr()
   const featureFlags = useAppSelector(selectFeatureFlags)
+  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr({ skip: !featureFlags.FoxFarming })
+  const { lpApr, isLpAprLoaded } = useLpApr({ skip: !featureFlags.FoxLP })
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const { icon: ethAssetIcon } = ethAsset

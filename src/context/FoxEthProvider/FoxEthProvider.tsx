@@ -140,6 +140,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const {
     state: { wallet },
   } = useWallet()
@@ -157,14 +158,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
-  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress)
+  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress, {
+    skip: !featureFlags.FoxLP,
+  })
 
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
     FoxFarmingEarnOpportunityType[]
   >([v4FarmingOpportunity, v3FarmingOpportunity, v2FarmingOpportunity, v1FarmingOpportunity])
-  const { lpApr } = useLpApr()
+  const { lpApr } = useLpApr({ skip: !featureFlags.FoxLP })
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const foxAssetPrecision = useAppSelector(state => selectAssetById(state, foxAssetId)).precision
@@ -173,7 +176,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     selectAssetById(state, foxEthLpAssetId),
   ).precision
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // TODO: Remove this useEffect
   // The reason why it is still here is because we use accountAddress both for the modals, and to display the DeFi cards/rows
@@ -320,6 +322,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   // reload opportunities when wallet changes
   useEffect(() => {
+    if (!(featureFlags.FoxLP || featureFlags.FoxFarming)) return
     if (!(accountAddress && lpApr && isMarketDataReady && lpAssetPrecision && foxAssetPrecision))
       return
     ;(async () => {
@@ -346,6 +349,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   useEffect(() => {
+    if (!(featureFlags.FoxLP || featureFlags.FoxFarming)) return
     if (transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         fetchFarmingOpportunities()
@@ -353,7 +357,13 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         setOngoingTxId(null)
       }
     }
-  }, [fetchFarmingOpportunities, fetchLpOpportunity, transaction])
+  }, [
+    fetchFarmingOpportunities,
+    featureFlags.FoxFarming,
+    featureFlags.FoxLP,
+    fetchLpOpportunity,
+    transaction,
+  ])
 
   const foxFarmingTotalCryptoAmount = foxFarmingOpportunities
     .reduce((acc, opportunity) => {

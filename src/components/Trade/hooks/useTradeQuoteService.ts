@@ -53,7 +53,10 @@ export const useTradeQuoteService = () => {
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // API
-  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
+  const { data: tradeQuote, isFetching: isFetchingTradeQuote } = useGetTradeQuoteQuery(
+    tradeQuoteArgs,
+    { pollingInterval: 30000 },
+  )
 
   // Effects
   // Trigger trade quote query
@@ -123,4 +126,6 @@ export const useTradeQuoteService = () => {
   useEffect(() => {
     tradeQuote && setValue('quote', tradeQuote)
   }, [tradeQuote, setValue])
+
+  return { isFetchingTradeQuote }
 }

@@ -15,10 +15,17 @@ type RateGasRowProps = {
   buySymbol?: string
   rate?: string
   gasFee: string
+  isLoading?: boolean
 }
-export const RateGasRow: FC<RateGasRowProps> = ({ sellSymbol, buySymbol, rate, gasFee }) => {
+export const RateGasRow: FC<RateGasRowProps> = ({
+  sellSymbol,
+  buySymbol,
+  rate,
+  gasFee,
+  isLoading,
+}) => {
   const translate = useTranslate()
-  return !rate ? (
+  return !rate || isLoading ? (
     <Stack direction='row' alignItems='center' fontSize='sm'>
       <CircularProgress size='16px' />
       <Text translation={'trade.searchingRate'} />

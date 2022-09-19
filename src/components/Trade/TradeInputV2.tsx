@@ -28,7 +28,7 @@ import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
-  useSwapperService()
+  const { isFetchingTradeQuote, isFetchingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
@@ -184,9 +184,10 @@ export const TradeInput = () => {
             buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={gasFee}
             rate={quote?.rate}
+            isLoading={isFetchingFiatRateData || isFetchingTradeQuote}
           />
           <ReceiveSummary
-            isLoading={!quote}
+            isLoading={!quote || isFetchingTradeQuote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={toCryptoAmountAfterFees.toString()}
             beforeFees={buyTradeAsset?.amount ?? ''}

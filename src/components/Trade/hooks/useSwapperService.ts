@@ -8,8 +8,10 @@ The Swapper Service is responsible for reacting to changes to the Trade form and
 */
 export const useSwapperService = () => {
   // Initialize child services
-  useFiatRateService()
-  useTradeQuoteService()
+  const { isFetchingFiatRateData } = useFiatRateService()
+  const { isFetchingTradeQuote } = useTradeQuoteService()
   useFeesService()
   useAccountsService()
+
+  return { isFetchingTradeQuote, isFetchingFiatRateData }
 }

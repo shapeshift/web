@@ -42,7 +42,7 @@ type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
-  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
@@ -139,8 +139,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   if (!state || !dispatch || !asset) return null
 
-  const handleBack = history.goBack
-
   return (
     <>
       <Stack alignItems='center' justifyContent='center' py={8}>
@@ -203,14 +201,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </SkeletonText>
           </Row.Value>
         </Row>
-        <Stack direction='row' width='full' justifyContent='space-between'>
-          <Button size='lg' onClick={handleBack}>
-            {translate('common.cancel')}
-          </Button>
-          <Button size='lg' colorScheme='blue' onClick={handleConfirm} isLoading={state.loading}>
-            {translate('defi.modals.claim.confirmClaim')}
-          </Button>
-        </Stack>
+        <Button
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          onClick={handleConfirm}
+          isLoading={state.loading}
+        >
+          {translate('defi.modals.claim.confirmClaim')}
+        </Button>
       </Stack>
     </>
   )

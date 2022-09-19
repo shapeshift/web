@@ -10,13 +10,16 @@ import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr()
-  const { lpApr, isLpAprLoaded } = useLpApr()
+  const featureFlags = useAppSelector(selectFeatureFlags)
+  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr({ skip: !featureFlags.FoxFarming })
+  const { lpApr, isLpAprLoaded } = useLpApr({ skip: !featureFlags.FoxLP })
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {

@@ -1364,6 +1364,16 @@
       }
     },
     "walletConnectToDapps": {
+      "header": {
+        "connectDapp": "Connect dApp",
+        "connectedDapp": "Connected dApp",
+        "menu": {
+          "disconnect": "Disconnect",
+          "address": "Address",
+          "connected": "Connected",
+          "network": "Network"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",

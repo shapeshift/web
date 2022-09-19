@@ -8,13 +8,16 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
+import type { FC } from 'react'
+import { FaWrench } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
-import type { FC } from 'react'
-import { useTranslate } from 'react-polyglot'
 
+import { ModalSection } from './ModalSection'
+import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
 import { WalletSummaryCard } from './WalletSummaryCard'
 
 type Props = {
@@ -31,6 +34,15 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
   const translate = useTranslate()
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
+      <ModalSection
+        title={translate(
+          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+        )}
+        icon={<FaWrench />}
+      >
+        <SignTransactionAdvancedParameters />
+      </ModalSection>
+
       <Box>
         <Text
           fontWeight='medium'

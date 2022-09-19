@@ -1374,6 +1374,22 @@
           "description": "You will need to confirm signing this message with your connected wallet.",
           "confirm": "Confirm",
           "reject": "Reject"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Advanced Parameters",
+            "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "explain nonce here"
+            },
+            "gasLimit": {
+              "title": "Gas Limit",
+              "placeholder": "Gas Limit...",
+              "tooltip": "explain gas limit here"
+            }
+          }
         }
       }
     }

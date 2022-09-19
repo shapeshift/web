@@ -166,11 +166,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(selectedCurrencyToUsdRate)
 
   const buyAmountCryptoBeforeFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount),
+    bnOrZero(trade?.buyAmount).plus(bnOrZero(fees?.tradeFee)),
     trade?.buyAsset?.precision ?? 0,
   )
   const buyAmountCryptoAfterFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount).minus(bnOrZero(fees?.tradeFee)),
+    bnOrZero(trade?.buyAmount),
     trade?.buyAsset?.precision ?? 0,
   )
 

@@ -59,7 +59,7 @@ export const TradeInput = () => {
   )
 
   const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
-  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFeeCrypto))
+  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
@@ -189,8 +189,8 @@ export const TradeInput = () => {
           <ReceiveSummary
             isLoading={!quote || isLoadingTradeQuote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
-            amount={toCryptoAmountAfterFees.precision(8).toString()}
-            beforeFees={buyTradeAsset?.amount ?? ''}
+            amount={buyTradeAsset?.amount?.toString() ?? ''}
+            beforeFees={toCryptoAmountBeforeFees.toString()}
             protocolFee={protocolFeeCrypto}
             shapeShiftFee='0'
             slippage={slippage}

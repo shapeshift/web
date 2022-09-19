@@ -26,7 +26,7 @@ function getFeeColor(key: FeeDataKey): string {
   }
 }
 
-function getFeeTranslation(key: FeeDataKey): string {
+export function getFeeTranslation(key: FeeDataKey): string {
   switch (key) {
     case FeeDataKey.Slow:
       return 'modals.send.sendForm.slow'

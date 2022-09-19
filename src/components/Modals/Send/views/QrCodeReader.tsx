@@ -1,4 +1,4 @@
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeScannerState, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import type {
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
@@ -25,18 +25,12 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
   qrCodeErrorCallback,
 }) => {
   const [cameraId, setCameraId] = useState<string | null>(null)
-  const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null)
-  const [isScanning, setIsScanning] = useState<boolean>(false)
 
   useEffect(() => {
-    if (!qrScanner) {
-      setQrScanner(
-        new Html5Qrcode(qrcodeRegionId, {
-          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-          verbose: false,
-        }),
-      )
-    }
+    const qrScanner = new Html5Qrcode(qrcodeRegionId, {
+      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+      verbose: false,
+    })
 
     ;(async () => {
       if (!cameraId) {
@@ -55,40 +49,31 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         return
       }
 
-      if (!qrScanner) return
-
-      if (!isScanning) {
-        await qrScanner.start(
-          isMobile ? { facingMode: 'environment' } : cameraId,
-          {
-            fps,
-            qrbox,
-          },
-          (decodedText, result) => {
-            qrCodeSuccessCallback(decodedText, result)
-          },
-          qrCodeErrorCallback as QrcodeErrorCallback,
-        )
-      }
-
-      setIsScanning(true)
+      await qrScanner.start(
+        isMobile ? { facingMode: 'environment' } : cameraId,
+        {
+          fps,
+          qrbox,
+        },
+        (decodedText, result) => {
+          qrCodeSuccessCallback(decodedText, result)
+        },
+        qrCodeErrorCallback as QrcodeErrorCallback,
+      )
     })()
 
     return () => {
       ;(async () => {
-        if (qrScanner && isScanning) {
-          setIsScanning(false)
-          try {
-            await qrScanner.stop()
-            qrScanner.clear()
-            // as Html5Qrcode is not designed to be inside a setState hook, isScanning is always false inside the qrScanner object
-            // so it throws an error on stop() even if it really stop, we need to make it silent
-          } catch (error) {}
+        const scannerState = qrScanner.getState()
+
+        if (scannerState === Html5QrcodeScannerState.SCANNING) {
+          await qrScanner.stop()
+          qrScanner.clear()
         }
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cameraId, setQrScanner, isScanning, setIsScanning, qrScanner])
+  }, [cameraId])
 
   return <div id={qrcodeRegionId} />
 }

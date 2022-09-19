@@ -8,16 +8,16 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { Card } from 'components/Card/Card'
+import { GasInput } from 'components/DeFi/components/GasInput'
+import { RawText, Text } from 'components/Text'
 import type { FC } from 'react'
 import { useState } from 'react'
 import { FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
-import { GasInput } from 'components/DeFi/components/GasInput'
-import { RawText, Text } from 'components/Text'
 
 import { ModalSection } from './ModalSection'
 import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
@@ -74,7 +74,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
             <RawText fontWeight='semibold' flex={1}>
               {dapp.name}
             </RawText>
-            <Link href={dapp.url} isExternal>
+            <Link href={dapp.url.replace(/^https?:\/\//, '')} isExternal>
               <IconButton
                 icon={<ExternalLinkIcon />}
                 variant='ghost'

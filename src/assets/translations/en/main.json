@@ -1371,7 +1371,8 @@
           "disconnect": "Disconnect",
           "address": "Address",
           "connected": "Connected",
-          "network": "Network"
+          "network": "Network",
+          "unsupportedNetwork": "Unsupported Network"
         }
       },
       "modal": {
@@ -1404,7 +1405,8 @@
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "howTo": "How to connect to a dApp?",
-          "linkPlaceholder": "QR code or connection link"
+          "linkPlaceholder": "QR code or connection link",
+          "connect": "Connect"
         }
       }
     }

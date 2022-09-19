@@ -1,6 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button, MenuItem } from '@chakra-ui/react'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
@@ -13,20 +14,11 @@ import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
   const [isOpen, setOpen] = useState(false)
-
-  // const dapp: any = {
-  //   name: 'Uniswap',
-  //   link: 'app.uniswap.org',
-  //   image:
-  //     'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
-  //   chainId: 1,
-  //   connected: true,
-  //   address: '0x123321123123321',
-  // }
-  const dapp: any = null
   const translate = useTranslate()
+  const walletConnect = useWalletConnect()
+  const dapp = walletConnect.bridge?.connector.peerMeta
 
-  if (!dapp) {
+  if (!walletConnect.bridge || !dapp) {
     return (
       <>
         <Button
@@ -48,8 +40,8 @@ export const WalletConnectToDappsHeaderButton = () => {
         leftIcon={
           <DappAvatar
             name={dapp.name}
-            image={dapp.image}
-            connected={dapp.connected}
+            image={dapp.icons[0]}
+            connected={walletConnect.bridge.connector.connected}
             size={6}
             connectedDotSize={2}
             borderWidth={1}
@@ -62,11 +54,11 @@ export const WalletConnectToDappsHeaderButton = () => {
         {/* TODO: when setting "flex: unset" or "flex-shrink: none" to the Button content parent, overflow isn't a problem */}
         <RawText fontSize='sm'>{dapp.name}</RawText>
         <RawText fontSize='xs' color='gray.500'>
-          {dapp.link}
+          {dapp.name}
         </RawText>
       </MenuButton>
       <MenuList>
-        <DappHeaderMenuSummary dapp={dapp} />
+        <DappHeaderMenuSummary />
 
         <MenuItem fontWeight='medium' onClick={() => setOpen(true)}>
           Debug

@@ -2,6 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import type { TS } from 'components/Trade/types'
 import { type GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
@@ -10,6 +11,7 @@ import { useAppSelector } from 'state/store'
 /*
 The Fiat Rate Service is responsible for fetching and setting fiat rates.
 It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of TradeState.
+It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
   // Types
@@ -37,6 +39,8 @@ export const useFiatRateService = () => {
   const sellAssetFeeAssetId = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   ).assetId
+
+  const { setTradeAmounts } = useTradeAmounts()
 
   // API
   const { data: buyAssetFiatRateData, isLoading: isLoadingBuyAssetFiatRate } = useGetUsdRateQuery(
@@ -101,7 +105,10 @@ export const useFiatRateService = () => {
     buyAssetFiatRateData && setValue('buyAssetFiatRate', buyAssetFiatRateData)
     sellAssetFiatRateData && setValue('sellAssetFiatRate', sellAssetFiatRateData)
     feeAssetFiatRateData && setValue('feeAssetFiatRate', feeAssetFiatRateData)
-  }, [buyAssetFiatRateData, feeAssetFiatRateData, sellAssetFiatRateData, setValue])
+
+    // Set (update) trade amounts when fiat rates are updated
+    setTradeAmounts({})
+  }, [buyAssetFiatRateData, feeAssetFiatRateData, sellAssetFiatRateData, setTradeAmounts, setValue])
 
   return { isLoadingFiatRateData }
 }

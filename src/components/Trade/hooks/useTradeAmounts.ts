@@ -15,9 +15,11 @@ export const useTradeAmounts = () => {
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const fees = useWatch({ control, name: 'fees' })
+  const formAmount = useWatch({ control, name: 'amount' })
+  const formAction = useWatch({ control, name: 'action' })
 
   // Types
-  type setTradeAmountsArgs = { amount: string | null; action: TradeAmountInputField }
+  type setTradeAmountsArgs = { amount?: string | null; action?: TradeAmountInputField }
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -27,9 +29,9 @@ export const useTradeAmounts = () => {
   const buyAsset = buyTradeAsset?.asset
 
   const setTradeAmounts = useCallback(
-    ({ amount, action }: setTradeAmountsArgs) => {
+    ({ amount = formAmount, action = formAction }: setTradeAmountsArgs) => {
       const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate))
-      if (sellAsset && buyAsset && amount) {
+      if (sellAsset && buyAsset && amount && action) {
         const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
           calculateAmounts({
             amount,
@@ -51,6 +53,8 @@ export const useTradeAmounts = () => {
       buyAsset,
       buyAssetFiatRate,
       fees?.tradeFee,
+      formAction,
+      formAmount,
       selectedCurrencyToUsdRate,
       sellAsset,
       sellAssetFiatRate,

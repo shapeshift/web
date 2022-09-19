@@ -14,47 +14,54 @@ export type ConnectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
-  pairDevice(): any
+  onPairDeviceClick(): any
   loading: boolean
   error: string | null
   children?: ReactNode
 }
 
-export const ConnectModal: React.FC<ConnectModalProps> = props => {
+export const ConnectModal: React.FC<ConnectModalProps> = ({
+  bodyText,
+  buttonText,
+  error,
+  headerText,
+  loading,
+  onPairDeviceClick: handlePairDeviceClick,
+}) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={props.headerText} />
+        <Text translation={headerText} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={props.bodyText} />
-        {props.loading ? (
+        <Text mb={4} color='gray.500' translation={bodyText} />
+        {loading ? (
           <Button
             width='full'
             colorScheme='blue'
             isLoading
             loadingText='Pairing Wallet'
             spinner={<Spinner color='white' />}
-            disabled={props.loading}
+            disabled={loading}
           >
-            <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
+            <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>
         ) : (
           <Button
             width='full'
             colorScheme='blue'
-            onClick={props.pairDevice}
-            disabled={props.loading}
+            onClick={handlePairDeviceClick}
+            disabled={loading}
             data-test='wallet-pair-button'
           >
-            <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
+            <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>
         )}
-        {props.error && (
+        {error && (
           <Alert status='info' mt={4}>
             <AlertIcon />
             <AlertDescription>
-              <Text translation={props.error} />
+              <Text translation={error} />
             </AlertDescription>
           </Alert>
         )}

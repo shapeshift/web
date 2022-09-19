@@ -24,6 +24,7 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -32,7 +33,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Approve'],
 })
 
-export const Approve: React.FC<StepComponentProps & { accountId: AccountId | null }> = ({
+export const Approve: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
   accountId,
   onNext,
 }) => {

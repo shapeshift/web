@@ -33,7 +33,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
 
   /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
 
-  if (flags.Thor) {
+  if (flags.ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({

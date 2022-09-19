@@ -1,9 +1,8 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import type { TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
 export enum AssetClickAction {
@@ -15,7 +14,7 @@ export const useTradeRoutes = (): {
   handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { getValues, setValue } = useFormContext<TS>()
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
   const fiatSellAmount = getValues('fiatSellAmount')

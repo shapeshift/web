@@ -6,7 +6,7 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { WalletConnectModal } from '../modal/WalletConnectModal'
 
 export const WalletConnectToDappsHeaderButton: FC = () => {
-  const [isOpen, setOpen] = useState(false)
+  const [isOpen, setOpen] = useState(true)
   return (
     <>
       <Button

@@ -47,6 +47,7 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import type { FiatRamp } from '../config'
@@ -77,7 +78,7 @@ type OverviewProps = GenerateAddressProps & {
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
 }
 
 type AddressOrNameFull = string
@@ -150,7 +151,9 @@ export const Overview: React.FC<OverviewProps> = ({
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
-  const { fiatRamps } = useModal()
+  const {
+    fiatRamps: { close: handleFiatRampsClose },
+  } = useModal()
   const {
     state: { wallet },
   } = useWallet()
@@ -385,7 +388,7 @@ export const Overview: React.FC<OverviewProps> = ({
         >
           <Text translation='common.continue' />
         </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
+        <Button width='full' size='lg' variant='ghost' onClick={handleFiatRampsClose}>
           <Text translation='common.cancel' />
         </Button>
       </Flex>

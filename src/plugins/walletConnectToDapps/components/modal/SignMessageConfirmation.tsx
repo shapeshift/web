@@ -8,15 +8,20 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { FC } from 'react'
-import { useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { GasInput } from 'components/DeFi/components/GasInput'
 import { RawText, Text } from 'components/Text'
+import type { FC } from 'react'
+import { useState } from 'react'
+import { FaWrench } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
+
+import { ModalSection } from './ModalSection'
+import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
+import { WalletSummaryCard } from './WalletSummaryCard'
 
 type Props = {
   message: string
@@ -34,6 +39,14 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
       <GasInput value={gasInputValue} onChange={setGasInputValue} />
+      <ModalSection
+        title={translate(
+          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+        )}
+        icon={<FaWrench />}
+      >
+        <SignTransactionAdvancedParameters />
+      </ModalSection>
 
       <Box>
         <Text
@@ -41,9 +54,12 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
           translation='plugins.walletConnectToDapps.modal.signMessage.signingFrom'
           mb={4}
         />
-        <Card bg={useColorModeValue('white', 'gray.850')} p={4} borderRadius='md'>
-          Wallet summary...
-        </Card>
+        <WalletSummaryCard
+          address='0x03ed759b696b62774D02156a189F6E176C15b3a3'
+          name='My Wallet'
+          url='https://etherscan.com/address/0x03ed759b696b62774D02156a189F6E176C15b3a3'
+          balance={10}
+        />
       </Box>
 
       <Box>
@@ -74,7 +90,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
               fontWeight='medium'
               mb={1}
             />
-            <RawText fontWeight='medium' color='gray'>
+            <RawText fontWeight='medium' color='gray.500'>
               {message}
             </RawText>
           </Box>
@@ -83,7 +99,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
 
       <Text
         fontWeight='medium'
-        color='gray'
+        color='gray.500'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
 

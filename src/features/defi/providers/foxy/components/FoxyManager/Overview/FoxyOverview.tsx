@@ -19,12 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectMarketDataById,
-  selectSelectedLocale,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyEmpty } from './FoxyEmpty'
@@ -66,8 +61,6 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
-
   const apy = opportunity?.apy
   if (isFoxyBalancesLoading || !opportunity) {
     return (
@@ -99,7 +92,7 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountIdChange: handleAccountIdChange } : {})}
+      onAccountIdChange={handleAccountIdChange}
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

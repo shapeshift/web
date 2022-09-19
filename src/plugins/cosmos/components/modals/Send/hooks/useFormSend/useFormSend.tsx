@@ -1,14 +1,18 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import type { ChainAdapter, FeeData } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
+import { selectPortfolioAccountMetadata } from 'state/slices/selectors'
 
 import type { SendInput } from '../../Form'
+
+const moduleLogger = logger.child({ namespace: ['cosmos', 'useFormSend'] })
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -18,87 +22,88 @@ export const useFormSend = () => {
   const {
     state: { wallet },
   } = useWallet()
-
-  type CosmosSdkChainFees = FeeData<KnownChainIds.CosmosMainnet> &
-    FeeData<KnownChainIds.OsmosisMainnet>
+  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const handleSend = async (data: SendInput) => {
-    if (wallet) {
-      try {
-        const adapter = chainAdapterManager.get(data.asset.chainId) as unknown as ChainAdapter<
-          KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
-        >
-        if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
-        const value = bnOrZero(data.cryptoAmount)
-          .times(bn(10).exponentiatedBy(data.asset.precision))
-          .toFixed(0)
+    if (!wallet) return
 
-        let result
+    try {
+      // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
+      if (!wallet.supportsOfflineSigning()) {
+        throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
+      }
 
-        const { memo, estimatedFees, feeType, address: to } = data
-        const fees = estimatedFees[feeType] as CosmosSdkChainFees
-        const gas = fees.chainSpecific.gasLimit
-        const fee = fees.txFee
-        const address = to
-        result = await adapter.buildSendTransaction({
-          to: address,
-          memo,
-          value,
-          wallet,
-          chainSpecific: { gas, fee },
-          sendMax: data.sendMax,
-        })
-        const txToSign = result?.txToSign
+      const adapter = chainAdapterManager.get(
+        data.asset.chainId,
+      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
 
-        let broadcastTXID: string | undefined
+      if (!adapter) throw new Error(`No adapter available for chainId ${data.asset.chainId}`)
+      if (!accountMetadata?.[data.accountId])
+        throw new Error(`cosmos: no accountMetadata for ${data.accountId}`)
+      const { bip44Params } = accountMetadata[data.accountId]
+      if (!bip44Params) throw new Error(`cosmos: no bip44Params for accountId ${data.accountId}`)
 
-        // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
-        if (txToSign && wallet.supportsOfflineSigning()) {
-          broadcastTXID = await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-        } else {
-          throw new Error('Bad hdwallet config')
-        }
+      const value = bnOrZero(data.cryptoAmount)
+        .times(bn(10).exponentiatedBy(data.asset.precision))
+        .toFixed(0)
 
-        setTimeout(() => {
-          toast({
-            title: translate('modals.send.sent', { asset: data.asset.name }),
-            description: (
-              <Text>
-                <Text>
-                  {translate('modals.send.youHaveSent', {
-                    amount: data.cryptoAmount,
-                    symbol: data.cryptoSymbol,
-                  })}
-                </Text>
-                {data.asset.explorerTxLink && (
-                  <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
-                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                  </Link>
-                )}
-              </Text>
-            ),
-            status: 'success',
-            duration: 9000,
-            isClosable: true,
-            position: 'top-right',
-          })
-        }, 5000)
-      } catch (error) {
+      const { memo, estimatedFees, feeType, address } = data
+      const fees = estimatedFees[feeType]
+
+      const { txToSign } = await adapter.buildSendTransaction({
+        to: address,
+        memo,
+        value,
+        wallet,
+        bip44Params,
+        chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
+        sendMax: data.sendMax,
+      })
+
+      const broadcastTXID = await adapter.signAndBroadcastTransaction({ txToSign, wallet })
+
+      setTimeout(() => {
         toast({
-          title: translate('modals.send.errorTitle', {
-            asset: data.asset.name,
-          }),
-          description: translate('modals.send.errors.transactionRejected'),
-          status: 'error',
+          title: translate('modals.send.sent', { asset: data.asset.name }),
+          description: (
+            <Text>
+              <Text>
+                {translate('modals.send.youHaveSent', {
+                  amount: data.cryptoAmount,
+                  symbol: data.cryptoSymbol,
+                })}
+              </Text>
+              {data.asset.explorerTxLink && (
+                <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                  {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                </Link>
+              )}
+            </Text>
+          ),
+          status: 'success',
           duration: 9000,
           isClosable: true,
           position: 'top-right',
         })
-      } finally {
-        send.close()
-      }
+      }, 5000)
+    } catch (err) {
+      moduleLogger.error(err, 'handleSend:')
+
+      toast({
+        title: translate('modals.send.errorTitle', {
+          asset: data.asset.name,
+        }),
+        description: translate('modals.send.errors.transactionRejected'),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+    } finally {
+      send.close()
     }
   }
+
   return {
     handleSend,
   }

@@ -1,10 +1,9 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { type TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -14,7 +13,7 @@ The only mutation is on TradeState's fees property.
 */
 export const useFeesService = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue } = useFormContext<TS>()
   const trade = useWatch({ control, name: 'trade' })
   const quote = useWatch({ control, name: 'quote' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })

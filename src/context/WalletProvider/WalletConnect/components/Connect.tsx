@@ -104,7 +104,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       headerText={'walletProvider.walletConnect.connect.header'}
       bodyText={'walletProvider.walletConnect.connect.body'}
       buttonText={'walletProvider.walletConnect.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     />

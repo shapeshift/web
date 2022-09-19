@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import type { TradeAmountInputField } from 'components/Trade/types'
-import type { TS } from 'components/Trade/types'
+import type { TradeAmountInputField, TS } from 'components/Trade/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,6 +14,7 @@ export const useTradeAmounts = () => {
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const fees = useWatch({ control, name: 'fees' })
 
   // Types
   type setTradeAmountsArgs = { amount: string | null; action: TradeAmountInputField }
@@ -27,6 +28,7 @@ export const useTradeAmounts = () => {
 
   const setTradeAmounts = useCallback(
     ({ amount, action }: setTradeAmountsArgs) => {
+      const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate))
       if (sellAsset && buyAsset && amount) {
         const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
           calculateAmounts({
@@ -37,6 +39,7 @@ export const useTradeAmounts = () => {
             buyAssetUsdRate: buyAssetFiatRate,
             sellAssetUsdRate: sellAssetFiatRate,
             selectedCurrencyToUsdRate,
+            tradeFee,
           })
         setValue('fiatSellAmount', fiatSellAmount)
         setValue('fiatBuyAmount', fiatBuyAmount)
@@ -44,7 +47,15 @@ export const useTradeAmounts = () => {
         setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision))
       }
     },
-    [buyAsset, buyAssetFiatRate, selectedCurrencyToUsdRate, sellAsset, sellAssetFiatRate, setValue],
+    [
+      buyAsset,
+      buyAssetFiatRate,
+      fees?.tradeFee,
+      selectedCurrencyToUsdRate,
+      sellAsset,
+      sellAssetFiatRate,
+      setValue,
+    ],
   )
 
   return { setTradeAmounts }

@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 type CalculateAmountsArgs = {
@@ -12,6 +12,7 @@ type CalculateAmountsArgs = {
   sellAssetUsdRate: string
   action: TradeAmountInputField
   selectedCurrencyToUsdRate: BigNumber
+  tradeFee: BigNumber
 }
 
 type CalculateAmountsReturn = {
@@ -29,54 +30,84 @@ export const calculateAmounts = ({
   sellAssetUsdRate,
   action,
   selectedCurrencyToUsdRate,
+  tradeFee,
 }: CalculateAmountsArgs): CalculateAmountsReturn => {
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
   const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
   const cryptoSellAmount = toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision)
   const cryptoBuyAmount = toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
+  const tradeFeeBaseUnit = toBaseUnit(tradeFee, buyAsset.precision)
 
   switch (action) {
-    case TradeAmountInputField.SELL_CRYPTO:
+    case TradeAmountInputField.SELL_CRYPTO: {
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
+      const buyAmountAfterFees = positiveOrZero(
+        bnOrZero(buyAmount).minus(tradeFeeBaseUnit),
+      ).toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),
-        cryptoBuyAmount: buyAmount,
+        cryptoBuyAmount: buyAmountAfterFees,
         fiatSellAmount: bnOrZero(amount)
           .times(selectedCurrencyToUsdRate)
           .times(bnOrZero(sellAssetUsdRate))
           .toFixed(2),
-        fiatBuyAmount: bnOrZero(fromBaseUnit(buyAmount, buyAsset.precision))
+        fiatBuyAmount: bnOrZero(fromBaseUnit(buyAmountAfterFees, buyAsset.precision))
           .times(selectedCurrencyToUsdRate)
           .times(buyAssetUsdRate)
-          .toFixed(2), // TODO: subtract fee
+          .toFixed(2),
       }
-    case TradeAmountInputField.SELL_FIAT:
+    }
+    case TradeAmountInputField.SELL_FIAT: {
+      const buyAmountAfterFees = positiveOrZero(
+        bnOrZero(cryptoBuyAmount).minus(tradeFeeBaseUnit),
+      ).toString()
       return {
         cryptoSellAmount,
-        cryptoBuyAmount, // TODO: subtract fee
+        cryptoBuyAmount: buyAmountAfterFees,
         fiatSellAmount: amount,
-        fiatBuyAmount: amount, // TODO: subtract fee
-      }
-    case TradeAmountInputField.BUY_CRYPTO:
-      return {
-        cryptoSellAmount: toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision), // TODO: add fee
-        cryptoBuyAmount: toBaseUnit(amount, buyAsset.precision),
-        fiatSellAmount: bnOrZero(amount)
+        fiatBuyAmount: bnOrZero(fromBaseUnit(buyAmountAfterFees, buyAsset.precision))
           .times(selectedCurrencyToUsdRate)
-          .times(bnOrZero(buyAssetUsdRate))
-          .toFixed(2), // TODO: add fee
+          .times(buyAssetUsdRate)
+          .toFixed(2),
+      }
+    }
+    case TradeAmountInputField.BUY_CRYPTO: {
+      const tradeFeeToSellAsset = bnOrZero(tradeFee).div(assetPriceRatio)
+      const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
+      const sellAmount = toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision)
+      const sellAmountWithFees = positiveOrZero(
+        bnOrZero(sellAmount).plus(tradeFeeToSellAssetBaseUnit),
+      ).toString()
+      return {
+        cryptoSellAmount: sellAmountWithFees,
+        cryptoBuyAmount: toBaseUnit(amount, buyAsset.precision),
+        fiatSellAmount: bnOrZero(fromBaseUnit(sellAmountWithFees, sellAsset.precision))
+          .times(selectedCurrencyToUsdRate)
+          .times(bnOrZero(sellAssetUsdRate))
+          .toFixed(2),
         fiatBuyAmount: bnOrZero(amount)
           .times(selectedCurrencyToUsdRate)
           .times(bnOrZero(buyAssetUsdRate))
           .toFixed(2),
       }
-    case TradeAmountInputField.BUY_FIAT:
+    }
+    case TradeAmountInputField.BUY_FIAT: {
+      const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
+
+      const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
+      const sellAmountWithFees = positiveOrZero(
+        bnOrZero(cryptoSellAmount).plus(tradeFeeToSellAssetBaseUnit),
+      ).toString()
       return {
-        cryptoSellAmount, // TODO: add fee
+        cryptoSellAmount: sellAmountWithFees,
         cryptoBuyAmount,
-        fiatSellAmount: amount, // TODO: add fee
+        fiatSellAmount: bnOrZero(fromBaseUnit(sellAmountWithFees, sellAsset.precision))
+          .times(selectedCurrencyToUsdRate)
+          .times(bnOrZero(sellAssetUsdRate))
+          .toFixed(2),
         fiatBuyAmount: amount,
       }
+    }
     default:
       return {
         cryptoSellAmount: '0',

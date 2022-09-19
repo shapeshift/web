@@ -29,6 +29,15 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
   const [isScanning, setIsScanning] = useState<boolean>(false)
 
   useEffect(() => {
+    if (!qrScanner) {
+      setQrScanner(
+        new Html5Qrcode(qrcodeRegionId, {
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+          verbose: false,
+        }),
+      )
+    }
+
     ;(async () => {
       if (!cameraId) {
         try {
@@ -48,35 +57,22 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
 
       if (!qrScanner) return
 
+      if (!isScanning) {
+        await qrScanner.start(
+          isMobile ? { facingMode: 'environment' } : cameraId,
+          {
+            fps,
+            qrbox,
+          },
+          (decodedText, result) => {
+            qrCodeSuccessCallback(decodedText, result)
+          },
+          qrCodeErrorCallback as QrcodeErrorCallback,
+        )
+      }
+
       setIsScanning(true)
-
-      await qrScanner.start(
-        isMobile ? { facingMode: 'environment' } : cameraId,
-        {
-          fps,
-          qrbox,
-        },
-        (decodedText, result) => {
-          qrCodeSuccessCallback(decodedText, result)
-        },
-        qrCodeErrorCallback as QrcodeErrorCallback,
-      )
     })()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cameraId, qrScanner])
-
-  useEffect(() => {
-    if (!qrScanner) {
-      // This should be inside a normal useEffect hook without dependencies so the scanner is initialized on mount and
-      // the element exists in the DOM
-      setQrScanner(
-        new Html5Qrcode(qrcodeRegionId, {
-          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-          verbose: false,
-        }),
-      )
-    }
 
     return () => {
       ;(async () => {
@@ -91,7 +87,8 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         }
       })()
     }
-  }, [setQrScanner, isScanning, setIsScanning, qrScanner])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraId, setQrScanner, isScanning, setIsScanning, qrScanner])
 
   return <div id={qrcodeRegionId} />
 }

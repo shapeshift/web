@@ -29,7 +29,6 @@ const TOKEMAK_TFOX_POOL_ADDRESS = '0x808d3e6b23516967ceae4f17a5f9038383ed5311'
 
 type GetFoxyBalancesInput = {
   accountId: AccountId
-  userAddress: string
   foxyApr: string
 }
 type GetFoxyBalancesOutput = {
@@ -189,7 +188,7 @@ export const foxyApi = createApi({
   reducerPath: 'foxyApi',
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
-      queryFn: async ({ userAddress: _userAddress, accountId, foxyApr }, injected) => {
+      queryFn: async ({ accountId, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {

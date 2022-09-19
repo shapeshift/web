@@ -51,7 +51,6 @@ export function useFoxyBalances({
 
   const foxyBalances = useGetFoxyBalancesQuery(
     {
-      userAddress: userAddress!,
       foxyApr: foxyAprData?.foxyApr!,
       accountId: accountId!,
     },

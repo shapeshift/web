@@ -20,6 +20,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { FiatRamps } from './NavBar/FiatRamps'
+import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -119,6 +120,9 @@ export const Header = () => {
               <AutoCompleteSearch />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+              <Box>
+                <Notifications />
+              </Box>
               <Box display={{ base: 'none', md: 'block' }}>
                 <FiatRamps />
               </Box>

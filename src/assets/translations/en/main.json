@@ -70,7 +70,8 @@
     "loadingText": "Loading...",
     "txId": "Tx ID",
     "selectAsset": "Select an Asset",
-    "switchNetwork": "Switch Network"
+    "switchNetwork": "Switch Network",
+    "unsupportedNetwork": "Unsupported Network"
   },
   "updateToast": {
     "body": "A new version of the app is available",

@@ -1,3 +1,4 @@
+import { WarningIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
@@ -85,11 +86,18 @@ export const ChainMenu = (props: ChainMenuProps) => {
   return (
     <Box {...props}>
       <Menu autoSelect={false}>
-        <Tooltip label={translate('common.switchNetwork')} isDisabled={!canSwitchChains}>
+        <Tooltip
+          label={translate(
+            currentChainNativeAsset ? 'common.switchNetwork' : 'common.unsupportedNetwork',
+          )}
+          isDisabled={!canSwitchChains}
+        >
           <MenuButton as={Button} iconSpacing={2} px={2} width={{ base: 'full', md: 'auto' }}>
-            <Flex alignItems='center'>
-              {currentChainNativeAsset && (
+            <Flex alignItems='center' justifyContent='center'>
+              {currentChainNativeAsset ? (
                 <AssetIcon src={currentChainNativeAsset.icon} size='xs' />
+              ) : (
+                <WarningIcon color='yellow.300' boxSize='4' />
               )}
             </Flex>
           </MenuButton>

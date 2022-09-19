@@ -9,52 +9,6 @@ env:
   IMAGE_INLINE_SIZE_LIMIT: 0
   INLINE_RUNTIME_CHUNK: false
 
-  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
-  REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
-  REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: https://dev-api.avalanche.shapeshift.com
-  REACT_APP_UNCHAINED_AVALANCHE_WS_URL: wss://dev-api.avalanche.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: https://dev-api.bitcoincash.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOINCASH_WS_URL: wss://dev-api.bitcoincash.shapeshift.com
-  REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: https://dev-api.dogecoin.shapeshift.com
-  REACT_APP_UNCHAINED_DOGECOIN_WS_URL: wss://dev-api.dogecoin.shapeshift.com
-  REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: https://dev-api.litecoin.shapeshift.com
-  REACT_APP_UNCHAINED_LITECOIN_WS_URL: wss://dev-api.litecoin.shapeshift.com
-  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: https://dev-api.cosmos.shapeshift.com
-  REACT_APP_UNCHAINED_COSMOS_WS_URL: wss://dev-api.cosmos.shapeshift.com
-  REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: https://dev-api.osmosis.shapeshift.com
-  REACT_APP_UNCHAINED_OSMOSIS_WS_URL: wss://dev-api.osmosis.shapeshift.com
-  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: https://dev-api.thorchain.shapeshift.com
-  REACT_APP_UNCHAINED_THORCHAIN_WS_URL: wss://dev-api.thorchain.shapeshift.com
-
-  REACT_APP_COSMOS_NODE_URL: https://cosmoshub-4--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/
-  REACT_APP_OSMOSIS_NODE_URL: https://osmosis-1--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/
-  REACT_APP_THORCHAIN_NODE_URL: https://daemon.thorchain.shapeshift.com/lcd
-  REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/71acfee9f8544347a4676bd8affa26b8
-  REACT_APP_ETHEREUM_INFURA_URL: https://mainnet.infura.io/v3/71acfee9f8544347a4676bd8affa26b8
-  REACT_APP_AVALANCHE_NODE_URL: https://api.avax.network/ext/bc/C/rpc
-
-  REACT_APP_MIDGARD_URL: https://midgard.thorchain.info/v2
-  REACT_APP_COWSWAP_HTTP_URL: https://api.cow.fi/mainnet/api
-  REACT_APP_ALCHEMY_POLYGON_URL: https://polygon-mainnet.g.alchemy.com/v2/458rwsHQDajSOTCdC5AACXQUMYrllacR
-  REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
-  REACT_APP_WALLET_MIGRATION_URL: https://axiom-wallet-migration-api.megacluster.stage.chiefhappinessofficerellie.org/api/migrate
-  REACT_APP_KEEPKEY_VERSIONS_URL: https://ipfs.io/ipns/k51qzi5uqu5dlbggjzdpw8ya206zkcdmd1gmg77oqdmuhs899bgfv43lzhd5er/releases.json
-  REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: FCMM7AFC0S6A8NUK
-
-  REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
-  REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
-  REACT_APP_GEM_WYRE_SUPPORTED_COINS: https://api.gem.co/institutions/wyre/supported_currencies
-  REACT_APP_GEM_COINIFY_SUPPORTED_COINS: https://api.gem.co/institutions/coinify/supported_currencies
-  REACT_APP_GEM_ENV: production
-
-  REACT_APP_JUNOPAY_APP_ID: live_SYkQkrlyIQeuQf8AauSOaGTa
-  REACT_APP_JUNOPAY_ASSET_LOGO_URL: https://cdn.juno.finance/
-  REACT_APP_JUNOPAY_BASE_API_URL: https://api.juno.finance
-
-  REACT_APP_FEATURE_PENDO: false
-
 jobs:
   test-chrome:
     name: Run Cypress
@@ -65,9 +19,9 @@ jobs:
       # leaving the Dashboard hanging: https://github.com/cypress-io/github-action/issues/48
       fail-fast: false
       matrix:
-        # Run 3 copies of the current job in parallel
+        # Run 1 copy of the current job in parallel
         # We can continue adding more as our test suite grows
-        containers: [1, 2, 3]
+        containers: [1]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -100,20 +54,8 @@ jobs:
           name: build
           path: build
 
-      - name: Verify Cypress
-        env:
-          # Make sure every Cypress install prints minimal information
-          CI: 1
-        # cache path: Print the path to the Cypress cache folder
-        # cache list: Print all existing installed versions of Cypress
-        # verify: Verify that Cypress is installed correctly and is executable
-        # info: Prints information about Cypress and the current environment
-        run: |
-          npx cypress install
-          npx cypress cache path
-          npx cypress cache list
-          npx cypress verify
-          npx cypress info
+      - name: Add environment variables
+        run: yarn env app
 
       # Because of "record" and "parallel" parameters
       # our workers will load balance all found tests among themselves
@@ -128,7 +70,7 @@ jobs:
           start: yarn dev:silent
           parallel: true
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 300 # seconds
+          wait-on-timeout: 600 # seconds
           browser: chrome
           group: 'Chrome tests'
         env:

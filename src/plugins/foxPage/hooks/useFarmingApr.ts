@@ -14,34 +14,39 @@ import farmingAbi from '../farmingAbi.json'
 import { getEthersProvider, makeTotalLpApr, rewardRatePerToken } from '../utils'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
-const ethersProvider = getEthersProvider()
+// TODO: use wagmi provider
+const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
-export const useFarmingApr = () => {
+type UseFarmingAprInput = {
+  skip?: boolean
+}
+
+export const useFarmingApr = ({ skip }: UseFarmingAprInput = {}) => {
   const [farmingAprV4, setfarmingAprV4] = useState<string | null>(null)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState(false)
-  const blockNumber = useCurrentBlockNumber()
+  const blockNumber = useCurrentBlockNumber({ skip })
 
   const uniV2LiquidityContractAddress = UNIV2_WETH_FOX_POOL_ADDRESS
 
-  const uniV2LPContract = useMemo(
-    () => new Contract(uniV2LiquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
-    [uniV2LiquidityContractAddress],
-  )
+  const uniV2LPContract = useMemo(() => {
+    if (skip) return null
+    const ethersProvider = maybeEthersProvider(skip)
+    if (!ethersProvider) return
+    return new Contract(uniV2LiquidityContractAddress, IUniswapV2Pair.abi, ethersProvider)
+  }, [skip, uniV2LiquidityContractAddress])
 
-  const farmingRewardsContractV4 = useMemo(
-    () => new Contract(UNISWAP_WETH_FOX_FARMING_REWARDS_V4_ADDRESS, farmingAbi, ethersProvider),
-    [],
-  )
+  const farmingRewardsContractV4 = useMemo(() => {
+    if (skip) return null
+    const ethersProvider = maybeEthersProvider(skip)
+    if (!ethersProvider) return
+    return new Contract(UNISWAP_WETH_FOX_FARMING_REWARDS_V4_ADDRESS, farmingAbi, ethersProvider)
+  }, [skip])
 
   useEffect(() => {
-    if (
-      !ethersProvider ||
-      !Fetcher ||
-      !blockNumber ||
-      !uniV2LPContract ||
-      !farmingRewardsContractV4
-    )
-      return
+    if (skip || !Fetcher || !blockNumber || !uniV2LPContract || !farmingRewardsContractV4) return
+
+    const ethersProvider = maybeEthersProvider(skip)
+    if (!ethersProvider) return
     ;(async () => {
       const foxRewardRatePerTokenV4 = await rewardRatePerToken(farmingRewardsContractV4)
 
@@ -67,7 +72,7 @@ export const useFarmingApr = () => {
       setfarmingAprV4(bnOrZero(aprV4).div(100).toString())
       setIsFarmingAprV4Loaded(true)
     })()
-  }, [blockNumber, uniV2LPContract, farmingRewardsContractV4])
+  }, [skip, blockNumber, uniV2LPContract, farmingRewardsContractV4])
 
   return { isFarmingAprV4Loaded, farmingAprV4 }
 }

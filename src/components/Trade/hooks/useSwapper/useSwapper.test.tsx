@@ -250,7 +250,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(2, 'quote', undefined)
     expect(setValue).toHaveBeenNthCalledWith(3, 'fees', ETHCHAIN_QUOTE_FEES)
     expect(setValue).toHaveBeenNthCalledWith(4, 'quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(5, 'fiatSellAmount', '20')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'fiatSellAmount', '20.00')
     expect(setValue).toHaveBeenNthCalledWith(6, 'buyTradeAsset.amount', '20')
     expect(setValue).toHaveBeenNthCalledWith(7, 'sellTradeAsset.amount', '20')
   })

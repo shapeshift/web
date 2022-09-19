@@ -64,7 +64,7 @@ export const calculateAmounts = ({
       return {
         cryptoSellAmount,
         cryptoBuyAmount: buyAmountAfterFees,
-        fiatSellAmount: amount,
+        fiatSellAmount: bnOrZero(amount).toFixed(2),
         fiatBuyAmount: bnOrZero(fromBaseUnit(buyAmountAfterFees, buyAsset.precision))
           .times(selectedCurrencyToUsdRate)
           .times(buyAssetUsdRate)
@@ -105,7 +105,7 @@ export const calculateAmounts = ({
           .times(selectedCurrencyToUsdRate)
           .times(bnOrZero(sellAssetUsdRate))
           .toFixed(2),
-        fiatBuyAmount: amount,
+        fiatBuyAmount: bnOrZero(amount).toFixed(2),
       }
     }
     default:

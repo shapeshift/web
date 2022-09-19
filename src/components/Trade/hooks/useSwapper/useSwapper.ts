@@ -406,6 +406,7 @@ export const useSwapper = () => {
             sellAssetUsdRate: sellAssetFiatRate,
             action,
             selectedCurrencyToUsdRate,
+            tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)

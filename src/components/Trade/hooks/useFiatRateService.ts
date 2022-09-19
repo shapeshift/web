@@ -25,7 +25,7 @@ export const useFiatRateService = () => {
   const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [sellAssetFiatRateArgs, setSellAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
   const [feeAssetFiatRateArgs, setFeeAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
-  const [isFetchingFiatRateData, setIsFetchingFiatRateData] = useState(false)
+  const [isLoadingFiatRateData, setIsLoadingFiatRateData] = useState(false)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -39,38 +39,40 @@ export const useFiatRateService = () => {
   ).assetId
 
   // API
-  const { data: buyAssetFiatRateData, isFetching: isFetchingBuyAssetFiatRate } = useGetUsdRateQuery(
+  const { data: buyAssetFiatRateData, isLoading: isLoadingBuyAssetFiatRate } = useGetUsdRateQuery(
     buyAssetFiatRateArgs,
     {
       pollingInterval: 30000,
-      selectFromResult: ({ data, isFetching }) => ({
+      selectFromResult: ({ data, isLoading }) => ({
         data: data?.usdRate,
-        isFetching,
+        isLoading,
       }),
     },
   )
-  const { data: sellAssetFiatRateData, isFetching: isFetchingSellAssetFiatRate } =
-    useGetUsdRateQuery(sellAssetFiatRateArgs, {
+  const { data: sellAssetFiatRateData, isLoading: isLoadingSellAssetFiatRate } = useGetUsdRateQuery(
+    sellAssetFiatRateArgs,
+    {
       pollingInterval: 30000,
-      selectFromResult: ({ data, isFetching }) => ({
+      selectFromResult: ({ data, isLoading }) => ({
         data: data?.usdRate,
-        isFetching,
+        isLoading,
       }),
-    })
-  const { data: feeAssetFiatRateData, isFetching: isFetchingFeeAssetFiatRateData } =
+    },
+  )
+  const { data: feeAssetFiatRateData, isLoading: isLoadingFeeAssetFiatRateData } =
     useGetUsdRateQuery(feeAssetFiatRateArgs, {
       pollingInterval: 30000,
-      selectFromResult: ({ data, isFetching }) => ({
+      selectFromResult: ({ data, isLoading }) => ({
         data: data?.usdRate,
-        isFetching,
+        isLoading,
       }),
     })
 
   useEffect(() => {
-    setIsFetchingFiatRateData(
-      isFetchingBuyAssetFiatRate || isFetchingSellAssetFiatRate || isFetchingFeeAssetFiatRateData,
+    setIsLoadingFiatRateData(
+      isLoadingBuyAssetFiatRate || isLoadingSellAssetFiatRate || isLoadingFeeAssetFiatRateData,
     )
-  }, [isFetchingBuyAssetFiatRate, isFetchingFeeAssetFiatRateData, isFetchingSellAssetFiatRate])
+  }, [isLoadingBuyAssetFiatRate, isLoadingFeeAssetFiatRateData, isLoadingSellAssetFiatRate])
 
   // Trigger fiat rate queries
   useEffect(() => {
@@ -101,5 +103,5 @@ export const useFiatRateService = () => {
     feeAssetFiatRateData && setValue('feeAssetFiatRate', feeAssetFiatRateData)
   }, [buyAssetFiatRateData, feeAssetFiatRateData, sellAssetFiatRateData, setValue])
 
-  return { isFetchingFiatRateData }
+  return { isLoadingFiatRateData }
 }

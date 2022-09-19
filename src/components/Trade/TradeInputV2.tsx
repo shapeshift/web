@@ -14,7 +14,6 @@ import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -28,7 +27,7 @@ import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
-  const { isFetchingTradeQuote, isFetchingFiatRateData } = useSwapperService()
+  const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
@@ -58,8 +57,8 @@ export const TradeInput = () => {
     }),
   )
 
-  const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
-  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))
+  const protocolFeeCrypto = fees?.tradeFee
+  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
@@ -184,14 +183,14 @@ export const TradeInput = () => {
             buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={gasFee}
             rate={quote?.rate}
-            isLoading={isFetchingFiatRateData || isFetchingTradeQuote}
+            isLoading={isLoadingFiatRateData || isLoadingTradeQuote}
           />
           <ReceiveSummary
-            isLoading={!quote || isFetchingTradeQuote}
+            isLoading={!quote || isLoadingTradeQuote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
-            amount={toCryptoAmountAfterFees.toString()}
+            amount={toCryptoAmountAfterFees.precision(8).toString()}
             beforeFees={buyTradeAsset?.amount ?? ''}
-            protocolFee={protocolFee}
+            protocolFee={protocolFeeCrypto}
             shapeShiftFee='0'
             slippage={slippage}
           />

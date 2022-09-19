@@ -44,10 +44,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
 
-  const minAmountAfterSlippage = bnOrZero(beforeFees)
-    .times(1 - slippage)
-    .toString()
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+  const isAmountPositive = bnOrZero(amount).gt(0)
 
   return (
     <>
@@ -61,7 +59,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={amount} symbol={symbol} />
+              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -122,26 +120,24 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Value>
             </Row>
           )}
-          {minAmountAfterSlippage && (
-            <>
-              <Divider />
-              <Row>
-                <Row.Label>
-                  <Text
-                    translation={[
-                      'trade.minAmountAfterSlippage',
-                      { slippage: slippageAsPercentageString },
-                    ]}
-                  />
-                </Row.Label>
-                <Row.Value whiteSpace='nowrap'>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto value={minAmountAfterSlippage} symbol={symbol} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            </>
-          )}
+          <>
+            <Divider />
+            <Row>
+              <Row.Label>
+                <Text
+                  translation={[
+                    'trade.minAmountAfterSlippage',
+                    { slippage: slippageAsPercentageString },
+                  ]}
+                />
+              </Row.Label>
+              <Row.Value whiteSpace='nowrap'>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </>
         </Stack>
       </Collapse>
     </>

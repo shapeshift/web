@@ -1,14 +1,18 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
-import { Button } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
+import { Button, MenuItem } from '@chakra-ui/react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
+import { useTranslate } from 'react-polyglot'
 
+import { useState } from 'react'
+import { WalletConnectModal } from '../modal/WalletConnectModal'
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
+  const [isOpen, setOpen] = useState(false)
+  
   const dapp: any = {
     name: 'Uniswap',
     link: 'app.uniswap.org',
@@ -54,7 +58,18 @@ export const WalletConnectToDappsHeaderButton = () => {
       </MenuButton>
       <MenuList>
         <DappHeaderMenuSummary dapp={dapp} />
+
+        <MenuItem
+          fontWeight='medium'
+          onClick={() => setOpen(true)}
+        >
+          Debug
+        </MenuItem>
       </MenuList>
+
+      <WalletConnectModal isOpen={isOpen} onClose={() => setOpen(false)}>
+        children
+      </WalletConnectModal>
     </Menu>
   )
 }

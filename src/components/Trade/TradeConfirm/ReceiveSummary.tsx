@@ -45,7 +45,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const redColor = useColorModeValue('red.500', 'red.300')
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
-  const isAmountPositive = bnOrZero(amount).gt(0)
+  const amountAfterSlippage = bnOrZero(amount)
+    .times(1 - slippage)
+    .toString()
+  const isAmountPositive = bnOrZero(amountAfterSlippage).gt(0)
 
   return (
     <>
@@ -59,7 +62,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+              <Amount.Crypto value={isAmountPositive ? amountAfterSlippage : '0'} symbol={symbol} />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -133,7 +136,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Label>
               <Row.Value whiteSpace='nowrap'>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+                  <Amount.Crypto
+                    value={isAmountPositive ? amountAfterSlippage : '0'}
+                    symbol={symbol}
+                  />
                 </Skeleton>
               </Row.Value>
             </Row>

@@ -39,6 +39,7 @@ export const TradeInput = () => {
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+  const buyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
@@ -57,7 +58,7 @@ export const TradeInput = () => {
     }),
   )
 
-  const protocolFeeCrypto = fees?.tradeFee
+  const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
   const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 

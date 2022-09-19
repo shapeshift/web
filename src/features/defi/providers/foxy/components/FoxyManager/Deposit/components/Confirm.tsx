@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -39,10 +39,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Deposit', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
-  onNext,
-  accountId,
-}) => {
+type ConfirmProps = StepComponentProps & { accountId: Nullable<AccountId> }
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
@@ -60,6 +59,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -70,30 +73,18 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   const handleDeposit = useCallback(async () => {
-    if (
-      !(
-        state?.userAddress &&
-        assetReference &&
-        walletState.wallet &&
-        api &&
-        bip44Params &&
-        dispatch
-      )
-    )
+    if (!(accountAddress && assetReference && walletState.wallet && api && bip44Params && dispatch))
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
-          amountDesired: bnOrZero(state.deposit.cryptoAmount)
+          amountDesired: bnOrZero(state?.deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           tokenContractAddress: assetReference,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
           bip44Params,
@@ -136,7 +127,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     dispatch,
     onNext,
     state?.deposit.cryptoAmount,
-    state?.userAddress,
+    accountAddress,
     toast,
     translate,
     walletState.wallet,

@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -22,7 +22,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -74,7 +74,7 @@ export const Withdraw: React.FC<
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId }))
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
@@ -95,22 +95,23 @@ export const Withdraw: React.FC<
     [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
   )
 
+  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
-      if (!(state?.userAddress && dispatch && rewardId && api && bip44Params)) return
+      if (!(accountAddress && dispatch && rewardId && api && bip44Params)) return
 
       const getApproveGasEstimate = async () => {
-        if (!state.userAddress) return
+        if (!accountAddress) return
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateApproveGas({
               tokenContractAddress: rewardId,
               contractAddress,
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -127,7 +128,7 @@ export const Withdraw: React.FC<
       }
 
       const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
-        if (!state.userAddress) return
+        if (!accountAddress) return
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
@@ -137,7 +138,7 @@ export const Withdraw: React.FC<
               amountDesired: bnOrZero(
                 bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
               ).decimalPlaces(0),
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
               type: withdraw.withdrawType,
               bip44Params,
             }),
@@ -176,7 +177,7 @@ export const Withdraw: React.FC<
         const _allowance = await api.allowance({
           tokenContractAddress: rewardId,
           contractAddress,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
         })
 
         const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
@@ -229,7 +230,7 @@ export const Withdraw: React.FC<
       dispatch,
       onNext,
       rewardId,
-      state?.userAddress,
+      accountAddress,
       toast,
       translate,
     ],

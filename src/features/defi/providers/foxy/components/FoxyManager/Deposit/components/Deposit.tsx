@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -19,18 +20,26 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Deposit'] })
 
-export const Deposit: React.FC<
-  StepComponentProps & { onAccountIdChange: AccountDropdownProps['onChange'] }
-> = ({ onNext, onAccountIdChange: handleAccountIdChange }) => {
+type DepositProps = StepComponentProps & {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  accountId,
+  onNext,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
@@ -46,23 +55,25 @@ export const Deposit: React.FC<
   const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   // notify
   const toast = useToast()
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && state.userAddress?.length && dispatch && api)) return
+      if (!(state && accountAddress?.length && dispatch && api)) return
 
       const getApproveGasEstimate = async () => {
-        if (!state.userAddress || !assetReference || !api) return
+        if (!accountAddress || !assetReference || !api) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateApproveGas({
               tokenContractAddress: assetReference,
               contractAddress,
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -82,7 +93,7 @@ export const Deposit: React.FC<
       }
 
       const getDepositGasEstimate = async (deposit: DepositValues) => {
-        if (!state.userAddress || !assetReference || !api) return
+        if (!accountAddress || !assetReference || !api) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateDepositGas({
@@ -91,7 +102,7 @@ export const Deposit: React.FC<
               amountDesired: bnOrZero(deposit.cryptoAmount)
                 .times(`1e+${asset.precision}`)
                 .decimalPlaces(0),
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -118,7 +129,7 @@ export const Deposit: React.FC<
         const _allowance = await api.allowance({
           tokenContractAddress: assetReference,
           contractAddress,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
         })
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
@@ -154,6 +165,7 @@ export const Deposit: React.FC<
       }
     },
     [
+      accountAddress,
       api,
       asset.precision,
       assetReference,
@@ -192,6 +204,7 @@ export const Deposit: React.FC<
 
   return (
     <ReusableDeposit
+      accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       isLoading={state.loading}

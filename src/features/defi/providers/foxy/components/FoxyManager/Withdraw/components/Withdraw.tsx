@@ -262,6 +262,7 @@ export const Withdraw: React.FC<
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

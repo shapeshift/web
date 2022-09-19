@@ -60,7 +60,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info

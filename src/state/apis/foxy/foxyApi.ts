@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import type { BIP44Params, MarketData } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -189,7 +189,7 @@ export const foxyApi = createApi({
   reducerPath: 'foxyApi',
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
-      queryFn: async ({ userAddress, accountId, foxyApr }, injected) => {
+      queryFn: async ({ userAddress: _userAddress, accountId, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {
@@ -220,6 +220,7 @@ export const foxyApi = createApi({
 
         // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
         const accountFilter = { accountId }
+        const accountAddress = fromAccountId(accountId).account
         const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
 
         if (!bip44Params) {
@@ -235,7 +236,7 @@ export const foxyApi = createApi({
           const foxyOpportunities = await getFoxyOpportunities(
             balances,
             foxy,
-            userAddress,
+            accountAddress,
             foxyApr ?? '',
             bip44Params,
           )

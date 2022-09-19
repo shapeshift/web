@@ -149,10 +149,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: Nullable<Accou
     dispatch,
     onNext,
     rewardId,
-    state?.loading,
     accountAddress,
-    state?.withdraw.cryptoAmount,
-    state?.withdraw.withdrawType,
+    state,
     walletState.wallet,
   ])
 

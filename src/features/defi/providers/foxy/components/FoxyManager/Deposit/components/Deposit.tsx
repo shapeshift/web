@@ -55,7 +55,10 @@ export const Deposit: React.FC<DepositProps> = ({
   const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   // user info
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -64,7 +67,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && accountAddress?.length && dispatch && api)) return
+      if (!(state && accountAddress && dispatch && api)) return
 
       const getApproveGasEstimate = async () => {
         if (!accountAddress || !assetReference || !api) return

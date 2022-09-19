@@ -6,6 +6,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
 import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
+import type { Nullable } from 'types/common'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]
@@ -13,7 +14,9 @@ export type UseFoxyBalancesReturn = {
   loading: boolean
 }
 
-export function useFoxyBalances() {
+export function useFoxyBalances({
+  defaultUserAddress,
+}: { defaultUserAddress?: Nullable<string> } = {}) {
   const [userAddress, setUserAddress] = useState<string | null>(null)
 
   const {
@@ -29,7 +32,7 @@ export function useFoxyBalances() {
       const userAddress = await chainAdapter.getAddress({ wallet, bip44Params })
       setUserAddress(userAddress)
     })()
-  }, [wallet])
+  }, [wallet, defaultUserAddress])
 
   const { data: foxyAprData } = useGetFoxyAprQuery()
 
@@ -37,13 +40,13 @@ export function useFoxyBalances() {
 
   const accountId = useMemo(
     () =>
-      userAddress
+      defaultUserAddress || userAddress
         ? toAccountId({
             chainId: ethChainId,
-            account: userAddress,
+            account: (defaultUserAddress ?? userAddress)!,
           })
         : null,
-    [userAddress],
+    [defaultUserAddress, userAddress],
   )
 
   const foxyBalances = useGetFoxyBalancesQuery(
@@ -52,7 +55,13 @@ export function useFoxyBalances() {
       foxyApr: foxyAprData?.foxyApr!,
       accountId: accountId!,
     },
-    { skip: !foxyAprData || !supportsEthereumChain || !userAddress || !accountId },
+    {
+      skip:
+        !Boolean((userAddress ?? defaultUserAddress)?.length) ||
+        !foxyAprData ||
+        !supportsEthereumChain ||
+        !accountId,
+    },
   )
 
   return foxyBalances

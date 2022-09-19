@@ -25,6 +25,8 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
   qrCodeErrorCallback,
 }) => {
   const [cameraId, setCameraId] = useState<string | null>(null)
+  const [qrScanner, setQrScanner] = useState<Html5Qrcode | null>(null)
+  const [isScanning, setIsScanning] = useState<boolean>(false)
 
   useEffect(() => {
     ;(async () => {
@@ -44,12 +46,11 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         return
       }
 
-      const html5QrCode = new Html5Qrcode(qrcodeRegionId, {
-        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-        verbose: false,
-      })
+      if (!qrScanner) return
 
-      await html5QrCode.start(
+      setIsScanning(true)
+
+      await qrScanner.start(
         isMobile ? { facingMode: 'environment' } : cameraId,
         {
           fps,
@@ -57,18 +58,40 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         },
         (decodedText, result) => {
           qrCodeSuccessCallback(decodedText, result)
-          html5QrCode.stop()
         },
         qrCodeErrorCallback as QrcodeErrorCallback,
       )
-
-      return () => {
-        html5QrCode.clear()
-      }
     })()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cameraId])
+  }, [cameraId, qrScanner])
+
+  useEffect(() => {
+    if (!qrScanner) {
+      // This should be inside a normal useEffect hook without dependencies so the scanner is initialized on mount and
+      // the element exists in the DOM
+      setQrScanner(
+        new Html5Qrcode(qrcodeRegionId, {
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+          verbose: false,
+        }),
+      )
+    }
+
+    return () => {
+      ;(async () => {
+        if (qrScanner && isScanning) {
+          setIsScanning(false)
+          try {
+            await qrScanner.stop()
+            qrScanner.clear()
+            // as Html5Qrcode is not designed to be inside a setState hook, isScanning is always false inside the qrScanner object
+            // so it throws an error on stop() even if it really stop, we need to make it silent
+          } catch (error) {}
+        }
+      })()
+    }
+  }, [setQrScanner, isScanning, setIsScanning, qrScanner])
 
   return <div id={qrcodeRegionId} />
 }

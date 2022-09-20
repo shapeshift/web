@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.3.0...@shapeshiftoss/caip-v8.4.0) (2022-09-20)
+
+
+### Features
+
+* **caip:** add caip data for binance, kava, terra, secret ([#1033](https://github.com/shapeshift/lib/issues/1033)) ([fcfd859](https://github.com/shapeshift/lib/commit/fcfd85910b7b16047746857908d075a07341d081))
+
 # [@shapeshiftoss/caip-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.2.0...@shapeshiftoss/caip-v8.3.0) (2022-09-12)
 
 

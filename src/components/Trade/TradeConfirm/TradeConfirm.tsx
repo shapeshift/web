@@ -28,7 +28,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
@@ -166,9 +166,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(selectedCurrencyToUsdRate)
 
   const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
+  const protocolFeeCryptoBaseUnit = toBaseUnit(protocolFeeCrypto, trade?.buyAsset?.precision ?? 0)
 
   const buyAmountCryptoBeforeFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount).plus(protocolFeeCrypto),
+    bnOrZero(trade?.buyAmount).plus(protocolFeeCryptoBaseUnit),
     trade?.buyAsset?.precision ?? 0,
   )
   const buyAmountCryptoAfterFees = fromBaseUnit(
@@ -176,7 +177,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     trade?.buyAsset?.precision ?? 0,
   )
 
-  const buyAmountFiat = bnOrZero(buyAmountCryptoBeforeFees)
+  const buyAmountFiat = bnOrZero(buyAmountCryptoAfterFees)
     .times(bnOrZero(buyAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 

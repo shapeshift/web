@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import { parse } from 'eth-url-parser'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
@@ -8,9 +9,12 @@ import {
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 import { resolveYat, validateYat } from 'lib/address/yat'
+import { logger } from 'lib/logger'
 import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
+
+const moduleLogger = logger.child({ namespace: ['address'] })
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -151,7 +155,23 @@ export type ParseAddressInputReturn = {
 }
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
-export const parseAddressInput: ParseAddressInput = async args => {
+export const parseAddressInput: ParseAddressInput = async ({ value, chainId }) => {
+  let eip681Address
+
+  try {
+    eip681Address = parse(value)
+  } catch (error) {
+    moduleLogger.trace(error, 'cannot parse eip681 address')
+  }
+
+  const args: ParseAddressInputArgs = {
+    value:
+      eip681Address?.target_address && !eip681Address.parameters
+        ? eip681Address.target_address
+        : value,
+    chainId,
+  }
+
   const isValidAddress = await validateAddress(args)
   // we're dealing with a valid address
   if (isValidAddress) {

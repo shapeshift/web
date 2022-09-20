@@ -4053,10 +4053,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.3.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.3.0.tgz#93067d5ed3d93a817775dbc9fc804633decd5d7f"
-  integrity sha512-D+f9f6bG0eApP3TrN+OR3kZAJaEPhUmUCbov0KU8Gxi2Pal+WLfjLJg7gj9Odh0ffEQxltnN+aebpZuvy1KLAw==
+"@shapeshiftoss/caip@^8.4.0":
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.0.tgz#1aa7a2e79ec806fe1ef705e50e9e87ba04680a48"
+  integrity sha512-NhS4WBRtms4rkdfCrvqWItvODlVPFqb7d5514TBxoLDtJNYm8O/nXD8IyL6MUTSR3mHtSla1FSu3RPqKUdSeOw==
 
 "@shapeshiftoss/chain-adapters@^9.1.5":
   version "9.1.5"
@@ -4361,10 +4361,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.1.tgz#5bf5cad71bca3fc363962acc5ce58bcb62e6e628"
   integrity sha512-IwQdaUQV+jZ3XD13X7EDi1G6+GaCsvldMrMD5rpKaSZUpp2Y+0BGsGrUFWn3IVialEQw2N/YDzXVMhSGjFuwtw==
 
-"@shapeshiftoss/unchained-client@^10.1.1":
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.1.1.tgz#371ee04132aed0cd7224b9218fb859cdff653cc6"
-  integrity sha512-vrSR4t1YvgWckVfOf/Qp/RzKki1hE2NYARyt+wDJ6rV2Ma9YY6mZRWmUO5rGlpi3l06Y43tKvSiEILnV9gd4OA==
+"@shapeshiftoss/unchained-client@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.1.2.tgz#ca715f9decbc5172e3ec6845066436afcc9d0e1c"
+  integrity sha512-JXrTwoXOG4TsIgIZKvd56iygeYIUkMG0EUQ94O5kkaWAF4z3BLohhxfQZjsf2KsWkjstvM3pOWUUBzlkT6rz4Q==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
@@ -8274,6 +8274,11 @@ bignumber.js@9.0.1:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
   integrity sha512-IdZR9mh6ahOBv/hYGiXyVuyCetmGJhtYkqLBpTStdhEGjegpPlUawydyaF3pbIOFynJTpllEs+NP+CS9jKFLjA==
 
+bignumber.js@^7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
+  integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -11720,6 +11725,14 @@ eth-sig-util@^1.4.2:
   dependencies:
     ethereumjs-abi "git+https://github.com/ethereumjs/ethereumjs-abi.git"
     ethereumjs-util "^5.1.1"
+
+eth-url-parser@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/eth-url-parser/-/eth-url-parser-1.0.4.tgz#310a99f331abdb8d603c74131568fb773e609cd8"
+  integrity sha512-2PTTyc9OXNxePTUlYfos1du6hytElYdubJbx2uF3wNMEsvHOg/P7ZpPFERub6vod2T8eGjDZtB8nkGsKEc4tIQ==
+  dependencies:
+    bignumber.js "^7.2.1"
+    qs "^6.5.2"
 
 ethereum-bloom-filters@^1.0.6:
   version "1.0.10"
@@ -18636,7 +18649,7 @@ qs@6.10.3:
   dependencies:
     side-channel "^1.0.4"
 
-qs@^6.10.0, qs@^6.10.3, qs@^6.10.5:
+qs@^6.10.0, qs@^6.10.3, qs@^6.10.5, qs@^6.5.2:
   version "6.11.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.0.tgz#fd0d963446f7a65e1367e01abd85429453f0c37a"
   integrity sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==

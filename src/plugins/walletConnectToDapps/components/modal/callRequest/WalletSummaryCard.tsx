@@ -10,12 +10,11 @@ type Props = {
   address: string
   name: string
   url: string
-  balance: number
 }
 
-export const WalletSummaryCard: FC<Props> = ({ address, name, url, balance }) => (
+export const WalletSummaryCard: FC<Props> = ({ address, name, url }) => (
   <Card bg={useColorModeValue('white', 'gray.850')} pt={4} pb={2} pl={4} borderRadius='md'>
-    <HStack spacing={0} mb={4}>
+    <HStack spacing={0}>
       <FoxIcon color='gray.500' boxSize={6} />
       <Box flex={1} pl={4}>
         <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' mb={1} />
@@ -38,8 +37,8 @@ export const WalletSummaryCard: FC<Props> = ({ address, name, url, balance }) =>
         />
       </Link>
     </HStack>
-    <RawText color='gray.500' fontWeight='medium'>
+    {/* <RawText color='gray.500' fontWeight='medium' mt={4}>
       Balance: {balance} ETH
-    </RawText>
+    </RawText> */}
   </Card>
 )

@@ -1,24 +1,31 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { InputProps } from '@chakra-ui/react'
 import {
   Button,
   FormControl,
   FormErrorMessage,
   Input,
-  InputProps,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { PropsWithChildren, useRef, useState } from 'react'
-import { FieldError } from 'react-hook-form'
+import type { PropsWithChildren } from 'react'
+import { useRef, useState } from 'react'
+import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import {
+  type AccountDropdownProps,
+  AccountDropdown,
+} from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
+import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
 import { MaxButtonGroup } from './MaxButtonGroup'
@@ -40,6 +47,8 @@ const CryptoInput = (props: InputProps) => (
 )
 
 export type AssetInputProps = {
+  accountId?: Nullable<AccountId>
+  assetId?: AssetId
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
@@ -55,9 +64,12 @@ export type AssetInputProps = {
   errors?: FieldError
   percentOptions: number[]
   icons?: string[]
+  onAccountIdChange?: AccountDropdownProps['onChange']
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
+  accountId,
+  assetId,
   assetSymbol,
   assetIcon,
   onChange = () => {},
@@ -74,6 +86,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   percentOptions = [0.25, 0.5, 0.75, 1],
   icons,
   children,
+  onAccountIdChange: handleAccountIdChange,
 }) => {
   const {
     number: { localeParts },
@@ -176,6 +189,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             />
           )}
         </Stack>
+      )}
+      {handleAccountIdChange && assetId && (
+        <AccountDropdown
+          {...(accountId ? { defaultAccountId: accountId } : {})}
+          assetId={assetId}
+          onChange={handleAccountIdChange}
+          buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
+        />
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (

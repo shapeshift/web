@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
-import { FiatRamp } from './config'
+import type { FiatRamp } from './config'
 import { FiatRampsRoutes } from './FiatRampsCommon'
 import { Manager } from './views/Manager'
 import { RampsList } from './views/RampsList'

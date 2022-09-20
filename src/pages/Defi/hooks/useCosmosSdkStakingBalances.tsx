@@ -1,9 +1,10 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { cosmos } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ActiveStakingOpportunity } from 'state/slices/selectors'
 import {
-  ActiveStakingOpportunity,
   selectAssetById,
   selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
@@ -11,8 +12,10 @@ import {
 } from 'state/slices/selectors'
 import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type UseCosmosStakingBalancesProps = {
+  accountId?: Nullable<AccountId>
   assetId: AssetId
   supportsCosmosSdk?: boolean
 }
@@ -39,11 +42,13 @@ export type MergedStakingOpportunity = cosmos.Validator & {
 
 export function useCosmosSdkStakingBalances({
   assetId,
+  accountId,
   supportsCosmosSdk = true,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
@@ -54,7 +59,7 @@ export function useCosmosSdkStakingBalances({
   )
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, {
-      accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,
+      accountSpecifier: supportsCosmosSdk ? accountId ?? accountSpecifier : defaultAccountSpecifier,
       assetId,
       supportsCosmosSdk,
     }),

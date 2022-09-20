@@ -1,4 +1,5 @@
-import { Divider, Stack, StackProps, useColorModeValue } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { Divider, Stack, useColorModeValue } from '@chakra-ui/react'
 
 export const Summary: React.FC<StackProps> = props => {
   const bgColor = useColorModeValue('gray.50', 'gray.850')

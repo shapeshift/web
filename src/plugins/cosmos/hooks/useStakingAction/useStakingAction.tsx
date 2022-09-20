@@ -1,8 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { cosmos, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import {
-  isCosmosChainId,
-  isOsmosisChainId,
+  isStakingChainAdapter,
   StakingAction,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -12,23 +12,29 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from 'state/slices/validatorDataSlice/constants'
+
 const moduleLogger = logger.child({ namespace: ['useStakingAction'] })
 
-type StakingInput =
+const shapeshiftValidators = [
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+]
+
+type StakingInput = {
+  asset: Asset
+  chainSpecific: cosmossdk.BuildTxInput
+  validator: string
+  bip44Params: BIP44Params
+} & (
   | {
-      asset: Asset
-      chainSpecific: cosmos.BuildTxInput
-      validator: string
       action: StakingAction.Claim
       value?: string
     }
   | {
-      asset: Asset
-      chainSpecific: cosmos.BuildTxInput
-      validator: string
       action: StakingAction.Stake | StakingAction.Unstake
       value: string
     }
+)
 
 export const useStakingAction = () => {
   const chainAdapterManager = getChainAdapterManager()
@@ -37,79 +43,62 @@ export const useStakingAction = () => {
   } = useWallet()
 
   const handleStakingAction = async (data: StakingInput) => {
-    if (wallet) {
-      try {
-        const chainId = data.asset.chainId
-        const adapter = chainAdapterManager.get(chainId) as unknown as cosmos.ChainAdapter // FIXME: this is silly
-        if (!adapter) throw new Error(`unsupported chainId ${chainId}`)
+    const { bip44Params, chainSpecific, validator, action, value, asset } = data
 
-        let result
+    if (!(wallet && bip44Params)) return
 
-        const { chainSpecific, validator, action, value } = data
-        const memo =
-          validator === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS ||
-          validator === SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
-            ? 'Delegated with ShapeShift'
-            : ''
-
-        // this works because cosmos and osmosis staking interfaces are identical
-        if (isCosmosChainId(chainId) || isOsmosisChainId(chainId)) {
-          switch (action) {
-            case StakingAction.Claim: {
-              result = await (adapter as unknown as cosmossdk.cosmos.ChainAdapter) // TODO: fix types
-                .buildClaimRewardsTransaction({
-                  wallet,
-                  validator,
-                  chainSpecific,
-                  memo,
-                })
-              break
-            }
-            case StakingAction.Stake: {
-              result = await (
-                adapter as unknown as cosmossdk.cosmos.ChainAdapter
-              ).buildDelegateTransaction({
-                wallet,
-                validator,
-                value,
-                chainSpecific,
-                memo,
-              })
-              break
-            }
-            case StakingAction.Unstake: {
-              result = await (
-                adapter as unknown as cosmossdk.cosmos.ChainAdapter
-              ).buildUndelegateTransaction({
-                wallet,
-                validator,
-                value,
-                chainSpecific,
-                memo,
-              })
-              break
-            }
-            default: {
-              break
-            }
-          }
-        } else {
-          throw new Error(`unsupported chainId ${chainId}`)
-        }
-        const txToSign = result?.txToSign
-
-        let broadcastTXID: string | undefined
-
-        // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
-        if (txToSign && wallet.supportsOfflineSigning()) {
-          broadcastTXID = await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          return broadcastTXID
-        } else {
-          throw new Error('Bad hdwallet config')
-        }
-      } catch (error) {
-        moduleLogger.error(error, 'Cosmos:useStakingAction error: ')
+    try {
+      // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
+      if (!wallet.supportsOfflineSigning()) {
+        throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }
+
+      const adapter = chainAdapterManager.get(asset.chainId)
+
+      if (!adapter) throw new Error(`unsupported chainId ${asset.chainId}`)
+
+      if (!isStakingChainAdapter(adapter)) {
+        throw new Error(`no staking support for chainId: ${asset.chainId}`)
+      }
+
+      const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
+
+      const { txToSign } = await (async () => {
+        switch (action) {
+          case StakingAction.Claim:
+            return adapter.buildClaimRewardsTransaction({
+              bip44Params,
+              wallet,
+              validator,
+              chainSpecific,
+              memo,
+            })
+          case StakingAction.Stake:
+            return adapter.buildDelegateTransaction({
+              bip44Params,
+              wallet,
+              validator,
+              value,
+              chainSpecific,
+              memo,
+            })
+          case StakingAction.Unstake:
+            return adapter.buildUndelegateTransaction({
+              bip44Params,
+              wallet,
+              validator,
+              value,
+              chainSpecific,
+              memo,
+            })
+          default:
+            throw new Error(`unsupported staking action: ${action}`)
+        }
+      })()
+
+      return adapter.signAndBroadcastTransaction({ txToSign, wallet })
+    } catch (error) {
+      moduleLogger.error(error, 'Cosmos:useStakingAction error: ')
     }
   }
   return {

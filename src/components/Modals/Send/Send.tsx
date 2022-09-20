@@ -1,11 +1,12 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { Form as CosmosForm } from 'plugins/cosmos/components/modals/Send/Form'
 import { useRef } from 'react'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { Form } from './Form'
 import { SendRoutes } from './SendCommon'
@@ -20,7 +21,7 @@ export const entries = [
 
 type SendModalProps = {
   asset: Asset
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
 export const SendModal = ({ asset, accountId }: SendModalProps) => {
@@ -38,7 +39,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
               path='/'
               component={(props: RouteComponentProps) => {
                 const { chainNamespace } = fromChainId(asset.chainId)
-                return chainNamespace === CHAIN_NAMESPACE.Cosmos ? (
+                return chainNamespace === CHAIN_NAMESPACE.CosmosSdk ? (
                   <CosmosForm asset={asset} accountId={accountId} {...props} />
                 ) : (
                   <Form asset={asset} accountId={accountId} {...props} />

@@ -1,15 +1,13 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  foxAssetId,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from 'features/defi/providers/fox-eth-lp/constants'
+import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -29,7 +27,8 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool()
+  const { accountAddress } = useFoxEth()
+  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

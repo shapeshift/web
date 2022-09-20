@@ -1,16 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 
-import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { AccountMetadataById, initialState, Portfolio } from './portfolioSliceCommon'
+import type { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountMetadataById, Portfolio } from './portfolioSliceCommon'
+import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
@@ -23,12 +24,15 @@ export const portfolio = createSlice({
       moduleLogger.info('clearing portfolio')
       return initialState
     },
-    setAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
-      moduleLogger.info('setting account metadata')
-      state.accountSpecifiers.accountMetadataById = payload
+    upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
+      moduleLogger.debug('upserting account metadata')
+      state.accountSpecifiers.accountMetadataById = {
+        ...state.accountSpecifiers.accountMetadataById,
+        ...payload,
+      }
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
-      moduleLogger.info('upserting portfolio')
+      moduleLogger.debug('upserting portfolio')
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))

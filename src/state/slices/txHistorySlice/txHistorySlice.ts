@@ -1,16 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { Transaction } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
+import type {
   AccountSpecifier,
   AccountSpecifierMap,
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -236,7 +239,7 @@ export const txHistory = createSlice({
   },
 })
 
-type AllTxHistoryArgs = { accountSpecifiersList: Array<AccountSpecifierMap> }
+type AllTxHistoryArgs = { accountSpecifiersList: AccountSpecifierMap[] }
 
 type RebaseTxHistoryArgs = {
   accountSpecifierMap: AccountSpecifierMap
@@ -332,6 +335,10 @@ export const txHistoryApi = createApi({
               const pageSize = (() => {
                 switch (chainId) {
                   case KnownChainIds.AvalancheMainnet:
+                  case KnownChainIds.EthereumMainnet:
+                    /**
+                     * 2022-09-15 0xdef1cafe - adding EthereumMainnet due to temporarily degraded performance
+                     */
                     /**
                      * as of writing, the data source upstream from unchained can choke and timeout
                      * on a page size of 100 for avalanche tx history.

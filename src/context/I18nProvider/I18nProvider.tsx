@@ -1,5 +1,6 @@
 import get from 'lodash/get'
-import { InterpolationOptions, transformPhrase } from 'node-polyglot'
+import type { InterpolationOptions } from 'node-polyglot'
+import { transformPhrase } from 'node-polyglot'
 import { I18n } from 'react-polyglot'
 import { translations } from 'assets/translations'
 import { selectSelectedLocale } from 'state/slices/selectors'

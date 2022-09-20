@@ -1,18 +1,19 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiAction,
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -28,7 +29,9 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Deposit: React.FC<
+  StepComponentProps & { onAccountIdChange: AccountDropdownProps['onChange'] }
+> = ({ onNext, onAccountIdChange: handleAccountIdChange }) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -200,6 +203,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <ReusableDeposit
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

@@ -1,4 +1,4 @@
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -55,7 +55,8 @@ export const mockStore: ReduxState = {
       FoxLP: false,
       FoxFarming: false,
       Avalanche: false,
-      Thor: false,
+      Thorchain: false,
+      ThorSwap: false,
       CowSwap: false,
       Pendo: false,
       IdleFinance: false,
@@ -66,6 +67,8 @@ export const mockStore: ReduxState = {
       RainbowCharts: false,
       MultiAccounts: false,
       SwapperV2: false,
+      WalletConnectToDapps: false,
+      MigrationMessage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

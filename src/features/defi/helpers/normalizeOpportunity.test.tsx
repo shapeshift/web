@@ -1,8 +1,8 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
-import { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'

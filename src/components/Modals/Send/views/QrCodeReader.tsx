@@ -1,9 +1,13 @@
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
-import { QrcodeErrorCallback, QrcodeSuccessCallback, QrDimensions } from 'html5-qrcode/esm/core'
+import type {
+  QrcodeErrorCallback,
+  QrcodeSuccessCallback,
+  QrDimensions,
+} from 'html5-qrcode/esm/core'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
-import { DOMExceptionCallback } from './QrCodeScanner'
+import type { DOMExceptionCallback } from './QrCodeScanner'
 
 const qrcodeRegionId = 'reader'
 

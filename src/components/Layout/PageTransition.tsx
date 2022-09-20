@@ -1,5 +1,6 @@
 import { useMediaQuery } from '@chakra-ui/media-query'
-import { HTMLMotionProps, motion } from 'framer-motion'
+import type { HTMLMotionProps } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints } from 'theme/theme'
 

@@ -1,9 +1,9 @@
 import { Stack } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import { Route } from 'Routes/helpers'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

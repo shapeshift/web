@@ -1,19 +1,19 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { DepositValues, PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
-import {
-  DefiAction,
+import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
+import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import qs from 'qs'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -36,7 +36,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
-  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool()
+  const { accountAddress, setAccountId: handleAccountIdChange } = useFoxEth()
+  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -202,6 +203,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       marketData1={foxMarketData}
       marketData2={ethMarketData}
       onCancel={handleCancel}
+      onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

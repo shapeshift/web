@@ -1,13 +1,13 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -27,7 +27,8 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool()
+  const { accountAddress } = useFoxEth()
+  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

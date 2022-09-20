@@ -39,7 +39,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { TradeRoutePaths, TS } from '../types'
+import type { TS } from '../types'
+import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
@@ -64,7 +65,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     fees,
     sellAssetFiatRate,
     buyAssetFiatRate,
-  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate'> = getValues()
+    slippage,
+  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate' | 'slippage'> =
+    getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
@@ -76,20 +79,36 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { chainId: buyAssetChainId } = trade.buyAsset
+  const buyAssetChainId = trade?.buyAsset.chainId
   const buyAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, buyAssetChainId),
+    selectFirstAccountSpecifierByChainId(state, buyAssetChainId ?? ''),
   )
 
   const parsedBuyTxId = useMemo(
-    () => serializeTxIndex(buyAssetAccountSpecifier, buyTxid, trade.receiveAddress),
-    [buyAssetAccountSpecifier, trade.receiveAddress, buyTxid],
+    () => serializeTxIndex(buyAssetAccountSpecifier, buyTxid, trade?.receiveAddress ?? ''),
+    [buyAssetAccountSpecifier, trade?.receiveAddress, buyTxid],
   )
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+
+  const txLink = useMemo(() => {
+    switch (trade?.sources[0]?.name) {
+      case 'Osmosis':
+        return `${osmosisAsset?.explorerTxLink}${sellTxid}`
+      case 'CowSwap':
+        return `https://explorer.cow.fi/orders/${sellTxid}`
+      default:
+        return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
+    }
+  }, [trade, sellTxid, osmosisAsset])
+
   const { showErrorToast } = useErrorHandler()
+
+  // This should not happen, but it could.
+  if (!trade) throw new Error('Trade is undefined')
 
   const onSubmit = async () => {
     try {
@@ -137,8 +156,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-
   const sellAmountCrypto = fromBaseUnit(
     bnOrZero(trade?.sellAmount),
     trade?.sellAsset?.precision ?? 0,
@@ -168,17 +185,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const gasFeeToTradeRatioPercentageThreshold = 5
   const isFeeRatioOverThreshold =
     gasFeeToTradeRatioPercentage > gasFeeToTradeRatioPercentageThreshold
-
-  const txLink = useMemo(() => {
-    switch (trade.sources[0].name) {
-      case 'Osmosis':
-        return `${osmosisAsset?.explorerTxLink}${sellTxid}`
-      case 'CowSwap':
-        return `https://explorer.cow.fi/orders/${sellTxid}`
-      default:
-        return `${trade.sellAsset?.explorerTxLink}${sellTxid}`
-    }
-  }, [trade, sellTxid, osmosisAsset])
 
   return (
     <SlideTransition>
@@ -224,6 +230,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   beforeFees={buyAmountCryptoBeforeFees}
                   protocolFee={fees?.tradeFee}
                   shapeShiftFee='0'
+                  slippage={slippage}
                 />
               </Stack>
               <Stack spacing={4}>

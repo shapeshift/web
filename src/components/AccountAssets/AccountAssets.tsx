@@ -1,6 +1,7 @@
-import { AssetId, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +18,7 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   const { chainNamespace } = fromAssetId(assetId)
-  if (!(chainNamespace === CHAIN_NAMESPACE.Ethereum) || assetIds.length === 0) return null
+  if (!(chainNamespace === CHAIN_NAMESPACE.Evm) || assetIds.length === 0) return null
 
   return (
     <Card>

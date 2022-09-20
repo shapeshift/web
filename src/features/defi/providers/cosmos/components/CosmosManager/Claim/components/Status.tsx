@@ -1,6 +1,9 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useContext, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

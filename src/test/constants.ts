@@ -1,11 +1,12 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { DisplayFeeData } from '../components/Trade/types'
+import type { DisplayFeeData } from '../components/Trade/types'
 
 export const BTC: Asset = {
-  chainId: 'bip122:000000000019d6689c085ae165831e93',
-  assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  chainId: btcChainId,
+  assetId: btcAssetId,
   name: 'bitcoin',
   precision: 8,
   color: '#FFFFFF',
@@ -16,7 +17,7 @@ export const BTC: Asset = {
   symbol: 'BTC',
 }
 export const WETH: Asset = {
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   name: 'WETH',
   precision: 18,
@@ -29,8 +30,8 @@ export const WETH: Asset = {
 }
 
 export const ETH: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/slip44:60',
+  chainId: ethChainId,
+  assetId: ethAssetId,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -42,8 +43,8 @@ export const ETH: Asset = {
 }
 
 export const FOX: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  chainId: ethChainId,
+  assetId: foxAssetId,
   name: 'Fox',
   precision: 18,
   color: '#FFFFFF',
@@ -54,7 +55,7 @@ export const FOX: Asset = {
   symbol: 'FOX',
 }
 export const USDC: Asset = {
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   name: 'USD Coin',
   precision: 6,

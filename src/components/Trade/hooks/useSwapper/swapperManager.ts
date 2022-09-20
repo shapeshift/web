@@ -1,5 +1,5 @@
 import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
-import { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import type { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,
@@ -11,7 +11,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
@@ -33,7 +33,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
 
   /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
 
-  if (flags.Thor) {
+  if (flags.ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const thorSwapper = new ThorchainSwapper({

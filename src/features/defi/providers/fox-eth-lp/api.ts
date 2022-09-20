@@ -25,5 +25,7 @@ export const getLpTokenPrice = async (
   const totalLiquidity = ethInReserve.times(ethPrice).times(2)
   const tvl = totalLiquidity.toString()
   const totalSupply = await uniV2LPContract.totalSupply()
-  return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(`1e${lpAssetPrecision}`))
+  return bnOrZero(tvl)
+    .div(bnOrZero(totalSupply.toString()).div(`1e${lpAssetPrecision}`))
+    .toString()
 }

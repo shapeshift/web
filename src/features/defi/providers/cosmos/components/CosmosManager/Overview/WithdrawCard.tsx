@@ -1,7 +1,11 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -14,12 +18,14 @@ import {
   selectUnbondingEntriesByAccountSpecifier,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type WithdrawCardProps = {
   asset: Asset
+  accountId?: Nullable<AccountId>
 }
 
-export const WithdrawCard = ({ asset }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, accountId }: WithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
@@ -27,9 +33,10 @@ export const WithdrawCard = ({ asset }: WithdrawCardProps) => {
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
+  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const undelegationEntries = useAppSelector(state =>
     selectUnbondingEntriesByAccountSpecifier(state, {
-      accountSpecifier,
+      accountSpecifier: accountId ?? accountSpecifier,
       validatorAddress: contractAddress,
       assetId: asset.assetId,
     }),

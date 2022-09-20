@@ -10,8 +10,9 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -39,8 +40,13 @@ export const Address = () => {
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
+
+  // reset address when asset changes
+  useEffect(() => setValue(SendFormFields.Input, ''), [asset, setValue])
+
   if (!asset) return null
   const { chainId } = asset
+  const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
   const handleNext = () => history.push(SendRoutes.Details)
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
@@ -58,7 +64,7 @@ export const Address = () => {
         isRound
         onClick={() =>
           history.push(SendRoutes.Select, {
-            toRoute: SelectAssetRoutes.Account,
+            toRoute: SelectAssetRoutes.Search,
             assetId: asset.assetId,
           })
         }
@@ -87,13 +93,17 @@ export const Address = () => {
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  return address ? true : 'common.invalidAddress'
+                  const invalidMessage =
+                    isYatFeatureEnabled && isYatSupportedChain
+                      ? 'common.invalidAddressOrYat'
+                      : 'common.invalidAddress'
+                  return address ? true : invalidMessage
                 },
               },
             }}
           />
         </FormControl>
-        {isYatFeatureEnabled && <YatBanner mt={6} />}
+        {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}
       </ModalBody>
       <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>

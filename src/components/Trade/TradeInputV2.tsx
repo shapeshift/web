@@ -1,20 +1,26 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { useController, useFormContext, useWatch } from 'react-hook-form'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperService } from 'components/Trade/services/useSwapperService'
+import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
+import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
+import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
@@ -23,22 +29,22 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
+  const [isLoading, setIsLoading] = useState(false)
+  const { setTradeAmounts } = useTradeAmounts()
+  const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const {
-    control,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { isValid },
-  } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
 
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
-  const sellAssetAccount = useWatch({ control, name: 'sellAssetAccount' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
+  const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
+  const slippage = useWatch({ control, name: 'slippage' })
 
   const translate = useTranslate()
 
@@ -47,39 +53,19 @@ export const TradeInput = () => {
   )
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
-      accountId: sellAssetAccount,
+      accountId: sellAssetAccountId,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
 
-  const { field: sellAmountCrypto } = useController({
-    name: 'sellTradeAsset.amount',
-    control,
-    rules: { required: true },
-  })
-  const { field: sellAmountFiat } = useController({
-    name: 'fiatSellAmount',
-    control,
-    rules: { required: true },
-  })
-
-  const { field: buyAmountFiat } = useController({
-    name: 'fiatBuyAmount',
-    control,
-    rules: { required: true },
-  })
-
-  const { field: buyAmountCrypto } = useController({
-    name: 'buyTradeAsset.amount',
-    control,
-    rules: { required: true },
-  })
-
-  const toCryptoAmountAfterFees = bnOrZero(buyAmountCrypto?.value).minus(bnOrZero(fees?.tradeFee))
+  const protocolFee = fromBaseUnit(bnOrZero(fees?.tradeFee), buyTradeAsset?.asset?.precision ?? 0)
+  const toCryptoAmountAfterFees = bnOrZero(buyTradeAsset?.amount).minus(bnOrZero(protocolFee))
+  const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
   const handleInputChange = (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
     setValue('action', action)
+    setTradeAmounts({ amount, action })
   }
 
   const handleToggle = () => {
@@ -89,15 +75,13 @@ export const TradeInput = () => {
       if (!(currentSellTradeAsset?.asset && currentBuyTradeAsset?.asset)) return
       setValue('sellTradeAsset', currentBuyTradeAsset)
       setValue('buyTradeAsset', currentSellTradeAsset)
-      setValue('action', TradeAmountInputField.SELL_CRYPTO)
-      setValue('amount', bnOrZero(currentBuyTradeAsset.amount).toString())
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
   }
 
-  const handleSendMax = () => {
-    if (!sellTradeAsset?.asset) return
+  const handleSendMax: TradeAssetInputProps['onMaxClick'] = () => {
+    if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
       sellFeeAsset,
@@ -107,38 +91,44 @@ export const TradeInput = () => {
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
+
+    setTradeAmounts({ amount: maxSendAmount, action: TradeAmountInputField.SELL_CRYPTO })
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
+    setIsLoading(true)
     moduleLogger.info(values, 'debugging logger')
     try {
-      // TODO: Check if approval needed
+      const isApproveNeeded = await checkApprovalNeeded()
+      if (isApproveNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
+        return
+      }
+      const trade = await getTrade()
+      setValue('trade', trade)
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const onSellAssetInputChange = (value: string, isFiat: boolean | undefined) => {
+  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
-    if (isFiat) {
-      sellAmountFiat.onChange(value)
-    } else {
-      sellAmountCrypto.onChange(value)
-    }
     handleInputChange(action, value)
   }
 
-  const onBuyAssetInputChange = (value: string, isFiat: boolean | undefined) => {
+  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
-    buyAmountCrypto.onChange(value)
-    if (isFiat) {
-      buyAmountFiat.onChange(value)
-    } else {
-      buyAmountCrypto.onChange(value)
-    }
     handleInputChange(action, value)
   }
+
+  const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
+    setValue('selectedSellAssetAccountId', accountId)
+
+  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
+    setValue('selectedBuyAssetAccountId', accountId)
 
   return (
     <SlideTransition>
@@ -148,13 +138,14 @@ export const TradeInput = () => {
             assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={sellAmountCrypto?.value}
-            fiatAmount={sellAmountFiat.value}
+            cryptoAmount={sellTradeAsset?.amount}
+            fiatAmount={fiatSellAmount}
             isSendMaxDisabled={!quote}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
+            onAccountIdChange={handleSellAccountIdChange}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -179,31 +170,38 @@ export const TradeInput = () => {
             assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={buyAmountCrypto?.value}
-            fiatAmount={buyAmountFiat.value}
+            cryptoAmount={buyTradeAsset?.amount}
+            fiatAmount={fiatBuyAmount}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
+            onAccountIdChange={handleBuyAccountIdChange}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
           <RateGasRow
             sellSymbol={sellTradeAsset?.asset?.symbol}
             buySymbol={buyTradeAsset?.asset?.symbol}
-            gasFee={bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()}
+            gasFee={gasFee}
             rate={quote?.rate}
           />
           <ReceiveSummary
             isLoading={!quote}
             symbol={buyTradeAsset?.asset?.symbol ?? ''}
             amount={toCryptoAmountAfterFees.toString()}
-            beforeFees={buyAmountCrypto?.value ?? ''}
-            protocolFee={fees?.tradeFee}
+            beforeFees={buyTradeAsset?.amount ?? ''}
+            protocolFee={protocolFee}
             shapeShiftFee='0'
-            minAmountAfterSlippage={buyAmountCrypto?.value ?? ''}
+            slippage={slippage}
           />
         </Stack>
-        <Button type='submit' colorScheme='blue' size='lg' isDisabled={!isValid}>
+        <Button
+          type='submit'
+          colorScheme='blue'
+          size='lg'
+          isDisabled={!quote}
+          isLoading={isLoading}
+        >
           {translate('trade.previewTrade')}
         </Button>
       </Stack>

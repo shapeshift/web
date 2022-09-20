@@ -1,5 +1,5 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
@@ -11,7 +11,7 @@ import {
   isSupportedContract,
   isTradeContract,
 } from 'hooks/useTxDetails/useTxDetails'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 describe('getStandardTx', () => {
   it('returns the expected values', () => {

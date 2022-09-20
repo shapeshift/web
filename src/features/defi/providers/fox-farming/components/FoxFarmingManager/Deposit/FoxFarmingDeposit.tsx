@@ -2,22 +2,20 @@ import { Center, useToast } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import type { DefiStepProps } from 'components/DeFi/components/Steps'
+import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -43,35 +41,30 @@ export const FoxFarmingDeposit = () => {
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = getChainAdapterManager()
   const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const { foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
+  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
   const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
 
-  // user info
-  const chainAdapter = chainAdapterManager.get(chainId)
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && opportunity)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        if (!(accountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [chainAdapter, walletState.wallet, translate, toast, chainId, contractAddress, opportunity])
+  }, [accountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

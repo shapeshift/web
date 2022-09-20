@@ -1,8 +1,8 @@
-import { ListProps } from '@chakra-ui/react'
+import type { ListProps } from '@chakra-ui/react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
+import type { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {

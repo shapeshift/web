@@ -1,21 +1,23 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
   btcChainId,
-  ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
   ltcChainId,
   osmosisChainId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  HDWallet,
   supportsBTC,
   supportsCosmos,
   supportsETH,
   supportsEthSwitchChain,
   supportsOsmosis,
+  supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { logger } from 'lib/logger'
 const moduleLogger = logger.child({ namespace: ['useWalletSupportsChain'] })
@@ -40,6 +42,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return supportsCosmos(wallet)
     case osmosisChainId:
       return supportsOsmosis(wallet)
+    case thorchainChainId:
+      return supportsThorchain(wallet)
     default: {
       moduleLogger.error(`useWalletSupportsChain: unknown chain id ${chainId}`)
       return false

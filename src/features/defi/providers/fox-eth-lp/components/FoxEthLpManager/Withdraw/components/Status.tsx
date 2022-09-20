@@ -1,14 +1,15 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -16,9 +17,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
@@ -33,15 +32,11 @@ import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
-  const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const { accountAddress, foxEthLpOpportunity: opportunity } = useFoxEth()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -51,21 +46,11 @@ export const Status = () => {
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
-  useEffect(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-    if (wallet && adapter) {
-      ;(async () => {
-        const address = await adapter.getAddress({ wallet })
-        setUserAddres(address)
-      })()
-    }
-  }, [ethAsset.chainId, wallet])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
-  }, [state?.txid, userAddress, accountSpecifier])
+    if (!(state?.txid && accountAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

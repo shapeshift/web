@@ -1,4 +1,5 @@
-import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
+import { mode } from '@chakra-ui/theme-tools'
 import { StepsStyleConfig } from 'chakra-ui-steps'
 
 export const StepsStyle = {

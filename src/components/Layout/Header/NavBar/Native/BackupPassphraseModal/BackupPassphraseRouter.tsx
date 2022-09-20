@@ -1,4 +1,4 @@
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 

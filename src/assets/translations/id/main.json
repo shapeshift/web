@@ -408,12 +408,6 @@
         "infoSecond": "Jangan pernah membagikan hukuman pemulihan Anda, itu memberikan akses ke semua dana Anda.",
         "awaitingButtonPress": "Ikuti langkah-langkah di KeepKey Anda untuk melihat Kalimat Pemulihan Anda. Tuliskan!"
       },
-      "wiped": {
-        "header": "KeepKey Berhasil Dihapus",
-        "body": "Anda telah berhasil mengatur ulang KeepKey Anda ke default pabrik. Anda sekarang dapat memulihkan menggunakan benih pemulihan yang ada, atau membuat dompet baru.",
-        "createButton": "Buat Dompet Baru",
-        "recoverButton": "Pulihkan Dompet"
-      },
       "recoverySentenceEntry": {
         "header": "Masukkan Kalimat Pemulihan Anda",
         "body": "Dengan menggunakan legenda keyboard yang diacak di KeepKey Anda, masukkan 4 huruf pertama dari setiap kata. Jika ada kurang dari 4 huruf dalam kata, tekan Enter, tekan spasi, atau klik berikutnya setelah Anda selesai mengetik.",
@@ -440,13 +434,6 @@
           "length": "Kata sandi Anda harus minimal %{length} karakter",
           "maxLength": "Nama panggilan harus maksimal %{length} karakter"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "Rendah",
-        "medium": "Medium",
-        "high": "Tinggi"
       }
     },
     "send": {

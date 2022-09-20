@@ -1,28 +1,33 @@
-import { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
-import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
-import { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
+import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
+import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Entropy, VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
+import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
 
-import { ActionTypes, WalletActions } from './actions'
+import type { ActionTypes } from './actions'
+import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
-import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
+import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
 import {
   clearLocalWallet,
@@ -32,8 +37,10 @@ import {
   setLocalWalletTypeAndDeviceId,
 } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
-import { IWalletContext, WalletContext } from './WalletContext'
+import type { IWalletContext } from './WalletContext'
+import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
+
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
@@ -61,6 +68,8 @@ export type DeviceState = {
   recoveryEntropy: Entropy
   recoveryCharacterIndex: number | undefined
   recoveryWordIndex: number | undefined
+  isUpdatingPin: boolean | undefined
+  isDeviceLoading: boolean | undefined
 }
 
 const initialDeviceState: DeviceState = {
@@ -71,6 +80,8 @@ const initialDeviceState: DeviceState = {
   recoveryEntropy: VALID_ENTROPY[0],
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
+  isUpdatingPin: false,
+  isDeviceLoading: false,
 }
 export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
 
@@ -98,6 +109,7 @@ export interface InitialState {
   showBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   deviceState: DeviceState
+  disconnectOnCloseModal: boolean
 }
 
 const initialState: InitialState = {
@@ -117,6 +129,7 @@ const initialState: InitialState = {
   showBackButton: true,
   keepKeyPinRequestType: null,
   deviceState: initialDeviceState,
+  disconnectOnCloseModal: false,
 }
 
 export const isKeyManagerWithProvider = (
@@ -162,7 +175,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
-    case WalletActions.SET_DEVICE_STATE:
+    case WalletActions.SET_PIN_REQUEST_TYPE:
+      return { ...state, keepKeyPinRequestType: action.payload }
+    case WalletActions.SET_DEVICE_STATE: {
       const { deviceState } = state
       const {
         awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
@@ -170,6 +185,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         disposition = deviceState.disposition,
         recoverWithPassphrase = deviceState.recoverWithPassphrase,
         recoveryEntropy = deviceState.recoveryEntropy,
+        isUpdatingPin = deviceState.isUpdatingPin,
+        isDeviceLoading = deviceState.isDeviceLoading,
       } = action.payload
       return {
         ...state,
@@ -180,8 +197,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           disposition,
           recoverWithPassphrase,
           recoveryEntropy,
+          isUpdatingPin,
+          isDeviceLoading,
         },
       }
+    }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -243,9 +263,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
+        showBackButton: false,
+        disconnectOnCloseModal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
-        initialRoute: KeepKeyRoutes.WipeSuccessful,
+        initialRoute: KeepKeyRoutes.FactoryState,
       }
     case WalletActions.OPEN_KEEPKEY_RECOVERY:
       return {
@@ -268,6 +290,17 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
       return { ...state, ...resetProperties }
+    // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
+    case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
+      const { deviceState } = state
+      return {
+        ...state,
+        deviceState: {
+          ...deviceState,
+          lastDeviceInteractionStatus: undefined,
+        },
+      }
+    }
     default:
       return state
   }
@@ -311,12 +344,48 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const load = useCallback(() => {
+    const fnLogger = moduleLogger.child({ fn: ['load'] })
+
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
+    fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
+            case KeyManager.Mobile:
+              try {
+                const w = await getWallet(localWalletDeviceId)
+                fnLogger.trace({ id: w?.id, label: w?.label }, 'Found mobile wallet')
+                if (w && w.mnemonic && w.label) {
+                  const localMobileWallet = await state.adapters
+                    .get(KeyManager.Native)
+                    ?.pairDevice(localWalletDeviceId)
+
+                  if (localMobileWallet) {
+                    localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
+                    const { name, icon } = MobileConfig
+                    dispatch({
+                      type: WalletActions.SET_WALLET,
+                      payload: {
+                        wallet: localMobileWallet,
+                        name,
+                        icon,
+                        deviceId: w.id || localWalletDeviceId,
+                        meta: { label: w.label },
+                      },
+                    })
+                    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                    // Turn off the loading spinner for the wallet button in
+                    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+                  } else {
+                    disconnect()
+                  }
+                }
+              } catch (e) {
+                moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')
+              }
+              break
             case KeyManager.Native:
               const localNativeWallet = await state.adapters
                 .get(KeyManager.Native)

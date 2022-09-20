@@ -1,7 +1,8 @@
 import { AddressZero } from '@ethersproject/constants'
+import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
@@ -11,11 +12,11 @@ export const EthSend: Tx = {
   chainId: 'eip155:1',
   confirmations: 875,
   txid: '0xb8c6eef6bfa02a60b5e00f5c84994084065efeb3bee0259dfc133e28f760a58b',
-  fee: { value: '2234067070809000', assetId: 'eip155:1/slip44:60' },
+  fee: { value: '2234067070809000', assetId: ethAssetId },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
       to: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
       value: '250923588302732',
@@ -32,11 +33,11 @@ export const EthReceive: Tx = {
   chainId: 'eip155:1',
   confirmations: 875,
   txid: '0xc8c6eef6bfa02a60b5e00f5c84994084065efeb3bee0259dfc133e28f760a58b',
-  fee: { value: '2234067070809000', assetId: 'eip155:1/slip44:60' },
+  fee: { value: '2234067070809000', assetId: ethAssetId },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
       to: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
       value: '250923588302732',
@@ -84,13 +85,13 @@ export const FOXSend: Tx = {
   chainId: 'eip155:1',
   txid: '0x88d774530e7b7544f86ed25e4c602a15402ac79b9617d30624c4acd3c1034769',
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '1625777000000000',
   },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      assetId: foxAssetId,
       from: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
       to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
       value: '4448382624806275089213',
@@ -107,7 +108,7 @@ export const TradeTx: Tx = {
   chainId: 'eip155:1',
   confirmations: 84026,
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '9099683709794574',
   },
   status: TxStatus.Confirmed,
@@ -144,13 +145,13 @@ const test1: Tx = {
   chainId: 'eip155:1',
   txid: '0x5b25d67e43ba2cdfcb584c8069330874e838607d06b9dc64bf174547ca11e171',
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '3192000000000000',
   },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0x67ffc0d460c38CeEe3a29A94def9Ff828E92E165',
       value: '230757160394687',
@@ -168,13 +169,13 @@ const test2: Tx = {
   chainId: 'eip155:1',
   txid: '0x16ed49d739d0b5f56a33675a69d4f0ec85b6abdcbba0213b6242fde8646d28c5',
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '3440289843249000',
   },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741',
       value: '11746823071700259',
@@ -194,7 +195,7 @@ const test3: Tx = {
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0x2ee5e455454d0ba78C337a918C6E5ff80345c1e0',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '8559800000000000',
@@ -212,13 +213,13 @@ const test4: Tx = {
   chainId: 'eip155:1',
   txid: '0x0c8259d5c2de8266c15bc799336dee77d7ecea9987bf9d7425a51a16d49e0647',
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '3633000000000000',
   },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0xf9F6c86877C2Cf13f93B29FDa3c66d361A463Ab5',
       value: '70000000000000000',
@@ -238,7 +239,7 @@ const test5: Tx = {
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xD3273EBa07248020bf98A8B560ec1576a612102F',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '100000000000000000',
@@ -258,7 +259,7 @@ const test6: Tx = {
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0x563b377A956c80d77A7c613a9343699Ad6123911',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '42000000000000000',
@@ -277,20 +278,20 @@ const test7: Tx = {
   chainId: 'eip155:1',
   txid: '0xf22e08bd1cd77ac589a0b7b4929ff00b3c7cac4f8b5b9e95fe30ef88caf75666',
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '5886777000000000',
   },
   status: TxStatus.Confirmed,
   transfers: [
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '900000000000000000000',
       type: TransferType.Send,
     },
     {
-      assetId: 'eip155:1/slip44:60',
+      assetId: ethAssetId,
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '900000000000000000000',
@@ -307,7 +308,7 @@ export const yearnVaultDeposit: Tx = {
   chainId: 'eip155:1',
   confirmations: 84026,
   fee: {
-    assetId: 'eip155:1/slip44:60',
+    assetId: ethAssetId,
     value: '9099683709794574',
   },
   status: TxStatus.Confirmed,
@@ -337,7 +338,7 @@ export const uniswapUsdcFox: Tx = {
   blockTime: 1646163896,
   chainId: 'eip155:1',
   confirmations: 135709,
-  fee: { assetId: 'eip155:1/slip44:60', value: '10652333620222860' },
+  fee: { assetId: ethAssetId, value: '10652333620222860' },
   status: TxStatus.Confirmed,
   trade: undefined,
   transfers: [
@@ -349,7 +350,7 @@ export const uniswapUsdcFox: Tx = {
       value: '50000000',
     },
     {
-      assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      assetId: foxAssetId,
       from: '0xBEdDB932490e776301c776526615965fAE2440de',
       to: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
       type: TransferType.Receive,
@@ -397,7 +398,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockTime: 1647384181,
     chainId: 'eip155:1',
     confirmations: 12405,
-    fee: { assetId: 'eip155:1/slip44:60', value: '5842562180464795' },
+    fee: { assetId: ethAssetId, value: '5842562180464795' },
     status: TxStatus.Confirmed,
     trade: undefined,
     transfers: [
@@ -426,9 +427,9 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
     blockHeight: 14400000,
     blockTime: 1647816181,
-    chainId: 'eip155:1',
+    chainId: ethChainId,
     confirmations: 9001,
-    fee: { assetId: 'eip155:1/slip44:60', value: '5842562180464795' },
+    fee: { assetId: ethAssetId, value: '5842562180464795' },
     status: TxStatus.Confirmed,
     trade: undefined,
     transfers: [
@@ -457,9 +458,9 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHash: '0xb6ac9ffa9c0c272fcf2af42e15f86b874b6fb61f13ca74a4dab13032d434d492',
     blockHeight: 13730260,
     blockTime: 1638488447,
-    chainId: 'eip155:1',
+    chainId: ethChainId,
     confirmations: 729180,
-    fee: { assetId: 'eip155:1/slip44:60', value: '5898012646352596' },
+    fee: { assetId: ethAssetId, value: '5898012646352596' },
     status: TxStatus.Confirmed,
     trade: undefined,
     transfers: [
@@ -488,9 +489,9 @@ export const createMockEthTxs = (account: string): Tx[] => {
     blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
     blockHeight: 13730189,
     blockTime: 1638487560,
-    chainId: 'eip155:1',
+    chainId: ethChainId,
     confirmations: 729251,
-    fee: { assetId: 'eip155:1/slip44:60', value: '9099683709794574' },
+    fee: { assetId: ethAssetId, value: '9099683709794574' },
     status: TxStatus.Confirmed,
     trade: undefined,
     transfers: [

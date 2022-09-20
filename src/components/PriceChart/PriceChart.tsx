@@ -1,10 +1,9 @@
+import type { ChakraStyledOptions } from '@chakra-ui/react'
 import { Alert, Box } from '@chakra-ui/react'
-import { ChakraStyledOptions } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
@@ -71,8 +70,8 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     )
 
   return (
-    <Card.Body p={0} height={chartHeight} {...props}>
+    <Box height={chartHeight} {...props}>
       <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
-    </Card.Body>
+    </Box>
   )
 }

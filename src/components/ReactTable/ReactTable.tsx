@@ -1,7 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
+import type { Column, Row, TableState } from 'react-table'
+import { useSortBy, useTable } from 'react-table'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]

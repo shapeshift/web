@@ -1,4 +1,5 @@
-import { IdleDepositActions, IdleDepositActionType, IdleDepositState } from './DepositCommon'
+import type { IdleDepositActions, IdleDepositState } from './DepositCommon'
+import { IdleDepositActionType } from './DepositCommon'
 
 export const initialState: IdleDepositState = {
   txid: null,

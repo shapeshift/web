@@ -1,14 +1,11 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import {
-  MergedFoxyOpportunity,
-  useGetFoxyAprQuery,
-  useGetFoxyBalancesQuery,
-} from 'state/apis/foxy/foxyApi'
+import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
+import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]
@@ -25,9 +22,11 @@ export function useFoxyBalances() {
 
   useEffect(() => {
     ;(async () => {
-      const chainAdapter = await getChainAdapterManager().get(KnownChainIds.EthereumMainnet)
+      const chainAdapter = getChainAdapterManager().get(KnownChainIds.EthereumMainnet)
       if (!chainAdapter || !wallet) return
-      const userAddress = await chainAdapter.getAddress({ wallet })
+      // TODO accountNumber needs to come from account metadata
+      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
+      const userAddress = await chainAdapter.getAddress({ wallet, bip44Params })
       setUserAddress(userAddress)
     })()
   }, [wallet])
@@ -36,12 +35,24 @@ export function useFoxyBalances() {
 
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
+  const accountId = useMemo(
+    () =>
+      userAddress
+        ? toAccountId({
+            chainId: ethChainId,
+            account: userAddress,
+          })
+        : null,
+    [userAddress],
+  )
+
   const foxyBalances = useGetFoxyBalancesQuery(
     {
-      userAddress: userAddress as string,
-      foxyApr: foxyAprData?.foxyApr as string,
+      userAddress: userAddress!,
+      foxyApr: foxyAprData?.foxyApr!,
+      accountId: accountId!,
     },
-    { skip: !foxyAprData || !supportsEthereumChain || !userAddress },
+    { skip: !foxyAprData || !supportsEthereumChain || !userAddress || !accountId },
   )
 
   return foxyBalances

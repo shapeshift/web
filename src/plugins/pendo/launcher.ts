@@ -1,10 +1,11 @@
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
-import { armPendoAgent, PendoConfig, PendoEnv, PendoInitializeParams } from './agent'
+import type { PendoConfig, PendoEnv, PendoInitializeParams } from './agent'
+import { armPendoAgent } from './agent'
 import { makePendoEnv } from './agent/env'
 import { sanitizeUrl } from './sanitizeUrl'
-import { PendoLauncher } from './types'
+import type { PendoLauncher } from './types'
 import { deferred } from './utils'
 import { VisitorDataManager } from './visitorData'
 

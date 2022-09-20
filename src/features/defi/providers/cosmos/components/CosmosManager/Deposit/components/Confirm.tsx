@@ -1,20 +1,21 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -23,10 +24,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -35,7 +38,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Deposit', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -58,18 +63,24 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   // notify
   const toast = useToast()
 
+  const filter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: accountId ?? '' }),
+    [feeAsset?.assetId, accountId],
+  )
   const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const { handleStakingAction } = useStakingAction()
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleDeposit = async () => {
-    if (!state.userAddress || !assetReference || !walletState.wallet) return
+  const handleDeposit = useCallback(async () => {
+    if (!(state?.userAddress && dispatch && bip44Params && assetReference && walletState.wallet))
+      return
     dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
 
     const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
@@ -77,6 +88,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     try {
       const broadcastTxId = await handleStakingAction({
         asset,
+        bip44Params,
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
@@ -110,7 +122,23 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       onNext(DefiStep.Status)
       dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    asset,
+    assetReference,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    handleStakingAction,
+    marketData,
+    onNext,
+    state?.deposit.cryptoAmount,
+    state?.userAddress,
+    toast,
+    translate,
+    walletState?.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance).gte(
     bnOrZero(state.deposit.cryptoAmount).plus(

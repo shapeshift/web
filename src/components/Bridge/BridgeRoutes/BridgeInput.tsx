@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, ButtonProps, Divider, IconButton, List, Stack } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
+import { Button, Divider, IconButton, List, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +12,8 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from '../components/ChainRow'
-import { BridgeChain, BridgeRoutePaths, BridgeState } from '../types'
+import type { BridgeChain, BridgeState } from '../types'
+import { BridgeRoutePaths } from '../types'
 
 type ChainButtonProps = {
   label: string

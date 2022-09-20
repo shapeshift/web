@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
@@ -27,7 +28,11 @@ const validators = {
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: url(),
   REACT_APP_UNCHAINED_OSMOSIS_WS_URL: url(),
+  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_THORCHAIN_WS_URL: url(),
+  REACT_APP_THORCHAIN_NODE_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
+  REACT_APP_ETHEREUM_INFURA_URL: url(),
   REACT_APP_AVALANCHE_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
@@ -54,7 +59,8 @@ const validators = {
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
   REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
-  REACT_APP_FEATURE_THOR: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN: bool({ default: false }),
+  REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -62,7 +68,10 @@ const validators = {
   REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
   REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
+  REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),
   REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
+  REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),

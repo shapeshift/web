@@ -17,4 +17,4 @@
     - Everything in Redux should be serializable. If there is anything that is stored inside of Redux that *cannot* be serialized it should not live inside of Redux (ie, BigNumber).
   - We use [React Hook Form](https://react-hook-form.com/api) for form state management.
 
-Note: If you have questions about any of these practices, please reach out to the core developement team.
+Note: If you have questions about any of these practices, please reach out to the core development team.

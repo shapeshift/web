@@ -12,30 +12,48 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
   btcChainId,
+  CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  fromAccountId,
   fromAssetId,
+  fromChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type { Dispatch, SetStateAction } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
+import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import {
+  selectMarketDataById,
+  selectPortfolioAccountBalances,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import { supportedFiatRamps } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type GenerateAddressProps = {
@@ -59,6 +77,8 @@ type OverviewProps = GenerateAddressProps & {
   chainId: ChainIdType
   setChainId: Dispatch<SetStateAction<ChainIdType>>
   chainAdapterManager: ChainAdapterManager
+  handleAccountIdChange: (accountId: AccountId) => void
+  accountId: Nullable<AccountId>
 }
 
 type AddressOrNameFull = string
@@ -103,6 +123,10 @@ const generateAddresses: GenerateAddresses = props => {
   }
 }
 
+const moduleLogger = logger.child({
+  namespace: ['Modals', 'FiatRamps', 'Views', 'Overview'],
+})
+
 export const Overview: React.FC<OverviewProps> = ({
   fiatRampProvider,
   onIsSelectingAsset,
@@ -121,17 +145,80 @@ export const Overview: React.FC<OverviewProps> = ({
   chainId,
   setChainId,
   chainAdapterManager,
+  handleAccountIdChange,
+  accountId,
 }) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
-  const { fiatRamps } = useModal()
-
-  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
-
+  const {
+    fiatRamps: { close: handleFiatRampsClose },
+  } = useModal()
   const {
     state: { wallet },
   } = useWallet()
+  const multiAccountsEnabled = useFeatureFlag('MultiAccounts')
+  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, selectedAsset?.assetId ?? ''),
+  )
+  const [accountAddress, setAccountAddress] = useState<string | null>(null)
+
+  // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
+  // once web/#2632 got merged
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
+
+  useEffect(() => {
+    if (!(wallet && accountId && selectedAsset)) return
+    const { chainId: assetChainId } = fromAssetId(selectedAsset.assetId)
+    const { chainId: accountChainId } = fromAccountId(accountId)
+    // race condition between selected asset and selected account
+    if (assetChainId !== accountChainId) return
+    const chainAdapter = chainAdapterManager.get(assetChainId)
+    if (!chainAdapter) return
+    const accountMeta = accountMetadata[accountId]
+    const accountType = accountMeta?.accountType
+    const bip44Params = accountMeta?.bip44Params
+    if (!bip44Params) return
+    const { chainNamespace } = fromChainId(accountChainId)
+    if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
+    ;(async () => {
+      try {
+        const selectedAccountAddress = await chainAdapter.getAddress({
+          wallet,
+          accountType,
+          bip44Params,
+        })
+        setAccountAddress(selectedAccountAddress)
+      } catch (error) {
+        moduleLogger.error(error, 'Error getting address')
+      }
+    })()
+  }, [wallet, selectedAsset, chainAdapterManager, accountId, accountMetadata])
+  const minimumSellThreshold = useMemo(
+    () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
+    [fiatRampProvider],
+  )
+  const hasEnoughBalance = useMemo(
+    () =>
+      bnOrZero(
+        multiAccountsEnabled
+          ? accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']
+          : selectedAsset?.cryptoBalance,
+      )
+        .times(marketData.price)
+        .gte(minimumSellThreshold),
+    [
+      accountBalances,
+      accountId,
+      marketData.price,
+      minimumSellThreshold,
+      multiAccountsEnabled,
+      selectedAsset?.assetId,
+      selectedAsset?.cryptoBalance,
+    ],
+  )
 
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
     selectedAsset,
@@ -233,40 +320,48 @@ export const Overview: React.FC<OverviewProps> = ({
         </Button>
         {selectedAsset && (
           <Flex flexDirection='column' mb='10px'>
-            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px'></Text>
-            <InputGroup size='md'>
-              <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-              <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
-                <IconButton
-                  icon={<CopyIcon />}
-                  aria-label='copy-icon'
-                  size='sm'
-                  isRound
-                  variant='ghost'
-                  onClick={handleCopyClick}
-                />
-                {supportsAddressVerifying && (
+            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
+            {multiAccountsEnabled ? (
+              <AccountDropdown
+                assetId={selectedAsset.assetId}
+                onChange={handleAccountIdChange}
+                buttonProps={{ variant: 'solid' }}
+              />
+            ) : (
+              <InputGroup size='md'>
+                <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
+                <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                   <IconButton
-                    icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                    onClick={handleVerify}
-                    aria-label='check-icon'
+                    icon={<CopyIcon />}
+                    aria-label='copy-icon'
                     size='sm'
-                    color={
-                      shownOnDisplay
-                        ? 'green.500'
-                        : shownOnDisplay === false
-                        ? 'red.500'
-                        : 'gray.500'
-                    }
                     isRound
                     variant='ghost'
+                    onClick={handleCopyClick}
                   />
-                )}
-              </InputRightElement>
-            </InputGroup>
+                  {supportsAddressVerifying && (
+                    <IconButton
+                      icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                      onClick={handleVerify}
+                      aria-label='check-icon'
+                      size='sm'
+                      color={
+                        shownOnDisplay
+                          ? 'green.500'
+                          : shownOnDisplay === false
+                          ? 'red.500'
+                          : 'gray.500'
+                      }
+                      isRound
+                      variant='ghost'
+                    />
+                  )}
+                </InputRightElement>
+              </InputGroup>
+            )}
           </Flex>
         )}
-        {selectedAsset?.isBelowSellThreshold && (
+        {selectedAsset && accountId && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
           <Alert status='error' variant={'solid'}>
             <AlertIcon />
             <Text
@@ -281,19 +376,19 @@ export const Overview: React.FC<OverviewProps> = ({
           width='full'
           size='lg'
           colorScheme='blue'
-          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
+          disabled={!selectedAsset || (fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance)}
           mt='25px'
           onClick={() =>
             supportedFiatRamps[fiatRampProvider].onSubmit(
               fiatRampAction,
               selectedAsset?.assetId || '',
-              addressFull || '',
+              (multiAccountsEnabled ? accountAddress : addressFull) || '',
             )
           }
         >
           <Text translation='common.continue' />
         </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
+        <Button width='full' size='lg' variant='ghost' onClick={handleFiatRampsClose}>
           <Text translation='common.cancel' />
         </Button>
       </Flex>

@@ -1,5 +1,5 @@
 // https://docs.axelar.dev/dev/build/chain-names/mainnet
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum AxelarChainNames {
   Avalanche = 'Avalanche',

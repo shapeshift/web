@@ -1,17 +1,14 @@
+import { cosmosAssetId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
-import { PropsWithChildren } from 'react'
-import {
-  cosmosAssetId,
-  mockCosmosAccount,
-  mockCosmosAccountWithStakingData,
-} from 'test/mocks/accounts'
+import type { PropsWithChildren } from 'react'
+import { mockCosmosAccount, mockCosmosAccountWithStakingData } from 'test/mocks/accounts'
 import { cosmos, mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { MOCK_VALIDATORS } from 'test/mocks/validators'
 import { TestProviders } from 'test/TestProviders'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -43,7 +40,7 @@ function setup() {
   )
 
   store.dispatch(
-    accountSpecifiers.actions.setAccountSpecifiers([
+    accountSpecifiers.actions.upsertAccountSpecifiers([
       { 'cosmos:cosmoshub-4': 'cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669' },
     ]),
   )

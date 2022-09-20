@@ -1,9 +1,9 @@
 import { Box, Button, Collapse, Stack, useDisclosure } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AssetAccountRow } from '../AssetAccounts/AssetAccountRow'
 /**

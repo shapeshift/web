@@ -14,9 +14,10 @@ import {
   useColorModeValue,
   Wrap,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import range from 'lodash/range'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -33,7 +34,7 @@ const moduleLogger = logger.child({
 
 export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
   const translate = useTranslate()
-  const history = useHistory()
+  const { goBack: handleBackClick, ...history } = useHistory()
   const {
     backupNativePassphrase: {
       props: { preventClose },
@@ -53,7 +54,8 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
           (await vault.unwrap().get('#mnemonic')).split(' ').map((word: string, index: number) => (
             <Tag
               p={2}
-              flexBasis='31%'
+              flexGrow={4}
+              flexBasis='auto'
               justifyContent='flex-start'
               fontSize='md'
               key={index}
@@ -75,7 +77,8 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
     return range(1, 13).map(i => (
       <Tag
         p={2}
-        flexBasis='31%'
+        flexGrow={4}
+        flexBasis='auto'
         justifyContent='flex-start'
         fontSize='md'
         colorScheme='blue'
@@ -96,7 +99,7 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={history.goBack}
+        onClick={handleBackClick}
       />
       <ModalHeader pt={4}>
         <Text translation={'modals.shapeShift.backupPassphrase.info.title'} />

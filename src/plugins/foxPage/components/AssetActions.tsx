@@ -11,7 +11,8 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -25,11 +26,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById } from 'state/slices/selectors'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FOX_ASSET_ID, TrimmedDescriptionLength } from '../FoxCommon'
+import { TrimmedDescriptionLength } from '../FoxCommon'
 
 type FoxTabProps = {
   assetId: AssetId
@@ -45,7 +45,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
-  const isFoxAsset = assetId === FOX_ASSET_ID
+  const isFoxAsset = assetId === foxAssetId
 
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const accountId = accountIds?.[0]

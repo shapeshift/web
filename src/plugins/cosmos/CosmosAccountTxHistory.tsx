@@ -6,7 +6,7 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { MatchParams } from './CosmosAccount'
+import type { MatchParams } from './CosmosAccount'
 
 export const CosmosAccountTxHistory: React.FC = () => {
   const { accountSubId } = useParams<MatchParams>()

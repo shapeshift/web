@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -8,27 +8,28 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useEvm = () => {
-  const { state } = useWallet()
+  const {
+    state: { wallet },
+  } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [ethNetwork, setEthNetwork] = useState<string | null>(null)
+  const [ethNetwork, setEthNetwork] = useState<string | null>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () =>
       Array.from(getChainAdapterManager().keys()).filter(
-        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Ethereum,
+        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm,
       ),
     // We want to explicitly react on featureFlags to get a new reference here
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],
   )
-
   useEffect(() => {
     ;(async () => {
       setIsLoading(true)
-      const ethNetwork = await (state.wallet as ETHWallet)?.ethGetChainId?.()
-      if (ethNetwork) setEthNetwork(bnOrZero(ethNetwork).toString())
+      const ethNetwork = await (wallet as ETHWallet)?.ethGetChainId?.()
+      ethNetwork ? setEthNetwork(bnOrZero(ethNetwork).toString()) : setEthNetwork(null)
     })()
-  }, [state])
+  }, [wallet])
 
   const connectedEvmChainId = useMemo(() => {
     if (ethNetwork && isLoading) {

@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react'
 import { AssetIcon } from 'components/AssetIcon'
 
-export const PairIcons = ({ icons }: { icons: Array<string> }) => {
+export const PairIcons = ({ icons }: { icons: string[] }) => {
   return (
     <Flex flexDirection='row' alignItems='center'>
       {icons.map((iconSrc, i) => (

@@ -1,4 +1,4 @@
-import { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
 
 export enum ClaimPath {
   Claim = '/',

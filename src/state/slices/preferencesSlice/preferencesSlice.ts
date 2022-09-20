@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -12,7 +12,8 @@ export type FeatureFlags = {
   FoxLP: boolean
   FoxFarming: boolean
   Avalanche: boolean
-  Thor: boolean
+  Thorchain: boolean
+  ThorSwap: boolean
   CowSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
@@ -23,6 +24,8 @@ export type FeatureFlags = {
   RainbowCharts: boolean
   MultiAccounts: boolean
   SwapperV2: boolean
+  WalletConnectToDapps: boolean
+  MigrationMessage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -46,7 +49,8 @@ const initialState: Preferences = {
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
-    Thor: getConfig().REACT_APP_FEATURE_THOR,
+    Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
+    ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
@@ -57,6 +61,8 @@ const initialState: Preferences = {
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
+    WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
+    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

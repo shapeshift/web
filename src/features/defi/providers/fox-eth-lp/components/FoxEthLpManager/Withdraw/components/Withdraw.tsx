@@ -1,20 +1,16 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -29,6 +25,7 @@ import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
@@ -39,9 +36,12 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     lpFoxBalance: foxBalance,
     lpEthBalance: ethBalance,
     lpLoading: loading,
+    accountAddress,
+    setAccountId: handleAccountIdChange,
   } = useFoxEth()
 
-  const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool()
+  const { allowance, getApproveGasData, getWithdrawGasData } =
+    useFoxEthLiquidityPool(accountAddress)
   const [foxAmount, setFoxAmount] = useState('0')
   const [ethAmount, setEthAmount] = useState('0')
 
@@ -63,6 +63,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
   )
+
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
   if (!state || !dispatch) return null
@@ -182,6 +183,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
+        onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || loading}

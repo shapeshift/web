@@ -1,20 +1,19 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -37,9 +36,9 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { onOngoingTxIdChange } = useFoxEth()
+  const { accountAddress, onOngoingTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { addLiquidity } = useFoxEthLiquidityPool()
+  const { addLiquidity } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 

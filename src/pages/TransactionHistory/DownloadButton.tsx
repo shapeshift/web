@@ -15,7 +15,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

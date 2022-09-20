@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
-import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 
 import { useBridgeRoutes } from '../hooks/useBridgeRoutes'
 import { BridgeRoutePaths } from '../types'

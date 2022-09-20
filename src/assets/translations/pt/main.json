@@ -22,6 +22,7 @@
     "withdraw": "Sacar",
     "withdrawal": "Sacar",
     "claim": "Resgatar",
+    "withdrawAndClaim": "Sacar & Resgatar",
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
@@ -65,7 +66,8 @@
     "showDetails": "Mostrar Detalhes",
     "hideDetails": "Esconder Detalhes",
     "walletSupportsETHOnly": "Somente Ethereum",
-    "loadingText": "Carregando..."
+    "loadingText": "Carregando...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -85,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Rainbow",
+      "totalChart": "💰 Total",
       "addAsset": "Adicionar Ativo",
       "yourAssets": "Meus Ativos",
       "asset": "Ativos",
@@ -112,6 +116,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -123,7 +128,9 @@
     "fundsFrom": "Os fundos serão enviados de",
     "headerLabel": "Comprar/Vender Criptomoedas",
     "insufficientCryptoAmountToSell": "Quantidade mínima para venda $%{amount}",
-    "usOnly": "Apenas EUA"
+    "usOnly": "Apenas EUA",
+    "noKYC": "Sem KYC",
+    "nonUS": "não residente nos EUA"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +267,7 @@
     "tvl": "TVL",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Finalizado",
     "balance": "Equilíbrio",
     "defi": "DeFi",
     "defiBody": "Explore o crescente universo DeFi.",
@@ -309,7 +317,15 @@
         "info": {
           "title": "Informação do Saque",
           "description": "Insira a quantia do %{asset} que você deseja sacar.",
-          "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque."
+          "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque.",
+          "farmingExpiredDescription": "As recompensas do contrato acabaram. Você deve sacar seu saldo total depositado. ",
+          "rewardsInfo": "Recompensas que você receberá"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "Informação para Resgate",
+          "description": "Saque os tokens farmados"
         }
       },
       "approve": {
@@ -345,7 +361,9 @@
     "foxToken": "Oportunidades FOX",
     "featureFlags": "Recursos",
     "demoMode": "Modo de demonstração",
-    "clickToConnect": "Clique para conectar uma carteira"
+    "clickToConnect": "Clique para conectar uma carteira",
+    "wallet": "Carteira",
+    "explore": "Explorar"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -375,6 +393,8 @@
       "yearn": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "revoke": "Revogar",
+        "infinite": "Infinito ∞",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
@@ -394,7 +414,9 @@
         "claimWithdraw": "Reivindicar Retirada"
       },
       "erc20": {
-        "approve": "Aprovar"
+        "approve": "Aprovar",
+        "revoke": "Revogar",
+        "infinite": "Infinito ∞"
       }
     },
     "unknown": "Transação"
@@ -417,6 +439,7 @@
     "noSupportedAssets": "Nenhum ativo suportado no portfólio."
   },
   "trade": {
+    "trade": "Negocie",
     "allowance": "Quota",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
@@ -433,10 +456,14 @@
     "needPermission": "Precisamos de sua permissão para utilizar %{symbol}",
     "whyNeedThis": "Por que isso é necessário?",
     "estimatedGasFee": "Taxa Estimada da Rede",
+    "receiveInclFee": "Receba (incluindo taxas)",
     "approvingAsset": "Aprovando %{symbol}",
     "viewTransaction": "Ver transação",
     "unlimited": "Ilimitado",
     "exact": "Exato",
+    "expectedAmount": "Quantia esperada",
+    "beforeFees": "Antes das taxas ",
+    "minAmountAfterSlippage": "Quantia esperada após o slippage (%{slippage}%)",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
@@ -521,12 +548,6 @@
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
       },
-      "wiped": {
-        "header": "KeepKey apagada com sucesso",
-        "body": "Você redefiniu com sucesso sua KeepKey para os padrões de fábrica. Agora você pode restaurar usando uma frase de recuperação existente ou criar uma nova carteira.",
-        "createButton": "Criar uma nova carteira",
-        "recoverButton": "Recuperar carteira"
-      },
       "recoverySentenceEntry": {
         "header": "Digite sua frase de recuperação",
         "body": "Use a legenda embaralhada do teclado em sua KeepKey, digite as primeiras 4 letras de cada palavra. Se houver menos de 4 letras na palavra, pressione Enter, pressione a barra de espaço ou clique em próximo quando terminar de digitar.",
@@ -571,6 +592,20 @@
           "required": "A confirmação da senha é obrigatória",
           "length": "Sua senha deve ter pelo menos %{length} caracteres",
           "maxLength": "O apelido deve ter no máximo %{length} caracteres"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Fazer backup da minha carteira",
+        "enterPassword": "Entre com sua senha para continuar.",
+        "testTitle": "Verificar Sua Frase de Recuperação Secreta. ",
+        "info": {
+          "title": "Sua Frase de Recuperação Secreta",
+          "description": "Anote essas 12 palavras e armazene-as offline com segurança. Esta frase de 12 palavras é usada para recuperar as chaves privadas da sua carteira.",
+          "warning": "Lembre-se: se você perder sua frase secreta de recuperação, a ShapeShift não poderá ajudá-lo a recuperar sua carteira e seus fundos serão perdidos para sempre."
+        },
+        "success": {
+          "title": "Sucesso",
+          "description": "Você fez backup de sua carteira. Lembre-se de armazenar sua Frase de Recuperação Secreta em algum lugar seguro."
         }
       }
     },
@@ -656,6 +691,9 @@
         "failed": "Há um problema com seu depósito."
       }
     },
+    "claim": {
+      "claimFrom": "Resgate da %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
       "withdrawFrom": "Saque de %{opportunity}",
@@ -707,6 +745,7 @@
       "amountToDeposit": "Quantia Para Depositar",
       "amountToStake": "Quantidade para Stake",
       "amountToWithdraw": "Quantia Para Sacar.",
+      "amountToClaim": "Quantia para resgatar",
       "withdrawFrom": "Retirada de",
       "depositTo": "Depositar em",
       "averageApy": "Média APY",
@@ -771,6 +810,19 @@
         "SGD": "Dólar de Singapura",
         "ILS": "Shekel israelense",
         "IDR": "rupia indonésia"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Sua carteira foi importada!",
+        "body": "Bem-vindo ao novo app da ShapeShift",
+        "primaryCta": "Continue"
+      },
+      "notice": {
+        "header": "O acesso via e-mail não é mais utilizado. Faça o backup de sua carteira agora!",
+        "body": "Se você perder o acesso de seu dispositivo, você precisará de sua frase de recuperação secreta para recuperar seus fundos.",
+        "primaryCta": "Pegue sua Frase de Recuperação Secreta.",
+        "secondaryCta": "Eu já sei minha fase de recuperação secreta."
       }
     }
   },
@@ -1179,7 +1231,10 @@
     }
   },
   "accounts": {
-    "accounts": "Contas"
+    "accounts": "Contas",
+    "selectAccount": "Selecione uma conta",
+    "addAccount": "Adicionar uma conta",
+    "accountNumber": "Conta #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1233,6 +1288,7 @@
     "status": "Status",
     "transactionType": "Tipo de transação",
     "minerFee": "Taxa de Minerador",
+    "approvalAmount": "Quantidade aprovada",
     "unknownType": "Transação",
     "from": "A partir de",
     "to": "Para",
@@ -1286,6 +1342,14 @@
         "neverCollectPersonalInformations": "Nunca coletar chaves, endereços, transações, saldos ou qualquer informação pessoal",
         "neverCollectIp": "Nunca coletar seu endereço IP completo",
         "neverSellData": "Nunca vender dados com fins lucrativos"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Pegue um Yat",
+        "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
       }
     }
   }

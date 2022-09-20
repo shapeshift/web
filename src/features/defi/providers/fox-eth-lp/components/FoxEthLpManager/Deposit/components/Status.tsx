@@ -1,13 +1,13 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -15,9 +15,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
@@ -32,15 +30,11 @@ import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
-  const [userAddress, setUserAddres] = useState<string | null>(null)
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { foxEthLpOpportunity } = useFoxEth()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const { accountAddress, foxEthLpOpportunity } = useFoxEth()
 
   const feeAssetId = toAssetId({
     chainId,
@@ -56,21 +50,10 @@ export const Status = () => {
     selectFirstAccountSpecifierByChainId(state, chainId),
   )
 
-  useEffect(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-    if (wallet && adapter) {
-      ;(async () => {
-        const address = await adapter.getAddress({ wallet })
-        setUserAddres(address)
-      })()
-    }
-  }, [ethAsset.chainId, wallet])
-
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, userAddress)
-  }, [state?.txid, userAddress, accountSpecifier])
+    if (!(state?.txid && accountAddress)) return ''
+    return serializeTxIndex(accountSpecifier, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountSpecifier])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

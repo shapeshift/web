@@ -4,19 +4,29 @@ import { logger } from 'lib/logger'
 import { getEthersProvider } from '../utils'
 const moduleLogger = logger.child({ namespace: ['useCurrentBlockNumber'] })
 
-const web3Provider = getEthersProvider()
+// TODO: use wagmi provider
+const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
-export const useCurrentBlockNumber = () => {
+type UseCurrentBlockNumberInput = {
+  skip?: boolean
+}
+
+// TODO: remove and wagmi useBlockNumber() with infinite caching
+export const useCurrentBlockNumber = ({ skip }: UseCurrentBlockNumberInput = {}) => {
   const [block, setBlock] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!web3Provider || block) return
+    if (skip || block) return
+
+    const web3Provider = maybeEthersProvider()
+
+    if (!web3Provider) return
 
     web3Provider
       .getBlockNumber()
       .then(setBlock)
       .catch(error => moduleLogger.error(error))
-  }, [block])
+  }, [skip, block])
 
   return block
 }

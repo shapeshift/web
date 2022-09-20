@@ -1,21 +1,23 @@
 import { Center, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import type { DefiStepProps } from 'components/DeFi/components/Steps'
+import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -26,6 +28,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -38,7 +41,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnWithdraw'],
 })
 
-export const YearnWithdraw = () => {
+export const YearnWithdraw: React.FC<{
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: Nullable<AccountId>
+}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
@@ -112,18 +118,18 @@ export const YearnWithdraw = () => {
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Withdraw,
+        component: ownProps => <Withdraw {...ownProps} onAccountIdChange={handleAccountIdChange} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [translate, underlyingAsset.symbol])
+  }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])
 
   if (loading || !asset || !marketData)
     return (

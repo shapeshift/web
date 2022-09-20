@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
@@ -9,25 +10,28 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
   MemoryRouter,
   Redirect,
   Route,
-  RouteComponentProps,
   Switch,
   useHistory,
   useLocation,
 } from 'react-router'
+import { useEnsName } from 'wagmi'
 import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
-import { ChainIdType, isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import type { Nullable } from 'types/common'
 
-import { FiatRamp } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRamp } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
 
@@ -63,12 +67,14 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
+  // TODO: once MultiAccounts feature flag was removed, we can get rid of this
+  // whole addresses, since AccountDropdown will manage this part
   // We keep addresses in manager so we don't have to on every <Overview /> mount
   const [btcAddress, setBtcAddress] = useState<string>('')
   const [bchAddress, setBchAddress] = useState<string>('')
   const [dogeAddress, setDogeAddress] = useState<string>('')
   const [ltcAddress, setLtcAddress] = useState<string>('')
-  const [ethAddress, setEthAddress] = useState<string>('')
+  const [ethAddress, setEthAddress] = useState<string | undefined>()
   const [avalancheAddress, setAvalancheAddress] = useState<string>('')
   const [cosmosAddress, setCosmosAddress] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
@@ -88,6 +94,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -131,16 +138,18 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     cosmosChainAdapter,
   ])
 
+  const { data: ensNameResponse, isSuccess: isEnsNameLoaded } = useEnsName({
+    address: ethAddress,
+    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
+    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
+  })
+
   useEffect(() => {
     ;(async () => {
-      moduleLogger.trace({ fn: 'ensReverseLookup' }, 'ENS Reverse Lookup...')
-      try {
-        !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
-      } catch (e) {
-        moduleLogger.error(e, { fn: 'ensReverseLookup' }, 'ENS Reverse Lookup Failed')
-      }
+      if (ensName || !(isEnsNameLoaded && ensNameResponse)) return
+      setEnsName(ensNameResponse)
     })()
-  }, [ensName, ethAddress])
+  }, [ensName, ensNameResponse, ethAddress, isEnsNameLoaded])
 
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
     path: '/:fiatRampAction',
@@ -194,7 +203,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             dogeAddress={dogeAddress}
             ltcAddress={ltcAddress}
             cosmosAddress={cosmosAddress}
-            ethAddress={ethAddress}
+            ethAddress={ethAddress ?? ''}
             avalancheAddress={avalancheAddress}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}
@@ -203,6 +212,8 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             setChainId={setChainId}
             fiatRampProvider={fiatRampProvider}
             ensName={ensName}
+            handleAccountIdChange={setAccountId}
+            accountId={accountId}
           />
         </Route>
         {fiatRampProvider && (

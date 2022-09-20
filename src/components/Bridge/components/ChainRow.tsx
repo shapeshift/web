@@ -1,8 +1,9 @@
-import { Circle, SquareProps, Stack, TextProps } from '@chakra-ui/react'
+import type { SquareProps, TextProps } from '@chakra-ui/react'
+import { Circle, Stack } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 
-import { BridgeChain } from '../types'
+import type { BridgeChain } from '../types'
 
 type ChainRowProps = {
   symbol: string

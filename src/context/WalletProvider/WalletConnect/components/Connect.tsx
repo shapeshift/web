@@ -1,15 +1,16 @@
-import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
+import type { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import React, { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import { LocationState } from '../../NativeWallet/types'
+import type { LocationState } from '../../NativeWallet/types'
 import { WalletConnectConfig } from '../config'
 import { WalletNotFoundError } from '../Error'
 
@@ -103,7 +104,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       headerText={'walletProvider.walletConnect.connect.header'}
       bodyText={'walletProvider.walletConnect.connect.body'}
       buttonText={'walletProvider.walletConnect.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     />

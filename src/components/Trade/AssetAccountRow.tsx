@@ -1,12 +1,12 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { capitalize, words } from 'lodash'
 import { useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,

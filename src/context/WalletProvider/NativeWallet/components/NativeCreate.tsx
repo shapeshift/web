@@ -14,14 +14,15 @@ import {
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
 
-import { LocationState } from '../types'
+import type { LocationState } from '../types'
 const moduleLogger = logger.child({ namespace: ['NativeCreate'] })
 
 const getVault = async (): Promise<Vault> => {

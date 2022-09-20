@@ -1,17 +1,10 @@
 import { CheckIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  ButtonGroup,
-  ButtonGroupProps,
-  ButtonProps,
-  useId,
-  useRadio,
-  useRadioGroup,
-  UseRadioProps,
-} from '@chakra-ui/react'
-import { ThemeTypings } from '@chakra-ui/styled-system'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import Polyglot, { InterpolationOptions } from 'node-polyglot'
+import type { ButtonGroupProps, ButtonProps, UseRadioProps } from '@chakra-ui/react'
+import { Button, ButtonGroup, useId, useRadio, useRadioGroup } from '@chakra-ui/react'
+import type { ThemeTypings } from '@chakra-ui/styled-system'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
+import type Polyglot from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'

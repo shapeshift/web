@@ -1,15 +1,12 @@
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, cosmosAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 import {
   assetIds,
   btcAccountIds,
   btcAddresses,
   btcPubKeys,
-  cosmosAssetId,
   ethAccountIds,
-  ethAssetId,
   ethPubKeys,
-  foxAssetId,
   mockBtcAccount,
   mockBtcAddress,
   mockCosmosAccount,

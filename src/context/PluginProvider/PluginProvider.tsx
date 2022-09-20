@@ -1,11 +1,11 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { PluginManager } from 'plugins'
 import { activePlugins } from 'plugins/activePlugins'
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Route } from 'Routes/helpers'
+import type { Route } from 'Routes/helpers'
 import { logger } from 'lib/logger'
 import { partitionCompareWith } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -118,6 +118,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
       if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
       if (!featureFlags.Avalanche && chainId === KnownChainIds.AvalancheMainnet) return false
+      if (!featureFlags.Thorchain && chainId === KnownChainIds.ThorchainMainnet) return false
       return true
     })
 

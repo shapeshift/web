@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { BN, bn, bnOrZero } from './bignumber/bignumber'
+import type { BN } from './bignumber/bignumber'
+import { bn, bnOrZero } from './bignumber/bignumber'
 
 export const fromBaseUnit = (
   value: BigNumber.Value,

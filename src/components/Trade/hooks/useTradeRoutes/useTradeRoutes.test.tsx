@@ -1,5 +1,6 @@
+import { ethAssetId as mockEthAssetId, foxAssetId as mockFoxAssetId } from '@shapeshiftoss/caip'
 import { renderHook } from '@testing-library/react'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { mockChainAdapters } from 'test/mocks/portfolio'
@@ -25,11 +26,11 @@ jest.mock('hooks/useWallet/useWallet', () => ({
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({
-    'eip155:1/slip44:60': mockETH,
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX,
+    [mockEthAssetId]: mockETH,
+    [mockFoxAssetId]: mockFOX,
   }),
   selectAssetById: () => ({
-    'eip155:1/slip44:60': mockETH,
+    [mockEthAssetId]: mockETH,
   }),
 }))
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({

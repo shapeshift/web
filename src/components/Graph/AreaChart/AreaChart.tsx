@@ -1,5 +1,5 @@
-import { HistoryData } from '@shapeshiftoss/types'
-import { AxisScale } from '@visx/axis'
+import type { HistoryData } from '@shapeshiftoss/types'
+import type { AxisScale } from '@visx/axis'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { LinearGradient } from '@visx/gradient'
 import { Group } from '@visx/group'

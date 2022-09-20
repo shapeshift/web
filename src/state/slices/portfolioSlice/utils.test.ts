@@ -1,5 +1,6 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 
@@ -55,21 +56,21 @@ describe('accountIdToLabel', () => {
   })
 
   it('returns "Legacy" for xpubs', () => {
-    const label = 'LEGACY'
+    const label = 'Legacy'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)
   })
 
   it('returns "Segwit" for ypubs', () => {
-    const label = 'SEGWIT'
+    const label = 'Segwit'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:ypubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)
   })
 
   it('returns "Segwit Native" for zpubs', () => {
-    const label = 'SEGWIT NATIVE'
+    const label = 'Segwit Native'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)

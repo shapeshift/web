@@ -1,8 +1,9 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { Container, Text as CText, TextProps } from '@chakra-ui/react'
-import { Story } from '@storybook/react'
+import type { TextProps } from '@chakra-ui/react'
+import { Container, Text as CText } from '@chakra-ui/react'
+import type { Story } from '@storybook/react'
 
 import { RawText } from './Text'
 

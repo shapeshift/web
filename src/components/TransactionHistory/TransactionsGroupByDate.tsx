@@ -6,7 +6,7 @@ import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { selectAssetById, selectTxDateByIds } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type TransactionsGroupByDateProps = {

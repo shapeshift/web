@@ -1,5 +1,5 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -9,7 +9,8 @@ import { TransactionReceive } from 'components/TransactionHistoryRows/Transactio
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
 import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
-import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)
 

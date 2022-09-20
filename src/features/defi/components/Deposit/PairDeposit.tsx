@@ -266,6 +266,7 @@ export const PairDeposit = ({
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid}
           isLoading={isLoading}
+          data-test='defi-modal-continue-button'
           type='submit'
         >
           {translate(fieldError || 'common.continue')}

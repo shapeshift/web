@@ -14,6 +14,10 @@ export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const osmosisAssetId: AssetId = 'cosmos:osmosis-1/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-mainnet-v1/slip44:931'
+export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
+export const kavaAssetId: AssetId = 'cosmos:kava_2222-10/slip44:459'
+export const terraAssetId: AssetId = 'cosmos:phoenix-1/slip44:330'
+export const secretAssetId: AssetId = 'cosmos:secret-4/slip44:529'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const bchChainId: ChainId = 'bip122:000000000000000000651ef99cb9fcbe'
@@ -26,6 +30,10 @@ export const avalancheChainId: ChainId = 'eip155:43114'
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v1'
+export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
+export const kavaChainId: ChainId = 'cosmos:kava_2222-10'
+export const terraChainId: ChainId = 'cosmos:phoenix-1'
+export const secretChainId: ChainId = 'cosmos:secret-4'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -55,6 +63,14 @@ export const CHAIN_REFERENCE = {
   OsmosisTestnet: 'osmo-testnet-1',
   ThorchainMainnet: 'thorchain-mainnet-v1',
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
+  BinanceMainnet: 'binance-chain-tigris', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
+  BinanceTestnet: 'binance-chain-ganges', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
+  KavaMainnet: 'kava_2222-10', // https://github.com/Kava-Labs/rosetta-kava/blob/1c04619078a8d3293e296c66eb322c505589f2d6/services/construction_payloads.go#L115
+  KavaTestnet: 'kava_2221-16000', // https://github.com/Kava-Labs/rosetta-kava/blob/1c04619078a8d3293e296c66eb322c505589f2d6/services/construction_payloads.go#L117
+  TerraMainnet: 'phoenix-1', // https://docs.terra.money/full-node/run-a-full-terra-node/join-a-network/
+  TerraTestnet: 'pisco-1', // https://docs.terra.money/full-node/run-a-full-terra-node/join-a-network/
+  SecretMainnet: 'secret-4', // https://docs.scrt.network/secret-network-documentation/development/api-endpoints
+  SecretTestnet: 'pulsar-2', // https://docs.scrt.network/secret-network-documentation/development/api-endpoints
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -77,6 +93,10 @@ export const ASSET_REFERENCE = {
   Thorchain: '931',
   BitcoinCash: '145',
   AvalancheC: '9000',
+  Binance: '714',
+  Kava: '459',
+  Terra: '330',
+  Secret: '529',
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -99,6 +119,10 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.OsmosisMainnet,
     CHAIN_REFERENCE.OsmosisTestnet,
     CHAIN_REFERENCE.ThorchainMainnet,
+    CHAIN_REFERENCE.BinanceMainnet,
+    CHAIN_REFERENCE.KavaMainnet,
+    CHAIN_REFERENCE.TerraMainnet,
+    CHAIN_REFERENCE.SecretMainnet,
   ],
 })
 

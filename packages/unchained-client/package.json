@@ -15,7 +15,7 @@
     "build:local": "yarn clean && yarn generate:local && tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
     "clean": "rm -rf dist src/generated tsconfig.build.tsbuildinfo",
-    "generate": "TS_POST_PROCESS_FILE=./generator/ts-nocheck.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate && rm openapitools.json",
+    "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate && rm openapitools.json",
     "generate:dev": "cp generator/openapitools-dev.json openapitools.json && yarn generate",
     "generate:prod": "cp generator/openapitools-prod.json openapitools.json && yarn generate",
     "generate:local": "cp generator/openapitools-local.json openapitools.json && yarn generate",

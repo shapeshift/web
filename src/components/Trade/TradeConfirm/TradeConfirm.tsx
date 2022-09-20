@@ -169,11 +169,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const protocolFeeCryptoBaseUnit = toBaseUnit(protocolFeeCrypto, trade?.buyAsset?.precision ?? 0)
 
   const buyAmountCryptoBeforeFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount).plus(protocolFeeCryptoBaseUnit),
+    bnOrZero(trade?.buyAmount),
     trade?.buyAsset?.precision ?? 0,
   )
   const buyAmountCryptoAfterFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount),
+    bnOrZero(trade?.buyAmount).minus(protocolFeeCryptoBaseUnit),
     trade?.buyAsset?.precision ?? 0,
   )
 

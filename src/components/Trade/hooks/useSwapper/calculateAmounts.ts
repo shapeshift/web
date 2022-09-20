@@ -72,7 +72,7 @@ export const calculateAmounts = ({
       }
     }
     case TradeAmountInputField.BUY_CRYPTO: {
-      const tradeFeeToSellAsset = bnOrZero(tradeFee).div(assetPriceRatio)
+      const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
       const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
       const sellAmount = toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision)
       const sellAmountWithFees = positiveOrZero(

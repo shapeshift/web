@@ -165,8 +165,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
+  const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
+
   const buyAmountCryptoBeforeFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount).plus(bnOrZero(fees?.tradeFee)),
+    bnOrZero(trade?.buyAmount).plus(protocolFeeCrypto),
     trade?.buyAsset?.precision ?? 0,
   )
   const buyAmountCryptoAfterFees = fromBaseUnit(
@@ -228,7 +230,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   amount={buyAmountCryptoAfterFees}
                   fiatAmount={buyAmountFiat.toString()}
                   beforeFees={buyAmountCryptoBeforeFees}
-                  protocolFee={fees?.tradeFee}
+                  protocolFee={protocolFeeCrypto}
                   shapeShiftFee='0'
                   slippage={slippage}
                 />

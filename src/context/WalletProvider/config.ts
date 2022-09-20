@@ -84,9 +84,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/mobile/create-test', component: MobileTestPhrase },
       { path: '/mobile/success', component: MobileSuccess },
     ],
-    // @TODO: Update
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
   },
   [KeyManager.Native]: {
     ...NativeConfig,

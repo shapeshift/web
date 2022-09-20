@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiType, FoxyApi, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
-import type { BIP44Params, MarketData } from '@shapeshiftoss/types'
+import type { MarketData } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
@@ -12,12 +12,11 @@ import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketData,
-  selectPortfolioAssetBalances,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 
@@ -127,12 +126,20 @@ const makeMergedOpportunities = (
   })
 
 async function getFoxyOpportunities(
-  balances: PortfolioBalancesById,
+  state: any,
   api: FoxyApi,
-  userAddress: string,
   foxyApr: string,
-  bip44Params: BIP44Params,
+  accountId: AccountId,
 ) {
+  // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
+  const accountFilter = { accountId }
+  const userAddress = fromAccountId(accountId).account
+  const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
+
+  if (!bip44Params) {
+    throw new Error(`AccountMetadata for AccountId ${accountId} not loaded`)
+  }
+
   const acc: Record<string, FoxyOpportunity> = {}
   try {
     const opportunities = await api.getFoxyOpportunities()
@@ -148,6 +155,12 @@ async function getFoxyOpportunities(
         assetNamespace: 'erc20',
         assetReference: opportunity.rewardToken,
       })
+
+      const balance = selectPortfolioCryptoBalanceByFilter(state, {
+        accountId,
+        assetId: rewardTokenAssetId,
+      })
+
       const contractAssetId = toAssetId({
         chainId: opportunity.chain,
         assetNamespace: 'erc20',
@@ -158,7 +171,6 @@ async function getFoxyOpportunities(
         assetNamespace: 'erc20',
         assetReference: opportunity.stakingToken,
       })
-      const balance = balances[rewardTokenAssetId]
 
       const pricePerShare = api.pricePerShare()
       acc[opportunity.contractAddress] = {
@@ -215,29 +227,13 @@ export const foxyApi = createApi({
 
         const marketData = selectMarketData(state)
         const assets = selectAssets(state)
-        const balances = selectPortfolioAssetBalances(state)
-
-        // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
-        const accountFilter = { accountId }
-        const accountAddress = fromAccountId(accountId).account
-        const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
-
-        if (!bip44Params) {
-          return {
-            error: {
-              error: `Accountmetadata for account ${accountId} is not loaded`,
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
 
         try {
           const foxyOpportunities = await getFoxyOpportunities(
-            balances,
+            state,
             foxy,
-            accountAddress,
             foxyApr ?? '',
-            bip44Params,
+            accountId,
           )
 
           const totalBalance = makeTotalBalance(foxyOpportunities, assets, marketData)

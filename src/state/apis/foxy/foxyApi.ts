@@ -126,7 +126,7 @@ const makeMergedOpportunities = (
   })
 
 async function getFoxyOpportunities(
-  state: any,
+  state: any, // ReduxState - can't use the actual typings here because of circular dependencies
   api: FoxyApi,
   foxyApr: string,
   accountId: AccountId,

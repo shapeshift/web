@@ -2,8 +2,9 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import type { FieldError } from 'react-hook-form/dist/types/errors'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -29,12 +30,20 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorTranslationKey, setErrorTranslationKey] = useState<string>()
   const { setTradeAmounts } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
+  const {
+    control,
+    setValue,
+    getValues,
+    handleSubmit,
+    formState: { errors },
+  } = useFormContext<TradeState<KnownChainIds>>()
 
+  // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
@@ -130,6 +139,20 @@ export const TradeInput = () => {
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
     setValue('selectedBuyAssetAccountId', accountId)
 
+  useEffect(() => {
+    const errorTranslationKey = (() => {
+      // @ts-ignore - TS doesn't know about nested fields in FieldErrors
+      const buyAssetAmountError = errors.buyTradeAsset?.amount as FieldError | undefined
+      switch (true) {
+        case !!buyAssetAmountError:
+          return buyAssetAmountError!.message ?? ''
+        default:
+          return undefined
+      }
+    })()
+    setErrorTranslationKey(errorTranslationKey)
+  }, [errors.buyTradeAsset])
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -198,12 +221,12 @@ export const TradeInput = () => {
         </Stack>
         <Button
           type='submit'
-          colorScheme='blue'
+          colorScheme={errorTranslationKey ? 'red' : 'blue'}
           size='lg'
-          isDisabled={!quote}
+          isDisabled={!quote || !!errorTranslationKey}
           isLoading={isLoading}
         >
-          {translate('trade.previewTrade')}
+          {translate(errorTranslationKey ?? 'trade.previewTrade')}
         </Button>
       </Stack>
     </SlideTransition>

@@ -9,7 +9,7 @@ import { useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TS>()
+  const { control, setValue, setError, clearErrors } = useFormContext<TS>()
   const buyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -28,6 +28,25 @@ export const useTradeAmounts = () => {
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
 
+  type ValidateAmountsArgs = {
+    buyTradeAssetAmount: string
+    sellTradeAssetAmount: string
+  }
+
+  const validateAmounts = useCallback(
+    ({ buyTradeAssetAmount, sellTradeAssetAmount }: ValidateAmountsArgs) => {
+      const sellAmountsDoesNotCoverFees =
+        bnOrZero(buyTradeAssetAmount).isZero() && bnOrZero(sellTradeAssetAmount).isGreaterThan(0)
+      sellAmountsDoesNotCoverFees
+        ? setError('buyTradeAsset.amount', {
+            type: 'manual',
+            message: 'trade.errors.sellAmountDoesNotCoverFee',
+          })
+        : clearErrors('buyTradeAsset.amount')
+    },
+    [clearErrors, setError],
+  )
+
   const setTradeAmounts = useCallback(
     ({ amount = formAmount, action = formAction }: setTradeAmountsArgs) => {
       const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate))
@@ -43,10 +62,13 @@ export const useTradeAmounts = () => {
             selectedCurrencyToUsdRate,
             tradeFee,
           })
+        const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, buyAsset.precision)
+        const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, sellAsset.precision)
+        validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
         setValue('fiatSellAmount', fiatSellAmount)
         setValue('fiatBuyAmount', fiatBuyAmount)
-        setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision))
-        setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision))
+        setValue('buyTradeAsset.amount', buyTradeAssetAmount)
+        setValue('sellTradeAsset.amount', sellTradeAssetAmount)
       }
     },
     [
@@ -59,6 +81,7 @@ export const useTradeAmounts = () => {
       sellAsset,
       sellAssetFiatRate,
       setValue,
+      validateAmounts,
     ],
   )
 

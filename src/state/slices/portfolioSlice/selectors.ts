@@ -770,26 +770,76 @@ export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector
 )
 
 /**
+ * shape of PortfolioAccountBalancesById, but just delegation/undelegation/redelagation
+ * amounts in base units
+ */
+export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  (accounts): PortfolioAccountBalancesById => {
+    return Object.entries(accounts).reduce<PortfolioAccountBalancesById>(
+      (acc, [accountId, account]) => {
+        Object.values(account?.stakingDataByValidatorId ?? {}).forEach(stakingDataByAssetId => {
+          Object.values(stakingDataByAssetId).forEach(stakingData => {
+            const { delegations, redelegations, undelegations } = stakingData
+            const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
+            const combined = [...delegations, ...redelegationEntries, ...undelegations]
+            combined.forEach(({ assetId, amount }) => {
+              if (!acc[accountId]) acc[accountId] = {}
+              acc[accountId][assetId] = bnOrZero(acc[accountId][assetId]).plus(amount).toString()
+            })
+          })
+        })
+        return acc
+      },
+      {},
+    )
+  },
+)
+
+/**
+ * returns crypto human staking amount by assetId and accountId filter
+ */
+export const selectPortfolioStakingCryptoHumanBalanceByFilter = createSelector(
+  selectAssets,
+  selectPortfolioStakingCryptoBalances,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
+  (assets, stakingBalances, assetIdFilter, accountIdFilter): string => {
+    return Object.entries(stakingBalances)
+      .filter(([accountId]) => (accountIdFilter ? accountId === accountIdFilter : true))
+      .reduce<BigNumber>((acc, [, account]) => {
+        Object.entries(account)
+          .filter(([assetId]) => (assetIdFilter ? assetId === assetIdFilter : true))
+          .forEach(([assetId, balance]) => {
+            acc = acc.plus(bnOrZero(fromBaseUnit(bnOrZero(balance), assets[assetId].precision)))
+          })
+
+        return acc
+      }, bn(0))
+      .toString()
+  },
+)
+
+/**
  * selects all accounts in PortfolioAccountBalancesById form, including all
  * delegation, undelegation, and redelegation balances, with base unit crypto balances
  */
 export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepEqualOutputSelector(
-  selectPortfolioAccounts,
   selectPortfolioAccountBalances,
-  (accounts, accountBalances): PortfolioAccountBalancesById => {
-    return Object.entries(accounts).reduce((acc, [accountId, account]) => {
-      Object.values(account?.stakingDataByValidatorId ?? {}).forEach(stakingDataByAssetId => {
-        Object.values(stakingDataByAssetId).forEach(stakingData => {
-          const { delegations, redelegations, undelegations } = stakingData
-          const redelegationEntries = redelegations.flatMap(redelegation => redelegation.entries)
-          const combined = [...delegations, ...redelegationEntries, ...undelegations]
-          combined.forEach(({ assetId, amount }) => {
-            acc[accountId][assetId] = bnOrZero(acc[accountId][assetId]).plus(amount).toString()
-          })
+  selectPortfolioStakingCryptoBalances,
+  (accountBalances, stakingBalances): PortfolioAccountBalancesById => {
+    return Object.entries(accountBalances).reduce<PortfolioAccountBalancesById>(
+      (acc, [accountId, account]) => {
+        if (!acc[accountId]) acc[accountId] = {}
+        Object.entries(account).forEach(([assetId, balance]) => {
+          acc[accountId][assetId] = bnOrZero(balance)
+            .plus(bnOrZero(stakingBalances[accountId]?.[assetId]))
+            .toString()
         })
-      })
-      return acc
-    }, cloneDeep(accountBalances))
+        return acc
+      },
+      {},
+    )
   },
 )
 

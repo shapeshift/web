@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.1.1...@shapeshiftoss/unchained-client-v10.1.2) (2022-09-20)
+
+
+### Bug Fixes
+
+* use json response instead of text response for generated fetch api ([#1035](https://github.com/shapeshift/lib/issues/1035)) ([ba725de](https://github.com/shapeshift/lib/commit/ba725dee6eb8811827075e90dadb2c369d642d4c))
+
 # [@shapeshiftoss/unchained-client-v10.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.1.0...@shapeshiftoss/unchained-client-v10.1.1) (2022-09-16)
 
 # [@shapeshiftoss/unchained-client-v10.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.0.2...@shapeshiftoss/unchained-client-v10.1.0) (2022-09-12)

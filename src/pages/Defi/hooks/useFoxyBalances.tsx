@@ -23,7 +23,7 @@ export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
   )
 
   const userAddress = useMemo(() => {
-    const accountId = accountsByNumber[accountNumber ?? 0]?.[0] // Only one account zero for EVM chains i.e no multiple scriptTypes - use 0 as a default fetched account
+    const accountId = accountsByNumber[accountNumber ?? 0]?.[0] // Only one address per account for EVM chains i.e no multiple accountTypes
     return accountId ? fromAccountId(accountId).account : null
   }, [accountNumber, accountsByNumber])
 

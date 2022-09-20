@@ -38,7 +38,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     assetNamespace,
     assetReference,
   })
-  const { data: foxyBalancesData } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
   const opportunity = (foxyBalancesData?.opportunities || []).find(
     e => e.contractAddress === contractAddress,
   )

@@ -88,7 +88,7 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const { refetch: refetchFoxyBalances } = useFoxyBalances()
+  const { refetch: refetchFoxyBalances } = useFoxyBalances({ accountNumber: 0 })
   useEffect(() => {
     ;(async () => {
       if (!foxy || !txid) return

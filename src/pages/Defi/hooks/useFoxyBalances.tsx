@@ -1,12 +1,11 @@
-import { ethChainId, toAccountId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
 import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
-import type { Nullable } from 'types/common'
+import { selectPortfolioAccountsGroupedByNumberByChainId } from 'state/slices/portfolioSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 export type UseFoxyBalancesReturn = {
   opportunities: MergedFoxyOpportunity[]
@@ -14,25 +13,19 @@ export type UseFoxyBalancesReturn = {
   loading: boolean
 }
 
-export function useFoxyBalances({
-  defaultUserAddress,
-}: { defaultUserAddress?: Nullable<string> } = {}) {
-  const [userAddress, setUserAddress] = useState<string | null>(null)
-
+export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
   const {
     state: { wallet },
   } = useWallet()
 
-  useEffect(() => {
-    ;(async () => {
-      const chainAdapter = getChainAdapterManager().get(KnownChainIds.EthereumMainnet)
-      if (!chainAdapter || !wallet) return
-      // TODO accountNumber needs to come from account metadata
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
-      const userAddress = await chainAdapter.getAddress({ wallet, bip44Params })
-      setUserAddress(userAddress)
-    })()
-  }, [wallet, defaultUserAddress])
+  const accountsByNumber = useAppSelector(state =>
+    selectPortfolioAccountsGroupedByNumberByChainId(state, { chainId: ethChainId }),
+  )
+
+  const userAddress = useMemo(() => {
+    const accountId = accountsByNumber[accountNumber ?? 0]?.[0] // Only one account zero for EVM chains i.e no multiple scriptTypes - use 0 as a default fetched account
+    return accountId ? fromAccountId(accountId).account : null
+  }, [accountNumber, accountsByNumber])
 
   const { data: foxyAprData } = useGetFoxyAprQuery()
 
@@ -40,13 +33,13 @@ export function useFoxyBalances({
 
   const accountId = useMemo(
     () =>
-      defaultUserAddress || userAddress
+      userAddress?.length
         ? toAccountId({
             chainId: ethChainId,
-            account: (defaultUserAddress ?? userAddress)!,
+            account: userAddress!,
           })
         : null,
-    [defaultUserAddress, userAddress],
+    [userAddress],
   )
 
   const foxyBalances = useGetFoxyBalancesQuery(
@@ -55,11 +48,7 @@ export function useFoxyBalances({
       accountId: accountId!,
     },
     {
-      skip:
-        !Boolean((userAddress ?? defaultUserAddress)?.length) ||
-        !foxyAprData ||
-        !supportsEthereumChain ||
-        !accountId,
+      skip: !Boolean(userAddress?.length) || !foxyAprData || !supportsEthereumChain || !accountId,
     },
   )
 

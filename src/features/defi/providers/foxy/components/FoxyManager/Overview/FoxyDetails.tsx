@@ -19,7 +19,9 @@ import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 export const FoxyDetails = () => {
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
+    accountNumber: 0,
+  })
   const {
     query,
     history: browserHistory,

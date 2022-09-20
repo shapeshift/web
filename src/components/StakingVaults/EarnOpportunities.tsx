@@ -36,7 +36,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
 
   const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
   const featureFlags = useAppSelector(selectFeatureFlags)

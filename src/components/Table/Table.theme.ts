@@ -52,7 +52,7 @@ export const TableStyle = {
       return {
         tbody: {
           tr: {
-            borderRadius: 'lg',
+            borderRadius: 'xl',
             _focus: {
               boxShadow: 'outline-inset',
             },
@@ -79,10 +79,10 @@ export const TableStyle = {
               bg: mode('gray.200', 'gray.700')(props),
             },
             'td:first-of-type': {
-              borderLeftRadius: 'lg',
+              borderLeftRadius: 'xl',
             },
             'td:last-of-type': {
-              borderRightRadius: 'lg',
+              borderRightRadius: 'xl',
             },
           },
         },

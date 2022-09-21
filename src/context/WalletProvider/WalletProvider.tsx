@@ -376,6 +376,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       },
                     })
                     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                    // Turn off the loading spinner for the wallet button in
+                    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                   } else {
                     disconnect()
                   }

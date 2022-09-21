@@ -14,8 +14,8 @@ REACT_APP_PENDO_UNSAFE_DESIGNER_MODE=false
 REACT_APP_REFERRER=no-referrer
 
 # unchained
-REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://dev-api.ethereum.shapeshift.com
-REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://dev-api.ethereum.shapeshift.com
+REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://api.ethereum.shapeshift.com
+REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL=https://api.avalanche.shapeshift.com
 REACT_APP_UNCHAINED_AVALANCHE_WS_URL=wss://api.avalanche.shapeshift.com
 REACT_APP_UNCHAINED_BITCOIN_HTTP_URL=https://api.bitcoin.shapeshift.com

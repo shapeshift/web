@@ -74,7 +74,9 @@ export const Withdraw: React.FC<
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId }))
+
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))

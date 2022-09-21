@@ -20,9 +20,9 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
-type ParseByChainId = (chainId: ChainId, url: string) => ParserReturn | undefined
+type ParseUrlByChainId = (chainId: ChainId, url: string) => ParseUrlByChainIdReturn | undefined
 
-type ParserReturn = {
+type ParseUrlByChainIdReturn = {
   target_address: string
   parameters?: {
     value: string
@@ -32,7 +32,7 @@ type ParserReturn = {
 }
 
 // @TODO: Implement BIP21
-const parseByChainId: ParseByChainId = (chainId: ChainId, url: string) => {
+const parseUrlByChainId: ParseUrlByChainId = (chainId: ChainId, url: string) => {
   switch (chainId) {
     case ethChainId:
       try {
@@ -184,7 +184,7 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async ({ value, chainId }) => {
-  const decodedUrlDatas = parseByChainId(chainId, value)
+  const decodedUrlDatas = parseUrlByChainId(chainId, value)
 
   const args: ParseAddressInputArgs = {
     value:

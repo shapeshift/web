@@ -13,7 +13,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
@@ -185,8 +185,8 @@ export const TradeInput = () => {
             assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={sellTradeAsset?.amount}
-            fiatAmount={fiatSellAmount}
+            cryptoAmount={positiveOrZero(sellTradeAsset?.amount).toString()}
+            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
             isSendMaxDisabled={!quote}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
@@ -218,8 +218,8 @@ export const TradeInput = () => {
             assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={buyTradeAsset?.amount}
-            fiatAmount={fiatBuyAmount}
+            cryptoAmount={positiveOrZero(buyTradeAsset?.amount).toString()}
+            fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}

@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 type CalculateAmountsArgs = {
@@ -41,9 +41,7 @@ export const calculateAmounts = ({
   switch (action) {
     case TradeAmountInputField.SELL_CRYPTO: {
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
-      const buyAmountAfterFees = positiveOrZero(
-        bnOrZero(buyAmount).minus(tradeFeeBaseUnit),
-      ).toString()
+      const buyAmountAfterFees = bnOrZero(buyAmount).minus(tradeFeeBaseUnit).toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),
         cryptoBuyAmount: buyAmountAfterFees,
@@ -58,9 +56,7 @@ export const calculateAmounts = ({
       }
     }
     case TradeAmountInputField.SELL_FIAT: {
-      const buyAmountAfterFees = positiveOrZero(
-        bnOrZero(cryptoBuyAmount).minus(tradeFeeBaseUnit),
-      ).toString()
+      const buyAmountAfterFees = bnOrZero(cryptoBuyAmount).minus(tradeFeeBaseUnit).toString()
       return {
         cryptoSellAmount,
         cryptoBuyAmount: buyAmountAfterFees,
@@ -75,9 +71,7 @@ export const calculateAmounts = ({
       const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
       const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
       const sellAmount = toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision)
-      const sellAmountWithFees = positiveOrZero(
-        bnOrZero(sellAmount).plus(tradeFeeToSellAssetBaseUnit),
-      ).toString()
+      const sellAmountWithFees = bnOrZero(sellAmount).plus(tradeFeeToSellAssetBaseUnit).toString()
       return {
         cryptoSellAmount: sellAmountWithFees,
         cryptoBuyAmount: toBaseUnit(amount, buyAsset.precision),
@@ -95,9 +89,9 @@ export const calculateAmounts = ({
       const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
 
       const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
-      const sellAmountWithFees = positiveOrZero(
-        bnOrZero(cryptoSellAmount).plus(tradeFeeToSellAssetBaseUnit),
-      ).toString()
+      const sellAmountWithFees = bnOrZero(cryptoSellAmount)
+        .plus(tradeFeeToSellAssetBaseUnit)
+        .toString()
       return {
         cryptoSellAmount: sellAmountWithFees,
         cryptoBuyAmount,

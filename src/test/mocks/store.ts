@@ -68,6 +68,7 @@ export const mockStore: ReduxState = {
       MultiAccounts: false,
       SwapperV2: false,
       WalletConnectToDapps: false,
+      MigrationMessage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

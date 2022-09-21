@@ -25,6 +25,7 @@ export type FeatureFlags = {
   MultiAccounts: boolean
   SwapperV2: boolean
   WalletConnectToDapps: boolean
+  MigrationMessage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -62,6 +63,7 @@ const initialState: Preferences = {
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
+    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

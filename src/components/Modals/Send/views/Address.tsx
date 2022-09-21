@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -40,9 +40,6 @@ export const Address = () => {
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
-
-  // reset address when asset changes
-  useEffect(() => setValue(SendFormFields.Input, ''), [asset, setValue])
 
   if (!asset) return null
   const { chainId } = asset
@@ -88,11 +85,15 @@ export const Address = () => {
                   setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   // this does not throw, everything inside is handled
-                  const { address, vanityAddress } = await parseAddressInput({ chainId, value })
+                  const { address, vanityAddress } = await parseAddressInput({
+                    chainId,
+                    value,
+                  })
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
+
                   const invalidMessage =
                     isYatFeatureEnabled && isYatSupportedChain
                       ? 'common.invalidAddressOrYat'

@@ -16,8 +16,8 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const { control } = useFormContext<SendInput<ChainId>>()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ control, name: SendFormFields.Asset })
+  const { setValue } = useFormContext<SendInput<ChainId>>()
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const history = useHistory()
   const translate = useTranslate()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
@@ -35,7 +35,13 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             spellCheck={false}
             autoFocus
             fontSize='sm'
-            onChange={e => onChange(e.target.value.trim())}
+            onChange={e => {
+              if (e.target.value.trim() === '') {
+                setValue(SendFormFields.Address, '')
+              }
+
+              onChange(e.target.value.trim())
+            }}
             placeholder={translate(
               isYatFeatureEnabled && isYatSupportedChain
                 ? 'modals.send.addressInput'
@@ -45,9 +51,10 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             value={value}
             variant='filled'
             data-test='send-address-input'
+            // Because the InputRightElement is hover the input, we need to let this space free
+            pe={10}
           />
         )}
-        control={control}
         name={SendFormFields.Input}
         rules={rules}
       />

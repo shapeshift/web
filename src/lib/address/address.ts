@@ -14,10 +14,36 @@ import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
 
-const moduleLogger = logger.child({ namespace: ['address'] })
+const moduleLogger = logger.child({ namespace: ['lib', 'address'] })
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
+}
+
+type ParseByChainId = (chainId: ChainId, url: string) => ParserReturn | undefined
+
+type ParserReturn = {
+  target_address: string
+  parameters?: {
+    value: string
+    gas: string
+    gasPrice: string
+  }
+}
+
+// @TODO: Implement BIP21
+const parseByChainId: ParseByChainId = (chainId: ChainId, url: string) => {
+  switch (chainId) {
+    case ethChainId:
+      try {
+        return parse(url)
+      } catch (error) {
+        moduleLogger.trace(error, 'cannot parse eip681 address')
+      }
+      break
+    default:
+      return
+  }
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
@@ -156,18 +182,12 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async ({ value, chainId }) => {
-  let eip681Address
-
-  try {
-    eip681Address = parse(value)
-  } catch (error) {
-    moduleLogger.trace(error, 'cannot parse eip681 address')
-  }
+  const decodedUrlDatas = parseByChainId(chainId, value)
 
   const args: ParseAddressInputArgs = {
     value:
-      eip681Address?.target_address && !eip681Address.parameters
-        ? eip681Address.target_address
+      decodedUrlDatas?.target_address && !decodedUrlDatas.parameters
+        ? decodedUrlDatas.target_address
         : value,
     chainId,
   }

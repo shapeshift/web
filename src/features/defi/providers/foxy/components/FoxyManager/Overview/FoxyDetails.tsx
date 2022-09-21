@@ -1,9 +1,11 @@
 import { Center, Flex, ModalBody, ModalFooter, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useMemo } from 'react'
 import { matchPath } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -12,15 +14,23 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const FoxyDetails = () => {
+type FoxyDetailsProps = {
+  accountId: Nullable<AccountId>
+}
+
+export const FoxyDetails: React.FC<FoxyDetailsProps> = ({ accountId }) => {
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
-    accountNumber: 0,
+    accountNumber: bip44Params?.accountNumber,
   })
   const {
     query,

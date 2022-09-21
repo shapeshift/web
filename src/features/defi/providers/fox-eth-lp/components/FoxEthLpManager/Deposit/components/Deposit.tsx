@@ -22,7 +22,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -61,10 +61,16 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // user info
   const foxBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: foxAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: foxAssetId,
+      accountId: accountId ?? '',
+    }),
   )
   const ethBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: ethAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: ethAssetId,
+      accountId: accountId ?? '',
+    }),
   )
 
   // notify

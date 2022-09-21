@@ -32,6 +32,8 @@ jest.mock('state/slices/selectors', () => ({
   selectAssetById: () => ({
     [mockEthAssetId]: mockETH,
   }),
+  selectAccountSpecifiers: () => ({}),
+  selectFiatToUsdRate: () => ({}),
 }))
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

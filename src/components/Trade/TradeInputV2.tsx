@@ -42,6 +42,7 @@ export const TradeInput = () => {
     handleSubmit,
     formState: { errors },
   } = useFormContext<TradeState<KnownChainIds>>()
+  const { setTradeAmountsOnAssetChange } = useTradeAmounts()
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -77,13 +78,36 @@ export const TradeInput = () => {
     setTradeAmounts({ amount, action })
   }
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     try {
-      const currentSellTradeAsset = getValues('sellTradeAsset')
-      const currentBuyTradeAsset = getValues('buyTradeAsset')
-      if (!(currentSellTradeAsset?.asset && currentBuyTradeAsset?.asset)) return
+      const currentValues = Object.freeze(getValues())
+      const currentSellTradeAsset = currentValues.sellTradeAsset
+      const currentBuyTradeAsset = currentValues.buyTradeAsset
+      const currentBuyAsset = currentBuyTradeAsset?.asset
+      const currentSellAssetId = currentSellTradeAsset?.asset?.assetId
+      const currentBuyAssetId = currentBuyAsset?.assetId
+      if (
+        !(
+          currentSellTradeAsset &&
+          currentBuyTradeAsset &&
+          currentSellAssetId &&
+          currentBuyAssetId &&
+          currentBuyAsset
+        )
+      )
+        return
+
       setValue('sellTradeAsset', currentBuyTradeAsset)
       setValue('buyTradeAsset', currentSellTradeAsset)
+      setValue('fiatBuyAmount', currentValues.fiatSellAmount)
+      setValue('fiatSellAmount', currentValues.fiatBuyAmount)
+
+      await setTradeAmountsOnAssetChange({
+        sellAssetId: currentBuyAssetId,
+        buyAssetId: currentSellAssetId,
+        feeAssetId: ethAssetId, // fixme
+        sellAmount: currentBuyTradeAsset.amount || '0',
+      })
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }

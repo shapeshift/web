@@ -1,6 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -17,19 +18,19 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectFirstAccountSpecifierByChainId,
-  selectMarketDataById,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Status = () => {
+type StatusProps = {
+  accountId: Nullable<AccountId>
+}
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
@@ -48,9 +49,7 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
-  )
+  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -59,9 +58,10 @@ export const Status = () => {
   const handleCancel = history.goBack
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, state?.userAddress)
-  }, [state?.txid, state?.userAddress, accountSpecifier])
+    if (!(state?.txid && accountId && accountAddress?.length)) return ''
+    return serializeTxIndex(accountId, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountId])
+
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

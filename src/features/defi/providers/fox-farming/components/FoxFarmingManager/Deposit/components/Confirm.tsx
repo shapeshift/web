@@ -1,5 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -9,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -26,6 +27,7 @@ import {
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -34,7 +36,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Deposit', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
+  accountId,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -51,6 +56,10 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
 
   // notify
   const toast = useToast()
@@ -63,7 +72,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
 
   const handleDeposit = async () => {
     try {
-      if (!state.userAddress || !assetReference || !walletState.wallet) return
+      if (!accountAddress || !assetReference || !walletState.wallet) return
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       const txid = await stake(state.deposit.cryptoAmount)
       if (!txid) throw new Error('Transaction failed')

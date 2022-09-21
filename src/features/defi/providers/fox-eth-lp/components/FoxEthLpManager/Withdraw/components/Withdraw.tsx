@@ -176,6 +176,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
         asset={asset}
         icons={opportunity.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
@@ -208,6 +209,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         <>
           <Text translation='common.receive' />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={foxAmount}
             fiatAmount={bnOrZero(foxAmount).times(foxMarketData.price).toFixed(2)}
             showFiatAmount={true}
@@ -219,6 +221,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             isReadOnly={true}
           />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={ethAmount}
             fiatAmount={bnOrZero(ethAmount).times(ethMarketData.price).toFixed(2)}
             showFiatAmount={true}

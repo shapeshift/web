@@ -19,7 +19,7 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { FriendlyCaptcha } from 'context/WalletProvider/NativeWallet/components/Captcha'
+import { FriendlyCaptcha } from 'context/WalletProvider/NativeWallet/components/LegacyMigration/Captcha'
 import { getPasswordHash } from 'lib/cryptography/login'
 import { logger } from 'lib/logger'
 

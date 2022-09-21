@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { InputProps } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -198,12 +199,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {handleAccountIdChange && assetId && (
-        <AccountDropdown
-          {...(accountId ? { defaultAccountId: accountId } : {})}
-          assetId={assetId}
-          onChange={handleAccountIdChange}
-          buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
-        />
+        <Box px={2} my={2}>
+          <AccountDropdown
+            {...(accountId ? { defaultAccountId: accountId } : {})}
+            assetId={assetId}
+            onChange={handleAccountIdChange}
+            buttonProps={{ variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }}
+          />
+        </Box>
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (

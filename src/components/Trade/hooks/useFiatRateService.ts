@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import type { TS } from 'components/Trade/types'
-import { type GetUsdRateArgs, useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
+import { useGetUsdRatesQuery } from 'state/apis/swapper/swapperApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -15,8 +15,8 @@ It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
   // Types
-  type UsdRateQueryInput = Parameters<typeof useGetUsdRateQuery>
-  type UsdRateInputArg = UsdRateQueryInput[0]
+  type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
+  type UsdRatesInputArg = UsdRatesQueryInput[0]
 
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
@@ -24,10 +24,7 @@ export const useFiatRateService = () => {
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 
   // State
-  const [buyAssetFiatRateArgs, setBuyAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
-  const [sellAssetFiatRateArgs, setSellAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
-  const [feeAssetFiatRateArgs, setFeeAssetFiatRateArgs] = useState<UsdRateInputArg>(skipToken)
-  const [isLoadingFiatRateData, setIsLoadingFiatRateData] = useState(false)
+  const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArg>(skipToken)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -43,72 +40,29 @@ export const useFiatRateService = () => {
   const { setTradeAmounts } = useTradeAmounts()
 
   // API
-  const { data: buyAssetFiatRateData, isLoading: isLoadingBuyAssetFiatRate } = useGetUsdRateQuery(
-    buyAssetFiatRateArgs,
-    {
-      pollingInterval: 30000,
-      selectFromResult: ({ data, isLoading }) => ({
-        data: data?.usdRate,
-        isLoading,
-      }),
-    },
-  )
-  const { data: sellAssetFiatRateData, isLoading: isLoadingSellAssetFiatRate } = useGetUsdRateQuery(
-    sellAssetFiatRateArgs,
-    {
-      pollingInterval: 30000,
-      selectFromResult: ({ data, isLoading }) => ({
-        data: data?.usdRate,
-        isLoading,
-      }),
-    },
-  )
-  const { data: feeAssetFiatRateData, isLoading: isLoadingFeeAssetFiatRateData } =
-    useGetUsdRateQuery(feeAssetFiatRateArgs, {
-      pollingInterval: 30000,
-      selectFromResult: ({ data, isLoading }) => ({
-        data: data?.usdRate,
-        isLoading,
-      }),
-    })
+  const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
+    pollingInterval: 30000,
+  })
 
-  useEffect(() => {
-    setIsLoadingFiatRateData(
-      isLoadingBuyAssetFiatRate || isLoadingSellAssetFiatRate || isLoadingFeeAssetFiatRateData,
-    )
-  }, [isLoadingBuyAssetFiatRate, isLoadingFeeAssetFiatRateData, isLoadingSellAssetFiatRate])
-
-  // Trigger fiat rate queries
+  // Trigger fiat rate query
   useEffect(() => {
     if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId) {
-      const fiatArgsCommon: Pick<GetUsdRateArgs, 'buyAssetId' | 'sellAssetId'> = {
-        buyAssetId: buyTradeAssetId!,
-        sellAssetId: sellTradeAssetId!,
-      }
-      setBuyAssetFiatRateArgs({
-        ...fiatArgsCommon,
-        rateAssetId: buyTradeAssetId!,
-      })
-      setSellAssetFiatRateArgs({
-        ...fiatArgsCommon,
-        rateAssetId: sellTradeAssetId!,
-      })
-      setFeeAssetFiatRateArgs({
-        ...fiatArgsCommon,
-        rateAssetId: sellAssetFeeAssetId,
+      setUsdRatesArgs({
+        buyAssetId: buyTradeAssetId,
+        sellAssetId: sellTradeAssetId,
+        feeAssetId: sellAssetFeeAssetId,
       })
     }
   }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId])
 
   // Set fiat rates
   useEffect(() => {
-    buyAssetFiatRateData && setValue('buyAssetFiatRate', buyAssetFiatRateData)
-    sellAssetFiatRateData && setValue('sellAssetFiatRate', sellAssetFiatRateData)
-    feeAssetFiatRateData && setValue('feeAssetFiatRate', feeAssetFiatRateData)
-
-    // Set (update) trade amounts when fiat rates are updated
-    setTradeAmounts({})
-  }, [buyAssetFiatRateData, feeAssetFiatRateData, sellAssetFiatRateData, setTradeAmounts, setValue])
+    if (usdRates) {
+      setValue('buyAssetFiatRate', usdRates.buyAssetUsdRate)
+      setValue('sellAssetFiatRate', usdRates.sellAssetUsdRate)
+      setValue('feeAssetFiatRate', usdRates.feeAssetUsdRate)
+    }
+  }, [usdRates, setTradeAmounts, setValue])
 
   return { isLoadingFiatRateData }
 }

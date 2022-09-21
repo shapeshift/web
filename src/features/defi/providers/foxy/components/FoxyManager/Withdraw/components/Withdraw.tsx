@@ -266,7 +266,7 @@ export const Withdraw: React.FC<
       <ReusableWithdraw
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
-        asset={stakingAsset}
+        asset={asset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,

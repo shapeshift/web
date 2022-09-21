@@ -29,13 +29,13 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
   selectCryptoBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
+  selectPortfolioStakingCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -72,11 +72,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
   const cryptoBalance = useAppSelector(s => selectCryptoBalanceIncludingStakingByFilter(s, filter))
 
-  const earnBalances = useEarnBalances()
-  const delegationBalance = useMemo(() => {
-    const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
-    return assetEarnBalance?.cryptoAmount ?? '0'
-  }, [assetId, earnBalances.opportunities])
+  const stakingFiatBalance = useAppSelector(s =>
+    selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
+  )
 
   useEffect(() => {
     bnOrZero(fiatBalance).gt(0) && setView(View.Balance)
@@ -137,7 +135,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingFiatBalance).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -154,7 +152,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
-                    value={delegationBalance}
+                    value={stakingFiatBalance}
                     symbol={asset.symbol}
                     suffix={translate('defi.staked')}
                   />

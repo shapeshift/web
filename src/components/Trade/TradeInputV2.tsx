@@ -105,7 +105,6 @@ export const TradeInput = () => {
       await setTradeAmountsOnAssetChange({
         sellAssetId: currentBuyAssetId,
         buyAssetId: currentSellAssetId,
-        feeAssetId: ethAssetId, // fixme
         sellAmount: currentBuyTradeAsset.amount || '0',
       })
     } catch (e) {

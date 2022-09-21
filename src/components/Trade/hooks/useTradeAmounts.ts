@@ -10,6 +10,7 @@ import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -54,7 +55,6 @@ export const useTradeAmounts = () => {
   type SetTradeAmountsOnAssetChangeArgs = {
     sellAssetId?: AssetId
     buyAssetId?: AssetId
-    feeAssetId: AssetId
     sellAmount: string
   }
 
@@ -138,18 +138,15 @@ export const useTradeAmounts = () => {
   )
 
   const setTradeAmountsOnAssetChange = useCallback(
-    async ({
-      sellAssetId,
-      buyAssetId,
-      feeAssetId,
-      sellAmount,
-    }: SetTradeAmountsOnAssetChangeArgs) => {
+    async ({ sellAssetId, buyAssetId, sellAmount }: SetTradeAmountsOnAssetChangeArgs) => {
       const buyAssetIdToUse = buyAssetId ?? buyAssetFormState?.assetId
       const sellAssetIdToUse = sellAssetId ?? sellAssetFormState?.assetId
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
       const buyAsset = assets[buyAssetIdToUse]
-      const sellAsset = assets[sellAssetIdToUse]
+      const feeAssetId = getChainAdapterManager().get(buyAsset.chainId)?.getFeeAssetId()
+      if (!feeAssetId) return
       const feeAsset = assets[feeAssetId]
+      const sellAsset = assets[sellAssetIdToUse]
       const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
       if (!receiveAddress) return
 

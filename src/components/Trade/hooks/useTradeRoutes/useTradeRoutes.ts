@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import type { TS } from 'components/Trade/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
@@ -15,12 +16,13 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TS>()
+  const { setTradeAmountsOnAssetChange } = useTradeAmounts()
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
   const fiatSellAmount = getValues('fiatSellAmount')
 
   const handleAssetClick = useCallback(
-    (asset: Asset, action: AssetClickAction) => {
+    async (asset: Asset, action: AssetClickAction) => {
       const isBuy = action === AssetClickAction.Buy
       const isSell = action === AssetClickAction.Sell
       const isSameAsset =
@@ -44,7 +46,14 @@ export const useTradeRoutes = (): {
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
       setValue('amount', fiatSellAmount ?? '0')
+
       history.push(TradeRoutePaths.Input)
+
+      await setTradeAmountsOnAssetChange({
+        sellAssetId: isSell ? asset.assetId : undefined,
+        buyAssetId: isBuy ? asset.assetId : undefined,
+        sellAmount: '0', // fixme: this should be the fiat amount (fiatSellAmount to new sellAsset crypto amount)
+      })
     },
     [
       sellTradeAsset?.asset?.assetId,
@@ -52,6 +61,7 @@ export const useTradeRoutes = (): {
       getValues,
       setValue,
       fiatSellAmount,
+      setTradeAmountsOnAssetChange,
       history,
     ],
   )

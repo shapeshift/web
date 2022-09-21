@@ -52,7 +52,8 @@ export const useTradeRoutes = (): {
       await setTradeAmountsOnAssetChange({
         sellAssetId: isSell ? asset.assetId : undefined,
         buyAssetId: isBuy ? asset.assetId : undefined,
-        sellAmount: '0', // fixme: this should be the fiat amount (fiatSellAmount to new sellAsset crypto amount)
+        sellAmount: fiatSellAmount,
+        sellAction: TradeAmountInputField.SELL_FIAT,
       })
     },
     [

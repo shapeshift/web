@@ -9,7 +9,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
-import { TradeAmountInputField } from 'components/Trade/types'
+import type { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -56,6 +56,7 @@ export const useTradeAmounts = () => {
     sellAssetId?: AssetId
     buyAssetId?: AssetId
     sellAmount: string
+    sellAction: TradeAmountInputField.SELL_CRYPTO | TradeAmountInputField.SELL_FIAT
   }
 
   // Selectors
@@ -138,7 +139,12 @@ export const useTradeAmounts = () => {
   )
 
   const setTradeAmountsOnAssetChange = useCallback(
-    async ({ sellAssetId, buyAssetId, sellAmount }: SetTradeAmountsOnAssetChangeArgs) => {
+    async ({
+      sellAssetId,
+      buyAssetId,
+      sellAmount,
+      sellAction,
+    }: SetTradeAmountsOnAssetChangeArgs) => {
       const buyAssetIdToUse = buyAssetId ?? buyAssetFormState?.assetId
       const sellAssetIdToUse = sellAssetId ?? sellAssetFormState?.assetId
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
@@ -188,7 +194,7 @@ export const useTradeAmounts = () => {
       usdRates &&
         setTradeAmounts({
           amount: sellAmount,
-          action: TradeAmountInputField.SELL_CRYPTO,
+          action: sellAction,
           buyAsset,
           sellAsset,
           buyAssetUsdRate: usdRates.buyAssetUsdRate,

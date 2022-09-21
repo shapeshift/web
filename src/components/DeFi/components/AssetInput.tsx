@@ -5,13 +5,14 @@ import {
   FormControl,
   FormErrorMessage,
   Input,
+  Skeleton,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -65,6 +66,7 @@ export type AssetInputProps = {
   percentOptions: number[]
   icons?: string[]
   onAccountIdChange?: AccountDropdownProps['onChange']
+  showInputSkeleton?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -87,6 +89,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   icons,
   children,
   onAccountIdChange: handleAccountIdChange,
+  showInputSkeleton,
 }) => {
   const {
     number: { localeParts },
@@ -126,34 +129,38 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           {assetSymbol}
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
-          <NumberFormat
-            customInput={CryptoInput}
-            isNumericString={true}
-            disabled={isReadOnly}
-            suffix={isFiat ? localeParts.postfix : ''}
-            prefix={isFiat ? localeParts.prefix : ''}
-            decimalSeparator={localeParts.decimal}
-            inputMode='decimal'
-            thousandSeparator={localeParts.group}
-            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
-            onValueChange={values => {
-              // This fires anytime value changes including setting it on max click
-              // Store the value in a ref to send when we actually want the onChange to fire
-              amountRef.current = values.value
-            }}
-            onChange={() => {
-              // onChange will send us the formatted value
-              // To get around this we need to get the value from the onChange using a ref
-              // Now when the max buttons are clicked the onChange will not fire
-              onChange(amountRef.current ?? '', isFiat)
-            }}
-            onBlur={() => setIsFocused(false)}
-            onFocus={() => setIsFocused(true)}
-          />
+          {showInputSkeleton ? (
+            <Skeleton height='52px' width='50px' />
+          ) : (
+            <NumberFormat
+              customInput={CryptoInput}
+              isNumericString={true}
+              disabled={isReadOnly}
+              suffix={isFiat ? localeParts.postfix : ''}
+              prefix={isFiat ? localeParts.prefix : ''}
+              decimalSeparator={localeParts.decimal}
+              inputMode='decimal'
+              thousandSeparator={localeParts.group}
+              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
+              onValueChange={values => {
+                // This fires anytime value changes including setting it on max click
+                // Store the value in a ref to send when we actually want the onChange to fire
+                amountRef.current = values.value
+              }}
+              onChange={() => {
+                // onChange will send us the formatted value
+                // To get around this we need to get the value from the onChange using a ref
+                // Now when the max buttons are clicked the onChange will not fire
+                onChange(amountRef.current ?? '', isFiat)
+              }}
+              onBlur={() => setIsFocused(false)}
+              onFocus={() => setIsFocused(true)}
+            />
+          )}
         </Stack>
       </Stack>
 
-      {showFiatAmount && (
+      {showFiatAmount && !showInputSkeleton && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
           <Button
             onClick={toggleIsFiat}

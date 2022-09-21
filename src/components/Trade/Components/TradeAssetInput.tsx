@@ -10,7 +10,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const AssetInputLoading = () => {
+const AssetInputAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
   return (
     <Stack bgColor={bgColor} py={2} px={4} borderRadius='xl' spacing={0}>
@@ -30,7 +30,7 @@ const AssetInputLoading = () => {
 
 type AssetInputLoadedProps = AssetInputProps & { assetId: AssetId }
 
-const AssetInputLoaded: React.FC<AssetInputLoadedProps> = props => {
+const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   const { assetId } = props
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -51,8 +51,8 @@ export const TradeAssetInput: React.FC<TradeAssetInputProps> = ({
   ...restAssetInputProps
 }) => {
   return assetId ? (
-    <AssetInputLoaded assetId={assetId} {...restAssetInputProps} />
+    <AssetInputWithAsset assetId={assetId} {...restAssetInputProps} />
   ) : (
-    <AssetInputLoading />
+    <AssetInputAwaitingAsset />
   )
 }

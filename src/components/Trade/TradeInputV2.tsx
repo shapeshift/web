@@ -106,6 +106,7 @@ export const TradeInput = () => {
         sellAssetId: currentBuyAssetId,
         buyAssetId: currentSellAssetId,
         sellAmount: currentBuyTradeAsset.amount || '0',
+        sellAction: TradeAmountInputField.SELL_CRYPTO,
       })
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
@@ -192,6 +193,7 @@ export const TradeInput = () => {
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
             onAccountIdChange={handleSellAccountIdChange}
+            showFiatAmount={!isLoadingFiatRateData}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -222,6 +224,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
             onAccountIdChange={handleBuyAccountIdChange}
+            showInputSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
@@ -246,7 +249,7 @@ export const TradeInput = () => {
           type='submit'
           colorScheme={errorTranslationKey ? 'red' : 'blue'}
           size='lg'
-          isDisabled={!quote || !!errorTranslationKey}
+          isDisabled={!!errorTranslationKey || isLoadingFiatRateData || isLoadingTradeQuote}
           isLoading={isLoading}
         >
           {translate(errorTranslationKey ?? 'trade.previewTrade')}

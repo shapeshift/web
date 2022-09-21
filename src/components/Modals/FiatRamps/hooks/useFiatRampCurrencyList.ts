@@ -1,3 +1,4 @@
+import uniqBy from 'lodash/uniqBy'
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -98,15 +99,38 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   // start getting currencies from selected fiatRampProvider
   useEffect(() => {
     setLoading(true)
-    ;(async () => {
-      const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
-        fiatRampProvider
-      ].getBuyAndSellList()
-      // only the sell list needs balances for sorting
-      setSellList(addSellPropertiesAndSort(parsedSellList))
-      setBuyList(addBuyPropertiesAndSort(parsedBuyList))
+    async function getBySellAssets() {
+      const buyArray: FiatRampAsset[] = []
+      const sellArray: FiatRampAsset[] = []
+      await Promise.all(
+        Object.keys(supportedFiatRamps).map(async provider => {
+          try {
+            const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
+              provider as FiatRamp
+            ].getBuyAndSellList()
+
+            buyArray.push(...parsedBuyList)
+            sellArray.push(...parsedSellList)
+          } catch (e) {
+            moduleLogger.warn(e, 'mergeFiatRamps')
+          }
+        }),
+      )
+      setSellList(addSellPropertiesAndSort(uniqBy(sellArray, 'assetId')))
+      setBuyList(addBuyPropertiesAndSort(uniqBy(buyArray, 'assetId')))
       setLoading(false)
-    })()
+    }
+    getBySellAssets()
+    // ;(async () => {
+    //   const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
+    //     fiatRampProvider
+    //   ].getBuyAndSellList()
+    //   // only the sell list needs balances for sorting
+    //   setSellList(addSellPropertiesAndSort(parsedSellList))
+    //   setBuyList(addBuyPropertiesAndSort(parsedBuyList))
+
+    // })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fiatRampProvider, addSellPropertiesAndSort, addBuyPropertiesAndSort])
 
   return {

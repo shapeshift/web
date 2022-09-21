@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup, Tab, TabList, Tabs } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
 import { FiatRampAction } from '../FiatRampsCommon'
@@ -24,7 +24,28 @@ export const FiatRampActionButtons = ({
   }
 
   return (
-    <ButtonGroup variant='ghost' colorScheme='blue'>
+    <Tabs isFitted variant='enclosed'>
+      <TabList>
+        {supportsBuy && (
+          <Tab
+            isSelected={action === FiatRampAction.Buy}
+            onClick={() => setAction(FiatRampAction.Buy)}
+            borderRadius={0}
+          >
+            {translate('fiatRamps.buy')}
+          </Tab>
+        )}
+        {supportsSell && (
+          <Tab
+            isSelected={action === FiatRampAction.Sell}
+            onClick={() => setAction(FiatRampAction.Sell)}
+            borderRadius={0}
+          >
+            {translate('fiatRamps.sell')}
+          </Tab>
+        )}
+      </TabList>
+      {/* <ButtonGroup variant='ghost' colorScheme='blue'>
       {supportsBuy ? (
         <Button
           {...commonButtonProps}
@@ -43,6 +64,7 @@ export const FiatRampActionButtons = ({
           {translate('fiatRamps.sell')}
         </Button>
       ) : null}
-    </ButtonGroup>
+    </ButtonGroup> */}
+    </Tabs>
   )
 }

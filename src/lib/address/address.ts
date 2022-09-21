@@ -44,6 +44,8 @@ const parseByChainId: ParseByChainId = (chainId: ChainId, url: string) => {
     default:
       return
   }
+
+  return
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto

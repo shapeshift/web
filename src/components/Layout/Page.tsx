@@ -28,7 +28,7 @@ export const Page: React.FC<PageProps> = ({
 }: PageProps) => {
   return (
     <AnimatePresence exitBeforeEnter initial>
-      <PageTransition style={{ flex: 1 }} {...rest}>
+      <PageTransition style={{ flex: 1, display: 'flex', flexDirection: 'column' }} {...rest}>
         {error && !loading ? renderError() : loading ? renderLoading() : children}
       </PageTransition>
     </AnimatePresence>

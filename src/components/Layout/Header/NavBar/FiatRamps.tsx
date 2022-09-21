@@ -1,12 +1,16 @@
-import { Button } from '@chakra-ui/react'
-import { BuySellIcon } from 'components/Icons/BuySell'
-import { Text } from 'components/Text'
+import type { BoxProps } from '@chakra-ui/react'
+import { Box, IconButton, Tooltip } from '@chakra-ui/react'
+import { FaCreditCard } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const FiatRamps = () => {
+type FiatRampsProps = BoxProps
+
+export const FiatRamps = (props: FiatRampsProps) => {
   const { fiatRamps } = useModal()
+  const translate = useTranslate()
   const {
     state: { isConnected },
     dispatch,
@@ -15,16 +19,16 @@ export const FiatRamps = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   return (
-    <Button
-      leftIcon={<BuySellIcon color='inherit' />}
-      data-test='fiat-ramps-button'
-      colorScheme='blue'
-      width='full'
-      onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
-      variant='ghost-filled'
-      justifyContent={{ base: 'flex-start', md: 'center' }}
-    >
-      <Text translation='fiatRamps.headerLabel' />
-    </Button>
+    <Box {...props}>
+      <Tooltip label={translate('fiatRamps.headerLabel')}>
+        <IconButton
+          icon={<FaCreditCard />}
+          data-test='fiat-ramps-button'
+          width='full'
+          aria-label={translate('fiatRamps.headerLabel')}
+          onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
+        />
+      </Tooltip>
+    </Box>
   )
 }

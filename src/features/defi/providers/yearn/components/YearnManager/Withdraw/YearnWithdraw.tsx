@@ -118,7 +118,9 @@ export const YearnWithdraw: React.FC<{
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: ownProps => <Withdraw {...ownProps} onAccountIdChange={handleAccountIdChange} />,
+        component: ownProps => (
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -126,7 +128,7 @@ export const YearnWithdraw: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])

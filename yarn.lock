@@ -4053,10 +4053,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.3.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.3.0.tgz#93067d5ed3d93a817775dbc9fc804633decd5d7f"
-  integrity sha512-D+f9f6bG0eApP3TrN+OR3kZAJaEPhUmUCbov0KU8Gxi2Pal+WLfjLJg7gj9Odh0ffEQxltnN+aebpZuvy1KLAw==
+"@shapeshiftoss/caip@^8.4.0":
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.0.tgz#1aa7a2e79ec806fe1ef705e50e9e87ba04680a48"
+  integrity sha512-NhS4WBRtms4rkdfCrvqWItvODlVPFqb7d5514TBxoLDtJNYm8O/nXD8IyL6MUTSR3mHtSla1FSu3RPqKUdSeOw==
 
 "@shapeshiftoss/chain-adapters@^9.1.5":
   version "9.1.5"
@@ -4361,10 +4361,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.1.tgz#5bf5cad71bca3fc363962acc5ce58bcb62e6e628"
   integrity sha512-IwQdaUQV+jZ3XD13X7EDi1G6+GaCsvldMrMD5rpKaSZUpp2Y+0BGsGrUFWn3IVialEQw2N/YDzXVMhSGjFuwtw==
 
-"@shapeshiftoss/unchained-client@^10.1.1":
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.1.1.tgz#371ee04132aed0cd7224b9218fb859cdff653cc6"
-  integrity sha512-vrSR4t1YvgWckVfOf/Qp/RzKki1hE2NYARyt+wDJ6rV2Ma9YY6mZRWmUO5rGlpi3l06Y43tKvSiEILnV9gd4OA==
+"@shapeshiftoss/unchained-client@^10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.1.2.tgz#ca715f9decbc5172e3ec6845066436afcc9d0e1c"
+  integrity sha512-JXrTwoXOG4TsIgIZKvd56iygeYIUkMG0EUQ94O5kkaWAF4z3BLohhxfQZjsf2KsWkjstvM3pOWUUBzlkT6rz4Q==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
@@ -15071,9 +15071,9 @@ jest@^27.4.3:
     jest-cli "^27.5.1"
 
 jose@^4.3.5:
-  version "4.9.3"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.9.3.tgz#890abd3f26725fe0f2aa720bc2f7835702b624db"
-  integrity sha512-f8E/z+T3Q0kA9txzH2DKvH/ds2uggcw0m3vVPSB9HrSkrQ7mojjifvS7aR8cw+lQl2Fcmx9npwaHpM/M3GD8UQ==
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.8.0.tgz#470c4c045f2abc899b924872aecb000c28947288"
+  integrity sha512-XmcX4PdqRlfDCSn9UPAvGoVylQxuJxtCZNlX4U0KgmOSHUvxYCalgnU/JNdNJQ20mGth3+xrPSkFj9rxS9tYWQ==
 
 js-crypto-env@^0.3.2:
   version "0.3.2"

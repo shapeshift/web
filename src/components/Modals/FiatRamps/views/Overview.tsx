@@ -4,11 +4,13 @@ import {
   AlertIcon,
   Box,
   Button,
+  Center,
   Flex,
   IconButton,
   Input,
   InputGroup,
   InputRightElement,
+  Stack,
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
@@ -29,10 +31,13 @@ import {
 import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { IconCircle } from 'components/IconCircle'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -50,10 +55,12 @@ import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
+import { FiatRampButton } from '../components/FiatRampButton'
 import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
+import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
 import { middleEllipsis } from '../utils'
 
 type GenerateAddressProps = {
@@ -164,6 +171,10 @@ export const Overview: React.FC<OverviewProps> = ({
     selectMarketDataById(state, selectedAsset?.assetId ?? ''),
   )
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
+  const { providers, loading: providersLoading } = useFiatRampByAssetId({
+    assetId: selectedAsset?.assetId,
+    action: fiatRampAction,
+  })
 
   // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
   // once web/#2632 got merged
@@ -361,6 +372,55 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Flex>
         )}
+        {selectedAsset && (
+          <Stack spacing={6}>
+            {providers.length && (
+              <Box>
+                <RawText fontWeight='medium'>Available Providers</RawText>
+                <RawText color='gray.500'>
+                  ShapeShift has partnered with several fiat ramp providers for buying and selling
+                  cryptocurrencies.
+                </RawText>
+              </Box>
+            )}
+
+            {providersLoading ? (
+              <Center minHeight='150px'>
+                <CircularProgress />
+              </Center>
+            ) : (
+              <Stack>
+                {providers.length ? (
+                  providers.map(provider => (
+                    <FiatRampButton
+                      onClick={() =>
+                        provider.onSubmit(
+                          fiatRampAction,
+                          selectedAsset?.assetId || '',
+                          (multiAccountsEnabled ? accountAddress : addressFull) || '',
+                        )
+                      }
+                      {...provider}
+                    />
+                  ))
+                ) : (
+                  <Center display='flex' flexDir='column' minHeight='150px'>
+                    <IconCircle mb={4}>
+                      <FaCreditCard />
+                    </IconCircle>
+                    <Text
+                      fontWeight='medium'
+                      translation='fiatRamps.noProvidersAvailable'
+                      fontSize='lg'
+                    />
+                    <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+                  </Center>
+                )}
+              </Stack>
+            )}
+          </Stack>
+        )}
+
         {selectedAsset && accountId && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
           <Alert status='error' variant={'solid'}>
             <AlertIcon />
@@ -372,25 +432,6 @@ export const Overview: React.FC<OverviewProps> = ({
             />
           </Alert>
         )}
-        <Button
-          width='full'
-          size='lg'
-          colorScheme='blue'
-          disabled={!selectedAsset || (fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance)}
-          mt='25px'
-          onClick={() =>
-            supportedFiatRamps[fiatRampProvider].onSubmit(
-              fiatRampAction,
-              selectedAsset?.assetId || '',
-              (multiAccountsEnabled ? accountAddress : addressFull) || '',
-            )
-          }
-        >
-          <Text translation='common.continue' />
-        </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={handleFiatRampsClose}>
-          <Text translation='common.cancel' />
-        </Button>
       </Flex>
     </SlideTransition>
   )

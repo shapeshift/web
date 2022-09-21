@@ -68,7 +68,8 @@ export const useTradeAmounts = () => {
   const validateAmounts = useCallback(
     ({ buyTradeAssetAmount, sellTradeAssetAmount }: ValidateAmountsArgs) => {
       const sellAmountsDoesNotCoverFees =
-        bnOrZero(buyTradeAssetAmount).isZero() && bnOrZero(sellTradeAssetAmount).isGreaterThan(0)
+        bnOrZero(buyTradeAssetAmount).isLessThanOrEqualTo(0) &&
+        bnOrZero(sellTradeAssetAmount).isGreaterThan(0)
       sellAmountsDoesNotCoverFees
         ? setError('buyTradeAsset.amount', {
             type: 'manual',

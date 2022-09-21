@@ -12,7 +12,8 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
@@ -43,6 +44,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
+  const greenColor = useColorModeValue('green.500', 'green.200')
+  const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
+  const { bestTradeSwapper } = useSwapper()
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const amountAfterSlippage = bnOrZero(amount)
@@ -83,6 +87,22 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           px={4}
           py={2}
         >
+          {bestTradeSwapper && (
+            <Row>
+              <HelperTooltip label={translate('trade.tooltip.protocol')}>
+                <Row.Label>
+                  <Text translation='trade.protocol' />
+                </Row.Label>
+              </HelperTooltip>
+              <Row.Value>
+                <Row.Label>
+                  <RawText fontWeight='semibold' color={textColor}>
+                    {bestTradeSwapper.name}
+                  </RawText>
+                </Row.Label>
+              </Row.Value>
+            </Row>
+          )}
           {beforeFees && (
             <Row>
               <Row.Label>
@@ -95,7 +115,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Value>
             </Row>
           )}
-          {protocolFee && (
+          {protocolFee && bnOrZero(protocolFee).gt(0) && (
             <Row>
               <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
                 <Row.Label>
@@ -118,7 +138,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </HelperTooltip>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={shapeShiftFee} symbol={symbol} />
+                  <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
                 </Skeleton>
               </Row.Value>
             </Row>

@@ -130,9 +130,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           {assetSymbol}
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
-          {showInputSkeleton ? (
-            <Skeleton height='52px' width='50px' />
-          ) : (
+          <Skeleton isLoaded={!showInputSkeleton}>
             <NumberFormat
               customInput={CryptoInput}
               isNumericString={true}
@@ -157,7 +155,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               onBlur={() => setIsFocused(false)}
               onFocus={() => setIsFocused(true)}
             />
-          )}
+          </Skeleton>
         </Stack>
       </Stack>
 

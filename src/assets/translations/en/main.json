@@ -454,6 +454,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
+    "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
@@ -470,10 +471,12 @@
     "exact": "Exact",
     "expectedAmount": "Expected Amount",
     "beforeFees": "Before Fees",
-    "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
+    "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
+    "free": "Free",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },

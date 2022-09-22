@@ -82,7 +82,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

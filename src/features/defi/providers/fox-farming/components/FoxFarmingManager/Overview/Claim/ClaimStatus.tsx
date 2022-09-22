@@ -1,6 +1,6 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -15,14 +15,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectFirstAccountSpecifierByChainId,
-  selectMarketDataById,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 interface ClaimStatusState {
   txid: string
@@ -63,7 +59,9 @@ const StatusInfo = {
   },
 }
 
-export const ClaimStatus = () => {
+type ClaimStatusProps = { accountId: Nullable<AccountId> }
+
+export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()
   const translate = useTranslate()
   const {
@@ -83,14 +81,15 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
   )
 
   const serializedTxIndex = useMemo(() => {
-    if (!(txid && userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, txid, userAddress)
-  }, [txid, userAddress, accountSpecifier])
+    if (!(txid && accountAddress && accountId)) return ''
+    return serializeTxIndex(accountId, txid, accountAddress)
+  }, [txid, accountAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

@@ -70,11 +70,11 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
 
   useEffect(() => {
     try {
-      if (!vault) setVault(location.state.vault || createWallet())
+      if (!vault) setVault(location.state?.vault ?? createWallet())
     } catch (e) {
       moduleLogger.error(e, 'Create Wallet')
     }
-  }, [location.state.vault, setVault, vault])
+  }, [location.state?.vault, setVault, vault])
 
   useEffect(() => {
     if (!vault) return

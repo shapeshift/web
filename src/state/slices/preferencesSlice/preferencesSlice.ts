@@ -20,6 +20,7 @@ export type FeatureFlags = {
   Axelar: boolean
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
+  OnRamperFiatRamp: boolean
   Yat: boolean
   RainbowCharts: boolean
   MultiAccounts: boolean
@@ -58,6 +59,7 @@ const initialState: Preferences = {
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
+    OnRamperFiatRamp: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,

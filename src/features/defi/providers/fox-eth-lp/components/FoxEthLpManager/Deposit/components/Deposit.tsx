@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
@@ -12,6 +13,7 @@ import qs from 'qs'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -20,23 +22,33 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+type DepositProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange?: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
-  const { accountAddress, setAccountId: handleAccountIdChange } = useFoxEth()
+  const { accountAddress } = useFoxEth()
   const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
 
   const assetNamespace = 'erc20'
@@ -49,10 +61,16 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   // user info
   const foxBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: foxAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: foxAssetId,
+      accountId: accountId ?? '',
+    }),
   )
   const ethBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: ethAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: ethAssetId,
+      accountId: accountId ?? '',
+    }),
   )
 
   // notify
@@ -175,6 +193,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <PairDeposit
+      accountId={accountId}
       asset1={foxAsset}
       asset2={ethAsset}
       icons={opportunity?.icons}

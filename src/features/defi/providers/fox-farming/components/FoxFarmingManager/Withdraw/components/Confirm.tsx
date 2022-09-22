@@ -34,7 +34,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

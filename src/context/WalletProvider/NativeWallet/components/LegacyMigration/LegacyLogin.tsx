@@ -1,3 +1,6 @@
+/*
+ * This file is a shared component for both NativeWallet and MobileWallet
+ */
 import {
   Alert,
   AlertIcon,
@@ -9,23 +12,33 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { decryptNativeWallet, getPasswordHash } from 'lib/cryptography/login'
+import { FriendlyCaptcha } from 'context/WalletProvider/NativeWallet/components/LegacyMigration/Captcha'
+import { getPasswordHash } from 'lib/cryptography/login'
+import { logger } from 'lib/logger'
 
-import type { LoginResponseError, NativeWalletValues, RateLimitError } from '../types'
-import { loginErrors } from '../types'
-import { FriendlyCaptcha } from './Captcha'
+import type { LoginResponseError, NativeWalletValues, RateLimitError } from './types'
+import { LoginErrors } from './types'
 
-export const LegacyLogin = () => {
-  const history = useHistory()
+export type OnLoginSuccess = (args: {
+  encryptedWallet: string
+  email: string
+  password: string
+}) => Promise<void>
+
+type LegacyLoginProps = {
+  onLoginSuccess: OnLoginSuccess
+}
+
+const moduleLogger = logger.child({ namespace: ['WalletProvider', 'NativeWallet', 'LegacyLogin'] })
+
+export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<boolean | string>(false)
   const [isTwoFactorRequired, setTwoFactorRequired] = useState(false)
   const [captchaSolution, setCaptchaSolution] = useState<string | null>(null)
@@ -66,16 +79,15 @@ export const LegacyLogin = () => {
         captchaSolution,
       })
       const { data: encryptedWallet } = response
-      const vault = await Vault.create(undefined, false)
-      vault.meta.set('createdAt', Date.now())
-      vault.set(
-        '#mnemonic',
-        await decryptNativeWallet(values.email, values.password, encryptedWallet),
-      )
-      history.push('/native/legacy/login/success', { vault })
-      // Clear the form state on success.
+      // Callback to allow the wallet to save differently based on the platform
+      await onLoginSuccess({
+        encryptedWallet,
+        email: values.email,
+        password: values.password,
+      })
       reset()
-    } catch (err) {
+    } catch (err: any) {
+      moduleLogger.error(err, { response: err?.response }, 'Login error')
       setError(false)
       setCaptchaSolution(null)
       if (isRateLimitError(err)) {
@@ -84,24 +96,24 @@ export const LegacyLogin = () => {
       }
       if (isLoginError(err)) {
         if (
-          err.response.status === loginErrors.twoFactorRequired.httpCode &&
-          err.response.data.error?.msg === loginErrors.twoFactorRequired.msg
+          err.response.status === LoginErrors.twoFactorRequired.httpCode &&
+          err.response.data.error?.msg === LoginErrors.twoFactorRequired.msg
         ) {
           setTwoFactorRequired(true)
           return
         }
 
         if (
-          err.response.status === loginErrors.invalidCaptcha.httpCode &&
-          err.response.data.error.msg === loginErrors.invalidCaptcha.msg
+          err.response.status === LoginErrors.invalidCaptcha.httpCode &&
+          err.response.data.error.msg === LoginErrors.invalidCaptcha.msg
         ) {
           setError(translate('walletProvider.shapeShift.legacy.invalidCaptcha'))
           return
         }
 
         if (
-          err.response.status === loginErrors.twoFactorInvalid.httpCode &&
-          err.response.data.error.msg === loginErrors.twoFactorInvalid.msg
+          err.response.status === LoginErrors.twoFactorInvalid.httpCode &&
+          err.response.data.error.msg === LoginErrors.twoFactorInvalid.msg
         ) {
           setError(translate('walletProvider.shapeShift.legacy.invalidTwoFactor'))
           return
@@ -109,8 +121,8 @@ export const LegacyLogin = () => {
 
         // Successful account login, but no Native Wallet for account.
         if (
-          err.response.status === loginErrors.noWallet.httpCode &&
-          err.response.data.error.msg.startsWith(loginErrors.noWallet.msg)
+          err.response.status === LoginErrors.noWallet.httpCode &&
+          err.response.data.error.msg.startsWith(LoginErrors.noWallet.msg)
         ) {
           setError(translate('walletProvider.shapeShift.legacy.noWallet'))
           return

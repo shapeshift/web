@@ -69,7 +69,9 @@
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
     "txId": "Tx ID",
-    "selectAsset": "Select an Asset"
+    "selectAsset": "Select an Asset",
+    "switchNetwork": "Switch Network",
+    "unsupportedNetwork": "Unsupported Network"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -119,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -139,6 +142,8 @@
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -365,7 +370,8 @@
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade"
   },
   "transactionRow": {
     "send": "Sent",
@@ -513,7 +519,8 @@
       },
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
-    }
+    },
+    "recentTrades": "Recent Trades"
   },
   "modals": {
     "keepKey": {

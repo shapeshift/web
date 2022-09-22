@@ -20,11 +20,13 @@ export type FeatureFlags = {
   Axelar: boolean
   Zendesk: boolean
   MtPelerinFiatRamp: boolean
+  OnRamperFiatRamp: boolean
   Yat: boolean
   RainbowCharts: boolean
   MultiAccounts: boolean
   SwapperV2: boolean
   WalletConnectToDapps: boolean
+  MigrationMessage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -40,6 +42,7 @@ export type Preferences = {
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
+  showWelcomeModal: boolean
 }
 
 const initialState: Preferences = {
@@ -56,16 +59,19 @@ const initialState: Preferences = {
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
+    OnRamperFiatRamp: getConfig().REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
+    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
+  showWelcomeModal: false,
 }
 
 export const preferences = createSlice({
@@ -89,6 +95,9 @@ export const preferences = createSlice({
     },
     setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
       state.currencyFormat = payload.currencyFormat
+    },
+    setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
+      state.showWelcomeModal = payload.show
     },
   },
 })

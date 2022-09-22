@@ -8,7 +8,6 @@ import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
@@ -46,17 +45,15 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           <IconButton
             ml='auto'
             aria-label='Close Nav'
-            icon={<CloseIcon />}
+            variant='ghost'
+            icon={<CloseIcon boxSize={3} />}
             onClick={() => handleClick()}
           />
-          <Flex width='full'>
+          <Flex gap={2}>
+            <Flex width='full'>
+              <UserMenu onClick={() => handleClick()} />
+            </Flex>
             <ChainMenu />
-          </Flex>
-          <Flex width='full'>
-            <UserMenu onClick={() => handleClick()} />
-          </Flex>
-          <Flex width='full'>
-            <FiatRamps />
           </Flex>
           <Box width='full'>
             <AutoCompleteSearch />

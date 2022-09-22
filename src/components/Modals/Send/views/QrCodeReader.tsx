@@ -1,4 +1,4 @@
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeScannerState, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import type {
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
@@ -27,6 +27,11 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
   const [cameraId, setCameraId] = useState<string | null>(null)
 
   useEffect(() => {
+    const qrScanner = new Html5Qrcode(qrcodeRegionId, {
+      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+      verbose: false,
+    })
+
     ;(async () => {
       if (!cameraId) {
         try {
@@ -44,12 +49,7 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         return
       }
 
-      const html5QrCode = new Html5Qrcode(qrcodeRegionId, {
-        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-        verbose: false,
-      })
-
-      await html5QrCode.start(
+      await qrScanner.start(
         isMobile ? { facingMode: 'environment' } : cameraId,
         {
           fps,
@@ -57,16 +57,21 @@ export const QrCodeReader: React.FC<QrCodeReaderProps> = ({
         },
         (decodedText, result) => {
           qrCodeSuccessCallback(decodedText, result)
-          html5QrCode.stop()
         },
         qrCodeErrorCallback as QrcodeErrorCallback,
       )
-
-      return () => {
-        html5QrCode.clear()
-      }
     })()
 
+    return () => {
+      ;(async () => {
+        const scannerState = qrScanner.getState()
+
+        if (scannerState === Html5QrcodeScannerState.SCANNING) {
+          await qrScanner.stop()
+          qrScanner.clear()
+        }
+      })()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraId])
 

@@ -11,6 +11,7 @@ import {
 import { resolveYat, validateYat } from 'lib/address/yat'
 import { logger } from 'lib/logger'
 import { store } from 'state/store'
+import type { Identity } from 'types/common'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -19,8 +20,6 @@ const moduleLogger = logger.child({ namespace: ['lib', 'address'] })
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
-
-type Identity<T> = (a: T) => T
 
 // @TODO: Implement BIP21
 const parseUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, value }) => {

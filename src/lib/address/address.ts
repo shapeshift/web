@@ -20,20 +20,10 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
-type ParseUrlByChainIdReturn = ReturnType<typeof parse>
-
-type ParseUrlByChainIdArgs = {
-  chainId: ChainId
-  value: string
-}
-
-type ParseUrlByChainId = ({
-  chainId,
-  value,
-}: ParseUrlByChainIdArgs) => ParseUrlByChainIdReturn | undefined
+type Identity<T> = (a: T) => T
 
 // @TODO: Implement BIP21
-const parseUrlByChainId: ParseUrlByChainId = ({ chainId, value }) => {
+const parseUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, value }) => {
   switch (chainId) {
     case ethChainId:
       try {
@@ -50,6 +40,8 @@ const parseUrlByChainId: ParseUrlByChainId = ({ chainId, value }) => {
     default:
       return { chainId, value }
   }
+
+  return { chainId, value }
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto

@@ -1,14 +1,15 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
-import type { DisplayFeeData, TradeAmountInputField, TS } from 'components/Trade/types'
+import type { DisplayFeeData, TS } from 'components/Trade/types'
+import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -36,13 +37,7 @@ export const useTradeAmounts = () => {
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // Types
-  type SetTradeAmountsArgs = {
-    amount?: string | null
-    action?: TradeAmountInputField
-    buyAsset?: Asset
-    sellAsset?: Asset
-    buyAssetUsdRate?: string
-    sellAssetUsdRate?: string
+  type SetTradeAmountsAsynchronousArgs = Omit<Partial<CalculateAmountsArgs>, 'tradeFee'> & {
     fees?: DisplayFeeData<KnownChainIds>
   }
 
@@ -51,12 +46,13 @@ export const useTradeAmounts = () => {
     sellTradeAssetAmount: string
   }
 
-  type SetTradeAmountsOnAssetChangeArgs = {
+  type SetTradeAmountsSynchronousArgs = {
     sellAssetId?: AssetId
     buyAssetId?: AssetId
-    sellAmount: string
-    sellAction: TradeAmountInputField.SELL_CRYPTO | TradeAmountInputField.SELL_FIAT
+    amount?: string
+    action?: TradeAmountInputField
   }
+  type SetTradeAmountsArgs = CalculateAmountsArgs
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -83,37 +79,43 @@ export const useTradeAmounts = () => {
   const { getUsdRates, getTradeQuote } = swapperApi.endpoints
   const assets = useSelector(selectAssets)
 
-  // Use the form state, or optionally override with args
   const setTradeAmounts = useCallback(
-    ({
-      amount = amountFormState,
-      action = actionFormState,
-      buyAsset = buyAssetFormState,
-      sellAsset = sellAssetFormState,
-      buyAssetUsdRate = buyAssetFiatRateFormState,
-      sellAssetUsdRate = sellAssetFiatRateFormState,
-      fees = feesFormState,
-    }: SetTradeAmountsArgs) => {
-      const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRateFormState))
+    (args: SetTradeAmountsArgs) => {
+      const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
+        calculateAmounts(args)
+      const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, args.buyAsset.precision)
+      const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, args.sellAsset.precision)
+      validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
+      setValue('fiatSellAmount', fiatSellAmount)
+      setValue('fiatBuyAmount', fiatBuyAmount)
+      setValue('buyTradeAsset.amount', buyTradeAssetAmount)
+      setValue('sellTradeAsset.amount', sellTradeAssetAmount)
+    },
+    [setValue, validateAmounts],
+  )
+
+  // Use the existing fiat rates and quote without waiting for fresh data
+  const setTradeAmountsAsynchronous = useCallback(
+    (args: SetTradeAmountsAsynchronousArgs) => {
+      const amount = args.amount ?? amountFormState
+      const action = args.action ?? actionFormState
+      const buyAsset = args.buyAsset ?? buyAssetFormState
+      const sellAsset = args.sellAsset ?? sellAssetFormState
+      const buyAssetUsdRate = args.buyAssetUsdRate ?? buyAssetFiatRateFormState
+      const sellAssetUsdRate = args.sellAssetUsdRate ?? sellAssetFiatRateFormState
+      const fees = args.fees ?? feesFormState
+      const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetUsdRate))
       if (sellAsset && buyAsset && amount && action) {
-        const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
-          calculateAmounts({
-            amount,
-            action,
-            buyAsset,
-            sellAsset,
-            buyAssetUsdRate,
-            sellAssetUsdRate,
-            selectedCurrencyToUsdRate,
-            tradeFee,
-          })
-        const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, buyAsset.precision)
-        const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, sellAsset.precision)
-        validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
-        setValue('fiatSellAmount', fiatSellAmount)
-        setValue('fiatBuyAmount', fiatBuyAmount)
-        setValue('buyTradeAsset.amount', buyTradeAssetAmount)
-        setValue('sellTradeAsset.amount', sellTradeAssetAmount)
+        setTradeAmounts({
+          amount,
+          action,
+          buyAsset,
+          sellAsset,
+          buyAssetUsdRate,
+          sellAssetUsdRate,
+          selectedCurrencyToUsdRate,
+          tradeFee,
+        })
       }
     },
     [
@@ -124,9 +126,8 @@ export const useTradeAmounts = () => {
       buyAssetFiatRateFormState,
       sellAssetFiatRateFormState,
       feesFormState,
+      setTradeAmounts,
       selectedCurrencyToUsdRate,
-      validateAmounts,
-      setValue,
     ],
   )
 
@@ -138,15 +139,28 @@ export const useTradeAmounts = () => {
     [accountSpecifiersList],
   )
 
-  const setTradeAmountsOnAssetChange = useCallback(
-    async ({
-      sellAssetId,
-      buyAssetId,
-      sellAmount,
-      sellAction,
-    }: SetTradeAmountsOnAssetChangeArgs) => {
+  // Use the args provided to get new fiat rates and a fresh quote
+  // Useful when changing assets where we expect response data to meaningfully change - so wait before updating amounts
+  const setTradeAmountsSynchronous = useCallback(
+    async ({ sellAssetId, buyAssetId, amount, action }: SetTradeAmountsSynchronousArgs) => {
+      // Eagerly update the input field to improve UX whilst we wait for API responses
+      switch (action) {
+        case TradeAmountInputField.SELL_FIAT:
+        case TradeAmountInputField.SELL_CRYPTO:
+          setValue('sellTradeAsset.amount', amount)
+          break
+        case TradeAmountInputField.BUY_FIAT:
+        case TradeAmountInputField.BUY_CRYPTO:
+          setValue('buyTradeAsset.amount', amount)
+          break
+        default:
+          break
+      }
+
       const buyAssetIdToUse = buyAssetId ?? buyAssetFormState?.assetId
       const sellAssetIdToUse = sellAssetId ?? sellAssetFormState?.assetId
+      const amountToUse = amount ?? amountFormState
+      const actionToUse = action ?? actionFormState ?? TradeAmountInputField.SELL_CRYPTO
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
       const buyAsset = assets[buyAssetIdToUse]
       const feeAssetId = getChainAdapterManager().get(buyAsset.chainId)?.getFeeAssetId()
@@ -163,7 +177,6 @@ export const useTradeAmounts = () => {
 
       if (!bestTradeSwapper) return
       const sellAssetAccountId = getFirstAccountIdFromChainId(sellAsset.chainId)
-      if (!sellAssetAccountId) return
 
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
@@ -171,19 +184,22 @@ export const useTradeAmounts = () => {
         sellAssetAccountId,
         wallet,
         receiveAddress,
-        sellAmount,
+        sellAmount: sellTradeAsset?.amount || amountToUse || '0',
       })
 
-      if (!tradeQuoteArgs) return
-      const { data: quote } = await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
-      if (!quote) return
+      const quoteResponse = tradeQuoteArgs
+        ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
+        : undefined
 
-      const formFees = getFormFees({
-        trade: quote,
-        sellAsset: assets[sellAssetIdToUse],
-        tradeFeeSource: bestTradeSwapper.name,
-        feeAsset,
-      })
+      // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
+      const formFees = quoteResponse?.data
+        ? getFormFees({
+            trade: quoteResponse.data,
+            sellAsset: assets[sellAssetIdToUse],
+            tradeFeeSource: bestTradeSwapper.name,
+            feeAsset,
+          })
+        : undefined
       const { data: usdRates } = await dispatch(
         getUsdRates.initiate({
           buyAssetId: buyAssetIdToUse,
@@ -191,18 +207,22 @@ export const useTradeAmounts = () => {
           feeAssetId,
         }),
       )
+
       usdRates &&
         setTradeAmounts({
-          amount: sellAmount,
-          action: sellAction,
+          amount: amountToUse,
+          action: actionToUse,
           buyAsset,
           sellAsset,
           buyAssetUsdRate: usdRates.buyAssetUsdRate,
           sellAssetUsdRate: usdRates.sellAssetUsdRate,
-          fees: formFees,
+          selectedCurrencyToUsdRate,
+          tradeFee: bnOrZero(formFees?.tradeFee).div(bnOrZero(usdRates.buyAssetUsdRate)),
         })
     },
     [
+      actionFormState,
+      amountFormState,
       assets,
       buyAssetFormState?.assetId,
       dispatch,
@@ -210,12 +230,15 @@ export const useTradeAmounts = () => {
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,
+      selectedCurrencyToUsdRate,
       sellAssetFormState?.assetId,
+      sellTradeAsset?.amount,
       setTradeAmounts,
+      setValue,
       swapperManager,
       wallet,
     ],
   )
 
-  return { setTradeAmounts, setTradeAmountsOnAssetChange }
+  return { setTradeAmountsAsynchronous, setTradeAmountsSynchronous }
 }

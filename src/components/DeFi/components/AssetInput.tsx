@@ -68,6 +68,7 @@ export type AssetInputProps = {
   icons?: string[]
   onAccountIdChange?: AccountDropdownProps['onChange']
   showInputSkeleton?: boolean
+  showFiatSkeleton?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -91,6 +92,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   children,
   onAccountIdChange: handleAccountIdChange,
   showInputSkeleton,
+  showFiatSkeleton,
 }) => {
   const {
     number: { localeParts },
@@ -159,7 +161,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
 
-      {showFiatAmount && !showInputSkeleton && (
+      {showFiatAmount && !showFiatSkeleton && (
         <Stack width='full' alignItems='flex-end' px={4} pb={2}>
           <Button
             onClick={toggleIsFiat}

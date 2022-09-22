@@ -16,7 +16,7 @@ It also triggers an update of calculated trade amounts when fiat rates change.
 export const useFiatRateService = () => {
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
-  type UsdRatesInputArg = UsdRatesQueryInput[0]
+  type UsdRatesInputArgs = UsdRatesQueryInput[0]
 
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
@@ -24,7 +24,7 @@ export const useFiatRateService = () => {
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 
   // State
-  const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArg>(skipToken)
+  const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -37,7 +37,7 @@ export const useFiatRateService = () => {
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   ).assetId
 
-  const { setTradeAmounts } = useTradeAmounts()
+  const { setTradeAmountsAsynchronous } = useTradeAmounts()
 
   // API
   const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
@@ -62,7 +62,7 @@ export const useFiatRateService = () => {
       setValue('sellAssetFiatRate', usdRates.sellAssetUsdRate)
       setValue('feeAssetFiatRate', usdRates.feeAssetUsdRate)
     }
-  }, [usdRates, setTradeAmounts, setValue])
+  }, [usdRates, setTradeAmountsAsynchronous, setValue])
 
   return { isLoadingFiatRateData }
 }

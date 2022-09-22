@@ -16,10 +16,9 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TS>()
-  const { setTradeAmountsOnAssetChange } = useTradeAmounts()
+  const { setTradeAmountsSynchronous } = useTradeAmounts()
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
-  const fiatSellAmount = getValues('fiatSellAmount')
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -45,15 +44,17 @@ export const useTradeRoutes = (): {
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
-      setValue('amount', fiatSellAmount ?? '0')
+      setValue('amount', '0')
+      setValue('sellTradeAsset.amount', '0')
+      setValue('buyTradeAsset.amount', '0')
 
       history.push(TradeRoutePaths.Input)
 
-      await setTradeAmountsOnAssetChange({
+      await setTradeAmountsSynchronous({
         sellAssetId: isSell ? asset.assetId : undefined,
         buyAssetId: isBuy ? asset.assetId : undefined,
-        sellAmount: fiatSellAmount,
-        sellAction: TradeAmountInputField.SELL_FIAT,
+        amount: '0',
+        action: TradeAmountInputField.SELL_FIAT,
       })
     },
     [
@@ -61,8 +62,7 @@ export const useTradeRoutes = (): {
       buyTradeAsset?.asset?.assetId,
       getValues,
       setValue,
-      fiatSellAmount,
-      setTradeAmountsOnAssetChange,
+      setTradeAmountsSynchronous,
       history,
     ],
   )

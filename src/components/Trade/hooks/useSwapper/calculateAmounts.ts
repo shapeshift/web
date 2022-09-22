@@ -4,7 +4,7 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
-type CalculateAmountsArgs = {
+export type CalculateAmountsArgs = {
   amount: string
   buyAsset: Asset
   sellAsset: Asset

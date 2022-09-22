@@ -31,7 +31,7 @@ export const TradeInput = () => {
   const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const [errorTranslationKey, setErrorTranslationKey] = useState<string>()
-  const { setTradeAmounts } = useTradeAmounts()
+  const { setTradeAmountsAsynchronous, setTradeAmountsSynchronous } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -42,7 +42,10 @@ export const TradeInput = () => {
     handleSubmit,
     formState: { errors },
   } = useFormContext<TradeState<KnownChainIds>>()
-  const { setTradeAmountsOnAssetChange } = useTradeAmounts()
+
+  type SetTradeAmountsArgs =
+    | Parameters<typeof setTradeAmountsSynchronous>[0]
+    | Parameters<typeof setTradeAmountsAsynchronous>[0]
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -72,10 +75,13 @@ export const TradeInput = () => {
   const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
 
-  const handleInputChange = (action: TradeAmountInputField, amount: string) => {
+  const handleInputChange = async (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
     setValue('action', action)
-    setTradeAmounts({ amount, action })
+
+    isLoadingFiatRateData
+      ? await setTradeAmountsSynchronous({ amount, action })
+      : setTradeAmountsAsynchronous({ amount, action })
   }
 
   const handleToggle = async () => {
@@ -86,6 +92,7 @@ export const TradeInput = () => {
       const currentBuyAsset = currentBuyTradeAsset?.asset
       const currentSellAssetId = currentSellTradeAsset?.asset?.assetId
       const currentBuyAssetId = currentBuyAsset?.assetId
+      const currentSellAssetFiatAmount = currentValues.fiatSellAmount
       if (
         !(
           currentSellTradeAsset &&
@@ -97,17 +104,19 @@ export const TradeInput = () => {
       )
         return
 
-      setValue('sellTradeAsset', currentBuyTradeAsset)
-      setValue('buyTradeAsset', currentSellTradeAsset)
-      setValue('fiatBuyAmount', currentValues.fiatSellAmount)
-      setValue('fiatSellAmount', currentValues.fiatBuyAmount)
+      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset })
+      setValue('sellTradeAsset', { asset: currentBuyAsset })
 
-      await setTradeAmountsOnAssetChange({
+      const setTradeAmountsArgs: SetTradeAmountsArgs = {
         sellAssetId: currentBuyAssetId,
         buyAssetId: currentSellAssetId,
-        sellAmount: currentBuyTradeAsset.amount || '0',
-        sellAction: TradeAmountInputField.SELL_CRYPTO,
-      })
+        amount: currentSellAssetFiatAmount,
+        action: TradeAmountInputField.SELL_FIAT,
+      }
+
+      isLoadingFiatRateData
+        ? await setTradeAmountsSynchronous(setTradeAmountsArgs)
+        : setTradeAmountsAsynchronous(setTradeAmountsArgs)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -125,7 +134,10 @@ export const TradeInput = () => {
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
 
-    setTradeAmounts({ amount: maxSendAmount, action: TradeAmountInputField.SELL_CRYPTO })
+    setTradeAmountsAsynchronous({
+      amount: maxSendAmount,
+      action: TradeAmountInputField.SELL_CRYPTO,
+    })
   }
 
   const onSubmit = async (values: TradeState<KnownChainIds>) => {
@@ -194,6 +206,7 @@ export const TradeInput = () => {
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
             onAccountIdChange={handleSellAccountIdChange}
             showFiatAmount={!isLoadingFiatRateData}
+            showFiatSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -225,6 +238,7 @@ export const TradeInput = () => {
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
             onAccountIdChange={handleBuyAccountIdChange}
             showInputSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
+            showFiatSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>

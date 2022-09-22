@@ -22,7 +22,7 @@ type VanityAddressValidatorsByChainId = {
 }
 
 // @TODO: Implement BIP21
-const parseUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, value }) => {
+const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, value }) => {
   switch (chainId) {
     case ethChainId:
       try {
@@ -179,7 +179,7 @@ export type ParseAddressInputReturn = {
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async args => {
-  const parsedArgs = parseUrlByChainId(args)
+  const parsedArgs = parseMaybeUrlByChainId(args)
 
   const isValidAddress = await validateAddress(parsedArgs)
   // we're dealing with a valid address

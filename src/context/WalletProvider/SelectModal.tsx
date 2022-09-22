@@ -106,7 +106,7 @@ export const SelectModal = () => {
             ml={[0, 1.5]}
             borderTopRadius='none'
             colorScheme='blue'
-            onClick={() => create(KeyManager.Native)}
+            onClick={() => create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)}
             data-test='connect-wallet-create-one-button'
           >
             {translate('walletProvider.selectModal.create')}

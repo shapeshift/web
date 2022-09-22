@@ -1,8 +1,7 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { ControllerProps } from 'react-hook-form'
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
@@ -16,7 +15,6 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const { setValue } = useFormContext<SendInput<ChainId>>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const history = useHistory()
   const translate = useTranslate()
@@ -35,13 +33,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             spellCheck={false}
             autoFocus
             fontSize='sm'
-            onChange={e => {
-              if (e.target.value.trim() === '') {
-                setValue(SendFormFields.Address, '')
-              }
-
-              onChange(e.target.value.trim())
-            }}
+            onChange={onChange}
             placeholder={translate(
               isYatFeatureEnabled && isYatSupportedChain
                 ? 'modals.send.addressInput'

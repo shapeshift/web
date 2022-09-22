@@ -67,10 +67,10 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           record: true
-          start: yarn dev:silent
+          start: yarn serve -s build -l 3000
           parallel: true
           wait-on: 'http://localhost:3000'
-          wait-on-timeout: 600 # seconds
+          wait-on-timeout: 30 # seconds
           browser: chrome
           group: 'Chrome tests'
         env:

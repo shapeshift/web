@@ -69,7 +69,7 @@ const convertOnRamperDataToFiatRampAsset = (
   const allCoins = response.gateways
     .flatMap(gateway => gateway.cryptoCurrencies)
     .map(currency => toFiatRampAsset(currency, response.icons))
-    .filter(assetOpt => assetOpt !== undefined) as FiatRampAsset[]
+    .filter((a): a is FiatRampAsset => a !== undefined)
 
   const uniqueCoins = uniqBy(allCoins, 'assetId')
   return uniqueCoins

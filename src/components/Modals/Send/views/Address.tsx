@@ -92,7 +92,6 @@ export const Address = () => {
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-
                   const invalidMessage =
                     isYatFeatureEnabled && isYatSupportedChain
                       ? 'common.invalidAddressOrYat'

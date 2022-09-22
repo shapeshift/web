@@ -43,10 +43,6 @@ export const TradeInput = () => {
     formState: { errors },
   } = useFormContext<TradeState<KnownChainIds>>()
 
-  type SetTradeAmountsArgs =
-    | Parameters<typeof setTradeAmountsSynchronous>[0]
-    | Parameters<typeof setTradeAmountsAsynchronous>[0]
-
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
@@ -89,34 +85,12 @@ export const TradeInput = () => {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset
       const currentBuyTradeAsset = currentValues.buyTradeAsset
-      const currentBuyAsset = currentBuyTradeAsset?.asset
-      const currentSellAssetId = currentSellTradeAsset?.asset?.assetId
-      const currentBuyAssetId = currentBuyAsset?.assetId
-      const currentSellAssetFiatAmount = currentValues.fiatSellAmount
-      if (
-        !(
-          currentSellTradeAsset &&
-          currentBuyTradeAsset &&
-          currentSellAssetId &&
-          currentBuyAssetId &&
-          currentBuyAsset
-        )
-      )
-        return
+      if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset })
-      setValue('sellTradeAsset', { asset: currentBuyAsset })
-
-      const setTradeAmountsArgs: SetTradeAmountsArgs = {
-        sellAssetId: currentBuyAssetId,
-        buyAssetId: currentSellAssetId,
-        amount: currentSellAssetFiatAmount,
-        action: TradeAmountInputField.SELL_FIAT,
-      }
-
-      isLoadingFiatRateData
-        ? await setTradeAmountsSynchronous(setTradeAmountsArgs)
-        : setTradeAmountsAsynchronous(setTradeAmountsArgs)
+      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset, amount: '0' })
+      setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amount: '0' })
+      setValue('fiatSellAmount', '0')
+      setValue('fiatBuyAmount', '0')
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }

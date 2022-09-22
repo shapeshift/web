@@ -1,8 +1,7 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { ControllerProps } from 'react-hook-form'
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
@@ -16,8 +15,7 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const { control } = useFormContext<SendInput<ChainId>>()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ control, name: SendFormFields.Asset })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const history = useHistory()
   const translate = useTranslate()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
@@ -45,9 +43,10 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             value={value}
             variant='filled'
             data-test='send-address-input'
+            // Because the InputRightElement is hover the input, we need to let this space free
+            pe={10}
           />
         )}
-        control={control}
         name={SendFormFields.Input}
         rules={rules}
       />

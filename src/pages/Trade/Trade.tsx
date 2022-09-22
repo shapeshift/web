@@ -43,9 +43,9 @@ export const Trade = () => {
       >
         <Center
           height={{ base: 'auto', lg: '100%' }}
-          flex='1 1 0%'
           width='full'
-          overflow={{ base: 'visible', lg: 'hidden' }}
+          flex={{ base: 'auto', lg: '1 1 0%' }}
+          overflow='hidden'
           position='relative'
           mx={0}
           _before={{

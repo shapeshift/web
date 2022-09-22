@@ -4,6 +4,7 @@ import { logger } from 'lib/logger'
 
 import type { FiatRamp, SupportedFiatRampConfig } from '../config'
 import { supportedFiatRamps } from '../config'
+import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -22,28 +23,41 @@ export const useFiatRampByAssetId = ({ assetId, action }: useFiatRampByAssetIdPr
   useEffect(() => {
     if (!assetId) return
     setLoading(true)
-    const tmpProviders: SupportedFiatRampConfig[] = []
     async function getBySellAssets() {
-      await Promise.all(
-        Object.keys(supportedFiatRamps).map(async provider => {
-          try {
-            const fiatProvider = supportedFiatRamps[provider as FiatRamp]
-            const [parsedBuyList, parsedSellList] = await fiatProvider.getBuyAndSellList()
-
-            parsedBuyList.filter(a => a.assetId === assetId)
-            const arrayToCompare = action === FiatRampAction.Buy ? parsedBuyList : parsedSellList
-            const hasMatch = arrayToCompare.some(value => {
-              return value.assetId === assetId
-            })
-            if (hasMatch) {
-              tmpProviders.push(fiatProvider)
-            }
-          } catch (e) {
-            moduleLogger.warn(e, 'mergeFiatRamps')
-          }
-        }),
-      )
-      setProviders(tmpProviders)
+      const parsedProviders = (
+        await Promise.allSettled(
+          Object.values(supportedFiatRamps).map<
+            Promise<
+              [
+                provider: SupportedFiatRampConfig,
+                buyAndSellList: [FiatRampAsset[], FiatRampAsset[]],
+              ]
+            >
+          >(async provider => {
+            return [provider, await provider.getBuyAndSellList()]
+          }),
+        )
+      ).reduce<SupportedFiatRampConfig[]>((acc, getBySellAssetsPromise) => {
+        if (getBySellAssetsPromise.status === 'rejected') {
+          moduleLogger.error(
+            getBySellAssetsPromise?.reason,
+            { fn: 'getBySellAssets' },
+            'An error happened sorting the fiat ramp buy assets',
+          )
+          return acc
+        }
+        const { value } = getBySellAssetsPromise
+        const [provider, [currentBuyList, currentSellList]] = value
+        const arrayToCompare = action === FiatRampAction.Buy ? currentBuyList : currentSellList
+        const hasMatch = arrayToCompare.some(value => {
+          return value.assetId === assetId
+        })
+        if (hasMatch) {
+          acc.push(provider)
+        }
+        return acc
+      }, [])
+      setProviders(parsedProviders)
       setLoading(false)
     }
     getBySellAssets()

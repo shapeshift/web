@@ -109,24 +109,34 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
   useEffect(() => {
     setLoading(true)
     async function getBySellAssets() {
-      const buyArray: FiatRampAsset[] = []
-      const sellArray: FiatRampAsset[] = []
-      await Promise.all(
-        Object.keys(supportedFiatRamps).map(async provider => {
-          try {
-            const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
-              provider as FiatRamp
-            ].getBuyAndSellList()
-
-            buyArray.push(...parsedBuyList)
-            sellArray.push(...parsedSellList)
-          } catch (e) {
-            moduleLogger.warn(e, 'mergeFiatRamps')
+      const [parsedBuyList, parsedSellList] = (
+        await Promise.allSettled(
+          Object.values(supportedFiatRamps)
+            .filter(provider => provider.isImplemented)
+            .map(async provider => {
+              return await provider.getBuyAndSellList()
+            }),
+        )
+      ).reduce<[currentBuyList: FiatRampAsset[], currentSellList: FiatRampAsset[]]>(
+        (acc, getBySellAssetsPromise) => {
+          if (getBySellAssetsPromise.status === 'rejected') {
+            moduleLogger.error(
+              getBySellAssetsPromise?.reason,
+              { fn: 'getBySellAssets' },
+              'An error happened sorting the fiat ramp buy assets',
+            )
+            return acc
           }
-        }),
+          const { value } = getBySellAssetsPromise
+          const [currentBuyList, currentSellList] = value
+          acc[0].push(...currentBuyList)
+          acc[1].push(...currentSellList)
+          return acc
+        },
+        [[], []],
       )
-      setSellList(addSellPropertiesAndSort(uniqBy(sellArray, 'assetId')))
-      setBuyList(addBuyPropertiesAndSort(uniqBy(buyArray, 'assetId')))
+      setSellList(addSellPropertiesAndSort(uniqBy(parsedSellList, 'assetId')))
+      setBuyList(addBuyPropertiesAndSort(uniqBy(parsedBuyList, 'assetId')))
       setLoading(false)
     }
     getBySellAssets()

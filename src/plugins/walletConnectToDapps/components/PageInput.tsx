@@ -24,7 +24,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
     >
       <IconButton
         colorScheme='gray'
-        aria-label={translate('plugins.walletConnectToDapps.pageInput.prevPage')}
+        aria-label={translate('plugins.walletConnectToDapps.registry.pageInput.prevPage')}
         variant='ghost'
         icon={<ArrowBackIcon />}
         disabled={value <= 0}
@@ -32,13 +32,13 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
         onClick={prevPage}
       />
       <Text textAlign='center' minWidth={16}>
-        {translate('plugins.walletConnectToDapps.pageInput.label', {
+        {translate('plugins.walletConnectToDapps.registry.pageInput.label', {
           current: value + 1,
           total: max + 1,
         })}
       </Text>
       <IconButton
-        aria-label={translate('plugins.walletConnectToDapps.pageInput.nextPage')}
+        aria-label={translate('plugins.walletConnectToDapps.registry.pageInput.nextPage')}
         variant='ghost'
         icon={<ArrowForwardIcon />}
         disabled={value >= max}

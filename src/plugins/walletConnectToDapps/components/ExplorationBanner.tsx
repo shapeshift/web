@@ -21,8 +21,15 @@ export const ExplorationBanner: FC = () => (
         />
 
         <Box>
-          <Text as='b' fontSize='lg' translation='plugins.walletConnectToDapps.banner.title' />
-          <Text translation='plugins.walletConnectToDapps.banner.subtitle' color='gray.500' />
+          <Text
+            as='b'
+            fontSize='lg'
+            translation='plugins.walletConnectToDapps.registry.banner.title'
+          />
+          <Text
+            translation='plugins.walletConnectToDapps.registry.banner.subtitle'
+            color='gray.500'
+          />
         </Box>
 
         <Stack direction='row'>
@@ -31,7 +38,7 @@ export const ExplorationBanner: FC = () => (
             size='sm'
             onClick={() => alert('TODO: dApp connection flow (will be done in a future PR)')}
           >
-            <Text translation='plugins.walletConnectToDapps.getStarted' />
+            <Text translation='plugins.walletConnectToDapps.registry.getStarted' />
           </Button>
           <Button
             colorScheme='blue'
@@ -39,7 +46,7 @@ export const ExplorationBanner: FC = () => (
             variant='ghost'
             onClick={() => alert('TODO: open ZenDesk article')}
           >
-            <Text translation='plugins.walletConnectToDapps.learnMore' />
+            <Text translation='plugins.walletConnectToDapps.registry.learnMore' />
           </Button>
         </Stack>
       </Stack>

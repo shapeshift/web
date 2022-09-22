@@ -1365,17 +1365,20 @@
       }
     },
     "walletConnectToDapps": {
-      "availableDapps": "Available dApps",
-      "getStarted": "Get Started",
-      "learnMore": "Learn More",
-      "banner": {
-        "title": "Connect to over 300+ dApps",
-        "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
-      },
-      "pageInput": {
-        "label": "%{current} of %{total}",
-        "nextPage": "Next Page",
-        "prevPage": "Previous Page"
+      "registry": {
+        "availableDapps": "Available dApps",
+        "getStarted": "Get Started",
+        "learnMore": "Learn More",
+        "banner": {
+          "title": "Connect to over 300+ dApps",
+          "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
+        },
+        "emptyStateDescription": "Try adjusting your search query and try again.",
+        "pageInput": {
+          "label": "%{current} of %{total}",
+          "nextPage": "Next Page",
+          "prevPage": "Previous Page"
+        }
       }
     }
   },

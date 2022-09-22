@@ -1,13 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  AccountId,
   accountIdToChainId,
-  AssetId,
   avalancheChainId,
   bchChainId,
   btcChainId,
   CHAIN_NAMESPACE,
-  ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
@@ -16,31 +14,36 @@ import {
   fromChainId,
   ltcChainId,
   osmosisChainId,
+  thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  HDWallet,
   supportsBTC,
   supportsCosmos,
   supportsETH,
   supportsEthSwitchChain,
 } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { PubKey } from '../validatorDataSlice/validatorDataSlice'
-import {
-  initialState,
+import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import type {
   Portfolio,
+  PortfolioAccountBalancesById,
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
+import { initialState } from './portfolioSliceCommon'
 
 export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
 export type ChainIdType = typeof chainIds[number]
@@ -102,6 +105,8 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       return 'Cosmos'
     case osmosisChainId:
       return 'Osmosis'
+    case thorchainChainId:
+      return 'Thorchain'
     case dogeChainId:
       return 'Dogecoin'
     case ltcChainId:
@@ -115,6 +120,12 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
   }
 }
+
+export const isUtxoAccountId = (accountId: AccountId): boolean =>
+  fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+export const isUtxoChainId = (chainId: ChainId): boolean =>
+  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
 
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
   // the only way we get an accountId, is from a chainAdapter that supports that chain
@@ -432,10 +443,32 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case ethChainId:
       return supportsETH(wallet)
     case btcChainId:
+    case ltcChainId:
+    case dogeChainId:
+    case bchChainId:
       return supportsBTC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     default:
       return false
   }
+}
+
+export const genericBalanceIncludingStakingByFilter = (
+  accountBalances: PortfolioAccountBalancesById,
+  assetId: AssetId | undefined,
+  accountId: AccountId | undefined,
+): string => {
+  const totalByAccountId = Object.entries(accountBalances)
+    .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all
+    .reduce<Record<AccountId, BigNumber>>((acc, [accountId, byAssetId]) => {
+      const accountTotal = Object.entries(byAssetId)
+        .filter(([id, _assetBalance]) => (assetId ? id === assetId : true)) // if no assetId filter, return all
+        .reduce((innerAcc, [_id, assetBalance]) => innerAcc.plus(bnOrZero(assetBalance)), bn(0))
+      acc[accountId] = accountTotal
+      return acc
+    }, {})
+  return Object.values(totalByAccountId)
+    .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
+    .toString()
 }

@@ -1,9 +1,10 @@
-import { Contract } from '@ethersproject/contracts'
+import type { Contract } from '@ethersproject/contracts'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { TokenAmount } from '@uniswap/sdk'
+import type { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
-import { BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BN } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
@@ -13,6 +14,7 @@ const moduleLogger = logger.child({
   namespace: ['Plugins', 'FoxPage', 'Utils'],
 })
 
+// TODO: remove this module and use wagmi provider
 let maybeEthersProvider: providers.Web3Provider | undefined
 // The provider we get from getWeb3Instance is a web3.js Provider
 // But uniswap SDK needs a Web3Provider from ethers.js

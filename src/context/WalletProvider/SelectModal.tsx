@@ -12,6 +12,7 @@ import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -41,6 +42,21 @@ export const SelectModal = () => {
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(walletType => {
               const option = SUPPORTED_WALLETS[walletType]
+              // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
+
+              const isSupported = (() => {
+                if (isMobileApp) {
+                  return ['both', 'app'].includes(String(option.supportsMobile))
+                }
+                if (isMobile) {
+                  return ['both', 'browser'].includes(String(option.supportsMobile))
+                }
+                // Don't display mobile supported wallets on desktop
+                return option.supportsMobile !== 'app'
+              })()
+
+              if (!isSupported) return null
+
               const Icon = option.icon
               const activeWallet = walletInfo?.name === option.name
               // TODO: We can probably do better than a hardcoded ETH-only option for Walletconnect here.
@@ -50,10 +66,6 @@ export const SelectModal = () => {
                 : supportsETHOnly
                 ? 'common.walletSupportsETHOnly'
                 : null
-
-              // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
-              if (isMobile && !['both', 'browser'].includes(String(option.supportsMobile)))
-                return false
 
               return (
                 <Button
@@ -94,7 +106,7 @@ export const SelectModal = () => {
             ml={[0, 1.5]}
             borderTopRadius='none'
             colorScheme='blue'
-            onClick={() => create(KeyManager.Native)}
+            onClick={() => create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)}
             data-test='connect-wallet-create-one-button'
           >
             {translate('walletProvider.selectModal.create')}

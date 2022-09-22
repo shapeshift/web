@@ -1,19 +1,20 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { DepositValues, PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
-import {
-  DefiAction,
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
+import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import qs from 'qs'
 import { useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -21,16 +22,26 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+type DepositProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange?: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -50,10 +61,16 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   // user info
   const foxBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: foxAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: foxAssetId,
+      accountId: accountId ?? '',
+    }),
   )
   const ethBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: ethAssetId }),
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: ethAssetId,
+      accountId: accountId ?? '',
+    }),
   )
 
   // notify
@@ -176,6 +193,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <PairDeposit
+      accountId={accountId}
       asset1={foxAsset}
       asset2={ethAsset}
       icons={opportunity?.icons}
@@ -204,6 +222,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       marketData1={foxMarketData}
       marketData2={ethMarketData}
       onCancel={handleCancel}
+      onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

@@ -1,8 +1,8 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { WithdrawType } from '@shapeshiftoss/types'
-import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { DefiType } from '@shapeshiftoss/investor-foxy'
+import type { WithdrawType } from '@shapeshiftoss/types'
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 
 export enum WithdrawPath {
   Withdraw = '/',

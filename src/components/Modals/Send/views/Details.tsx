@@ -13,12 +13,14 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import isNil from 'lodash/isNil'
+import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -32,13 +34,23 @@ import { SendFormFields, SendRoutes } from '../SendCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
-  const { control } = useFormContext<SendInput>()
+  const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
-    control,
-  })
+  const { asset, accountId, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
+
+  const handleAccountChange = useCallback(
+    (accountId: AccountId) => {
+      setValue(SendFormFields.AccountId, accountId)
+      setValue(SendFormFields.CryptoAmount, '')
+      setValue(SendFormFields.FiatAmount, '')
+    },
+    [setValue],
+  )
 
   const { send } = useModal()
   const {
@@ -57,16 +69,7 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
-  if (
-    !(
-      asset &&
-      asset?.name &&
-      !isNil(cryptoAmount) &&
-      cryptoSymbol &&
-      !isNil(fiatAmount) &&
-      fiatSymbol
-    )
-  ) {
+  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 
@@ -89,10 +92,14 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
+        <AccountDropdown
+          assetId={asset.assetId}
+          defaultAccountId={accountId}
+          onChange={handleAccountChange}
+          buttonProps={{ width: 'full', mb: 2, variant: 'solid' }}
+        />
         <AccountCard
-          // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
-          // So we're going to cast it since we already did a runtime check that the object exists
-          asset={asset as Asset}
+          asset={asset}
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}

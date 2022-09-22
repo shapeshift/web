@@ -11,13 +11,13 @@ import { CosmosManager } from '../../providers/cosmos/components/CosmosManager/C
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
 import { IdleManager } from '../../providers/idle/components/IdleManager/IdleManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
-import {
+import type {
   DefiManagerContextProps,
   DefiManagerProviderProps,
   DefiParams,
-  DefiProvider,
   DefiQueryParams,
 } from './DefiCommon'
+import { DefiProvider } from './DefiCommon'
 
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 

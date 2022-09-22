@@ -1,4 +1,4 @@
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 
 export enum BackupPassphraseRoutes {
   Password = '/backup-passphrase/password',

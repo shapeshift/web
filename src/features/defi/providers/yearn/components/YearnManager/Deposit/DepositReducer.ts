@@ -1,4 +1,5 @@
-import { YearnDepositActions, YearnDepositActionType, YearnDepositState } from './DepositCommon'
+import type { YearnDepositActions, YearnDepositState } from './DepositCommon'
+import { YearnDepositActionType } from './DepositCommon'
 
 export const initialState: YearnDepositState = {
   txid: null,

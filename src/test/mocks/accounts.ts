@@ -1,24 +1,25 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { Account, cosmos } from '@shapeshiftoss/chain-adapters'
+import {
+  type AssetId,
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+} from '@shapeshiftoss/caip'
+import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
+import { type Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 
-export const ethChainId: ChainId = 'eip155:1'
-export const ethAssetId: AssetId = 'eip155:1/slip44:60'
-export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const yvusdcAssetId: AssetId = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 export const zeroAssetId: AssetId = 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574'
 export const unknown1AssetId: AssetId = 'eip155:1/erc20:0x85c2ea30a20e5e96e1de337fe4cd8829be86f844'
 export const unknown2AssetId: AssetId = 'eip155:1/erc20:0x9cda935e34bcdfd1add4d2e8161d0f28fc354795'
 export const unknown3AssetId: AssetId = 'eip155:1/erc20:0xecd18dbba2987608c094ed552fef3924edb91e'
-
-export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
-export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-
-export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
-export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 
 export const assetIds = [
   ethAssetId,
@@ -216,7 +217,7 @@ export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
         },
       },
       {},
-    ] as cosmos.Undelegation[],
+    ] as cosmossdk.Undelegation[],
     sequence: '422',
     accountNumber: '424242',
   },

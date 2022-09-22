@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -77,7 +78,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       headerText={'walletProvider.keplr.connect.header'}
       bodyText={'walletProvider.keplr.connect.body'}
       buttonText={'walletProvider.keplr.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

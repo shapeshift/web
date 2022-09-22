@@ -1,9 +1,9 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { TradeAmountInputField, TradeRoutePaths, TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
 export enum AssetClickAction {
   Buy = 'buy',
@@ -14,7 +14,7 @@ export const useTradeRoutes = (): {
   handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { getValues, setValue } = useFormContext<TS>()
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
   const fiatSellAmount = getValues('fiatSellAmount')
@@ -31,13 +31,15 @@ export const useTradeRoutes = (): {
       if (isBuy) {
         setValue('buyTradeAsset.asset', asset)
         isSameAsset && setValue('sellTradeAsset.asset', previousBuyTradeAsset.asset)
+        setValue('selectedBuyAssetAccountId', undefined)
+        setValue('buyAssetAccountId', undefined)
       }
 
       if (isSell) {
         setValue('sellTradeAsset.asset', asset)
         isSameAsset && setValue('buyTradeAsset.asset', previousSellTradeAsset.asset)
-        setValue('selectedAssetAccount', undefined)
-        setValue('sellAssetAccount', undefined)
+        setValue('selectedSellAssetAccountId', undefined)
+        setValue('sellAssetAccountId', undefined)
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)

@@ -12,11 +12,12 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useSendFees } from 'components/Modals/Send/hooks/useSendFees/useSendFees'
@@ -25,9 +26,10 @@ import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendInput } from '../Form'
+import type { SendInput } from '../Form'
 
 export const Confirm = () => {
   const {
@@ -36,10 +38,12 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType, memo } = useWatch({
-    control,
-  })
+  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType, memo, accountId } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
@@ -47,6 +51,9 @@ export const Confirm = () => {
   }, [fiatAmount, fees, feeType])
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  // We don't want this firing -- but need it for typing
+  const handleAccountChange = () => {}
 
   if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
     return null
@@ -81,6 +88,23 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
+          {isMultiAccountsEnabled && (
+            <Row alignItems='center'>
+              <Row.Label>
+                <Text translation='modals.send.confirm.sendFrom' />
+              </Row.Label>
+              <Row.Value display='flex' alignItems='center'>
+                <AccountDropdown
+                  onChange={handleAccountChange}
+                  assetId={asset.assetId}
+                  defaultAccountId={accountId}
+                  buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                  disabled
+                />
+              </Row.Value>
+            </Row>
+          )}
+
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />

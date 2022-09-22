@@ -1,19 +1,18 @@
 import { useToast } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
-  SwapError,
-  SwapErrorTypes,
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ethAssetId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import type { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
   Swapper,
-  SwapperManager,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   UtxoSupportedChainIds,
 } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorTypes, SwapperManager } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -21,14 +20,15 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
+import type { DisplayFeeData, TradeAmountInputField, TradeAsset, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
-import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
@@ -59,7 +59,7 @@ type DebouncedQuoteInput = {
   swapper: Swapper<ChainId>
   wallet: HDWallet
   accountSpecifiersList: AccountSpecifierMap[]
-  sellAssetAccount: string
+  sellAssetAccountId: string
   sellAssetFiatRate: string
   buyAssetFiatRate: string
   feeAssetFiatRate: string
@@ -74,7 +74,7 @@ export const useSwapper = () => {
     sellTradeAsset,
     buyTradeAsset,
     trade,
-    sellAssetAccount,
+    sellAssetAccountId,
     isExactAllowance,
     sellAssetFiatRate,
     buyAssetFiatRate,
@@ -85,7 +85,7 @@ export const useSwapper = () => {
       'sellTradeAsset',
       'buyTradeAsset',
       'trade',
-      'sellAssetAccount',
+      'sellAssetAccountId',
       'isExactAllowance',
       'sellAssetFiatRate',
       'buyAssetFiatRate',
@@ -96,7 +96,7 @@ export const useSwapper = () => {
     TradeAsset | undefined,
     TradeAsset | undefined,
     Trade<KnownChainIds>,
-    TS['sellAssetAccount'],
+    TS['sellAssetAccountId'],
     TS['isExactAllowance'],
     TS['sellAssetFiatRate'],
     TS['buyAssetFiatRate'],
@@ -201,7 +201,7 @@ export const useSwapper = () => {
 
   const sellAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
-      accountId: sellAssetAccount,
+      accountId: sellAssetAccountId,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
@@ -265,7 +265,7 @@ export const useSwapper = () => {
 
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
-    if (!sellAssetAccount) throw new Error('no sellAssetAccount available')
+    if (!sellAssetAccountId) throw new Error('no sellAssetAccountId available')
 
     const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
     const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -293,7 +293,7 @@ export const useSwapper = () => {
           receiveAddress,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-        const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
+        const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
         if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
@@ -377,9 +377,9 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  const getUtxoParams = (sellAssetAccount: string) => {
-    if (!sellAssetAccount) throw new Error('No UTXO account specifier')
-    return accountIdToUtxoParams(sellAssetAccount, 0)
+  const getUtxoParams = (sellAssetAccountId: string) => {
+    if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+    return accountIdToUtxoParams(sellAssetAccountId, 0)
   }
 
   const updateQuoteDebounced = useRef(
@@ -393,7 +393,7 @@ export const useSwapper = () => {
         wallet,
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
-        sellAssetAccount,
+        sellAssetAccountId,
         sellAssetFiatRate,
         buyAssetFiatRate,
       }: DebouncedQuoteInput) => {
@@ -434,7 +434,7 @@ export const useSwapper = () => {
                 receiveAddress,
               })
             } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-              const { accountType, utxoParams } = getUtxoParams(sellAssetAccount)
+              const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
               if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
               const sellAssetChainAdapter = getChainAdapterManager().get(
                 sellAsset.chainId,
@@ -508,7 +508,7 @@ export const useSwapper = () => {
     }: GetQuoteInput) => {
       setValue('quoteError', null)
       if (!wallet || !accountSpecifiersList.length) return
-      if (!sellAssetAccount) return
+      if (!sellAssetAccountId) return
       if (!sellAssetFiatRate || !buyAssetFiatRate || !feeAssetFiatRate) return
       if (!forceQuote && bnOrZero(amount).isZero()) return
       if (!Array.from(swapperManager.swappers.keys()).length) return
@@ -544,7 +544,7 @@ export const useSwapper = () => {
           wallet,
           accountSpecifiersList,
           selectedCurrencyToUsdRate,
-          sellAssetAccount,
+          sellAssetAccountId,
           sellAssetFiatRate,
           buyAssetFiatRate,
           feeAssetFiatRate,
@@ -555,7 +555,7 @@ export const useSwapper = () => {
       setValue,
       wallet,
       accountSpecifiersList,
-      sellAssetAccount,
+      sellAssetAccountId,
       sellAssetFiatRate,
       buyAssetFiatRate,
       feeAssetFiatRate,

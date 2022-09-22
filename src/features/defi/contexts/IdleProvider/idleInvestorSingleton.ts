@@ -1,4 +1,4 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'

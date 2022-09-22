@@ -1,5 +1,6 @@
 import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
@@ -7,7 +8,6 @@ import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
@@ -45,17 +45,15 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           <IconButton
             ml='auto'
             aria-label='Close Nav'
-            icon={<CloseIcon />}
+            variant='ghost'
+            icon={<CloseIcon boxSize={3} />}
             onClick={() => handleClick()}
           />
-          <Flex width='full'>
+          <Flex gap={2}>
+            <Flex width='full'>
+              <UserMenu onClick={() => handleClick()} />
+            </Flex>
             <ChainMenu />
-          </Flex>
-          <Flex width='full'>
-            <UserMenu onClick={() => handleClick()} />
-          </Flex>
-          <Flex width='full'>
-            <FiatRamps />
           </Flex>
           <Box width='full'>
             <AutoCompleteSearch />
@@ -63,21 +61,21 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
         </Flex>
       )}
 
-      <NavBar isCompact={isCompact} mt={6} />
-      <Stack width='full' mt={6}>
+      <NavBar isCompact={isCompact} mt={6} onClick={() => handleClick()} />
+      <Stack width='full' mt={6} spacing={0}>
         <MainNavLink
-          variant='ghost'
           isCompact={isCompact}
+          size='sm'
           onClick={() => handleClick(() => settings.open({}))}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
         />
         <MainNavLink
-          variant='ghost'
           isCompact={isCompact}
           as={Link}
           isExternal
+          size='sm'
           href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
           label={translate('common.joinDiscord')}
           leftIcon={<DiscordIcon />}
@@ -87,7 +85,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           leftIcon={<ChatIcon />}
           isCompact={isCompact}
           as={Link}
-          variant='ghost'
+          size='sm'
           onClick={() => handleClick()}
           label={translate('common.submitFeedback')}
           isExternal

@@ -1,12 +1,12 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { FaArrowDown, FaArrowRight } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'

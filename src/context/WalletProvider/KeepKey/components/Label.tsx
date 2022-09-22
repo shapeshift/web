@@ -1,6 +1,6 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
-import { ResetDevice } from '@shapeshiftoss/hdwallet-core'
+import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
@@ -32,7 +32,7 @@ export const KeepKeyLabel = () => {
       moduleLogger.error(e)
       toast({
         title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
+        description: e?.message?.message ?? translate('common.somethingWentWrong'),
         status: 'error',
         isClosable: true,
       })

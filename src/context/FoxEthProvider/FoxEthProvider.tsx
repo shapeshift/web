@@ -1,13 +1,13 @@
-import { AccountId, ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { getLpTokenPrice } from 'features/defi/providers/fox-eth-lp/api'
 import {
-  foxAssetId,
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
@@ -21,21 +21,20 @@ import {
 } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import React, { createContext, useContext, useMemo } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectFeatureFlags } from 'state/slices/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFeatureFlags,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
@@ -106,7 +105,7 @@ type FoxEthProviderProps = {
 }
 
 type IFoxLpAndFarmingOpportunitiesContext = {
-  accountId: AccountId | null
+  accountId: Nullable<AccountId>
   setAccountId: (accountId: AccountId) => void
   totalBalance: string
   lpFoxBalance: string | null
@@ -140,6 +139,7 @@ const FoxLpAndFarmingOpportunitiesContext = createContext<IFoxLpAndFarmingOpport
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const {
     state: { wallet },
   } = useWallet()
@@ -156,15 +156,17 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [foxEthLpOpportunity, setFoxEthLpOpportunity] = useState<EarnOpportunityType>(lpOpportunity)
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
-  const [accountId, setAccountId] = useState<AccountId | null>(null)
-  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress)
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const { calculateHoldings, getLpTVL } = useFoxEthLiquidityPool(accountAddress, {
+    skip: !featureFlags.FoxLP,
+  })
 
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
     FoxFarmingEarnOpportunityType[]
   >([v4FarmingOpportunity, v3FarmingOpportunity, v2FarmingOpportunity, v1FarmingOpportunity])
-  const { lpApr } = useLpApr()
+  const { lpApr } = useLpApr({ skip: !featureFlags.FoxLP })
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const foxAssetPrecision = useAppSelector(state => selectAssetById(state, foxAssetId)).precision
@@ -173,7 +175,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     selectAssetById(state, foxEthLpAssetId),
   ).precision
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   // TODO: Remove this useEffect
   // The reason why it is still here is because we use accountAddress both for the modals, and to display the DeFi cards/rows
@@ -320,6 +321,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   // reload opportunities when wallet changes
   useEffect(() => {
+    if (!(featureFlags.FoxLP || featureFlags.FoxFarming)) return
     if (!(accountAddress && lpApr && isMarketDataReady && lpAssetPrecision && foxAssetPrecision))
       return
     ;(async () => {
@@ -330,22 +332,18 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
 
-  // watch tx to reload opportunities if it got confirmed
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, ethChainId),
-  )
-
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
     async (txid: string) => {
-      if (!accountAddress) return
-      setOngoingTxId(serializeTxIndex(accountSpecifier, txid, accountAddress))
+      if (!(accountId && accountAddress)) return
+      setOngoingTxId(serializeTxIndex(accountId, txid, accountAddress))
     },
-    [accountSpecifier, accountAddress],
+    [accountId, accountAddress],
   )
 
   useEffect(() => {
+    if (!(featureFlags.FoxLP || featureFlags.FoxFarming)) return
     if (transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         fetchFarmingOpportunities()
@@ -353,7 +351,13 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         setOngoingTxId(null)
       }
     }
-  }, [fetchFarmingOpportunities, fetchLpOpportunity, transaction])
+  }, [
+    fetchFarmingOpportunities,
+    featureFlags.FoxFarming,
+    featureFlags.FoxLP,
+    fetchLpOpportunity,
+    transaction,
+  ])
 
   const foxFarmingTotalCryptoAmount = foxFarmingOpportunities
     .reduce((acc, opportunity) => {

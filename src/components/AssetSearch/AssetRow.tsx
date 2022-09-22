@@ -1,7 +1,7 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useMemo } from 'react'
-import { ListChildComponentProps } from 'react-window'
+import type { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 

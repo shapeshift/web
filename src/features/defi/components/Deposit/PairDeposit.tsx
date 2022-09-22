@@ -1,10 +1,13 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
+import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
+import type { ControllerProps } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -12,10 +15,12 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { Nullable } from 'types/common'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
 type DepositProps = {
+  accountId?: Nullable<AccountId>
   asset1: Asset
   asset2: Asset
   destAsset: Asset
@@ -42,6 +47,7 @@ type DepositProps = {
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
+  onAccountIdChange?: AccountDropdownProps['onChange']
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
@@ -65,6 +71,7 @@ export type DepositValues = {
 
 export const PairDeposit = ({
   apy,
+  accountId,
   asset1,
   asset2,
   destAsset,
@@ -79,6 +86,7 @@ export const PairDeposit = ({
   fiatInputValidation1,
   fiatInputValidation2,
   isLoading,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
   syncPair = true,
@@ -208,27 +216,33 @@ export const PairDeposit = ({
       <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount1?.value}
             onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
+            assetId={asset1.assetId}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
             balance={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
+            onAccountIdChange={handleAccountIdChange}
             onMaxClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
           />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount2?.value}
             onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
             fiatAmount={fiatAmount2?.value}
             showFiatAmount={true}
+            assetId={asset2.assetId}
             assetIcon={asset2.icon}
             assetSymbol={asset2.symbol}
             balance={cryptoAmountAvailable2}
             fiatBalance={fiatAmountAvailable2}
+            onAccountIdChange={handleAccountIdChange}
             onMaxClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}
             errors={cryptoError2 || fiatError2}
@@ -258,6 +272,7 @@ export const PairDeposit = ({
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid}
           isLoading={isLoading}
+          data-test='defi-modal-continue-button'
           type='submit'
         >
           {translate(fieldError || 'common.continue')}

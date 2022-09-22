@@ -1,14 +1,15 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
+import type { Bucket } from './useBalanceChartData'
 import {
-  Bucket,
   bucketEvents,
   calculateBucketPrices,
   makeBuckets,
@@ -17,8 +18,6 @@ import {
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-
 describe('makeBuckets', () => {
   it('can make buckets', () => {
     const assetIds = [ethAssetId]
@@ -26,7 +25,7 @@ describe('makeBuckets', () => {
     const balances = {
       [ethAssetId]: ethBalance,
     }
-    ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
+    ;(Object.values(HistoryTimeframe) as HistoryTimeframe[]).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {

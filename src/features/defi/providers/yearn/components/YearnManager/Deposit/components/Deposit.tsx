@@ -1,34 +1,46 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiAction,
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+type DepositProps = StepComponentProps & {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  onNext,
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -43,23 +55,28 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   // notify
   const toast = useToast()
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress && opportunity)) return
+      if (!(state && dispatch && accountAddress && opportunity)) return
 
       const getApproveGasEstimate = async (): Promise<string | undefined> => {
-        if (!(state.userAddress && assetReference && opportunity)) return
+        if (!(accountAddress && assetReference && opportunity)) return
         try {
           const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
             state.opportunity?.positionAsset.assetId ?? '',
           )
           if (!yearnOpportunity) throw new Error('No opportunity')
-          const preparedApproval = await yearnOpportunity.prepareApprove(state.userAddress)
+          const preparedApproval = await yearnOpportunity.prepareApprove(accountAddress)
           return bnOrZero(preparedApproval.gasPrice)
             .times(preparedApproval.estimatedGas)
             .integerValue()
@@ -79,7 +96,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-        if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
+        if (!(accountAddress && state.opportunity && assetReference && yearnInvestor)) return
         try {
           const yearnOpportunity = await yearnInvestor.findByOpportunityId(
             state.opportunity?.positionAsset.assetId ?? '',
@@ -87,7 +104,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
           if (!yearnOpportunity) throw new Error('No opportunity')
           const preparedTx = await yearnOpportunity.prepareDeposit({
             amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-            address: state.userAddress,
+            address: accountAddress,
           })
           // TODO(theobold): Figure out a better way for the safety factor
           return bnOrZero(preparedTx.gasPrice)
@@ -117,7 +134,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
           state.opportunity?.positionAsset.assetId ?? '',
         )
         if (!yearnOpportunity) throw new Error('No opportunity')
-        const _allowance = await yearnOpportunity.allowance(state.userAddress)
+        const _allowance = await yearnOpportunity.allowance(accountAddress)
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
@@ -152,6 +169,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }
     },
     [
+      accountAddress,
       asset.precision,
       assetReference,
       dispatch,
@@ -200,6 +218,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <ReusableDeposit
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={String(opportunity?.metadata.apy?.net_apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
-import { ExternalOpportunity, OpportunityTypes } from '../../FoxCommon'
+import type { ExternalOpportunity, OpportunityTypes } from '../../FoxCommon'
 import { FoxOtherOpportunityPanelRow } from './FoxOtherOpportunityPanelRow'
 
 type FoxOtherOpportunityPanelProps = {

@@ -1,10 +1,9 @@
-import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
-import { KeyManager } from './KeyManager'
-import type { Adapters, InitialState } from './WalletProvider'
-import { DeviceState } from './WalletProvider'
+import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
+import type { KeyManager } from './KeyManager'
+import type { Adapters, InitialState, WalletInfo } from './WalletProvider'
+import type { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -17,6 +16,7 @@ export enum WalletActions {
   SET_IS_LOCKED = 'SET_IS_LOCKED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   RESET_STATE = 'RESET_STATE',
+  RESET_LAST_DEVICE_INTERACTION_STATE = 'RESET_LAST_DEVICE_INTERACTION_STATE',
   SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
   NATIVE_PASSWORD_OPEN = 'NATIVE_PASSWORD_OPEN',
   OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
@@ -24,6 +24,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
   OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE = 'OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE',
   SET_DEVICE_STATE = 'SET_DEVICE_STATE',
+  SET_PIN_REQUEST_TYPE = 'SET_PIN_REQUEST_TYPE',
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
 }
@@ -32,13 +33,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
       type: WalletActions.SET_WALLET
-      payload: {
-        wallet: HDWallet | null
-        name: string
-        icon: ComponentWithAs<'svg', IconProps>
-        deviceId: string
-        meta?: { label: string }
-      }
+      payload: WalletInfo & { wallet: HDWallet | null }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_IS_DEMO_WALLET; payload: boolean }
@@ -49,6 +44,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.SET_DEVICE_STATE; payload: Partial<DeviceState> }
+  | { type: WalletActions.SET_PIN_REQUEST_TYPE; payload: PinMatrixRequestType }
   | {
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {
@@ -90,6 +86,7 @@ export type ActionTypes =
       }
     }
   | { type: WalletActions.RESET_STATE }
+  | { type: WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE }
   | {
       type: WalletActions.OPEN_KEEPKEY_INITIALIZE
       payload: {

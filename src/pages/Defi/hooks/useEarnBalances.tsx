@@ -1,8 +1,6 @@
 import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
-import {
-  EarnOpportunityType,
-  useNormalizeOpportunities,
-} from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -11,7 +9,8 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
-import { MergedEarnVault, useVaultBalances } from './useVaultBalances'
+import type { MergedEarnVault } from './useVaultBalances'
+import { useVaultBalances } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]
@@ -22,7 +21,9 @@ export type UseEarnBalancesReturn = {
 export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
+  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances({
+    accountNumber: 0,
+  })
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =

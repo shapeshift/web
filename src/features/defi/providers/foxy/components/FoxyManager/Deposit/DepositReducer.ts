@@ -2,7 +2,8 @@ import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { FoxyDepositActions, FoxyDepositActionType, FoxyDepositState } from './DepositCommon'
+import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
+import { FoxyDepositActionType } from './DepositCommon'
 
 export const initialState: FoxyDepositState = {
   txid: null,

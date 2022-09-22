@@ -1,14 +1,15 @@
-import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
+import type { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
 import React, { useCallback, useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import { LocationState } from '../../NativeWallet/types'
+import type { LocationState } from '../../NativeWallet/types'
 import { XDEFIConfig } from '../config'
 const moduleLogger = logger.child({ namespace: ['Connect'] })
 
@@ -90,7 +91,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       headerText={'walletProvider.xdefi.connect.header'}
       bodyText={'walletProvider.xdefi.connect.body'}
       buttonText={'walletProvider.xdefi.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     />

@@ -1,6 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import {
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,

@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { FoxFarmingWithdrawActions, FoxFarmingWithdrawState } from './WithdrawCommon'
+import type { FoxFarmingWithdrawActions, FoxFarmingWithdrawState } from './WithdrawCommon'
 
 interface IWithdrawContext {
   state: FoxFarmingWithdrawState | null

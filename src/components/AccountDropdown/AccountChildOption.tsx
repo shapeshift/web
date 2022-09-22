@@ -1,4 +1,10 @@
-import { forwardRef, MenuItemOption, MenuItemOptionProps, Stack } from '@chakra-ui/react'
+import {
+  type MenuItemOptionProps,
+  forwardRef,
+  MenuItemOption,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 
@@ -10,8 +16,9 @@ type AccountChildRowProps = {
 
 export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
   ({ title, cryptoBalance, symbol, children, ...props }, ref) => {
-    const Component = (
-      <MenuItemOption ref={ref} {...props}>
+    const color = useColorModeValue('black', 'white')
+    return (
+      <MenuItemOption ref={ref} color={color} {...props}>
         <Stack direction='row' justifyContent='space-between' fontSize='sm' spacing={4}>
           <RawText fontWeight='bold' whiteSpace='nowrap'>
             {title}
@@ -27,7 +34,7 @@ export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
         {children}
       </MenuItemOption>
     )
-    return Component
   },
 )
+
 AccountChildOption.id = 'MenuItemOption'

@@ -6,8 +6,10 @@ import dogecoin from 'plugins/dogecoin'
 import ethereum from 'plugins/ethereum'
 import foxPage from 'plugins/foxPage'
 import litecoin from 'plugins/litecoin'
+import mobile from 'plugins/mobile'
 import osmosis from 'plugins/osmosis'
 import pendo from 'plugins/pendo'
+import thorchain from 'plugins/thorchain'
 
 export const activePlugins = [
   bitcoin,
@@ -20,4 +22,6 @@ export const activePlugins = [
   osmosis,
   avalanche,
   pendo,
+  thorchain,
+  mobile,
 ]

@@ -7,7 +7,7 @@ import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
 import { logger } from 'lib/logger'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
 
 enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',

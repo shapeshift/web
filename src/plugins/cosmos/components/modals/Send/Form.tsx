@@ -1,22 +1,16 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
-import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import {
-  Redirect,
-  Route,
-  RouteComponentProps,
-  Switch,
-  useHistory,
-  useLocation,
-} from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { Address } from 'components/Modals/Send/views/Address'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,13 +20,14 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 
 export type SendInput = {
+  [SendFormFields.Input]: string
   [SendFormFields.Address]: string
   [SendFormFields.Memo]?: string
-  [SendFormFields.AccountId]: AccountSpecifier
+  [SendFormFields.AccountId]: AccountId
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<ChainId>
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<CosmosSdkChainId>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
@@ -42,10 +37,10 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: Asset
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
-export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
+export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
@@ -67,13 +62,14 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     },
   })
 
-  const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
+  const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.Input, '')
+    methods.setValue(SendFormFields.AccountId, '')
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')
     methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
-    methods.setValue(SendFormFields.AccountId, accountId)
 
     history.push(SendRoutes.Address)
   }

@@ -421,12 +421,6 @@
         "infoSecond": "이 복구 문장을 통해서 당신이 KeepKey에 보유한 모든 자산에 접근할 수 있습니다. 이 복구 문장은 '절대' 다른 어디에도 공유하지 마세요.",
         "awaitingButtonPress": "KeepKey의 단계에 따라 복구 문장을 확인하시고, 반드시 따로 적어두세요."
       },
-      "wiped": {
-        "header": "KeepKey 초기화 성공",
-        "body": "KeepKey의 공장 초기화가 완료되었습니다. 이제, KeepKey에 기존의 복구 시드를 사용하여 복원하거나, 새 지갑을 만들 수 있습니다.",
-        "createButton": "새 지갑 만들기",
-        "recoverButton": "지갑 복구"
-      },
       "recoverySentenceEntry": {
         "header": "복구 문장을 입력해주세요",
         "body": "KeepKey에 있는 스크램블 키보드를 사용해, 각 단어의 앞 4글자를 입력해주세요. 단어가 4글자보다 적다면, 엔터를 입력하고 스페이스 바를 눌러주세요. 입력이 완료되었으면 '다음'을 클릭해주세요.",
@@ -467,13 +461,6 @@
           "length": "비밀번호는 최소 %{length}자 이상이어야 합니다.",
           "maxLength": "닉네임은 최대 %{length}자까지 입력할 수 있습니다"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "낮음",
-        "medium": "중간",
-        "high": "높음"
       }
     },
     "send": {

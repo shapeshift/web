@@ -1,4 +1,4 @@
-import { Features } from '@keepkey/device-protocol/lib/messages_pb'
+import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'

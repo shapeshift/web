@@ -2,10 +2,11 @@
 /* eslint-disable import/no-default-export */
 
 import { Container } from '@chakra-ui/react'
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import type { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import { AllocationTable } from './components/AllocationTable'
-import { AssetInput, AssetInputProps } from './components/AssetInput'
+import type { AssetInputProps } from './components/AssetInput'
+import { AssetInput } from './components/AssetInput'
 
 export default {
   title: 'Forms/AssetInput',

@@ -10,7 +10,7 @@ import {
   WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
-import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
+import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -32,7 +32,7 @@ export const WalletConnectedMenu = ({
 
   const ConnectedMenu = () => {
     return (
-      <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
+      <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
         <MenuItem
           closeOnSelect={!connectedWalletMenuRoutes}
           onClick={
@@ -58,7 +58,7 @@ export const WalletConnectedMenu = ({
             {connectedWalletMenuRoutes && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
-        <MenuDivider ml={3} />
+        <MenuDivider />
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}
         </MenuItem>

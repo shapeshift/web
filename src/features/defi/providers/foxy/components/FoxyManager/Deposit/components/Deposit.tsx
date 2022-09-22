@@ -1,32 +1,45 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { Deposit as ReusableDeposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+type DepositProps = StepComponentProps & {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Deposit: React.FC<DepositProps> = ({
+  accountId,
+  onNext,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
@@ -42,23 +55,28 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
   const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   // notify
   const toast = useToast()
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && state.userAddress?.length && dispatch && api)) return
+      if (!(state && accountAddress && dispatch && api)) return
 
       const getApproveGasEstimate = async () => {
-        if (!state.userAddress || !assetReference || !api) return
+        if (!accountAddress || !assetReference || !api) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateApproveGas({
               tokenContractAddress: assetReference,
               contractAddress,
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -78,7 +96,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }
 
       const getDepositGasEstimate = async (deposit: DepositValues) => {
-        if (!state.userAddress || !assetReference || !api) return
+        if (!accountAddress || !assetReference || !api) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateDepositGas({
@@ -87,7 +105,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
               amountDesired: bnOrZero(deposit.cryptoAmount)
                 .times(`1e+${asset.precision}`)
                 .decimalPlaces(0),
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -114,7 +132,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
         const _allowance = await api.allowance({
           tokenContractAddress: assetReference,
           contractAddress,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
         })
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
@@ -150,6 +168,7 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
       }
     },
     [
+      accountAddress,
       api,
       asset.precision,
       assetReference,
@@ -188,6 +207,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <ReusableDeposit
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       isLoading={state.loading}
       apy={String(opportunity?.apy)}

@@ -1,12 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import {
-  EarnOpportunityType,
-  useNormalizeOpportunities,
-} from 'features/defi/helpers/normalizeOpportunity'
-import { foxAssetId, foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
+import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -15,7 +15,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
+export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const history = useHistory()
   const location = useLocation()
   const {
@@ -37,9 +37,14 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
 
-  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const { setAccountId, onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+
+  useEffect(() => {
+    if (accountId) setAccountId(accountId)
+  }, [setAccountId, accountId])
+
   const featureFlags = useAppSelector(selectFeatureFlags)
   //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
 

@@ -1,5 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapter, cosmossdk } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { osmosis } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -24,11 +25,11 @@ export default function register(): Plugins {
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.osmosis.Tx>(
+                const ws = new unchained.ws.Client<unchained.cosmossdk.Tx>(
                   getConfig().REACT_APP_UNCHAINED_OSMOSIS_WS_URL,
                 )
 
-                return new cosmossdk.osmosis.ChainAdapter({
+                return new osmosis.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Osmosis',
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly

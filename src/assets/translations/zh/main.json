@@ -399,12 +399,6 @@
         "infoSecond": "永远不要告诉别人你的恢复短语，这能让拥有者动用你的所有的资金。",
         "awaitingButtonPress": "按照KeepKey上的步骤查看您的恢复短语。写下来！"
       },
-      "wiped": {
-        "header": "KeepKey已成功擦除",
-        "body": "你已成功将KeepKey重置为出厂默认设置。现在，你可以使用现有恢复助记词进行还原，也可以创建一个新的钱包。",
-        "createButton": "创建一个新的钱包",
-        "recoverButton": "找回钱包"
-      },
       "recoverySentenceEntry": {
         "header": "输入您的恢复短语",
         "body": "使用你的KeepKey上的加密键盘图例，输入每个单词的前4个字母。如果单词中少于4个字母，按Enter键，按空格键，或者在输入完成后单击next。",
@@ -431,13 +425,6 @@
           "length": "您的密码至少需要%{length}个字符",
           "maxLength": "昵称最多%{length}个字符"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "低的",
-        "medium": "中等的",
-        "high": "高的"
       }
     },
     "send": {

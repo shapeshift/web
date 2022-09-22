@@ -1,10 +1,11 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Center, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import type { FormEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
-import { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
+import type { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
 import { filterAssetsBySearchTerm } from '../../utils'
 import { AssetList } from './AssetList'
 

@@ -13,6 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -22,7 +23,7 @@ type ReceiveSummaryProps = {
   beforeFees?: string
   protocolFee?: string
   shapeShiftFee?: string
-  minAmountAfterSlippage?: string
+  slippage: number
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
@@ -32,7 +33,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   beforeFees,
   protocolFee,
   shapeShiftFee,
-  minAmountAfterSlippage,
+  slippage,
   isLoading,
   ...rest
 }) => {
@@ -42,6 +43,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
+
+  const minAmountAfterSlippage = bnOrZero(beforeFees)
+    .times(1 - slippage)
+    .toString()
+  const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+
   return (
     <>
       <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>
@@ -120,7 +127,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               <Divider />
               <Row>
                 <Row.Label>
-                  <Text translation={['trade.minAmountAfterSlippage', { slippage: '0.2' }]} />
+                  <Text
+                    translation={[
+                      'trade.minAmountAfterSlippage',
+                      { slippage: slippageAsPercentageString },
+                    ]}
+                  />
                 </Row.Label>
                 <Row.Value whiteSpace='nowrap'>
                   <Skeleton isLoaded={!isLoading}>

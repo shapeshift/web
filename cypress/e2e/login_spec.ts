@@ -8,15 +8,21 @@ const password = Cypress.env('testPassword')
 
 describe('The Dashboard', () => {
   autoRecord()
-  before(() => {
-    cy.clearIndexedDB()
+
+  beforeEach(() => {
+    cy.visit('')
   })
 
   it('supports log in via an imported Native wallet', () => {
-    cy.visit('')
+    cy.clearIndexedDB()
+    cy.clearLocalStorage()
 
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
+
+    // Accept Pendo
+    cy.getBySel('consent-optin-continue-button').click()
+
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 
@@ -56,11 +62,9 @@ describe('The Dashboard', () => {
   })
 
   it('supports login via locally stored Native wallet', () => {
-    // Use this to clear the "localWallet" data and show the splash screen
-    cy.clearLocalStorage()
     // This will use the wallet created in `supports log in via an imported Native wallet`
-    cy.visit('')
     cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-load-button').click()
     cy.getBySel('native-saved-wallet').should('have.length', 1)
@@ -69,31 +73,5 @@ describe('The Dashboard', () => {
     cy.getBySel('wallet-password-input').should('be.visible').type(password)
     cy.getBySel('wallet-password-submit-button').click()
     cy.url().should('equal', `${baseUrl}dashboard`)
-  })
-
-  it('cannot login natively when no local Native wallets', () => {
-    cy.clearLocalStorage()
-    cy.clearIndexedDB().then(() => {
-      cy.visit('')
-      cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('connect-wallet-native-button').click()
-      cy.getBySel('wallet-native-load-button').should('be.disabled')
-    })
-  })
-
-  it('support Portis log in', () => {
-    cy.clearLocalStorage()
-    cy.visit('')
-    // Open WalletProvider.SelectModal
-    cy.getBySel('connect-wallet-button').click()
-    cy.getBySel('connect-wallet-portis-button').click()
-
-    // This would open an external page to log in with Portis, which is outside the scope of Cypress
-    // cy.getBySel('wallet-pair-button').click()
-
-    // We can't use UI for this bit:
-    // https://docs.cypress.io/guides/references/trade-offs#Same-origin
-    // Instead, we'll need to do this part programmatically using cy.request():
-    // https://docs.cypress.io/guides/references/best-practices#Visiting-external-sites
   })
 })

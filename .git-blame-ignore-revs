@@ -1,3 +1,8 @@
 # .git-blame-ignore-revs
-# Add trailing commas to meet "trailingComma": "all" rule
+
+# chore: enforce and add trailing commas (#1437)
 9287cd7ad557150b4900e010c1e87b189df2eb90
+# chore: add array-type lint rule (#2685)
+a19b440bd20285cf4ae1928cd31a449c08c8a1d1
+# feat: add @typescript-eslint/consistent-type-imports rule (#2691)
+47c64e5d7ce4d4702dacac14e61e949aac5415b7

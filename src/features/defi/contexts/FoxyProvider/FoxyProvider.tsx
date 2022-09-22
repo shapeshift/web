@@ -1,5 +1,6 @@
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import React, { PropsWithChildren, useContext, useEffect, useState } from 'react'
+import type { FoxyApi } from '@shapeshiftoss/investor-foxy'
+import type { PropsWithChildren } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'

@@ -4,7 +4,10 @@
 
 import { renderHook } from '@testing-library/react'
 import { mockVault, mockVaultWithBalance } from 'test/mocks/vaults'
-import { MergedEarnVault, MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+import type {
+  MergedEarnVault,
+  MergedSerializableOpportunity,
+} from 'pages/Defi/hooks/useVaultBalances'
 
 import { useSortedVaults } from './useSortedVaults'
 

@@ -18,6 +18,7 @@
     "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
+    "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
@@ -67,7 +68,10 @@
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Select an Asset",
+    "switchNetwork": "Switch Network",
+    "unsupportedNetwork": "Unsupported Network"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -138,6 +142,8 @@
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -364,7 +370,8 @@
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade"
   },
   "transactionRow": {
     "send": "Sent",
@@ -512,7 +519,8 @@
       },
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
-    }
+    },
+    "recentTrades": "Recent Trades"
   },
   "modals": {
     "keepKey": {
@@ -548,9 +556,9 @@
         "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
         "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
       },
-      "wiped": {
-        "header": "KeepKey Wiped Successfully",
-        "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
+      "factoryState": {
+        "header": "Get Started with Keepkey",
+        "body": "Your KeepKey is set to factory default settings. Create a new wallet, or restore a wallet using your secret recovery phrase",
         "createButton": "Create a New Wallet",
         "recoverButton": "Recover Wallet"
       },
@@ -615,18 +623,12 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "Low",
-        "medium": "Medium",
-        "high": "High"
-      }
-    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "Token Address",
+      "tokenAddress": "To Address",
+      "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
@@ -641,6 +643,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",
@@ -801,7 +804,7 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "Hide balances below this value",
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",
@@ -863,12 +866,12 @@
       },
       "newPin": {
         "header": "Enter Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Create a new PIN (up to 9 digits) using the layout display on your KeepKey.",
         "button": "Confirm"
       },
       "newPinConfirm": {
         "header": "Confirm Your New PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
         "button": "Save PIN"
       },
       "settings": {
@@ -1126,7 +1129,7 @@
         "23th": "23th",
         "24th": "24th",
         "body2": " word",
-        "body3": "in your secret phrase.",
+        "body3": "in your secret phrase?",
         "button": "Next"
       },
       "rename": {
@@ -1246,7 +1249,12 @@
     "accounts": "Accounts",
     "selectAccount": "Select an Account",
     "addAccount": "Add Account",
-    "accountNumber": "Account #%{accountNumber}"
+    "accountNumber": "Account #%{accountNumber}",
+    "accountChain": "Account Chain",
+    "selectChain": "Select the chain you would like to create an account for.",
+    "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
+    "newAccountAdded": "New %{name} Account added",
+    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

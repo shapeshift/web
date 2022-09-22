@@ -1,28 +1,13 @@
-import ENS, { getEnsAddress } from '@ensdomains/ensjs'
-import { AddressZero } from '@ethersproject/constants'
-import { CHAIN_REFERENCE, ethChainId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { fetchEnsAddress, fetchEnsName } from '@wagmi/core'
 import memoize from 'lodash/memoize'
-import { getWeb3ProviderByChainId } from 'lib/web3-provider'
 
-import {
+import type {
   ResolveVanityAddress,
   ResolveVanityAddressReturn,
   ReverseLookupVanityAddress,
   ValidateVanityAddress,
 } from './address'
-
-let _ens: any | null
-type GetENS = () => Promise<any>
-
-const getENS: GetENS = () => {
-  if (!_ens) {
-    _ens = new ENS({
-      provider: getWeb3ProviderByChainId(ethChainId),
-      ensAddress: getEnsAddress(CHAIN_REFERENCE.EthereumMainnet),
-    })
-  }
-  return _ens
-}
 
 export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) => ensLookup(value)
 
@@ -31,9 +16,11 @@ export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>
   /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value)
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
-  const ens = await getENS()
-  const address = await ens.name(domain).getAddress()
-  if (address === AddressZero) return ''
+  const address = await fetchEnsAddress({
+    name: domain,
+    chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
+  })
+  if (!address) return ''
   return address
 })
 
@@ -41,10 +28,12 @@ export const ensReverseLookup = memoize(
   async (
     address: string,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
-    const ens = await getENS()
-    const lookupName = await ens.getName(address)
-    if (!lookupName.name) return { name: null, error: true }
-    return { name: lookupName.name, error: false }
+    const lookupName = await fetchEnsName({
+      address,
+      chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
+    })
+    if (!lookupName) return { name: null, error: true }
+    return { name: lookupName, error: false }
   },
 )
 

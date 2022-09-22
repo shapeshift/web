@@ -1,5 +1,6 @@
 import { getConfig } from 'config'
 import { FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -19,11 +20,13 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { Route as NestedRoute, RouteCategory } from './helpers'
+import type { Route as NestedRoute } from './helpers'
+import { RouteCategory } from './helpers'
 
-export const routes: Array<NestedRoute> = [
+export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
@@ -145,6 +148,13 @@ export const routes: Array<NestedRoute> = [
     icon: <TxHistoryIcon />,
     main: TransactionHistory,
     category: RouteCategory.Wallet,
+  },
+  {
+    path: '/trade',
+    label: 'navBar.trade',
+    icon: <IoSwapVertical />,
+    main: Trade,
+    category: RouteCategory.Explore,
   },
   {
     path: '/flags',

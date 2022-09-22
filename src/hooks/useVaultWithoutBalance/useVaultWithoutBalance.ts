@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
+import type { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
 import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
 const moduleLogger = logger.child({ namespace: ['useVaultWithoutBalance'] })
 

@@ -3,18 +3,15 @@ import { range } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Column, Row } from 'react-table'
+import type { Column, Row } from 'react-table'
 import { LoadingRow } from 'components/AccountRow/LoadingRow'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  AccountRowData,
-  selectPortfolioAccountRows,
-  selectPortfolioLoading,
-} from 'state/slices/selectors'
+import type { AccountRowData } from 'state/slices/selectors'
+import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices/selectors'
 
 type RowProps = Row<AccountRowData>
 

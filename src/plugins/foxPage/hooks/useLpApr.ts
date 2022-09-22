@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -14,7 +14,8 @@ import {
 import { calculateAPRFromToken0, getEthersProvider } from '../utils'
 import { useCurrentBlockNumber } from './useCurrentBlockNumber'
 
-const ethersProvider = getEthersProvider()
+// TODO: use wagmi provider
+const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
 const fetchPairData = memoize(
   async (
@@ -25,19 +26,27 @@ const fetchPairData = memoize(
   ) => await fetchPairData(tokenA, tokenB, provider),
 )
 
-export const useLpApr = () => {
+type UseLpAprInput = {
+  skip?: boolean
+}
+
+export const useLpApr = ({ skip }: UseLpAprInput = {}) => {
   const [lpApr, setLpApr] = useState<string | null>(null)
   const [isLpAprLoaded, setIsLpAprLoaded] = useState(false)
-  const blockNumber = useCurrentBlockNumber()
+  const blockNumber = useCurrentBlockNumber({ skip })
 
   const liquidityContractAddress = UNIV2_WETH_FOX_POOL_ADDRESS
-  const uniswapLPContract = useMemo(
-    () => new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider),
-    [liquidityContractAddress],
-  )
+  const uniswapLPContract = useMemo(() => {
+    if (skip) return null
+    const ethersProvider = maybeEthersProvider(skip)
+    if (!ethersProvider) return
+    return new Contract(liquidityContractAddress, IUniswapV2Pair.abi, ethersProvider)
+  }, [skip, liquidityContractAddress])
 
   useEffect(() => {
-    if (!ethersProvider || !Fetcher || !blockNumber || !uniswapLPContract) return
+    if (skip || !Fetcher || !blockNumber || !uniswapLPContract) return
+    const ethersProvider = maybeEthersProvider(skip)
+    if (!ethersProvider) return
     ;(async () => {
       const pair = await fetchPairData(
         new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
@@ -55,7 +64,7 @@ export const useLpApr = () => {
       setLpApr(bnOrZero(apr).div(100).toString())
       setIsLpAprLoaded(true)
     })()
-  }, [blockNumber, uniswapLPContract])
+  }, [blockNumber, skip, uniswapLPContract])
 
   return { isLpAprLoaded, lpApr }
 }

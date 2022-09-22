@@ -1,4 +1,4 @@
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -55,7 +55,8 @@ export const mockStore: ReduxState = {
       FoxLP: false,
       FoxFarming: false,
       Avalanche: false,
-      Thor: false,
+      Thorchain: false,
+      ThorSwap: false,
       CowSwap: false,
       Pendo: false,
       IdleFinance: false,
@@ -67,11 +68,13 @@ export const mockStore: ReduxState = {
       MultiAccounts: false,
       SwapperV2: false,
       WalletConnectToDapps: false,
+      MigrationMessage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    showWelcomeModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

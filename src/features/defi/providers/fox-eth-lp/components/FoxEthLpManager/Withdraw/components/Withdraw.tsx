@@ -1,20 +1,18 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -23,15 +21,26 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
@@ -62,9 +71,12 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     .toFixed(2)
 
   // user info
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: opportunity.assetId }),
+  const filter = useMemo(
+    () => ({ assetId: opportunity?.assetId, accountId: accountId ?? '' }),
+    [opportunity?.assetId, accountId],
   )
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
   if (!state || !dispatch) return null
@@ -164,6 +176,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
         asset={asset}
         icons={opportunity.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
@@ -184,6 +197,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
+        onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading || loading}
@@ -195,6 +209,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         <>
           <Text translation='common.receive' />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={foxAmount}
             fiatAmount={bnOrZero(foxAmount).times(foxMarketData.price).toFixed(2)}
             showFiatAmount={true}
@@ -206,6 +221,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
             isReadOnly={true}
           />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={ethAmount}
             fiatAmount={bnOrZero(ethAmount).times(ethMarketData.price).toFixed(2)}
             showFiatAmount={true}

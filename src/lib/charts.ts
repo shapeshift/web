@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import type { HistoryData } from '@shapeshiftoss/types'
 import sortedIndexBy from 'lodash/sortedIndexBy'
 
 import { bnOrZero } from './bignumber/bignumber'

@@ -1,67 +1,22 @@
 import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
 import { Center, Circle, Flex, Link, Stack } from '@chakra-ui/layout'
-import { Keyring } from '@shapeshiftoss/hdwallet-core'
-import * as native from '@shapeshiftoss/hdwallet-native'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import { Dispatch, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, matchPath } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
+import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['ConnectWallet'] })
-
-async function connectCypressWallet(
-  keyring: Keyring,
-  dispatch: Dispatch<ActionTypes>,
-  walletSeed: string,
-  walletPassword: string,
-) {
-  // Import wallet
-  const vault = await Vault.create()
-  vault.meta.set('createdAt', Date.now())
-  vault.set('#mnemonic', walletSeed)
-  vault.seal()
-  await vault.setPassword(walletPassword)
-  vault.meta.set('name', 'CypressWallet')
-  await Promise.all([navigator.storage?.persist?.(), vault.save()])
-  // Load wallet
-  const deviceId = vault.id
-  const adapter = SUPPORTED_WALLETS[KeyManager.Native].adapter.useKeyring(keyring)
-  const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
-  const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
-  mnemonic.addRevoker?.(() => vault.revoke())
-  await wallet.loadDevice({ mnemonic, deviceId })
-  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-  dispatch({
-    type: WalletActions.SET_WALLET,
-    payload: {
-      wallet,
-      name,
-      icon,
-      deviceId,
-      meta: { label: vault.meta.get('name') as string },
-    },
-  })
-  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-}
 
 export const ConnectWallet = () => {
+  const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
   const { state, dispatch, connectDemo } = useWallet()
-  const isCypressTest =
-    localStorage.hasOwnProperty('cypressWalletSeed') &&
-    localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
   const history = useHistory()
@@ -85,22 +40,7 @@ export const ConnectWallet = () => {
         })
       : query?.returnUrl
     hasWallet && history.push(path ?? '/dashboard')
-    // Programmatic login for Cypress tests
-    // The first `!state.isConnected` filters any re-render if the wallet is already connected.
-    if (isCypressTest && !state.isConnected) {
-      const walletSeed = localStorage.getItem('cypressWalletSeed') || ''
-      const walletPassword = localStorage.getItem('cypressWalletPassword') || ''
-      connectCypressWallet(state.keyring, dispatch, walletSeed, walletPassword)
-        .then(() => {
-          // The second `!state.isConnected` filters any intent to redirect if the redirecting had already happened.
-          if (!state.isConnected) {
-            dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-            history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
-          }
-        })
-        .catch(e => moduleLogger.error(e))
-    }
-  }, [history, hasWallet, query, state, dispatch, isCypressTest])
+  }, [history, hasWallet, query, state, dispatch])
   return (
     <Page>
       <DarkMode>
@@ -137,7 +77,9 @@ export const ConnectWallet = () => {
                 fontSize='lg'
                 mb={12}
                 textAlign='center'
-                translation='connectWalletPage.body'
+                translation={
+                  isMigrationMessageEnabled ? 'connectWalletPage.body2' : 'connectWalletPage.body'
+                }
               />
               <Stack
                 alignItems='center'
@@ -169,6 +111,7 @@ export const ConnectWallet = () => {
                   variant='outline'
                   onClick={connectDemo}
                   isLoading={state.isLoadingLocalWallet}
+                  data-test='connect-demo-wallet-button'
                 >
                   <Text translation='connectWalletPage.viewADemo' />
                 </Button>
@@ -200,6 +143,16 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='common.privacy' />
                 </Link>
+                {isMigrationMessageEnabled && (
+                  <Link
+                    href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
+                    isExternal
+                    color='whiteAlpha.500'
+                    _hover={{ color: 'white' }}
+                  >
+                    <Text translation='connectWalletPage.betaSunset' />
+                  </Link>
+                )}
               </Flex>
             </Flex>
           </Flex>

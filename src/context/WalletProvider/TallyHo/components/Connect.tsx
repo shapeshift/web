@@ -1,9 +1,10 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
+import type { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -12,7 +13,7 @@ import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
-import { LocationState } from '../../NativeWallet/types'
+import type { LocationState } from '../../NativeWallet/types'
 import { TallyHoConfig } from '../config'
 
 export interface TallyHoSetupProps
@@ -120,7 +121,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       headerText={'walletProvider.tallyHo.connect.header'}
       bodyText={'walletProvider.tallyHo.connect.body'}
       buttonText={'walletProvider.tallyHo.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

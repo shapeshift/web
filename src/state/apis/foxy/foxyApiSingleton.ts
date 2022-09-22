@@ -1,4 +1,4 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -15,7 +15,7 @@ export const getFoxyApi = (): FoxyApi => {
     adapter: getChainAdapterManager().get(
       KnownChainIds.EthereumMainnet,
     ) as ChainAdapter<KnownChainIds.EthereumMainnet>,
-    providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+    providerUrl: getConfig().REACT_APP_ETHEREUM_INFURA_URL,
     foxyAddresses,
   })
 

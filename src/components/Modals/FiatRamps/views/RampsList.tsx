@@ -9,15 +9,16 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { ReactElement } from 'react'
 import { useMemo } from 'react'
-import { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FiatRamp, SupportedFiatRampConfig, supportedFiatRamps } from '../config'
+import type { FiatRamp, SupportedFiatRampConfig } from '../config'
+import { supportedFiatRamps } from '../config'
 import { FiatRampsRoutes } from '../FiatRampsCommon'
 
 type RampsListProps = {

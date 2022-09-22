@@ -1,30 +1,31 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -36,7 +37,12 @@ export type FoxyWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+export const Withdraw: React.FC<
+  StepComponentProps & {
+    accountId: Nullable<AccountId>
+    onAccountIdChange: AccountDropdownProps['onChange']
+  }
+> = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -68,7 +74,9 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
@@ -89,19 +97,26 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
   )
 
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
-      if (!state?.userAddress || !dispatch || !rewardId || !api) return
+      if (!(accountAddress && dispatch && rewardId && api && bip44Params)) return
 
       const getApproveGasEstimate = async () => {
-        if (!state.userAddress) return
+        if (!accountAddress) return
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
             api.estimateApproveGas({
               tokenContractAddress: rewardId,
               contractAddress,
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
             }),
             api.getGasPrice(),
           ])
@@ -118,7 +133,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       }
 
       const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
-        if (!state.userAddress) return
+        if (!accountAddress) return
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
@@ -128,8 +143,9 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
               amountDesired: bnOrZero(
                 bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
               ).decimalPlaces(0),
-              userAddress: state.userAddress,
+              userAddress: accountAddress,
               type: withdraw.withdrawType,
+              bip44Params,
             }),
             api.getGasPrice(),
           ])
@@ -166,7 +182,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         const _allowance = await api.allowance({
           tokenContractAddress: rewardId,
           contractAddress,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
         })
 
         const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
@@ -214,11 +230,12 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     [
       api,
       asset.precision,
+      bip44Params,
       contractAddress,
       dispatch,
       onNext,
       rewardId,
-      state?.userAddress,
+      accountAddress,
       toast,
       translate,
     ],
@@ -250,7 +267,9 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
-        asset={stakingAsset}
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
+        asset={asset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,

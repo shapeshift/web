@@ -13,8 +13,8 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -29,16 +29,13 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
-} from 'state/slices/portfolioSlice/selectors'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectCryptoBalanceIncludingStakingByFilter,
+  selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
+  selectPortfolioStakingCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -68,34 +65,20 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-  const filter = useMemo(
-    () => ({ assetId, accountId, accountSpecifier }),
-    [assetId, accountId, accountSpecifier],
-  )
+
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
 
-  const fiatBalanceWithDelegations = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, filter),
-  )
+  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoBalance = useAppSelector(s => selectCryptoBalanceIncludingStakingByFilter(s, filter))
 
-  const cryptoBalanceWithDelegations = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter),
+  const stakingFiatBalance = useAppSelector(s =>
+    selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
   )
-
-  const earnBalances = useEarnBalances()
-  const delegationBalance = useMemo(() => {
-    const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
-    return assetEarnBalance?.cryptoAmount ?? '0'
-  }, [assetId, earnBalances.opportunities])
 
   useEffect(() => {
-    if (bnOrZero(fiatBalanceWithDelegations).gt(0)) {
-      setView(View.Balance)
-    }
-  }, [fiatBalanceWithDelegations])
+    bnOrZero(fiatBalance).gt(0) && setView(View.Balance)
+  }, [fiatBalance])
 
   return (
     <Card>
@@ -124,7 +107,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : toFiat(fiatBalanceWithDelegations)}
+                value={view === View.Price ? assetPrice : toFiat(fiatBalance)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}
@@ -147,12 +130,12 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoBalanceWithDelegations} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingFiatBalance).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -169,7 +152,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
-                    value={delegationBalance}
+                    value={stakingFiatBalance}
                     symbol={asset.symbol}
                     suffix={translate('defi.staked')}
                   />

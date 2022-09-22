@@ -1,12 +1,10 @@
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 
 import { addToIndex, getRelatedAssetIds } from './utils'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {
-    const ethAssetId = 'eip155:1/slip44:60'
-    const btcAssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-    const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const usdcAssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
     const yvusdcAssetId = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 

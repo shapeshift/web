@@ -1,7 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import type { ComponentMeta, ComponentStory } from '@storybook/react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'

@@ -22,6 +22,7 @@
     "withdraw": "Abheben",
     "withdrawal": "Abhebung",
     "claim": "Beanspruchen",
+    "withdrawAndClaim": "Abheben & Beanspruchen",
     "overview": "Übersicht",
     "getStarted": "Loslegen",
     "connectWallet": "verbinde Wallet",
@@ -53,7 +54,7 @@
     "copyFailedDescription": "Bitte manuell kopieren",
     "viewAsset": "Vermögenswerte anzeigen",
     "settings": "Einstellungen",
-    "joinDiscord": "Tritt Discord bei",
+    "joinDiscord": "trete Discord bei",
     "legalDated": "Stand: Januar 2022",
     "approveOnWallet": "Auf Wallet genehmigen",
     "confirmOnWallet": "Auf Wallet bestätigen",
@@ -65,7 +66,8 @@
     "showDetails": "Zeige Details",
     "hideDetails": "Details ausblenden",
     "walletSupportsETHOnly": "Nur Ethereum",
-    "loadingText": "Wird geladen..."
+    "loadingText": "Wird geladen...",
+    "txId": "Tx ID"
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -85,6 +87,8 @@
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Regenbogen",
+      "totalChart": "💰 Gesamt",
       "addAsset": "Vermögenswert hinzufügen",
       "yourAssets": "Ihr Vermögen",
       "asset": "Vermögenswert",
@@ -112,6 +116,7 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
@@ -123,7 +128,9 @@
     "fundsFrom": "Die Mittel werden von gesendet",
     "headerLabel": "Krypto kaufen/verkaufen",
     "insufficientCryptoAmountToSell": "Der Mindestverkaufsbetrag beträgt $%{amount}",
-    "usOnly": "US-Only"
+    "usOnly": "nur US Bürger(innen)",
+    "noKYC": "kein KYC",
+    "nonUS": "Nicht-US Bürger"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -260,6 +267,7 @@
     "tvl": "TVL",
     "apy": "Jährlicher Zinsertrag",
     "apr": "Jährliche Rendite",
+    "ended": "Beendet",
     "balance": "Kontostand",
     "defi": "DeFi",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
@@ -309,7 +317,15 @@
         "info": {
           "title": "Abhebungsinformation",
           "description": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten.",
-          "yieldyDescription": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten. Nachfolgende Auszahlungen werden zusammengefasst und setzen die Auszahlungszeit zurück."
+          "yieldyDescription": "Geben Sie den Betrag von %{asset} ein, den Sie abheben möchten. Nachfolgende Auszahlungen werden zusammengefasst und setzen die Auszahlungszeit zurück.",
+          "farmingExpiredDescription": "Dieser Farming Vertrag ist beendet. Sie müssen Ihr gesamtes Guthaben abheben.",
+          "rewardsInfo": "Belohnungen, die Sie erhalten"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "Forderungsinfo",
+          "description": "Abheben der beim Farmen angesammelten Token"
         }
       },
       "approve": {
@@ -345,7 +361,9 @@
     "foxToken": "FOX Verdienstmöglichkeiten ",
     "featureFlags": "Eigenschaften ändern",
     "demoMode": "Demo Modus",
-    "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden"
+    "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
+    "wallet": "Wallet",
+    "explore": "Entdecken"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -375,6 +393,8 @@
       "yearn": {
         "deposit": "Einzahlen",
         "approve": "Genehmigen",
+        "revoke": "Widerrufen",
+        "infinite": "Unendlich ∞",
         "withdraw": "Abheben",
         "receive": "Erhalten"
       },
@@ -394,7 +414,9 @@
         "claimWithdraw": "Abhebung anfordern"
       },
       "erc20": {
-        "approve": "Genehmigen"
+        "approve": "Genehmigen",
+        "revoke": "Widerrufen",
+        "infinite": "Unendlich ∞"
       }
     },
     "unknown": "Transaktion"
@@ -417,6 +439,7 @@
     "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio."
   },
   "trade": {
+    "trade": "Handeln",
     "allowance": "Genehmigung",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
@@ -433,10 +456,14 @@
     "needPermission": "benötigt Ihre Erlaubnis, Ihre %{symbol} zu verwenden",
     "whyNeedThis": "Warum muss ich das tun?",
     "estimatedGasFee": "Geschätzte Gasgebühr",
+    "receiveInclFee": "Erhalten (inkl. Gebühren)",
     "approvingAsset": "%{symbol} wird genehmigt",
     "viewTransaction": "Transaktion anzeigen",
     "unlimited": "Unbegrenzt",
     "exact": "Genau",
+    "expectedAmount": "Erwarteter Betrag",
+    "beforeFees": "Vor Gebühren",
+    "minAmountAfterSlippage": "Min. erwarteter Betrag nach Marktabweichung (%{slippage}%)",
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
@@ -520,12 +547,6 @@
         "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
       },
-      "wiped": {
-        "header": "KeepKey erfolgreich gelöscht",
-        "body": "Sie haben Ihren KeepKey erfolgreich auf die Werkseinstellungen zurückgesetzt. Sie können jetzt mit einer vorhandenen Wiederherstellungsphrase  wiederherstellen oder eine neue Wallet erstellen.",
-        "createButton": "Erstellen Sie eine neue Wallet",
-        "recoverButton": "Wallet wiederherstellen"
-      },
       "recoverySentenceEntry": {
         "header": "Geben Sie Ihren Wiederherstellungssatz ein",
         "body": "Geben Sie mithilfe der verschlüsselten Tastaturdarstellung auf Ihrem KeepKey die ersten 4 Buchstaben jedes Wortes ein. Wenn das Wort weniger als 4 Buchstaben enthält, drücken Sie die Eingabetaste, drücken Sie die Leertaste oder klicken Sie auf Weiter, wenn Sie mit der Eingabe fertig sind.",
@@ -570,6 +591,20 @@
           "required": "Passwortbestätigung ist erforderlich",
           "length": "Ihr Passwort muss mindestens %{length} Zeichen lang sein",
           "maxLength": "Spitzname darf maximal %{length} Zeichen lang sein"
+        }
+      },
+      "backupPassphrase": {
+        "menuItem": "Meine Wallet sichern",
+        "enterPassword": "Geben Sie Ihr Passwort ein, um fortzufahren",
+        "testTitle": "Überprüfen Sie Ihre geheime Wiederherstellungsphrase",
+        "info": {
+          "title": "Ihre geheime Wiederherstellungsphrase",
+          "description": "Schreiben Sie diese 12 Wörter auf und speichern Sie sie sicher offline. Diese 12-Wort-Phrase wird verwendet, um Ihre privaten Wallet Schlüssel wiederherzustellen.",
+          "warning": "Hinweis: Wenn Sie Ihre geheime Wiederherstellungsphrase verlieren, kann ShapeShift Ihnen nicht helfen, Ihre Wallet  wiederherzustellen, und Ihr Guthaben ist für immer verloren."
+        },
+        "success": {
+          "title": "Erfolgreich",
+          "description": "Sie haben Ihre Wallet gesichert. Denken Sie daran, Ihre geheime Wiederherstellungsphrase an einem sicheren Ort aufzubewahren."
         }
       }
     },
@@ -655,6 +690,9 @@
         "failed": "Es gab ein Problem mit Ihrer Einzahlung."
       }
     },
+    "claim": {
+      "claimFrom": "Forderung von %{opportunity}"
+    },
     "withdraw": {
       "amountToWithdraw": "Abzuhebender Betrag",
       "withdrawFrom": "Abheben von %{opportunity}",
@@ -706,6 +744,7 @@
       "amountToDeposit": "Einzuzahlender Betrag",
       "amountToStake": "Betrag für Staking",
       "amountToWithdraw": "Abzuhebender Betrag",
+      "amountToClaim": "Forderungsbetrag",
       "withdrawFrom": "Abhebung von",
       "depositTo": "Einzahlung an",
       "averageApy": "Durchschnittlicher jährlicher Zinsertrag",
@@ -770,6 +809,19 @@
         "SGD": "Singapur-Dollar",
         "ILS": "Israelischer Schekel",
         "IDR": "Indonesische Rupiah"
+      }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Ihre Wallet wurde importiert!",
+        "body": "Willkommen bei der neuen ShapeShift-App.",
+        "primaryCta": "Fortsetzen"
+      },
+      "notice": {
+        "header": "Die Anmeldung mit E-Mail ist veraltet. Sichern jetzt Sie Ihre Wallet!",
+        "body": "Wenn Sie jemals den Zugriff auf Ihr Gerät verlieren, benötigen Sie Ihre geheime Wiederherstellungsphrase, um wieder Zugriff auf Ihr Vermögen zu erhalten.",
+        "primaryCta": "Holen Sie sich die geheime Wiederherstellungsphrase",
+        "secondaryCta": "Ich kenne bereits meine geheime Wiederherstellungsphrase"
       }
     }
   },
@@ -1177,7 +1229,10 @@
     }
   },
   "accounts": {
-    "accounts": "Konten"
+    "accounts": "Konten",
+    "selectAccount": "Wählen Sie ein Konto aus",
+    "addAccount": "Konto hinzufügen",
+    "accountNumber": "Konto #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1231,6 +1286,7 @@
     "status": "Status",
     "transactionType": "Transaktionsart",
     "minerFee": "Miner-Gebühr",
+    "approvalAmount": "genehmigter Betrag",
     "unknownType": "Transaktion",
     "from": "Von",
     "to": "Nach",
@@ -1284,6 +1340,14 @@
         "neverCollectPersonalInformations": "Sammelt niemals Schlüssel, Adressen, Transaktionen, Guthaben oder persönliche Informationen",
         "neverCollectIp": "Niemals Ihren vollständige IP-Adresse aufzeichnen",
         "neverSellData": "Niemals Ihre Daten zwecks Profit verkaufen"
+      }
+    }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Holen Sie sich Yat",
+        "description": "Yat ist Ihr universeller Emoji-Benutzername, Webseiten-URL, Zahlungsadresse und mehr."
       }
     }
   }

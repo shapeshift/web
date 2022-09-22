@@ -1,5 +1,6 @@
-import { Box, Input, InputProps } from '@chakra-ui/react'
-import * as CSS from 'csstype'
+import type { InputProps } from '@chakra-ui/react'
+import { Box, Input } from '@chakra-ui/react'
+import type * as CSS from 'csstype'
 import type { FC } from 'react'
 import { useEffect, useRef, useState } from 'react'
 

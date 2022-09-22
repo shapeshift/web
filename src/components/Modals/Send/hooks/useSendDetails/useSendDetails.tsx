@@ -1,5 +1,6 @@
-import { CHAIN_NAMESPACE, ChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import {
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
@@ -10,10 +11,12 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { estimateFees, EstimateFeesInput } from 'components/Modals/Send/utils'
+import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {
@@ -60,7 +63,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const address = useWatch<SendInput, SendFormFields.Address>({
     name: SendFormFields.Address,
   })
-  const accountSpecifier = useWatch<SendInput, SendFormFields.AccountId>({
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
 
@@ -74,26 +77,24 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state =>
       selectPortfolioCryptoHumanBalanceByFilter(state, {
         assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
 
   const fiatBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
-    ),
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, {
         assetId: feeAsset.assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
@@ -229,7 +230,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, chainNamespace, account } = fromAccountId(accountSpecifier)
+        const { chainId, chainNamespace, account } = fromAccountId(accountId)
         const adapter = chainAdapterManager.get(chainId)
         if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
@@ -363,7 +364,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
+    [accountId, estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
   )
 
   const toggleCurrency = () => {

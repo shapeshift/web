@@ -1,23 +1,33 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectFeatureFlags, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
-import { foxAssetId, foxEthLpOpportunityName } from '../../../constants'
+import { foxEthLpOpportunityName } from '../../../constants'
 
-export const FoxEthLpOverview = () => {
+type FoxEthLpOverviewProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const {
     foxEthLpOpportunity: opportunity,
     lpFoxBalance: foxBalance,
     lpEthBalance: ethBalance,
     lpLoading: loading,
-    setAccountId: handleAccountChange,
   } = useFoxEth()
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
@@ -26,8 +36,6 @@ export const FoxEthLpOverview = () => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: lpAsset.assetId, selectedLocale })
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   if (loading || !opportunity) {
     return (
@@ -41,7 +49,8 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
-      {...(featureFlags.MultiAccounts ? { onAccountChange: handleAccountChange } : {})}
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
       icons={opportunity.icons}
       name={foxEthLpOpportunityName}

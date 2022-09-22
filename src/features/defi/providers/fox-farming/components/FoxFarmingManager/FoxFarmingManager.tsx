@@ -37,7 +37,7 @@ export const FoxFarmingManager = () => {
       )}
       {modal === DefiAction.Claim && (
         <SlideTransition key={DefiAction.Claim}>
-          <Claim />
+          <Claim accountId={accountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

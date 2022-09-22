@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -37,12 +37,10 @@ export const Address = () => {
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
-
-  // reset address when asset changes
-  useEffect(() => setValue(SendFormFields.Input, ''), [asset, setValue])
 
   if (!asset) return null
   const { chainId } = asset
@@ -82,7 +80,8 @@ export const Address = () => {
             rules={{
               required: true,
               validate: {
-                validateAddress: async (value: string) => {
+                validateAddress: async (rawInput: string) => {
+                  const value = rawInput.trim() // trim leading/trailing zeros
                   // clear previous values
                   setValue(SendFormFields.Address, '')
                   setValue(SendFormFields.VanityAddress, '')
@@ -109,7 +108,7 @@ export const Address = () => {
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
           <Button
             width='full'
-            isDisabled={!address || addressError}
+            isDisabled={!address || !input || addressError}
             isLoading={isValidating}
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'

@@ -35,7 +35,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             spellCheck={false}
             autoFocus
             fontSize='sm'
-            onChange={e => onChange(e.target.value.trim())}
+            onChange={e => onChange(e)}
             placeholder={translate(
               isYatFeatureEnabled && isYatSupportedChain
                 ? 'modals.send.addressInput'

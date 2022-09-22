@@ -1,4 +1,5 @@
 export enum SendFormFields {
+  Input = 'input', // the raw field input on the address input
   Address = 'address',
   Memo = 'memo',
   AccountId = 'accountId',

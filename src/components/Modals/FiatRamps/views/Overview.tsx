@@ -41,7 +41,6 @@ import { IconCircle } from 'components/IconCircle'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -159,9 +158,6 @@ export const Overview: React.FC<OverviewProps> = ({
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
   const {
-    fiatRamps: { close: handleFiatRampsClose },
-  } = useModal()
-  const {
     state: { wallet },
   } = useWallet()
   const multiAccountsEnabled = useFeatureFlag('MultiAccounts')
@@ -225,6 +221,23 @@ export const Overview: React.FC<OverviewProps> = ({
       accountId,
       marketData.price,
       minimumSellThreshold,
+      multiAccountsEnabled,
+      selectedAsset?.assetId,
+      selectedAsset?.cryptoBalance,
+    ],
+  )
+
+  const accountFiatBalance = useMemo(
+    () =>
+      bnOrZero(
+        multiAccountsEnabled
+          ? accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']
+          : selectedAsset?.cryptoBalance,
+      ).times(marketData.price),
+    [
+      accountBalances,
+      accountId,
+      marketData.price,
       multiAccountsEnabled,
       selectedAsset?.assetId,
       selectedAsset?.cryptoBalance,
@@ -376,11 +389,8 @@ export const Overview: React.FC<OverviewProps> = ({
           <Stack spacing={6}>
             {providers.length && (
               <Box>
-                <RawText fontWeight='medium'>Available Providers</RawText>
-                <RawText color='gray.500'>
-                  ShapeShift has partnered with several fiat ramp providers for buying and selling
-                  cryptocurrencies.
-                </RawText>
+                <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+                <Text color='gray.500' translation='fiatRamps.titleMessage' />
               </Box>
             )}
 
@@ -400,6 +410,8 @@ export const Overview: React.FC<OverviewProps> = ({
                           (multiAccountsEnabled ? accountAddress : addressFull) || '',
                         )
                       }
+                      accountFiatBalance={accountFiatBalance}
+                      action={fiatRampAction}
                       {...provider}
                     />
                   ))

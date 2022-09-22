@@ -56,7 +56,7 @@ const getGatewayData = async () => {
 }
 
 export const getOnRamperAssets = async (): Promise<FiatRampAsset[]> => {
-  const data = await getGatewayResponse()
+  const data = await getGatewayData()
   if (!data) return []
   const fiatRampAssets = convertOnRamperDataToFiatRampAsset(data)
   return fiatRampAssets

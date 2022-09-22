@@ -66,6 +66,7 @@ const validators = {
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
+  REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
   REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),

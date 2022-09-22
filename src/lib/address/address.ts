@@ -20,32 +20,36 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
-type ParseUrlByChainId = (chainId: ChainId, url: string) => ParseUrlByChainIdReturn | undefined
+type ParseUrlByChainIdReturn = ReturnType<typeof parse>
 
-type ParseUrlByChainIdReturn = {
-  target_address: string
-  parameters?: {
-    value: string
-    gas: string
-    gasPrice: string
-  }
+type ParseUrlByChainIdArgs = {
+  chainId: ChainId
+  value: string
 }
 
+type ParseUrlByChainId = ({
+  chainId,
+  value,
+}: ParseUrlByChainIdArgs) => ParseUrlByChainIdReturn | undefined
+
 // @TODO: Implement BIP21
-const parseUrlByChainId: ParseUrlByChainId = (chainId: ChainId, url: string) => {
+const parseUrlByChainId: ParseUrlByChainId = ({ chainId, value }) => {
   switch (chainId) {
     case ethChainId:
       try {
-        return parse(url)
+        const parsedUrl = parse(value)
+
+        return {
+          value: !parsedUrl.parameters ? parsedUrl.target_address : value,
+          chainId,
+        }
       } catch (error) {
         moduleLogger.trace(error, 'cannot parse eip681 address')
       }
       break
     default:
-      return
+      return { chainId, value }
   }
-
-  return
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
@@ -183,29 +187,21 @@ export type ParseAddressInputReturn = {
 }
 export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
 
-export const parseAddressInput: ParseAddressInput = async ({ value, chainId }) => {
-  const decodedUrlDatas = parseUrlByChainId(chainId, value)
+export const parseAddressInput: ParseAddressInput = async args => {
+  const parsedArgs = parseUrlByChainId(args)
 
-  const args: ParseAddressInputArgs = {
-    value:
-      decodedUrlDatas?.target_address && !decodedUrlDatas.parameters
-        ? decodedUrlDatas.target_address
-        : value,
-    chainId,
-  }
-
-  const isValidAddress = await validateAddress(args)
+  const isValidAddress = await validateAddress(parsedArgs)
   // we're dealing with a valid address
   if (isValidAddress) {
-    const vanityAddress = await reverseLookupVanityAddress(args)
+    const vanityAddress = await reverseLookupVanityAddress(parsedArgs)
     // return a valid address, and a possibly blank or populated vanity address
-    return { address: args.value, vanityAddress }
+    return { address: parsedArgs.value, vanityAddress }
   }
   // at this point it's not a valid address, but may not be a vanity address
-  const isVanityAddress = await validateVanityAddress(args)
+  const isVanityAddress = await validateVanityAddress(parsedArgs)
   // it's neither a valid address nor a vanity address
   if (!isVanityAddress) return { address: '', vanityAddress: '' }
   // at this point it's a valid vanity address, let's resolve it
-  const address = await resolveVanityAddress(args)
-  return { address, vanityAddress: args.value }
+  const address = await resolveVanityAddress(parsedArgs)
+  return { address, vanityAddress: parsedArgs.value }
 }

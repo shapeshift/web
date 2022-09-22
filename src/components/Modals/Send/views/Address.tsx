@@ -87,10 +87,7 @@ export const Address = () => {
                   setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   // this does not throw, everything inside is handled
-                  const { address, vanityAddress } = await parseAddressInput({
-                    chainId,
-                    value,
-                  })
+                  const { address, vanityAddress } = await parseAddressInput({ chainId, value })
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.Address, address)

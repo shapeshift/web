@@ -35,6 +35,17 @@ type Message =
   | {
       cmd: 'listWallets' | 'getWalletCount'
     }
+  | {
+      cmd: 'hashPassword'
+      email: string
+      password: string
+    }
+  | {
+      cmd: 'decryptWallet'
+      email: string
+      password: string
+      encryptedWallet: string
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -163,4 +174,22 @@ export const createWallet = (): RevocableWallet => {
 export const deleteWallet = (key: string): Promise<boolean> => {
   moduleLogger.trace({ fn: 'deleteWallet', key }, 'Delete Wallet')
   return postMessage<boolean>({ cmd: 'deleteWallet', key })
+}
+
+/**
+ * Get a password hash for logging into legacy ShapeShift
+ */
+export const hashPassword = (email: string, password: string): Promise<string | null> => {
+  return postMessage<string | null>({ cmd: 'hashPassword', email, password })
+}
+
+/**
+ * Decrypt a legacy ShapeShift native wallet
+ */
+export const decryptWallet = (
+  email: string,
+  password: string,
+  encryptedWallet: string,
+): Promise<string | null> => {
+  return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
 }

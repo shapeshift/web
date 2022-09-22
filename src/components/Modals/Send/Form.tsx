@@ -62,6 +62,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
 
   const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.Input, '')
     methods.setValue(SendFormFields.AccountId, '')
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)

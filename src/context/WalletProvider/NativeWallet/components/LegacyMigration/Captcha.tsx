@@ -28,7 +28,8 @@ export const FriendlyCaptcha = ({ handleCaptcha, solution }: FriendlyCaptchaProp
       })
     }
 
-    return () => widget.current?.destroy?.()
+    // The unmount function was destroying the CAPTCHA before it renders
+    // Removing this still works with BACK and CLOSE
   }, [container, handleCaptcha])
 
   return (

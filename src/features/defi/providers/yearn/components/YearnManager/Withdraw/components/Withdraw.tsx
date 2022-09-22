@@ -67,7 +67,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   // user info
 
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)

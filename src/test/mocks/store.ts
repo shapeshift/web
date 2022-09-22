@@ -74,6 +74,7 @@ export const mockStore: ReduxState = {
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    showWelcomeModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

@@ -57,6 +57,9 @@ jobs:
       - name: Add environment variables
         run: yarn env app
 
+      - name: Globally install serve
+        run: npm install -g serve
+
       # Because of "record" and "parallel" parameters
       # our workers will load balance all found tests among themselves
       #

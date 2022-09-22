@@ -57,7 +57,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountId && accountAddress?.length)) return ''

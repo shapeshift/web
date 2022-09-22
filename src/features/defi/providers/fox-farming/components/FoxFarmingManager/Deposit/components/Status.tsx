@@ -52,7 +52,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const handleCancel = history.goBack
 
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountId && accountAddress)) return ''

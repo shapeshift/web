@@ -1,11 +1,13 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
 import uniqBy from 'lodash/uniqBy'
 import { logger } from 'lib/logger'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
@@ -103,11 +105,11 @@ export const createOnRamperUrl = (
   const defaultCrypto = head(onRamperSymbols)!!
 
   params.set('apiKey', apiKey)
-  params.set('defaultCrypto', defaultCrypto)  
+  params.set('defaultCrypto', defaultCrypto)
   params.set('wallets', `${defaultCrypto}:${address}`)
 
   if (action === FiatRampAction.Sell) {
-    // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it 
+    // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it
     params.set('initScreen', 'sell')
     params.set('supportSell', 'true')
     params.set('isAddressEditable', 'true')

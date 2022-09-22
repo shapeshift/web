@@ -7,7 +7,7 @@ import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
 import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
@@ -20,7 +20,7 @@ import {
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
-import { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import type { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],

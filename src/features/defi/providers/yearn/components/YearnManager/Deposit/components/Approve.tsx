@@ -62,7 +62,10 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const accountAddress = useMemo(() => fromAccountId(accountId ?? '').account, [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const getDepositGasEstimate = useCallback(

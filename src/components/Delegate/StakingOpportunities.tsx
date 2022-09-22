@@ -1,12 +1,13 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import type { MatchParams } from 'plugins/cosmos/CosmosAccount'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
-import { NavLink, useHistory } from 'react-router-dom'
+import { NavLink, useHistory, useParams } from 'react-router-dom'
 import type { Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -17,9 +18,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunitiesDataFull } from 'state/slices/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectMarketDataById,
+  selectPortfolioAccountIdsByAssetId,
   selectStakingOpportunitiesDataFull,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -82,19 +83,26 @@ export const ValidatorName = ({
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
   const history = useHistory()
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  const { accountSubId } = useParams<MatchParams>()
+  // See ac0a08128d - We need this prefix because of routing, accountSubId doesn't include the ChainNamespace CAIP-2 part
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const allAccountIds = useAppSelector(state => selectPortfolioAccountIdsByAssetId(state, filter))
+  // TODO: This uses account zero for assets page until we implement actual enumeration
+  const accountId: AccountId = useMemo(
+    () => (accountSubId ? `cosmos:${accountSubId}` : allAccountIds[0]),
+    [allAccountIds, accountSubId],
   )
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
   const stakingOpportunitiesData = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
+    selectStakingOpportunitiesDataFull(state, { accountSpecifier: accountId, assetId }),
   )
 
   const hasActiveStaking = useAppSelector(state =>
-    selectHasActiveStakingOpportunity(state, { accountSpecifier, assetId }),
+    selectHasActiveStakingOpportunity(state, { accountSpecifier: accountId, assetId }),
   )
 
   const rows = stakingOpportunitiesData
@@ -105,6 +113,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       const provider = chainIdToLabel(chainId)
       history.push({
         search: qs.stringify({
+          defaultAccountId: accountId,
           provider,
           chainId,
           contractAddress: values.original.address,
@@ -113,7 +122,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         }),
       })
     },
-    [assetId, history],
+    [accountId, assetId, history],
   )
 
   const columns = useMemo(
@@ -231,7 +240,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [accountSpecifier],
+    [accountId],
   )
 
   return (

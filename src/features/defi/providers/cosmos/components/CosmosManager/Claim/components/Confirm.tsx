@@ -1,4 +1,5 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
@@ -8,7 +9,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -21,8 +22,13 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -31,7 +37,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Claim', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
   const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -79,10 +87,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     dispatch,
   ])
 
-  if (!state || !dispatch || !asset) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !state?.userAddress || !dispatch) return
+  const handleConfirm = useCallback(async () => {
+    if (!(walletState.wallet && contractAddress && state?.userAddress && dispatch && bip44Params))
+      return
     dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: true })
 
     const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
@@ -90,6 +100,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     try {
       const broadcastTxId = await handleStakingAction({
         asset,
+        bip44Params,
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
@@ -111,7 +122,22 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    asset,
+    bip44Params,
+    claimAmount,
+    contractAddress,
+    dispatch,
+    feeMarketData?.price,
+    handleStakingAction,
+    onNext,
+    state?.userAddress,
+    toast,
+    translate,
+    walletState?.wallet,
+  ])
+
+  if (!state || !dispatch || !asset) return null
 
   const handleBack = history.goBack
 
@@ -135,13 +161,13 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
             <Text translation='defi.modals.claim.claimToAddress' />
           </Row.Label>
           <Row.Value>
-            <Skeleton minWidth='100px' isLoaded={!!state.userAddress}>
+            <Skeleton minWidth='100px' isLoaded={!!state.userAddress && !!accountId}>
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset?.explorerAddressLink}${state.userAddress}`}
+                href={`${asset?.explorerAddressLink}${accountId ?? state.userAddress}`}
               >
-                {state.userAddress && <MiddleEllipsis value={state.userAddress} />}
+                {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>

@@ -1,4 +1,5 @@
 import { Center, CircularProgress } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -9,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -20,6 +21,7 @@ import { logger } from 'lib/logger'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -31,7 +33,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
 })
 
-export const CosmosClaim = () => {
+type CosmosClaimProps = { accountId?: Nullable<AccountId> }
+
+export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, assetReference, chainId } = query
@@ -43,7 +47,7 @@ export const CosmosClaim = () => {
     assetReference, // TODO: handle multiple denoms
   })
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId })
+  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(
@@ -95,14 +99,14 @@ export const CosmosClaim = () => {
     return {
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
         component: Status,
       },
     }
-  }, [translate])
+  }, [accountId, translate])
 
   if (!asset) {
     return (

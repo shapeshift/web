@@ -38,7 +38,7 @@ type MobileCreateProps = {
 export const MobileCreate: React.FC<MobileCreateProps> = props => {
   const { HeaderComponent } = props
   const history = useHistory()
-  const location = useLocation<MobileLocationState>()
+  const location = useLocation<MobileLocationState | undefined>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
@@ -70,11 +70,11 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
 
   useEffect(() => {
     try {
-      if (!vault) setVault(location.state.vault || createWallet())
+      if (!vault) setVault(location.state?.vault || createWallet())
     } catch (e) {
       moduleLogger.error(e, 'Create Wallet')
     }
-  }, [location.state.vault, setVault, vault])
+  }, [location.state?.vault, setVault, vault])
 
   useEffect(() => {
     if (!vault) return

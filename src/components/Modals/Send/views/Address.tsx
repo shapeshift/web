@@ -81,7 +81,7 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (rawInput: string) => {
-                  const value = rawInput.trim() // trim leading/trailing zeros
+                  const value = rawInput.trim() // trim leading/trailing spaces
                   // clear previous values
                   setValue(SendFormFields.Address, '')
                   setValue(SendFormFields.VanityAddress, '')

@@ -58,8 +58,7 @@ const getGatewayData = async () => {
 export const getOnRamperAssets = async (): Promise<FiatRampAsset[]> => {
   const data = await getGatewayData()
   if (!data) return []
-  const fiatRampAssets = convertOnRamperDataToFiatRampAsset(data)
-  return fiatRampAssets
+  return convertOnRamperDataToFiatRampAsset(data)
 }
 
 const convertOnRamperDataToFiatRampAsset = (
@@ -104,19 +103,20 @@ export const createOnRamperUrl = (
   const defaultCrypto = head(onRamperSymbols)!!
 
   params.set('apiKey', apiKey)
-  params.set('defaultCrypto', defaultCrypto)
-  params.set('onlyCryptos', onRamperSymbols.join(','))
+  params.set('defaultCrypto', defaultCrypto)  
   params.set('wallets', `${defaultCrypto}:${address}`)
-  params.set('isAddressEditable', 'false')
 
   if (action === FiatRampAction.Sell) {
+    // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it 
     params.set('initScreen', 'sell')
     params.set('supportSell', 'true')
+    params.set('isAddressEditable', 'true')
   } else {
+    params.set('onlyCryptos', onRamperSymbols.join(','))
     params.set('supportSell', 'false')
+    params.set('isAddressEditable', 'false')
   }
 
-  // because we're dark as well
   params.set('darkMode', 'true')
   params.set('redirectURL', currentUrl)
 

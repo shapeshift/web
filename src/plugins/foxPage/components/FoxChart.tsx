@@ -53,14 +53,16 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
             </StatNumber>
           </Stat>
         </Box>
-        <PriceChart
-          assetId={assetId}
-          setPercentChange={setPercentChange}
-          percentChange={percentChange}
-          timeframe={timeframe}
-          chartHeight='200px'
-          mx={-6}
-        />
+      </Card.Body>
+      <PriceChart
+        assetId={assetId}
+        setPercentChange={setPercentChange}
+        percentChange={percentChange}
+        timeframe={timeframe}
+        chartHeight='200px'
+        width='100%'
+      />
+      <Card.Footer>
         <TimeControls
           onChange={setTimeframe}
           defaultTime={timeframe}
@@ -70,7 +72,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
             justifyContent: 'space-between',
           }}
         />
-      </Card.Body>
+      </Card.Footer>
     </Card>
   )
 }

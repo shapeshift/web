@@ -6,6 +6,8 @@ import { store } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['Plugins', 'Mobile'] })
 
+export type MobileMessageEvent = { id: number; cmd?: string; deviceId?: string }
+
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
   return [
@@ -16,9 +18,7 @@ export default function register(): Plugins {
         onLoad: () => {
           // Only listen to mobile events if we're running in the mobile app
           if (isMobile) {
-            const eventListener = (
-              e: MessageEvent<{ id: number; cmd?: string; deviceId?: string }>,
-            ) => {
+            const eventListener = (e: MessageEvent<MobileMessageEvent>) => {
               moduleLogger.trace({ event: e.data }, 'PostMessage Event')
 
               if (e.data?.cmd === 'walletImported' && e.data?.deviceId) {

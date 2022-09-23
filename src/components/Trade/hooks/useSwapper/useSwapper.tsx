@@ -249,7 +249,8 @@ export const useSwapper = () => {
       chainId === KnownChainIds.EthereumMainnet ||
       chainId === KnownChainIds.AvalancheMainnet ||
       chainId === KnownChainIds.OsmosisMainnet ||
-      chainId === KnownChainIds.CosmosMainnet
+      chainId === KnownChainIds.CosmosMainnet ||
+      chainId === KnownChainIds.ThorchainMainnet
     )
   }
 
@@ -310,6 +311,7 @@ export const useSwapper = () => {
           wallet,
           sendMax: false,
           receiveAddress,
+          bip44Params: sellAccountBip44Params,
         })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo && sellAccountMetadata.accountType) {
         const sellAssetChainAdapter = getChainAdapterManager().get(

@@ -11,6 +11,7 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { useCallback, useState } from 'react'
 import { FaCoins, FaDollarSign, FaGreaterThanEqual } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
@@ -39,12 +40,27 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   const translate = useTranslate()
   const { settings } = useModal()
   const { toggleColorMode } = useColorMode()
+  const [clickCount, setClickCount] = useState<number>(0)
   const isLightMode = useColorModeValue(true, false)
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
+
+  /**
+   * tapping 5 times on the settings header will close this modal and take you to the flags page
+   * useful for QA team and unlikely to be triggered by a regular user
+   */
+  const handleHeaderClick = useCallback(() => {
+    if (clickCount === 4) {
+      setClickCount(0)
+      settings.close()
+      appHistory.push('/flags')
+    } else {
+      setClickCount(clickCount + 1)
+    }
+  }, [appHistory, clickCount, setClickCount, settings])
 
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
@@ -53,7 +69,9 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
 
   return (
     <SlideTransition>
-      <ModalHeader textAlign='center'>{translate('modals.settings.settings')}</ModalHeader>
+      <ModalHeader textAlign='center' userSelect='none' onClick={handleHeaderClick}>
+        {translate('modals.settings.settings')}
+      </ModalHeader>
       <ModalCloseButton />
       <ModalBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
         <Stack width='full' p={0}>

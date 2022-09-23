@@ -34,6 +34,19 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
     [accountFiatBalance, minimumSellThreshold],
   )
 
+  const renderTags = useMemo(() => {
+    return tags?.map(tag => (
+      <Tag key={tag} colorScheme='gray' size='xs' py={1} px={2}>
+        <Text
+          color={tagColor}
+          fontSize='12px'
+          translation={tag}
+          style={{ textTransform: 'uppercase' }}
+        />
+      </Tag>
+    ))
+  }, [tagColor, tags])
+
   return (
     <Tooltip
       label={translate('fiatRamps.insufficientCryptoAmountToSell', {
@@ -72,16 +85,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
             </Box>
           </Flex>
           <Flex display={['none', 'flex']} gap={2}>
-            {tags?.map(tag => (
-              <Tag key={tag} colorScheme='gray' size='xs' py={1} px={2}>
-                <Text
-                  color={tagColor}
-                  fontSize='12px'
-                  translation={tag}
-                  style={{ textTransform: 'uppercase' }}
-                />
-              </Tag>
-            ))}
+            {renderTags}
           </Flex>
         </Flex>
       </Button>

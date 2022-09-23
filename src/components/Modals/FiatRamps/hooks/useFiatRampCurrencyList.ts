@@ -98,7 +98,7 @@ export const useFiatRampCurrencyList = () => {
   // start getting currencies from selected fiatRampProvider
   useEffect(() => {
     setLoading(true)
-    async function getBySellAssets() {
+    async function getBuySellAssets() {
       const [parsedBuyList, parsedSellList] = (
         await Promise.allSettled(
           Object.values(supportedFiatRamps)
@@ -129,17 +129,7 @@ export const useFiatRampCurrencyList = () => {
       setBuyList(addBuyPropertiesAndSort(uniqBy(parsedBuyList, 'assetId')))
       setLoading(false)
     }
-    getBySellAssets()
-    // ;(async () => {
-    //   const [parsedBuyList, parsedSellList] = await supportedFiatRamps[
-    //     fiatRampProvider
-    //   ].getBuyAndSellList()
-    //   // only the sell list needs balances for sorting
-    //   setSellList(addSellPropertiesAndSort(parsedSellList))
-    //   setBuyList(addBuyPropertiesAndSort(parsedBuyList))
-
-    // })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getBuySellAssets()
   }, [addSellPropertiesAndSort, addBuyPropertiesAndSort])
 
   return {

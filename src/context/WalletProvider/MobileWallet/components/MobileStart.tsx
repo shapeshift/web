@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 
@@ -13,6 +14,7 @@ const moduleLogger = mobileLogger.child({
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
+  const translate = useTranslate()
 
   useEffect(() => {
     ;(async () => {
@@ -78,6 +80,25 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
+          <Divider mt={4} />
+          <Flex
+            direction={['column', 'row']}
+            mt={2}
+            pt={4}
+            justifyContent='center'
+            alignItems='center'
+          >
+            <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
+            <Button
+              variant='link'
+              ml={[0, 1.5]}
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={() => history.push('/mobile/legacy/login')}
+            >
+              {translate('common.login')}
+            </Button>
+          </Flex>
         </Stack>
       </ModalBody>
     </>

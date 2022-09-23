@@ -29,7 +29,6 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectFeatureFlags,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -333,19 +332,14 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountAddress, lpApr, lpAssetPrecision, foxAssetPrecision, isMarketDataReady])
 
-  // watch tx to reload opportunities if it got confirmed
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, ethChainId),
-  )
-
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
     async (txid: string) => {
-      if (!accountAddress) return
-      setOngoingTxId(serializeTxIndex(accountSpecifier, txid, accountAddress))
+      if (!(accountId && accountAddress)) return
+      setOngoingTxId(serializeTxIndex(accountId, txid, accountAddress))
     },
-    [accountSpecifier, accountAddress],
+    [accountId, accountAddress],
   )
 
   useEffect(() => {

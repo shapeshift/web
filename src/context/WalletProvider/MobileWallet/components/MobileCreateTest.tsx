@@ -1,4 +1,4 @@
-import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
+import { Button, ModalBody, ModalHeader, SimpleGrid, Tag } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -25,10 +25,10 @@ type TestState = {
 }
 
 const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileTestPhrase'],
+  namespace: ['components', 'MobileCreateTest'],
 })
 
-export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
+export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
@@ -97,8 +97,6 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
     }
   }
 
-  moduleLogger.info({ testState }, 'TestState')
-
   return !testState ? null : (
     <>
       <ModalHeader>
@@ -125,7 +123,7 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>
-        <Wrap mt={12} mb={6}>
+        <SimpleGrid columns={3} spacing={2} mt={12} mb={6}>
           {vault &&
             testState &&
             testState.randomWords.map((word: string, index: number) =>
@@ -144,7 +142,7 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
                 revoker.addRevoker.bind(revoker),
               ),
             )}
-        </Wrap>
+        </SimpleGrid>
       </ModalBody>
     </>
   )

@@ -121,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -373,7 +374,8 @@
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade"
   },
   "transactionRow": {
     "send": "Sent",
@@ -521,7 +523,8 @@
       },
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
-    }
+    },
+    "recentTrades": "Recent Trades"
   },
   "modals": {
     "keepKey": {

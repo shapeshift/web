@@ -63,6 +63,7 @@ export const mockStore: ReduxState = {
       Axelar: false,
       Zendesk: false,
       MtPelerinFiatRamp: false,
+      OnRamperFiatRamp: false,
       Yat: false,
       RainbowCharts: false,
       MultiAccounts: false,
@@ -74,6 +75,7 @@ export const mockStore: ReduxState = {
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    showWelcomeModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

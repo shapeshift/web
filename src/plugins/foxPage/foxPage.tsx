@@ -181,7 +181,7 @@ export const FoxPage = () => {
               ))}
             {!isLargerThanMd && (
               <Box mb={4}>
-                <Menu>
+                <Menu matchWidth>
                   <Box mx={{ base: 4, md: 0 }}>
                     <MenuButton
                       borderWidth='2px'

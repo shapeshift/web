@@ -7,13 +7,9 @@ import { FiatRampAction } from '../FiatRampsCommon'
 export const FiatRampActionButtons = ({
   action,
   setAction,
-  supportsBuy,
-  supportsSell,
 }: {
   action: FiatRampAction
   setAction: (action: FiatRampAction) => void
-  supportsBuy: boolean
-  supportsSell: boolean
 }) => {
   const translate = useTranslate()
 
@@ -28,16 +24,12 @@ export const FiatRampActionButtons = ({
   return (
     <Tabs isFitted variant='enclosed' isManual index={activeIndex}>
       <TabList>
-        {supportsBuy && (
-          <Tab onClick={() => setAction(FiatRampAction.Buy)} borderRadius={0}>
-            {translate('fiatRamps.buy')}
-          </Tab>
-        )}
-        {supportsSell && (
-          <Tab onClick={() => setAction(FiatRampAction.Sell)} borderRadius={0}>
-            {translate('fiatRamps.sell')}
-          </Tab>
-        )}
+        <Tab onClick={() => setAction(FiatRampAction.Buy)} borderRadius={0}>
+          {translate('fiatRamps.buy')}
+        </Tab>
+        <Tab onClick={() => setAction(FiatRampAction.Sell)} borderRadius={0}>
+          {translate('fiatRamps.sell')}
+        </Tab>
       </TabList>
     </Tabs>
   )

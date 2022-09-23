@@ -29,7 +29,6 @@ import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
-import type { FiatRamp } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
@@ -54,15 +53,11 @@ const entries = [
   FiatRampManagerRoutes.SellSelect,
 ]
 
-type ManagerRouterProps = {
-  fiatRampProvider: FiatRamp
-}
-
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
-const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
+const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
@@ -187,7 +182,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const assetSelectProps = {
     selectAssetTranslation,
     onAssetSelect,
-    fiatRampProvider,
   }
 
   return (
@@ -210,37 +204,30 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             chainAdapterManager={chainAdapterManager}
             chainId={chainId}
             setChainId={setChainId}
-            fiatRampProvider={fiatRampProvider}
             ensName={ensName}
             handleAccountIdChange={setAccountId}
             accountId={accountId}
           />
         </Route>
-        {fiatRampProvider && (
-          <Route exact path='/:fiatRampAction/select'>
-            <AssetSelect {...assetSelectProps} />
-          </Route>
-        )}
+        <Route exact path='/:fiatRampAction/select'>
+          <AssetSelect {...assetSelectProps} />
+        </Route>
         <Redirect from='/' to={FiatRampManagerRoutes.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) => {
+export const Manager = () => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
-        <Box p={4}>
-          <Switch>
-            <Route
-              path='/'
-              component={(props: RouteComponentProps) => (
-                <ManagerRouter fiatRampProvider={fiatRampProvider} {...props} />
-              )}
-            />
-          </Switch>
-        </Box>
+        <Switch>
+          <Route
+            path='/'
+            component={(props: RouteComponentProps) => <ManagerRouter {...props} />}
+          />
+        </Switch>
       </MemoryRouter>
     </SlideTransition>
   )

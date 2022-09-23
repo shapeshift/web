@@ -137,14 +137,14 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   )
 
   const accountNumber = useMemo(
-    () => selectedAccountId && accountMetadata[selectedAccountId].bip44Params.accountNumber,
+    () => selectedAccountId && accountMetadata[selectedAccountId]?.bip44Params?.accountNumber,
     [accountMetadata, selectedAccountId],
   )
 
   const getAccountIdsSortedByUtxoAccountType = useCallback(
     (accountIds: AccountId[]): AccountId[] => {
       return sortBy(accountIds, accountId =>
-        utxoAccountTypeToDisplayPriority(accountMetadata[accountId].accountType),
+        utxoAccountTypeToDisplayPriority(accountMetadata[accountId]?.accountType),
       )
     },
     [accountMetadata],

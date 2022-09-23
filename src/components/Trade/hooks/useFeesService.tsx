@@ -26,19 +26,16 @@ export const useFeesService = () => {
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
 
-  // Constants
-  const sellAsset = sellTradeAsset?.asset
-
   useEffect(() => {
     const feeTrade = trade ?? quote
-    if (sellAsset && bestTradeSwapper && feeTrade) {
+    if (sellTradeAsset?.asset && bestTradeSwapper && feeTrade) {
       const formFees = getFormFees({
         trade: feeTrade,
-        sellAsset,
+        sellAsset: sellTradeAsset?.asset,
         tradeFeeSource: bestTradeSwapper.name,
         feeAsset: sellFeeAsset,
       })
       setValue('fees', formFees)
     }
-  }, [bestTradeSwapper, quote, sellAsset, sellFeeAsset, setValue, trade])
+  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, setValue, trade])
 }

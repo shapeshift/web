@@ -62,6 +62,7 @@ export const TradeInput = () => {
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
 
+  // Selectors
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
@@ -83,6 +84,17 @@ export const TradeInput = () => {
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
   )
+
+  // Constants
+  const sellAssetAccountSupported = (() => {
+    const sellAsset = sellTradeAsset?.asset
+    if (sellAsset && isSupportedNonUtxoSwappingChain(sellAsset.chainId)) return true
+    if (sellAsset && isSupportedUtxoSwappingChain(sellAsset.chainId) && sellAssetAccountId) {
+      const { utxoParams } = getUtxoParams(sellAssetAccountId)
+      return !!utxoParams?.bip44Params
+    }
+    return false
+  })()
 
   const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
   const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
@@ -193,29 +205,22 @@ export const TradeInput = () => {
       bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
       bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
       !isLoadingTradeQuote
-    const sellAssetAccountSupported = (() => {
-      const sellAsset = sellTradeAsset?.asset
-      if (sellAsset && isSupportedNonUtxoSwappingChain(sellAsset.chainId)) return true
-      if (sellAsset && isSupportedUtxoSwappingChain(sellAsset.chainId) && sellAssetAccountId) {
-        const { utxoParams } = getUtxoParams(sellAssetAccountId)
-        return !!utxoParams?.bip44Params
-      }
-      return false
-    })()
 
     if (!wallet) return 'common.connectWallet'
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!sellAssetAccountSupported) return 'trade.errors.sellAssetAccountNotSupported'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return 'common.insufficientAmountForGas'
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
-    if (!sellAssetAccountSupported) return 'trade.errors.sellAssetAccountNotSupported'
 
     return 'trade.previewTrade'
   }, [
     sellAssetBalanceHuman,
-    sellTradeAsset,
+    sellTradeAsset?.amount,
+    sellTradeAsset?.asset?.assetId,
+    sellTradeAsset?.asset?.precision,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     feeAssetBalance,
@@ -225,11 +230,10 @@ export const TradeInput = () => {
     quote?.sellAsset.symbol,
     hasValidSellAmount,
     isLoadingTradeQuote,
-    buyTradeAsset,
-    isLoadingFiatRateData,
+    buyTradeAsset?.amount,
     wallet,
     bestTradeSwapper,
-    sellAssetAccountId,
+    sellAssetAccountSupported,
   ])
 
   const hasError = useMemo(() => {
@@ -295,16 +299,19 @@ export const TradeInput = () => {
             gasFee={gasFee}
             rate={quote?.rate}
             isLoading={isLoadingFiatRateData || isLoadingTradeQuote}
+            isError={!sellAssetAccountSupported}
           />
-          <ReceiveSummary
-            isLoading={!quote || isLoadingTradeQuote}
-            symbol={buyTradeAsset?.asset?.symbol ?? ''}
-            amount={buyTradeAsset?.amount?.toString() ?? ''}
-            beforeFees={toCryptoAmountBeforeFees.toString()}
-            protocolFee={protocolFeeCrypto}
-            shapeShiftFee='0'
-            slippage={slippage}
-          />
+          {sellAssetAccountSupported ? (
+            <ReceiveSummary
+              isLoading={!quote || isLoadingTradeQuote}
+              symbol={buyTradeAsset?.asset?.symbol ?? ''}
+              amount={buyTradeAsset?.amount?.toString() ?? ''}
+              beforeFees={toCryptoAmountBeforeFees.toString()}
+              protocolFee={protocolFeeCrypto}
+              shapeShiftFee='0'
+              slippage={slippage}
+            />
+          ) : null}
         </Stack>
         <Button
           type='submit'

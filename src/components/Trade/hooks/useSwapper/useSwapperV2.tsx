@@ -171,6 +171,7 @@ export const useSwapper = () => {
       })
     }
   }, [
+    sellAccountBip44Params,
     bestTradeSwapper,
     buyTradeAsset?.asset,
     receiveAddress,

@@ -4,7 +4,7 @@ import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const PortisConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: PortisAdapter,
-  supportsMobile: 'both',
+  supportsMobile: 'browser',
   icon: PortisIcon,
   name: 'Portis',
 }

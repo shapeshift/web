@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import {

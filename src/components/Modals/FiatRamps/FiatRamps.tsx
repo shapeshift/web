@@ -1,13 +1,6 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { IconButton, ModalHeader } from '@chakra-ui/react'
-import { title } from 'process'
-import { MemoryRouter, useLocation } from 'react-router-dom'
-import { useHistory } from 'react-router-dom'
-import { RawText } from 'components/Text'
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { useModal } from 'hooks/useModal/useModal'
 
-import { FiatRampsRoutes } from './FiatRampsCommon'
 import { FiatRampsRouter } from './FiatRampsRouter'
 
 export const FiatRampsModal = () => {

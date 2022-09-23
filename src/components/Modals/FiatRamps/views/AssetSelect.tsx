@@ -1,5 +1,8 @@
-import { Flex, Stack } from '@chakra-ui/react'
-import { useParams } from 'react-router'
+import { Flex, ModalBody, Stack } from '@chakra-ui/react'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
+import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { useHistory, useParams } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
@@ -17,20 +20,26 @@ export const AssetSelect: React.FC<AssetSelectProps> = props => {
   const { onAssetSelect, selectAssetTranslation } = props
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const { loading, sellList, buyList } = useFiatRampCurrencyList()
+  const translate = useTranslate()
+  const history = useHistory()
+
+  const handleBack = useCallback(() => {
+    history.push(`/${fiatRampAction}`)
+  }, [fiatRampAction, history])
 
   return (
     <SlideTransition>
-      <Stack height='338px'>
-        <Flex>
-          <Text alignSelf='center' translation={selectAssetTranslation} />
-        </Flex>
-        <AssetSearch
-          onClick={onAssetSelect}
-          type={fiatRampAction}
-          assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}
-          loading={loading}
-        />
-      </Stack>
+      <DefiModalHeader onBack={handleBack} title={translate(selectAssetTranslation)} />
+      <ModalBody pb={0}>
+        <Stack height='338px'>
+          <AssetSearch
+            onClick={onAssetSelect}
+            type={fiatRampAction}
+            assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}
+            loading={loading}
+          />
+        </Stack>
+      </ModalBody>
     </SlideTransition>
   )
 }

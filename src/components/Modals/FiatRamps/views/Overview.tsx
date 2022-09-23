@@ -8,6 +8,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
   Stack,
   Text as RawText,
   useToast,
@@ -27,6 +29,7 @@ import {
   ltcChainId,
 } from '@shapeshiftoss/caip'
 import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -240,8 +243,8 @@ export const Overview: React.FC<OverviewProps> = ({
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
       fiatRampAction === FiatRampAction.Buy
-        ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.assetToBuy', 'fiatRamps.fundsTo']
-        : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.assetToSell', 'fiatRamps.fundsFrom'],
+        ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.asset', 'fiatRamps.fundsTo']
+        : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.asset', 'fiatRamps.fundsFrom'],
     [fiatRampAction],
   )
 
@@ -276,87 +279,95 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   return (
-    <SlideTransition>
-      <Flex direction='column'>
-        <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
-        <Text
-          translation={assetTranslation}
-          color='gray.500'
-          fontWeight='semibold'
-          mt='15px'
-          mb='8px'
-        />
-        <Button
-          width='full'
-          colorScheme='gray'
-          justifyContent='space-between'
-          height='70px'
-          onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
-          rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
-        >
-          {selectedAsset ? (
-            <Flex alignItems='center'>
-              <AssetIcon src={selectedAsset.imageUrl} assetId={selectedAsset.assetId} mr={4} />
-              <Box textAlign='left'>
-                <RawText lineHeight={1}>{selectedAsset.name}</RawText>
-                <RawText fontWeight='normal' fontSize='sm' color='gray.500'>
-                  {selectedAsset?.symbol}
-                </RawText>
-              </Box>
-            </Flex>
-          ) : (
-            <Text translation={selectAssetTranslation} color='gray.500' />
-          )}
-        </Button>
-        {selectedAsset && (
-          <Flex flexDirection='column' mb='10px'>
-            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
-            {multiAccountsEnabled ? (
-              <AccountDropdown
-                assetId={selectedAsset.assetId}
-                onChange={handleAccountIdChange}
-                buttonProps={{ variant: 'solid' }}
-              />
+    <>
+      <DefiModalHeader title={translate('fiatRamps.title')} />
+      <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
+      <ModalBody display='flex' flexDir='column' gap={6} py={6}>
+        <Stack spacing={4}>
+          <Box>
+            <Text fontWeight='medium' translation={assetTranslation} />
+            <Text color='gray.500' translation='fiatRamps.selectBody' />
+          </Box>
+          <Button
+            width='full'
+            variant='outline'
+            height='48px'
+            justifyContent='space-between'
+            onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
+            rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
+          >
+            {selectedAsset ? (
+              <Flex alignItems='center'>
+                <AssetIcon
+                  boxSize={6}
+                  src={selectedAsset.imageUrl}
+                  assetId={selectedAsset.assetId}
+                  mr={4}
+                />
+                <Box textAlign='left'>
+                  <RawText lineHeight={1}>{selectedAsset.name}</RawText>
+                </Box>
+              </Flex>
             ) : (
-              <InputGroup size='md'>
-                <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-                <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
-                  <IconButton
-                    icon={<CopyIcon />}
-                    aria-label='copy-icon'
-                    size='sm'
-                    isRound
-                    variant='ghost'
-                    onClick={handleCopyClick}
-                  />
-                  {supportsAddressVerifying && (
+              <Text translation={selectAssetTranslation} color='gray.500' />
+            )}
+          </Button>
+          {selectedAsset && (
+            <Flex flexDirection='column' mb='10px'>
+              <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
+              {multiAccountsEnabled ? (
+                <AccountDropdown
+                  assetId={selectedAsset.assetId}
+                  onChange={handleAccountIdChange}
+                  buttonProps={{ variant: 'solid' }}
+                />
+              ) : (
+                <InputGroup size='md'>
+                  <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
+                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                     <IconButton
-                      icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                      onClick={handleVerify}
-                      aria-label='check-icon'
+                      icon={<CopyIcon />}
+                      aria-label='copy-icon'
                       size='sm'
-                      color={
-                        shownOnDisplay
-                          ? 'green.500'
-                          : shownOnDisplay === false
-                          ? 'red.500'
-                          : 'gray.500'
-                      }
                       isRound
                       variant='ghost'
+                      onClick={handleCopyClick}
                     />
-                  )}
-                </InputRightElement>
-              </InputGroup>
-            )}
-          </Flex>
-        )}
+                    {supportsAddressVerifying && (
+                      <IconButton
+                        icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                        onClick={handleVerify}
+                        aria-label='check-icon'
+                        size='sm'
+                        color={
+                          shownOnDisplay
+                            ? 'green.500'
+                            : shownOnDisplay === false
+                            ? 'red.500'
+                            : 'gray.500'
+                        }
+                        isRound
+                        variant='ghost'
+                      />
+                    )}
+                  </InputRightElement>
+                </InputGroup>
+              )}
+            </Flex>
+          )}
+        </Stack>
         {selectedAsset && (
-          <Stack spacing={6}>
+          <Stack spacing={4}>
             {providers.length && (
               <Box>
                 <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-                <Text color='gray.500' translation='fiatRamps.titleMessage' />
+                <Text
+                  color='gray.500'
+                  translation={[
+                    'fiatRamps.titleMessage',
+                    { action: fiatRampAction, asset: selectedAsset.symbol },
+                  ]}
+                />
               </Box>
             )}
 
@@ -398,7 +409,7 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Stack>
         )}
-      </Flex>
-    </SlideTransition>
+      </ModalBody>
+    </>
   )
 }

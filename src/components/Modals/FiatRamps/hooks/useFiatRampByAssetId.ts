@@ -23,7 +23,7 @@ export const useFiatRampByAssetId = ({ assetId, action }: useFiatRampByAssetIdPr
   useEffect(() => {
     if (!assetId) return
     setLoading(true)
-    async function getBySellAssets() {
+    async function getBuySellAssets() {
       const parsedProviders = (
         await Promise.allSettled(
           Object.values(supportedFiatRamps).map<
@@ -60,8 +60,7 @@ export const useFiatRampByAssetId = ({ assetId, action }: useFiatRampByAssetIdPr
       setProviders(parsedProviders)
       setLoading(false)
     }
-    getBySellAssets()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getBuySellAssets()
   }, [assetId, action])
 
   return {

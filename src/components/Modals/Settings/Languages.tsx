@@ -56,6 +56,7 @@ export const Languages = () => {
               pl={12}
               key={locale.key}
               variant='ghost'
+              data-test={`locale-${locale.key}-button`}
               onClick={() => {
                 dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
               }}

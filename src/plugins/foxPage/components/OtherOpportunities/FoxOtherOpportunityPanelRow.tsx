@@ -4,7 +4,7 @@ import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakr
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -32,6 +32,27 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     [defiOpportunity, opportunity.link],
   )
 
+  const handleClick = useCallback(() => {
+    if (defiOpportunity) {
+      const { provider, chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
+      const { assetReference } = fromAssetId(assetId)
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          provider,
+          chainId,
+          contractAddress,
+          assetReference,
+          rewardId: rewardAddress,
+          modal: 'overview',
+        }),
+        state: { background: location },
+      })
+    } else {
+      window.open(opportunity.link)
+    }
+  }, [defiOpportunity, history, location, opportunity.link])
+
   return (
     <Flex
       justifyContent='space-between'
@@ -40,6 +61,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       px={4}
       py={4}
       borderRadius={8}
+      onClick={handleClick}
+      cursor='pointer'
       {...wrapperLinkProps}
     >
       <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
@@ -47,7 +70,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           <AssetIcon
             key={iconSrc}
             src={iconSrc}
-            boxSize='8'
+            boxSize={{ base: 6, md: 8 }}
             mr={i === opportunity.icons.length - 1 ? 2 : 0}
             ml={i === 0 ? 0 : '-3.5'}
           />
@@ -75,26 +98,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
         <Skeleton isLoaded={defiOpportunity?.isLoaded ?? true} textAlign='center'>
           {defiOpportunity ? (
-            <Button
-              colorScheme='blue'
-              onClick={() => {
-                const { provider, chainId, contractAddress, assetId, rewardAddress } =
-                  defiOpportunity
-                const { assetReference } = fromAssetId(assetId)
-                history.push({
-                  pathname: location.pathname,
-                  search: qs.stringify({
-                    provider,
-                    chainId,
-                    contractAddress,
-                    assetReference,
-                    rewardId: rewardAddress,
-                    modal: 'overview',
-                  }),
-                  state: { background: location },
-                })
-              }}
-            >
+            <Button colorScheme='blue' onClick={handleClick}>
               <Text
                 translation={
                   hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
@@ -102,7 +106,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
               />
             </Button>
           ) : (
-            <Button variant='link' colorScheme='blue'>
+            <Button variant='link' colorScheme='blue' onClick={handleClick}>
               <CText mr={2}>{translate('plugins.foxPage.getStarted')}</CText>
               <ExternalLinkIcon />
             </Button>

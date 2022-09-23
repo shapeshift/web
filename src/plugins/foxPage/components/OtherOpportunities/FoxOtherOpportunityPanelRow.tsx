@@ -4,7 +4,7 @@ import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakr
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -32,7 +32,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     [defiOpportunity, opportunity.link],
   )
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (defiOpportunity) {
       const { provider, chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
       const { assetReference } = fromAssetId(assetId)
@@ -51,7 +51,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     } else {
       window.open(opportunity.link)
     }
-  }
+  }, [defiOpportunity, history, location, opportunity.link])
 
   return (
     <Flex

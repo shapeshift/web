@@ -181,13 +181,18 @@ export const TradeInput = () => {
       .minus(tradeDeduction)
       .gte(0)
 
-    const minSellAmount = toBaseUnit(quote?.minimum, quote?.sellAsset.precision || 0)
-    const isBelowMinSellAmount =
-      bnOrZero(quote?.sellAmount).lt(minSellAmount) && hasValidSellAmount && !isLoadingTradeQuote
+    const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
-    const feesExceedSellAmount =
+    const isBelowMinSellAmount =
+      bnOrZero(
+        toBaseUnit(bnOrZero(sellTradeAsset?.amount), sellTradeAsset?.asset?.precision || 0),
+      ).lt(minSellAmount) &&
+      hasValidSellAmount &&
+      !isLoadingTradeQuote
+    const feesExceedsSellAmount =
       bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
-      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0)
+      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
+      !isLoadingTradeQuote
     const sellAssetAccountSupported = (() => {
       const sellAsset = sellTradeAsset?.asset
       if (sellAsset && isSupportedNonUtxoSwappingChain(sellAsset.chainId)) return true
@@ -204,22 +209,27 @@ export const TradeInput = () => {
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return 'common.insufficientAmountForGas'
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
-    if (feesExceedSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
+    if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (!sellAssetAccountSupported) return 'trade.errors.sellAssetAccountNotSupported'
 
     return 'trade.previewTrade'
   }, [
-    bestTradeSwapper,
-    buyTradeAsset?.amount,
-    feeAssetBalance,
-    hasValidSellAmount,
-    quote,
     sellAssetBalanceHuman,
-    sellFeeAsset,
     sellTradeAsset,
-    wallet,
-    sellAssetAccountId,
+    sellFeeAsset?.assetId,
+    sellFeeAsset?.precision,
+    feeAssetBalance,
+    quote?.feeData.fee,
+    quote?.minimum,
+    quote?.sellAsset.precision,
+    quote?.sellAsset.symbol,
+    hasValidSellAmount,
     isLoadingTradeQuote,
+    buyTradeAsset,
+    isLoadingFiatRateData,
+    wallet,
+    bestTradeSwapper,
+    sellAssetAccountId,
   ])
 
   const hasError = useMemo(() => {

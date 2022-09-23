@@ -68,7 +68,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderUnderlyingAssets = useMemo(() => {
     return underlyingAssets.map(asset => {
       return (
-        <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
+        <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
           {asset.icons ? (
             <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
           ) : (
@@ -86,7 +86,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
     return rewardAssets.map((asset, index) => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`${asset.assetId}_${index}`}>
+      <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
         <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
       </Tag>

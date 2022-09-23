@@ -32,6 +32,7 @@ import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
@@ -80,6 +81,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     dispatch,
   } = useWallet()
   const buyAssetChainId = trade?.buyAsset.chainId
+  const defaultFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
+  )
   const buyAssetAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, buyAssetChainId ?? ''),
   )
@@ -275,8 +279,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                       {bn(trade.feeAmountInSellToken)
                         .div(bn(10).pow(trade.sellAsset.precision))
                         .decimalPlaces(6)
-                        .toString()}{' '}
-                      ≃{' '}
+                        .toString()}
+                      {` ${trade?.sellAsset?.symbol} `}≃{' '}
                       {toFiat(
                         bn(trade.feeAmountInSellToken)
                           .div(bn(10).pow(trade.sellAsset.precision))
@@ -294,7 +298,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} ≃ {toFiat(feeAmountFiat.toNumber())}
+                    {bnOrZero(fees?.fee).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
+                    {toFiat(feeAmountFiat.toNumber())}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

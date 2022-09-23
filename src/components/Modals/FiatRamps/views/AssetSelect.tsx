@@ -1,10 +1,9 @@
-import { Flex, ModalBody, Stack } from '@chakra-ui/react'
+import { ModalBody, Stack } from '@chakra-ui/react'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useParams } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import type { FiatRampAsset } from '../FiatRampsCommon'

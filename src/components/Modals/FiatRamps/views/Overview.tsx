@@ -9,7 +9,6 @@ import {
   InputGroup,
   InputRightElement,
   ModalBody,
-  ModalHeader,
   Stack,
   Text as RawText,
   useToast,
@@ -39,7 +38,6 @@ import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'

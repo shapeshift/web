@@ -1,7 +1,5 @@
 import { CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertIcon,
   Box,
   Button,
   Center,
@@ -55,8 +53,6 @@ import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { FiatRamp } from '../config'
-import { supportedFiatRamps } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
@@ -75,7 +71,6 @@ type GenerateAddressProps = {
 }
 
 type OverviewProps = GenerateAddressProps & {
-  fiatRampProvider: FiatRamp
   supportsAddressVerifying: boolean
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
@@ -134,7 +129,6 @@ const moduleLogger = logger.child({
 })
 
 export const Overview: React.FC<OverviewProps> = ({
-  fiatRampProvider,
   onIsSelectingAsset,
   onFiatRampActionClick,
   supportsAddressVerifying,
@@ -203,29 +197,6 @@ export const Overview: React.FC<OverviewProps> = ({
       }
     })()
   }, [wallet, selectedAsset, chainAdapterManager, accountId, accountMetadata])
-  const minimumSellThreshold = useMemo(
-    () => bnOrZero(supportedFiatRamps[fiatRampProvider].minimumSellThreshold ?? 0),
-    [fiatRampProvider],
-  )
-  const hasEnoughBalance = useMemo(
-    () =>
-      bnOrZero(
-        multiAccountsEnabled
-          ? accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']
-          : selectedAsset?.cryptoBalance,
-      )
-        .times(marketData.price)
-        .gte(minimumSellThreshold),
-    [
-      accountBalances,
-      accountId,
-      marketData.price,
-      minimumSellThreshold,
-      multiAccountsEnabled,
-      selectedAsset?.assetId,
-      selectedAsset?.cryptoBalance,
-    ],
-  )
 
   const accountFiatBalance = useMemo(
     () =>
@@ -307,12 +278,7 @@ export const Overview: React.FC<OverviewProps> = ({
   return (
     <SlideTransition>
       <Flex direction='column'>
-        <FiatRampActionButtons
-          action={fiatRampAction}
-          setAction={onFiatRampActionClick}
-          supportsBuy={supportedFiatRamps[fiatRampProvider].supportsBuy}
-          supportsSell={supportedFiatRamps[fiatRampProvider].supportsSell}
-        />
+        <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
         <Text
           translation={assetTranslation}
           color='gray.500'
@@ -431,18 +397,6 @@ export const Overview: React.FC<OverviewProps> = ({
               </Stack>
             )}
           </Stack>
-        )}
-
-        {selectedAsset && accountId && fiatRampAction === FiatRampAction.Sell && !hasEnoughBalance && (
-          <Alert status='error' variant={'solid'}>
-            <AlertIcon />
-            <Text
-              translation={[
-                'fiatRamps.insufficientCryptoAmountToSell',
-                { amount: supportedFiatRamps[fiatRampProvider].minimumSellThreshold },
-              ]}
-            />
-          </Alert>
         )}
       </Flex>
     </SlideTransition>

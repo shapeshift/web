@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { logger } from 'lib/logger'
 
-import type { FiatRamp, SupportedFiatRampConfig } from '../config'
+import type { SupportedFiatRampConfig } from '../config'
 import { supportedFiatRamps } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'

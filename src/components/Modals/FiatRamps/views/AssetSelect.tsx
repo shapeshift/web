@@ -4,21 +4,19 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import type { FiatRamp } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 
 type AssetSelectProps = {
-  fiatRampProvider: FiatRamp
   onAssetSelect: (asset: FiatRampAsset) => void
   selectAssetTranslation: string
 }
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
-  const { fiatRampProvider, onAssetSelect, selectAssetTranslation } = props
+  const { onAssetSelect, selectAssetTranslation } = props
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
-  const { loading, sellList, buyList } = useFiatRampCurrencyList(fiatRampProvider)
+  const { loading, sellList, buyList } = useFiatRampCurrencyList()
 
   return (
     <SlideTransition>

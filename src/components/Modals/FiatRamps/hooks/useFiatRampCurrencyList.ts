@@ -7,7 +7,6 @@ import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 
@@ -15,7 +14,7 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'hooks', 'useFiatRampCurrencyList'],
 })
 
-export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
+export const useFiatRampCurrencyList = () => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
   const reduxAssets = useAppSelector(selectAssets)
 
@@ -141,7 +140,7 @@ export const useFiatRampCurrencyList = (fiatRampProvider: FiatRamp) => {
 
     // })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fiatRampProvider, addSellPropertiesAndSort, addBuyPropertiesAndSort])
+  }, [addSellPropertiesAndSort, addBuyPropertiesAndSort])
 
   return {
     loading,

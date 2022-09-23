@@ -276,6 +276,41 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }
 
+  const renderProviders = useMemo(() => {
+    return providers.length ? (
+      providers.map(provider => (
+        <FiatRampButton
+          onClick={() =>
+            provider.onSubmit(
+              fiatRampAction,
+              selectedAsset?.assetId || '',
+              (multiAccountsEnabled ? accountAddress : addressFull) || '',
+            )
+          }
+          accountFiatBalance={accountFiatBalance}
+          action={fiatRampAction}
+          {...provider}
+        />
+      ))
+    ) : (
+      <Center display='flex' flexDir='column' minHeight='150px'>
+        <IconCircle mb={4}>
+          <FaCreditCard />
+        </IconCircle>
+        <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
+        <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+      </Center>
+    )
+  }, [
+    accountAddress,
+    accountFiatBalance,
+    addressFull,
+    fiatRampAction,
+    multiAccountsEnabled,
+    providers,
+    selectedAsset?.assetId,
+  ])
+
   return (
     <>
       <DefiModalHeader title={translate('fiatRamps.title')} />
@@ -374,36 +409,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 <CircularProgress />
               </Center>
             ) : (
-              <Stack>
-                {providers.length ? (
-                  providers.map(provider => (
-                    <FiatRampButton
-                      onClick={() =>
-                        provider.onSubmit(
-                          fiatRampAction,
-                          selectedAsset?.assetId || '',
-                          (multiAccountsEnabled ? accountAddress : addressFull) || '',
-                        )
-                      }
-                      accountFiatBalance={accountFiatBalance}
-                      action={fiatRampAction}
-                      {...provider}
-                    />
-                  ))
-                ) : (
-                  <Center display='flex' flexDir='column' minHeight='150px'>
-                    <IconCircle mb={4}>
-                      <FaCreditCard />
-                    </IconCircle>
-                    <Text
-                      fontWeight='medium'
-                      translation='fiatRamps.noProvidersAvailable'
-                      fontSize='lg'
-                    />
-                    <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
-                  </Center>
-                )}
-              </Stack>
+              <Stack>{renderProviders}</Stack>
             )}
           </Stack>
         )}

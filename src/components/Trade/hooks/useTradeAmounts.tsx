@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
   // Form hooks
-  const { control, setValue, setError, clearErrors } = useFormContext<TS>()
+  const { control, setValue } = useFormContext<TS>()
   const buyAssetFiatRateFormState = useWatch({ control, name: 'buyAssetFiatRate' })
   const sellAssetFiatRateFormState = useWatch({ control, name: 'sellAssetFiatRate' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -41,11 +41,6 @@ export const useTradeAmounts = () => {
     fees?: DisplayFeeData<KnownChainIds>
   }
 
-  type ValidateAmountsArgs = {
-    buyTradeAssetAmount: string
-    sellTradeAssetAmount: string
-  }
-
   type SetTradeAmountsSynchronousArgs = {
     sellAssetId?: AssetId
     buyAssetId?: AssetId
@@ -61,21 +56,6 @@ export const useTradeAmounts = () => {
   const sellAssetFormState = sellTradeAsset?.asset
   const buyAssetFormState = buyTradeAsset?.asset
 
-  const validateAmounts = useCallback(
-    ({ buyTradeAssetAmount, sellTradeAssetAmount }: ValidateAmountsArgs) => {
-      const sellAmountsDoesNotCoverFees =
-        bnOrZero(buyTradeAssetAmount).isLessThanOrEqualTo(0) &&
-        bnOrZero(sellTradeAssetAmount).isGreaterThan(0)
-      sellAmountsDoesNotCoverFees
-        ? setError('buyTradeAsset.amount', {
-            type: 'manual',
-            message: 'trade.errors.sellAmountDoesNotCoverFee',
-          })
-        : clearErrors('buyTradeAsset.amount')
-    },
-    [clearErrors, setError],
-  )
-
   const { getUsdRates, getTradeQuote } = swapperApi.endpoints
   const assets = useSelector(selectAssets)
 
@@ -85,13 +65,13 @@ export const useTradeAmounts = () => {
         calculateAmounts(args)
       const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, args.buyAsset.precision)
       const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, args.sellAsset.precision)
-      validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
+      // validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
       setValue('buyTradeAsset.amount', buyTradeAssetAmount)
       setValue('sellTradeAsset.amount', sellTradeAssetAmount)
     },
-    [setValue, validateAmounts],
+    [setValue],
   )
 
   // Use the existing fiat rates and quote without waiting for fresh data

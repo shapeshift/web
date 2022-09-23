@@ -2,21 +2,32 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import type { FieldError } from 'react-hook-form/dist/types/errors'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
-import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
+import {
+  getSendMaxAmount,
+  getUtxoParams,
+  isSupportedNonUtxoSwappingChain,
+  isSupportedUtxoSwappingChain,
+} from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
+} from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
@@ -30,18 +41,14 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
-  const [errorTranslationKey, setErrorTranslationKey] = useState<string>()
   const { setTradeAmountsAsynchronous, setTradeAmountsSynchronous } = useTradeAmounts()
-  const { checkApprovalNeeded, getTrade } = useSwapper()
+  const { checkApprovalNeeded, getTrade, bestTradeSwapper } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
   const {
-    control,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { errors },
-  } = useFormContext<TradeState<KnownChainIds>>()
+    state: { wallet },
+  } = useWallet()
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -55,13 +62,23 @@ export const TradeInput = () => {
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
 
-  const translate = useTranslate()
-
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
-  const sellAssetBalance = useAppSelector(state =>
+  const feeAssetBalance = useAppSelector(state =>
+    sellFeeAsset
+      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellFeeAsset?.assetId })
+      : null,
+  )
+  const sellAssetBalanceCrypto = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
+      accountId: sellAssetAccountId,
+      assetId: sellTradeAsset?.asset?.assetId ?? '',
+    }),
+  )
+
+  const sellAssetBalanceHuman = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, {
       accountId: sellAssetAccountId,
       assetId: sellTradeAsset?.asset?.assetId ?? '',
     }),
@@ -70,6 +87,7 @@ export const TradeInput = () => {
   const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
   const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
+  const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
   const handleInputChange = async (action: TradeAmountInputField, amount: string) => {
     setValue('amount', amount)
@@ -102,7 +120,7 @@ export const TradeInput = () => {
       sellTradeAsset.asset,
       sellFeeAsset,
       quote,
-      sellAssetBalance,
+      sellAssetBalanceCrypto,
     )
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
@@ -133,14 +151,14 @@ export const TradeInput = () => {
     }
   }
 
-  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
+  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = async (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
-    handleInputChange(action, value)
+    await handleInputChange(action, value)
   }
 
-  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = (value, isFiat) => {
+  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = async (value, isFiat) => {
     const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
-    handleInputChange(action, value)
+    await handleInputChange(action, value)
   }
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
@@ -149,19 +167,64 @@ export const TradeInput = () => {
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
     setValue('selectedBuyAssetAccountId', accountId)
 
-  useEffect(() => {
-    const errorTranslationKey = (() => {
-      // @ts-ignore - TS doesn't know about nested fields in FieldErrors
-      const buyAssetAmountError = errors.buyTradeAsset?.amount as FieldError | undefined
-      switch (true) {
-        case !!buyAssetAmountError:
-          return buyAssetAmountError!.message ?? ''
-        default:
-          return undefined
+  const getTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
+    const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
+      bnOrZero(sellTradeAsset?.amount),
+    )
+    // when trading from ETH, the value of TX in ETH is deducted
+    const tradeDeduction =
+      sellFeeAsset?.assetId === sellTradeAsset?.asset?.assetId
+        ? bnOrZero(sellTradeAsset.amount)
+        : bn(0)
+    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+      .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), sellFeeAsset?.precision))
+      .minus(tradeDeduction)
+      .gte(0)
+
+    const minSellAmount = toBaseUnit(quote?.minimum, quote?.sellAsset.precision || 0)
+    const isBelowMinSellAmount =
+      bnOrZero(quote?.sellAmount).lt(minSellAmount) && hasValidSellAmount && !isLoadingTradeQuote
+    const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
+    const feesExceedSellAmount =
+      bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
+      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0)
+    const sellAssetAccountSupported = (() => {
+      const sellAsset = sellTradeAsset?.asset
+      if (sellAsset && isSupportedNonUtxoSwappingChain(sellAsset.chainId)) return true
+      if (sellAsset && isSupportedUtxoSwappingChain(sellAsset.chainId) && sellAssetAccountId) {
+        const { utxoParams } = getUtxoParams(sellAssetAccountId)
+        return !!utxoParams?.bip44Params
       }
+      return false
     })()
-    setErrorTranslationKey(errorTranslationKey)
-  }, [errors.buyTradeAsset])
+
+    if (!wallet) return 'common.connectWallet'
+    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!hasValidTradeBalance) return 'common.insufficientFunds'
+    if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
+      return 'common.insufficientAmountForGas'
+    if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
+    if (feesExceedSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
+    if (!sellAssetAccountSupported) return 'trade.errors.sellAssetAccountNotSupported'
+
+    return 'trade.previewTrade'
+  }, [
+    bestTradeSwapper,
+    buyTradeAsset?.amount,
+    feeAssetBalance,
+    hasValidSellAmount,
+    quote,
+    sellAssetBalanceHuman,
+    sellFeeAsset,
+    sellTradeAsset,
+    wallet,
+    sellAssetAccountId,
+    isLoadingTradeQuote,
+  ])
+
+  const hasError = useMemo(() => {
+    return getTranslationKey() !== 'trade.previewTrade'
+  }, [getTranslationKey])
 
   return (
     <SlideTransition>
@@ -235,12 +298,18 @@ export const TradeInput = () => {
         </Stack>
         <Button
           type='submit'
-          colorScheme={errorTranslationKey ? 'red' : 'blue'}
+          colorScheme={hasError ? 'red' : 'blue'}
           size='lg'
-          isDisabled={!!errorTranslationKey || isLoadingFiatRateData || isLoadingTradeQuote}
+          isDisabled={
+            hasError ||
+            isLoadingFiatRateData ||
+            isLoadingTradeQuote ||
+            !hasValidSellAmount ||
+            !quote
+          }
           isLoading={isLoading}
         >
-          {translate(errorTranslationKey ?? 'trade.previewTrade')}
+          <Text translation={getTranslationKey()} />
         </Button>
       </Stack>
     </SlideTransition>

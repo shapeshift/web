@@ -48,6 +48,7 @@ type Message =
     }
   | {
       cmd: 'showDeveloperModal'
+      key: string
     }
 
 export type MessageFromMobileApp = {
@@ -100,7 +101,7 @@ const postMessage = async <T>(msg: Message): Promise<T> => {
  */
 export const showDeveloperModal = (): Promise<void> => {
   moduleLogger.trace({ fn: 'showDeveloperModal' }, 'Show Developer Modal')
-  return postMessage({ cmd: 'showDeveloperModal' })
+  return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
 }
 
 /**

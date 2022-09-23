@@ -13,13 +13,7 @@ export const FiatRampActionButtons = ({
 }) => {
   const translate = useTranslate()
 
-  const activeIndex = useMemo(() => {
-    if (action === FiatRampAction.Sell) {
-      return 1
-    } else {
-      return 0
-    }
-  }, [action])
+  const activeIndex = useMemo(() => Number(action === FiatRampAction.Sell), [action])
 
   return (
     <Tabs isFitted variant='enclosed' isManual index={activeIndex}>

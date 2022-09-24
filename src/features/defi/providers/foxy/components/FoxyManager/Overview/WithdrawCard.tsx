@@ -58,28 +58,42 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
           width='full'
           maxHeight='auto'
           height='auto'
-          alignItems='center'
+          alignItems={{ base: 'flex-start', md: 'center' }}
           justifyContent='flex-start'
           textAlign='left'
           isDisabled={!isAvailable}
+          gap={4}
+          flexDir={{ base: 'column', md: 'row' }}
           py={2}
           onClick={() => (isConnected ? handleClick() : handleWalletModalOpen())}
-          leftIcon={
-            <IconCircle>
+        >
+          <Stack direction='row' alignItems='center' width='full'>
+            <IconCircle boxSize={8}>
               <FaArrowDown />
             </IconCircle>
-          }
-        >
-          <Stack spacing={0}>
-            <Text color={textColor} translation='common.withdrawal' />
-            <Text
-              color={isAvailable ? successColor : 'yellow.200'}
-              fontWeight='normal'
-              lineHeight='shorter'
-              translation={isAvailable ? 'common.available' : 'common.pending'}
-            />
+            <Stack
+              justifyContent='space-between'
+              spacing={0}
+              width='full'
+              direction={{ base: 'row', md: 'column' }}
+            >
+              <Text color={textColor} translation='common.withdrawal' />
+              <Text
+                color={isAvailable ? successColor : 'yellow.200'}
+                fontWeight='normal'
+                lineHeight='shorter'
+                translation={isAvailable ? 'common.available' : 'common.pending'}
+              />
+            </Stack>
           </Stack>
-          <Stack spacing={0} ml='auto' textAlign='right'>
+          <Stack
+            direction={{ base: 'row', md: 'column' }}
+            spacing={0}
+            gap={{ base: 2, md: 0 }}
+            ml={{ base: 0, md: 'auto' }}
+            flexWrap='wrap'
+            textAlign={{ base: 'left', md: 'right' }}
+          >
             <Amount.Crypto
               color={textColor}
               value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}

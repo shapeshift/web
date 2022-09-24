@@ -31,7 +31,9 @@ export const MainOpportunity = ({
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
+    accountNumber: 0,
+  })
   const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
 
   return (

@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/react'
+import { Flex, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
@@ -41,11 +41,17 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={3} assetId={assetId} accountId={accountId} />
         </Stack>
-        <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard defaultBuyAssetId={assetId} />
+        <Flex
+          flexDir='column'
+          flex='1 1 0%'
+          width='full'
+          maxWidth={{ base: 'full', xl: 'sm' }}
+          gap={4}
+        >
+          <TradeCard defaultBuyAssetId={assetId} display={{ base: 'none', md: 'block' }} />
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />
-        </Stack>
+        </Flex>
       </Stack>
     </Main>
   )

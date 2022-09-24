@@ -1,4 +1,4 @@
-import { Box, Center, Container, Heading, Stack } from '@chakra-ui/react'
+import { Box, Center, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
 import { TradeType } from '@shapeshiftoss/unchained-client'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -24,6 +24,7 @@ export const Trade = () => {
     state: { isDemoWallet },
   } = useWallet()
   const top = isDemoWallet ? '7rem' : '4.5rem'
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const txIds = useAppSelector(state =>
     selectTxIdsBasedOnSearchTermAndFilters(state, {
       types: [TradeType.Trade],
@@ -43,9 +44,9 @@ export const Trade = () => {
       >
         <Center
           height={{ base: 'auto', lg: '100%' }}
-          flex='1 1 0%'
           width='full'
-          overflow={{ base: 'visible', lg: 'hidden' }}
+          flex={{ base: 'auto', lg: '1 1 0%' }}
+          overflow='hidden'
           position='relative'
           mx={0}
           _before={{
@@ -79,7 +80,7 @@ export const Trade = () => {
           maxWidth={{ base: 'auto', lg: '380px' }}
           borderLeftWidth={{ base: 0, lg: 1 }}
           borderTopWidth={{ base: 1, lg: 0 }}
-          borderColor='gray.750'
+          borderColor={borderColor}
           height={{ base: 'auto', lg: `calc(100vh - 115px - ${top})` }}
           minHeight={0}
           overflowY='auto'

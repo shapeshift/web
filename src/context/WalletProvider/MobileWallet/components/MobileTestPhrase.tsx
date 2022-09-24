@@ -1,4 +1,14 @@
-import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  Flex,
+  IconButton,
+  ModalBody,
+  ModalCloseButton,
+  ModalHeader,
+  Tag,
+  Wrap,
+} from '@chakra-ui/react'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -9,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
+import { deleteWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
 
@@ -88,6 +99,17 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
     }
   }, [testCount, history, vault, revoker])
 
+  const handleClose = async () => {
+    if (vault?.id) {
+      try {
+        await deleteWallet(vault.id)
+      } catch (e) {
+        mobileLogger.error(e, 'Error cancelling a wallet seed confirmation')
+        setError('walletProvider.shapeShift.load.error.delete')
+      }
+    }
+  }
+
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
       setInvalidTries([])
@@ -97,10 +119,28 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
     }
   }
 
+  const handleBack = async () => {
+    history.goBack()
+
+    await handleClose()
+  }
+
   moduleLogger.info({ testState }, 'TestState')
 
   return !testState ? null : (
     <>
+      <Flex justifyContent='space-between' alignItems='center' position='relative'>
+        <IconButton
+          icon={<ArrowBackIcon />}
+          aria-label='Back'
+          variant='ghost'
+          fontSize='xl'
+          size='sm'
+          isRound
+          onClick={handleBack}
+        />
+        <ModalCloseButton ml='auto' borderRadius='full' position='static' onClick={handleClose} />
+      </Flex>
       <ModalHeader>
         <Text translation={'walletProvider.shapeShift.testPhrase.header'} />
       </ModalHeader>

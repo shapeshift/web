@@ -22,7 +22,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
-import { addWallet, createWallet } from '../mobileMessageHandlers'
+import { createWallet } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileLocationState } from '../types'
@@ -152,11 +152,7 @@ export const MobileCreate = () => {
               try {
                 setIsSaving(true)
                 vault.label = label
-                const newWallet = await addWallet({ label, mnemonic: vault.mnemonic })
-                if (newWallet) {
-                  newWallet.mnemonic = vault.mnemonic
-                  history.push('/mobile/create-test', { vault: newWallet, isLegacyWallet: false })
-                }
+                history.push('/mobile/create-test', { vault, isLegacyWallet: false })
               } catch (e) {
                 moduleLogger.error(e, 'Error saving new wallet')
               } finally {

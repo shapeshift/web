@@ -1,14 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  Flex,
-  IconButton,
-  ModalBody,
-  ModalCloseButton,
-  ModalHeader,
-  Tag,
-  Wrap,
-} from '@chakra-ui/react'
+import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -19,7 +9,7 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
-import { deleteWallet } from '../mobileMessageHandlers'
+import { addWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
 
@@ -90,25 +80,20 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
 
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed
-    if (testCount >= TEST_COUNT_REQUIRED) {
-      history.replace('/mobile/success', { vault })
+    if (testCount >= TEST_COUNT_REQUIRED && vault?.label && vault?.mnemonic) {
+      ;(async () => {
+        if (vault?.label && vault?.mnemonic) {
+          const newWallet = await addWallet({ label: vault.label, mnemonic: vault.mnemonic })
+          history.replace('/mobile/success', { vault: newWallet! })
+        }
+      })()
+
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)
       }
     }
   }, [testCount, history, vault, revoker])
-
-  const handleClose = async () => {
-    if (vault?.id) {
-      try {
-        await deleteWallet(vault.id)
-      } catch (e) {
-        mobileLogger.error(e, 'Error cancelling a wallet seed confirmation')
-        setError('walletProvider.shapeShift.load.error.delete')
-      }
-    }
-  }
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {
@@ -118,29 +103,10 @@ export const MobileTestPhrase = ({ history, location }: MobileSetupProps) => {
       setInvalidTries([...invalidTries, index])
     }
   }
-
-  const handleBack = async () => {
-    history.goBack()
-
-    await handleClose()
-  }
-
   moduleLogger.info({ testState }, 'TestState')
 
   return !testState ? null : (
     <>
-      <Flex justifyContent='space-between' alignItems='center' position='relative'>
-        <IconButton
-          icon={<ArrowBackIcon />}
-          aria-label='Back'
-          variant='ghost'
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={handleBack}
-        />
-        <ModalCloseButton ml='auto' borderRadius='full' position='static' onClick={handleClose} />
-      </Flex>
       <ModalHeader>
         <Text translation={'walletProvider.shapeShift.testPhrase.header'} />
       </ModalHeader>

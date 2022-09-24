@@ -29,7 +29,6 @@ export const WalletViewsSwitch = () => {
   const toast = useToast()
   const translate = useTranslate()
   const match = useRouteMatch('/')
-  const isMobileTestPhraseRoute = useRouteMatch('/mobile/create-test')
   const {
     state: { wallet, modal, showBackButton, initialRoute, type, disconnectOnCloseModal },
     dispatch,
@@ -113,22 +112,20 @@ export const WalletViewsSwitch = () => {
       >
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
-          {!isMobileTestPhraseRoute && (
-            <Flex justifyContent='space-between' alignItems='center' position='relative'>
-              {!match?.isExact && showBackButton && (
-                <IconButton
-                  icon={<ArrowBackIcon />}
-                  aria-label='Back'
-                  variant='ghost'
-                  fontSize='xl'
-                  size='sm'
-                  isRound
-                  onClick={handleBack}
-                />
-              )}
-              <ModalCloseButton ml='auto' borderRadius='full' position='static' />
-            </Flex>
-          )}
+          <Flex justifyContent='space-between' alignItems='center' position='relative'>
+            {!match?.isExact && showBackButton && (
+              <IconButton
+                icon={<ArrowBackIcon />}
+                aria-label='Back'
+                variant='ghost'
+                fontSize='xl'
+                size='sm'
+                isRound
+                onClick={handleBack}
+              />
+            )}
+            <ModalCloseButton ml='auto' borderRadius='full' position='static' />
+          </Flex>
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>

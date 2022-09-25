@@ -30,7 +30,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetUsdRateQuery } from 'state/apis/swapper/swapperApi'
 import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
@@ -299,7 +298,7 @@ export const useSwapper = () => {
 
     const trade: Trade<KnownChainIds> = await (async () => {
       const { chainNamespace } = fromAssetId(sellAsset.assetId)
-      if (isSupportedSwappingChain(sellAsset.chainId) && sellAccountBip44Params) {
+      if (isSupportedSwappingChain(sellAsset.chainId) && sellAccountMetadata) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmount: amount,
@@ -392,11 +391,6 @@ export const useSwapper = () => {
     return receiveAddress
   }
 
-  const getUtxoParams = (sellAssetAccountId: string) => {
-    if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
-    return accountIdToUtxoParams(sellAssetAccountId, 0)
-  }
-
   const updateQuoteDebounced = useRef(
     debounce(
       async ({
@@ -408,7 +402,6 @@ export const useSwapper = () => {
         wallet,
         accountSpecifiersList,
         selectedCurrencyToUsdRate,
-        sellAssetAccountId,
         sellAssetFiatRate,
         buyAssetFiatRate,
       }: DebouncedQuoteInput) => {

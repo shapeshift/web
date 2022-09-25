@@ -201,8 +201,9 @@ export const TradeInput = () => {
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
     setValue('selectedSellAssetAccountId', accountId)
 
-  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
+  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId => {
     setValue('selectedBuyAssetAccountId', accountId)
+  }
 
   const getTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(

@@ -54,7 +54,6 @@ export const TradeInput = () => {
   const buyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
@@ -275,7 +274,6 @@ export const TradeInput = () => {
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={0}>
           <TradeAssetInput
-            accountId={sellAssetAccountId}
             assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
@@ -310,7 +308,6 @@ export const TradeInput = () => {
             />
           </Stack>
           <TradeAssetInput
-            accountId={buyAssetAccountId}
             assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}

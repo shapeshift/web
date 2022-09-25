@@ -2,12 +2,13 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
 import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import type { FC } from 'react'
-import { useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
+import type { FC } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
+import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
 type WalletConnectModalProps = {
@@ -24,7 +25,14 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
         return (
           <SignMessageConfirmation
             message={convertHexToUtf8(callRequest.params[0])}
-            isLoading={false}
+            onConfirm={() => approveRequest(callRequest)}
+            onReject={() => rejectRequest(callRequest)}
+          />
+        )
+      case 'eth_sendTransaction':
+        return (
+          <SendTransactionConfirmation
+            request={callRequest.params[0]}
             onConfirm={() => approveRequest(callRequest)}
             onReject={() => rejectRequest(callRequest)}
           />
@@ -33,6 +41,14 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
         return null
     }
   }, [callRequest, approveRequest, rejectRequest])
+
+  const canRenderCallRequest = !!content;
+  const rejectRequestIfCannotRender = useCallback(() => {
+    if (!!callRequest && !canRenderCallRequest) {
+      rejectRequest(callRequest)
+    }
+  }, [callRequest, rejectRequest, canRenderCallRequest])
+  useEffect(rejectRequestIfCannotRender, [rejectRequestIfCannotRender])
 
   return (
     <Modal isOpen={!!callRequest} onClose={() => alert('allow close?')} variant='header-nav'>

@@ -14,18 +14,18 @@ import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBrid
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 
-import { WalletSummaryCard } from './WalletSummaryCard'
+import { AddressSummaryCard } from './AddressSummaryCard'
 
 type Props = {
   message: string
-  isLoading: boolean
   onConfirm(): void
   onReject(): void
 }
 
-export const SignMessageConfirmation: FC<Props> = ({ message, isLoading, onConfirm, onReject }) => {
+export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onReject }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
@@ -39,7 +39,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, isLoading, onConfi
       {/* <GasInput value={gasInputValue} onChange={setGasInputValue} />
       <ModalSection
         title={translate(
-          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+          'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.title',
         )}
         icon={<FaWrench />}
       >
@@ -52,10 +52,10 @@ export const SignMessageConfirmation: FC<Props> = ({ message, isLoading, onConfi
           translation='plugins.walletConnectToDapps.modal.signMessage.signingFrom'
           mb={4}
         />
-        <WalletSummaryCard
+        <AddressSummaryCard
           address={address}
           name='My Wallet' // TODO: what string do we put here?
-          url={`https://etherscan.com/address/${address}`}
+          icon={<FoxIcon color='gray.500' w='full' h='full' />}
         />
       </Box>
 
@@ -101,24 +101,10 @@ export const SignMessageConfirmation: FC<Props> = ({ message, isLoading, onConfi
       />
 
       <VStack spacing={4}>
-        <Button
-          size='lg'
-          width='full'
-          colorScheme='blue'
-          isLoading={isLoading}
-          disabled={isLoading}
-          type='submit'
-          onClick={onConfirm}
-        >
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button
-          size='lg'
-          width='full'
-          isLoading={isLoading}
-          disabled={isLoading}
-          onClick={onReject}
-        >
+        <Button size='lg' width='full' onClick={onReject}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>

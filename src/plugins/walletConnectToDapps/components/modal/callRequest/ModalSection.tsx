@@ -25,12 +25,13 @@ export const ModalSection: FC<Props> = ({ title, icon, children, defaultOpen = t
         rightIcon={
           isOpen ? <ChevronDownIcon color='gray.500' /> : <ChevronUpIcon color='gray.500' />
         }
-        mb={4}
         fontWeight='medium'
         children={<RawText flex={1}>{title}</RawText>}
         onClick={toggle}
       />
-      <Collapse in={isOpen}>{children}</Collapse>
+      <Collapse in={isOpen}>
+        <Box mb={4}>{children}</Box>
+      </Collapse>
     </Box>
   )
 }

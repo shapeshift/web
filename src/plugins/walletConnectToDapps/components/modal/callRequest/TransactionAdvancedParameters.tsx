@@ -16,7 +16,7 @@ import { Text } from 'components/Text'
 
 type Props = {}
 
-export const SignTransactionAdvancedParameters: FC<Props> = ({}) => {
+export const TransactionAdvancedParameters: FC<Props> = ({}) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   return (
@@ -26,7 +26,7 @@ export const SignTransactionAdvancedParameters: FC<Props> = ({}) => {
           <AlertIcon />
           <Text
             color='orange.200'
-            translation='plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.alert'
+            translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.alert'
           />
         </Alert>
 
@@ -35,18 +35,18 @@ export const SignTransactionAdvancedParameters: FC<Props> = ({}) => {
             <Text
               color='gray.500'
               fontWeight='medium'
-              translation='plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.nonce.title'
+              translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.title'
             />
             <HelperTooltip
               label={translate(
-                'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.nonce.tooltip',
+                'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.tooltip',
               )}
             />
           </FormLabel>
           <NumberInput borderColor={borderColor} mt={2}>
             <NumberInputField
               placeholder={translate(
-                'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.nonce.placeholder',
+                'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.placeholder',
               )}
             />
           </NumberInput>
@@ -57,18 +57,18 @@ export const SignTransactionAdvancedParameters: FC<Props> = ({}) => {
             <Text
               color='gray.500'
               fontWeight='medium'
-              translation='plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.gasLimit.title'
+              translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.title'
             />
             <HelperTooltip
               label={translate(
-                'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.gasLimit.tooltip',
+                'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.tooltip',
               )}
             />
           </FormLabel>
           <NumberInput borderColor={borderColor} mt={2}>
             <NumberInputField
               placeholder={translate(
-                'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.gasLimit.placeholder',
+                'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.placeholder',
               )}
             />
           </NumberInput>

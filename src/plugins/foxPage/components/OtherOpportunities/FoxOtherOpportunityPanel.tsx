@@ -6,6 +6,7 @@ import {
   AccordionPanel,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { ExternalOpportunity, OpportunityTypes } from '../../FoxCommon'
@@ -23,6 +24,12 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
 }) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.150', 'gray.700')
+
+  const renderRows = useMemo(() => {
+    return opportunities?.map((opportunity, index) => (
+      <FoxOtherOpportunityPanelRow opportunity={opportunity} key={index} />
+    ))
+  }, [opportunities])
 
   return (
     <AccordionItem borderColor={borderColor} _last={{ borderBottomWidth: 0 }}>
@@ -46,9 +53,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
         </Flex>
       </AccordionButton>
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>
-        {opportunities?.map((opportunity, index) => (
-          <FoxOtherOpportunityPanelRow opportunity={opportunity} key={index} />
-        ))}
+        {renderRows}
       </AccordionPanel>
     </AccordionItem>
   )

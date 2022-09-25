@@ -46,6 +46,10 @@ type Message =
       password: string
       encryptedWallet: string
     }
+  | {
+      cmd: 'showDeveloperModal'
+      key: string
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -90,6 +94,14 @@ const postMessage = async <T>(msg: Message): Promise<T> => {
       reject(e)
     }
   })
+}
+
+/**
+ * Show the native developer modal to allow switching environments
+ */
+export const showDeveloperModal = (): Promise<void> => {
+  moduleLogger.trace({ fn: 'showDeveloperModal' }, 'Show Developer Modal')
+  return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
 }
 
 /**

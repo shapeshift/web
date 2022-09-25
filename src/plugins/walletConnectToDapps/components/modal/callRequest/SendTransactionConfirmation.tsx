@@ -7,17 +7,21 @@ import {
   IconButton,
   Image,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
 import { CurrencyAmount } from '@uniswap/sdk'
-import { Card } from 'components/Card/Card'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { RawText, Text } from 'components/Text'
+import _ from 'lodash'
+import { useContract } from 'plugins/walletConnectToDapps/ContractABIContext'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
+import { Fragment, useMemo } from 'react'
 import { FaCode, FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { FoxIcon } from 'components/Icons/FoxIcon'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { RawText, Text } from 'components/Text'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
 import { ModalSection } from './ModalSection'
@@ -32,6 +36,12 @@ type Props = {
 export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onReject }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
+
+  const { contract } = useContract(request.to, request.chainId)
+  const transaction = useMemo(
+    () => contract?.parseTransaction({ data: request.data, value: request.value }),
+    [contract, request.data, request.value],
+  )
 
   const walletConnect = useWalletConnect()
   if (!walletConnect.bridge || !walletConnect.dapp) return null
@@ -80,22 +90,46 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
         />
         <Card bg={cardBg} borderRadius='md' px={4} py={2}>
           <ModalSection
-            title={translate(
-              'plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.sendingEth',
-            )}
+            title={
+              transaction?.name ??
+              translate(
+                'plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.sendingEth',
+              )
+            }
             icon={<FaCode />}
           >
             <Box pl={6} pt={2}>
-              <Text
-                color='gray.500'
-                fontWeight='medium'
-                translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
-              />
-              <RawText fontWeight='medium'>
-                {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
-                {CurrencyAmount.ether(request.value).toFixed()}
-              </RawText>
-              <Divider my={4} />
+              {!!transaction ? (
+                transaction.functionFragment.inputs.map((input, index) => (
+                  <Fragment key={index}>
+                    <RawText color='gray.500' fontWeight='medium'>
+                      {_.startCase(input.name)} ({input.type})
+                    </RawText>
+                    {input.type === 'bytes[]' ? (
+                      <MiddleEllipsis
+                        fontWeight='medium'
+                        value={transaction.args[index].toString()}
+                      />
+                    ) : (
+                      <RawText fontWeight='normal'>{transaction.args[index].toString()}</RawText>
+                    )}
+                    <Divider my={4} />
+                  </Fragment>
+                ))
+              ) : (
+                <>
+                  <Text
+                    color='gray.500'
+                    fontWeight='medium'
+                    translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
+                  />
+                  <RawText fontWeight='medium'>
+                    {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
+                    {CurrencyAmount.ether(request.value).toFixed()}
+                  </RawText>
+                  <Divider my={4} />
+                </>
+              )}
 
               <Text
                 color='gray.500'
@@ -103,7 +137,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
                 translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'
               />
               <HStack>
-                <RawText fontWeight='medium'>{request.data}</RawText>
+                <MiddleEllipsis value={request.data} fontWeight='medium' />
                 <IconButton
                   size='small'
                   variant='ghost'

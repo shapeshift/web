@@ -10,15 +10,11 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
-import {
-  getSendMaxAmount,
-  getUtxoParams,
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
-} from 'components/Trade/hooks/useSwapper/utils'
+import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -87,15 +83,15 @@ export const TradeInput = () => {
   )
 
   // Constants
-  const sellAssetAccountSupported = (() => {
-    const sellAsset = sellTradeAsset?.asset
-    if (sellAsset && isSupportedNonUtxoSwappingChain(sellAsset.chainId)) return true
-    if (sellAsset && isSupportedUtxoSwappingChain(sellAsset.chainId) && sellAssetAccountId) {
-      const { utxoParams } = getUtxoParams(sellAssetAccountId)
-      return !!utxoParams?.bip44Params
-    }
-    return false
-  })()
+  const walletSupportsSellAssetChain =
+    sellTradeAsset?.asset?.chainId &&
+    walletSupportsChain({ wallet, chainId: sellTradeAsset?.asset?.chainId })
+
+  const walletSupportsBuyAssetChain =
+    buyTradeAsset?.asset?.chainId &&
+    walletSupportsChain({ wallet, chainId: buyTradeAsset?.asset?.chainId })
+
+  const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
   const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
   const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
@@ -238,12 +234,17 @@ export const TradeInput = () => {
       !isLoadingTradeQuote
 
     if (!wallet) return 'common.connectWallet'
-    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
-    if (!sellAssetAccountSupported)
+    if (!walletSupportsSellAssetChain)
       return [
-        'trade.errors.sellAssetNotSupportedByWallet',
-        { sellAssetSymbol: sellTradeAsset?.asset?.symbol ?? 'Sell asset' },
+        'trade.errors.assetNotSupportedByWallet',
+        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'Sell asset' },
       ]
+    if (!walletSupportsBuyAssetChain)
+      return [
+        'trade.errors.assetNotSupportedByWallet',
+        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'Buy asset' },
+      ]
+    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return 'common.insufficientAmountForGas'
@@ -253,23 +254,17 @@ export const TradeInput = () => {
     return 'trade.previewTrade'
   }, [
     sellAssetBalanceHuman,
-    sellTradeAsset?.amount,
-    sellTradeAsset?.asset?.assetId,
-    sellTradeAsset?.asset?.precision,
-    sellTradeAsset?.asset?.symbol,
-    sellFeeAsset?.assetId,
-    sellFeeAsset?.precision,
+    sellTradeAsset,
+    sellFeeAsset,
     feeAssetBalance,
-    quote?.feeData.fee,
-    quote?.minimum,
-    quote?.sellAsset.precision,
-    quote?.sellAsset.symbol,
+    quote,
     hasValidSellAmount,
     isLoadingTradeQuote,
-    buyTradeAsset?.amount,
+    buyTradeAsset,
     wallet,
+    walletSupportsSellAssetChain,
+    walletSupportsBuyAssetChain,
     bestTradeSwapper,
-    sellAssetAccountSupported,
   ])
 
   const hasError = useMemo(() => {
@@ -337,9 +332,9 @@ export const TradeInput = () => {
             gasFee={gasFee}
             rate={quote?.rate}
             isLoading={isLoadingFiatRateData || isLoadingTradeQuote}
-            isError={!sellAssetAccountSupported}
+            isError={!walletSupportsTradeAssetChains}
           />
-          {sellAssetAccountSupported ? (
+          {walletSupportsTradeAssetChains ? (
             <ReceiveSummary
               isLoading={!quote || isLoadingTradeQuote}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}

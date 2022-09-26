@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.1.3...@shapeshiftoss/swapper-v11.2.0) (2022-09-26)
+
+
+### Features
+
+* swap to/from RUNE ([#1030](https://github.com/shapeshift/lib/issues/1030)) ([6b5c9c8](https://github.com/shapeshift/lib/commit/6b5c9c8e855ffb68d865cfae8f545e7a819a9667))
+
 # [@shapeshiftoss/swapper-v11.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.1.2...@shapeshiftoss/swapper-v11.1.3) (2022-09-16)
 
 # [@shapeshiftoss/swapper-v11.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.1.1...@shapeshiftoss/swapper-v11.1.2) (2022-09-16)

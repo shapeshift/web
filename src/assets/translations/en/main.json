@@ -450,7 +450,7 @@
     "trade": "Trade",
     "allowance": "Allowance",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
-    "searchingRate": "Searching for best rate...",
+    "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",

@@ -1,7 +1,9 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { BoxProps } from '@chakra-ui/react'
 import {
   type ButtonProps,
   type MenuItemOptionProps,
+  Box,
   Button,
   Menu,
   MenuButton,
@@ -56,6 +58,7 @@ export type AccountDropdownProps = {
   disabled?: boolean
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
+  boxProps?: BoxProps
 }
 
 const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
@@ -80,6 +83,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   defaultAccountId,
   listProps,
   autoSelectHighestBalance,
+  boxProps,
 }) => {
   const { chainId } = fromAssetId(assetId)
 
@@ -257,31 +261,33 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   if (!accountIds.length) return null
 
   return (
-    <Menu closeOnSelect={true} matchWidth>
-      <MenuButton
-        iconSpacing={0}
-        as={Button}
-        size='sm'
-        rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
-        variant='ghost'
-        color={color}
-        disabled={isDropdownDisabled}
-        {...buttonProps}
-      >
-        <Stack direction='row' alignItems='center'>
-          <RawText fontWeight='bold'>
-            {translate('accounts.accountNumber', { accountNumber })}
-          </RawText>
-          <Text fontWeight='medium' color='grey.500'>
-            {accountLabel}
-          </Text>
-        </Stack>
-      </MenuButton>
-      <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
-        <MenuOptionGroup defaultValue='asc' type='radio'>
-          {menuOptions}
-        </MenuOptionGroup>
-      </MenuList>
-    </Menu>
+    <Box px={2} my={2} {...boxProps}>
+      <Menu closeOnSelect={true} matchWidth>
+        <MenuButton
+          iconSpacing={0}
+          as={Button}
+          size='sm'
+          rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
+          variant='ghost'
+          color={color}
+          disabled={isDropdownDisabled}
+          {...buttonProps}
+        >
+          <Stack direction='row' alignItems='center'>
+            <RawText fontWeight='bold'>
+              {translate('accounts.accountNumber', { accountNumber })}
+            </RawText>
+            <Text fontWeight='medium' color='grey.500'>
+              {accountLabel}
+            </Text>
+          </Stack>
+        </MenuButton>
+        <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+          <MenuOptionGroup defaultValue='asc' type='radio'>
+            {menuOptions}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    </Box>
   )
 }

@@ -14,8 +14,8 @@ type UseFiatRampByAssetIdProps = {
 export const useFiatRampByAssetId = ({ assetId, action }: UseFiatRampByAssetIdProps) => {
   const [providers, setProviders] = useState<SupportedFiatRampConfig[]>([])
 
-  const { data: fiatRampData, isLoading: isFiatRampLoading } = useGetFiatRampAssetsQuery()
-  const [loading, setLoading] = useState(isFiatRampLoading)
+  const { data: fiatRampData } = useGetFiatRampAssetsQuery()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!assetId) return

@@ -14,8 +14,10 @@ import {
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
+import { BuildDepositTxInput } from './types'
 
-// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/thorchain/constants
+// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
+// static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
 const OUTBOUND_FEE = '2000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
@@ -53,7 +55,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
+    const { wallet, bip44Params, showOnDevice = false } = input
+
+    if (!bip44Params) {
+      throw new Error('bip44Params required in getAddress input')
+    }
 
     try {
       if (supportsThorchain(wallet)) {
@@ -97,13 +103,18 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const {
         to,
         wallet,
-        bip44Params = this.defaultBIP44Params,
+        bip44Params,
         chainSpecific: { gas, fee },
         sendMax = false,
         value,
         memo = '',
       } = tx
 
+      if (!bip44Params) {
+        throw new Error('bip44Params required in buildSendTransaction input')
+      }
+
+      if (!bip44Params) throw new Error('ThorchainChainAdapter: bip44Params are required')
       if (!to) throw new Error('ThorchainChainAdapter: to is required')
       if (!value) throw new Error('ThorchainChainAdapter: value is required')
 
@@ -163,6 +174,68 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       const txToSign: ThorchainSignTx = {
         addressNList: toAddressNList(bip44Params),
+        tx: utx,
+        chain_id: CHAIN_REFERENCE.ThorchainMainnet,
+        account_number: account.chainSpecific.accountNumber,
+        sequence: account.chainSpecific.sequence,
+      }
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  /* MsgDeposit is used for thorchain swap/lp operations */
+  async buildDepositTransaction(tx: BuildDepositTxInput): Promise<{ txToSign: ThorchainSignTx }> {
+    try {
+      const { wallet, bip44Params, gas, fee, value, memo } = tx
+
+      // TODO memo validation
+      if (!memo) throw new Error('ThorchainChainAdapter: memo is required')
+      if (!value) throw new Error('ThorchainChainAdapter: value is required')
+
+      const addressNList = toAddressNList(bip44Params)
+      const from = await this.getAddress({ bip44Params, wallet })
+
+      const account = await this.getAccount(from)
+
+      // 0.02 RUNE is automatically charged on outbound transactions
+      // extraFee is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
+      const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+      const extraFee = feeMinusAutomaticOutboundFee.gt(0)
+        ? feeMinusAutomaticOutboundFee.toString()
+        : '0'
+
+      const utx: ThorchainTx = {
+        fee: {
+          amount: [
+            {
+              amount: extraFee,
+              denom: 'rune',
+            },
+          ],
+          gas,
+        },
+        msg: [
+          {
+            type: 'thorchain/MsgDeposit',
+            value: {
+              coins: [
+                {
+                  asset: 'rune',
+                  amount: bnOrZero(value).toString(),
+                },
+              ],
+              memo,
+              signer: from,
+            },
+          },
+        ],
+        signatures: [],
+      }
+
+      const txToSign: ThorchainSignTx = {
+        addressNList,
         tx: utx,
         chain_id: CHAIN_REFERENCE.ThorchainMainnet,
         account_number: account.chainSpecific.accountNumber,

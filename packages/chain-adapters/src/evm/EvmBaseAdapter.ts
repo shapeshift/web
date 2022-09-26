@@ -17,6 +17,7 @@ import {
   BuildSendTxInput,
   ChainTxType,
   FeeDataEstimate,
+  GasFeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
@@ -94,6 +95,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   abstract getFeeAssetId(): AssetId
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract getDisplayName(): string
+  abstract getGasFeeData(): Promise<GasFeeDataEstimate>
 
   getChainId(): ChainId {
     return this.chainId

@@ -39,7 +39,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
   const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, chainId, receiveAddress } = input
 
   try {
-    const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
+    const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
 
     const sellAdapter = deps.adapterManager.get(chainId)
     if (!sellAdapter)
@@ -97,7 +97,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           })
           const feeData = await getEthTxFees({
             adapterManager: deps.adapterManager,
-            sellAssetReference: sellAssetErc20Address,
+            sellAssetReference,
             tradeFee,
           })
 
@@ -144,7 +144,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
           return {
             ...commonQuoteFields,
-            allowanceContract: '0x0', // not applicable to bitcoin
+            allowanceContract: '0x0', // not applicable to cosmos
             feeData: {
               fee: feeData.fast.txFee,
               tradeFee,

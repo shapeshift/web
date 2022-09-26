@@ -66,6 +66,6 @@ describe('getTradeRate', () => {
 
     await expect(
       getTradeRate(UNSUPPORTED, ETH.assetId, '1000000000000000000', deps),
-    ).rejects.toThrow('[getPriceRatio]: No thorchain pool found')
+    ).rejects.toThrow(`[getTradeRate]: No sellPoolId for asset ${UNSUPPORTED.assetId}`)
   })
 })

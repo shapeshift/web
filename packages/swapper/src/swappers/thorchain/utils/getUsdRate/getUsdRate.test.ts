@@ -36,7 +36,7 @@ describe('getUsdRate', () => {
         deps,
         input: { assetId },
       }),
-    ).rejects.toThrow('[getUsdRate]: No rate found')
+    ).rejects.toThrow(`[getUsdRate]: No rate for ${assetId}`)
   })
 
   it('should throw if no poolAssetId is found for specified assetId', async () => {

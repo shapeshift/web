@@ -16,6 +16,18 @@ type GetUsdRateReturn = {
   usdRate: string
 }
 
+export type GetUsdRatesArgs = {
+  feeAssetId: AssetId
+  buyAssetId: AssetId
+  sellAssetId: AssetId
+}
+
+type GetUsdRatesReturn = {
+  buyAssetUsdRate: string
+  sellAssetUsdRate: string
+  feeAssetUsdRate: string
+}
+
 type State = {
   assets: AssetsState
   preferences: Preferences
@@ -50,6 +62,35 @@ export const swapperApi = createApi({
         }
       },
     }),
+    getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
+      queryFn: async ({ feeAssetId, buyAssetId, sellAssetId }, { getState }) => {
+        const state: State = getState() as unknown as State // ReduxState causes circular dependency
+        const {
+          assets,
+          preferences: { featureFlags },
+        } = state
+        try {
+          const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
+          const feeAsset = assets.byId[feeAssetId]
+          const buyAsset = assets.byId[buyAssetId]
+          const sellAsset = assets.byId[sellAssetId]
+          const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = await Promise.all([
+            swapper.getUsdRate(feeAsset),
+            swapper.getUsdRate(buyAsset),
+            swapper.getUsdRate(sellAsset),
+          ])
+          const data = { feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate }
+          return { data }
+        } catch (e) {
+          return {
+            error: {
+              error: 'getUsdRates: error fetching USD rates',
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
     getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState }) => {
         const { sellAsset, buyAsset } = args
@@ -78,4 +119,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetUsdRateQuery, useGetTradeQuoteQuery } = swapperApi
+export const { useGetUsdRateQuery, useGetTradeQuoteQuery, useGetUsdRatesQuery } = swapperApi

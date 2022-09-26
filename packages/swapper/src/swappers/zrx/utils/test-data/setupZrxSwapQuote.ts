@@ -34,7 +34,7 @@ export const setupExecuteTrade = () => {
     buyAsset,
     sellAsset,
     sendMax: false,
-    sellAssetAccountNumber: 0,
+    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
     txData: '0x0',
     depositAddress: '0x0',
     receiveAddress: '0x0',

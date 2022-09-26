@@ -27,7 +27,7 @@ export async function cowBuildTrade(
   input: BuildTradeInput,
 ): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, wallet } = input
+    const { sellAsset, buyAsset, sellAmount, bip44Params, wallet } = input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -119,7 +119,7 @@ export async function cowBuildTrade(
       sources: DEFAULT_SOURCE,
       buyAsset,
       sellAsset,
-      sellAssetAccountNumber,
+      bip44Params,
       receiveAddress,
       feeAmountInSellToken: quote.feeAmount,
       sellAmountWithoutFee: quote.sellAmount,

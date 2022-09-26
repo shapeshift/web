@@ -33,10 +33,7 @@ export async function zrxApprovalNeeded<T extends EvmSupportedChainIds>(
       return { approvalNeeded: false }
     }
 
-    const accountNumber = quote.sellAssetAccountNumber
-
-    const bip44Params = adapter.buildBIP44Params({ accountNumber })
-    const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
+    const receiveAddress = await adapter.getAddress({ wallet, bip44Params: quote.bip44Params })
 
     if (!quote.allowanceContract) {
       throw new SwapError('[zrxApprovalNeeded] - allowanceTarget is required', {

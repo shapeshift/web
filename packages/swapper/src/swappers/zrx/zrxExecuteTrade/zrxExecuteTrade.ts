@@ -8,14 +8,11 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
   { adapter }: ZrxSwapperDeps,
   { trade, wallet }: ZrxExecuteTradeInput<T>,
 ): Promise<TradeResult> {
-  const { sellAsset } = trade
+  const { bip44Params, sellAsset } = trade
 
   try {
     // value is 0 for erc20s
     const value = isNativeEvmAsset(sellAsset.assetId) ? trade.sellAmount : '0'
-    const bip44Params = adapter.buildBIP44Params({
-      accountNumber: trade.sellAssetAccountNumber,
-    })
 
     const buildTxResponse = await adapter.buildSendTransaction({
       value,

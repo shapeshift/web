@@ -36,7 +36,11 @@ type GetThorTradeQuoteReturn = Promise<TradeQuote<ChainId>>
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
 export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
-  const { sellAsset, buyAsset, sellAmount, sellAssetAccountNumber, chainId, receiveAddress } = input
+  const { sellAsset, buyAsset, sellAmount, bip44Params, chainId, receiveAddress } = input
+
+  if (!bip44Params) {
+    throw new Error('bip44Params required in getThorTradeQuote')
+  }
 
   try {
     const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
@@ -78,7 +82,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       sources: [{ name: 'thorchain', proportion: '1' }],
       buyAsset,
       sellAsset,
-      sellAssetAccountNumber,
+      bip44Params,
       minimum,
     }
 

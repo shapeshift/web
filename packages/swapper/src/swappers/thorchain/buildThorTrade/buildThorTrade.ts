@@ -26,12 +26,11 @@ export const buildTrade = async ({
 }): Promise<ThorTrade<ChainId>> => {
   try {
     const {
-      bip44Params,
       buyAsset,
       receiveAddress: destinationAddress,
       sellAmount,
       sellAsset,
-      sellAssetAccountNumber,
+      bip44Params,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
       wallet,
     } = input
@@ -49,13 +48,10 @@ export const buildTrade = async ({
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-      const sellAssetBip44Params = sellAdapter.buildBIP44Params({
-        accountNumber: sellAssetAccountNumber,
-      })
       const ethTradeTx = await makeTradeTx({
         wallet,
         slippageTolerance,
-        bip44Params: sellAssetBip44Params,
+        bip44Params,
         sellAsset,
         buyAsset,
         adapter: sellAdapter as unknown as ethereum.ChainAdapter,

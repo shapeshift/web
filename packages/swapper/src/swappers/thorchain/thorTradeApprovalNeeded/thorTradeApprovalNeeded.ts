@@ -16,15 +16,13 @@ export const thorTradeApprovalNeeded = async ({
 }): Promise<ApprovalNeededOutput> => {
   try {
     const { quote, wallet } = input
-    const { sellAsset } = quote
+    const { sellAsset, bip44Params } = quote
     const { adapterManager, web3 } = deps
 
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
     const { chainNamespace } = fromChainId(sellAsset.chainId)
 
     if (chainNamespace !== CHAIN_NAMESPACE.Evm) return { approvalNeeded: false }
-
-    const accountNumber = quote.sellAssetAccountNumber
 
     const adapter = adapterManager.get(sellAsset.chainId)
 
@@ -42,7 +40,6 @@ export const thorTradeApprovalNeeded = async ({
       return { approvalNeeded: false }
     }
 
-    const bip44Params = adapter.buildBIP44Params({ accountNumber })
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
     if (!quote.allowanceContract) {

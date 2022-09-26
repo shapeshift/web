@@ -134,7 +134,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,
-  sellAssetAccountNumber: 0,
+  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
@@ -156,7 +156,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
   sellAsset: FOX,
-  sellAssetAccountNumber: 0,
+  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
@@ -178,7 +178,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,
-  sellAssetAccountNumber: 0,
+  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
 }
 
 const deps: CowSwapperDeps = {
@@ -200,7 +200,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmount: '11111',
       sendMax: true,
-      sellAssetAccountNumber: 1,
+      bip44Params: { purpose: 44, coinType: 60, accountNumber: 1 },
       receiveAddress: '',
     }
 
@@ -216,7 +216,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmount: '1000000000000000000',
       sendMax: true,
-      sellAssetAccountNumber: 0,
+      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',
     }
 
@@ -252,7 +252,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: ETH,
       sellAmount: '1000000000000000000000',
       sendMax: true,
-      sellAssetAccountNumber: 0,
+      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',
     }
 
@@ -288,7 +288,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmount: '1000000000000',
       sendMax: true,
-      sellAssetAccountNumber: 0,
+      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',
     }
 

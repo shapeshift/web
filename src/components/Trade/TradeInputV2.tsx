@@ -102,16 +102,25 @@ export const TradeInput = () => {
   const gasFee = bnOrZero(fees?.fee).times(bnOrZero(feeAssetFiatRate)).toString()
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
-  const handleInputChange = async (action: TradeAmountInputField, amount: string) => {
-    setValue('amount', amount)
-    setValue('action', action)
+  const handleInputChange = useCallback(
+    async (action: TradeAmountInputField, amount: string) => {
+      setValue('amount', amount)
+      setValue('action', action)
 
-    isLoadingFiatRateData || isLoadingTradeQuote
-      ? await setTradeAmountsSynchronous({ amount, action })
-      : setTradeAmountsAsynchronous({ amount, action })
-  }
+      isLoadingFiatRateData || isLoadingTradeQuote
+        ? await setTradeAmountsSynchronous({ amount, action })
+        : setTradeAmountsAsynchronous({ amount, action })
+    },
+    [
+      isLoadingFiatRateData,
+      isLoadingTradeQuote,
+      setTradeAmountsAsynchronous,
+      setTradeAmountsSynchronous,
+      setValue,
+    ],
+  )
 
-  const handleToggle = async () => {
+  const handleToggle = useCallback(async () => {
     try {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset
@@ -127,9 +136,9 @@ export const TradeInput = () => {
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }
+  }, [getValues, setValue])
 
-  const handleSendMax: TradeAssetInputProps['onMaxClick'] = () => {
+  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(() => {
     if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
@@ -145,36 +154,55 @@ export const TradeInput = () => {
       amount: maxSendAmount,
       action: TradeAmountInputField.SELL_CRYPTO,
     })
-  }
+  }, [
+    quote,
+    sellAssetBalanceCrypto,
+    sellFeeAsset,
+    sellTradeAsset?.asset,
+    setTradeAmountsAsynchronous,
+    setValue,
+  ])
 
-  const onSubmit = async (values: TradeState<KnownChainIds>) => {
-    setIsLoading(true)
-    moduleLogger.info(values, 'debugging logger')
-    try {
-      const isApproveNeeded = await checkApprovalNeeded()
-      if (isApproveNeeded) {
-        history.push({ pathname: TradeRoutePaths.Approval, state: { fiatRate: feeAssetFiatRate } })
-        return
+  const onSubmit = useCallback(
+    async (values: TradeState<KnownChainIds>) => {
+      setIsLoading(true)
+      moduleLogger.info(values, 'debugging logger')
+      try {
+        const isApproveNeeded = await checkApprovalNeeded()
+        if (isApproveNeeded) {
+          history.push({
+            pathname: TradeRoutePaths.Approval,
+            state: { fiatRate: feeAssetFiatRate },
+          })
+          return
+        }
+        const trade = await getTrade()
+        setValue('trade', trade)
+        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
+      } catch (e) {
+        moduleLogger.error(e, 'onSubmit error')
+      } finally {
+        setIsLoading(false)
       }
-      const trade = await getTrade()
-      setValue('trade', trade)
-      history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
-    } catch (e) {
-      moduleLogger.error(e, 'onSubmit error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    },
+    [checkApprovalNeeded, feeAssetFiatRate, getTrade, history, setValue],
+  )
 
-  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = async (value, isFiat) => {
-    const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
-    await handleInputChange(action, value)
-  }
+  const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
+    async (value: string, isFiat: boolean | undefined) => {
+      const action = isFiat ? TradeAmountInputField.SELL_FIAT : TradeAmountInputField.SELL_CRYPTO
+      await handleInputChange(action, value)
+    },
+    [handleInputChange],
+  )
 
-  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = async (value, isFiat) => {
-    const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
-    await handleInputChange(action, value)
-  }
+  const onBuyAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
+    async (value: string, isFiat: boolean | undefined) => {
+      const action = isFiat ? TradeAmountInputField.BUY_FIAT : TradeAmountInputField.BUY_CRYPTO
+      await handleInputChange(action, value)
+    },
+    [handleInputChange],
+  )
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
     setValue('selectedSellAssetAccountId', accountId)

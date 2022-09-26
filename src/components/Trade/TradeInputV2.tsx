@@ -68,18 +68,16 @@ export const TradeInput = () => {
       ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellFeeAsset?.assetId })
       : null,
   )
-  const sellAssetBalanceCrypto = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
-      accountId: sellAssetAccountId,
-      assetId: sellTradeAsset?.asset?.assetId ?? '',
-    }),
-  )
 
+  const sellAssetBalanceFilter = useMemo(
+    () => ({ accountId: sellAssetAccountId, assetId: sellTradeAsset?.asset?.assetId ?? '' }),
+    [sellAssetAccountId, sellTradeAsset?.asset?.assetId],
+  )
+  const sellAssetBalanceCrypto = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, sellAssetBalanceFilter),
+  )
   const sellAssetBalanceHuman = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, {
-      accountId: sellAssetAccountId,
-      assetId: sellTradeAsset?.asset?.assetId ?? '',
-    }),
+    selectPortfolioCryptoHumanBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
   // Constants

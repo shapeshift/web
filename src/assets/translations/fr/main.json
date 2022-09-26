@@ -69,7 +69,9 @@
     "walletSupportsETHOnly": "Ethereum seulement",
     "loadingText": "Chargement...",
     "txId": "ID Tx",
-    "selectAsset": "Sélectionnez un actif"
+    "selectAsset": "Sélectionnez un actif",
+    "switchNetwork": "Changer de réseau",
+    "unsupportedNetwork": "Réseau non pris en charge"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -119,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Bientôt disponible ...",
     "buy": "Acheter",
     "sell": "Vendre",
@@ -139,6 +142,8 @@
     "exploreThe": "Explorer l'",
     "defiUniverse": "Univers DeFi",
     "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
+    "body2": "Bienvenue sur le nouveau ShapeShift. 100% gratuit. Open-source. Appartenant à la communauté. Non-dépositaire. Privé.",
+    "betaSunset": "La version Beta est terminée. En apprendre davantage",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
     "viewADemo": "Voir une démo"
@@ -365,7 +370,8 @@
     "demoMode": "Mode démo",
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
-    "explore": "Explorer"
+    "explore": "Explorer",
+    "trade": "Échanger"
   },
   "transactionRow": {
     "send": "Envoyé",
@@ -514,6 +520,7 @@
       "generalError": "Une erreur d'échange s'est produite",
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant"
     },
+    "recentTrades": "Échanges récents",
     "shapeshiftFee": "Frais ShapeShift"
   },
   "modals": {
@@ -637,6 +644,7 @@
         "sendAsset": "Envoyer des %{asset}",
         "send": "Envoyer",
         "sendTo": "Envoyer à",
+        "sendFrom": "Envoyer depuis",
         "edit": "Modifier",
         "total": "Total",
         "amount": "Montant",
@@ -1310,6 +1318,7 @@
   },
   "plugins": {
     "foxPage": {
+      "buyAssetOnCoinbase": "Acheter des %{assetSymbol} sur Coinbase",
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",

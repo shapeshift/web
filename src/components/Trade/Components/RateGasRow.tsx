@@ -37,7 +37,12 @@ export const RateGasRow: FC<RateGasRowProps> = ({
     case !rate:
       return (
         <Stack direction='row' alignItems='center' fontSize='sm'>
-          <Text translation={'trade.noRateAvailable'} />
+          <HelperTooltip
+            label={translate('trade.tooltip.noRateAvailable')}
+            flexProps={{ flexDirection: 'row-reverse' }}
+          >
+            <Text translation={'trade.noRateAvailable'} />
+          </HelperTooltip>
         </Stack>
       )
     default:

@@ -517,7 +517,7 @@
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
-      "sellAssetAccountNotSupported": "Sell asset account not supported",
+      "sellAssetNotSupportedByWallet": "%{sellAssetSymbol} not supported by wallet",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

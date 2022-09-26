@@ -209,7 +209,11 @@ export const TradeInput = () => {
 
     if (!wallet) return 'common.connectWallet'
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
-    if (!sellAssetAccountSupported) return 'trade.errors.sellAssetAccountNotSupported'
+    if (!sellAssetAccountSupported)
+      return [
+        'trade.errors.sellAssetNotSupportedByWallet',
+        { sellAssetSymbol: sellTradeAsset?.asset?.symbol ?? 'Sell asset' },
+      ]
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return 'common.insufficientAmountForGas'

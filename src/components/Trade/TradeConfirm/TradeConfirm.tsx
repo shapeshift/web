@@ -1,5 +1,9 @@
+import { Alert } from '@chakra-ui/alert'
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Divider,
@@ -222,6 +226,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 sellIcon={trade.sellAsset.icon}
                 status={sellTxid || isSubmitting ? status : undefined}
               />
+              {fees?.tradeFeeSource === 'Thorchain' && (
+                <Alert status='info' mx={3} width='auto' mb={3} fontSize='sm'>
+                  <AlertIcon />
+                  <Stack spacing={0}>
+                    <AlertTitle>
+                      {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+                    </AlertTitle>
+                    <AlertDescription lineHeight='short'>
+                      {translate('trade.slowSwapBody')}
+                    </AlertDescription>
+                  </Stack>
+                </Alert>
+              )}
               <Stack spacing={4}>
                 <Row>
                   <Row.Label>{translate('common.send')}</Row.Label>

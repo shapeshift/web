@@ -475,6 +475,8 @@
     "beforeFees": "Before Fees",
     "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
     "free": "Free",
+    "slowSwapTitle": "%{protocol} trade",
+    "slowSwapBody": "This swap may take a few minutes to complete.",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",

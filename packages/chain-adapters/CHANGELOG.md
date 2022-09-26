@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v9.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.5...@shapeshiftoss/chain-adapters-v9.2.0) (2022-09-26)
+
+
+### Features
+
+* swap to/from RUNE ([#1030](https://github.com/shapeshift/lib/issues/1030)) ([6b5c9c8](https://github.com/shapeshift/lib/commit/6b5c9c8e855ffb68d865cfae8f545e7a819a9667))
+
 # [@shapeshiftoss/chain-adapters-v9.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.4...@shapeshiftoss/chain-adapters-v9.1.5) (2022-09-16)
 
 # [@shapeshiftoss/chain-adapters-v9.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.1.3...@shapeshiftoss/chain-adapters-v9.1.4) (2022-09-16)

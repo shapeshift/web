@@ -1,13 +1,18 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { FiatRamp } from 'components/Modals/FiatRamps/config'
+import { fiatRamps } from 'components/Modals/FiatRamps/config'
 import { supportedFiatRamps } from 'components/Modals/FiatRamps/config'
-import type { FiatRampAction, FiatRampAsset } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import type { FiatRampAsset } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 const moduleLogger = logger.child({ namespace: ['fiatRampApi'] })
 
-type FiatRampApiReturn = {
-  [k in FiatRampAction]: FiatRampAsset[]
+export type FiatRampApiReturn = {
+  [k in FiatRamp]: {
+    [k in FiatRampAction]: FiatRampAsset[]
+  }
 }
 
 export const fiatRampApi = createApi({
@@ -15,7 +20,6 @@ export const fiatRampApi = createApi({
   reducerPath: 'fiatRampApi',
   endpoints: build => ({
     getFiatRampAssets: build.query<FiatRampApiReturn, void>({
-      // return, args
       queryFn: async () => {
         try {
           const promiseResults = await Promise.allSettled(
@@ -23,20 +27,40 @@ export const fiatRampApi = createApi({
               .filter(provider => provider.isImplemented)
               .map(provider => provider.getBuyAndSellList()),
           )
-          const data = promiseResults.reduce<FiatRampApiReturn>(
-            (acc, cur) => {
-              if (cur.status === 'rejected') {
-                moduleLogger.error(cur.reason, 'error fetching fiat ramp')
-                return acc
-              }
-              const ramp = cur.value
-              const [buyAssets, sellAssets] = ramp
-              acc['buy'].push(...buyAssets)
-              acc['sell'].push(...sellAssets)
-              return acc
+          const initial: FiatRampApiReturn = {
+            Gem: {
+              [FiatRampAction.Buy]: [],
+              [FiatRampAction.Sell]: [],
             },
-            { buy: [], sell: [] },
-          )
+            Banxa: {
+              [FiatRampAction.Buy]: [],
+              [FiatRampAction.Sell]: [],
+            },
+            JunoPay: {
+              [FiatRampAction.Buy]: [],
+              [FiatRampAction.Sell]: [],
+            },
+            MtPelerin: {
+              [FiatRampAction.Buy]: [],
+              [FiatRampAction.Sell]: [],
+            },
+            OnRamper: {
+              [FiatRampAction.Buy]: [],
+              [FiatRampAction.Sell]: [],
+            },
+          }
+
+          const data = promiseResults.reduce<FiatRampApiReturn>((acc, p, idx) => {
+            if (p.status === 'rejected') {
+              moduleLogger.error(p.reason, 'error fetching fiat ramp')
+              return acc
+            }
+            const ramp = p.value
+            const [buyAssets, sellAssets] = ramp
+            acc[fiatRamps[idx]][FiatRampAction.Buy].push(...buyAssets)
+            acc[fiatRamps[idx]][FiatRampAction.Sell].push(...sellAssets)
+            return acc
+          }, initial)
           return { data }
         } catch (e) {
           return {

@@ -65,7 +65,6 @@ export const useTradeAmounts = () => {
         calculateAmounts(args)
       const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, args.buyAsset.precision)
       const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, args.sellAsset.precision)
-      // validateAmounts({ buyTradeAssetAmount, sellTradeAssetAmount })
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
       setValue('buyTradeAsset.amount', buyTradeAssetAmount)

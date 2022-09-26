@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.2.0...@shapeshiftoss/swapper-v11.3.0) (2022-09-26)
+
+
+### Features
+
+* sellAssetAccountNumber -> bip44Params ([#1037](https://github.com/shapeshift/lib/issues/1037)) ([37ac813](https://github.com/shapeshift/lib/commit/37ac813ca997db0db5a9427d0e0eaadaa158b354))
+
 # [@shapeshiftoss/swapper-v11.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.1.3...@shapeshiftoss/swapper-v11.2.0) (2022-09-26)
 
 

@@ -1,9 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, avalancheChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
-import { store } from 'state/store'
 
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
@@ -36,9 +35,6 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
-  // TODO: this line and its usages should be removed when Avalanche flag got removed.
-  const avalancheFlag = store.getState().preferences.featureFlags.Avalanche
-
   const mtPelerinAssets = Object.values(data)
 
   const assets = mtPelerinAssets.reduce<FiatRampAsset[]>((acc, asset) => {
@@ -51,9 +47,6 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
     if (!assetIds || !assetIds.length) return acc
     // if an asset is supported on multiple networks, we need to add them all
     assetIds.forEach(assetId => {
-      const { chainId } = fromAssetId(assetId)
-      // ignore avalanche assets while avalanche featureFlag is off
-      if (chainId === avalancheChainId && !avalancheFlag) return
       const mapped = { assetId, symbol, name: '' } // name will be set in useFiatRampCurrencyList hook
       acc.push(mapped)
     })

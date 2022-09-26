@@ -38,7 +38,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
-  selectFirstAccountSpecifierByChainId,
+  selectPortfolioAccountIdsByAssetId,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -84,17 +84,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const buyAssetChainId = trade?.buyAsset.chainId
-  const defaultFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
+  const bip44Params = trade?.bip44Params
+  const buyAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, { assetId: trade?.buyAsset.assetId ?? '' }),
   )
-  const buyAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, buyAssetChainId ?? ''),
+
+  const buyAssetAccountId = useMemo(
+    () => buyAssetAccountIds?.[bip44Params?.accountNumber ?? 0] ?? '',
+    [bip44Params?.accountNumber, buyAssetAccountIds],
   )
 
   const parsedBuyTxId = useMemo(
-    () => serializeTxIndex(buyAssetAccountSpecifier, buyTxid, trade?.receiveAddress ?? ''),
-    [buyAssetAccountSpecifier, trade?.receiveAddress, buyTxid],
+    () => serializeTxIndex(buyAssetAccountId, buyTxid, trade?.receiveAddress ?? ''),
+    [buyAssetAccountId, trade?.receiveAddress, buyTxid],
   )
 
   const status =

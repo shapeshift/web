@@ -14,6 +14,7 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'hooks', 'useFiatRampCurrencyList'],
 })
 
+// TODO(0xdef1cafe): flatMap, uniqBy AssetId, add cryptoBalance and fiatBalance
 export const useFiatRampCurrencyList = () => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
   const reduxAssets = useAppSelector(selectAssets)

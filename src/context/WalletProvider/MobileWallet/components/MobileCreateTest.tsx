@@ -9,6 +9,7 @@ import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
+import { addWallet } from '../mobileMessageHandlers'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileSetupProps } from '../types'
 
@@ -79,8 +80,14 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
 
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed
-    if (testCount >= TEST_COUNT_REQUIRED) {
-      history.replace('/mobile/success', { vault })
+    if (testCount >= TEST_COUNT_REQUIRED && vault?.label && vault?.mnemonic) {
+      ;(async () => {
+        if (vault?.label && vault?.mnemonic) {
+          const newWallet = await addWallet({ label: vault.label, mnemonic: vault.mnemonic })
+          history.replace('/mobile/success', { vault: newWallet! })
+        }
+      })()
+
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)

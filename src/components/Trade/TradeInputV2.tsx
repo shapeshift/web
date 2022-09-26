@@ -223,9 +223,10 @@ export const TradeInput = () => {
     return 'trade.previewTrade'
   }, [
     sellAssetBalanceHuman,
-    sellTradeAsset?.amount,
+    sellTradeAsset.amount,
     sellTradeAsset?.asset?.assetId,
     sellTradeAsset?.asset?.precision,
+    sellTradeAsset?.asset?.symbol,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     feeAssetBalance,

@@ -104,6 +104,13 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const bgColor = useColorModeValue('white', 'gray.850')
   const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
+
+  // Lower the decimal places when the integer is greater than 8 significant digits for better UI
+  const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
+  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+    ? cryptoAmount
+    : bnOrZero(cryptoAmount).toFixed(3)
+
   return (
     <FormControl
       borderWidth={1}
@@ -141,7 +148,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
-              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
+              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
               onValueChange={values => {
                 // This fires anytime value changes including setting it on max click
                 // Store the value in a ref to send when we actually want the onChange to fire

@@ -106,7 +106,7 @@ export const TradeInput = () => {
     setValue('amount', amount)
     setValue('action', action)
 
-    isLoadingFiatRateData
+    isLoadingFiatRateData || isLoadingTradeQuote
       ? await setTradeAmountsSynchronous({ amount, action })
       : setTradeAmountsAsynchronous({ amount, action })
   }
@@ -122,6 +122,8 @@ export const TradeInput = () => {
       setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amount: '0' })
       setValue('fiatSellAmount', '0')
       setValue('fiatBuyAmount', '0')
+      setValue('buyAssetFiatRate', currentValues.sellAssetFiatRate)
+      setValue('sellAssetFiatRate', currentValues.buyAssetFiatRate)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }

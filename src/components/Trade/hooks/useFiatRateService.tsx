@@ -2,7 +2,6 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import type { TS } from 'components/Trade/types'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/swapperApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
@@ -37,8 +36,6 @@ export const useFiatRateService = () => {
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   ).assetId
 
-  const { setTradeAmountsAsynchronous } = useTradeAmounts()
-
   // API
   const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
     pollingInterval: 30000,
@@ -62,7 +59,7 @@ export const useFiatRateService = () => {
       setValue('sellAssetFiatRate', usdRates.sellAssetUsdRate)
       setValue('feeAssetFiatRate', usdRates.feeAssetUsdRate)
     }
-  }, [usdRates, setTradeAmountsAsynchronous, setValue])
+  }, [usdRates, setValue])
 
   return { isLoadingFiatRateData }
 }

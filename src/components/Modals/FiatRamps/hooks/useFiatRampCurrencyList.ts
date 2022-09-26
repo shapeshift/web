@@ -1,137 +1,65 @@
-import uniqBy from 'lodash/uniqBy'
-import { useCallback, useEffect, useState } from 'react'
+import { uniqBy } from 'lodash'
+import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { useGetFiatRampAssetsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { supportedFiatRamps } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'hooks', 'useFiatRampCurrencyList'],
-})
-
-// TODO(0xdef1cafe): flatMap, uniqBy AssetId, add cryptoBalance and fiatBalance
 export const useFiatRampCurrencyList = () => {
   const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
-  const reduxAssets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectAssets)
 
-  const [loading, setLoading] = useState(false)
+  const { data: fiatRampData, isLoading: isFiatRampDataLoading } = useGetFiatRampAssetsQuery()
+  const [loading, setLoading] = useState(isFiatRampDataLoading)
   const [buyList, setBuyList] = useState<FiatRampAsset[]>([])
   const [sellList, setSellList] = useState<FiatRampAsset[]>([])
   const {
     state: { wallet },
   } = useWallet()
 
-  const addSellPropertiesAndSort = useCallback(
-    (assets: FiatRampAsset[]): FiatRampAsset[] => {
-      try {
-        if (!wallet) return []
-        return assets
-          .filter(asset => Object.keys(balances).includes(asset.assetId))
-          .map(asset => {
-            const reduxAsset = reduxAssets[asset.assetId]
-            const fiatBalance = bnOrZero(balances?.[asset.assetId]?.fiat)
-            return {
-              ...asset,
-              name: reduxAsset.name,
-              symbol: reduxAsset.symbol,
-              disabled: !isAssetSupportedByWallet(asset?.assetId ?? '', wallet),
-              cryptoBalance: bnOrZero(balances?.[asset.assetId]?.crypto),
-              fiatBalance,
-            }
-          })
-          .sort((a, b) =>
-            a.fiatBalance.gt(0) || b.fiatBalance.gt(0)
-              ? b.fiatBalance.minus(a.fiatBalance).toNumber()
-              : a.name.localeCompare(b.name),
-          )
-      } catch (err) {
-        moduleLogger.error(
-          err,
-          { fn: 'addSellPropertiesAndSort' },
-          'An error happened sorting the fiat ramp sell assets',
-        )
-        return []
-      }
-    },
-    [balances, reduxAssets, wallet],
-  )
-
-  const addBuyPropertiesAndSort = useCallback(
-    (assets: FiatRampAsset[]): FiatRampAsset[] => {
-      if (!wallet) return []
-      try {
-        return assets
-          .map(asset => {
-            const reduxAsset = reduxAssets[asset.assetId]
-            if (!reduxAsset) {
-              return {
-                ...asset,
-                symbol: asset.symbol.toUpperCase(),
-                disabled: true,
-              }
-            }
-
-            return {
-              ...asset,
-              name: reduxAsset.name,
-              symbol: reduxAsset.symbol,
-              disabled: !isAssetSupportedByWallet(asset.assetId, wallet),
-            }
-          })
-          .sort((a, b) => a.name.localeCompare(b.name))
-      } catch (err) {
-        moduleLogger.error(
-          err,
-          { fn: 'addBuyPropertiesAndSort' },
-          'An error happened sorting the fiat ramp buy assets',
-        )
-        return []
-      }
-    },
-    [reduxAssets, wallet],
-  )
-
-  // start getting currencies from selected fiatRampProvider
   useEffect(() => {
+    if (!fiatRampData) return
+    if (!wallet) return
     setLoading(true)
-    async function getBuySellAssets() {
-      const [parsedBuyList, parsedSellList] = (
-        await Promise.allSettled(
-          Object.values(supportedFiatRamps)
-            .filter(provider => provider.isImplemented)
-            .map(async provider => {
-              return await provider.getBuyAndSellList()
-            }),
-        )
-      ).reduce<[currentBuyList: FiatRampAsset[], currentSellList: FiatRampAsset[]]>(
-        (acc, getBySellAssetsPromise) => {
-          if (getBySellAssetsPromise.status === 'rejected') {
-            moduleLogger.error(
-              getBySellAssetsPromise?.reason,
-              { fn: 'getBySellAssets' },
-              'An error happened sorting the fiat ramp buy assets',
-            )
-            return acc
-          }
-          const { value } = getBySellAssetsPromise
-          const [currentBuyList, currentSellList] = value
-          acc[0].push(...currentBuyList)
-          acc[1].push(...currentSellList)
-          return acc
-        },
-        [[], []],
-      )
-      setSellList(addSellPropertiesAndSort(uniqBy(parsedSellList, 'assetId')))
-      setBuyList(addBuyPropertiesAndSort(uniqBy(parsedBuyList, 'assetId')))
-      setLoading(false)
+    const initial: [FiatRampAsset[], FiatRampAsset[]] = [[], []]
+    const [allBuyAssets, allSellAssets] = Object.values(fiatRampData).reduce((acc, cur) => {
+      acc[0].push(...cur.buy)
+      acc[1].push(...cur.sell)
+      return acc
+    }, initial)
+    const uniqueBuyAssets = uniqBy(allBuyAssets, 'assetId')
+    const uniqueSellAssets = uniqBy(allSellAssets, 'assetId')
+    const augmentFn = (fiatRampAsset: FiatRampAsset) => {
+      const { assetId } = fiatRampAsset
+      const asset = assets[assetId]
+      const disabled = !isAssetSupportedByWallet(assetId, wallet)
+      const cryptoBalance = bnOrZero(balances[assetId]?.crypto)
+      const fiatBalance = bnOrZero(balances[assetId]?.fiat)
+      return {
+        ...fiatRampAsset,
+        ...asset,
+        disabled,
+        cryptoBalance,
+        fiatBalance,
+      }
     }
-    getBuySellAssets()
-  }, [addSellPropertiesAndSort, addBuyPropertiesAndSort])
+
+    // we've just augmented them with balances, don't know of a better way to narrow type
+    const sortFn = (a: FiatRampAsset, b: FiatRampAsset): number =>
+      a.fiatBalance!.gt(0) || b.fiatBalance!.gt(0)
+        ? b.fiatBalance!.minus(a.fiatBalance!)?.toNumber()
+        : a.name.localeCompare(b.name)
+
+    const augmentedBuyAssets = uniqueBuyAssets.map(augmentFn).sort(sortFn)
+    const augmentedSellAssets = uniqueSellAssets.map(augmentFn).sort(sortFn)
+    setBuyList(augmentedBuyAssets)
+    setSellList(augmentedSellAssets)
+    setLoading(false)
+  }, [assets, balances, fiatRampData, wallet])
 
   return {
     loading,

@@ -41,7 +41,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
-  const { setTradeAmountsAsynchronous, setTradeAmountsSynchronous } = useTradeAmounts()
+  const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade, bestTradeSwapper } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -108,14 +108,14 @@ export const TradeInput = () => {
       setValue('action', action)
 
       isLoadingFiatRateData || isLoadingTradeQuote
-        ? await setTradeAmountsSynchronous({ amount, action })
-        : setTradeAmountsAsynchronous({ amount, action })
+        ? await setTradeAmountsRefetchData({ amount, action })
+        : setTradeAmountsUsingExistingData({ amount, action })
     },
     [
       isLoadingFiatRateData,
       isLoadingTradeQuote,
-      setTradeAmountsAsynchronous,
-      setTradeAmountsSynchronous,
+      setTradeAmountsUsingExistingData,
+      setTradeAmountsRefetchData,
       setValue,
     ],
   )
@@ -150,7 +150,7 @@ export const TradeInput = () => {
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
 
-    setTradeAmountsAsynchronous({
+    setTradeAmountsUsingExistingData({
       amount: maxSendAmount,
       action: TradeAmountInputField.SELL_CRYPTO,
     })
@@ -159,7 +159,7 @@ export const TradeInput = () => {
     sellAssetBalanceCrypto,
     sellFeeAsset,
     sellTradeAsset?.asset,
-    setTradeAmountsAsynchronous,
+    setTradeAmountsUsingExistingData,
     setValue,
   ])
 

@@ -16,7 +16,7 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TS>()
-  const { setTradeAmountsSynchronous } = useTradeAmounts()
+  const { setTradeAmountsRefetchData } = useTradeAmounts()
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
 
@@ -52,7 +52,7 @@ export const useTradeRoutes = (): {
 
       history.push(TradeRoutePaths.Input)
 
-      await setTradeAmountsSynchronous({
+      await setTradeAmountsRefetchData({
         sellAssetId: isSell ? asset.assetId : undefined,
         buyAssetId: isBuy ? asset.assetId : undefined,
         amount: '0',
@@ -64,7 +64,7 @@ export const useTradeRoutes = (): {
       buyTradeAsset?.asset?.assetId,
       getValues,
       setValue,
-      setTradeAmountsSynchronous,
+      setTradeAmountsRefetchData,
       history,
     ],
   )

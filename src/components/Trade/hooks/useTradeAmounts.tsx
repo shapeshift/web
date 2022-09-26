@@ -74,7 +74,7 @@ export const useTradeAmounts = () => {
   )
 
   // Use the existing fiat rates and quote without waiting for fresh data
-  const setTradeAmountsAsynchronous = useCallback(
+  const setTradeAmountsUsingExistingData = useCallback(
     (args: SetTradeAmountsAsynchronousArgs) => {
       const amount = args.amount ?? amountFormState
       const action = args.action ?? actionFormState
@@ -120,7 +120,7 @@ export const useTradeAmounts = () => {
 
   // Use the args provided to get new fiat rates and a fresh quote
   // Useful when changing assets where we expect response data to meaningfully change - so wait before updating amounts
-  const setTradeAmountsSynchronous = useCallback(
+  const setTradeAmountsRefetchData = useCallback(
     async ({ sellAssetId, buyAssetId, amount, action }: SetTradeAmountsSynchronousArgs) => {
       // Eagerly update the input field to improve UX whilst we wait for API responses
       switch (action) {
@@ -224,5 +224,8 @@ export const useTradeAmounts = () => {
     ],
   )
 
-  return { setTradeAmountsAsynchronous, setTradeAmountsSynchronous }
+  return {
+    setTradeAmountsUsingExistingData,
+    setTradeAmountsRefetchData,
+  }
 }

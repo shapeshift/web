@@ -4,7 +4,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { avalancheChainId, osmosisChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import { osmosisChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
@@ -53,12 +53,11 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: async (_, { getState }) => {
-        const { Avalanche, Osmosis, Thorchain } = selectFeatureFlags(getState() as ReduxState)
+        const { Osmosis, Thorchain } = selectFeatureFlags(getState() as ReduxState)
 
         const service = await getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
-            if (!Avalanche && asset.chainId === avalancheChainId) return prev
             if (!Osmosis && asset.chainId === osmosisChainId) return prev
             if (!Thorchain && asset.chainId === thorchainChainId) return prev
             prev[assetId] = asset

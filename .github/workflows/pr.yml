@@ -16,21 +16,16 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache Node Modules
+      - name: Cache
         uses: actions/cache@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Download Build Folder
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
-
-      - name: Install
+      - name: Yarn Install
         run: yarn install --frozen-lockfile
 
       # needs to run after install
@@ -44,6 +39,9 @@ jobs:
 
       - name: Type Check
         run: yarn type-check
+
+      - name: Add environment variables
+        run: yarn env app
 
       - name: Test
         run: yarn test

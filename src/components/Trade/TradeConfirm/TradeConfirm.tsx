@@ -320,7 +320,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (
-                  <Flex justifyContent='space-evenly' alignItems='center'>
+                  <Flex justifyContent='center' gap={4} alignItems='center'>
                     <WarningTwoIcon w={5} h={5} color='red.400' />
                     <Text
                       color='red.400'

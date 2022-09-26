@@ -11,7 +11,6 @@ export type FeatureFlags = {
   Osmosis: boolean
   FoxLP: boolean
   FoxFarming: boolean
-  Avalanche: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -50,7 +49,6 @@ const initialState: Preferences = {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
-    Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

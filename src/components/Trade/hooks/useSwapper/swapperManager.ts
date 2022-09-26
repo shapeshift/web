@@ -66,17 +66,15 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   })
   _swapperManager.addSwapper(zrxEthereumSwapper)
 
-  if (flags.Avalanche) {
-    const avalancheChainAdapter = adapterManager.get(
-      KnownChainIds.AvalancheMainnet,
-    ) as unknown as avalanche.ChainAdapter
+  const avalancheChainAdapter = adapterManager.get(
+    KnownChainIds.AvalancheMainnet,
+  ) as unknown as avalanche.ChainAdapter
 
-    const zrxAvalancheSwapper = new ZrxSwapper({
-      web3: avaxWeb3,
-      adapter: avalancheChainAdapter,
-    })
-    _swapperManager.addSwapper(zrxAvalancheSwapper)
-  }
+  const zrxAvalancheSwapper = new ZrxSwapper({
+    web3: avaxWeb3,
+    adapter: avalancheChainAdapter,
+  })
+  _swapperManager.addSwapper(zrxAvalancheSwapper)
 
   if (flags.Osmosis) {
     const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL

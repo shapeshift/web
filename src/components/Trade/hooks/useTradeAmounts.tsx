@@ -141,11 +141,11 @@ export const useTradeAmounts = () => {
       const amountToUse = amount ?? amountFormState
       const actionToUse = action ?? actionFormState ?? TradeAmountInputField.SELL_CRYPTO
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
+      const sellAsset = assets[sellAssetIdToUse]
       const buyAsset = assets[buyAssetIdToUse]
-      const feeAssetId = getChainAdapterManager().get(buyAsset.chainId)?.getFeeAssetId()
+      const feeAssetId = getChainAdapterManager().get(sellAsset.chainId)?.getFeeAssetId()
       if (!feeAssetId) return
       const feeAsset = assets[feeAssetId]
-      const sellAsset = assets[sellAssetIdToUse]
       const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
       if (!receiveAddress) return
 

@@ -4,7 +4,8 @@ on:
   workflow_call:
 
 jobs:
-  commitlint-lint-typecheck-test-build:
+  static:
+    name: Static
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

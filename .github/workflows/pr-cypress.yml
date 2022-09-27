@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-chrome:
-    name: Run Cypress
+    name: Cypress
     runs-on: ubuntu-latest
     strategy:
       # When one test fails, do not cancel the other

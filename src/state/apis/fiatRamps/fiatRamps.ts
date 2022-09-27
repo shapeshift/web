@@ -27,28 +27,11 @@ export const fiatRampApi = createApi({
               .filter(provider => provider.isImplemented)
               .map(provider => provider.getBuyAndSellList()),
           )
-          const initial: FiatRampApiReturn = {
-            Gem: {
-              [FiatRampAction.Buy]: [],
-              [FiatRampAction.Sell]: [],
-            },
-            Banxa: {
-              [FiatRampAction.Buy]: [],
-              [FiatRampAction.Sell]: [],
-            },
-            JunoPay: {
-              [FiatRampAction.Buy]: [],
-              [FiatRampAction.Sell]: [],
-            },
-            MtPelerin: {
-              [FiatRampAction.Buy]: [],
-              [FiatRampAction.Sell]: [],
-            },
-            OnRamper: {
-              [FiatRampAction.Buy]: [],
-              [FiatRampAction.Sell]: [],
-            },
-          }
+
+          const initial = fiatRamps.reduce<FiatRampApiReturn>((acc, cur) => {
+            acc[cur] = { [FiatRampAction.Buy]: [], [FiatRampAction.Sell]: [] }
+            return acc
+          }, {} as FiatRampApiReturn)
 
           const data = promiseResults.reduce<FiatRampApiReturn>((acc, p, idx) => {
             if (p.status === 'rejected') {

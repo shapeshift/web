@@ -1,10 +1,10 @@
 import { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 
-import { Trade, UtxoSupportedChainIds } from '../../api'
+import type { Trade, UtxoSupportedChainIds } from '../../api'
 
 export type PoolResponse = {
   asset: string
@@ -21,13 +21,15 @@ export type PoolResponse = {
   volume24h: string
 }
 
-type MidardCoins = {
+type MidgardCoins = {
   asset: string
 }[]
+
 type MidgardActionOut = {
-  coins: MidardCoins
+  coins: MidgardCoins
   txID: string
 }
+
 type MidgardAction = {
   date: string
   height: string

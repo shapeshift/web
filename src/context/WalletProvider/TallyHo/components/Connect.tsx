@@ -78,7 +78,6 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId },
         })
-        dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.TallyHo, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

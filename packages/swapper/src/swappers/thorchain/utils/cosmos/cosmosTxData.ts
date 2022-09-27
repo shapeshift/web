@@ -38,7 +38,7 @@ export const cosmosTxData = async (input: {
   } = input
   const fromThorAsset = sellAsset.chainId == KnownChainIds.ThorchainMainnet
   const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-    `${deps.midgardUrl}/thorchain/inbound_addresses`,
+    `${deps.daemonUrl}/lcd/thorchain/inbound_addresses`,
   )
   const atomInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'GAIA')
   const vault = atomInboundAddresses?.address

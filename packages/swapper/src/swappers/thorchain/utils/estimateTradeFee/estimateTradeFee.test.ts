@@ -3,7 +3,7 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 
 import { BTC, ETH, FOX, UNSUPPORTED } from '../../../utils/test-data/assets'
-import { ethMidgardPool, foxMidgardPool, mockInboundAdresses } from '../test-data/midgardResponse'
+import { ethThornodePool, foxThornodePool, mockInboundAdresses } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { estimateTradeFee } from './estimateTradeFee'
 
@@ -11,7 +11,8 @@ jest.mock('../thorService')
 
 describe('estimateTradeFee', () => {
   const deps = {
-    midgardUrl: 'localhost:3000',
+    midgardUrl: '',
+    daemonUrl: '',
     adapterManager: new Map([
       [ethChainId, { getFeeAssetId: () => ethAssetId }],
       [btcChainId, { getFeeAssetId: () => btcAssetId }],
@@ -39,10 +40,10 @@ describe('estimateTradeFee', () => {
   it('should correctly estimate a trade fee for an ethereum erc20 asset as a buy asset', async () => {
     ;(thorService.get as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve({ data: mockInboundAdresses }))
-      .mockReturnValueOnce(Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }))
+      .mockReturnValueOnce(Promise.resolve({ data: [foxThornodePool, ethThornodePool] }))
     const estimatedTradeFee = await estimateTradeFee(deps, FOX)
 
-    const expectedResult = '0.000005270675333037554496'
+    const expectedResult = '0.000005270675333037553824'
     expect(estimatedTradeFee).toEqual(expectedResult)
   })
   it('should throw if trying to get fee data for an unsupported buy asset', async () => {

@@ -35,7 +35,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
 }) => {
   try {
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-      `${deps.midgardUrl}/thorchain/inbound_addresses`,
+      `${deps.daemonUrl}/lcd/thorchain/inbound_addresses`,
     )
 
     const sellAssetInboundAddresses = inboundAddresses.find(

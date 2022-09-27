@@ -38,7 +38,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
 
     const isErc20Trade = assetNamespace === 'erc20'
     const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-      `${deps.midgardUrl}/thorchain/inbound_addresses`,
+      `${deps.daemonUrl}/lcd/thorchain/inbound_addresses`,
     )
 
     const ethInboundAddresses = inboundAddresses.find((inbound) => inbound.chain === 'ETH')

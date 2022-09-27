@@ -45,9 +45,7 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
     ],
   ])
 
-  const midgardUrl = 'localhost:3000'
-  const ethNodeUrl = 'http://localhost:1000'
-  const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
+  const web3Provider = new Web3.providers.HttpProvider('')
 
-  return { adapterManager, midgardUrl, web3: new Web3(web3Provider) }
+  return { adapterManager, midgardUrl: '', daemonUrl: '', web3: new Web3(web3Provider) }
 }

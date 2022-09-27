@@ -106,7 +106,12 @@ const main = async (): Promise<void> => {
   const zrxSwapper = new ZrxSwapper(zrxSwapperDeps)
   swapManager.addSwapper(zrxSwapper)
 
-  const tcDeps: ThorchainSwapperDeps = { midgardUrl: MIDGARD_URL, web3, adapterManager }
+  const tcDeps: ThorchainSwapperDeps = {
+    midgardUrl: MIDGARD_URL,
+    daemonUrl: '',
+    web3,
+    adapterManager,
+  }
   const tc = new ThorchainSwapper(tcDeps)
   await tc.initialize()
   swapManager.addSwapper(tc)

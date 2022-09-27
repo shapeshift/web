@@ -35,7 +35,8 @@ describe('SwapperManager', () => {
   }
 
   const thorchainSwapperDeps: ThorchainSwapperDeps = {
-    midgardUrl: 'localhost:3000',
+    midgardUrl: '',
+    daemonUrl: '',
     adapterManager: <ChainAdapterManager>{},
     web3: <Web3>{},
   }

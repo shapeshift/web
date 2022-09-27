@@ -11,7 +11,8 @@ const mockedAxios = thorService as jest.Mocked<typeof axios>
 
 describe('ThorchainSwapper', () => {
   const swapper = new ThorchainSwapper({
-    midgardUrl: 'localhost:3000',
+    midgardUrl: '',
+    daemonUrl: '',
     adapterManager: <ChainAdapterManager>{},
     web3: <Web3>{},
   })

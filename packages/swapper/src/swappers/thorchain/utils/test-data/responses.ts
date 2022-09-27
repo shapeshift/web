@@ -1,6 +1,6 @@
-import { InboundResponse, PoolResponse } from '../../types'
+import { InboundResponse, MidgardPoolResponse, ThornodePoolResponse } from '../../types'
 
-export const btcMidgardPool: PoolResponse = {
+export const btcMidgardPool: MidgardPoolResponse = {
   asset: 'BTC.BTC',
   assetDepth: '91027798705',
   assetPrice: '10280.68095465986',
@@ -15,7 +15,20 @@ export const btcMidgardPool: PoolResponse = {
   volume24h: '15031085906495',
 }
 
-export const ethMidgardPool: PoolResponse = {
+export const btcThornodePool: ThornodePoolResponse = {
+  LP_units: '536055974608843',
+  asset: 'BTC.BTC',
+  balance_asset: '91027798705',
+  balance_rune: '935827756491105',
+  pending_inbound_asset: '0',
+  pending_inbound_rune: '0',
+  pool_units: '545894929144923',
+  status: 'Available',
+  synth_supply: '3281284823',
+  synth_units: '9838954536080',
+}
+
+export const ethMidgardPool: MidgardPoolResponse = {
   asset: 'ETH.ETH',
   assetDepth: '915018987646',
   assetPrice: '676.2118757936507',
@@ -30,7 +43,20 @@ export const ethMidgardPool: PoolResponse = {
   volume24h: '9890096673763',
 }
 
-export const foxMidgardPool: PoolResponse = {
+export const ethThornodePool: ThornodePoolResponse = {
+  LP_units: '273709963437801',
+  asset: 'ETH.ETH',
+  balance_asset: '915018987646',
+  balance_rune: '618746706022909',
+  pending_inbound_asset: '0',
+  pending_inbound_rune: '0',
+  pool_units: '274245264962453',
+  status: 'Available',
+  synth_supply: '3572065751',
+  synth_units: '535301524652',
+}
+
+export const foxMidgardPool: MidgardPoolResponse = {
   asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
   assetDepth: '166650912393467',
   assetPrice: '0.05303710198887871',
@@ -43,6 +69,19 @@ export const foxMidgardPool: PoolResponse = {
   synthUnits: '552604585625',
   units: '10568061707512',
   volume24h: '251596933033',
+}
+
+export const foxThornodePool: ThornodePoolResponse = {
+  LP_units: '10015457121887',
+  asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
+  balance_asset: '166650912393467',
+  balance_rune: '8838681437152',
+  pending_inbound_asset: '0',
+  pending_inbound_rune: '0',
+  pool_units: '10568061707512',
+  status: 'Available',
+  synth_supply: '17428372569375',
+  synth_units: '552604585625',
 }
 
 export const mockInboundAdresses: InboundResponse[] = [
@@ -97,5 +136,3 @@ export const mockInboundAdresses: InboundResponse[] = [
     gas_rate: '182523800',
   },
 ]
-
-export const poolResponse: PoolResponse[] = [btcMidgardPool, ethMidgardPool, foxMidgardPool]

@@ -6,7 +6,7 @@ import { TradeQuote } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { ThorchainSwapperDeps } from '../types'
-import { ethMidgardPool, foxMidgardPool } from '../utils/test-data/midgardResponse'
+import { ethMidgardPool, ethThornodePool, foxThornodePool } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
@@ -51,7 +51,8 @@ describe('getTradeQuote', () => {
   const { quoteInput } = setupQuote()
   const { adapterManager } = setupThorswapDeps()
   const deps = {
-    midgardUrl: 'https://midgard.thorchain.info/v2',
+    midgardUrl: '',
+    daemonUrl: '',
     adapterManager,
   } as unknown as ThorchainSwapperDeps
 
@@ -76,16 +77,16 @@ describe('getTradeQuote', () => {
       wallet,
     }
 
-    // Mock midgard api calls in 'getThorTxInfo' and 'getPriceRatio'
     mockedAxios.get.mockImplementation((url) => {
-      const isPoolsResponse = url.includes('pools')
-      const isPoolResponse = url.includes('pool') && !isPoolsResponse
+      const isMidgardPoolResponse = url.includes('/pool/')
+      const isThornodePoolsResponse = url.includes('lcd/thorchain/pools')
+
       const data = (() => {
         switch (true) {
-          case isPoolResponse:
+          case isMidgardPoolResponse:
             return ethMidgardPool
-          case isPoolsResponse:
-            return [ethMidgardPool, foxMidgardPool]
+          case isThornodePoolsResponse:
+            return [ethThornodePool, foxThornodePool]
           default:
             return addressData
         }

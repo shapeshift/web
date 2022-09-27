@@ -6,7 +6,7 @@ import type Web3 from 'web3'
 
 import type { Trade, UtxoSupportedChainIds } from '../../api'
 
-export type PoolResponse = {
+export type MidgardPoolResponse = {
   asset: string
   assetDepth: string
   assetPrice: string
@@ -19,6 +19,19 @@ export type PoolResponse = {
   synthUnits: string
   units: string
   volume24h: string
+}
+
+export type ThornodePoolResponse = {
+  LP_units: string
+  asset: string
+  balance_asset: string
+  balance_rune: string
+  pending_inbound_asset: string
+  pending_inbound_rune: string
+  pool_units: string
+  status: string
+  synth_supply: string
+  synth_units: string
 }
 
 type MidgardCoins = {
@@ -52,6 +65,7 @@ export type InboundResponse = {
 }
 
 export type ThorchainSwapperDeps = {
+  daemonUrl: string
   midgardUrl: string
   adapterManager: ChainAdapterManager
   web3: Web3

@@ -4,20 +4,21 @@ import Web3 from 'web3'
 
 import { BTC, ETH, FOX, UNSUPPORTED } from '../../../utils/test-data/assets'
 import { ThorchainSwapperDeps } from '../../types'
-import { btcMidgardPool, ethMidgardPool, foxMidgardPool } from '../test-data/midgardResponse'
+import { btcThornodePool, ethThornodePool, foxThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getTradeRate } from './getTradeRate'
 
 describe('getTradeRate', () => {
   const deps: ThorchainSwapperDeps = {
-    midgardUrl: 'localhost:3000',
+    midgardUrl: '',
+    daemonUrl: '',
     adapterManager: <ChainAdapterManager>{},
     web3: <Web3>{},
   }
 
   it('should calculate a correct rate for trading fox to eth', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
+      Promise.resolve({ data: [foxThornodePool, ethThornodePool] }),
     )
 
     // 1 eth
@@ -28,7 +29,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading eth to fox', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
+      Promise.resolve({ data: [foxThornodePool, ethThornodePool] }),
     )
 
     // 1 fox
@@ -39,7 +40,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading fox to btc', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] }),
+      Promise.resolve({ data: [foxThornodePool, btcThornodePool] }),
     )
 
     // 1 fox
@@ -50,7 +51,7 @@ describe('getTradeRate', () => {
 
   it('should calculate a correct rate for trading btc to fox', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, btcMidgardPool] }),
+      Promise.resolve({ data: [foxThornodePool, btcThornodePool] }),
     )
 
     // 0.01 btc
@@ -61,7 +62,7 @@ describe('getTradeRate', () => {
 
   it('should throw if trying to calculate a rate for an unsupported asset', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: [foxMidgardPool, ethMidgardPool] }),
+      Promise.resolve({ data: [foxThornodePool, ethThornodePool] }),
     )
 
     await expect(

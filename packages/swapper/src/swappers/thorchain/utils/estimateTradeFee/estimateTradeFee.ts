@@ -26,7 +26,7 @@ export const estimateTradeFee = async (
   const thorPoolChainId = thorId.slice(0, thorId.indexOf('.'))
 
   const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-    `${deps.midgardUrl}/thorchain/inbound_addresses`,
+    `${deps.daemonUrl}/lcd/thorchain/inbound_addresses`,
   )
 
   const inboundInfo = inboundAddresses.find((inbound) => inbound.chain === thorPoolChainId)

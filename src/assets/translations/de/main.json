@@ -68,7 +68,10 @@
     "hideDetails": "Details ausblenden",
     "walletSupportsETHOnly": "Nur Ethereum",
     "loadingText": "Wird geladen...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Wählen Sie einen Vermögenswert aus",
+    "switchNetwork": "Netzwerk wechseln",
+    "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -118,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper (Geld->Krypto)",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
@@ -138,6 +142,8 @@
     "exploreThe": "Entdecken Sie das",
     "defiUniverse": "DeFi Universum",
     "body": "100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
+    "body2": "Willkommen beim neuen ShapeShift. 100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
+    "betaSunset": "Beta wurde beendet, erfahren Sie mehr",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
     "cta": "Wallet verbinden",
     "viewADemo": "Sehen Sie sich eine Demo an"
@@ -364,7 +370,8 @@
     "demoMode": "Demo Modus",
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
     "wallet": "Wallet",
-    "explore": "Entdecken"
+    "explore": "Entdecken",
+    "trade": "Handeln"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -512,7 +519,8 @@
       },
       "generalError": "Ein Handelsfehler ist aufgetreten",
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
-    }
+    },
+    "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
     "keepKey": {
@@ -635,6 +643,7 @@
         "sendAsset": "%{asset} senden",
         "send": "Senden",
         "sendTo": "Senden an",
+        "sendFrom": "Senden von",
         "edit": "Bearbeiten",
         "total": "Gesamt",
         "amount": "Betrag",
@@ -1240,7 +1249,12 @@
     "accounts": "Konten",
     "selectAccount": "Wählen Sie ein Konto aus",
     "addAccount": "Konto hinzufügen",
-    "accountNumber": "Konto #%{accountNumber}"
+    "accountNumber": "Konto #%{accountNumber}",
+    "accountChain": "Konto Netzwerk",
+    "selectChain": "Wählen Sie das Netzwerk aus, für das Sie ein Konto erstellen möchten.",
+    "requiresPriorTxHistory": "Sie können nur dann ein neues Konto hinzufügen, wenn die bestehenden Konten über einen früheren Transaktionsverlauf verfügen",
+    "newAccountAdded": "Neues %{name} Konto hinzugefügt",
+    "youCanNowUse": "Verwenden Sie nun %{name} Konto #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

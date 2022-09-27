@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.4.0...@shapeshiftoss/swapper-v11.4.1) (2022-09-27)
+
+
+### Bug Fixes
+
+* rune swaps ([#1041](https://github.com/shapeshift/lib/issues/1041)) ([f11fd49](https://github.com/shapeshift/lib/commit/f11fd493f356536e54c52ede737661f03f554a1f))
+
 # [@shapeshiftoss/swapper-v11.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.3.1...@shapeshiftoss/swapper-v11.4.0) (2022-09-27)
 
 

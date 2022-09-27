@@ -36,7 +36,9 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   if (flags.ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const thorSwapper = new ThorchainSwapper({
+        daemonUrl,
         midgardUrl,
         adapterManager,
         web3: ethWeb3,

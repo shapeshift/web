@@ -13,7 +13,7 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -43,7 +43,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import {
   selectMarketDataById,
   selectPortfolioAccountBalances,
@@ -76,8 +75,8 @@ type OverviewProps = GenerateAddressProps & {
   setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
-  chainId: ChainIdType
-  setChainId: Dispatch<SetStateAction<ChainIdType>>
+  chainId: ChainId
+  setChainId: Dispatch<SetStateAction<ChainId>>
   chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
   accountId: Nullable<AccountId>

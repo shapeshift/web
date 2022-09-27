@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
@@ -24,7 +24,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
@@ -83,7 +82,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
   const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
 
-  const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
+  const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
   const {
     state: { wallet },

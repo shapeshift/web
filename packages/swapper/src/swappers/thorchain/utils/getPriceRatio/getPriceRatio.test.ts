@@ -30,7 +30,7 @@ describe('getPriceRatio', () => {
     expect(ratio).toEqual(expectedRatio)
   })
 
-  it('should throw if  calculating a price for an unknown asset', async () => {
+  it('should throw if calculating a price for an unknown asset', async () => {
     const derpId = 'eip155:1/erc20:derp'
     const ethId = 'eip155:1/slip44:60'
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
@@ -38,7 +38,7 @@ describe('getPriceRatio', () => {
     )
 
     await expect(getPriceRatio(deps, { buyAssetId: derpId, sellAssetId: ethId })).rejects.toThrow(
-      `[getPriceRatio]: No thorchain pool found`,
+      `[getPriceRatio]: No buyPoolId found for asset ${derpId}`,
     )
   })
 })

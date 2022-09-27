@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -11,7 +11,7 @@ import {
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -76,12 +76,13 @@ type GetFirstReceiveAddressArgs = {
   buyAsset: Asset
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
+  bip44Params: BIP44Params
 }
 
 type GetSelectedReceiveAddressArgs = {
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
-  buyAssetAccountId: AccountId
+  bip44Params: BIP44Params
 }
 
 export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
@@ -89,18 +90,12 @@ export type GetSelectedReceiveAddress = (args: GetSelectedReceiveAddressArgs) =>
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'sellAssetAccountNumber' | 'receiveAddress'
+  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  | 'sellAmount'
-  | 'sellAsset'
-  | 'buyAsset'
-  | 'sendMax'
-  | 'sellAssetAccountNumber'
-  | 'receiveAddress'
-  | 'wallet'
+  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
 >
 
 export type GetFormFeesArgs = {

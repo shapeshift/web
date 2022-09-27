@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { type Swapper, type UtxoSupportedChainIds, SwapperManager } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
@@ -24,6 +24,11 @@ import { toBaseUnit } from 'lib/math'
 import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import {
+  selectBIP44ParamsByAccountId,
+  selectPortfolioAccountIdsByAssetId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper'] })
 
@@ -70,6 +75,28 @@ export const useSwapper = () => {
     [assetIds, swapperManager],
   )
 
+  const sellAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset?.assetId ?? '' }),
+  )
+  const sellAccountFilter = useMemo(
+    () => ({ accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }),
+    [sellAssetAccountId, sellAssetAccountIds],
+  )
+  const sellAccountBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, sellAccountFilter),
+  )
+
+  const buyAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset?.assetId ?? '' }),
+  )
+  const buyAccountFilter = useMemo(
+    () => ({ accountId: buyAssetAccountId ?? buyAssetAccountIds[0] }),
+    [buyAssetAccountId, buyAssetAccountIds],
+  )
+  const buyAccountBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, buyAccountFilter),
+  )
+
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
       const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
@@ -81,20 +108,21 @@ export const useSwapper = () => {
             ? getSelectedReceiveAddress({
                 chainAdapter,
                 wallet,
-                buyAssetAccountId,
+                bip44Params: buyAccountBip44Params,
               })
             : getFirstReceiveAddress({
                 accountSpecifiersList,
                 buyAsset,
                 chainAdapter,
                 wallet,
+                bip44Params: buyAccountBip44Params,
               }))()
         return receiveAddress
       } catch (e) {
         moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
       }
     },
-    [accountSpecifiersList, buyAssetAccountId, wallet],
+    [buyAccountBip44Params, accountSpecifiersList, buyAssetAccountId, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
@@ -134,7 +162,6 @@ export const useSwapper = () => {
       sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
-      sellAssetAccountNumber: 0, // TODO: remove hard coded accountId when multiple accounts are implemented
       wallet,
       sendMax: false,
       receiveAddress,
@@ -144,6 +171,7 @@ export const useSwapper = () => {
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
+        bip44Params: sellAccountBip44Params,
       })
     } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
       const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
@@ -168,6 +196,7 @@ export const useSwapper = () => {
     bestTradeSwapper,
     buyTradeAsset?.asset,
     receiveAddress,
+    sellAccountBip44Params,
     sellAsset,
     sellAssetAccountId,
     sellTradeAsset?.amount,

@@ -18,6 +18,7 @@
     "relayerGasFee": "Taxa de gás",
     "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
+    "invalidAddressOrYat": "Endereço ou Yat inválido.",
     "deposit": "Depositar",
     "withdraw": "Sacar",
     "withdrawal": "Sacar",
@@ -67,7 +68,10 @@
     "hideDetails": "Esconder Detalhes",
     "walletSupportsETHOnly": "Somente Ethereum",
     "loadingText": "Carregando...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Selecione um ativo.",
+    "switchNetwork": "Mudar a rede",
+    "unsupportedNetwork": "Rede não suportada"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -117,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -137,6 +142,8 @@
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
+    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Detida pela Comunidade. Não custodial. Privada.",
+    "betaSunset": "Beta foi descontinuada, leia mais",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
     "viewADemo": "Ver uma demonstração"
@@ -363,7 +370,8 @@
     "demoMode": "Modo de demonstração",
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
-    "explore": "Explorar"
+    "explore": "Explorar",
+    "trade": "Negocie"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -512,6 +520,7 @@
       "generalError": "Ocorreu um erro durante a troca.",
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
+    "recentTrades": "Negociações recentes",
     "shapeshiftFee": "Taxa ShapeShift"
   },
   "modals": {
@@ -547,6 +556,12 @@
         "infoFirst": "É fundamental que você anote exatamente como aparece na KeepKey.",
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
+      },
+      "factoryState": {
+        "header": "Comece agora com a Keepkey.",
+        "body": "Sua KeepKey foi resetada nos padrões de fábrica. Cria uma nova carteira ou restaure sua wallet usando suas palavras-chave.",
+        "createButton": "Criar uma nova carteira.",
+        "recoverButton": "Recuperar carteira."
       },
       "recoverySentenceEntry": {
         "header": "Digite sua frase de recuperação",
@@ -609,24 +624,12 @@
         }
       }
     },
-    "stake": {
-      "amountToStake": "Montante",
-      "stakeYour": "Staking em %{opportunity}",
-      "estimatedReturns": "Ganhos anuais estimados*",
-      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
-      "footerDisclaimer": "Ao continuar você concorda com nossos",
-      "footerDisclaimerLink": "termos de serviço.",
-      "status": {
-        "pending": "Sua transação foi transmitida e está pendente de confirmação.",
-        "success": "Staking %{opportunity} realizado com sucesso.",
-        "failed": "Ocorreu um problema com sua transação de staking."
-      }
-    },
     "send": {
       "getBalanceError": "Erro ao obter saldos da carteira",
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
       "tokenAddress": "Endereço do token",
+      "addressInput": "Para o endereço, ENS ou Yat",
       "scanQrCode": "Digitalizar código QR",
       "permissionsButton": "Tente novamente",
       "sent": "enviado %{asset}",
@@ -641,6 +644,7 @@
         "sendAsset": "Enviar %{asset}",
         "send": "Enviar",
         "sendTo": "Enviar para",
+        "sendFrom": "Enviar de",
         "edit": "Editar",
         "total": "Total",
         "amount": "Valor",
@@ -693,6 +697,19 @@
     },
     "claim": {
       "claimFrom": "Resgate da %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Montante",
+      "stakeYour": "Staking em %{opportunity}",
+      "estimatedReturns": "Ganhos anuais estimados*",
+      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
+      "footerDisclaimer": "Ao continuar você concorda com nossos",
+      "footerDisclaimerLink": "termos de serviço.",
+      "status": {
+        "pending": "Sua transação foi transmitida e está pendente de confirmação.",
+        "success": "Staking %{opportunity} realizado com sucesso.",
+        "failed": "Ocorreu um problema com sua transação de staking."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
@@ -1234,7 +1251,12 @@
     "accounts": "Contas",
     "selectAccount": "Selecione uma conta",
     "addAccount": "Adicionar uma conta",
-    "accountNumber": "Conta #%{accountNumber}"
+    "accountNumber": "Conta #%{accountNumber}",
+    "accountChain": "Conta na Rede",
+    "selectChain": "Selecione a rede em que você deseja criar uma conta.",
+    "requiresPriorTxHistory": "Você só pode adicionar uma nova conta se as contas existentes tiverem histórico de transações anteriores.",
+    "newAccountAdded": "Nova conta %{name} adicionada",
+    "youCanNowUse": "Agora você pode usar %{name} Conta #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

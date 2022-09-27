@@ -1,5 +1,9 @@
+import { Alert } from '@chakra-ui/alert'
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Box,
   Button,
   Divider,
@@ -28,10 +32,11 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
@@ -80,6 +85,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     dispatch,
   } = useWallet()
   const buyAssetChainId = trade?.buyAsset.chainId
+  const defaultFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
+  )
   const buyAssetAccountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, buyAssetChainId ?? ''),
   )
@@ -165,16 +173,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
+  const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
+  const protocolFeeCryptoBaseUnit = toBaseUnit(protocolFeeCrypto, trade?.buyAsset?.precision ?? 0)
+
   const buyAmountCryptoBeforeFees = fromBaseUnit(
     bnOrZero(trade?.buyAmount),
     trade?.buyAsset?.precision ?? 0,
   )
   const buyAmountCryptoAfterFees = fromBaseUnit(
-    bnOrZero(trade?.buyAmount).minus(bnOrZero(fees?.tradeFee)),
+    bnOrZero(trade?.buyAmount).minus(protocolFeeCryptoBaseUnit),
     trade?.buyAsset?.precision ?? 0,
   )
 
-  const buyAmountFiat = bnOrZero(buyAmountCryptoBeforeFees)
+  const buyAmountFiat = bnOrZero(buyAmountCryptoAfterFees)
     .times(bnOrZero(buyAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
@@ -215,6 +226,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 sellIcon={trade.sellAsset.icon}
                 status={sellTxid || isSubmitting ? status : undefined}
               />
+              {fees?.tradeFeeSource === 'Thorchain' && (
+                <Alert status='info' mx={3} width='auto' mb={3} fontSize='sm'>
+                  <AlertIcon />
+                  <Stack spacing={0}>
+                    <AlertTitle>
+                      {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+                    </AlertTitle>
+                    <AlertDescription lineHeight='short'>
+                      {translate('trade.slowSwapBody')}
+                    </AlertDescription>
+                  </Stack>
+                </Alert>
+              )}
               <Stack spacing={4}>
                 <Row>
                   <Row.Label>{translate('common.send')}</Row.Label>
@@ -228,7 +252,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   amount={buyAmountCryptoAfterFees}
                   fiatAmount={buyAmountFiat.toString()}
                   beforeFees={buyAmountCryptoBeforeFees}
-                  protocolFee={fees?.tradeFee}
+                  protocolFee={protocolFeeCrypto}
                   shapeShiftFee='0'
                   slippage={slippage}
                 />
@@ -272,8 +296,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                       {bn(trade.feeAmountInSellToken)
                         .div(bn(10).pow(trade.sellAsset.precision))
                         .decimalPlaces(6)
-                        .toString()}{' '}
-                      ≃{' '}
+                        .toString()}
+                      {` ${trade?.sellAsset?.symbol} `}≃{' '}
                       {toFiat(
                         bn(trade.feeAmountInSellToken)
                           .div(bn(10).pow(trade.sellAsset.precision))
@@ -291,11 +315,12 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} ≃ {toFiat(feeAmountFiat.toNumber())}
+                    {bnOrZero(fees?.fee).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
+                    {toFiat(feeAmountFiat.toNumber())}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (
-                  <Flex justifyContent='space-evenly' alignItems='center'>
+                  <Flex justifyContent='center' gap={4} alignItems='center'>
                     <WarningTwoIcon w={5} h={5} color='red.400' />
                     <Text
                       color='red.400'

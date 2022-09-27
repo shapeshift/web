@@ -164,7 +164,7 @@ export const getFormFees = ({
       return {
         fee,
         tradeFee: trade.feeData.tradeFee,
-        tradeFeeSource: trade.sources[0].name,
+        tradeFeeSource,
       }
     }
     case CHAIN_NAMESPACE.Utxo: {

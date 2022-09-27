@@ -1,6 +1,8 @@
 import { skipToken } from '@reduxjs/toolkit/query'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,6 +21,58 @@ import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import { selectAccountSpecifiers, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+type GetTradeQuoteInputArgs = {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAssetAccountId: TS['sellAssetAccountId']
+  wallet: HDWallet
+  receiveAddress: NonNullable<TS['receiveAddress']>
+  sellAmount: string
+}
+
+export const getTradeQuoteArgs = async ({
+  sellAsset,
+  buyAsset,
+  sellAssetAccountId,
+  wallet,
+  receiveAddress,
+  sellAmount,
+}: GetTradeQuoteInputArgs) => {
+  if (!sellAsset || !buyAsset) return undefined
+  const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
+    sellAmount: toBaseUnit(sellAmount, sellAsset?.precision || 0),
+    sellAsset,
+    buyAsset,
+    sendMax: false,
+    sellAssetAccountNumber: 0,
+    receiveAddress,
+  }
+  if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
+    return {
+      ...tradeQuoteInputCommonArgs,
+      chainId: sellAsset.chainId,
+    }
+  } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccountId) {
+    const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
+    if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+    const sellAssetChainAdapter = getChainAdapterManager().get(
+      sellAsset.chainId,
+    ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+    const { xpub } = await sellAssetChainAdapter.getPublicKey(
+      wallet,
+      utxoParams.bip44Params,
+      accountType,
+    )
+    return {
+      ...tradeQuoteInputCommonArgs,
+      chainId: sellAsset.chainId,
+      bip44Params: utxoParams.bip44Params,
+      accountType,
+      xpub,
+    }
+  }
+}
 
 /*
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
@@ -53,7 +107,10 @@ export const useTradeQuoteService = () => {
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // API
-  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteArgs, { pollingInterval: 30000 })
+  const { data: tradeQuote, isLoading: isLoadingTradeQuote } = useGetTradeQuoteQuery(
+    tradeQuoteArgs,
+    { pollingInterval: 30000 },
+  )
 
   // Effects
   // Trigger trade quote query
@@ -67,40 +124,14 @@ export const useTradeQuoteService = () => {
         if (!chainAdapter)
           throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
 
-        const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await (async () => {
-          const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-            sellAmount: toBaseUnit(sellTradeAssetAmount, sellAsset.precision),
-            sellAsset,
-            buyAsset,
-            sendMax: false,
-            sellAssetAccountNumber: 0,
-            receiveAddress,
-          }
-          if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
-            return {
-              ...tradeQuoteInputCommonArgs,
-              chainId: sellAsset.chainId,
-            }
-          } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccountId) {
-            const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
-            if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
-            const sellAssetChainAdapter = getChainAdapterManager().get(
-              sellAsset.chainId,
-            ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
-            const { xpub } = await sellAssetChainAdapter.getPublicKey(
-              wallet,
-              utxoParams.bip44Params,
-              accountType,
-            )
-            return {
-              ...tradeQuoteInputCommonArgs,
-              chainId: sellAsset.chainId,
-              bip44Params: utxoParams.bip44Params,
-              accountType,
-              xpub,
-            }
-          }
-        })()
+        const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
+          sellAsset,
+          buyAsset,
+          sellAssetAccountId,
+          wallet,
+          receiveAddress,
+          sellAmount: sellTradeAssetAmount,
+        })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
     }
@@ -123,4 +154,6 @@ export const useTradeQuoteService = () => {
   useEffect(() => {
     tradeQuote && setValue('quote', tradeQuote)
   }, [tradeQuote, setValue])
+
+  return { isLoadingTradeQuote }
 }

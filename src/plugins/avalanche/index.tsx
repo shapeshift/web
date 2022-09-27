@@ -13,7 +13,6 @@ export default function register(): Plugins {
       'avalancheChainAdapter',
       {
         name: 'avalancheChainAdapter',
-        featureFlag: 'Avalanche',
         providers: {
           chainAdapters: [
             [

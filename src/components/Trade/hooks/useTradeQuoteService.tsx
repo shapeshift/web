@@ -129,7 +129,14 @@ export const useTradeQuoteService = () => {
   // Trigger trade quote query
   useEffect(() => {
     const sellTradeAssetAmount = sellTradeAsset?.amount
-    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount && receiveAddress) {
+    if (
+      sellAsset &&
+      buyAsset &&
+      wallet &&
+      sellTradeAssetAmount &&
+      receiveAddress &&
+      sellAccountMetadata
+    ) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -155,8 +162,7 @@ export const useTradeQuoteService = () => {
     buyAsset,
     buyTradeAsset,
     receiveAddress,
-    sellAccountMetadata.accountType,
-    sellAccountMetadata.bip44Params,
+    sellAccountMetadata,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellTradeAsset,

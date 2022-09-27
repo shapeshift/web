@@ -27,9 +27,18 @@ export const FiatRamps = (props: FiatRampsProps) => {
 
   const rainbow = keyframes`
     0% {
-      background-position: 10% 0%;
+      background-position: 10% 0;
     }
-
+    2% {
+      background-position: 10% 0;
+    }
+    
+    10% {
+      background-position: 91% 100%;
+    }
+    14% {
+      background-position: 91% 100%;
+    }
     100% {
       background-position: 91% 100%;
     }
@@ -43,7 +52,7 @@ export const FiatRamps = (props: FiatRampsProps) => {
           data-test='fiat-ramps-button'
           bg={bg}
           backgroundSize='300% 300%'
-          animation={`${rainbow} 3s ease infinite`}
+          animation={`${rainbow} 10s ease infinite`}
           width='full'
           aria-label={translate('fiatRamps.headerLabel')}
           onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}

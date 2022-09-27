@@ -27,6 +27,7 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -93,8 +94,8 @@ export const useSwapper = () => {
     () => ({ accountId: buyAssetAccountId ?? buyAssetAccountIds[0] }),
     [buyAssetAccountId, buyAssetAccountIds],
   )
-  const buyAccountBip44Params = useAppSelector(state =>
-    selectBIP44ParamsByAccountId(state, buyAccountFilter),
+  const buyAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
 
   const getReceiveAddressFromBuyAsset = useCallback(
@@ -108,21 +109,23 @@ export const useSwapper = () => {
             ? getSelectedReceiveAddress({
                 chainAdapter,
                 wallet,
-                bip44Params: buyAccountBip44Params,
+                bip44Params: buyAccountMetadata.bip44Params,
+                accountType: buyAccountMetadata.accountType,
               })
             : getFirstReceiveAddress({
                 accountSpecifiersList,
                 buyAsset,
                 chainAdapter,
                 wallet,
-                bip44Params: buyAccountBip44Params,
+                bip44Params: buyAccountMetadata.bip44Params,
+                accountType: buyAccountMetadata.accountType,
               }))()
         return receiveAddress
       } catch (e) {
         moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
       }
     },
-    [buyAccountBip44Params, accountSpecifiersList, buyAssetAccountId, wallet],
+    [buyAccountMetadata, accountSpecifiersList, buyAssetAccountId, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(

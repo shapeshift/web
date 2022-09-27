@@ -11,7 +11,7 @@ import {
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
-import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -77,12 +77,14 @@ type GetFirstReceiveAddressArgs = {
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
   bip44Params: BIP44Params
+  accountType: UtxoAccountType | undefined
 }
 
 type GetSelectedReceiveAddressArgs = {
   chainAdapter: ChainAdapter<ChainId>
   wallet: HDWallet
   bip44Params: BIP44Params
+  accountType: UtxoAccountType | undefined
 }
 
 export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>

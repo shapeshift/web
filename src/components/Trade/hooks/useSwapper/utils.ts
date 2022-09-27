@@ -80,8 +80,9 @@ export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
   chainAdapter,
   wallet,
   bip44Params,
+  accountType,
 }) => {
-  return await chainAdapter.getAddress({ wallet, bip44Params })
+  return await chainAdapter.getAddress({ wallet, bip44Params, accountType })
 }
 
 export const getUtxoParams = (sellAssetAccountId: string) => {

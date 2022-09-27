@@ -222,7 +222,7 @@ export const useSwapper = () => {
   }) => {
     // Only subtract fee if sell asset is the fee asset
     const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-    const feeEstimate = bnOrZero(quote?.feeData?.fee)
+    const feeEstimate = bnOrZero(quote?.feeData?.networkFee)
     // sell asset balance minus expected fee = maxTradeAmount
     // only subtract if sell asset is fee asset
     const maxAmount = fromBaseUnit(
@@ -414,7 +414,7 @@ export const useSwapper = () => {
             sellAssetUsdRate: sellAssetFiatRate,
             action,
             selectedCurrencyToUsdRate,
-            tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+            sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
           })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
@@ -604,7 +604,7 @@ export const useSwapper = () => {
     sellAsset: Asset
     tradeFeeSource: string
   }) => {
-    const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(
+    const feeBN = bnOrZero(trade?.feeData?.networkFee).dividedBy(
       bn(10).exponentiatedBy(feeAsset.precision),
     )
     const fee = feeBN.toString()
@@ -626,7 +626,7 @@ export const useSwapper = () => {
           estimatedGas,
           totalFee,
         },
-        tradeFee: evmTrade.feeData.tradeFee,
+        tradeFee: evmTrade.feeData.sellAssetTradeFeeUsd,
         tradeFeeSource,
       } as unknown as DisplayFeeData<T>
     }
@@ -641,7 +641,9 @@ export const useSwapper = () => {
       case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
           fee,
-          tradeFee: trade.feeData.tradeFee,
+          networkFee: fee,
+          tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
+          buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
           tradeFeeSource: trade.sources[0].name,
         }
         setValue('fees', fees)
@@ -653,8 +655,10 @@ export const useSwapper = () => {
 
           const fees: DisplayFeeData<UtxoSupportedChainIds> = {
             fee,
+            networkFee: fee,
             chainSpecific: utxoTrade.feeData.chainSpecific,
-            tradeFee: utxoTrade.feeData.tradeFee,
+            tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
+            buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
             tradeFeeSource,
           }
           setValue('fees', fees)

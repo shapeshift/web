@@ -1,4 +1,8 @@
-import { useToast } from '@chakra-ui/react'
+import type { ToastId } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
+import { AlertDescription, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   cosmosChainId,
   ethChainId,
@@ -8,13 +12,16 @@ import {
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { entries } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect, useMemo } from 'react'
+import uniq from 'lodash/uniq'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { logger } from 'lib/logger'
 import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -25,13 +32,16 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
   selectAssetIds,
-  selectIsPortfolioLoaded,
+  selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectPortfolioState,
+  selectPortfolioStateGranular,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -43,15 +53,12 @@ import {
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppSelector } from 'state/store'
 
-import { deriveAccountIdsAndMetadata } from '../../lib/account/account'
-
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
- * from unchained, market apis, or otherwise. it's optimized such that it won't unnecessarily
- * render, and is closely related to src/hooks/useAccountSpecifiers/useAccountSpecifiers.ts
+ * from unchained, market apis, or otherwise. it's optimized such that it won't unnecessarily render
  *
  * e.g. unintentionally clearing the portfolio can create obscure bugs that don't manifest
  * for some time as reselect does a really good job of memoizing things
@@ -65,12 +72,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const {
     state: { wallet },
   } = useWallet()
+  const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  const portfolioLoadingState = useSelector(selectPortfolioState)
+  const portfolioLoadingStateGranular = useSelector(selectPortfolioStateGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
+  const accountErrorToast = useRef<ToastId>()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -106,17 +116,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, wallet])
 
-  /**
-   * this was previously known as the useAccountSpecifiers hook
-   * this has recently been moved into redux state, as hooks are not singletons,
-   * and we needed to call useAccountSpecifiers in multiple places, namely here
-   * in the portfolio context, and in the transactions provider
-   *
-   * this effect now sets this globally in state, and it can be consumed via
-   * the selectAccountSpecifiers selector
-   *
-   * break this at your peril
-   */
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
@@ -138,7 +137,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
         dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       } catch (e) {
-        moduleLogger.error(e, 'useAccountSpecifiers:getAccountSpecifiers:Error')
+        moduleLogger.error(e, 'AppContext:deriveAccountIdsAndMetadata')
       }
     })()
   }, [dispatch, wallet, supportedChains])
@@ -154,16 +153,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (!isPortfolioLoaded) return
+    if (portfolioLoadingState === 'loading') return
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
     dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
-  }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
+  }, [dispatch, accountSpecifiersList, portfolioLoadingState])
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    if (!isPortfolioLoaded) return
+    if (portfolioLoadingState === 'loading') return
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
@@ -217,12 +216,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })
     // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingState, portfolioAccounts, portfolioAssetIds])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
-    if (!isPortfolioLoaded) return
+    if (portfolioLoadingState === 'loading') return
 
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
@@ -235,7 +234,75 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, isPortfolioLoaded, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingState, portfolioAssetIds])
+
+  const toastId = 'accountError'
+
+  const handleAccountErrorToastClose = useCallback(
+    () => toast.isActive(toastId) && toast.close(toastId),
+    [toast],
+  )
+
+  /**
+   * portfolio loading error notification
+   */
+  useEffect(() => {
+    const erroredAccountIds = entries(portfolioLoadingStateGranular).reduce<AccountId[]>(
+      (acc, [accountId, accountState]) => {
+        accountState === 'error' && acc.push(accountId)
+        return acc
+      },
+      [],
+    )
+
+    if (!erroredAccountIds.length) return // yay
+
+    // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
+    const erroredAccountNames = uniq(
+      erroredAccountIds.map(accountId => assets[accountIdToFeeAssetId(accountId)].name),
+    ).join(', ')
+
+    const handleRetry = () => {
+      handleAccountErrorToastClose()
+      erroredAccountIds.forEach(accountId => {
+        const { chainId, account } = fromAccountId(accountId)
+        const accountSpecifierMap = { [chainId]: account }
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountSpecifierMap },
+            { forceRefetch: true },
+          ),
+        )
+      })
+    }
+    const toastOptions = {
+      position: 'top-right' as const,
+      id: toastId,
+      title: translate('common.somethingWentWrong'),
+      status: 'error' as const,
+      description: (
+        <Flex flexDir='column' gap={4} alignItems='flex-start'>
+          <AlertDescription>
+            {translate('common.accountError', { erroredAccountNames })}
+          </AlertDescription>
+          <Button colorScheme='red' onClick={handleRetry}>
+            {translate('common.retry')}
+          </Button>
+        </Flex>
+      ),
+      isClosable: true,
+      duration: null, // don't auto-dismiss
+    }
+    toast.isActive(toastId) ? toast.update(toastId, toastOptions) : toast(toastOptions)
+  }, [
+    accountErrorToast,
+    assets,
+    dispatch,
+    handleAccountErrorToastClose,
+    portfolioLoadingStateGranular,
+    toast,
+    translate,
+  ])
 
   /**
    * fetch forex spot and history for user's selected currency

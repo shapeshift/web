@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -106,6 +106,7 @@ export const portfolioApi = createApi({
           string,
         ]
         try {
+          if (Math.random() > 0.8) throw new Error('fake failure')
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
 
@@ -113,15 +114,16 @@ export const portfolioApi = createApi({
 
           const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
-          // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
-          // to prevent edge cases like #820
           dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
-          const status = 400
-          const data = JSON.stringify(e)
-          const error = { status, data }
-          return { error }
+          const accountId: AccountId = Object.entries(accountSpecifierMap)[0].join(':')
+          moduleLogger.error(e, `error fetching account ${accountId}`)
+          const data = cloneDeep(initialState)
+          data.accounts.ids.push(accountId)
+          data.accounts.byId[accountId] = { assetIds: [] }
+          dispatch(portfolio.actions.upsertPortfolio(data))
+          return { data }
         }
       },
     }),

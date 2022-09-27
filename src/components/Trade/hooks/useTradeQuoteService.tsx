@@ -4,12 +4,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
-  getUtxoParams,
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
@@ -19,13 +19,19 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
-import { selectAccountSpecifiers, selectFiatToUsdRate } from 'state/slices/selectors'
+import {
+  selectAccountSpecifiers,
+  selectFiatToUsdRate,
+  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAssetAccountId: TS['sellAssetAccountId']
+  sellAccountType: UtxoAccountType | undefined
+  sellAccountBip44Params: BIP44Params
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
   sellAmount: string
@@ -34,7 +40,8 @@ type GetTradeQuoteInputArgs = {
 export const getTradeQuoteArgs = async ({
   sellAsset,
   buyAsset,
-  sellAssetAccountId,
+  sellAccountBip44Params,
+  sellAccountType,
   wallet,
   receiveAddress,
   sellAmount,
@@ -45,30 +52,29 @@ export const getTradeQuoteArgs = async ({
     sellAsset,
     buyAsset,
     sendMax: false,
-    sellAssetAccountNumber: 0,
     receiveAddress,
   }
   if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
+      bip44Params: sellAccountBip44Params,
     }
-  } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId) && sellAssetAccountId) {
-    const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
-    if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+  } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
+    if (!sellAccountType) throw new Error('no accountType')
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,
-      utxoParams.bip44Params,
-      accountType,
+      sellAccountBip44Params,
+      sellAccountType,
     )
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      bip44Params: utxoParams.bip44Params,
-      accountType,
+      bip44Params: sellAccountBip44Params,
+      accountType: sellAccountType,
       xpub,
     }
   }
@@ -106,6 +112,16 @@ export const useTradeQuoteService = () => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
+  const sellAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, {
+      assetId: sellAsset?.assetId ?? '',
+    }),
+  )
+  const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
+  )
+
   // API
   const { data: tradeQuote, isLoading: isLoadingTradeQuote } = useGetTradeQuoteQuery(
     tradeQuoteArgs,
@@ -126,8 +142,9 @@ export const useTradeQuoteService = () => {
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
+          sellAccountBip44Params: sellAccountMetadata.bip44Params,
+          sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
-          sellAssetAccountId,
           wallet,
           receiveAddress,
           sellAmount: sellTradeAssetAmount,
@@ -143,8 +160,8 @@ export const useTradeQuoteService = () => {
     buyTradeAsset,
     receiveAddress,
     selectedCurrencyToUsdRate,
+    sellAccountMetadata,
     sellAsset,
-    sellAssetAccountId,
     sellTradeAsset,
     setValue,
     wallet,

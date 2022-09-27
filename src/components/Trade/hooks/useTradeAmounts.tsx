@@ -15,8 +15,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
-import { selectAccountSpecifiers, selectAssets, selectFiatToUsdRate } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import {
+  selectAccountSpecifiers,
+  selectAssets,
+  selectFiatToUsdRate,
+  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/selectors'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
   // Form hooks
@@ -155,12 +161,22 @@ export const useTradeAmounts = () => {
       })
 
       if (!bestTradeSwapper) return
+      const state = store.getState()
       const sellAssetAccountId = getFirstAccountIdFromChainId(sellAsset.chainId)
+      const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
+        assetId: sellAsset.assetId,
+      })
+      const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
+      const sellAccountMetadata = selectPortfolioAccountMetadataByAccountId(
+        state,
+        sellAccountFilter,
+      )
 
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
         sellAsset,
-        sellAssetAccountId,
+        sellAccountType: sellAccountMetadata.accountType,
+        sellAccountBip44Params: sellAccountMetadata.bip44Params,
         wallet,
         receiveAddress,
         sellAmount: sellTradeAsset?.amount || amountToUse || '0',

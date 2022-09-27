@@ -32,6 +32,13 @@ jest.mock('state/slices/selectors', () => ({
   selectAssetById: () => ({
     [mockEthAssetId]: mockETH,
   }),
+  selectPortfolioAccountIdsByAssetId: () => ({
+    [mockEthAssetId]: '0xFoo',
+    [mockFoxAssetId]: '0xFoo',
+  }),
+  selectBIP44ParamsByAccountId: () => ({
+    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  }),
   selectAccountSpecifiers: () => ({}),
   selectFiatToUsdRate: () => ({}),
 }))

@@ -431,8 +431,14 @@ export const useSwapper = () => {
           const buyAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
             assetId: buyAsset?.assetId ?? '',
           })
+          const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
+            assetId: sellAsset?.assetId ?? '',
+          })
+          const sellAccountFilter = { accountId: sellAssetAccountIds[0] ?? '' }
           const buyAccountFilter = { accountId: buyAssetAccountIds[0] ?? '' }
+
           const buyAccountBip44Params = selectBIP44ParamsByAccountId(state, buyAccountFilter)
+          const sellAccountBip44Params = selectBIP44ParamsByAccountId(state, sellAccountFilter)
 
           const receiveAddress = await getFirstReceiveAddress({
             accountSpecifiersList,
@@ -445,13 +451,6 @@ export const useSwapper = () => {
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {
             const { chainNamespace } = fromAssetId(sellAsset.assetId)
             if (isSupportedSwappingChain(sellAsset.chainId)) {
-              const state = store.getState()
-              const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
-                assetId: sellAsset?.assetId ?? '',
-              })
-              const sellAccountFilter = { accountId: sellAssetAccountIds[0] ?? '' }
-              const sellAccountBip44Params = selectBIP44ParamsByAccountId(state, sellAccountFilter)
-
               return swapper.getTradeQuote({
                 chainId: sellAsset.chainId,
                 sellAsset,

@@ -13,7 +13,7 @@ import {
   StackDivider,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { osmosisAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { type TradeTxs, isCowTrade } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
@@ -71,9 +71,16 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     buyAssetFiatRate,
     slippage,
     buyAssetAccountId,
+    sellAssetAccountId,
   }: Pick<
     TS,
-    'buyAssetAccountId' | 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate' | 'slippage'
+    | 'sellAssetAccountId'
+    | 'buyAssetAccountId'
+    | 'trade'
+    | 'fees'
+    | 'sellAssetFiatRate'
+    | 'buyAssetFiatRate'
+    | 'slippage'
   > = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -91,10 +98,24 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const parsedBuyTxId = useMemo(
-    () => serializeTxIndex(buyAssetAccountId ?? '', buyTxid, trade?.receiveAddress ?? ''),
-    [buyAssetAccountId, trade?.receiveAddress, buyTxid],
-  )
+  const parsedBuyTxId = useMemo(() => {
+    const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
+      thorchainAssetId,
+    )
+    const buyAccountId = isThorTrade ? sellAssetAccountId : buyAssetAccountId
+    const receiveAddress = isThorTrade
+      ? fromAccountId(sellAssetAccountId!).account
+      : trade?.receiveAddress
+    const txId = isThorTrade ? buyTxid.toUpperCase() : buyTxid // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
+    return serializeTxIndex(buyAccountId!, txId, receiveAddress ?? '')
+  }, [
+    sellAssetAccountId,
+    trade?.buyAsset.assetId,
+    trade?.sellAsset.assetId,
+    buyAssetAccountId,
+    trade?.receiveAddress,
+    buyTxid,
+  ])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending

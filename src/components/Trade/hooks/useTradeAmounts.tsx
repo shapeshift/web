@@ -175,8 +175,8 @@ export const useTradeAmounts = () => {
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
         sellAsset,
-        sellAccountType: sellAccountMetadata.accountType,
-        sellAccountBip44Params: sellAccountMetadata.bip44Params,
+        sellAccountType: sellAccountMetadata?.accountType,
+        sellAccountBip44Params: sellAccountMetadata?.bip44Params,
         wallet,
         receiveAddress,
         sellAmount: sellTradeAsset?.amount || amountToUse || '0',

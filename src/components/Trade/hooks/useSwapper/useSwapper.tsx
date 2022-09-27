@@ -306,6 +306,7 @@ export const useSwapper = () => {
           sellAsset,
           buyAsset,
           bip44Params: sellAccountMetadata.bip44Params,
+          accountType: sellAccountMetadata.accountType,
           wallet,
           sendMax: false,
           receiveAddress,

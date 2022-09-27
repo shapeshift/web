@@ -22,7 +22,7 @@ import {
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
   // Form hooks
@@ -161,15 +161,15 @@ export const useTradeAmounts = () => {
       })
 
       if (!bestTradeSwapper) return
-      const sellAssetAccountId = getFirstAccountIdFromChainId(sellAsset.chainId) // TODO(gomes): bip44Params
-      const sellAssetAccountIds = useAppSelector(state =>
-        selectPortfolioAccountIdsByAssetId(state, {
-          assetId: sellAsset?.assetId ?? '',
-        }),
-      )
+      const state = store.getState()
+      const sellAssetAccountId = getFirstAccountIdFromChainId(sellAsset.chainId)
+      const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
+        assetId: sellAsset.assetId,
+      })
       const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
-      const sellAccountMetadata = useAppSelector(state =>
-        selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
+      const sellAccountMetadata = selectPortfolioAccountMetadataByAccountId(
+        state,
+        sellAccountFilter,
       )
 
       const tradeQuoteArgs = await getTradeQuoteArgs({

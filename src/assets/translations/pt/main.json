@@ -548,6 +548,8 @@
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
       },
+      "factoryState": {
+      },
       "recoverySentenceEntry": {
         "header": "Digite sua frase de recuperação",
         "body": "Use a legenda embaralhada do teclado em sua KeepKey, digite as primeiras 4 letras de cada palavra. Se houver menos de 4 letras na palavra, pressione Enter, pressione a barra de espaço ou clique em próximo quando terminar de digitar.",
@@ -607,19 +609,6 @@
           "title": "Sucesso",
           "description": "Você fez backup de sua carteira. Lembre-se de armazenar sua Frase de Recuperação Secreta em algum lugar seguro."
         }
-      }
-    },
-    "stake": {
-      "amountToStake": "Montante",
-      "stakeYour": "Staking em %{opportunity}",
-      "estimatedReturns": "Ganhos anuais estimados*",
-      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
-      "footerDisclaimer": "Ao continuar você concorda com nossos",
-      "footerDisclaimerLink": "termos de serviço.",
-      "status": {
-        "pending": "Sua transação foi transmitida e está pendente de confirmação.",
-        "success": "Staking %{opportunity} realizado com sucesso.",
-        "failed": "Ocorreu um problema com sua transação de staking."
       }
     },
     "send": {
@@ -693,6 +682,19 @@
     },
     "claim": {
       "claimFrom": "Resgate da %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Montante",
+      "stakeYour": "Staking em %{opportunity}",
+      "estimatedReturns": "Ganhos anuais estimados*",
+      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
+      "footerDisclaimer": "Ao continuar você concorda com nossos",
+      "footerDisclaimerLink": "termos de serviço.",
+      "status": {
+        "pending": "Sua transação foi transmitida e está pendente de confirmação.",
+        "success": "Staking %{opportunity} realizado com sucesso.",
+        "failed": "Ocorreu um problema com sua transação de staking."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",

@@ -84,6 +84,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
+
+  const defaultFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
+  )
+
   const bip44Params = trade?.bip44Params
   const buyAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: trade?.buyAsset.assetId ?? '' }),

@@ -155,6 +155,7 @@ export const useTradeQuoteService = () => {
     buyAsset,
     buyTradeAsset,
     receiveAddress,
+    sellAccountMetadata?.accountType,
     selectedCurrencyToUsdRate,
     sellAsset,
     sellTradeAsset,

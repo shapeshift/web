@@ -13,7 +13,7 @@ import type {
   UtxoSupportedChainIds,
 } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorTypes, SwapperManager } from '@shapeshiftoss/swapper'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -38,6 +38,7 @@ import {
   selectFeatureFlags,
   selectFeeAssetById,
   selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -280,19 +281,20 @@ export const useSwapper = () => {
       assetId: buyAsset?.assetId ?? '',
     })
     const buyAccountFilter = { accountId: buyAssetAccountIds[0] ?? '' }
-    const buyAccountBip44Params = selectBIP44ParamsByAccountId(state, buyAccountFilter)
+    const buyAccountMetadata = selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter)
     const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
       assetId: sellAsset?.assetId ?? '',
     })
     const sellAccountFilter = { accountId: sellAssetAccountIds[0] ?? '' }
-    const sellAccountBip44Params = selectBIP44ParamsByAccountId(state, sellAccountFilter)
+    const sellAccountMetadata = selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter)
 
     const receiveAddress = await getFirstReceiveAddress({
       accountSpecifiersList,
       buyAsset,
       chainAdapter,
       wallet,
-      bip44Params: buyAccountBip44Params,
+      bip44Params: buyAccountMetadata.bip44Params,
+      accountType: buyAccountMetadata.accountType,
     })
 
     const trade: Trade<KnownChainIds> = await (async () => {
@@ -303,21 +305,19 @@ export const useSwapper = () => {
           sellAmount: amount,
           sellAsset,
           buyAsset,
-          bip44Params: sellAccountBip44Params,
+          bip44Params: sellAccountMetadata.bip44Params,
           wallet,
           sendMax: false,
           receiveAddress,
         })
-      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-        const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
-        if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+      } else if (chainNamespace === CHAIN_NAMESPACE.Utxo && sellAccountMetadata.accountType) {
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
         const { xpub } = await sellAssetChainAdapter.getPublicKey(
           wallet,
-          utxoParams.bip44Params,
-          accountType,
+          sellAccountMetadata.bip44Params,
+          sellAccountMetadata.accountType,
         )
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
@@ -327,8 +327,8 @@ export const useSwapper = () => {
           wallet,
           sendMax: false,
           receiveAddress,
-          bip44Params: utxoParams.bip44Params,
-          accountType,
+          bip44Params: sellAccountMetadata.bip44Params,
+          accountType: sellAccountMetadata.accountType,
           xpub,
         })
       }
@@ -366,6 +366,7 @@ export const useSwapper = () => {
     chainAdapter: ChainAdapter<ChainId>
     wallet: HDWallet
     bip44Params: BIP44Params
+    accountType: UtxoAccountType | undefined
   }
   type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
   const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
@@ -374,6 +375,7 @@ export const useSwapper = () => {
     chainAdapter,
     wallet,
     bip44Params,
+    accountType,
   }) => {
     // Get first specifier for receive asset chain id
     // Eventually we may want to customize which account they want to receive trades into
@@ -385,7 +387,7 @@ export const useSwapper = () => {
     const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
     if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
 
-    const receiveAddress = await chainAdapter.getAddress({ wallet, bip44Params })
+    const receiveAddress = await chainAdapter.getAddress({ wallet, accountType, bip44Params })
     return receiveAddress
   }
 
@@ -437,7 +439,10 @@ export const useSwapper = () => {
           const sellAccountFilter = { accountId: sellAssetAccountIds[0] ?? '' }
           const buyAccountFilter = { accountId: buyAssetAccountIds[0] ?? '' }
 
-          const buyAccountBip44Params = selectBIP44ParamsByAccountId(state, buyAccountFilter)
+          const buyAccountMetadata = selectPortfolioAccountMetadataByAccountId(
+            state,
+            buyAccountFilter,
+          )
           const sellAccountBip44Params = selectBIP44ParamsByAccountId(state, sellAccountFilter)
 
           const receiveAddress = await getFirstReceiveAddress({
@@ -445,7 +450,8 @@ export const useSwapper = () => {
             buyAsset,
             chainAdapter,
             wallet,
-            bip44Params: buyAccountBip44Params,
+            bip44Params: buyAccountMetadata.bip44Params,
+            accountType: buyAccountMetadata.accountType,
           })
 
           const tradeQuote: TradeQuote<KnownChainIds> = await (async () => {

@@ -12,7 +12,7 @@ export type CalculateAmountsArgs = {
   sellAssetUsdRate: string
   action: TradeAmountInputField
   selectedCurrencyToUsdRate: BigNumber
-  tradeFee: BigNumber
+  sellAssetTradeFeeUsd: BigNumber
 }
 
 type CalculateAmountsReturn = {
@@ -30,18 +30,18 @@ export const calculateAmounts = ({
   sellAssetUsdRate,
   action,
   selectedCurrencyToUsdRate,
-  tradeFee,
+  sellAssetTradeFeeUsd,
 }: CalculateAmountsArgs): CalculateAmountsReturn => {
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
   const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
   const cryptoSellAmount = toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision)
   const cryptoBuyAmount = toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
-  const tradeFeeBaseUnit = toBaseUnit(tradeFee, buyAsset.precision)
+  const sellAssetTradeFeeUsdBaseUnit = toBaseUnit(sellAssetTradeFeeUsd, buyAsset.precision)
 
   switch (action) {
     case TradeAmountInputField.SELL_CRYPTO: {
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
-      const buyAmountAfterFees = bnOrZero(buyAmount).minus(tradeFeeBaseUnit).toString()
+      const buyAmountAfterFees = bnOrZero(buyAmount).minus(sellAssetTradeFeeUsdBaseUnit).toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),
         cryptoBuyAmount: buyAmountAfterFees,
@@ -56,7 +56,9 @@ export const calculateAmounts = ({
       }
     }
     case TradeAmountInputField.SELL_FIAT: {
-      const buyAmountAfterFees = bnOrZero(cryptoBuyAmount).minus(tradeFeeBaseUnit).toString()
+      const buyAmountAfterFees = bnOrZero(cryptoBuyAmount)
+        .minus(sellAssetTradeFeeUsdBaseUnit)
+        .toString()
       return {
         cryptoSellAmount,
         cryptoBuyAmount: buyAmountAfterFees,
@@ -68,10 +70,15 @@ export const calculateAmounts = ({
       }
     }
     case TradeAmountInputField.BUY_CRYPTO: {
-      const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
-      const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
+      const sellAssetTradeFeeUsdToSellAsset = bnOrZero(sellAssetTradeFeeUsd).times(assetPriceRatio)
+      const sellAssetTradeFeeUsdToSellAssetBaseUnit = toBaseUnit(
+        sellAssetTradeFeeUsdToSellAsset,
+        sellAsset.precision,
+      )
       const sellAmount = toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision)
-      const sellAmountWithFees = bnOrZero(sellAmount).plus(tradeFeeToSellAssetBaseUnit).toString()
+      const sellAmountWithFees = bnOrZero(sellAmount)
+        .plus(sellAssetTradeFeeUsdToSellAssetBaseUnit)
+        .toString()
       return {
         cryptoSellAmount: sellAmountWithFees,
         cryptoBuyAmount: toBaseUnit(amount, buyAsset.precision),
@@ -86,11 +93,14 @@ export const calculateAmounts = ({
       }
     }
     case TradeAmountInputField.BUY_FIAT: {
-      const tradeFeeToSellAsset = bnOrZero(tradeFee).times(assetPriceRatio)
+      const sellAssetTradeFeeUsdToSellAsset = bnOrZero(sellAssetTradeFeeUsd).times(assetPriceRatio)
 
-      const tradeFeeToSellAssetBaseUnit = toBaseUnit(tradeFeeToSellAsset, sellAsset.precision)
+      const sellAssetTradeFeeUsdToSellAssetBaseUnit = toBaseUnit(
+        sellAssetTradeFeeUsdToSellAsset,
+        sellAsset.precision,
+      )
       const sellAmountWithFees = bnOrZero(cryptoSellAmount)
-        .plus(tradeFeeToSellAssetBaseUnit)
+        .plus(sellAssetTradeFeeUsdToSellAssetBaseUnit)
         .toString()
       return {
         cryptoSellAmount: sellAmountWithFees,

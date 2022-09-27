@@ -23,6 +23,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
@@ -44,6 +45,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
@@ -65,13 +67,14 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
       cryptoBuyAmount: '1000000000000000000',
       cryptoSellAmount: '500000000000000000',
-      fiatSellAmount: '1',
-      fiatBuyAmount: '1',
+      fiatSellAmount: '1.00',
+      fiatBuyAmount: '1.00',
     })
   })
 
@@ -86,13 +89,14 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
       cryptoBuyAmount: '1000000000000000000',
       cryptoSellAmount: '500000000000000000',
-      fiatSellAmount: '1',
-      fiatBuyAmount: '1',
+      fiatSellAmount: '1.00',
+      fiatBuyAmount: '1.00',
     })
   })
 })

@@ -90,7 +90,6 @@ export const KeepKeyConnect = () => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name: label, icon, deviceId, meta: { label } },
         })
-        dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
          * The real deviceId of KeepKey wallet could be different from the

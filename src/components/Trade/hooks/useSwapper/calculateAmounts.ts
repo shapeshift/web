@@ -40,7 +40,7 @@ export const calculateAmounts = ({
   const cryptoBuyAmount = toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
   const sellAssetTradeFeeUsdBaseUnit = toBaseUnit(
     sellAssetTradeFeeUsd.div(sellAssetUsdRate),
-    buyAsset.precision,
+    sellAsset.precision,
   )
   const buyAssetTradeFeeUsdBaseUnit = toBaseUnit(buyAssetTradeFeeUsd, buyAsset.precision)
 
@@ -48,7 +48,6 @@ export const calculateAmounts = ({
     case TradeAmountInputField.SELL_CRYPTO: {
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
       const buyAmountAfterFees = bnOrZero(buyAmount)
-        // TODO: Add back fees
         .minus(bnOrZero(buyAssetTradeFeeUsdBaseUnit).div(assetPriceRatio))
         .toString()
       return {

@@ -15,8 +15,3 @@ export const positiveOrZero = (n: BigNumber.Value | null | undefined): BN => {
   const value = bn(n || 0)
   return value.isPositive() ? value : bn(0)
 }
-
-export const maximumOrZero = (
-  a: BigNumber.Value | null | undefined,
-  b: BigNumber.Value | null | undefined,
-): BN => BigNumber.maximum(a ?? '0', b ?? '0')

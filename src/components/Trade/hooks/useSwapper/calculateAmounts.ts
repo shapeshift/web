@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero, maximumOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 export type CalculateAmountsArgs = {
@@ -49,11 +49,7 @@ export const calculateAmounts = ({
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
       const buyAmountAfterFees = bnOrZero(buyAmount)
         // TODO: Add back fees
-        .minus(
-          maximumOrZero(sellAssetTradeFeeUsdBaseUnit, buyAssetTradeFeeUsdBaseUnit).div(
-            assetPriceRatio,
-          ),
-        )
+        .minus(bnOrZero(buyAssetTradeFeeUsdBaseUnit).div(assetPriceRatio))
         .toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),

@@ -95,9 +95,7 @@ export const TradeInput = () => {
     .plus(fees?.buyAssetTradeFeeUsd ?? '0') // Or from the buy asset, so one of the two is always guaranteed to be 0
     .div(bnOrZero(buyAssetFiatRate))
     .toString()
-  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(
-    bnOrZero(fees?.buyAssetTradeFeeUsd),
-  ) // Amount before fees only applied when subtracting buyAssetTradeFee
+  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto)) // Amount before fees only applied when subtracting buyAssetTradeFee
   const gasFee = bnOrZero(fees?.networkFee).times(bnOrZero(feeAssetFiatRate)).toString()
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 

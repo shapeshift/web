@@ -8,7 +8,6 @@ import {
   Container,
   Flex,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,20 +27,18 @@ const DegradedStateBanner = () => {
   const translate = useTranslate()
   const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const handleRetry = useCallback(() => {
-    const erroredAccountIds = Object.entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
-      (acc, [accountId, accountState]) => {
-        accountState === 'error' && acc.push(accountId)
-        return acc
-      },
-      [],
-    )
-    erroredAccountIds.forEach(accountId => {
-      const { chainId, account } = fromAccountId(accountId)
-      const accountSpecifierMap = { [chainId]: account }
-      dispatch(
-        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
-      )
-    })
+    Object.entries(portfolioLoadingStatusGranular)
+      .filter(([, accountState]) => accountState === 'error', [])
+      .forEach(([accountId]) => {
+        const { chainId, account } = fromAccountId(accountId)
+        const accountSpecifierMap = { [chainId]: account }
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountSpecifierMap },
+            { forceRefetch: true },
+          ),
+        )
+      })
   }, [dispatch, portfolioLoadingStatusGranular])
 
   return (
@@ -65,8 +62,7 @@ const DegradedStateBanner = () => {
 }
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
-  const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const isDegradedState = portfolioLoadingStatus === 'error'
+  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
   return (
     <>
       <Header />

@@ -75,11 +75,19 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
 
     return defaultAssetIdPair?.buyAssetId
   }, [defaultAssetIdPair, routeBuyAssetId])
+  const buyChainId = useMemo(
+    () => (buyAssetId ? fromAssetId(buyAssetId).chainId : null),
+    [buyAssetId],
+  )
 
   const previousBuyAssetId = usePrevious(buyAssetId)
+  const previousBuyChainId = useMemo(
+    () => (previousBuyAssetId ? fromAssetId(previousBuyAssetId).chainId : null),
+    [previousBuyAssetId],
+  )
 
   const setDefaultAssets = useCallback(async () => {
-    if (buyAssetId !== previousBuyAssetId) return
+    if (buyChainId !== previousBuyChainId) return
 
     const maybeBuyAssetChainId = routeBuyAssetId
       ? fromAssetId(routeBuyAssetId).chainId
@@ -141,6 +149,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     }
   }, [
     assets,
+    buyChainId,
     buyAssetId,
     dispatch,
     featureFlags,
@@ -148,7 +157,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     maybeWalletChainId,
     portfolioAccountIds,
     portfolioAccountMetaData,
-    previousBuyAssetId,
+    previousBuyChainId,
     routeBuyAssetId,
     setValue,
     wallet,

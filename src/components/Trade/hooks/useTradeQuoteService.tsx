@@ -7,7 +7,6 @@ import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshift
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import {
   isSupportedNonUtxoSwappingChain,
@@ -20,7 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import {
-  selectAccountSpecifiers,
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -110,7 +108,6 @@ export const useTradeQuoteService = () => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {
@@ -153,7 +150,6 @@ export const useTradeQuoteService = () => {
       })()
     }
   }, [
-    accountSpecifiersList,
     action,
     amount,
     buyAsset,

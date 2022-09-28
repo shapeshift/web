@@ -2,6 +2,10 @@ import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
 import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 
+export const RELEASE_PAGE = 'https://github.com/keepkey/keepkey-updater/releases/latest'
+export const UPDATER_BASE_URL =
+  'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/'
+
 export const isValidInput = (
   e: KeyboardEvent,
   wordEntropy: number,
@@ -59,4 +63,18 @@ const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entrop
 export const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
   const parsedEntropy = Math.floor(Number(entropy))
   return isValidEntropyNumber(parsedEntropy) ? parsedEntropy : VALID_ENTROPY_NUMBERS[0]
+}
+
+export const getPlatform = () => {
+  const platform = navigator?.platform
+  const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+  const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+
+  if (macosPlatforms.includes(platform)) {
+    return 'Mac OS'
+  } else if (windowsPlatforms.includes(platform)) {
+    return 'Windows'
+  } else if (/Linux/.test(platform)) {
+    return 'Linux'
+  }
 }

@@ -300,6 +300,13 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         },
       }
     }
+    case WalletActions.DOWNLOAD_UPDATER:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.DownloadUpdater,
+      }
     default:
       return state
   }

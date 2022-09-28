@@ -6,19 +6,22 @@ import {
   NumberInput,
   NumberInputField,
   useColorModeValue,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
-import type { FC } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
+import type { FC } from 'react'
+import { useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 
-type Props = {}
+import type { ConfirmData } from './SendTransactionConfirmation'
 
-export const TransactionAdvancedParameters: FC<Props> = ({}) => {
+export const TransactionAdvancedParameters: FC = ({}) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  const { register } = useFormContext<ConfirmData>()
   return (
     <Card bg={useColorModeValue('white', 'gray.850')} p={4} borderRadius='md'>
       <VStack alignItems='stretch'>
@@ -48,6 +51,7 @@ export const TransactionAdvancedParameters: FC<Props> = ({}) => {
               placeholder={translate(
                 'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.placeholder',
               )}
+              {...register('nonce')}
             />
           </NumberInput>
         </FormControl>
@@ -70,6 +74,7 @@ export const TransactionAdvancedParameters: FC<Props> = ({}) => {
               placeholder={translate(
                 'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.placeholder',
               )}
+              {...register('gasLimit')}
             />
           </NumberInput>
         </FormControl>

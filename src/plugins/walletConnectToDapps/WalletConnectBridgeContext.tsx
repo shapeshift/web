@@ -9,7 +9,7 @@ type WalletConnectBridgeContextValue = {
   callRequests: WalletConnectCallRequest[]
   connect(uri: string): Promise<void>
   disconnect(): Promise<void>
-  approveRequest(callRequest: WalletConnectCallRequest): Promise<void>
+  approveRequest(callRequest: WalletConnectCallRequest, approveData?: unknown): Promise<void>
   rejectRequest(callRequest: WalletConnectCallRequest): Promise<void>
 }
 

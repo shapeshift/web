@@ -19,7 +19,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
   const { approveRequest, rejectRequest } = useWalletConnect()
 
   const approve = useCallback(
-    () => !!callRequest && approveRequest(callRequest),
+    (data?: unknown) => !!callRequest && approveRequest(callRequest, data),
     [approveRequest, callRequest],
   )
   const reject = useCallback(

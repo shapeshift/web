@@ -1,5 +1,4 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { type Swapper, type UtxoSupportedChainIds, SwapperManager } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -9,8 +8,7 @@ import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   filterAssetsByIds,
-  getFirstReceiveAddress,
-  getSelectedReceiveAddress,
+  getReceiveAddress,
   getUtxoParams,
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -19,9 +17,7 @@ import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -30,8 +26,6 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['useSwapper'] })
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
@@ -63,7 +57,6 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -100,32 +93,14 @@ export const useSwapper = () => {
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
-      const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-      const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
-      if (!(chainAdapter && wallet)) return
-      try {
-        const receiveAddress = await (async () =>
-          buyAssetAccountId
-            ? getSelectedReceiveAddress({
-                chainAdapter,
-                wallet,
-                bip44Params: buyAccountMetadata.bip44Params,
-                accountType: buyAccountMetadata.accountType,
-              })
-            : getFirstReceiveAddress({
-                accountSpecifiersList,
-                buyAsset,
-                chainAdapter,
-                wallet,
-                bip44Params: buyAccountMetadata.bip44Params,
-                accountType: buyAccountMetadata.accountType,
-              }))()
-        return receiveAddress
-      } catch (e) {
-        moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
-      }
+      return getReceiveAddress({
+        asset: buyAsset,
+        wallet,
+        bip44Params: buyAccountMetadata.bip44Params,
+        accountType: buyAccountMetadata.accountType,
+      })
     },
-    [buyAccountMetadata, accountSpecifiersList, buyAssetAccountId, wallet],
+    [buyAccountMetadata, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
@@ -232,7 +207,6 @@ export const useSwapper = () => {
     const buyAsset = buyTradeAsset?.asset
     if (!buyAsset) return
     ;(async () => {
-      // TODO: get the actual receive address instead of the first
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
         setReceiveAddress(receiveAddress)

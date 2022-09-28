@@ -1,10 +1,11 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
-import { useDefaultAssetsService } from 'components/Trade/hooks/useDefaultAssetsService'
+import { useDefaultAssets } from 'components/Trade/hooks/useDefaultAssets'
 import { SelectAccount } from 'components/Trade/SelectAccount'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
@@ -23,10 +24,16 @@ type TradeRoutesProps = {
 }
 
 export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
-  useDefaultAssetsService(defaultBuyAssetId)
+  const { setDefaultAssets } = useDefaultAssets(defaultBuyAssetId)
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const location = useLocation()
   const { handleAssetClick } = useTradeRoutes()
+
+  useEffect(() => {
+    ;(async () => {
+      await setDefaultAssets()
+    })()
+  }, [setDefaultAssets])
 
   const isSwapperV2 = useFeatureFlag('SwapperV2')
   const TradeInputComponent = isSwapperV2 ? TradeInputV2 : TradeInputV1

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.4.1...@shapeshiftoss/swapper-v11.5.0) (2022-09-28)
+
+
+### Features
+
+* improve `QuoteFeeData` interface ([#1038](https://github.com/shapeshift/lib/issues/1038)) ([f550404](https://github.com/shapeshift/lib/commit/f5504044693f5f62fa6a64a2114988a2e45fcce7))
+
 # [@shapeshiftoss/swapper-v11.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.4.0...@shapeshiftoss/swapper-v11.4.1) (2022-09-27)
 
 

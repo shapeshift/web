@@ -46,15 +46,6 @@ import type {
 } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 
-export const chainIds = [
-  ethChainId,
-  btcChainId,
-  cosmosChainId,
-  osmosisChainId,
-  thorchainChainId,
-] as const
-export type ChainIdType = typeof chainIds[number]
-
 export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
   // in the case of account based chains (eth), this is an address
   // in the case of utxo based chains, this is an x/y/zpub

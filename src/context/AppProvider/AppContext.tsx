@@ -40,8 +40,8 @@ import {
   selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
-  selectPortfolioState,
-  selectPortfolioStateGranular,
+  selectPortfolioLoadingStatus,
+  selectPortfolioLoadingStatusGranular,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -75,8 +75,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const portfolioLoadingState = useSelector(selectPortfolioState)
-  const portfolioLoadingStateGranular = useSelector(selectPortfolioStateGranular)
+  const portfolioLoadingState = useSelector(selectPortfolioLoadingStatus)
+  const portfolioLoadingStateGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()

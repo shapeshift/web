@@ -176,18 +176,18 @@ export const selectAccountTypeByAccountId = createSelector(
     accountMetadata[accountId]?.accountType,
 )
 
-type PortfolioState = 'loading' | 'success' | 'error'
+type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
 
-type PortfolioStateGranular = {
-  [k: AccountId]: PortfolioState
+type PortfolioLoadingStatusGranular = {
+  [k: AccountId]: PortfolioLoadingStatus
 }
 
-export const selectPortfolioStateGranular = createDeepEqualOutputSelector(
+export const selectPortfolioLoadingStatusGranular = createDeepEqualOutputSelector(
   selectPortfolioAccountMetadata,
   selectPortfolioAccounts,
-  (accountMetadata, accountsById): PortfolioStateGranular => {
+  (accountMetadata, accountsById): PortfolioLoadingStatusGranular => {
     const requestedAccountIds = keys(accountMetadata)
-    return requestedAccountIds.reduce<PortfolioStateGranular>((acc, accountId) => {
+    return requestedAccountIds.reduce<PortfolioLoadingStatusGranular>((acc, accountId) => {
       const account = accountsById[accountId]
       const accountState = account ? (account.assetIds.length ? 'success' : 'error') : 'loading'
       acc[accountId] = accountState
@@ -196,10 +196,10 @@ export const selectPortfolioStateGranular = createDeepEqualOutputSelector(
   },
 )
 
-export const selectPortfolioState = createSelector(
-  selectPortfolioStateGranular,
-  (portfolioStateGranular): PortfolioState => {
-    const vals = values(portfolioStateGranular)
+export const selectPortfolioLoadingStatus = createSelector(
+  selectPortfolioLoadingStatusGranular,
+  (portfolioLoadingStatusGranular): PortfolioLoadingStatus => {
+    const vals = values(portfolioLoadingStatusGranular)
     if (vals.every(val => val === 'loading')) return 'loading'
     if (vals.some(val => val === 'error')) return 'error'
     return 'success'

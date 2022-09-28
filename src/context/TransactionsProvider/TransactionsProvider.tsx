@@ -16,7 +16,7 @@ import {
   selectAccountSpecifiers,
   selectAssets,
   selectPortfolioAssetIds,
-  selectPortfolioState,
+  selectPortfolioLoadingStatus,
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -39,7 +39,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
-  const portfolioLoadingState = useSelector(selectPortfolioState)
+  const portfolioLoadingState = useSelector(selectPortfolioLoadingStatus)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   const chainAdapterManager = getChainAdapterManager()

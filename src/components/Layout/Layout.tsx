@@ -1,30 +1,23 @@
 import type { ContainerProps } from '@chakra-ui/react'
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Container, Flex } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Button,
+  Container,
+  Flex,
+} from '@chakra-ui/react'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import {
-  selectAssets,
-  selectPortfolioLoadingStatus,
-  selectPortfolioLoadingStatusGranular,
-} from 'state/slices/selectors'
+import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
 import { Header } from './Header/Header'
 import { SideNav } from './Header/SideNav'
 
 const DegradedStateBanner = () => {
   const translate = useTranslate()
-  const assets = useSelector(selectAssets)
-  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
-
-  const erroredAccountNames = Array.from(
-    new Set(
-      Object.entries(portfolioLoadingStatusGranular)
-        .filter(([, accountState]) => accountState === 'error')
-        .map(([accountId]) => assets[accountIdToFeeAssetId(accountId)].name),
-    ),
-  ).join(', ')
 
   return (
     <Alert
@@ -36,8 +29,11 @@ const DegradedStateBanner = () => {
     >
       <AlertIcon />
       <AlertTitle>{translate('common.degradedState')}</AlertTitle>
-      <AlertDescription>
-        {translate('common.degradedInfo', { erroredAccountNames })}
+      <AlertDescription textAlign={{ base: 'center', lg: 'left' }}>
+        {translate('common.degradedInfo')}
+        <Button ml={1} variant='link'>
+          {translate('common.retryQuestion')}
+        </Button>
       </AlertDescription>
     </Alert>
   )

@@ -202,7 +202,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
-  const protocolFeeCrypto = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetFiatRate)).toString()
+  const protocolFeeCrypto = bnOrZero(fees?.sellAssetTradeFeeUsd)
+    .div(bnOrZero(buyAssetFiatRate))
+    .toString()
   const protocolFeeCryptoBaseUnit = toBaseUnit(protocolFeeCrypto, trade?.buyAsset?.precision ?? 0)
 
   const buyAmountCryptoBeforeFees = fromBaseUnit(
@@ -218,7 +220,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(bnOrZero(buyAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
-  const feeAmountFiat = bnOrZero(fees?.fee).times(fiatRate).times(selectedCurrencyToUsdRate)
+  const feeAmountFiat = bnOrZero(fees?.networkFee).times(fiatRate).times(selectedCurrencyToUsdRate)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const gasFeeToTradeRatioPercentage = feeAmountFiat.dividedBy(sellAmountFiat).times(100).toNumber()

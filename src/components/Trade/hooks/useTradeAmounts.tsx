@@ -99,6 +99,7 @@ export const useTradeAmounts = () => {
           buyAssetUsdRate,
           sellAssetUsdRate,
           selectedCurrencyToUsdRate,
+          buyAssetTradeFeeUsd: bnOrZero(fees?.buyAssetTradeFeeUsd),
           sellAssetTradeFeeUsd: tradeFee,
         })
       }

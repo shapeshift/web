@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeAmountInputField } from 'components/Trade/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, maximumOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 
 export type CalculateAmountsArgs = {
@@ -12,6 +12,7 @@ export type CalculateAmountsArgs = {
   sellAssetUsdRate: string
   action: TradeAmountInputField
   selectedCurrencyToUsdRate: BigNumber
+  buyAssetTradeFeeUsd: BigNumber
   sellAssetTradeFeeUsd: BigNumber
 }
 
@@ -31,17 +32,22 @@ export const calculateAmounts = ({
   action,
   selectedCurrencyToUsdRate,
   sellAssetTradeFeeUsd,
+  buyAssetTradeFeeUsd,
 }: CalculateAmountsArgs): CalculateAmountsReturn => {
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
   const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
   const cryptoSellAmount = toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision)
   const cryptoBuyAmount = toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
   const sellAssetTradeFeeUsdBaseUnit = toBaseUnit(sellAssetTradeFeeUsd, buyAsset.precision)
+  const buyAssetTradeFeeUsdBaseUnit = toBaseUnit(buyAssetTradeFeeUsd, buyAsset.precision)
 
   switch (action) {
     case TradeAmountInputField.SELL_CRYPTO: {
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
-      const buyAmountAfterFees = bnOrZero(buyAmount).minus(sellAssetTradeFeeUsdBaseUnit).toString()
+      const buyAmountAfterFees = bnOrZero(buyAmount)
+        // TODO: Add back fees
+        .minus(maximumOrZero(sellAssetTradeFeeUsdBaseUnit, buyAssetTradeFeeUsdBaseUnit))
+        .toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),
         cryptoBuyAmount: buyAmountAfterFees,

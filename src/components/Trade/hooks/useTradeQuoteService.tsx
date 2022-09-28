@@ -119,16 +119,6 @@ export const useTradeQuoteService = () => {
     selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
   )
 
-  const sellAssetAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, {
-      assetId: sellAsset?.assetId ?? '',
-    }),
-  )
-  const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
-  const sellAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
-  )
-
   // API
   const { data: tradeQuote, isLoading: isLoadingTradeQuote } = useGetTradeQuoteQuery(
     tradeQuoteArgs,

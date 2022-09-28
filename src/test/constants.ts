@@ -106,4 +106,5 @@ export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> 
   fee: '0.1532445',
   networkFee: '0.1532445',
   buyAssetTradeFeeUsd: '0',
+  sellAssetTradeFeeUsd: '0',
 }

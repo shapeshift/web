@@ -23,7 +23,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
-      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
@@ -45,7 +45,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
-      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
@@ -67,7 +67,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
-      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
@@ -89,7 +89,7 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
-      tradeFee: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({

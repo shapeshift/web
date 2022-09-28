@@ -112,7 +112,7 @@ const getEvmFees = <T extends EvmChainId>(
       totalFee,
     },
     // The fee paid to the protocol for the transaction
-    tradeFee: trade.feeData.sellAssetTradeFeeUsd,
+    tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
@@ -146,9 +146,6 @@ export const getFormFees = ({
         tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
-        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
-        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
-        networkFee: trade.feeData.networkFee,
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
@@ -158,11 +155,9 @@ export const getFormFees = ({
         fee,
         chainSpecific: utxoTrade.feeData.chainSpecific,
         tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
-        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
-        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
-        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
-        networkFee: trade.feeData.networkFee,
+        sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
       }
     }
     default:

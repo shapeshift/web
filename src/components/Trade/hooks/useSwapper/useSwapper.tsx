@@ -644,10 +644,8 @@ export const useSwapper = () => {
           networkFee: fee,
           tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
           buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
-          tradeFeeSource: trade.sources[0].name,
-          buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
-          sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
-          networkFee: trade.feeData.networkFee,
+          tradeFeeSource,
+          sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
         }
         setValue('fees', fees)
         break
@@ -663,9 +661,7 @@ export const useSwapper = () => {
             tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
             buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
             tradeFeeSource,
-            buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd,
-            sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd,
-            networkFee: utxoTrade.feeData.networkFee,
+            sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
           }
           setValue('fees', fees)
         }

@@ -11,10 +11,6 @@ import {
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-<<<<<<< HEAD
-=======
-import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
->>>>>>> 877101e03 (feat(swapper): sellAssetAccountNumber -> bip44Params (#2877))
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {

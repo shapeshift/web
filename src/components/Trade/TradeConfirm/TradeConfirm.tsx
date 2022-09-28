@@ -102,12 +102,21 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
       thorchainAssetId,
     )
-    const buyAccountId = isThorTrade ? sellAssetAccountId : buyAssetAccountId
-    const receiveAddress = isThorTrade
-      ? fromAccountId(sellAssetAccountId!).account
-      : trade?.receiveAddress
-    const txId = isThorTrade ? buyTxid.toUpperCase() : buyTxid // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
-    return serializeTxIndex(buyAccountId!, txId, receiveAddress ?? '')
+
+    if (isThorTrade) {
+      // swapper getTradeTxs monkey patches Thor buyTxId using the sellAssetId, since we can't get the outbound Tx
+      // while this says "buyTxid`, it really is the sellAssetId, so we need to serialize to a Tx containing the sell data
+      // e.g sell asset AccountId, and sell asset address, and sell Txid
+      // If we use the "real" (which we never get) buy Tx AccountId and address. then we'll never be able to lookup a Tx in state
+      // and thus will never be able to react on the completed state
+      return serializeTxIndex(
+        sellAssetAccountId!,
+        buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
+        fromAccountId(sellAssetAccountId!).account ?? '',
+      )
+    }
+
+    return serializeTxIndex(buyAssetAccountId!, buyTxid, trade?.receiveAddress ?? '')
   }, [
     sellAssetAccountId,
     trade?.buyAsset.assetId,

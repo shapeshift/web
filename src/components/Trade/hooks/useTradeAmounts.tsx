@@ -172,6 +172,8 @@ export const useTradeAmounts = () => {
         sellAccountFilter,
       )
 
+      if (!sellAccountMetadata) return // no-op, need at least bip44Params to get tradeQuoteArgs
+
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
         sellAsset,

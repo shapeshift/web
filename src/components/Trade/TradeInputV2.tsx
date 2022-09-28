@@ -91,11 +91,12 @@ export const TradeInput = () => {
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
-  const protocolFeeCrypto = bnOrZero(fees?.sellAssetTradeFeeUsd) // Protocol fee can be either taken from the sell asset
-    .plus(fees?.buyAssetTradeFeeUsd ?? '0') // Or from the buy asset, so one of the two is always guaranteed to be 0
+  const sellProtocolFeeCrypto = bnOrZero(fees?.sellAssetTradeFeeUsd) // Protocol fee can be either taken from the sell asset
     .div(bnOrZero(buyAssetFiatRate))
-    .toString()
-  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto)) // Amount before fees only applied when subtracting buyAssetTradeFee
+  const buyProtocolFeeCrypto = bnOrZero(fees?.buyAssetTradeFeeUsd ?? '0') // Or from the buy asset, so one of the two is always guaranteed to be 0
+    .div(bnOrZero(buyAssetFiatRate))
+  const protocolFeeCrypto = sellProtocolFeeCrypto.plus(buyProtocolFeeCrypto).toString()
+  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount) // TODO: remove me and use buyTradeAsset?.amount directly?
   const gasFee = bnOrZero(fees?.networkFee).times(bnOrZero(feeAssetFiatRate)).toString()
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
@@ -339,7 +340,7 @@ export const TradeInput = () => {
             <ReceiveSummary
               isLoading={!quote || isLoadingTradeQuote}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
-              amount={buyTradeAsset?.amount?.toString() ?? ''}
+              amount={toCryptoAmountBeforeFees.minus(protocolFeeCrypto).toString() ?? ''}
               beforeFees={toCryptoAmountBeforeFees.toString()}
               protocolFee={protocolFeeCrypto}
               shapeShiftFee='0'

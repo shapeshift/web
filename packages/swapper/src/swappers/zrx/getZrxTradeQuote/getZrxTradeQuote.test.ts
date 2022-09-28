@@ -51,6 +51,9 @@ describe('getZrxTradeQuote', () => {
         approvalFee: '100000000',
       },
       tradeFee: '0',
+      buyAssetTradeFeeUsd: '0',
+      networkFee: '1500000000',
+      sellAssetTradeFeeUsd: '0',
     })
     expect(quote.rate).toBe('100')
   })
@@ -97,6 +100,9 @@ describe('getZrxTradeQuote', () => {
         gasPrice: undefined,
       },
       tradeFee: '0',
+      sellAssetTradeFeeUsd: '0',
+      buyAssetTradeFeeUsd: '0',
+      networkFee: '0',
     })
   })
 

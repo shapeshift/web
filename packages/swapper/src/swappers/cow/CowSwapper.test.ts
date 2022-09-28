@@ -218,6 +218,9 @@ describe('CowSwapper', () => {
             gasPrice: '79036500000',
           },
           tradeFee: '0',
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+          networkFee: '14557942658757988',
         },
         sellAmountWithoutFee: '985442057341242012',
       }

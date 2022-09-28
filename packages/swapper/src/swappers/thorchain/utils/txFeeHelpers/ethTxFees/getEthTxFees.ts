@@ -10,11 +10,11 @@ import { THOR_ETH_GAS_LIMIT } from '../../constants'
 export const getEthTxFees = async ({
   adapterManager,
   sellAssetReference,
-  tradeFee,
+  buyAssetTradeFeeUsd,
 }: {
   adapterManager: ChainAdapterManager
   sellAssetReference: AssetReference | string
-  tradeFee: string
+  buyAssetTradeFeeUsd: string
 }): Promise<QuoteFeeData<KnownChainIds.EthereumMainnet>> => {
   try {
     const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
@@ -49,7 +49,8 @@ export const getEthTxFees = async ({
     const feeData = feeDataOptions['fast']
 
     return {
-      fee: feeData.txFee,
+      fee: feeData.txFee, // TODO: remove once web has been updated
+      networkFee: feeData.txFee,
       chainSpecific: {
         estimatedGas: feeData.chainSpecific.gasLimit,
         gasPrice: feeData.chainSpecific.gasPrice,
@@ -59,7 +60,9 @@ export const getEthTxFees = async ({
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
             .toString(),
       },
-      tradeFee,
+      tradeFee: buyAssetTradeFeeUsd, // TODO: remove once web has been updated
+      buyAssetTradeFeeUsd,
+      sellAssetTradeFeeUsd: '0',
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

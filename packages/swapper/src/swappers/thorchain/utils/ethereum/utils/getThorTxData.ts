@@ -15,7 +15,7 @@ type GetBtcThorTxInfoArgs = {
   sellAmount: string
   slippageTolerance: string
   destinationAddress: string
-  tradeFee: string
+  buyAssetTradeFeeUsd: string
 }
 type GetBtcThorTxInfoReturn = Promise<{
   data: string
@@ -31,7 +31,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   sellAmount,
   slippageTolerance,
   destinationAddress,
-  tradeFee,
+  buyAssetTradeFeeUsd,
 }) => {
   try {
     const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
@@ -60,7 +60,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       buyAsset,
       slippageTolerance,
       deps,
-      tradeFee,
+      buyAssetTradeFeeUsd,
     })
 
     const memo = makeSwapMemo({

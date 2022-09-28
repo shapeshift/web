@@ -171,12 +171,14 @@ const getInfoFromPool = (
   const rate = bnOrZero(buyAmount).dividedBy(sellAmount).toString()
   const priceImpact = bn(1).minus(initialMarketPrice.dividedBy(finalMarketPrice)).abs().toString()
   const tradeFeeBase = bnOrZero(buyAmount).times(bnOrZero(pool.poolParams.swapFee))
-  const tradeFee = tradeFeeBase.dividedBy(bn(10).exponentiatedBy(OSMOSIS_PRECISION)).toString()
+  const buyAssetTradeFeeUsd = tradeFeeBase
+    .dividedBy(bn(10).exponentiatedBy(OSMOSIS_PRECISION))
+    .toString()
 
   return {
     rate,
     priceImpact,
-    tradeFee,
+    buyAssetTradeFeeUsd,
     buyAmount,
   }
 }

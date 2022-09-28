@@ -89,8 +89,9 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
     const { data } = quoteResponse
 
     const estimatedGas = bnOrZero(data.gas || 0)
+    const networkFee = bnOrZero(estimatedGas).multipliedBy(bnOrZero(data.gasPrice)).toString()
 
-    const trade = {
+    const trade: ZrxTrade<EvmSupportedChainIds> = {
       sellAsset,
       buyAsset,
       bip44Params,
@@ -98,18 +99,21 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
       rate: data.price,
       depositAddress: data.to,
       feeData: {
-        fee: bnOrZero(estimatedGas).multipliedBy(bnOrZero(data.gasPrice)).toString(),
+        fee: networkFee,
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
           gasPrice: data.gasPrice,
         },
         tradeFee: '0',
+        networkFee,
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
       },
       txData: data.data,
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,
       sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
-    } as ZrxTrade<T>
+    }
 
     const allowanceRequired = await getAllowanceRequired({
       adapter,
@@ -133,7 +137,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         tradeFee: '0',
       } as QuoteFeeData<T>
     }
-    return trade
+    return trade as ZrxTrade<T>
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxBuildTrade]', {

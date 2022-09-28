@@ -17,7 +17,14 @@ export const setupQuote = () => {
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
     minimum: '0',
     maximum: '999999999999',
-    feeData: { fee: '0', tradeFee: '0', chainSpecific: {} },
+    feeData: {
+      fee: '0', // TODO: remove once web has been updated
+      tradeFee: '0', // TODO: remove once web has been updated
+      chainSpecific: {},
+      sellAssetTradeFeeUsd: '0',
+      networkFee: '0',
+      buyAssetTradeFeeUsd: '0',
+    },
     rate: '1',
     sources: [],
   }

@@ -12,7 +12,7 @@ export const getLimit = async ({
   sellAmount,
   deps,
   slippageTolerance,
-  tradeFee,
+  buyAssetTradeFeeUsd,
 }: {
   buyAssetId: string
   destinationAddress: string
@@ -21,7 +21,7 @@ export const getLimit = async ({
   sellAmount: string
   deps: ThorchainSwapperDeps
   slippageTolerance: string
-  tradeFee: string
+  buyAssetTradeFeeUsd: string
 }): Promise<string> => {
   const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
   const expectedBuyAmountPrecision8 = toBaseUnit(
@@ -37,7 +37,7 @@ export const getLimit = async ({
       details: { expectedBuyAmountPrecision8, slippageTolerance },
     })
 
-  const tradeFeePrecision8 = toBaseUnit(bnOrZero(tradeFee), THORCHAIN_FIXED_PRECISION)
+  const tradeFeePrecision8 = toBaseUnit(bnOrZero(buyAssetTradeFeeUsd), THORCHAIN_FIXED_PRECISION)
 
   return bnOrZero(expectedBuyAmountPrecision8)
     .times(bn(1).minus(slippageTolerance))

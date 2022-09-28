@@ -64,11 +64,11 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const buyAssetUsdRate = await getUsdRate({ deps, input: { assetId: buyAsset.assetId } })
     const minTradeFeeAmount = MINIMUM_USD_TRADE_AMOUNT.div(buyAssetUsdRate)
 
-    const tradeFee = minTradeFeeAmount.gt(estimatedTradeFee)
+    const buyAssetTradeFeeUsd = minTradeFeeAmount.gt(estimatedTradeFee)
       ? minTradeFeeAmount.toString()
       : estimatedTradeFee
 
-    const sellAssetTradeFee = bnOrZero(tradeFee).dividedBy(bnOrZero(rate))
+    const sellAssetTradeFee = bnOrZero(buyAssetTradeFeeUsd).dividedBy(bnOrZero(rate))
 
     // minimum is tradeFee padded by an amount to be sure they get something back
     // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
@@ -97,12 +97,12 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             sellAmount,
             slippageTolerance: DEFAULT_SLIPPAGE,
             destinationAddress: receiveAddress,
-            tradeFee,
+            buyAssetTradeFeeUsd,
           })
           const feeData = await getEthTxFees({
             adapterManager: deps.adapterManager,
             sellAssetReference,
-            tradeFee,
+            buyAssetTradeFeeUsd,
           })
 
           return {
@@ -122,7 +122,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             slippageTolerance: DEFAULT_SLIPPAGE,
             destinationAddress: receiveAddress,
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
-            tradeFee,
+            buyAssetTradeFeeUsd,
           })
 
           const feeData = await getBtcTxFees({
@@ -131,7 +131,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             opReturnData,
             pubkey,
             sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>,
-            tradeFee,
+            buyAssetTradeFeeUsd,
           })
 
           return {
@@ -151,7 +151,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             allowanceContract: '0x0', // not applicable to cosmos
             feeData: {
               fee: feeData.fast.txFee,
-              tradeFee,
+              networkFee: feeData.fast.txFee,
+              tradeFee: buyAssetTradeFeeUsd,
+              buyAssetTradeFeeUsd,
+              sellAssetTradeFeeUsd: '0',
               chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },
             },
           }

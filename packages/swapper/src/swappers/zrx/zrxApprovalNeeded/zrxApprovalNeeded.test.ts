@@ -64,7 +64,14 @@ describe('zrxApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
+        feeData: {
+          fee: '0',
+          chainSpecific: { gasPrice: '1000' },
+          tradeFee: '0',
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+          networkFee: '0',
+        },
       },
       wallet,
     }
@@ -89,7 +96,14 @@ describe('zrxApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
+        feeData: {
+          fee: '0',
+          chainSpecific: { gasPrice: '1000' },
+          tradeFee: '0',
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+          networkFee: '0',
+        },
       },
       wallet,
     }

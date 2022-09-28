@@ -117,13 +117,12 @@ export async function getCowSwapTradeQuote(
       getUsdRate(deps, sellAsset),
     ])
 
-    const feeData = feeDataOptions['fast']
-
-    // calculating trade fee in USD
-    const tradeFeeFiat = bnOrZero(quote.feeAmount)
+    const sellAssetTradeFeeUsd = bnOrZero(quote.feeAmount)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
       .toString()
+
+    const feeData = feeDataOptions['fast']
 
     // If original sellAmount is < minQuoteSellAmount, we don't want to replace it with normalizedSellAmount
     // The purpose of this was to get a quote from CowSwap even with small amounts
@@ -136,7 +135,8 @@ export async function getCowSwapTradeQuote(
       minimum,
       maximum,
       feeData: {
-        fee: '0', // no miner fee for CowSwap
+        fee: '0', // TODO: remove once web has been updated
+        networkFee: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
           gasPrice: feeData.chainSpecific.gasPrice,
@@ -144,7 +144,9 @@ export async function getCowSwapTradeQuote(
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
             .toString(),
         },
-        tradeFee: tradeFeeFiat,
+        tradeFee: '0', // TODO: remove once web has been updated
+        buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+        sellAssetTradeFeeUsd,
       },
       sellAmount: quoteSellAmount,
       buyAmount: quote.buyAmount,

@@ -159,7 +159,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       })
     }
 
-    const { tradeFee, rate, buyAmount } = await getRateInfo(
+    const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmount !== '0' ? sellAmount : '1',
@@ -184,7 +184,13 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     return {
       buyAmount,
       buyAsset,
-      feeData: { fee, tradeFee },
+      feeData: {
+        fee,
+        tradeFee: buyAssetTradeFeeUsd,
+        networkFee: fee,
+        sellAssetTradeFeeUsd: '0',
+        buyAssetTradeFeeUsd,
+      },
       rate,
       receiveAddress,
       sellAmount: amountBaseSell,
@@ -201,7 +207,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
-    const { tradeFee, rate, buyAmount } = await getRateInfo(
+    const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmount !== '0' ? sellAmount : '1',
@@ -224,7 +230,13 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     return {
       buyAsset,
-      feeData: { fee, tradeFee },
+      feeData: {
+        fee,
+        tradeFee: buyAssetTradeFeeUsd,
+        networkFee: fee,
+        sellAssetTradeFeeUsd: '0',
+        buyAssetTradeFeeUsd,
+      },
       maximum,
       minimum,
       bip44Params,

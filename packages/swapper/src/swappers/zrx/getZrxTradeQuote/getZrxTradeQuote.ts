@@ -93,7 +93,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       sellAssetErc20Address &&
       bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPrice)).toString()
 
-    return {
+    const tradeQuote: TradeQuote<EvmSupportedChainIds> = {
       rate,
       minimum,
       maximum,
@@ -105,6 +105,9 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
           approvalFee,
         },
         tradeFee: '0',
+        networkFee: fee,
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
       },
       sellAmount: sellAmountResponse,
       buyAmount,
@@ -113,7 +116,8 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       buyAsset,
       sellAsset,
       bip44Params,
-    } as TradeQuote<T>
+    }
+    return tradeQuote as TradeQuote<T>
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })

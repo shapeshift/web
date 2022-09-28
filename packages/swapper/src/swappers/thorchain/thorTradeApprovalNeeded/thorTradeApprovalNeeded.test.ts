@@ -31,7 +31,14 @@ describe('thorTradeApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
+        feeData: {
+          fee: '0',
+          chainSpecific: { gasPrice: '1000' },
+          tradeFee: '0',
+          networkFee: '0',
+          sellAssetTradeFeeUsd: '0',
+          buyAssetTradeFeeUsd: '0',
+        },
       },
       wallet,
     }
@@ -48,7 +55,14 @@ describe('thorTradeApprovalNeeded', () => {
       quote: {
         ...tradeQuote,
         sellAmount: '10',
-        feeData: { fee: '0', chainSpecific: { gasPrice: '1000' }, tradeFee: '0' },
+        feeData: {
+          fee: '0',
+          chainSpecific: { gasPrice: '1000' },
+          tradeFee: '0',
+          networkFee: '0',
+          sellAssetTradeFeeUsd: '0',
+          buyAssetTradeFeeUsd: '0',
+        },
       },
       wallet,
     }

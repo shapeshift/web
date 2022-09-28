@@ -8,16 +8,41 @@ import {
   Container,
   Flex,
 } from '@chakra-ui/react'
-import React from 'react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
+import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  selectPortfolioLoadingStatus,
+  selectPortfolioLoadingStatusGranular,
+} from 'state/slices/selectors'
+import { useAppDispatch } from 'state/store'
 
 import { Header } from './Header/Header'
 import { SideNav } from './Header/SideNav'
 
 const DegradedStateBanner = () => {
+  const dispatch = useAppDispatch()
   const translate = useTranslate()
+  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
+  const handleRetry = useCallback(() => {
+    const erroredAccountIds = Object.entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
+      (acc, [accountId, accountState]) => {
+        accountState === 'error' && acc.push(accountId)
+        return acc
+      },
+      [],
+    )
+    erroredAccountIds.forEach(accountId => {
+      const { chainId, account } = fromAccountId(accountId)
+      const accountSpecifierMap = { [chainId]: account }
+      dispatch(
+        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }),
+      )
+    })
+  }, [dispatch, portfolioLoadingStatusGranular])
 
   return (
     <Alert
@@ -31,7 +56,7 @@ const DegradedStateBanner = () => {
       <AlertTitle>{translate('common.degradedState')}</AlertTitle>
       <AlertDescription textAlign={{ base: 'center', lg: 'left' }}>
         {translate('common.degradedInfo')}
-        <Button ml={1} variant='link'>
+        <Button ml={1} variant='link' onClick={handleRetry}>
           {translate('common.retryQuestion')}
         </Button>
       </AlertDescription>

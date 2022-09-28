@@ -42,6 +42,8 @@
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
     "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "degradedState": "The App is in a degraded state",
+    "degradedInfo": "Unable to fetch data for %{erroredAccountNames}. Some features may not work as expected.",
     "success": "Success",
     "retry": "Retry",
     "transactionFailed": "Transaction Failed",

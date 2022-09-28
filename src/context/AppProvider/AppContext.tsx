@@ -75,8 +75,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const portfolioLoadingState = useSelector(selectPortfolioLoadingStatus)
-  const portfolioLoadingStateGranular = useSelector(selectPortfolioLoadingStatusGranular)
+  const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
+  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
@@ -153,16 +153,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (portfolioLoadingState === 'loading') return
+    if (portfolioLoadingStatus === 'loading') return
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
     dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
-  }, [dispatch, accountSpecifiersList, portfolioLoadingState])
+  }, [dispatch, accountSpecifiersList, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    if (portfolioLoadingState === 'loading') return
+    if (portfolioLoadingStatus === 'loading') return
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
@@ -216,12 +216,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })
     // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, portfolioLoadingState, portfolioAccounts, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingStatus, portfolioAccounts, portfolioAssetIds])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
-    if (portfolioLoadingState === 'loading') return
+    if (portfolioLoadingStatus === 'loading') return
 
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
@@ -234,7 +234,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, portfolioLoadingState, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
 
   const toastId = 'accountError'
 
@@ -247,7 +247,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * portfolio loading error notification
    */
   useEffect(() => {
-    const erroredAccountIds = entries(portfolioLoadingStateGranular).reduce<AccountId[]>(
+    const erroredAccountIds = entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
       (acc, [accountId, accountState]) => {
         accountState === 'error' && acc.push(accountId)
         return acc
@@ -299,7 +299,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     assets,
     dispatch,
     handleAccountErrorToastClose,
-    portfolioLoadingStateGranular,
+    portfolioLoadingStatusGranular,
     toast,
     translate,
   ])

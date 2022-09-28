@@ -38,7 +38,10 @@ export const calculateAmounts = ({
   const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
   const cryptoSellAmount = toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision)
   const cryptoBuyAmount = toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
-  const sellAssetTradeFeeUsdBaseUnit = toBaseUnit(sellAssetTradeFeeUsd, buyAsset.precision)
+  const sellAssetTradeFeeUsdBaseUnit = toBaseUnit(
+    sellAssetTradeFeeUsd.div(sellAssetUsdRate),
+    buyAsset.precision,
+  )
   const buyAssetTradeFeeUsdBaseUnit = toBaseUnit(buyAssetTradeFeeUsd, buyAsset.precision)
 
   switch (action) {
@@ -46,7 +49,11 @@ export const calculateAmounts = ({
       const buyAmount = toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision)
       const buyAmountAfterFees = bnOrZero(buyAmount)
         // TODO: Add back fees
-        .minus(maximumOrZero(sellAssetTradeFeeUsdBaseUnit, buyAssetTradeFeeUsdBaseUnit))
+        .minus(
+          maximumOrZero(sellAssetTradeFeeUsdBaseUnit, buyAssetTradeFeeUsdBaseUnit).div(
+            assetPriceRatio,
+          ),
+        )
         .toString()
       return {
         cryptoSellAmount: toBaseUnit(amount, sellAsset.precision),

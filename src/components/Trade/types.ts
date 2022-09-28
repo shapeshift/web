@@ -1,7 +1,6 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
-import { type ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   type BuildTradeInput,
@@ -12,7 +11,6 @@ import {
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import type { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
@@ -71,24 +69,12 @@ export type SupportedSwappingChain =
   | KnownChainIds.OsmosisMainnet
   | KnownChainIds.CosmosMainnet
 
-type GetFirstReceiveAddressArgs = {
-  accountSpecifiersList: ReturnType<typeof selectAccountSpecifiers>
-  buyAsset: Asset
-  chainAdapter: ChainAdapter<ChainId>
-  wallet: HDWallet
+export type GetReceiveAddressArgs = {
+  asset: Asset
+  wallet: HDWallet | null
   bip44Params: BIP44Params
-  accountType: UtxoAccountType | undefined
+  accountType?: UtxoAccountType
 }
-
-type GetSelectedReceiveAddressArgs = {
-  chainAdapter: ChainAdapter<ChainId>
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  accountType: UtxoAccountType | undefined
-}
-
-export type GetFirstReceiveAddress = (args: GetFirstReceiveAddressArgs) => Promise<string>
-export type GetSelectedReceiveAddress = (args: GetSelectedReceiveAddressArgs) => Promise<string>
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,

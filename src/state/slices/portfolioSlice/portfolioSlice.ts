@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { toAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -116,7 +117,8 @@ export const portfolioApi = createApi({
           dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
-          const accountId: AccountId = Object.entries(accountSpecifierMap)[0].join(':')
+          const [chainId, account] = Object.entries(accountSpecifierMap)[0]
+          const accountId = toAccountId({ chainId, account })
           moduleLogger.error(e, `error fetching account ${accountId}`)
           const data = cloneDeep(initialState)
           data.accounts.ids.push(accountId)

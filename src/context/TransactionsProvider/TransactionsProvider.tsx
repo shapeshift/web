@@ -15,8 +15,8 @@ import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
-  selectIsPortfolioLoaded,
   selectPortfolioAssetIds,
+  selectPortfolioLoadingStatus,
   selectTxHistoryStatus,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -39,7 +39,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
-  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  const portfolioLoadingState = useSelector(selectPortfolioLoadingStatus)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
   const chainAdapterManager = getChainAdapterManager()
@@ -63,7 +63,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
-    if (!isPortfolioLoaded) return // wait for all chain portfolios to be loaded before subscribing
+    if (portfolioLoadingState === 'loading') return
     if (isSubscribed) return // don't resubscribe
     if (txHistoryStatus !== 'loaded') return
     ;(async () =>
@@ -141,7 +141,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     // assets causes unnecessary renders, but doesn't actually change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    isPortfolioLoaded,
+    portfolioLoadingState,
     isSubscribed,
     dispatch,
     walletInfo?.deviceId,

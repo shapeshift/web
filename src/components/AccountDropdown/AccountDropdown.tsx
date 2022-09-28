@@ -157,7 +157,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const getAccountIdsSortedByBalance = useCallback(
     (accountIds: AccountId[]): AccountId[] =>
       chain(accountIds)
-        .sortBy(accountIds, accountId => bnOrZero(accountBalances[accountId][assetId]).toNumber())
+        .sortBy(accountIds, accountId =>
+          bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0).toNumber(),
+        )
         .reverse()
         .value(),
     [accountBalances, assetId],
@@ -217,7 +219,10 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <AccountChildOption
               key={`${iterAccountId}-${index}`}
               title={makeTitle(iterAccountId)}
-              cryptoBalance={fromBaseUnit(accountBalances[iterAccountId][assetId], asset.precision)}
+              cryptoBalance={fromBaseUnit(
+                accountBalances?.[iterAccountId]?.[assetId] ?? 0,
+                asset.precision,
+              )}
               symbol={asset.symbol}
               isChecked={selectedAccountId === iterAccountId}
               onClick={() => handleClick(iterAccountId)}

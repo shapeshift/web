@@ -3,7 +3,10 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
+import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import { useFiatRampByAssetId } from 'components/Modals/FiatRamps/hooks/useFiatRampByAssetId'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
@@ -22,13 +25,30 @@ type AssetActionProps = {
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
-  const { send, receive } = useModal()
+  const { send, receive, fiatRamps } = useModal()
   const translate = useTranslate()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const {
+    providers: buyProviders,
+    loading: buyProvidersLoading,
+    selectedAsset: buyAsset,
+  } = useFiatRampByAssetId({
+    assetId,
+    action: FiatRampAction.Buy,
+  })
+  const {
+    providers: sellProviders,
+    loading: sellProvidersLoading,
+    selectedAsset: sellAsset,
+  } = useFiatRampByAssetId({
+    assetId,
+    action: FiatRampAction.Sell,
+  })
 
   useEffect(() => {
     setIsValidChainId(chainAdapterManager.has(asset.chainId))
@@ -84,6 +104,23 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           data-test='asset-action-receive'
         >
           {translate('common.receive')}
+        </Button>
+
+        <Button
+          onClick={() => fiatRamps.open({ asset })}
+          isLoading={buyProvidersLoading}
+          disabled={!buyProviders.length}
+          leftIcon={<FaCreditCard />}
+        >
+          Buy
+        </Button>
+        <Button
+          onClick={() => fiatRamps.open({ asset })}
+          isLoading={sellProvidersLoading}
+          disabled={!sellProviders.length}
+          leftIcon={<FaCreditCard />}
+        >
+          Sell
         </Button>
       </Stack>
     </Stack>

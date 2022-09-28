@@ -289,6 +289,7 @@ export const Overview: React.FC<OverviewProps> = ({
           }
           accountFiatBalance={accountFiatBalance}
           action={fiatRampAction}
+          key={provider.label}
           {...provider}
         />
       ))

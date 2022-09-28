@@ -4,7 +4,9 @@ import { useGetFiatRampAssetsQuery } from 'state/apis/fiatRamps/fiatRamps'
 
 import type { FiatRamp, SupportedFiatRampConfig } from '../config'
 import { supportedFiatRamps } from '../config'
-import type { FiatRampAction } from '../FiatRampsCommon'
+import type { FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampAction } from '../FiatRampsCommon'
+import { useFiatRampCurrencyList } from './useFiatRampCurrencyList'
 
 type UseFiatRampByAssetIdProps = {
   assetId?: AssetId
@@ -13,8 +15,10 @@ type UseFiatRampByAssetIdProps = {
 
 export const useFiatRampByAssetId = ({ assetId, action }: UseFiatRampByAssetIdProps) => {
   const [providers, setProviders] = useState<SupportedFiatRampConfig[]>([])
+  const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | undefined>()
 
   const { data: fiatRampData } = useGetFiatRampAssetsQuery()
+  const { buyList, sellList } = useFiatRampCurrencyList()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,7 +37,16 @@ export const useFiatRampByAssetId = ({ assetId, action }: UseFiatRampByAssetIdPr
     setLoading(false)
   }, [assetId, action, fiatRampData])
 
+  useEffect(() => {
+    if (assetId) {
+      const list = action === FiatRampAction.Buy ? buyList : sellList
+      const asset = list.find(asset => asset.assetId === assetId)
+      setSelectedAsset(asset)
+    }
+  }, [action, assetId, buyList, sellList])
+
   return {
+    selectedAsset,
     loading,
     providers,
   }

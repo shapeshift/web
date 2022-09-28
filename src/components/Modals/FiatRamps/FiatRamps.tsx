@@ -1,9 +1,15 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
+import { AnimatePresence } from 'framer-motion'
 import { useModal } from 'hooks/useModal/useModal'
 
-import { FiatRampsRouter } from './FiatRampsRouter'
+import type { FiatRampAsset } from './FiatRampsCommon'
+import { Manager } from './views/Manager'
 
-export const FiatRampsModal = () => {
+type FiatRampsModalProps = {
+  asset?: FiatRampAsset
+}
+
+export const FiatRampsModal = ({ asset }: FiatRampsModalProps) => {
   const { fiatRamps } = useModal()
   const { close, isOpen } = fiatRamps
 
@@ -17,7 +23,9 @@ export const FiatRampsModal = () => {
         minWidth={{ base: '100%', md: '500px' }}
         maxWidth={{ base: 'full', md: '500px' }}
       >
-        <FiatRampsRouter />
+        <AnimatePresence exitBeforeEnter initial={false}>
+          <Manager asset={asset} />
+        </AnimatePresence>
       </ModalContent>
     </Modal>
   )

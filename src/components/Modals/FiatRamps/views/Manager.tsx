@@ -56,7 +56,11 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
-const ManagerRouter: React.FC<RouteComponentProps> = () => {
+type ManagerRouterProps = {
+  asset?: FiatRampAsset
+} & RouteComponentProps
+
+const ManagerRouter: React.FC<ManagerRouterProps> = ({ asset }) => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
@@ -182,6 +186,12 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     selectAssetTranslation,
     onAssetSelect,
   }
+  useEffect(() => {
+    // This for the asset action buttons -- pre selected the buy or sell asset
+    if (asset) {
+      setSelectedAsset(asset)
+    }
+  }, [asset, setSelectedAsset])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -217,14 +227,18 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   )
 }
 
-export const Manager = () => {
+type ManagerProps = {
+  asset?: FiatRampAsset
+}
+
+export const Manager = ({ asset }: ManagerProps) => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
         <Switch>
           <Route
             path='/'
-            component={(props: RouteComponentProps) => <ManagerRouter {...props} />}
+            component={(props: RouteComponentProps) => <ManagerRouter asset={asset} {...props} />}
           />
         </Switch>
       </MemoryRouter>

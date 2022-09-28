@@ -172,11 +172,13 @@ export const useTradeAmounts = () => {
         sellAccountFilter,
       )
 
+      if (!sellAccountMetadata) return // no-op, need at least bip44Params to get tradequoteArgs
+
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
         sellAsset,
-        sellAccountType: sellAccountMetadata?.accountType,
-        sellAccountBip44Params: sellAccountMetadata?.bip44Params,
+        sellAccountType: sellAccountMetadata.accountType,
+        sellAccountBip44Params: sellAccountMetadata.bip44Params,
         wallet,
         receiveAddress,
         sellAmount: sellTradeAsset?.amount || amountToUse || '0',

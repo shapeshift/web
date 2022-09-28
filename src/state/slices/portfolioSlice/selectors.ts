@@ -189,8 +189,8 @@ export const selectPortfolioLoadingStatusGranular = createDeepEqualOutputSelecto
     const requestedAccountIds = keys(accountMetadata)
     return requestedAccountIds.reduce<PortfolioLoadingStatusGranular>((acc, accountId) => {
       const account = accountsById[accountId]
-      const accountState = account ? (account.assetIds.length ? 'success' : 'error') : 'loading'
-      acc[accountId] = accountState
+      const accountStatus = account ? (account.assetIds.length ? 'success' : 'error') : 'loading'
+      acc[accountId] = accountStatus
       return acc
     }, {})
   },

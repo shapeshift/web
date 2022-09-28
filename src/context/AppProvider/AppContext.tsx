@@ -1,7 +1,4 @@
-import type { ToastId } from '@chakra-ui/react'
-import { Flex } from '@chakra-ui/react'
-import { Button } from '@chakra-ui/react'
-import { AlertDescription, useToast } from '@chakra-ui/react'
+import { AlertDescription, Button, Flex, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import {
   cosmosChainId,
@@ -15,7 +12,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { entries } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -66,6 +63,7 @@ const moduleLogger = logger.child({ namespace: ['AppContext'] })
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
+  const accountErrorToastId = 'accountError'
   const translate = useTranslate()
   const dispatch = useDispatch()
   const { supportedChains } = usePlugins()
@@ -80,7 +78,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const accountErrorToast = useRef<ToastId>()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -236,10 +233,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
 
-  const toastId = 'accountError'
-
   const handleAccountErrorToastClose = useCallback(
-    () => toast.isActive(toastId) && toast.close(toastId),
+    () => toast.isActive(accountErrorToastId) && toast.close(accountErrorToastId),
     [toast],
   )
 
@@ -277,7 +272,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const toastOptions = {
       position: 'top-right' as const,
-      id: toastId,
+      id: accountErrorToastId,
       title: translate('common.somethingWentWrong'),
       status: 'error' as const,
       description: (
@@ -293,9 +288,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       isClosable: true,
       duration: null, // don't auto-dismiss
     }
-    toast.isActive(toastId) ? toast.update(toastId, toastOptions) : toast(toastOptions)
+    toast.isActive(accountErrorToastId)
+      ? toast.update(accountErrorToastId, toastOptions)
+      : toast(toastOptions)
   }, [
-    accountErrorToast,
     assets,
     dispatch,
     handleAccountErrorToastClose,

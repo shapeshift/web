@@ -38,7 +38,6 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
-  selectFirstAccountSpecifierByChainId,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -71,8 +70,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     sellAssetFiatRate,
     buyAssetFiatRate,
     slippage,
-  }: Pick<TS, 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate' | 'slippage'> =
-    getValues()
+    buyAssetAccountId,
+  }: Pick<
+    TS,
+    'buyAssetAccountId' | 'trade' | 'fees' | 'sellAssetFiatRate' | 'buyAssetFiatRate' | 'slippage'
+  > = getValues()
   const { executeQuote, reset, getTradeTxs } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
@@ -84,17 +86,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const buyAssetChainId = trade?.buyAsset.chainId
+
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
-  const buyAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, buyAssetChainId ?? ''),
-  )
 
   const parsedBuyTxId = useMemo(
-    () => serializeTxIndex(buyAssetAccountSpecifier, buyTxid, trade?.receiveAddress ?? ''),
-    [buyAssetAccountSpecifier, trade?.receiveAddress, buyTxid],
+    () => serializeTxIndex(buyAssetAccountId ?? '', buyTxid, trade?.receiveAddress ?? ''),
+    [buyAssetAccountId, trade?.receiveAddress, buyTxid],
   )
 
   const status =

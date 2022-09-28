@@ -27,7 +27,13 @@ const DegradedStateBanner = () => {
   ).join(', ')
 
   return (
-    <Alert status='warning' mx={4} mt={4} width='auto' flexDirection={'column'}>
+    <Alert
+      status='warning'
+      mx={4}
+      mt={4}
+      width='auto'
+      flexDirection={{ base: 'column', lg: 'row' }}
+    >
       <AlertIcon />
       <AlertTitle>{translate('common.degradedState')}</AlertTitle>
       <AlertDescription>

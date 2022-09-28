@@ -93,6 +93,7 @@ export const TradeInput = () => {
 
   const protocolFeeCrypto = bnOrZero(fees?.sellAssetTradeFeeUsd) // Protocol fee can be either taken from the sell asset
     .plus(fees?.buyAssetTradeFeeUsd ?? '0') // Or from the buy asset, so one of the two is always guaranteed to be 0
+    .div(bnOrZero(buyAssetFiatRate))
     .toString()
   const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount).plus(bnOrZero(protocolFeeCrypto))
   const gasFee = bnOrZero(fees?.networkFee).times(bnOrZero(feeAssetFiatRate)).toString()

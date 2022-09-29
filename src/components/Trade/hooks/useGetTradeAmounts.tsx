@@ -1,12 +1,13 @@
 import { useFormContext, useWatch } from 'react-hook-form'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import type { TS } from 'components/Trade/types'
+import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-type GetTradeAmountConstantsArgs = Omit<CalculateAmountsArgs, 'action'>
+type GetTradeAmountConstantsArgs = CalculateAmountsArgs
 
 export const getTradeAmountConstants = ({
   amount,
@@ -17,24 +18,54 @@ export const getTradeAmountConstants = ({
   selectedCurrencyToUsdRate,
   sellAssetTradeFeeUsd,
   buyAssetTradeFeeUsd,
+  action,
 }: GetTradeAmountConstantsArgs) => {
   const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
   const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
-  const sellAmountBeforeFeesBaseUnit = toBaseUnit(
-    usdAmount.dividedBy(sellAssetUsdRate),
-    sellAsset.precision,
-  )
-  const buyAmountBeforeFeesBaseUnit = toBaseUnit(
-    usdAmount.dividedBy(buyAssetUsdRate),
-    buyAsset.precision,
-  )
+
+  const sellAmountBeforeFeesBaseUnit: string = (() => {
+    switch (action) {
+      case TradeAmountInputField.BUY_CRYPTO:
+        return toBaseUnit(bnOrZero(amount).times(assetPriceRatio), sellAsset.precision)
+      case TradeAmountInputField.SELL_CRYPTO:
+        return toBaseUnit(amount, sellAsset.precision)
+      case TradeAmountInputField.BUY_FIAT:
+      case TradeAmountInputField.SELL_FIAT:
+        return toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision)
+      default:
+        return '0'
+    }
+  })()
+
+  const buyAmountBeforeFeesBaseUnit: string = (() => {
+    switch (action) {
+      case TradeAmountInputField.BUY_CRYPTO:
+        return toBaseUnit(amount, buyAsset.precision)
+      case TradeAmountInputField.SELL_CRYPTO:
+        return toBaseUnit(bnOrZero(amount).div(assetPriceRatio), buyAsset.precision)
+      case TradeAmountInputField.BUY_FIAT:
+      case TradeAmountInputField.SELL_FIAT:
+        return toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision)
+      default:
+        return '0'
+    }
+  })()
 
   const buyAmountBeforeFees = fromBaseUnit(buyAmountBeforeFeesBaseUnit, buyAsset.precision)
 
-  const buyAmountBeforeFeesSellAssetBaseUnit = toBaseUnit(
-    usdAmount.dividedBy(buyAssetUsdRate),
-    sellAsset.precision,
-  )
+  const buyAmountBeforeFeesSellAssetBaseUnit: string = (() => {
+    switch (action) {
+      case TradeAmountInputField.BUY_CRYPTO:
+        return toBaseUnit(amount, sellAsset.precision)
+      case TradeAmountInputField.SELL_CRYPTO:
+        return toBaseUnit(bnOrZero(amount).div(assetPriceRatio), buyAsset.precision)
+      case TradeAmountInputField.BUY_FIAT:
+      case TradeAmountInputField.SELL_FIAT:
+        return toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), sellAsset.precision)
+      default:
+        return '0'
+    }
+  })()
 
   const sellAssetTradeFeeSellAssetBaseUnit = toBaseUnit(
     sellAssetTradeFeeUsd.div(sellAssetUsdRate),
@@ -97,12 +128,14 @@ export const getTradeAmountConstants = ({
     .times(sellAssetUsdRate)
     .times(selectedCurrencyToUsdRate)
     .toFixed(2)
+
   const sellAmountPlusFeesFiat = bnOrZero(
     fromBaseUnit(sellAmountPlusFeesBaseUnit, sellAsset.precision),
   )
     .times(sellAssetUsdRate)
     .times(selectedCurrencyToUsdRate)
     .toFixed(2)
+
   const buyAmountAfterFeesFiat = bnOrZero(
     fromBaseUnit(buyAmountAfterFeesBaseUnit, buyAsset.precision),
   )
@@ -136,6 +169,7 @@ export const useGetTradeAmounts = () => {
   const buyAssetUsdRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const sellAssetUsdRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
+  const action = useWatch({ control, name: 'action' })
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
@@ -145,7 +179,7 @@ export const useGetTradeAmounts = () => {
   const buyAssetTradeFeeUsd = bnOrZero(fees?.buyAssetTradeFeeUsd)
 
   const tradeAmountConstants =
-    buyAsset && sellAsset
+    buyAsset && sellAsset && action
       ? getTradeAmountConstants({
           amount,
           buyAsset,
@@ -155,6 +189,7 @@ export const useGetTradeAmounts = () => {
           selectedCurrencyToUsdRate,
           sellAssetTradeFeeUsd,
           buyAssetTradeFeeUsd,
+          action,
         })
       : undefined
 

@@ -24,17 +24,7 @@ type CalculateAmountsReturn = {
   fiatBuyAmount: string
 }
 
-export const calculateAmounts = ({
-  amount,
-  buyAsset,
-  sellAsset,
-  buyAssetUsdRate,
-  sellAssetUsdRate,
-  action,
-  selectedCurrencyToUsdRate,
-  sellAssetTradeFeeUsd,
-  buyAssetTradeFeeUsd,
-}: CalculateAmountsArgs): CalculateAmountsReturn => {
+export const calculateAmounts = (args: CalculateAmountsArgs): CalculateAmountsReturn => {
   const {
     buyAmountBeforeFeesFiat,
     sellAmountBeforeFeesFiat,
@@ -44,16 +34,8 @@ export const calculateAmounts = ({
     sellAmountBeforeFeesBaseUnit,
     sellAmountPlusFeesBaseUnit,
     buyAmountBeforeFeesBaseUnit,
-  } = getTradeAmountConstants({
-    amount,
-    buyAsset,
-    sellAsset,
-    buyAssetUsdRate,
-    sellAssetUsdRate,
-    selectedCurrencyToUsdRate,
-    sellAssetTradeFeeUsd,
-    buyAssetTradeFeeUsd,
-  })
+  } = getTradeAmountConstants(args)
+  const { action, amount, sellAsset, buyAsset } = args
   switch (action) {
     case TradeAmountInputField.SELL_CRYPTO: {
       return {

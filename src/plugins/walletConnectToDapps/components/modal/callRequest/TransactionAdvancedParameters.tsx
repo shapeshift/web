@@ -17,7 +17,7 @@ import { useTranslate } from 'react-polyglot'
 
 import type { ConfirmData } from './SendTransactionConfirmation'
 
-export const TransactionAdvancedParameters: FC = ({}) => {
+export const TransactionAdvancedParameters: FC = () => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 

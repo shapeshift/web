@@ -8,5 +8,5 @@ export const csp: Csp = {
   ],
   'img-src': ['https://imagedelivery.net/', 'https://registry.walletconnect.com/api/v2/logo/',
   // for debugging purposes
-  'https://example.walletconnect.org'],
+  '*'],
 }

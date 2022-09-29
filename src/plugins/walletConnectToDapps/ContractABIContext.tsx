@@ -1,3 +1,4 @@
+import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { FC, PropsWithChildren } from 'react'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
@@ -14,11 +15,13 @@ const ContractABIContext = createContext<ContractABIContextValue>({
 
 export const ContractABIProvider: FC<PropsWithChildren> = ({ children }) => {
   const [contracts, setMapping] = useState<Record<string, ethers.utils.Interface | null>>({})
-  const loadContract = useCallback(async (address: string, chainId: number) => {
+  const loadContract = useCallback(async (address: string) => {
     try {
       // TODO: get API url and API key based on chainId and env vars or similar
       const res = await fetch(
-        `https://api.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=SHWW69VK4Y77NUNYX1E3W7EMRBDWEB97EU`,
+        `https://api.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${
+          getConfig().REACT_APP_ETHERSCAN_API_KEY
+        }`,
       ).then(res => res.json())
       if (res.status !== '1') throw new Error(res.result)
 

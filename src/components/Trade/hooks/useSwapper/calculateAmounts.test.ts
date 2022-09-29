@@ -28,8 +28,8 @@ describe('calculateAmounts', () => {
     })
 
     expect(result).toEqual({
-      cryptoSellAmount: '1000000000000000000',
-      cryptoBuyAmount: '2000000000000000000',
+      sellAmountSellAssetBaseUnit: '1000000000000000000',
+      buyAmountBuyAssetBaseUnit: '2000000000000000000',
       fiatSellAmount: '2.00',
       fiatBuyAmount: '2.00',
     })
@@ -51,8 +51,8 @@ describe('calculateAmounts', () => {
     })
 
     expect(result).toEqual({
-      cryptoBuyAmount: '1000000000000000000',
-      cryptoSellAmount: '500000000000000000',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
       fiatSellAmount: '1.00',
       fiatBuyAmount: '1.00',
     })
@@ -74,8 +74,8 @@ describe('calculateAmounts', () => {
     })
 
     expect(result).toEqual({
-      cryptoBuyAmount: '1000000000000000000',
-      cryptoSellAmount: '500000000000000000',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
       fiatSellAmount: '1.00',
       fiatBuyAmount: '1.00',
     })
@@ -97,8 +97,8 @@ describe('calculateAmounts', () => {
     })
 
     expect(result).toEqual({
-      cryptoBuyAmount: '1000000000000000000',
-      cryptoSellAmount: '500000000000000000',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
       fiatSellAmount: '1.00',
       fiatBuyAmount: '1.00',
     })

@@ -9,6 +9,7 @@ import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
@@ -45,13 +46,13 @@ export const TradeInput = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const tradeAmountConstants = useGetTradeAmounts()
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
-  const buyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
@@ -91,12 +92,6 @@ export const TradeInput = () => {
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
-  const sellProtocolFeeCrypto = bnOrZero(fees?.sellAssetTradeFeeUsd) // Protocol fee can be either taken from the sell asset
-    .div(bnOrZero(buyAssetFiatRate))
-  const buyProtocolFeeCrypto = bnOrZero(fees?.buyAssetTradeFeeUsd ?? '0') // Or from the buy asset, so one of the two is always guaranteed to be 0
-    .div(bnOrZero(buyAssetFiatRate))
-  const protocolFeeCrypto = sellProtocolFeeCrypto.plus(buyProtocolFeeCrypto).toString()
-  const toCryptoAmountBeforeFees = bnOrZero(buyTradeAsset?.amount) // TODO: remove me and use buyTradeAsset?.amount directly?
   const gasFee = bnOrZero(fees?.networkFee).times(bnOrZero(feeAssetFiatRate)).toString()
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
@@ -340,9 +335,9 @@ export const TradeInput = () => {
             <ReceiveSummary
               isLoading={!quote || isLoadingTradeQuote}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
-              amount={toCryptoAmountBeforeFees.minus(protocolFeeCrypto).toString() ?? ''}
-              beforeFees={toCryptoAmountBeforeFees.toString()}
-              protocolFee={protocolFeeCrypto}
+              amount={buyTradeAsset?.amount ?? ''}
+              beforeFees={tradeAmountConstants?.buyAmountBeforeFees ?? ''}
+              protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
             />

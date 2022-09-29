@@ -71,7 +71,6 @@ export const useTradeAmounts = () => {
         fiatSellAmount,
         fiatBuyAmount,
       } = calculateAmounts(args)
-
       const buyTradeAssetAmount = fromBaseUnit(buyAmountBuyAssetBaseUnit, args.buyAsset.precision)
       const sellTradeAssetAmount = fromBaseUnit(
         sellAmountSellAssetBaseUnit,

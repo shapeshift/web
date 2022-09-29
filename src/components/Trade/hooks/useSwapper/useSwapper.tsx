@@ -612,31 +612,31 @@ export const useSwapper = () => {
     sellAsset: Asset
     tradeFeeSource: string
   }) => {
-    const feeBN = bnOrZero(trade?.feeData?.networkFee).dividedBy(
-      bn(10).exponentiatedBy(feeAsset.precision),
-    )
-    const fee = feeBN.toString()
+    const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee, feeAsset.precision)
 
-    const getEvmFees = <T extends EvmChainId>(): DisplayFeeData<T> => {
-      const evmTrade = trade as Trade<T>
+    const getEvmFees = (): DisplayFeeData<EvmChainId> => {
+      const evmTrade = trade as Trade<EvmChainId>
       const approvalFee = bnOrZero(evmTrade.feeData.chainSpecific.approvalFee)
         .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
         .toString()
-      const totalFee = feeBN.plus(approvalFee).toString()
+      const totalFee = bnOrZero(networkFeeCryptoHuman).plus(approvalFee).toString()
       const gasPrice = bnOrZero(evmTrade.feeData.chainSpecific.gasPrice).toString()
       const estimatedGas = bnOrZero(evmTrade.feeData.chainSpecific.estimatedGas).toString()
 
       return {
-        fee,
+        fee: networkFeeCryptoHuman,
         chainSpecific: {
           approvalFee,
           gasPrice,
           estimatedGas,
           totalFee,
         },
-        tradeFee: evmTrade.feeData.sellAssetTradeFeeUsd,
+        tradeFee: evmTrade.feeData.sellAssetTradeFeeUsd ?? '',
         tradeFeeSource,
-      } as unknown as DisplayFeeData<T>
+        networkFeeCryptoHuman,
+        sellAssetTradeFeeUsd: evmTrade.feeData.sellAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: evmTrade.feeData.buyAssetTradeFeeUsd ?? '',
+      }
     }
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -648,8 +648,8 @@ export const useSwapper = () => {
         break
       case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
-          fee,
-          networkFee: fee,
+          fee: networkFeeCryptoHuman,
+          networkFeeCryptoHuman,
           tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
           buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
           tradeFeeSource,
@@ -663,8 +663,8 @@ export const useSwapper = () => {
           const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
           const fees: DisplayFeeData<UtxoSupportedChainIds> = {
-            fee,
-            networkFee: fee,
+            fee: networkFeeCryptoHuman,
+            networkFeeCryptoHuman,
             chainSpecific: utxoTrade.feeData.chainSpecific,
             tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
             buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',

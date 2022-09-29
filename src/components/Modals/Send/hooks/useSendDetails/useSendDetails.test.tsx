@@ -253,7 +253,10 @@ describe('useSendDetails', () => {
       expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
       expect(setValue).toHaveBeenNthCalledWith(2, 'sendMax', true)
       expect(setValue).toHaveBeenNthCalledWith(3, 'estimatedFees', {
-        fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' },
+        fast: {
+          chainSpecific: { feePerTx: '6000000000000000' },
+          networkFee: '6000000000000000',
+        },
       })
       expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '17500.00')
       expect(setValue).toHaveBeenNthCalledWith(5, 'cryptoAmount', '5')

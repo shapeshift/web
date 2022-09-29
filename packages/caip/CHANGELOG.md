@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.0...@shapeshiftoss/caip-v8.4.1) (2022-09-29)
+
+
+### Bug Fixes
+
+* remove HEGIC from thor pools ([#1044](https://github.com/shapeshift/lib/issues/1044)) ([fe5e52a](https://github.com/shapeshift/lib/commit/fe5e52a730c693aa2ab321c6108dd1b7407f49f9))
+
 # [@shapeshiftoss/caip-v8.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.3.0...@shapeshiftoss/caip-v8.4.0) (2022-09-20)
 
 

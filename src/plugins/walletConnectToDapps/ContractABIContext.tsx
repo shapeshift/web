@@ -17,7 +17,6 @@ export const ContractABIProvider: FC<PropsWithChildren> = ({ children }) => {
   const [contracts, setMapping] = useState<Record<string, ethers.utils.Interface | null>>({})
   const loadContract = useCallback(async (address: string) => {
     try {
-      // TODO: get API url and API key based on chainId and env vars or similar
       const res = await fetch(
         `https://api.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${
           getConfig().REACT_APP_ETHERSCAN_API_KEY

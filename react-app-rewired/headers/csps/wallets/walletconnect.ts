@@ -6,7 +6,5 @@ export const csp: Csp = {
     'https://registry.walletconnect.com/api/v2/wallets',
     'https://api.etherscan.io',
   ],
-  'img-src': ['https://imagedelivery.net/', 'https://registry.walletconnect.com/api/v2/logo/',
-  // for debugging purposes
-  '*'],
+  'img-src': ['https://imagedelivery.net/', 'https://registry.walletconnect.com/api/v2/logo/', '*'],
 }

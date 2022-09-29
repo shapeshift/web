@@ -65,10 +65,18 @@ export const useTradeAmounts = () => {
 
   const setTradeAmounts = useCallback(
     (args: SetTradeAmountsArgs) => {
-      const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
-        calculateAmounts(args)
-      const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, args.buyAsset.precision)
-      const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, args.sellAsset.precision)
+      const {
+        sellAmountSellAssetBaseUnit,
+        buyAmountBuyAssetBaseUnit,
+        fiatSellAmount,
+        fiatBuyAmount,
+      } = calculateAmounts(args)
+
+      const buyTradeAssetAmount = fromBaseUnit(buyAmountBuyAssetBaseUnit, args.buyAsset.precision)
+      const sellTradeAssetAmount = fromBaseUnit(
+        sellAmountSellAssetBaseUnit,
+        args.sellAsset.precision,
+      )
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
       setValue('buyTradeAsset.amount', buyTradeAssetAmount)
@@ -209,9 +217,7 @@ export const useTradeAmounts = () => {
           sellAssetUsdRate: usdRates.sellAssetUsdRate,
           selectedCurrencyToUsdRate,
           buyAssetTradeFeeUsd: bnOrZero(formFees?.buyAssetTradeFeeUsd),
-          sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd).div(
-            bnOrZero(usdRates.buyAssetUsdRate),
-          ),
+          sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
     },
     [

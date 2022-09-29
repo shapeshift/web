@@ -406,17 +406,18 @@ export const useSwapper = () => {
         buyAssetFiatRate,
       }: DebouncedQuoteInput) => {
         try {
-          const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount } = calculateAmounts({
-            amount,
-            buyAsset,
-            sellAsset,
-            buyAssetUsdRate: buyAssetFiatRate,
-            sellAssetUsdRate: sellAssetFiatRate,
-            action,
-            selectedCurrencyToUsdRate,
-            sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
-            buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
-          })
+          const { sellAmountSellAssetBaseUnit, buyAmountBuyAssetBaseUnit, fiatSellAmount } =
+            calculateAmounts({
+              amount,
+              buyAsset,
+              sellAsset,
+              buyAssetUsdRate: buyAssetFiatRate,
+              sellAssetUsdRate: sellAssetFiatRate,
+              action,
+              selectedCurrencyToUsdRate,
+              sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+              buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+            })
 
           const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
           const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -459,7 +460,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
-                sellAmount: cryptoSellAmount,
+                sellAmount: sellAmountSellAssetBaseUnit,
                 sendMax: false,
                 bip44Params: sellAccountMetadata.bip44Params,
                 receiveAddress,
@@ -478,7 +479,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
-                sellAmount: cryptoSellAmount,
+                sellAmount: sellAmountSellAssetBaseUnit,
                 sendMax: false,
                 bip44Params: sellAccountMetadata.bip44Params,
                 accountType: sellAccountMetadata.accountType,
@@ -501,8 +502,14 @@ export const useSwapper = () => {
 
           // Update trade input form fields to new calculated amount
           setValue('fiatSellAmount', fiatSellAmount) // Fiat input field amount
-          setValue('buyTradeAsset.amount', fromBaseUnit(cryptoBuyAmount, buyAsset.precision)) // Buy asset input field amount
-          setValue('sellTradeAsset.amount', fromBaseUnit(cryptoSellAmount, sellAsset.precision)) // Sell asset input field amount
+          setValue(
+            'buyTradeAsset.amount',
+            fromBaseUnit(buyAmountBuyAssetBaseUnit, buyAsset.precision),
+          ) // Buy asset input field amount
+          setValue(
+            'sellTradeAsset.amount',
+            fromBaseUnit(sellAmountSellAssetBaseUnit, sellAsset.precision),
+          ) // Sell asset input field amount
         } catch (e) {
           if (
             e instanceof SwapError &&

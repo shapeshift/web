@@ -37,11 +37,13 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, size
           position='absolute'
           right='-0.15em'
           top='-0.15em'
+          border={0}
+          bg='none'
           src={feeAsset.icon}
           boxShadow={boxShadow}
         />
       )}
-      <Avatar src={asset.icon} icon={icon} boxSize='auto' />
+      <Avatar src={asset.icon} icon={icon} boxSize='auto' border={0} bg='none' />
     </Box>
   )
 }

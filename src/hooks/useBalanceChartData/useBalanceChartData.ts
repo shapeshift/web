@@ -13,6 +13,7 @@ import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
+import pull from 'lodash/pull'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useMemo, useState } from 'react'
@@ -47,7 +48,7 @@ import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
-import { makeBalanceChartData } from './utils'
+import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
@@ -365,10 +366,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
    * and respect the balance threshold, i.e. we don't want to render zero balances chart lines
    * for assets with a current balance that falls below the user's specified balance threshold
    */
-  const assetIds = useMemo(
+  const intersectedAssetIds = useMemo(
     () => intersection(assetIdsWithBalancesAboveThreshold, inputAssetIds),
     [assetIdsWithBalancesAboveThreshold, inputAssetIds],
   )
+
+  const assetIds = pull(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST)
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

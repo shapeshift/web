@@ -107,7 +107,6 @@ export const portfolioApi = createApi({
           string,
         ]
         try {
-          if (Boolean(Math.round(Math.random()))) throw new Error('fake failure')
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
 

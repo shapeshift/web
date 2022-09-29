@@ -90,9 +90,11 @@ const getEvmFees = <T extends EvmChainId>(
   trade: Trade<T> | TradeQuote<T>,
   feeAsset: Asset,
   tradeFeeSource: string,
-): DisplayFeeData<T> => {
+): DisplayFeeData<EvmChainId> => {
   // The "gas" fee paid to the network for the transaction
-  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+  const feeBN = bnOrZero(trade?.feeData?.networkFee).dividedBy(
+    bn(10).exponentiatedBy(feeAsset.precision),
+  )
   const fee = feeBN.toString()
   const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
     .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
@@ -110,9 +112,12 @@ const getEvmFees = <T extends EvmChainId>(
       totalFee,
     },
     // The fee paid to the protocol for the transaction
-    tradeFee: trade.feeData.tradeFee,
+    tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
     tradeFeeSource,
-  } as DisplayFeeData<T>
+    buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
+    sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
+    networkFee: trade.feeData.networkFee,
+  }
 }
 
 export const getFormFees = ({
@@ -121,7 +126,9 @@ export const getFormFees = ({
   tradeFeeSource,
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
-  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
+  const feeBN = bnOrZero(trade?.feeData?.networkFee).dividedBy(
+    bn(10).exponentiatedBy(feeAsset.precision),
+  )
   const fee = feeBN.toString()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
@@ -133,18 +140,24 @@ export const getFormFees = ({
       )
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
+        networkFee: fee,
         fee,
-        tradeFee: trade.feeData.tradeFee,
+        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
+        tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
+        networkFee: fee,
         fee,
         chainSpecific: utxoTrade.feeData.chainSpecific,
-        tradeFee: utxoTrade.feeData.tradeFee,
+        tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
+        sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
       }
     }
     default:

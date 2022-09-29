@@ -4,25 +4,26 @@ import {
   Divider,
   FormControl,
   HStack,
-  NumberInput,
-  NumberInputField,
   Radio,
   RadioGroup,
-  SimpleGrid,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
 import type { FC } from 'react'
-import { Fragment, useMemo } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
 import { RawText, Text } from 'components/Text'
 
+import type { ConfirmData } from './SendTransactionConfirmation'
+import { useCallRequestFees } from './useCallRequestFees'
+
 type GasInputProps = {
-  value: FeeDataKey | undefined
-  onChange(type: FeeDataKey): void
+  request: WalletConnectEthSendTransactionCallRequest['params'][number]
 }
 
 type GasOption = {
@@ -33,7 +34,11 @@ type GasOption = {
   color: ThemeTypings['colorSchemes']
 }
 
-export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
+export const GasInput: FC<GasInputProps> = ({ request }) => {
+  const fees = useCallRequestFees(request)
+  const { control, setValue } = useFormContext<ConfirmData>()
+  const speed = useWatch({ control, name: 'speed' })
+
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
@@ -44,30 +49,32 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
         value: FeeDataKey.Slow,
         label: translate(getFeeTranslation(FeeDataKey.Slow)),
         duration: '~ 10 mins',
-        amount: '10 Gwei',
+        amount: fees.slow.txFee,
         color: 'green.200',
       },
       {
         value: FeeDataKey.Average,
         label: translate(getFeeTranslation(FeeDataKey.Average)),
         duration: '~ 3 mins',
-        amount: '20 Gwei',
+        amount: fees.average.txFee,
         color: 'blue.200',
       },
       {
         value: FeeDataKey.Fast,
         label: translate(getFeeTranslation(FeeDataKey.Fast)),
         duration: '~ 3 seconds',
-        amount: '30 Gwei',
+        amount: fees.fast.txFee,
         color: 'red.400',
       },
     ],
-    [translate],
+    [translate, fees],
   )
   const selectedOption = useMemo(
-    () => options.find(option => option.value === value),
-    [options, value],
+    () => options.find(option => option.value === speed),
+    [options, speed],
   )
+
+  const handleChange = useCallback((speed: FeeDataKey) => setValue('speed', speed), [setValue])
 
   return (
     <FormControl
@@ -91,7 +98,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
       </HStack>
 
       <Box borderWidth={1} borderRadius='lg' borderColor={borderColor}>
-        <RadioGroup alignItems='stretch' value={value} onChange={onChange}>
+        <RadioGroup alignItems='stretch' value={speed} onChange={handleChange}>
           <VStack spacing={0}>
             {options.map(option => (
               <Fragment key={option.value}>
@@ -116,7 +123,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
                 <Divider />
               </Fragment>
             ))}
-            <Box px={4} py={2} width='full'>
+            {/* <Box px={4} py={2} width='full'>
               <HStack width='full'>
                 <Radio color='blue'>
                   <Text translation='gasInput.custom' />
@@ -148,7 +155,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
                   </NumberInput>
                 </Box>
               </SimpleGrid>
-            </Box>
+            </Box> */}
           </VStack>
         </RadioGroup>
       </Box>

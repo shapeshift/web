@@ -6,14 +6,14 @@ import {
   NumberInput,
   NumberInputField,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
-import { Card } from 'components/Card/Card'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { Text } from 'components/Text'
 import type { FC } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { Text } from 'components/Text'
 
 import type { ConfirmData } from './SendTransactionConfirmation'
 

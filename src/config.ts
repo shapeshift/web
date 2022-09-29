@@ -99,7 +99,7 @@ const validators = {
   REACT_APP_PENDO_SUB_ID: envalid.str({ default: '6047664892149760' }),
   REACT_APP_PENDO_UNSAFE_DESIGNER_MODE: envalid.bool({ default: false }),
   REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
-  REACT_APP_ETHERSCAN_API_KEY: str(),
+  REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -80,8 +80,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     tryConnectingToExistingSession()
   }, [tryConnectingToExistingSession])
 
-  console.log('call reqs...', callRequests)
-
   const dapp = bridge?.connector.peerMeta ?? undefined
 
   return (

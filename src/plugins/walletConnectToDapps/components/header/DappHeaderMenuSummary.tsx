@@ -23,7 +23,7 @@ export const DappHeaderMenuSummary: FC = () => {
   const connectedChainId = walletConnect.bridge?.connector.chainId
   const chainName = useMemo(() => {
     const name = chainAdapterManager
-      .get(supportedEvmChainIds.find(chainId => chainId === String(connectedChainId)) ?? '')
+      .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedChainId}`) ?? '')
       ?.getDisplayName()
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
@@ -68,10 +68,12 @@ export const DappHeaderMenuSummary: FC = () => {
           <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
           <MiddleEllipsis value={walletConnect.bridge.connector.accounts[0]} color='blue.200' />
         </HStack>
-        <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
-          <RawText>{chainName}</RawText>
-        </HStack>
+        {!!connectedChainId && (
+          <HStack justifyContent='space-between' spacing={4}>
+            <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
+            <RawText>{chainName}</RawText>
+          </HStack>
+        )}
       </VStack>
 
       <MenuDivider />

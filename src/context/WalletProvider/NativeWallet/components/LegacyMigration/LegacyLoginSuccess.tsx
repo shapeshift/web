@@ -39,7 +39,13 @@ export const LegacyLoginSuccess: React.FC<LegacyLoginSuccessProps> = ({ onContin
           mb={4}
           translation={'walletProvider.shapeShift.legacy.importInformations'}
         />
-        <Button colorScheme='blue' width='full' size='lg' onClick={onContinue}>
+        <Button
+          colorScheme='blue'
+          width='full'
+          size='lg'
+          onClick={onContinue}
+          data-test='wallet-native-login-import'
+        >
           <Text translation={'walletProvider.shapeShift.legacy.importWallet'} />
         </Button>
       </ModalBody>

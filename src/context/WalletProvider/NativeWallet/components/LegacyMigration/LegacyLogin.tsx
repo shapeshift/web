@@ -241,6 +241,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
             size='lg'
             type='submit'
             isLoading={isSubmitting}
+            data-test={isTwoFactorRequired ? 'wallet-native-2fa' : 'wallet-native-login-import'}
           >
             <Text translation={isTwoFactorRequired ? 'common.verify' : 'common.login'} />
           </Button>

@@ -1,5 +1,4 @@
 import { Box, Center, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
-import { TradeType } from '@shapeshiftoss/unchained-client'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
@@ -25,9 +24,10 @@ export const Trade = () => {
   } = useWallet()
   const top = isDemoWallet ? '7rem' : '4.5rem'
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const headerBg = useColorModeValue('gray.100', 'gray.800')
   const txIds = useAppSelector(state =>
     selectTxIdsBasedOnSearchTermAndFilters(state, {
-      types: [TradeType.Trade],
+      types: null,
       matchingAssets: null,
       fromDate: null,
       toDate: null,
@@ -86,9 +86,9 @@ export const Trade = () => {
           overflowY='auto'
         >
           <Card variant='unstyled' width='full'>
-            <Card.Header>
+            <Card.Header position='sticky' top={0} bg={headerBg} zIndex={2}>
               <Card.Heading>
-                <Text translation='trade.recentTrades' />
+                <Text translation='dashboard.recentTransactions.recentTransactions' />
               </Card.Heading>
             </Card.Header>
             <TransactionHistoryList txIds={txIds} useCompactMode={true} />

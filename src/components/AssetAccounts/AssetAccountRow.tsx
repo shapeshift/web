@@ -98,18 +98,7 @@ export const AssetAccountRow = ({
       <Flex alignItems='center'>
         <Box position='relative'>
           {/** don't show "exponentiated" asset icons for fee assets */}
-          {assetNamespace !== 'slip44' && (
-            <AssetIcon
-              src={feeAsset.icon}
-              right={0}
-              top={-1}
-              boxSize='20px'
-              position='absolute'
-              zIndex={2}
-              boxShadow='lg'
-            />
-          )}
-          <AssetIcon src={asset?.icon} boxSize='30px' mr={2} />
+          <AssetIcon assetId={asset.assetId} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (

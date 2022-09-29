@@ -1,6 +1,7 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
-import { selectAssetById } from 'state/slices/selectors'
+import { Avatar, Box, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxIcon } from './Icons/FoxIcon'
@@ -14,22 +15,59 @@ type AssetIconProps = {
 // The icon prop is used as the placeholder while the icon loads, or if it fails to load.
 
 // Either src or assetId can be passed, if both are passed src takes precedence
+
+type AssetWithNetworkProps = {
+  assetId: AssetId
+} & AvatarProps
+
+const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, size, ...rest }) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
+  const showFeeAsset = asset.assetId !== feeAsset.assetId
+  const boxShadow = useColorModeValue(
+    `0 0 0 0.2em ${feeAsset.color}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
+    `0 0 0 0.2em ${feeAsset.color}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
+  )
+  return (
+    <Box position='relative' {...rest}>
+      {showFeeAsset && (
+        <Avatar
+          boxSize='0.75em'
+          zIndex={2}
+          position='absolute'
+          right='-0.15em'
+          top='-0.15em'
+          src={feeAsset.icon}
+          boxShadow={boxShadow}
+        />
+      )}
+      <Avatar src={asset.icon} icon={icon} boxSize='auto' />
+    </Box>
+  )
+}
+
 export const AssetIcon = ({ assetId, src, ...rest }: AssetIconProps) => {
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   if (!assetId && !src) {
     return null
   }
-  const imgSrc = src ?? asset?.icon
-  return (
-    <Avatar
-      src={imgSrc}
-      bg={assetIconBg}
+  return assetId ? (
+    <AssetWithNetwork
+      assetId={assetId}
       icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
       {...rest}
     />
+  ) : (
+    <Box position='relative'>
+      <Avatar
+        src={src}
+        bg={assetIconBg}
+        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        {...rest}
+      />
+    </Box>
   )
 }
 

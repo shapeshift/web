@@ -821,6 +821,8 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "clearWalletAccountData": "Delete all accounts & wallet data",
+      "deleteAccountsConfirm": "Are you sure?\n\nThis will remove all personal data including wallets, accounts, balances.\n\nVerify that you have backed up your wallets before continuing.",
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",

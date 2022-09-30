@@ -3,9 +3,10 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { AxiosStatic } from 'axios'
+import { ZrxTrade } from 'packages/swapper/src/swappers/zrx/types'
 import Web3 from 'web3'
 
-import { BuildTradeInput } from '../../../api'
+import { BuildTradeInput, EvmSupportedChainIds, QuoteFeeData } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
@@ -77,8 +78,9 @@ describe('zrxBuildTrade', () => {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   }
 
-  const buildTradeResponse = {
+  const buildTradeResponse: ZrxTrade<EvmSupportedChainIds> = {
     sellAsset,
+    buyAsset,
     sellAmount: quoteResponse.sellAmount,
     buyAmount: '',
     depositAddress: quoteResponse.to,
@@ -90,6 +92,9 @@ describe('zrxBuildTrade', () => {
       fee: (Number(quoteResponse.gas) * Number(quoteResponse.gasPrice)).toString(),
       chainSpecific: { approvalFee: '123600000', estimatedGas: '1235', gasPrice: '1236' },
       tradeFee: '0',
+      networkFee: (Number(quoteResponse.gas) * Number(quoteResponse.gasPrice)).toString(),
+      sellAssetTradeFeeUsd: '0',
+      buyAssetTradeFeeUsd: '0',
     },
     sources: [],
   }
@@ -148,17 +153,22 @@ describe('zrxBuildTrade', () => {
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
+    const expectedFeeData: QuoteFeeData<EvmSupportedChainIds> = {
+      chainSpecific: {
+        approvalFee: bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(gasPrice).toString(),
+        gasPrice,
+        estimatedGas,
+      },
+      fee: bnOrZero(gasPrice).multipliedBy(estimatedGas).toString(),
+      tradeFee: '0',
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '0',
+      networkFee: bnOrZero(gasPrice).multipliedBy(estimatedGas).toString(),
+    }
+
     expect(await zrxBuildTrade(deps, { ...buildTradeInput, wallet })).toEqual({
       ...buildTradeResponse,
-      feeData: {
-        chainSpecific: {
-          approvalFee: bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(gasPrice).toString(),
-          gasPrice,
-          estimatedGas,
-        },
-        fee: bnOrZero(gasPrice).multipliedBy(estimatedGas).toString(),
-        tradeFee: '0',
-      },
+      feeData: expectedFeeData,
       buyAsset,
     })
   })

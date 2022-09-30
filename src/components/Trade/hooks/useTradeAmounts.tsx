@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,7 +16,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
-  selectAccountSpecifiers,
   selectAssets,
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
@@ -40,7 +39,6 @@ export const useTradeAmounts = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // Types
   type SetTradeAmountsAsynchronousArgs = Omit<Partial<CalculateAmountsArgs>, 'tradeFee'> & {
@@ -67,10 +65,17 @@ export const useTradeAmounts = () => {
 
   const setTradeAmounts = useCallback(
     (args: SetTradeAmountsArgs) => {
-      const { cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount } =
-        calculateAmounts(args)
-      const buyTradeAssetAmount = fromBaseUnit(cryptoBuyAmount, args.buyAsset.precision)
-      const sellTradeAssetAmount = fromBaseUnit(cryptoSellAmount, args.sellAsset.precision)
+      const {
+        sellAmountSellAssetBaseUnit,
+        buyAmountBuyAssetBaseUnit,
+        fiatSellAmount,
+        fiatBuyAmount,
+      } = calculateAmounts(args)
+      const buyTradeAssetAmount = fromBaseUnit(buyAmountBuyAssetBaseUnit, args.buyAsset.precision)
+      const sellTradeAssetAmount = fromBaseUnit(
+        sellAmountSellAssetBaseUnit,
+        args.sellAsset.precision,
+      )
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
       setValue('buyTradeAsset.amount', buyTradeAssetAmount)
@@ -89,7 +94,6 @@ export const useTradeAmounts = () => {
       const buyAssetUsdRate = args.buyAssetUsdRate ?? buyAssetFiatRateFormState
       const sellAssetUsdRate = args.sellAssetUsdRate ?? sellAssetFiatRateFormState
       const fees = args.fees ?? feesFormState
-      const tradeFee = bnOrZero(fees?.tradeFee).div(bnOrZero(buyAssetUsdRate))
       if (sellAsset && buyAsset && amount && action) {
         setTradeAmounts({
           amount,
@@ -99,7 +103,8 @@ export const useTradeAmounts = () => {
           buyAssetUsdRate,
           sellAssetUsdRate,
           selectedCurrencyToUsdRate,
-          tradeFee,
+          buyAssetTradeFeeUsd: bnOrZero(fees?.buyAssetTradeFeeUsd),
+          sellAssetTradeFeeUsd: bnOrZero(fees?.sellAssetTradeFeeUsd),
         })
       }
     },
@@ -114,14 +119,6 @@ export const useTradeAmounts = () => {
       setTradeAmounts,
       selectedCurrencyToUsdRate,
     ],
-  )
-
-  const getFirstAccountIdFromChainId = useCallback(
-    (chainId: ChainId) => {
-      const accountSpecifiers = accountSpecifiersList.find(specifiers => specifiers[chainId])
-      return accountSpecifiers?.[chainId]
-    },
-    [accountSpecifiersList],
   )
 
   // Use the args provided to get new fiat rates and a fresh quote
@@ -162,15 +159,16 @@ export const useTradeAmounts = () => {
 
       if (!bestTradeSwapper) return
       const state = store.getState()
-      const sellAssetAccountId = getFirstAccountIdFromChainId(sellAsset.chainId)
       const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
         assetId: sellAsset.assetId,
       })
-      const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
+      const sellAccountFilter = { accountId: sellAssetAccountIds[0] }
       const sellAccountMetadata = selectPortfolioAccountMetadataByAccountId(
         state,
         sellAccountFilter,
       )
+
+      if (!sellAccountMetadata) return // no-op, need at least bip44Params to get tradeQuoteArgs
 
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
@@ -217,7 +215,8 @@ export const useTradeAmounts = () => {
           buyAssetUsdRate: usdRates.buyAssetUsdRate,
           sellAssetUsdRate: usdRates.sellAssetUsdRate,
           selectedCurrencyToUsdRate,
-          tradeFee: bnOrZero(formFees?.tradeFee).div(bnOrZero(usdRates.buyAssetUsdRate)),
+          buyAssetTradeFeeUsd: bnOrZero(formFees?.buyAssetTradeFeeUsd),
+          sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
     },
     [
@@ -226,7 +225,6 @@ export const useTradeAmounts = () => {
       assets,
       buyAssetFormState?.assetId,
       dispatch,
-      getFirstAccountIdFromChainId,
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,

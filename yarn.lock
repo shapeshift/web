@@ -4058,10 +4058,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.0.tgz#1aa7a2e79ec806fe1ef705e50e9e87ba04680a48"
   integrity sha512-NhS4WBRtms4rkdfCrvqWItvODlVPFqb7d5514TBxoLDtJNYm8O/nXD8IyL6MUTSR3mHtSla1FSu3RPqKUdSeOw==
 
-"@shapeshiftoss/chain-adapters@^9.1.5":
-  version "9.1.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-9.1.5.tgz#0798f3a756cbe4a4695c84c0379c29072a2f1a80"
-  integrity sha512-FPsNwE97M/Td/R39jnXrfmqgzoVRzlCc2ebm6UxfTAk2M1kTrD6ZC/tsVogG4t+4Eiw9CG5wMbZTroAtVB0WwA==
+"@shapeshiftoss/chain-adapters@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-9.2.0.tgz#7c5c16def6658eefb81b8e53937df5f2b4d137b8"
+  integrity sha512-MjqGmeGIeiEKgKoUX3wRpeLibp06cSqKa3O1wZYYDOqSuc7Hz+6eHlG35vp8KEr04JF41H6aDB5LbwrnIzGgHA==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4340,10 +4340,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^11.4.0":
-  version "11.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.4.0.tgz#9c801aba8d38bbac06836d23e1f565fe32b05e2d"
-  integrity sha512-sB2VSYX0PsVe8UhZTrbw9UEzrVj8m0JlA0X3vOOza4aI5AQyqLYpWuvOZ+mx9tOEbAZdCAyaNS+kCn1PPaWvsQ==
+"@shapeshiftoss/swapper@^11.5.0":
+  version "11.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.0.tgz#ff1259d3e26ec32938c6544ce721126d115ec2c0"
+  integrity sha512-9cinBfXOm5NIrC448/eBi5zg0nFgIyPBCUkcP/jJp/2gNsmwz1kMwBlQEzNJXJhbONTrSie0rUnXSBICKpoCDw==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

@@ -26,7 +26,10 @@ export type TradeAsset = {
   fiatAmount?: string
 }
 
-export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }
+export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFee'> & {
+  tradeFeeSource: string
+  networkFeeCryptoHuman: string
+}
 
 export type TradeState<C extends ChainId> = {
   sellTradeAsset: TradeAsset | undefined

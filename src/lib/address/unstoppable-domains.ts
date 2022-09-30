@@ -77,11 +77,11 @@ export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async 
   }
   // TODO(0xdef1cafe): uncomment this once this is actually published - docs are wrong
   // https://unstoppabledomains.github.io/resolution/v7.0.0/classes/resolution.html#reverse
-   try {
-     const result = await getResolution().reverse(value)
-     if (result) return result
-   } catch (e) {
-     moduleLogger.trace(e, 'cannot resolve')
-   }
+  try {
+    const result = await getResolution().reverse(value)
+    if (result) return result
+  } catch (e) {
+    moduleLogger.trace(e, 'cannot resolve')
+  }
   return ''
 }

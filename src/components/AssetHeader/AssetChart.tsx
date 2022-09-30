@@ -39,6 +39,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useIsBalanceChartDataUnavailable } from '../../hooks/useBalanceChartData/utils'
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
 
 enum View {
@@ -64,7 +65,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
-  const [view, setView] = useState(accountId ? View.Balance : View.Price)
+  const isBalanceChartDataUnavailable = useIsBalanceChartDataUnavailable(assetIds)
+  const defaultView = accountId && !isBalanceChartDataUnavailable ? View.Balance : View.Price
+  const [view, setView] = useState(defaultView)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
@@ -77,8 +80,10 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   )
 
   useEffect(() => {
-    bnOrZero(fiatBalance).gt(0) && setView(View.Balance)
-  }, [fiatBalance])
+    if (isBalanceChartDataUnavailable) return
+    if (bnOrZero(fiatBalance).eq(0)) return
+    setView(View.Balance)
+  }, [fiatBalance, isBalanceChartDataUnavailable])
 
   return (
     <Card>
@@ -90,9 +95,11 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         >
           <Skeleton isLoaded={isLoaded} textAlign='center'>
             <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
-              <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
-                <Text translation='assets.assetDetails.assetHeader.balance' />
-              </Button>
+              {!isBalanceChartDataUnavailable && (
+                <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
+                  <Text translation='assets.assetDetails.assetHeader.balance' />
+                </Button>
+              )}
               <Button isActive={view === View.Price} onClick={() => setView(View.Price)}>
                 <Text translation='assets.assetDetails.assetHeader.price' />
               </Button>

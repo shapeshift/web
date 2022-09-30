@@ -76,7 +76,8 @@
     "txId": "Tx ID",
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
-    "unsupportedNetwork": "Unsupported Network"
+    "unsupportedNetwork": "Unsupported Network",
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
   },
   "updateToast": {
     "body": "A new version of the app is available",

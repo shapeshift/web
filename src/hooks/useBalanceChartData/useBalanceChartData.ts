@@ -13,9 +13,9 @@ import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
-import pull from 'lodash/pull'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -371,7 +371,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [assetIdsWithBalancesAboveThreshold, inputAssetIds],
   )
 
-  const assetIds = pull(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST)
+  const assetIds = without(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST)
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

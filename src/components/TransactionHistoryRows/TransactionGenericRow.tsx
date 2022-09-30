@@ -71,6 +71,7 @@ const TransactionIcon = ({
 }
 
 type TransactionRowAsset = {
+  assetId?: string
   symbol: string
   amount: string
   precision: number
@@ -185,7 +186,7 @@ export const TransactionGenericRow = ({
                 textAlign={index === 0 ? 'left' : 'right'}
               >
                 <AssetIcon
-                  src={asset.icon}
+                  assetId={asset.assetId}
                   boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
                 />
                 <Box flex={1}>

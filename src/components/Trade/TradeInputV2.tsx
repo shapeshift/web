@@ -92,7 +92,8 @@ export const TradeInput = () => {
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
-  const gasFee = bnOrZero(fees?.networkFee).times(bnOrZero(feeAssetFiatRate)).toString()
+  const gasFee = bnOrZero(fees?.networkFeeCryptoHuman).times(bnOrZero(feeAssetFiatRate)).toString()
+
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
   const handleInputChange = useCallback(

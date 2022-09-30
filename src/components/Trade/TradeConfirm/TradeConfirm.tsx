@@ -204,7 +204,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
-  const networkFeeFiat = bnOrZero(fees?.networkFee).times(fiatRate).times(selectedCurrencyToUsdRate)
+  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
+    .times(fiatRate)
+    .times(selectedCurrencyToUsdRate)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat

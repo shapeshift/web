@@ -87,7 +87,7 @@
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.8.2",
     "@shapeshiftoss/asset-service": "^8.1.1",
-    "@shapeshiftoss/caip": "^8.4.0",
+    "@shapeshiftoss/caip": "^8.4.1",
     "@shapeshiftoss/chain-adapters": "^9.2.0",
     "@shapeshiftoss/errors": "^1.1.3",
     "@shapeshiftoss/hdwallet-core": "^1.33.0",

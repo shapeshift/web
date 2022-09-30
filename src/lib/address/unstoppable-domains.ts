@@ -75,8 +75,6 @@ export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async 
     moduleLogger.error({ chainId }, 'cannot resolve unstoppable domain: unsupported chainId')
     return ''
   }
-  // TODO(0xdef1cafe): uncomment this once this is actually published - docs are wrong
-  // https://unstoppabledomains.github.io/resolution/v7.0.0/classes/resolution.html#reverse
   try {
     const result = await getResolution().reverse(value)
     if (result) return result

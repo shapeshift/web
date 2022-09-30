@@ -254,8 +254,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
     const erroredAccountNames = uniq(
-      erroredAccountIds.map(accountId => assets[accountIdToFeeAssetId(accountId)].name),
+      erroredAccountIds
+        .map(accountId => assets[accountIdToFeeAssetId(accountId) ?? '']?.name)
+        .filter(Boolean),
     ).join(', ')
+
+    // We might be trying to show an error for a previously supported chain under flag, which is getting removed from state
+    if (!erroredAccountNames?.length) return
 
     const handleRetry = () => {
       handleAccountErrorToastClose()

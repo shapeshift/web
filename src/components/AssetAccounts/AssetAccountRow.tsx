@@ -50,15 +50,15 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
   const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
+    () => ({ assetId: rowAssetId ?? '', accountId, accountSpecifier }),
     [rowAssetId, accountId, accountSpecifier],
   )
   const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
@@ -66,7 +66,7 @@ export const AssetAccountRow = ({
     selectTotalCryptoBalanceWithDelegations(state, filter),
   )
   const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
+    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId ?? '' }),
   )
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',

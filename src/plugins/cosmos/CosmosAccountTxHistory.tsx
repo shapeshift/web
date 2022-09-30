@@ -12,7 +12,7 @@ export const CosmosAccountTxHistory: React.FC = () => {
   const { accountSubId } = useParams<MatchParams>()
   const accountId = `cosmos:${accountSubId}`
   const parsedAccountId = decodeURIComponent(accountId)
-  const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
+  const feeAssetId = accountIdToFeeAssetId(parsedAccountId) ?? ''
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   return !feeAsset ? null : (
     <Main titleComponent={<AssetHeader assetId={feeAssetId} accountId={accountId} />}>

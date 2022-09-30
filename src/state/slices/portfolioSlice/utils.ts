@@ -125,11 +125,12 @@ export const isUtxoAccountId = (accountId: AccountId): boolean =>
 export const isUtxoChainId = (chainId: ChainId): boolean =>
   fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
 
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
+export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId | undefined =>
   // the only way we get an accountId, is from a chainAdapter that supports that chain
-  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
-  // and we can safely non-null assert that it will exist
-  getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
+  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter under normal circumstances
+  // However, when disabling the flag for a specific chain, this will run for said chain's account still present in state
+  // but we don't have an adapter for it anymore
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
 
 export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
@@ -423,8 +424,8 @@ export const makeBalancesByChainBucketsFlattened = (
   const balancesByChainBuckets = accountBalances.reduce<Record<ChainId, AccountId[]>>(
     (acc: Record<ChainId, AccountId[]>, accountId) => {
       const assetId = accountIdToFeeAssetId(accountId)
-      const asset = assets[assetId]
-      acc[asset.chainId] = [...(acc[asset.chainId] ?? []), accountId]
+      const asset = assets[assetId ?? '']
+      acc[asset.chainId] = [...(acc[asset?.chainId] ?? []), accountId]
       return acc
     },
     initial,

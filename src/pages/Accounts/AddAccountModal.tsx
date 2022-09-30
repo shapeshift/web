@@ -94,8 +94,11 @@ export const AddAccountModal = () => {
   const menuOptions = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
     return chainIds.map(chainId => {
-      const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
-      const asset = assets[assetId]
+      const assetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+      const asset = assets[assetId ?? '']
+
+      if (!asset) return null
+
       const { name, icon } = asset
       const key = chainId
       const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
@@ -105,7 +108,7 @@ export const AddAccountModal = () => {
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
-    return assets[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
+    return assets[getChainAdapterManager().get(selectedChainId)?.getFeeAssetId() ?? '']
   }, [assets, selectedChainId])
 
   const handleAddAccount = useCallback(() => {
@@ -128,7 +131,10 @@ export const AddAccountModal = () => {
       })
       dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
       dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
-      const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
+      const assetId = getChainAdapterManager().get(selectedChainId)?.getFeeAssetId()
+
+      if (!assetId) return null
+
       const { name } = assets[assetId]
       toast({
         position: 'top-right',

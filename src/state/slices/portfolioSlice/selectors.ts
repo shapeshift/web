@@ -322,8 +322,8 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
       allStakingData,
       (acc, [accountSpecifier, baseUnitAmount]) => {
         const assetId = accountIdToFeeAssetId(accountSpecifier)
-        const price = marketData[assetId]?.price ?? 0
-        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
+        const price = marketData[assetId ?? '']?.price ?? 0
+        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId ?? '']?.precision ?? 0)
         return bnOrZero(amount).times(price).plus(acc)
       },
       bn(0),
@@ -344,8 +344,8 @@ export const selectTotalStakingUndelegationFiat = createDeepEqualOutputSelector(
       allStakingData,
       (acc, [accountSpecifier, baseUnitAmount]) => {
         const assetId = accountIdToFeeAssetId(accountSpecifier)
-        const price = marketData[assetId]?.price ?? 0
-        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
+        const price = marketData[assetId ?? '']?.price ?? 0
+        const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId ?? ''].precision ?? 0)
         return bnOrZero(amount).times(price).plus(acc)
       },
       bn(0),

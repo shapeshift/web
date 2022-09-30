@@ -28,12 +28,12 @@ export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRow
   const iconColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.500')
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
   const accountSpecifier = useAppSelector(state =>
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
   const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
+    () => ({ assetId: rowAssetId ?? '', accountId, accountSpecifier }),
     [rowAssetId, accountId, accountSpecifier],
   )
   const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))

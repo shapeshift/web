@@ -13,7 +13,7 @@ const moduleLogger = logger.child({ namespace: ['unstoppable-domains'] })
 let _resolution: Resolution | undefined
 
 const getResolution = (): Resolution => {
-  const infuraProviderUrl = getConfig().REACT_APP_ETHEREUM_INFURA_URL
+  const infuraProviderUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
 
   const polygonProviderUrl = getConfig().REACT_APP_ALCHEMY_POLYGON_URL
   if (!polygonProviderUrl)
@@ -69,19 +69,17 @@ export const resolveUnstoppableDomain: ResolveVanityAddress = async args => {
 
 // reverse lookup
 export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async args => {
-  const { chainId } = args
+  const { chainId, value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     moduleLogger.error({ chainId }, 'cannot resolve unstoppable domain: unsupported chainId')
     return ''
   }
-  // TODO(0xdef1cafe): uncomment this once this is actually published - docs are wrong
-  // https://unstoppabledomains.github.io/resolution/v7.0.0/classes/resolution.html#reverse
-  // try {
-  //   const result = await getResolution().reverse(value, ticker)
-  //   if (result) return result
-  // } catch (e) {
-  //   moduleLogger.trace(e, 'cannot resolve')
-  // }
+  try {
+    const result = await getResolution().reverse(value)
+    if (result) return result
+  } catch (e) {
+    moduleLogger.trace(e, 'cannot resolve')
+  }
   return ''
 }

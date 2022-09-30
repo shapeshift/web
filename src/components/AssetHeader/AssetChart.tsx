@@ -65,8 +65,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
-  const isBalanceChartUnavailable = useIsBalanceChartDataUnavailable(assetIds)
-  const defaultView = accountId && !isBalanceChartUnavailable ? View.Balance : View.Price
+  const isBalanceChartDataUnavailable = useIsBalanceChartDataUnavailable(assetIds)
+  const defaultView = accountId && !isBalanceChartDataUnavailable ? View.Balance : View.Price
   const [view, setView] = useState(defaultView)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
@@ -80,10 +80,10 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   )
 
   useEffect(() => {
-    if (isBalanceChartUnavailable) return
+    if (isBalanceChartDataUnavailable) return
     if (bnOrZero(fiatBalance).eq(0)) return
     setView(View.Balance)
-  }, [fiatBalance, isBalanceChartUnavailable])
+  }, [fiatBalance, isBalanceChartDataUnavailable])
 
   return (
     <Card>
@@ -95,7 +95,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         >
           <Skeleton isLoaded={isLoaded} textAlign='center'>
             <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
-              {!isBalanceChartUnavailable && (
+              {!isBalanceChartDataUnavailable && (
                 <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.0...@shapeshiftoss/swapper-v11.5.1) (2022-09-30)
+
+
+### Bug Fixes
+
+* truthy check always true rugging 0x trade fee data ([#1045](https://github.com/shapeshift/lib/issues/1045)) ([1fefa4a](https://github.com/shapeshift/lib/commit/1fefa4ac444f88d0af8205529a5d1b9c49548a9f))
+
 # [@shapeshiftoss/swapper-v11.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.4.1...@shapeshiftoss/swapper-v11.5.0) (2022-09-28)
 
 

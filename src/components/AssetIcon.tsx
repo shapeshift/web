@@ -20,7 +20,7 @@ type AssetWithNetworkProps = {
   assetId: AssetId
 } & AvatarProps
 
-const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, size, ...rest }) => {
+const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...rest }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showFeeAsset = asset.assetId !== feeAsset.assetId
@@ -29,22 +29,22 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, size
     `0 0 0 0.2em ${feeAsset.color}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
   )
   return (
-    <Box position='relative' {...rest}>
+    <Avatar src={asset.icon} icon={icon} border={0} bg='none' {...rest}>
       {showFeeAsset && (
         <Avatar
-          boxSize='0.75em'
+          boxSize='0.85em'
           zIndex={2}
           position='absolute'
           right='-0.15em'
           top='-0.15em'
           border={0}
           bg='none'
+          fontSize='inherit'
           src={feeAsset.icon}
           boxShadow={boxShadow}
         />
       )}
-      <Avatar src={asset.icon} icon={icon} boxSize='auto' border={0} bg='none' />
-    </Box>
+    </Avatar>
   )
 }
 

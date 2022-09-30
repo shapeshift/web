@@ -76,6 +76,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
       try {
         await deleteWallet('*')
+        settings.close()
         disconnect()
       } catch (e) {
         mobileLogger.error(e, 'Error deleting wallets')

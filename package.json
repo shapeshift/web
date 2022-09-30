@@ -28,6 +28,7 @@
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh",
     "release": "ts-node --skipProject ./scripts/release.ts",
+    "scrape-walletconnect-dapps": "ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "env": "ts-node --skipProject ./scripts/bootstrap-env.ts"
   },
   "eslintConfig": {

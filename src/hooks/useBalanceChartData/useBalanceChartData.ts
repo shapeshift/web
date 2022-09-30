@@ -369,7 +369,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   )
 
   // remove blacklisted assets that we can't obtain exhaustive tx data for
-  const assetIds = without(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST)
+  const assetIds = useMemo(
+    () => without(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST),
+    [intersectedAssetIds],
+  )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

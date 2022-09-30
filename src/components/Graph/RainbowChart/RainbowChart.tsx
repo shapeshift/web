@@ -153,7 +153,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
                   p={2}
                 >
                   <Stack direction='row' alignItems={'center'}>
-                    <AssetIcon assetId={assetId} size='2xs' />
+                    <AssetIcon assetId={assetId} size='2xs' showFeeAsset={false} />
                     <Text fontWeight='bold'>{symbol}</Text>
                   </Stack>
                   <Amount.Fiat value={price} fontWeight='bold' />

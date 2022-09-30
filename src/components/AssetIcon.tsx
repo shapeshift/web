@@ -8,6 +8,7 @@ import { FoxIcon } from './Icons/FoxIcon'
 
 type AssetIconProps = {
   assetId?: string
+  showFeeAsset?: boolean
 } & AvatarProps
 
 // @TODO: this will be replaced with whatever we do for icons later
@@ -48,14 +49,19 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, size
   )
 }
 
-export const AssetIcon = ({ assetId, src, ...rest }: AssetIconProps) => {
+export const AssetIcon = ({ assetId, src, showFeeAsset = true, ...rest }: AssetIconProps) => {
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   if (!assetId && !src) {
     return null
   }
-  return assetId ? (
+
+  const imgSrc = src ?? asset?.icon
+
+  return assetId && showFeeAsset ? (
     <AssetWithNetwork
       assetId={assetId}
       icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
@@ -64,7 +70,7 @@ export const AssetIcon = ({ assetId, src, ...rest }: AssetIconProps) => {
   ) : (
     <Box position='relative'>
       <Avatar
-        src={src}
+        src={imgSrc}
         bg={assetIconBg}
         icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
         {...rest}

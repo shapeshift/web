@@ -1,4 +1,5 @@
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Tab, TabList, Tabs } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { FiatRampAction } from '../FiatRampsCommon'
@@ -6,43 +7,24 @@ import { FiatRampAction } from '../FiatRampsCommon'
 export const FiatRampActionButtons = ({
   action,
   setAction,
-  supportsBuy,
-  supportsSell,
 }: {
   action: FiatRampAction
   setAction: (action: FiatRampAction) => void
-  supportsBuy: boolean
-  supportsSell: boolean
 }) => {
   const translate = useTranslate()
 
-  const commonButtonProps = {
-    pt: 4,
-    pb: 4,
-    pl: 10,
-    pr: 10,
-  }
+  const activeIndex = useMemo(() => Number(action === FiatRampAction.Sell), [action])
 
   return (
-    <ButtonGroup variant='ghost' colorScheme='blue'>
-      {supportsBuy ? (
-        <Button
-          {...commonButtonProps}
-          isActive={action === FiatRampAction.Buy}
-          onClick={() => setAction(FiatRampAction.Buy)}
-        >
+    <Tabs isFitted variant='enclosed' isManual index={activeIndex}>
+      <TabList>
+        <Tab onClick={() => setAction(FiatRampAction.Buy)} borderRadius={0}>
           {translate('fiatRamps.buy')}
-        </Button>
-      ) : null}
-      {supportsSell ? (
-        <Button
-          {...commonButtonProps}
-          isActive={action === FiatRampAction.Sell}
-          onClick={() => setAction(FiatRampAction.Sell)}
-        >
+        </Tab>
+        <Tab onClick={() => setAction(FiatRampAction.Sell)} borderRadius={0}>
           {translate('fiatRamps.sell')}
-        </Button>
-      ) : null}
-    </ButtonGroup>
+        </Tab>
+      </TabList>
+    </Tabs>
   )
 }

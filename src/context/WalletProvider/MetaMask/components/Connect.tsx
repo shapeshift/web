@@ -70,7 +70,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId },
         })
-        dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)

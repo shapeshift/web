@@ -20,6 +20,7 @@ import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 
 export type SendInput = {
+  [SendFormFields.Input]: string
   [SendFormFields.Address]: string
   [SendFormFields.Memo]?: string
   [SendFormFields.AccountId]: AccountId
@@ -63,6 +64,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
 
   const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.Input, '')
     methods.setValue(SendFormFields.AccountId, '')
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)

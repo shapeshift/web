@@ -71,6 +71,7 @@ const TransactionIcon = ({
 }
 
 type TransactionRowAsset = {
+  assetId?: string
   symbol: string
   amount: string
   precision: number
@@ -129,10 +130,11 @@ export const TransactionGenericRow = ({
         textAlign='left'
         justifyContent='flex-start'
         alignItems='center'
+        columnGap={4}
       >
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
-            <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
+            <IconCircle mr={2} boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}>
               <TransactionIcon
                 type={type}
                 assetId={txData?.assetId}
@@ -141,11 +143,11 @@ export const TransactionGenericRow = ({
               />
             </IconCircle>
             <Stack
-              direction={{ base: 'row', md: compactMode ? 'row' : 'column' }}
+              direction={{ base: 'row', md: 'column', xl: compactMode ? 'row' : 'column' }}
               flex={1}
               spacing={0}
-              fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
-              alignItems={{ base: 'center', md: compactMode ? 'center' : 'flex-start' }}
+              fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
+              alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
             >
               <Text
                 fontWeight='bold'
@@ -161,12 +163,13 @@ export const TransactionGenericRow = ({
             direction='row'
             width='full'
             alignItems='center'
-            spacing={{ base: 0, md: compactMode ? 0 : 4 }}
+            spacing={{ base: 0, md: 4, xl: compactMode ? 0 : 4 }}
             justifyContent={{
               base: 'space-between',
-              md: compactMode ? 'space-between' : 'flex-start',
+              md: 'flex-start',
+              xl: compactMode ? 'space-between' : 'flex-start',
             }}
-            fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
+            fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
             divider={
               <Box border={0} color='gray.500' fontSize='sm'>
                 <FaArrowRight />
@@ -177,19 +180,14 @@ export const TransactionGenericRow = ({
               <Stack
                 alignItems='center'
                 key={index}
-                mt={{ base: 2, md: compactMode ? 2 : 0 }}
-                direction={{
-                  base: index === 0 ? 'row' : 'row-reverse',
-                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row',
-                }}
-                textAlign={{
-                  base: index === 0 ? 'left' : 'right',
-                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left',
-                }}
+                flex={1}
+                mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+                direction={index === 0 ? 'row' : 'row-reverse'}
+                textAlign={index === 0 ? 'left' : 'right'}
               >
                 <AssetIcon
-                  src={asset.icon}
-                  boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
+                  assetId={asset.assetId}
+                  boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
                 />
                 <Box flex={1}>
                   <Amount.Crypto
@@ -217,9 +215,9 @@ export const TransactionGenericRow = ({
           </Stack>
         </Flex>
         {isLargerThanLg && (
-          <Flex alignItems='flex-start' flex={1} flexDir='column'>
+          <Flex alignItems='flex-start' flex={1} flexDir='column' textAlign='right'>
             {fee && bnOrZero(fee?.amount).gt(0) ? (
-              <Flex alignItems='center' width='full'>
+              <Flex alignItems='flex-end' width='full'>
                 <Box flex={1}>
                   <Amount.Crypto
                     color='inherit'

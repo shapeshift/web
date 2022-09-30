@@ -22,7 +22,7 @@ export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
           </Button>
         }
       >
-        <Stack direction='row' spacing={1} justifyContent='center' mb={4}>
+        <Stack direction='row' flexWrap='wrap' spacing={1} justifyContent='center' mb={4}>
           <Text translation='defi.modals.foxyOverview.header' />
           <CText color='green.500'>
             <Skeleton isLoaded={Boolean(apy)}>

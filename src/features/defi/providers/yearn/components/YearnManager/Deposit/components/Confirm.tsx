@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -68,6 +68,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
@@ -76,9 +80,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       !(
         dispatch &&
         bip44Params &&
-        state?.userAddress &&
+        accountAddress &&
         assetReference &&
         walletState.wallet &&
+        state?.opportunity &&
         supportsETH(walletState.wallet) &&
         opportunity
       )
@@ -92,7 +97,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareDeposit({
-        address: state.userAddress,
+        address: accountAddress,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
       const txid = await yearnOpportunity.signAndBroadcast({
@@ -116,15 +121,15 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    bip44Params,
+    accountAddress,
     asset.precision,
     assetReference,
+    bip44Params,
     dispatch,
     onNext,
     opportunity,
     state?.deposit.cryptoAmount,
-    state?.opportunity?.positionAsset.assetId,
-    state?.userAddress,
+    state?.opportunity,
     toast,
     translate,
     walletState.wallet,

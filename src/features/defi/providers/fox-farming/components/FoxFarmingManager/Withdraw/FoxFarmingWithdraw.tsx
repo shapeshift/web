@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -10,6 +11,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -17,6 +19,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
 import { selectPortfolioLoading } from 'state/slices/selectors'
+import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -31,7 +34,14 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingWithdraw'],
 })
 
-export const FoxFarmingWithdraw = () => {
+type FoxFarmingWithdrawProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -82,7 +92,13 @@ export const FoxFarmingWithdraw = () => {
             description: translate('defi.steps.withdraw.info.description', {
               asset: opportunity?.opportunityName,
             }),
-            component: Withdraw,
+            component: ownProps => (
+              <Withdraw
+                {...ownProps}
+                accountId={accountId}
+                onAccountIdChange={handleAccountIdChange}
+              />
+            ),
           },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -94,10 +110,16 @@ export const FoxFarmingWithdraw = () => {
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: () => <Status accountId={accountId} />,
       },
     }
-  }, [opportunity?.expired, opportunity?.opportunityName, translate])
+  }, [
+    accountId,
+    handleAccountIdChange,
+    opportunity?.expired,
+    opportunity?.opportunityName,
+    translate,
+  ])
 
   if (loading || !opportunity || foxFarmingLoading)
     return (

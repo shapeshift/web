@@ -27,6 +27,7 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
   switch (assetType) {
     case AssetTypes.Source:
       return {
+        assetId: txDetails.sellAsset?.assetId ?? '',
         symbol: txDetails.sellAsset?.symbol ?? fallback.symbol,
         amount: txDetails.sellTransfer?.value ?? '0',
         precision: txDetails.sellAsset?.precision ?? fallback.precision,
@@ -35,6 +36,7 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
       }
     case AssetTypes.Destination:
       return {
+        assetId: txDetails.buyAsset?.assetId ?? '',
         symbol: txDetails.buyAsset?.symbol ?? fallback.symbol,
         amount: txDetails.buyTransfer?.value ?? '0',
         precision: txDetails.buyAsset?.precision ?? fallback.precision,
@@ -43,6 +45,7 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
       }
     case AssetTypes.Fee:
       return {
+        assetId: txDetails.feeAsset?.assetId ?? '',
         symbol: txDetails.feeAsset?.symbol ?? fallback.symbol,
         amount: txDetails.tx.fee?.value ?? '0',
         precision: txDetails.feeAsset?.precision ?? fallback.precision,
@@ -51,6 +54,7 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
       }
     default:
       return {
+        assetId: undefined,
         symbol: txDetails.symbol ?? fallback.symbol,
         amount: txDetails.value ?? '0',
         precision: txDetails.precision ?? fallback.precision,

@@ -152,6 +152,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_WALLET:
       return {
         ...state,
+        isDemoWallet: Boolean(action.payload.isDemoWallet),
         wallet: action.payload.wallet,
         walletInfo: {
           name: action?.payload?.name,
@@ -163,8 +164,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
-    case WalletActions.SET_IS_DEMO_WALLET:
-      return { ...state, isDemoWallet: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -376,6 +375,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       },
                     })
                     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                    // Turn off the loading spinner for the wallet button in
+                    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                   } else {
                     disconnect()
                   }
@@ -784,6 +785,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     dispatch({
       type: WalletActions.SET_WALLET,
       payload: {
+        isDemoWallet: true,
         wallet,
         name,
         icon,
@@ -793,7 +795,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-    dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: true })
   }, [state.keyring])
 
   const create = useCallback(async (type: KeyManager) => {

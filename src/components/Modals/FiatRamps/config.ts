@@ -5,7 +5,9 @@ import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
+import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
 import {
@@ -17,6 +19,7 @@ import {
 } from './fiatRampProviders/gem'
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
+import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
 import type { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -35,6 +38,7 @@ export interface SupportedFiatRampConfig {
   tags?: string[]
   logo: string
   isImplemented: boolean
+  isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
   minimumSellThreshold?: number
@@ -42,7 +46,8 @@ export interface SupportedFiatRampConfig {
   supportsSell: boolean
 }
 
-export type FiatRamp = 'Gem' | 'Banxa' | 'JunoPay' | 'MtPelerin'
+export const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
+export type FiatRamp = typeof fiatRamps[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
@@ -69,12 +74,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       }
     },
     isImplemented: true,
+    isActive: () => true,
     minimumSellThreshold: 5,
   },
   Banxa: {
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
     isImplemented: true,
+    isActive: () => true,
     minimumSellThreshold: 50,
     supportsBuy: true,
     supportsSell: true,
@@ -101,6 +108,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
     isImplemented: true,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: false,
     getBuyAndSellList: async () => {
@@ -123,6 +131,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
     isImplemented: true,
+    isActive: featureFlags => featureFlags.MtPelerinFiatRamp,
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
@@ -139,6 +148,33 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
+      }
+    },
+  },
+  OnRamper: {
+    label: 'fiatRamps.onRamper',
+    tags: [],
+    logo: OnRamperLogo,
+    isImplemented: true,
+    isActive: featureFlags => featureFlags.OnRamperFiatRamp,
+    supportsBuy: true,
+    supportsSell: true,
+    minimumSellThreshold: 0,
+    getBuyAndSellList: async () => {
+      const onRamperAssets = await getOnRamperAssets()
+      return [onRamperAssets, onRamperAssets]
+    },
+    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+      try {
+        const onRamperCheckoutUrl = createOnRamperUrl(
+          action,
+          assetId,
+          address,
+          window.location.href,
+        )
+        window.open(onRamperCheckoutUrl, '_blank')?.focus()
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
     },
   },

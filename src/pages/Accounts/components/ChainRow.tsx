@@ -72,6 +72,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
             variant='ghost'
             isActive={isOpen}
             aria-label='Expand Accounts'
+            data-test='expand-accounts-button'
             onClick={onToggle}
             icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
           />

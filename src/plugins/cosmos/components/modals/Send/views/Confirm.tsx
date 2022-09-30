@@ -26,6 +26,7 @@ import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SendInput } from '../Form'
@@ -42,6 +43,7 @@ export const Confirm = () => {
       control,
     }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
@@ -86,20 +88,23 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
-          <Row alignItems='center'>
-            <Row.Label>
-              <Text translation='modals.send.confirm.sendFrom' />
-            </Row.Label>
-            <Row.Value display='flex' alignItems='center'>
-              <AccountDropdown
-                onChange={handleAccountChange}
-                assetId={asset.assetId}
-                defaultAccountId={accountId}
-                buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
-                disabled
-              />
-            </Row.Value>
-          </Row>
+          {isMultiAccountsEnabled && (
+            <Row alignItems='center'>
+              <Row.Label>
+                <Text translation='modals.send.confirm.sendFrom' />
+              </Row.Label>
+              <Row.Value display='flex' alignItems='center'>
+                <AccountDropdown
+                  onChange={handleAccountChange}
+                  assetId={asset.assetId}
+                  defaultAccountId={accountId}
+                  buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                  disabled
+                />
+              </Row.Value>
+            </Row>
+          )}
+
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />

@@ -25,6 +25,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsEthSwitchChain,
+  supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -44,9 +45,6 @@ import type {
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-
-export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
-export type ChainIdType = typeof chainIds[number]
 
 export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
   // in the case of account based chains (eth), this is an address
@@ -449,6 +447,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsBTC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
+    case thorchainChainId:
+      return supportsThorchain(wallet)
     default:
       return false
   }

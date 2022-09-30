@@ -58,7 +58,6 @@ const validators = {
   REACT_APP_FEATURE_OSMOSIS: bool({ default: false }),
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
-  REACT_APP_FEATURE_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
@@ -67,7 +66,9 @@ const validators = {
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
   REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
+  REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
+  REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),
   REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
@@ -100,6 +101,9 @@ const validators = {
   REACT_APP_PENDO_SUB_ID: envalid.str({ default: '6047664892149760' }),
   REACT_APP_PENDO_UNSAFE_DESIGNER_MODE: envalid.bool({ default: false }),
   REACT_APP_PENDO_VISITOR_ID_PREFIX: envalid.str({ default: 'test_visitor' }),
+  REACT_APP_ONRAMPER_WIDGET_URL: url(),
+  REACT_APP_ONRAMPER_API_URL: url(),
+  REACT_APP_ONRAMPER_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

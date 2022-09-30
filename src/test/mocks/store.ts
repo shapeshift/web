@@ -27,6 +27,7 @@ export const mockStore: ReduxState = {
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
+  fiatRampApi: mockApiFactory('fiatRampApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -63,16 +64,19 @@ export const mockStore: ReduxState = {
       Axelar: false,
       Zendesk: false,
       MtPelerinFiatRamp: false,
+      OnRamperFiatRamp: false,
       Yat: false,
       RainbowCharts: false,
       MultiAccounts: false,
       SwapperV2: false,
       WalletConnectToDapps: false,
+      MigrationMessage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    showWelcomeModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

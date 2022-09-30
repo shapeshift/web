@@ -11,7 +11,6 @@ export enum WalletActions {
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
   SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
-  SET_IS_DEMO_WALLET = 'SET_IS_DEMO_WALLET',
   SET_PROVIDER = 'SET_PROVIDER',
   SET_IS_LOCKED = 'SET_IS_LOCKED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
@@ -33,10 +32,9 @@ export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
       type: WalletActions.SET_WALLET
-      payload: WalletInfo & { wallet: HDWallet | null }
+      payload: WalletInfo & { isDemoWallet?: boolean; wallet: HDWallet | null }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
-  | { type: WalletActions.SET_IS_DEMO_WALLET; payload: boolean }
   | { type: WalletActions.SET_PROVIDER; payload: InitialState['provider'] }
   | { type: WalletActions.SET_IS_LOCKED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }

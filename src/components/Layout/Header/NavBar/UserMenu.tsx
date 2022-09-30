@@ -107,6 +107,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     <Button
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
+      variant='outline'
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
@@ -152,7 +153,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
   return (
-    <ButtonGroup isAttached width='full'>
+    <ButtonGroup width='full'>
       <WalletButton
         onConnect={handleConnect}
         walletInfo={walletInfo}

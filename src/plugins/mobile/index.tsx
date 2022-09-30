@@ -1,8 +1,12 @@
 import type { Plugins } from 'plugins/types'
 import { isMobile } from 'lib/globals'
 import { logger } from 'lib/logger'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { store } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['Plugins', 'Mobile'] })
+
+export type MobileMessageEvent = { id: number; cmd?: string; deviceId?: string }
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
@@ -14,13 +18,13 @@ export default function register(): Plugins {
         onLoad: () => {
           // Only listen to mobile events if we're running in the mobile app
           if (isMobile) {
-            const eventListener = (
-              e: MessageEvent<{ id: number; cmd?: string; deviceId?: string }>,
-            ) => {
+            const eventListener = (e: MessageEvent<MobileMessageEvent>) => {
               moduleLogger.trace({ event: e.data }, 'PostMessage Event')
 
               if (e.data?.cmd === 'walletImported' && e.data?.deviceId) {
                 moduleLogger.debug({ event: e.data }, 'Wallet Import message received')
+                // Set the welcome modal to true once the wallet has been imported on mobile
+                store.dispatch(preferences.actions.setWelcomeModal({ show: true }))
               }
 
               // ------------ WARNING ------------

@@ -29,16 +29,17 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
   selectCryptoBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
+  selectPortfolioStakingCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useIsBalanceChartDataUnavailable } from '../../hooks/useBalanceChartData/utils'
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
 
 enum View {
@@ -64,7 +65,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
-  const [view, setView] = useState(accountId ? View.Balance : View.Price)
+  const isBalanceChartDataUnavailable = useIsBalanceChartDataUnavailable(assetIds)
+  const defaultView = accountId && !isBalanceChartDataUnavailable ? View.Balance : View.Price
+  const [view, setView] = useState(defaultView)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
@@ -72,15 +75,15 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
   const cryptoBalance = useAppSelector(s => selectCryptoBalanceIncludingStakingByFilter(s, filter))
 
-  const earnBalances = useEarnBalances()
-  const delegationBalance = useMemo(() => {
-    const assetEarnBalance = earnBalances.opportunities.find(balance => balance.assetId === assetId)
-    return assetEarnBalance?.cryptoAmount ?? '0'
-  }, [assetId, earnBalances.opportunities])
+  const stakingFiatBalance = useAppSelector(s =>
+    selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
+  )
 
   useEffect(() => {
-    bnOrZero(fiatBalance).gt(0) && setView(View.Balance)
-  }, [fiatBalance])
+    if (isBalanceChartDataUnavailable) return
+    if (bnOrZero(fiatBalance).eq(0)) return
+    setView(View.Balance)
+  }, [fiatBalance, isBalanceChartDataUnavailable])
 
   return (
     <Card>
@@ -92,9 +95,11 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         >
           <Skeleton isLoaded={isLoaded} textAlign='center'>
             <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
-              <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
-                <Text translation='assets.assetDetails.assetHeader.balance' />
-              </Button>
+              {!isBalanceChartDataUnavailable && (
+                <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
+                  <Text translation='assets.assetDetails.assetHeader.balance' />
+                </Button>
+              )}
               <Button isActive={view === View.Price} onClick={() => setView(View.Price)}>
                 <Text translation='assets.assetDetails.assetHeader.price' />
               </Button>
@@ -137,7 +142,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(delegationBalance).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingFiatBalance).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -154,7 +159,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
-                    value={delegationBalance}
+                    value={stakingFiatBalance}
                     symbol={asset.symbol}
                     suffix={translate('defi.staked')}
                   />

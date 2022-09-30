@@ -67,7 +67,7 @@ export const KeepKeyMenu = () => {
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
-          <Flex ml={3}>
+          <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>
@@ -88,7 +88,7 @@ export const KeepKeyMenu = () => {
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
-          <Flex ml={3}>
+          <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>

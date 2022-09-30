@@ -1,5 +1,5 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Box, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -62,14 +62,12 @@ export const AssetIcon = ({ assetId, src, ...rest }: AssetIconProps) => {
       {...rest}
     />
   ) : (
-    <Box position='relative'>
-      <Avatar
-        src={src}
-        bg={assetIconBg}
-        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-        {...rest}
-      />
-    </Box>
+    <Avatar
+      src={src}
+      bg={assetIconBg}
+      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+      {...rest}
+    />
   )
 }
 

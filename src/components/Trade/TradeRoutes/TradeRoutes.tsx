@@ -33,7 +33,9 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
     ;(async () => {
       await setDefaultAssets()
     })()
-  }, [setDefaultAssets])
+    // This should be ran only once on <TradeRoutes /> mount, no matter the dependencies change of setDefaultAssets
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const isSwapperV2 = useFeatureFlag('SwapperV2')
   const TradeInputComponent = isSwapperV2 ? TradeInputV2 : TradeInputV1

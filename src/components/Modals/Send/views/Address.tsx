@@ -37,9 +37,11 @@ export const Address = () => {
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
+
   if (!asset) return null
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
@@ -60,7 +62,7 @@ export const Address = () => {
         isRound
         onClick={() =>
           history.push(SendRoutes.Select, {
-            toRoute: SelectAssetRoutes.Account,
+            toRoute: SelectAssetRoutes.Search,
             assetId: asset.assetId,
           })
         }
@@ -78,7 +80,8 @@ export const Address = () => {
             rules={{
               required: true,
               validate: {
-                validateAddress: async (value: string) => {
+                validateAddress: async (rawInput: string) => {
+                  const value = rawInput.trim() // trim leading/trailing spaces
                   // clear previous values
                   setValue(SendFormFields.Address, '')
                   setValue(SendFormFields.VanityAddress, '')
@@ -105,7 +108,7 @@ export const Address = () => {
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
           <Button
             width='full'
-            isDisabled={!address || addressError}
+            isDisabled={!address || !input || addressError}
             isLoading={isValidating}
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'

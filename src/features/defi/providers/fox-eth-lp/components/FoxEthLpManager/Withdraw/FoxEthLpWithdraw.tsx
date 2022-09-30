@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -11,6 +12,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -23,6 +25,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
@@ -33,7 +36,15 @@ import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-export const FoxEthLpWithdraw = () => {
+type FoxEthLpWithdrawProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -83,7 +94,9 @@ export const FoxEthLpWithdraw = () => {
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Withdraw,
+        component: ownProps => (
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -95,7 +108,7 @@ export const FoxEthLpWithdraw = () => {
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
     // We only need this to update on symbol change

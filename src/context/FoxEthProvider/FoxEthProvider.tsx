@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -20,7 +20,6 @@ import {
 } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectIsPortfolioLoaded,
   selectMarketDataById,
   selectTxById,
@@ -132,20 +131,15 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     })()
   }, [accountAddress, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
 
-  // watch tx to reload opportunities if it got confirmed
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, ethChainId),
-  )
-
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
     async (txid: string, contractAddress?: string) => {
       if (!accountAddress) return
-      setOngoingTxId(serializeTxIndex(accountSpecifier, txid, accountAddress))
+      setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
-    [accountSpecifier, accountAddress],
+    [accountId, accountAddress],
   )
 
   useEffect(() => {

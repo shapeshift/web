@@ -8,10 +8,10 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -26,8 +26,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
+  accountId: Nullable<AccountId>
   assetId: AssetId
   amount: string
   contractAddress: string
@@ -40,6 +42,7 @@ const moduleLogger = logger.child({
 })
 
 export const ClaimConfirm = ({
+  accountId,
   assetId,
   amount,
   contractAddress,
@@ -53,7 +56,12 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
-  const { accountAddress: userAddress, onOngoingTxIdChange } = useFoxEth()
+  const { onOngoingTxIdChange } = useFoxEth()
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -68,7 +76,7 @@ export const ClaimConfirm = ({
   const toast = useToast()
 
   const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !userAddress) return
+    if (!walletState.wallet || !contractAddress || !accountAddress) return
     setLoading(true)
     try {
       const txid = await claimRewards()
@@ -78,7 +86,7 @@ export const ClaimConfirm = ({
         txid,
         assetId,
         amount,
-        userAddress,
+        userAddress: accountAddress,
         estimatedGas,
         chainId,
         contractAddress,
@@ -99,9 +107,11 @@ export const ClaimConfirm = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && userAddress))
+        if (
+          !(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && accountAddress)
+        )
           return
-        const gasEstimate = await getClaimGasData(userAddress)
+        const gasEstimate = await getClaimGasData(accountAddress)
         if (!gasEstimate) throw new Error('Gas estimation failed')
         const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
           .div(`1e${feeAsset.precision}`)
@@ -114,7 +124,7 @@ export const ClaimConfirm = ({
       }
     })()
   }, [
-    userAddress,
+    accountAddress,
     feeAsset,
     feeAsset.precision,
     feeMarketData,
@@ -149,13 +159,13 @@ export const ClaimConfirm = ({
               <Text translation='defi.modals.claim.claimToAddress' />
             </Row.Label>
             <Row.Value>
-              <Skeleton minWidth='100px' isLoaded={!!userAddress}>
+              <Skeleton minWidth='100px' isLoaded={!!accountAddress}>
                 <Link
                   isExternal
                   color='blue.500'
-                  href={`${asset?.explorerAddressLink}${userAddress}`}
+                  href={`${asset?.explorerAddressLink}${accountAddress}`}
                 >
-                  <MiddleEllipsis value={userAddress ?? ''} />
+                  <MiddleEllipsis value={accountAddress ?? ''} />
                 </Link>
               </Skeleton>
             </Row.Value>

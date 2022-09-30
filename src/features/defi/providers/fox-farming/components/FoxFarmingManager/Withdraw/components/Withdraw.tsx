@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -9,26 +10,35 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const [isExiting, setIsExiting] = useState<boolean>(false)
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
   const opportunity = state?.opportunity
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
-  const { setAccountId: handleAccountIdChange } = useFoxEth()
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -136,6 +146,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
         asset={asset}
         icons={opportunity?.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toString()}

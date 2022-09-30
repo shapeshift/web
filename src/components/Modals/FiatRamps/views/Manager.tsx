@@ -1,5 +1,4 @@
-import { Box } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import {
   supportsBTC,
@@ -20,16 +19,14 @@ import {
   useHistory,
   useLocation,
 } from 'react-router'
+import { useEnsName } from 'wagmi'
 import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/address/ens'
 import { logger } from 'lib/logger'
-import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
-import type { FiatRamp } from '../config'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
@@ -54,15 +51,11 @@ const entries = [
   FiatRampManagerRoutes.SellSelect,
 ]
 
-type ManagerRouterProps = {
-  fiatRampProvider: FiatRamp
-}
-
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
-const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
+const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
@@ -74,7 +67,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const [bchAddress, setBchAddress] = useState<string>('')
   const [dogeAddress, setDogeAddress] = useState<string>('')
   const [ltcAddress, setLtcAddress] = useState<string>('')
-  const [ethAddress, setEthAddress] = useState<string>('')
+  const [ethAddress, setEthAddress] = useState<string | undefined>()
   const [avalancheAddress, setAvalancheAddress] = useState<string>('')
   const [cosmosAddress, setCosmosAddress] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
@@ -89,7 +82,7 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
   const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
 
-  const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
+  const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
   const {
     state: { wallet },
@@ -138,16 +131,18 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
     cosmosChainAdapter,
   ])
 
+  const { data: ensNameResponse, isSuccess: isEnsNameLoaded } = useEnsName({
+    address: ethAddress,
+    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
+    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
+  })
+
   useEffect(() => {
     ;(async () => {
-      moduleLogger.trace({ fn: 'ensReverseLookup' }, 'ENS Reverse Lookup...')
-      try {
-        !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
-      } catch (e) {
-        moduleLogger.error(e, { fn: 'ensReverseLookup' }, 'ENS Reverse Lookup Failed')
-      }
+      if (ensName || !(isEnsNameLoaded && ensNameResponse)) return
+      setEnsName(ensNameResponse)
     })()
-  }, [ensName, ethAddress])
+  }, [ensName, ensNameResponse, ethAddress, isEnsNameLoaded])
 
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
     path: '/:fiatRampAction',
@@ -185,7 +180,6 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
   const assetSelectProps = {
     selectAssetTranslation,
     onAssetSelect,
-    fiatRampProvider,
   }
 
   return (
@@ -201,44 +195,37 @@ const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
             dogeAddress={dogeAddress}
             ltcAddress={ltcAddress}
             cosmosAddress={cosmosAddress}
-            ethAddress={ethAddress}
+            ethAddress={ethAddress ?? ''}
             avalancheAddress={avalancheAddress}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}
             chainAdapterManager={chainAdapterManager}
             chainId={chainId}
             setChainId={setChainId}
-            fiatRampProvider={fiatRampProvider}
             ensName={ensName}
             handleAccountIdChange={setAccountId}
             accountId={accountId}
           />
         </Route>
-        {fiatRampProvider && (
-          <Route exact path='/:fiatRampAction/select'>
-            <AssetSelect {...assetSelectProps} />
-          </Route>
-        )}
+        <Route exact path='/:fiatRampAction/select'>
+          <AssetSelect {...assetSelectProps} />
+        </Route>
         <Redirect from='/' to={FiatRampManagerRoutes.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) => {
+export const Manager = () => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
-        <Box p={4}>
-          <Switch>
-            <Route
-              path='/'
-              component={(props: RouteComponentProps) => (
-                <ManagerRouter fiatRampProvider={fiatRampProvider} {...props} />
-              )}
-            />
-          </Switch>
-        </Box>
+        <Switch>
+          <Route
+            path='/'
+            component={(props: RouteComponentProps) => <ManagerRouter {...props} />}
+          />
+        </Switch>
       </MemoryRouter>
     </SlideTransition>
   )

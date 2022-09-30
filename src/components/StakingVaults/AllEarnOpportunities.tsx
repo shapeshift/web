@@ -32,7 +32,7 @@ export const AllEarnOpportunities = () => {
 
   const sortedVaults = useSortedVaults()
 
-  const { data: foxyBalancesData } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
   const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
   const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(

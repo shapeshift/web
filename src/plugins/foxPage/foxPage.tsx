@@ -78,7 +78,9 @@ export const FoxPage = () => {
   // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
   const assetFox = useAppSelector(state => selectAssetById(state, foxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, foxyAssetId))
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
+    accountNumber: 0,
+  })
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
@@ -179,25 +181,27 @@ export const FoxPage = () => {
               ))}
             {!isLargerThanMd && (
               <Box mb={4}>
-                <Menu>
-                  <MenuButton
-                    borderWidth='2px'
-                    borderColor='primary'
-                    height='auto'
-                    as={Button}
-                    rightIcon={<ChevronDownIcon />}
-                    bg={mobileTabBg}
-                    width='full'
-                  >
-                    {selectedAsset && (
-                      <FoxTab
-                        assetSymbol={selectedAsset.symbol}
-                        assetIcon={selectedAsset.icon}
-                        cryptoAmount={cryptoBalances[selectedAssetIndex]}
-                        fiatAmount={fiatBalances[selectedAssetIndex]}
-                      />
-                    )}
-                  </MenuButton>
+                <Menu matchWidth>
+                  <Box mx={{ base: 4, md: 0 }}>
+                    <MenuButton
+                      borderWidth='2px'
+                      borderColor='primary'
+                      height='auto'
+                      as={Button}
+                      rightIcon={<ChevronDownIcon />}
+                      bg={mobileTabBg}
+                      width='full'
+                    >
+                      {selectedAsset && (
+                        <FoxTab
+                          assetSymbol={selectedAsset.symbol}
+                          assetIcon={selectedAsset.icon}
+                          cryptoAmount={cryptoBalances[selectedAssetIndex]}
+                          fiatAmount={fiatBalances[selectedAssetIndex]}
+                        />
+                      )}
+                    </MenuButton>
+                  </Box>
                   <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
                       <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>

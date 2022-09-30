@@ -25,6 +25,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsEthSwitchChain,
+  supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -33,15 +34,17 @@ import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import toLower from 'lodash/toLower'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
-import type { Portfolio, PortfolioAccounts as PortfolioSliceAccounts } from './portfolioSliceCommon'
+import type {
+  Portfolio,
+  PortfolioAccountBalancesById,
+  PortfolioAccounts as PortfolioSliceAccounts,
+} from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-
-export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
-export type ChainIdType = typeof chainIds[number]
 
 export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
   // in the case of account based chains (eth), this is an address
@@ -444,7 +447,28 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsBTC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
+    case thorchainChainId:
+      return supportsThorchain(wallet)
     default:
       return false
   }
+}
+
+export const genericBalanceIncludingStakingByFilter = (
+  accountBalances: PortfolioAccountBalancesById,
+  assetId: AssetId | undefined,
+  accountId: AccountId | undefined,
+): string => {
+  const totalByAccountId = Object.entries(accountBalances)
+    .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all
+    .reduce<Record<AccountId, BigNumber>>((acc, [accountId, byAssetId]) => {
+      const accountTotal = Object.entries(byAssetId)
+        .filter(([id, _assetBalance]) => (assetId ? id === assetId : true)) // if no assetId filter, return all
+        .reduce((innerAcc, [_id, assetBalance]) => innerAcc.plus(bnOrZero(assetBalance)), bn(0))
+      acc[accountId] = accountTotal
+      return acc
+    }, {})
+  return Object.values(totalByAccountId)
+    .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
+    .toString()
 }

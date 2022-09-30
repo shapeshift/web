@@ -20,6 +20,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
     useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
   const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpMetricsQuery()
+
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [

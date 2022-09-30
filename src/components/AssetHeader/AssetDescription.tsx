@@ -23,7 +23,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
 
   return (
     <Card>
-      <Card.Footer>
+      <Card.Body>
         <Skeleton isLoaded={isLoaded} size='md'>
           <Card.Heading mb={4}>
             {translate('assets.assetDetails.assetHeader.aboutAsset', { asset: name })}
@@ -34,7 +34,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
           isLoaded={isLoaded}
           isTrustedDescription={isTrustedDescription}
         />
-      </Card.Footer>
+      </Card.Body>
     </Card>
   )
 }

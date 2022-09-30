@@ -18,6 +18,7 @@
     "relayerGasFee": "Relayer-Gasgebühr",
     "insufficientAmountForGas": "Nicht genug ETH, um Gas zu decken",
     "invalidAddress": "Ungültige Adresse",
+    "invalidAddressOrYat": "Ungültige Adresse oder Yat",
     "deposit": "Einzahlen",
     "withdraw": "Abheben",
     "withdrawal": "Abhebung",
@@ -67,7 +68,10 @@
     "hideDetails": "Details ausblenden",
     "walletSupportsETHOnly": "Nur Ethereum",
     "loadingText": "Wird geladen...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Wählen Sie einen Vermögenswert aus",
+    "switchNetwork": "Netzwerk wechseln",
+    "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -137,6 +141,8 @@
     "exploreThe": "Entdecken Sie das",
     "defiUniverse": "DeFi Universum",
     "body": "100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
+    "body2": "Willkommen beim neuen ShapeShift. 100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
+    "betaSunset": "Beta wurde beendet, erfahren Sie mehr",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
     "cta": "Wallet verbinden",
     "viewADemo": "Sehen Sie sich eine Demo an"
@@ -363,7 +369,8 @@
     "demoMode": "Demo Modus",
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
     "wallet": "Wallet",
-    "explore": "Entdecken"
+    "explore": "Entdecken",
+    "trade": "Handeln"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -511,7 +518,8 @@
       },
       "generalError": "Ein Handelsfehler ist aufgetreten",
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
-    }
+    },
+    "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
     "keepKey": {
@@ -546,6 +554,12 @@
         "infoFirst": "Es ist wichtig, dass Sie es genau so aufschreiben, wie es auf dem KeepKey erscheint.",
         "infoSecond": "Teilen Sie niemals Ihre Wiederherstellungsphrase, welche Zugriff auf Ihr gesamtes Guthaben gewährt.",
         "awaitingButtonPress": "Befolgen Sie die Schritte auf Ihrem KeepKey, um Ihre Wiederherstellungsphrase anzuzeigen. Notieren Sie diese!"
+      },
+      "factoryState": {
+        "header": "Beginnen Sie mit Keepkey",
+        "body": "Ihr KeepKey wurde auf die Werkseinstellungen zurückgesetzt. Erstellen Sie eine neue Brieftasche oder stellen Sie eine Wallet mit Ihrer geheimen Wiederherstellungsphrase wieder her",
+        "createButton": "Erstellen Sie eine neue Wallet",
+        "recoverButton": "Wallet wiederherstellen"
       },
       "recoverySentenceEntry": {
         "header": "Geben Sie Ihren Wiederherstellungssatz ein",
@@ -608,24 +622,12 @@
         }
       }
     },
-    "stake": {
-      "amountToStake": "Betrag für Staking",
-      "stakeYour": "Stake Ihre %{opportunity}",
-      "estimatedReturns": "Geschätzte jährliche Rendite*",
-      "estimateDisclaimer": "*Schätzungen schwanken je nach Marktbedingungen.",
-      "footerDisclaimer": "Indem Sie fortfahren, stimmen Sie unseren",
-      "footerDisclaimerLink": "Nutzungsbedingungen zu.",
-      "status": {
-        "pending": "Ihre Transaktion wurde übermittelt und eine Bestätigung steht noch aus.",
-        "success": "Sie haben Ihre %{opportunity} erfolgreich gestaked.",
-        "failed": "Es gab ein Problem mit Ihrer Staking-Transaktion."
-      }
-    },
     "send": {
       "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
       "tokenAddress": "Token Adresse",
+      "addressInput": "Token Addresse, ENS oder Yat",
       "scanQrCode": "QR-Code scannen",
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
@@ -640,6 +642,7 @@
         "sendAsset": "%{asset} senden",
         "send": "Senden",
         "sendTo": "Senden an",
+        "sendFrom": "Senden von",
         "edit": "Bearbeiten",
         "total": "Gesamt",
         "amount": "Betrag",
@@ -692,6 +695,19 @@
     },
     "claim": {
       "claimFrom": "Forderung von %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Betrag für Staking",
+      "stakeYour": "Stake Ihre %{opportunity}",
+      "estimatedReturns": "Geschätzte jährliche Rendite*",
+      "estimateDisclaimer": "*Schätzungen schwanken je nach Marktbedingungen.",
+      "footerDisclaimer": "Indem Sie fortfahren, stimmen Sie unseren",
+      "footerDisclaimerLink": "Nutzungsbedingungen zu.",
+      "status": {
+        "pending": "Ihre Transaktion wurde übermittelt und eine Bestätigung steht noch aus.",
+        "success": "Sie haben Ihre %{opportunity} erfolgreich gestaked.",
+        "failed": "Es gab ein Problem mit Ihrer Staking-Transaktion."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Abzuhebender Betrag",
@@ -1232,7 +1248,12 @@
     "accounts": "Konten",
     "selectAccount": "Wählen Sie ein Konto aus",
     "addAccount": "Konto hinzufügen",
-    "accountNumber": "Konto #%{accountNumber}"
+    "accountNumber": "Konto #%{accountNumber}",
+    "accountChain": "Konto Netzwerk",
+    "selectChain": "Wählen Sie das Netzwerk aus, für das Sie ein Konto erstellen möchten.",
+    "requiresPriorTxHistory": "Sie können nur dann ein neues Konto hinzufügen, wenn die bestehenden Konten über einen früheren Transaktionsverlauf verfügen",
+    "newAccountAdded": "Neues %{name} Konto hinzugefügt",
+    "youCanNowUse": "Verwenden Sie nun %{name} Konto #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

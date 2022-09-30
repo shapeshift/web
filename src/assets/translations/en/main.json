@@ -41,7 +41,12 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "degradedState": "The App is in a degraded state",
+    "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "retry": "Retry",
+    "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -68,7 +73,11 @@
     "hideDetails": "Hide Details",
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
-    "txId": "Tx ID"
+    "txId": "Tx ID",
+    "selectAsset": "Select an Asset",
+    "switchNetwork": "Switch Network",
+    "unsupportedNetwork": "Unsupported Network",
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -113,17 +122,20 @@
     "routeTitle": "Buy or Sell",
     "routeTitleForGem": "Gem on Ramp",
     "title": "Buy or Sell Crypto",
-    "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
+    "titleMessage": "You can %{action} %{asset} using:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
-    "assetToBuy": "Asset to Buy",
+    "asset": "Asset",
+    "assetToBuy": "Select Asset to Buy",
     "selectAnAssetToBuy": "Select an asset to buy",
-    "assetToSell": "Asset to Sell",
+    "selectBody": "Choose from a growing list of cryptocurrencies.",
+    "assetToSell": "Select Asset to Sell",
     "selectAnAssetToSell": "Select an asset to sell",
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
@@ -131,13 +143,18 @@
     "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
     "usOnly": "US-Only",
     "noKYC": "NO KYC",
-    "nonUS": "NON-US"
+    "nonUS": "NON-US",
+    "availableProviders": "Available Providers",
+    "noProvidersAvailable": "No Providers Available",
+    "noProvidersBody": "Looks like we don't have any providers for that asset yet."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -364,7 +381,8 @@
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade"
   },
   "transactionRow": {
     "send": "Sent",
@@ -443,11 +461,13 @@
     "trade": "Trade",
     "allowance": "Allowance",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
-    "searchingRate": "Searching for best rate...",
+    "searchingRate": "Fetching rate...",
+    "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
+    "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
@@ -464,10 +484,15 @@
     "exact": "Exact",
     "expectedAmount": "Expected Amount",
     "beforeFees": "Before Fees",
-    "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
+    "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
+    "free": "Free",
+    "slowSwapTitle": "%{protocol} trade",
+    "slowSwapBody": "This swap may take a few minutes to complete.",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
+      "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
@@ -506,13 +531,15 @@
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
+      "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
-    }
+    },
+    "recentTrades": "Recent Trades"
   },
   "modals": {
     "keepKey": {
@@ -615,13 +642,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "Low",
-        "medium": "Medium",
-        "high": "High"
-      }
-    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
@@ -642,6 +662,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",

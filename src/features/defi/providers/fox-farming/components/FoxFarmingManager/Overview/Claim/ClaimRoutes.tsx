@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
@@ -10,6 +11,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectFoxFarmingOpportunityByContractAddress } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -25,10 +27,11 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
+  accountId: Nullable<AccountId>
   onBack: () => void
 }
 
-export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
+export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
   const opportunity = useAppSelector(state =>
@@ -46,6 +49,7 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
+              accountId={accountId}
               assetId={foxAssetId}
               chainId={chainId}
               contractAddress={contractAddress}
@@ -53,7 +57,9 @@ export const ClaimRoutes = ({ onBack }: ClaimRouteProps) => {
               amount={rewardAmount!}
             />
           </Route>
-          <Route exact path='/status' component={ClaimStatus} />
+          <Route exact path='/status'>
+            <ClaimStatus accountId={accountId} />
+          </Route>
         </Switch>
       </AnimatePresence>
     </SlideTransition>

@@ -18,6 +18,7 @@
     "relayerGasFee": "Frais de carburant du relayeur",
     "insufficientAmountForGas": "Solde ETH insuffisant pour couvrir les frais de carburant",
     "invalidAddress": "Adresse invalide",
+    "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -67,7 +68,10 @@
     "hideDetails": "Cacher les détails",
     "walletSupportsETHOnly": "Ethereum seulement",
     "loadingText": "Chargement...",
-    "txId": "ID Tx"
+    "txId": "ID Tx",
+    "selectAsset": "Sélectionnez un actif",
+    "switchNetwork": "Changer de réseau",
+    "unsupportedNetwork": "Réseau non pris en charge"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -117,6 +121,7 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Bientôt disponible ...",
     "buy": "Acheter",
     "sell": "Vendre",
@@ -137,6 +142,8 @@
     "exploreThe": "Explorer l'",
     "defiUniverse": "Univers DeFi",
     "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
+    "body2": "Bienvenue sur le nouveau ShapeShift. 100% gratuit. Open-source. Appartenant à la communauté. Non-dépositaire. Privé.",
+    "betaSunset": "La version Beta est terminée. En apprendre davantage",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
     "viewADemo": "Voir une démo"
@@ -363,7 +370,8 @@
     "demoMode": "Mode démo",
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
-    "explore": "Explorer"
+    "explore": "Explorer",
+    "trade": "Échanger"
   },
   "transactionRow": {
     "send": "Envoyé",
@@ -512,6 +520,7 @@
       "generalError": "Une erreur d'échange s'est produite",
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant"
     },
+    "recentTrades": "Échanges récents",
     "shapeshiftFee": "Frais ShapeShift"
   },
   "modals": {
@@ -547,6 +556,12 @@
         "infoFirst": "Il est essentiel que vous l'écriviez exactement telle qu'elle apparaît sur le KeepKey.",
         "infoSecond": "Ne partagez jamais votre phrase de récupération, elle donne accès à tous vos fonds.",
         "awaitingButtonPress": "Suivez les étapes sur votre KeepKey pour afficher votre phrase de récupération. Écrivez-la !"
+      },
+      "factoryState": {
+        "header": "Commencer avec KeepKey",
+        "body": "Votre KeepKey est réglé sur les paramètres d'usine par défaut. Créez un nouveau porte-monnaie ou restaurez un porte-monnaie à l'aide de votre phrase de récupération secrète",
+        "createButton": "Créer un nouveau porte-monnaie",
+        "recoverButton": "Récupérer un porte-monnaie"
       },
       "recoverySentenceEntry": {
         "header": "Entrez votre phrase de récupération",
@@ -609,24 +624,12 @@
         }
       }
     },
-    "stake": {
-      "amountToStake": "Montant à miser",
-      "stakeYour": "Miser vos %{opportunity}",
-      "estimatedReturns": "Rendements annuels estimés*",
-      "estimateDisclaimer": "*Les estimations fluctuent selon les conditions du marché.",
-      "footerDisclaimer": "En continuant, vous acceptez nos",
-      "footerDisclaimerLink": "conditions d'utilisation.",
-      "status": {
-        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
-        "success": "Vous avez effectué avec succès le mise de vos %{opportunity}.",
-        "failed": "Il y a eu un problème avec votre transaction de mise."
-      }
-    },
     "send": {
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
       "tokenAddress": "Adresse du jeton",
+      "addressInput": "Adresse de destination, ENS ou Yat",
       "scanQrCode": "Scanner code QR",
       "permissionsButton": "Réessayer",
       "sent": "%{asset} envoyé",
@@ -641,6 +644,7 @@
         "sendAsset": "Envoyer des %{asset}",
         "send": "Envoyer",
         "sendTo": "Envoyer à",
+        "sendFrom": "Envoyer depuis",
         "edit": "Modifier",
         "total": "Total",
         "amount": "Montant",
@@ -693,6 +697,19 @@
     },
     "claim": {
       "claimFrom": "Réclamer depuis %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Montant à miser",
+      "stakeYour": "Miser vos %{opportunity}",
+      "estimatedReturns": "Rendements annuels estimés*",
+      "estimateDisclaimer": "*Les estimations fluctuent selon les conditions du marché.",
+      "footerDisclaimer": "En continuant, vous acceptez nos",
+      "footerDisclaimerLink": "conditions d'utilisation.",
+      "status": {
+        "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
+        "success": "Vous avez effectué avec succès le mise de vos %{opportunity}.",
+        "failed": "Il y a eu un problème avec votre transaction de mise."
+      }
     },
     "withdraw": {
       "amountToWithdraw": "Montant à retirer",
@@ -1233,7 +1250,12 @@
     "accounts": "Comptes",
     "selectAccount": "Sélectionner un compte",
     "addAccount": "Ajouter un compte",
-    "accountNumber": "Compte #%{accountNumber}"
+    "accountNumber": "Compte #%{accountNumber}",
+    "accountChain": "Chaîne du compte",
+    "selectChain": "Sélectionnez la chaîne pour laquelle vous souhaitez créer un compte.",
+    "requiresPriorTxHistory": "Vous ne pouvez ajouter un nouveau compte que si le ou les comptes existants ont déjà un historique de transactions",
+    "newAccountAdded": "Nouveau compte %{name} ajouté",
+    "youCanNowUse": "Vous pouvez maintenant utiliser %{name} Compte #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

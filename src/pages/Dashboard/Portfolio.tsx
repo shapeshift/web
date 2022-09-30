@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
@@ -31,6 +32,7 @@ export const Portfolio = () => {
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)
+
   const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
 
   const loading = useSelector(selectPortfolioLoading)
@@ -131,6 +133,7 @@ export const Portfolio = () => {
           />
         </Skeleton>
       </Card>
+      <MaybeChartUnavailable assetIds={assetIds} />
       <Card>
         <Card.Header>
           <Card.Heading>

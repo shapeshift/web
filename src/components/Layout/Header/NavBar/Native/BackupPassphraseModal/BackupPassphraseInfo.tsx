@@ -54,7 +54,8 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
           (await vault.unwrap().get('#mnemonic')).split(' ').map((word: string, index: number) => (
             <Tag
               p={2}
-              flexBasis='31%'
+              flexGrow={4}
+              flexBasis='auto'
               justifyContent='flex-start'
               fontSize='md'
               key={index}
@@ -76,7 +77,8 @@ export const BackupPassphraseInfo = ({ vault }: { vault: Vault | null }) => {
     return range(1, 13).map(i => (
       <Tag
         p={2}
-        flexBasis='31%'
+        flexGrow={4}
+        flexBasis='auto'
         justifyContent='flex-start'
         fontSize='md'
         colorScheme='blue'

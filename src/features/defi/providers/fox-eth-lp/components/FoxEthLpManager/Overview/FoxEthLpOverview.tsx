@@ -1,10 +1,11 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
@@ -13,11 +14,19 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
-export const FoxEthLpOverview = () => {
+type FoxEthLpOverviewProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const opportunity = useAppSelector(selectFoxEthLpOpportunity)
   const { underlyingFoxAmount, underlyingEthAmount } = opportunity
-  const { setAccountId: handleAccountIdChange } = useFoxEth()
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -38,6 +47,7 @@ export const FoxEthLpOverview = () => {
 
   return (
     <Overview
+      accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
       icons={opportunity.icons}

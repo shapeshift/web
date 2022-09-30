@@ -3,6 +3,7 @@ import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -47,6 +48,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  fiatRampApi,
   foxEthApi,
 }
 
@@ -57,8 +59,9 @@ export const apiReducers = {
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
-  [foxEthApi.reducerPath]: foxEthApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
+  [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [foxEthApi.reducerPath]: foxEthApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

@@ -6,9 +6,11 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
+import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -16,7 +18,6 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectFoxEthLpOpportunity,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
@@ -31,7 +32,7 @@ type EarnOpportunitiesProps = {
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
+export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const history = useHistory()
   const location = useLocation()
   const {
@@ -40,18 +41,22 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances()
+  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
   const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
   const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
-  const featureFlags = useAppSelector(selectFeatureFlags)
-  //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
+
+  const { setAccountId } = useFoxEth()
+
+  useEffect(() => {
+    if (accountId) setAccountId(accountId)
+  }, [setAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
     vaultArray: Object.values(vaults),
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming ? visibleFoxFarmingOpportunities : undefined,
+    foxEthLpOpportunity,
+    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

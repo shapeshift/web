@@ -1,6 +1,7 @@
-import { Box, Flex, Heading, Image, SkeletonCircle } from '@chakra-ui/react'
+import { Box, Flex, Heading } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { AssetIcon } from 'components/AssetIcon'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -23,7 +24,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const chainId = asset.chainId
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
-  const { name, symbol, icon } = asset || {}
+  const { name, symbol } = asset || {}
 
   const {
     state: { wallet },
@@ -41,7 +42,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
       <Flex alignItems='center' mr='auto'>
-        <Image src={icon} boxSize='40px' fallback={<SkeletonCircle boxSize='40px' />} />
+        <AssetIcon assetId={asset.assetId} boxSize='40px' />
         <Box ml={3} textAlign='left'>
           <Heading fontSize='2xl' lineHeight='shorter'>
             {name} {`(${symbol})`}

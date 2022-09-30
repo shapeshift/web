@@ -1,4 +1,5 @@
 import { Center, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -11,6 +12,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -24,6 +26,7 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -37,7 +40,14 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingDeposit'],
 })
 
-export const FoxFarmingDeposit = () => {
+type FoxFarmingDepositProps = {
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: Nullable<AccountId>
+}
+export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -84,7 +94,9 @@ export const FoxFarmingDeposit = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -95,14 +107,14 @@ export const FoxFarmingDeposit = () => {
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [translate, asset.symbol, contractAddress])
+  }, [accountId, handleAccountIdChange, translate, asset.symbol, contractAddress])
 
   if (loading || !asset || !marketData || !opportunity || !opportunity.isLoaded) {
     return (

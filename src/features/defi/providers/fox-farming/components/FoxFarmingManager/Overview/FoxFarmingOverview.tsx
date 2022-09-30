@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -11,8 +12,8 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import qs from 'qs'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -22,18 +23,26 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const FoxFarmingOverview = () => {
+type FoxFarmingOverviewProps = {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
   )
-  const { setAccountId: handleAccountIdChange } = useFoxEth()
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -81,6 +90,7 @@ export const FoxFarmingOverview = () => {
 
   return (
     <Overview
+      accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
       name={opportunity.opportunityName ?? ''}

@@ -20,8 +20,8 @@ import {
 } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAssetById,
-  selectIsPortfolioLoaded,
   selectMarketDataById,
+  selectPortfolioLoading,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -61,7 +61,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const foxFarmingEnabled = useFeatureFlag('FoxFarming')
   const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const isPortfolioLoaded = useAppSelector(selectIsPortfolioLoaded)
+  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -72,7 +72,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
   const [accountAddress, setAccountAddress] = useState<string>('')
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
-  const readyToFetchLpData = isPortfolioLoaded && wallet && supportsETH(wallet)
+  const readyToFetchLpData = !isPortfolioLoading && wallet && supportsETH(wallet)
   const readyToFetchFarmingData = readyToFetchLpData && foxEthLpMarketData.price !== '0'
   const readyToFetchLpAccountData =
     readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0'

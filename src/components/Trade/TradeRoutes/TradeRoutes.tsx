@@ -42,7 +42,7 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Switch location={location} key={location.key}>
+      <Switch location={location}>
         <Route
           path={TradeRoutePaths.SellSelect}
           render={(props: RouteComponentProps) => (

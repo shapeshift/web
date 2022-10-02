@@ -134,6 +134,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const firstAccountId = accountIds[0]
       if (!firstAccountId) return
       const accountMetadata = portfolioAccountMetaData[firstAccountId]
+      if (!accountMetadata) return
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,
@@ -149,8 +150,8 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     }
   }, [
     assets,
-    buyChainId,
     buyAssetId,
+    buyChainId,
     dispatch,
     featureFlags,
     getUsdRates,

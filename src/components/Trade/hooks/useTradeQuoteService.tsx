@@ -59,7 +59,7 @@ export const getTradeQuoteArgs = async ({
       bip44Params: sellAccountBip44Params,
     }
   } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
-    if (!sellAccountType) throw new Error('no accountType')
+    if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>

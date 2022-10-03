@@ -1,19 +1,21 @@
 import { Stack, Text } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/system'
+import { useColorModeValue, useToken } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
+import { Text as VisxText } from '@visx/text'
 import type { Margin } from '@visx/xychart'
 import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
 import type { Numeric } from 'd3-array'
 import { extent } from 'd3-array'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RainbowData } from 'hooks/useBalanceChartData/useBalanceChartData'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { selectAssets, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
@@ -26,9 +28,16 @@ export type RainbowChartProps = {
   margin?: Margin
 }
 
+const getScaledX = (date: number, start: number, end: number, width: number) =>
+  ((date - start) / (end - start)) * width
+
+const getScaledY = (price: number, min: number, max: number, height: number) =>
+  ((max - price) / (max - min)) * height
+
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
 export const RainbowChart: React.FC<RainbowChartProps> = ({
   data,
+  color,
   width,
   height,
   margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -36,6 +45,10 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
+
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
 
   const magicXAxisOffset = 37
 
@@ -85,10 +98,37 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     }),
     [margin.top, maxPrice, minPrice, yMax],
   )
+  const maxPriceDate = data.find(x => x.total === maxPrice)!.date
+  const minPriceDate = data.find(x => x.total === minPrice)!.date
+
+  const handleTextPosition = useCallback(
+    (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
+      const offsetWidth = width / 2
+      const buffer = 16
+      const end = width - offsetWidth
+      if (x < offsetWidth) {
+        return { x: x + buffer, anchor: 'start' }
+      } else if (x > end) {
+        return { x, anchor: 'end' }
+      } else {
+        return { x, anchor: 'start' }
+      }
+    },
+    [width],
+  )
+  const scaledMaxPriceX = handleTextPosition(
+    getScaledX(maxPriceDate, xScale.domain[0].getTime(), xScale.domain[1].getTime(), width),
+  )
+  const scaledMinPriceX = handleTextPosition(
+    getScaledX(minPriceDate, xScale.domain[0].getTime(), xScale.domain[1].getTime(), width),
+  )
+  const scaledMaxPriceY = getScaledY(maxPrice, minPrice, maxPrice, height - margin.bottom)
+  const scaledMinPriceY = getScaledY(minPrice, minPrice, maxPrice, height - margin.bottom)
 
   const tooltipBg = useColorModeValue('white', colors.gray[700])
   const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[600])
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
+  const minMaxTextColor = useToken('colors', color)
 
   const areaLines = useMemo(
     () =>
@@ -164,6 +204,35 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
               )
             }}
           />
+          <Group top={margin.top} left={margin.left} opacity={0}>
+            <g>
+              <VisxText
+                x={scaledMaxPriceX.x}
+                textAnchor={scaledMaxPriceX.anchor}
+                y={scaledMaxPriceY}
+                fill={minMaxTextColor}
+                fontSize='12px'
+                dy='1rem'
+                dx='-0.5rem'
+              >
+                {toFiat(maxPrice)}
+              </VisxText>
+            </g>
+            <g>
+              <VisxText
+                x={scaledMinPriceX.x}
+                textAnchor={scaledMinPriceX.anchor}
+                y={scaledMinPriceY}
+                fill={minMaxTextColor}
+                fontSize='12px'
+                dy='1rem'
+                dx='-0.5rem'
+                width={100}
+              >
+                {toFiat(minPrice)}
+              </VisxText>
+            </g>
+          </Group>
         </XYChart>
       </ScaleSVG>
     </div>

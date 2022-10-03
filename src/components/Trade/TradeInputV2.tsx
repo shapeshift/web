@@ -91,6 +91,14 @@ export const TradeInput = () => {
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
   const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
 
+  const quoteAvailableForCurrentAssetPair = useMemo(() => {
+    if (!quote) return false
+    return (
+      quote.buyAsset?.assetId === buyTradeAsset?.asset?.assetId &&
+      quote.sellAsset?.assetId === sellTradeAsset?.asset?.assetId
+    )
+  }, [buyTradeAsset?.asset?.assetId, quote, sellTradeAsset?.asset?.assetId])
+
   // Constants
   const walletSupportsSellAssetChain =
     sellTradeAsset?.asset?.chainId &&
@@ -295,8 +303,7 @@ export const TradeInput = () => {
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
             onAccountIdChange={handleSellAccountIdChange}
-            showFiatAmount={!isUsdRatesPending}
-            showFiatSkeleton={isUsdRatesPending || isTradeQuotePending}
+            showFiatSkeleton={isUsdRatesPending}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -328,8 +335,8 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
             onAccountIdChange={handleBuyAccountIdChange}
-            showInputSkeleton={isSwapperApiPending}
-            showFiatSkeleton={isSwapperApiPending}
+            showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+            showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
@@ -338,12 +345,12 @@ export const TradeInput = () => {
             buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={gasFee}
             rate={quote?.rate}
-            isLoading={isSwapperApiPending}
+            isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
           />
           {walletSupportsTradeAssetChains ? (
             <ReceiveSummary
-              isLoading={!quote || isSwapperApiPending}
+              isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
               beforeFees={tradeAmountConstants?.buyAmountBeforeFees ?? ''}

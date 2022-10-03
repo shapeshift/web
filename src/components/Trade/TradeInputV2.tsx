@@ -5,6 +5,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
@@ -19,6 +20,7 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { selectSwapperApiPending } from 'state/apis/swapper/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
@@ -80,6 +82,8 @@ export const TradeInput = () => {
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, sellAssetBalanceFilter),
   )
+
+  const isSwapperApiLoading = useSelector(selectSwapperApiPending)
 
   // Constants
   const walletSupportsSellAssetChain =
@@ -334,12 +338,12 @@ export const TradeInput = () => {
             buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={gasFee}
             rate={quote?.rate}
-            isLoading={isLoadingFiatRateData || isLoadingTradeQuote}
+            isLoading={isSwapperApiLoading}
             isError={!walletSupportsTradeAssetChains}
           />
           {walletSupportsTradeAssetChains ? (
             <ReceiveSummary
-              isLoading={!quote || isLoadingTradeQuote}
+              isLoading={!quote || isSwapperApiLoading}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
               beforeFees={tradeAmountConstants?.buyAmountBeforeFees ?? ''}

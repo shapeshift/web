@@ -613,6 +613,7 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
+          "walletNameRequired": "Wallet nickname is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }

@@ -5,6 +5,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
@@ -19,6 +20,11 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import {
+  selectSwapperApiPending,
+  selectSwapperApiTradeQuotePending,
+  selectSwapperApiUsdRatesPending,
+} from 'state/apis/swapper/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
@@ -36,7 +42,7 @@ import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
-  const { isLoadingTradeQuote, isLoadingFiatRateData } = useSwapperService()
+  useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { checkApprovalNeeded, getTrade, bestTradeSwapper } = useSwapper()
@@ -81,6 +87,10 @@ export const TradeInput = () => {
     selectPortfolioCryptoHumanBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
+  const isSwapperApiPending = useSelector(selectSwapperApiPending)
+  const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
+  const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
+
   // Constants
   const walletSupportsSellAssetChain =
     sellTradeAsset?.asset?.chainId &&
@@ -101,17 +111,11 @@ export const TradeInput = () => {
       setValue('amount', amount)
       setValue('action', action)
 
-      isLoadingFiatRateData || isLoadingTradeQuote
+      isSwapperApiPending
         ? await setTradeAmountsRefetchData({ amount, action })
         : setTradeAmountsUsingExistingData({ amount, action })
     },
-    [
-      isLoadingFiatRateData,
-      isLoadingTradeQuote,
-      setTradeAmountsUsingExistingData,
-      setTradeAmountsRefetchData,
-      setValue,
-    ],
+    [isSwapperApiPending, setTradeAmountsUsingExistingData, setTradeAmountsRefetchData, setValue],
   )
 
   const handleToggle = useCallback(async () => {
@@ -230,11 +234,11 @@ export const TradeInput = () => {
         toBaseUnit(bnOrZero(sellTradeAsset?.amount), sellTradeAsset?.asset?.precision || 0),
       ).lt(minSellAmount) &&
       hasValidSellAmount &&
-      !isLoadingTradeQuote
+      !isTradeQuotePending
     const feesExceedsSellAmount =
       bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
       bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
-      !isLoadingTradeQuote
+      !isTradeQuotePending
 
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
@@ -262,7 +266,7 @@ export const TradeInput = () => {
     feeAssetBalance,
     quote,
     hasValidSellAmount,
-    isLoadingTradeQuote,
+    isTradeQuotePending,
     buyTradeAsset,
     wallet,
     walletSupportsSellAssetChain,
@@ -291,8 +295,8 @@ export const TradeInput = () => {
             onMaxClick={handleSendMax}
             onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
             onAccountIdChange={handleSellAccountIdChange}
-            showFiatAmount={!isLoadingFiatRateData}
-            showFiatSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
+            showFiatAmount={!isUsdRatesPending}
+            showFiatSkeleton={isUsdRatesPending || isTradeQuotePending}
           />
           <Stack justifyContent='center' alignItems='center'>
             <IconButton
@@ -324,8 +328,8 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
             onAccountIdChange={handleBuyAccountIdChange}
-            showInputSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
-            showFiatSkeleton={isLoadingFiatRateData || isLoadingTradeQuote}
+            showInputSkeleton={isSwapperApiPending}
+            showFiatSkeleton={isSwapperApiPending}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
@@ -334,12 +338,12 @@ export const TradeInput = () => {
             buySymbol={buyTradeAsset?.asset?.symbol}
             gasFee={gasFee}
             rate={quote?.rate}
-            isLoading={isLoadingFiatRateData || isLoadingTradeQuote}
+            isLoading={isSwapperApiPending}
             isError={!walletSupportsTradeAssetChains}
           />
           {walletSupportsTradeAssetChains ? (
             <ReceiveSummary
-              isLoading={!quote || isLoadingTradeQuote}
+              isLoading={!quote || isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
               beforeFees={tradeAmountConstants?.buyAmountBeforeFees ?? ''}
@@ -353,13 +357,7 @@ export const TradeInput = () => {
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
           size='lg'
-          isDisabled={
-            hasError ||
-            isLoadingFiatRateData ||
-            isLoadingTradeQuote ||
-            !hasValidSellAmount ||
-            !quote
-          }
+          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
           isLoading={isLoading}
         >
           <Text translation={getTranslationKey()} />

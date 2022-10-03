@@ -19,7 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -43,13 +43,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const opportunity = useAppSelector(selectFoxEthLpOpportunity)
-  const { underlyingFoxAmount, underlyingEthAmount } = opportunity
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
   )
+
+  const opportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+  )
+  const { underlyingFoxAmount, underlyingEthAmount } = opportunity
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
     useFoxEthLiquidityPool(accountAddress)

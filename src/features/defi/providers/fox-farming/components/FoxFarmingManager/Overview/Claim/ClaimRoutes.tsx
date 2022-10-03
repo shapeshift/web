@@ -35,7 +35,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
   )
   const location = useLocation()
 

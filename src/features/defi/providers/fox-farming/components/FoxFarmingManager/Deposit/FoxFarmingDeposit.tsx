@@ -59,7 +59,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
   )
   const { accountAddress } = useFoxEth()
 

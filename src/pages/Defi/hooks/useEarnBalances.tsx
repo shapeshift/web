@@ -8,7 +8,7 @@ import {
   selectFarmContractsFiatBalance,
   selectFeatureFlags,
   selectFoxEthLpFiatBalance,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -26,6 +26,7 @@ export type UseEarnBalancesReturn = {
 export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
+  const accountAddress = '' // TODO
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances({
     accountNumber: 0,
   })
@@ -41,10 +42,20 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
-  const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
-  const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
-  const farmContractsFiatBalance = useAppSelector(selectFarmContractsFiatBalance)
-  const foxEthLpFiatBalance = useAppSelector(selectFoxEthLpFiatBalance)
+  const visibleFoxFarmingOpportunities = useAppSelector(state =>
+    selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
+  const farmContractsFiatBalance = useAppSelector(state =>
+    selectFarmContractsFiatBalance(state, { accountAddress: accountAddress ?? '' }),
+  )
+  const foxEthLpFiatBalance = useAppSelector(state =>
+    selectFoxEthLpFiatBalance(state, { accountAddress: accountAddress ?? '' }),
+  )
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({

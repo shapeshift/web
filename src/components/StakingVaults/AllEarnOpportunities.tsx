@@ -15,7 +15,7 @@ import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakin
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import {
   selectFeatureFlags,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -23,6 +23,7 @@ import { useAppSelector } from 'state/store'
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
+  const accountAddress = '' // TODO(gomes)
   const history = useHistory()
   const location = useLocation()
   const {
@@ -33,8 +34,14 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedVaults()
 
   const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
-  const visibleFoxFarmingOpportunities = useAppSelector(selectVisibleFoxFarmingOpportunities)
-  const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
+  const visibleFoxFarmingOpportunities = useAppSelector(state =>
+    selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,

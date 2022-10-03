@@ -41,7 +41,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
   )
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({

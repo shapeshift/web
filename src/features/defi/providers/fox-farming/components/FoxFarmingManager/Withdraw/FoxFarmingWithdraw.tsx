@@ -51,10 +51,14 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
-  )
   const { accountAddress } = useFoxEth()
+
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, {
+      accountAddress: accountAddress ?? '',
+      contractAddress,
+    }),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 

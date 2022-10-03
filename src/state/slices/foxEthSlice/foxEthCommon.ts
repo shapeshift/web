@@ -15,11 +15,13 @@ import {
 export type FoxFarmingEarnOpportunityType = {
   unclaimedRewards: string
   isVisible?: boolean
+  accountAddress?: string
 } & EarnOpportunityType
 
 export type FoxEthLpEarnOpportunityType = {
   underlyingFoxAmount?: string
   underlyingEthAmount?: string
+  accountAddress?: string
 } & EarnOpportunityType
 
 const icons = [

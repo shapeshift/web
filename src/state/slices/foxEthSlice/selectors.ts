@@ -8,13 +8,32 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
 
-export const selectFoxEthLpOpportunity = (state: ReduxState) => state.foxEth.lpOpportunity
+// TODO(gomes): DeepEqual Output compareFn
+const selectAccountAddressParamFromFilter = (
+  _state: ReduxState,
+  filter: { accountAddress?: string; contractAddress?: string },
+): string => filter.accountAddress ?? ''
 
-export const selectFoxFarmingOpportunities = (state: ReduxState) =>
-  state.foxEth.farmingOpportunities
+// TODO(gomes): DeepEqual Output compareFn
+const selectContractAddressParamFromFilter = (
+  _state: ReduxState,
+  filter: { accountAddress?: string; contractAddress?: string },
+): string => filter.contractAddress ?? ''
+
+export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
+  (state: ReduxState) => state.foxEth,
+  selectAccountAddressParamFromFilter,
+  (foxEthState, accountAddress) => foxEthState[accountAddress]?.lpOpportunity,
+)
+
+export const selectFoxFarmingOpportunitiesByAccountAddress = createSelector(
+  (state: ReduxState) => state.foxEth,
+  selectAccountAddressParamFromFilter,
+  (foxEthState, accountAddress) => foxEthState[accountAddress]?.farmingOpportunities,
+)
 
 export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
-  selectFoxFarmingOpportunities,
+  selectFoxFarmingOpportunitiesByAccountAddress,
   opportunities =>
     opportunities.filter(
       opportunity =>
@@ -23,14 +42,14 @@ export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelecto
 )
 
 export const selectFoxFarmingOpportunityByContractAddress = createSelector(
-  selectFoxFarmingOpportunities,
-  (_state: ReduxState, contractAddress: string) => contractAddress,
+  selectFoxFarmingOpportunitiesByAccountAddress,
+  selectContractAddressParamFromFilter,
   (opportunities, contractAddress) =>
     opportunities.find(opportunity => opportunity.contractAddress === contractAddress),
 )
 
 export const selectFarmContractsBalance = createSelector(
-  selectFoxFarmingOpportunities,
+  selectFoxFarmingOpportunitiesByAccountAddress,
   (farmingOpportunities): string => {
     const foxFarmingTotalCryptoAmount = farmingOpportunities.reduce(
       (totalBalance, opportunity) => totalBalance.plus(bnOrZero(opportunity.cryptoAmount)),
@@ -42,7 +61,7 @@ export const selectFarmContractsBalance = createSelector(
 
 export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
   selectAssets,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectFarmContractsBalance,
   (assetsById, lpOpportunity, farmContractsBalance) => {
     const lpAsset = assetsById[foxEthLpAssetId]
@@ -56,7 +75,7 @@ export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
 
 export const selectFoxEthLpFiatBalance = createSelector(
   selectMarketData,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   (marketData, lpOpportunity) => {
     const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
     return bnOrZero(lpOpportunity.cryptoAmount).times(lpTokenPrice).toFixed(2)

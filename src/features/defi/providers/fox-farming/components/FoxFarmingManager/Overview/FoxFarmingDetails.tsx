@@ -32,7 +32,7 @@ export const FoxFarmingDetails = () => {
   })
   const { contractAddress } = query
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, contractAddress),
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
   )
   const rewardBalance = bnOrZero(opportunity?.unclaimedRewards)
   const foxFarmingBalance = bnOrZero(opportunity?.cryptoAmount)

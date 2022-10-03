@@ -25,18 +25,17 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
-type FoxEthState = {
-  farmingOpportunities: FoxFarmingEarnOpportunityType[]
-  lpOpportunity: FoxEthLpEarnOpportunityType
-}
+type FoxEthState = Record<
+  string, // accountAddress
+  {
+    farmingOpportunities: FoxFarmingEarnOpportunityType[]
+    lpOpportunity: FoxEthLpEarnOpportunityType
+  }
+>
 
-const initialState: FoxEthState = {
-  farmingOpportunities,
-  lpOpportunity,
-}
+const initialState: FoxEthState = {}
 
 const moduleLogger = logger.child({ namespace: ['foxEthSlice'] })
 
@@ -46,8 +45,8 @@ export const foxEth = createSlice({
   reducers: {
     clear: () => initialState,
     upsertLpOpportunity: (state, action: PayloadAction<Partial<FoxEthLpEarnOpportunityType>>) => {
-      state.lpOpportunity = {
-        ...state.lpOpportunity,
+      state[action.payload.accountAddress ?? ''].lpOpportunity = {
+        ...(state[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
       }
     },
@@ -55,11 +54,15 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
-      const stateOpportunityIndex = state.farmingOpportunities.findIndex(
+      const stateOpportunityIndex = state[
+        action.payload.accountAddress ?? ''
+      ]?.farmingOpportunities.findIndex(
         opportunity => opportunity.contractAddress === action.payload.contractAddress,
       )
-      state.farmingOpportunities[stateOpportunityIndex] = {
-        ...state.farmingOpportunities[stateOpportunityIndex],
+      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
+        ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities[
+          stateOpportunityIndex
+        ] ?? {}),
         ...action.payload,
       }
     },
@@ -208,6 +211,7 @@ export const foxEthApi = createApi({
             underlyingEthAmount,
             cryptoAmount: cryptoAmount.toString(),
             fiatAmount,
+            accountAddress,
           }
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
@@ -327,6 +331,7 @@ export const foxEthApi = createApi({
             fiatAmount: bnOrZero(balance).times(lpTokenPrice).toString(),
             unclaimedRewards: rewards,
             contractAddress,
+            accountAddress,
           }
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }

@@ -25,7 +25,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunity,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -43,7 +43,15 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+  )
 
   const feeAssetId = toAssetId({
     chainId,
@@ -54,11 +62,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountAddress && accountId)) return ''

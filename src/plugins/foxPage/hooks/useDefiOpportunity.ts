@@ -3,17 +3,25 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import { useEffect, useState } from 'react'
 import {
   selectFeatureFlags,
-  selectFoxEthLpOpportunity,
-  selectFoxFarmingOpportunities,
+  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxFarmingOpportunitiesByAccountAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { ExternalOpportunity } from '../FoxCommon'
 
-export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
+export const useDefiOpportunity = (opportunity: ExternalOpportunity, accountAddress?: string) => {
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)
-  const foxFarmingOpportunities = useAppSelector(selectFoxFarmingOpportunities)
-  const foxEthLpOpportunity = useAppSelector(selectFoxEthLpOpportunity)
+  const foxFarmingOpportunities = useAppSelector(state =>
+    selectFoxFarmingOpportunitiesByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   useEffect(() => {

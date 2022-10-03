@@ -353,7 +353,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
   const balances = useAppSelector(state =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, {
+      accountId: accountId ?? '',
+      accountAddress: '', // TODO(gomes)
+    }),
   )
 
   const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])

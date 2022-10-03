@@ -539,7 +539,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectLpPlusFarmContractsBaseUnitBalance,
-    (_state: ReduxState, accountId?: string) => accountId,
+    (_state: ReduxState, { accountId }: { accountId?: string }) => accountId ?? '',
     (
       assetsById,
       accountBalances,

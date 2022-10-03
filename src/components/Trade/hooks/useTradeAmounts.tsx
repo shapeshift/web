@@ -200,7 +200,7 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      formFees ? setValue('fees', formFees) : setValue('fees', undefined)
+      setValue('fees', formFees)
 
       const { data: usdRates } = await dispatch(
         getUsdRates.initiate({

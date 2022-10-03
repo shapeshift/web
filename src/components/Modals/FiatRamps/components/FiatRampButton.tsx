@@ -71,9 +71,9 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
       >
         <Flex
           flex={1}
-          flexDirection={['column', 'row']}
+          flexWrap='wrap'
           justifyContent='space-between'
-          alignItems={['baseline', 'center']}
+          alignItems='center'
           gap={['1em', 0]}
           width='100%'
         >
@@ -84,9 +84,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
               <Text translation={info ?? ''} />
             </Box>
           </Flex>
-          <Flex display={['none', 'flex']} gap={2}>
-            {renderTags}
-          </Flex>
+          <Flex gap={2}>{renderTags}</Flex>
         </Flex>
       </Button>
     </Tooltip>

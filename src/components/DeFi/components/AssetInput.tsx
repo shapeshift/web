@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { InputProps } from '@chakra-ui/react'
+import type { FormControlProps, InputProps } from '@chakra-ui/react'
 import {
   Button,
   FormControl,
@@ -36,13 +36,14 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     fontSize='xl'
     borderRadius={0}
-    py={1}
+    py={0}
     height='auto'
     type='number'
     textAlign='right'
     variant='inline'
     placeholder='Enter amount'
     style={{ caretColor: colors.blue[200] }}
+    autocomplete='off'
     {...props}
   />
 )
@@ -68,6 +69,7 @@ export type AssetInputProps = {
   onAccountIdChange?: AccountDropdownProps['onChange']
   showInputSkeleton?: boolean
   showFiatSkeleton?: boolean
+  formControlProps?: FormControlProps
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -92,6 +94,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onAccountIdChange: handleAccountIdChange,
   showInputSkeleton,
   showFiatSkeleton,
+  formControlProps,
 }) => {
   const {
     number: { localeParts },
@@ -119,7 +122,9 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? bgColor : focusBg }}
       isInvalid={!!errors}
-      py={2}
+      pt={3}
+      pb={2}
+      {...formControlProps}
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
@@ -167,20 +172,23 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
 
-      {showFiatAmount && !showFiatSkeleton && (
-        <Stack width='full' alignItems='flex-end' px={4} pb={2}>
+      {showFiatAmount && (
+        <Stack width='full' alignItems='flex-end' px={4} pb={2} mt={1}>
           <Button
             onClick={toggleIsFiat}
             size='xs'
+            disabled={showFiatSkeleton}
             fontWeight='medium'
             variant='link'
             color='gray.500'
           >
-            {isFiat ? (
-              <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-            ) : (
-              <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-            )}
+            <Skeleton isLoaded={!showFiatSkeleton}>
+              {isFiat ? (
+                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+              ) : (
+                <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+              )}
+            </Skeleton>
           </Button>
         </Stack>
       )}

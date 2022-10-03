@@ -87,7 +87,7 @@ export const getTradeAmountConstants = ({
 
   const buyAssetTradeFeeSellAssetBaseUnit = toBaseUnit(
     fromBaseUnit(
-      bnOrZero(buyAssetTradeFeeBuyAssetBaseUnit).div(assetPriceRatio),
+      bnOrZero(buyAssetTradeFeeBuyAssetBaseUnit).times(assetPriceRatio),
       buyAsset.precision,
     ),
     sellAsset.precision,

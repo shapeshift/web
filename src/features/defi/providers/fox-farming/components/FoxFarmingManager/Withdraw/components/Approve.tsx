@@ -140,7 +140,9 @@ export const Approve = ({ onNext }: StepComponentProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text
+              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+            />
           </Alert>
         )}
       </>

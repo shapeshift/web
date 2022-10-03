@@ -157,7 +157,11 @@ export const useTradeAmounts = () => {
         sellAssetId: sellAssetIdToUse,
       })
 
-      if (!bestTradeSwapper) return
+      if (!bestTradeSwapper) {
+        setValue('quote', undefined)
+        setValue('fees', undefined)
+        return
+      }
       const state = store.getState()
       const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
         assetId: sellAsset.assetId,
@@ -184,8 +188,6 @@ export const useTradeAmounts = () => {
         ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
         : undefined
 
-      quoteResponse?.data ? setValue('quote', quoteResponse.data) : setValue('quote', undefined)
-
       // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
       const formFees = quoteResponse?.data
         ? getFormFees({
@@ -196,8 +198,6 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      formFees ? setValue('fees', formFees) : setValue('fees', undefined)
-
       const { data: usdRates } = await dispatch(
         getUsdRates.initiate({
           buyAssetId: buyAssetIdToUse,
@@ -206,7 +206,9 @@ export const useTradeAmounts = () => {
         }),
       )
 
-      usdRates &&
+      if (usdRates) {
+        setValue('quote', quoteResponse?.data)
+        setValue('fees', formFees)
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,
@@ -218,6 +220,11 @@ export const useTradeAmounts = () => {
           buyAssetTradeFeeUsd: bnOrZero(formFees?.buyAssetTradeFeeUsd),
           sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
+      } else {
+        setValue('sellAssetFiatRate', undefined)
+        setValue('buyAssetFiatRate', undefined)
+        setValue('feeAssetFiatRate', undefined)
+      }
     },
     [
       actionFormState,

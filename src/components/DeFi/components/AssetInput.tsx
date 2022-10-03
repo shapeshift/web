@@ -43,7 +43,7 @@ const CryptoInput = (props: InputProps) => (
     variant='inline'
     placeholder='Enter amount'
     style={{ caretColor: colors.blue[200] }}
-    autocomplete='off'
+    autoComplete='off'
     {...props}
   />
 )

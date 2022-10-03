@@ -90,6 +90,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
             <Input
               {...register('name', {
+                required: translate('modals.shapeShift.password.error.walletNameRequired'),
                 maxLength: {
                   value: 64,
                   message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),

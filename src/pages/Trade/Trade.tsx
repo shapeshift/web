@@ -2,12 +2,9 @@ import { Box, Center, Container, Heading, Stack, useColorModeValue } from '@chak
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
-import { Text } from 'components/Text'
-import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 const TradeHeader = () => {
   const translate = useTranslate()
@@ -24,15 +21,6 @@ export const Trade = () => {
   } = useWallet()
   const top = isDemoWallet ? '7rem' : '4.5rem'
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const headerBg = useColorModeValue('gray.100', 'gray.800')
-  const txIds = useAppSelector(state =>
-    selectTxIdsBasedOnSearchTermAndFilters(state, {
-      types: null,
-      matchingAssets: null,
-      fromDate: null,
-      toDate: null,
-    }),
-  )
   return (
     <Main py={0} px={0} display='flex' flex={1} width='full' titleComponent={<TradeHeader />}>
       <Stack
@@ -86,12 +74,7 @@ export const Trade = () => {
           overflowY='auto'
         >
           <Card variant='unstyled' width='full'>
-            <Card.Header position='sticky' top={0} bg={headerBg} zIndex={2}>
-              <Card.Heading>
-                <Text translation='dashboard.recentTransactions.recentTransactions' />
-              </Card.Heading>
-            </Card.Header>
-            <TransactionHistoryList txIds={txIds} useCompactMode={true} />
+            <RecentTransactions />
           </Card>
         </Stack>
       </Stack>

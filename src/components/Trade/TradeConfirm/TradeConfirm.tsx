@@ -246,19 +246,31 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 sellIcon={trade.sellAsset.icon}
                 status={sellTxid || isSubmitting ? status : undefined}
               />
-              {fees?.tradeFeeSource === 'Thorchain' && (
-                <Alert status='info' mx={3} width='auto' mb={3} fontSize='sm'>
-                  <AlertIcon />
-                  <Stack spacing={0}>
-                    <AlertTitle>
-                      {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
-                    </AlertTitle>
-                    <AlertDescription lineHeight='short'>
-                      {translate('trade.slowSwapBody')}
-                    </AlertDescription>
-                  </Stack>
-                </Alert>
-              )}
+              <Flex direction='column' gap={2}>
+                {fees?.tradeFeeSource === 'Thorchain' && (
+                  <Alert status='info' width='auto' fontSize='sm'>
+                    <AlertIcon />
+                    <Stack spacing={0}>
+                      <AlertTitle>
+                        {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+                      </AlertTitle>
+                      <AlertDescription lineHeight='short'>
+                        {translate('trade.slowSwapBody')}
+                      </AlertDescription>
+                    </Stack>
+                  </Alert>
+                )}
+                {trade?.buyAsset.assetId === thorchainAssetId && (
+                  <Alert status='info' width='auto' mb={3} fontSize='sm'>
+                    <AlertIcon />
+                    <Stack spacing={0}>
+                      <AlertDescription lineHeight='short'>
+                        {translate('trade.intoRUNEBody')}
+                      </AlertDescription>
+                    </Stack>
+                  </Alert>
+                )}
+              </Flex>
               <Stack spacing={4}>
                 <Row>
                   <Row.Label>{translate('common.send')}</Row.Label>

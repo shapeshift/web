@@ -179,7 +179,7 @@ export const useGetTradeAmounts = () => {
   const buyAssetTradeFeeUsd = bnOrZero(fees?.buyAssetTradeFeeUsd)
 
   const tradeAmountConstants =
-    buyAsset && sellAsset && action
+    buyAsset && sellAsset && action && buyAssetUsdRate && sellAssetUsdRate
       ? getTradeAmountConstants({
           amount,
           buyAsset,

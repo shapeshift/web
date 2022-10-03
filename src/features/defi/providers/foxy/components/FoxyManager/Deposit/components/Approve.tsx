@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -14,6 +14,7 @@ import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,6 +24,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -170,6 +172,16 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     walletState.wallet,
   ])
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
   if (!state || !dispatch) return null
 
   return (
@@ -179,7 +191,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
@@ -188,12 +200,22 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.approve.depositFee')}
-          </AlertDescription>
-        </Alert>
+        <>
+          <Alert status='info' borderRadius='lg' color='blue.500'>
+            <FaGasPump />
+            <AlertDescription textAlign='left' ml={3} color={alertText}>
+              {translate('modals.approve.depositFee')}
+            </AlertDescription>
+          </Alert>
+          {!hasEnoughBalanceForGas && (
+            <Alert status='error' borderRadius='lg'>
+              <AlertIcon />
+              <Text
+                translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+              />
+            </Alert>
+          )}
+        </>
       }
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}

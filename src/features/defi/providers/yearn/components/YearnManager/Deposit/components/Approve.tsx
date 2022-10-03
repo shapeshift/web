@@ -22,6 +22,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -190,6 +191,17 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
     yearnInvestor,
   ])
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -199,7 +211,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)

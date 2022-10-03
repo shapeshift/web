@@ -5,14 +5,18 @@ import { Approve as ReusableApprove } from 'features/defi/components/Approve/App
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
@@ -43,10 +47,19 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
 
-  const handleApprove = async () => {
-    if (!opportunity || !wallet || !supportsETH(wallet)) return
+  const handleApprove = useCallback(async () => {
+    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
@@ -86,14 +99,30 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    allowance,
+    approve,
+    dispatch,
+    getDepositGasData,
+    foxAsset.precision,
+    feeAsset.precision,
+    state?.deposit.foxCryptoAmount,
+    state?.deposit.ethCryptoAmount,
+    onNext,
+    opportunity,
+    toast,
+    translate,
+    wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .times(feeMarketData.price)
         .toFixed(2)}

@@ -10,14 +10,18 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
@@ -166,6 +170,17 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     getDepositGasEstimate,
   ])
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -175,7 +190,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(`1e+${feeAsset.precision}`)
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(`1e+${feeAsset.precision}`)
         .times(feeMarketData.price)

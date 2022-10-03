@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.1...@shapeshiftoss/swapper-v11.5.2) (2022-10-03)
+
+
+### Bug Fixes
+
+* thorswap fees and minimums estimation ([#1043](https://github.com/shapeshift/lib/issues/1043)) ([9e33dee](https://github.com/shapeshift/lib/commit/9e33deeb6fb22bce16f2af20239fb96b0970207c))
+
 # [@shapeshiftoss/swapper-v11.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.0...@shapeshiftoss/swapper-v11.5.1) (2022-09-30)
 
 

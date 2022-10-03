@@ -53,20 +53,6 @@ export const getTradeAmountConstants = ({
 
   const buyAmountBeforeFees = fromBaseUnit(buyAmountBeforeFeesBaseUnit, buyAsset.precision)
 
-  const buyAmountBeforeFeesSellAssetBaseUnit: string = (() => {
-    switch (action) {
-      case TradeAmountInputField.BUY_CRYPTO:
-        return toBaseUnit(amount, sellAsset.precision)
-      case TradeAmountInputField.SELL_CRYPTO:
-        return toBaseUnit(bnOrZero(amount).div(assetPriceRatio), buyAsset.precision)
-      case TradeAmountInputField.BUY_FIAT:
-      case TradeAmountInputField.SELL_FIAT:
-        return toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), sellAsset.precision)
-      default:
-        return '0'
-    }
-  })()
-
   const sellAssetTradeFeeSellAssetBaseUnit = toBaseUnit(
     sellAssetTradeFeeUsd.div(sellAssetUsdRate),
     sellAsset.precision,
@@ -87,7 +73,7 @@ export const getTradeAmountConstants = ({
 
   const buyAssetTradeFeeSellAssetBaseUnit = toBaseUnit(
     fromBaseUnit(
-      bnOrZero(buyAssetTradeFeeBuyAssetBaseUnit).div(assetPriceRatio),
+      bnOrZero(buyAssetTradeFeeBuyAssetBaseUnit).times(assetPriceRatio),
       buyAsset.precision,
     ),
     sellAsset.precision,
@@ -136,6 +122,10 @@ export const getTradeAmountConstants = ({
     .times(selectedCurrencyToUsdRate)
     .toFixed(2)
 
+  const sellAmountBeforeFeesBuyAsset: string = bnOrZero(sellAmountPlusFeesFiat)
+    .div(buyAssetUsdRate)
+    .toString()
+
   const buyAmountAfterFeesFiat = bnOrZero(
     fromBaseUnit(buyAmountAfterFeesBaseUnit, buyAsset.precision),
   )
@@ -153,7 +143,7 @@ export const getTradeAmountConstants = ({
     sellAmountPlusFeesBaseUnit,
     buyAmountBeforeFeesBaseUnit,
     totalTradeFeeBuyAssetBaseUnit,
-    buyAmountBeforeFeesSellAssetBaseUnit,
+    sellAmountBeforeFeesBuyAsset,
     buyAmountAfterFees,
     buyAmountBeforeFees,
     totalTradeFeeBuyAsset,

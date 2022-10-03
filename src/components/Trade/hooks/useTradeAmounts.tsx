@@ -188,8 +188,6 @@ export const useTradeAmounts = () => {
         ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
         : undefined
 
-      setValue('quote', quoteResponse?.data)
-
       // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
       const formFees = quoteResponse?.data
         ? getFormFees({
@@ -200,8 +198,6 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      setValue('fees', formFees)
-
       const { data: usdRates } = await dispatch(
         getUsdRates.initiate({
           buyAssetId: buyAssetIdToUse,
@@ -211,6 +207,8 @@ export const useTradeAmounts = () => {
       )
 
       if (usdRates) {
+        setValue('quote', quoteResponse?.data)
+        setValue('fees', formFees)
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,

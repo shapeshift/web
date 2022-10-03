@@ -119,11 +119,19 @@ export const TradeInput = () => {
       setValue('amount', amount)
       setValue('action', action)
 
-      isSwapperApiPending
-        ? await setTradeAmountsRefetchData({ amount, action })
-        : setTradeAmountsUsingExistingData({ amount, action })
+      if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
+        await setTradeAmountsRefetchData({ amount, action })
+      } else {
+        setTradeAmountsUsingExistingData({ amount, action })
+      }
     },
-    [isSwapperApiPending, setTradeAmountsUsingExistingData, setTradeAmountsRefetchData, setValue],
+    [
+      setValue,
+      isSwapperApiPending,
+      quoteAvailableForCurrentAssetPair,
+      setTradeAmountsRefetchData,
+      setTradeAmountsUsingExistingData,
+    ],
   )
 
   const handleToggle = useCallback(async () => {
@@ -265,6 +273,7 @@ export const TradeInput = () => {
       return 'common.insufficientAmountForGas'
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
+    if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'
 
     return 'trade.previewTrade'
   }, [
@@ -280,10 +289,17 @@ export const TradeInput = () => {
     walletSupportsSellAssetChain,
     walletSupportsBuyAssetChain,
     bestTradeSwapper,
+    quoteAvailableForCurrentAssetPair,
   ])
 
   const hasError = useMemo(() => {
-    return getTranslationKey() !== 'trade.previewTrade'
+    switch (getTranslationKey()) {
+      case 'trade.previewTrade':
+      case 'trade.updatingQuote':
+        return false
+      default:
+        return true
+    }
   }, [getTranslationKey])
 
   return (

@@ -182,6 +182,27 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         .gte(0),
     [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
   )
+
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.approve.depositFee')}
+          </AlertDescription>
+        </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -199,24 +220,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <>
-          <Alert status='info' borderRadius='lg' color='blue.500'>
-            <FaGasPump />
-            <AlertDescription textAlign='left' ml={3} color={alertText}>
-              {translate('modals.approve.depositFee')}
-            </AlertDescription>
-          </Alert>
-          {!hasEnoughBalanceForGas && (
-            <Alert status='error' borderRadius='lg'>
-              <AlertIcon />
-              <Text
-                translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
-              />
-            </Alert>
-          )}
-        </>
-      }
+      preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}

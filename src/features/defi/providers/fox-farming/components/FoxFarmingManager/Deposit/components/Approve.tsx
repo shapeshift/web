@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -9,7 +9,9 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useCallback, useContext, useMemo } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -36,6 +38,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
+  const alertText = useColorModeValue('blue.800', 'white')
   const opportunity = state?.opportunity
   const { allowance, approve, getStakeGasData } = useFoxFarming(contractAddress)
 
@@ -122,6 +125,26 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
     wallet,
   ])
 
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.approve.depositFee')}
+          </AlertDescription>
+        </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch || !opportunity) return null
 
   return (
@@ -136,6 +159,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
+      preFooter={preFooter}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}

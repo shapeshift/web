@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -12,6 +12,7 @@ import { useCallback, useContext, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -127,6 +128,26 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     wallet,
   ])
 
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.withdraw.withdrawFee')}
+          </AlertDescription>
+        </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch || !opportunity) return null
 
   return (
@@ -141,14 +162,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.withdraw.withdrawFee')}
-          </AlertDescription>
-        </Alert>
-      }
+      preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
       contractAddress={contractAddress}

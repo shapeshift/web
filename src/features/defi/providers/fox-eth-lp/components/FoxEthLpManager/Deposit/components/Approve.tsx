@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -6,7 +6,9 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useCallback, useContext, useMemo } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -34,6 +36,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { accountAddress } = useFoxEth()
   const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
+  const alertText = useColorModeValue('blue.800', 'white')
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -115,6 +118,26 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     wallet,
   ])
 
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.approve.depositFee')}
+          </AlertDescription>
+        </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -128,6 +151,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
+      preFooter={preFooter}
       providerIcon={foxAsset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}

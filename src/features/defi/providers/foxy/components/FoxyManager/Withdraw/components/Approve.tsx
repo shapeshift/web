@@ -188,6 +188,29 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
   )
 
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.withdraw.withdrawFee')}
+          </AlertDescription>
+        </Alert>
+
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text
+              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+            />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -205,25 +228,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <>
-          <Alert status='info' borderRadius='lg' color='blue.500'>
-            <FaGasPump />
-            <AlertDescription textAlign='left' ml={3} color={alertText}>
-              {translate('modals.withdraw.withdrawFee')}
-            </AlertDescription>
-          </Alert>
-
-          {!hasEnoughBalanceForGas && (
-            <Alert status='error' borderRadius='lg'>
-              <AlertIcon />
-              <Text
-                translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
-              />
-            </Alert>
-          )}
-        </>
-      }
+      preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
       contractAddress={contractAddress}

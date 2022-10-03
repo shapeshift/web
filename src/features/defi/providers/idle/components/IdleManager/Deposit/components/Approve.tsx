@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-idle'
@@ -11,7 +11,9 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useCallback, useContext, useMemo } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -38,6 +40,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
+  const alertText = useColorModeValue('blue.800', 'white')
   const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
 
@@ -181,6 +184,27 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
   )
 
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.approve.depositFee')}
+          </AlertDescription>
+        </Alert>
+
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -197,6 +221,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
+      preFooter={preFooter}
       providerIcon={asset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}

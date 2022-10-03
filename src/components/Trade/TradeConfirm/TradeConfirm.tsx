@@ -259,6 +259,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </Stack>
                 </Alert>
               )}
+              {trade?.buyAsset.assetId === thorchainAssetId && (
+                <Alert status='info' mx={3} width='auto' mb={3} fontSize='sm'>
+                  <AlertIcon />
+                  <Stack spacing={0}>
+                    <AlertTitle>{translate('trade.intoRUNETitle')}</AlertTitle>
+                    <AlertDescription lineHeight='short'>
+                      {translate('trade.intoRUNEBody')}
+                    </AlertDescription>
+                  </Stack>
+                </Alert>
+              )}
               <Stack spacing={4}>
                 <Row>
                   <Row.Label>{translate('common.send')}</Row.Label>

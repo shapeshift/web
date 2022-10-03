@@ -12,13 +12,13 @@ import { foxEthLpAssetId } from './constants'
 const selectAccountAddressParamFromFilter = (
   _state: ReduxState,
   filter: { accountAddress?: string; contractAddress?: string },
-): string => filter.accountAddress ?? ''
+): string => filter?.accountAddress ?? ''
 
 // TODO(gomes): DeepEqual Output compareFn
 const selectContractAddressParamFromFilter = (
   _state: ReduxState,
   filter: { accountAddress?: string; contractAddress?: string },
-): string => filter.contractAddress ?? ''
+): string => filter?.contractAddress ?? ''
 
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
@@ -51,7 +51,7 @@ export const selectFoxFarmingOpportunityByContractAddress = createSelector(
 export const selectFarmContractsBalance = createSelector(
   selectFoxFarmingOpportunitiesByAccountAddress,
   (farmingOpportunities): string => {
-    const foxFarmingTotalCryptoAmount = farmingOpportunities.reduce(
+    const foxFarmingTotalCryptoAmount = (farmingOpportunities ?? []).reduce(
       (totalBalance, opportunity) => totalBalance.plus(bnOrZero(opportunity.cryptoAmount)),
       bnOrZero(0),
     )
@@ -66,7 +66,7 @@ export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
   (assetsById, lpOpportunity, farmContractsBalance) => {
     const lpAsset = assetsById[foxEthLpAssetId]
     return toBaseUnit(
-      bnOrZero(lpOpportunity.cryptoAmount).plus(bnOrZero(farmContractsBalance)),
+      bnOrZero(lpOpportunity?.cryptoAmount).plus(bnOrZero(farmContractsBalance)),
       // src/state/reselect-tools.test.ts fails saying lpAsset is undefined
       lpAsset?.precision ?? 0,
     )

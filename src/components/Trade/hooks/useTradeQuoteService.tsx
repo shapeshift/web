@@ -172,7 +172,7 @@ export const useTradeQuoteService = () => {
 
   // Set trade quote
   useEffect(() => {
-    tradeQuote && setValue('quote', tradeQuote)
+    setValue('quote', tradeQuote)
   }, [tradeQuote, setValue])
 
   return { isLoadingTradeQuote }

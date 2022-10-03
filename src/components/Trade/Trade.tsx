@@ -7,6 +7,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useDefaultAssets } from './hooks/useDefaultAssets'
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 import type { TS } from './types'
+import { TradeAmountInputField } from './types'
 
 export type TradeProps = {
   defaultBuyAssetId?: AssetId
@@ -27,6 +28,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       buyTradeAsset: { amount: '0', asset: buyAsset },
       isExactAllowance: false,
       slippage: 0.002,
+      action: TradeAmountInputField.SELL_CRYPTO,
     },
   })
 

@@ -489,6 +489,7 @@
     "free": "Free",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
+    "updatingQuote": "Updating quote...",
     "intoRUNETitle": "Trading into RUNE",
     "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
     "tooltip": {

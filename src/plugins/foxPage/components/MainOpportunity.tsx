@@ -1,10 +1,11 @@
-import { Box, Flex, Skeleton } from '@chakra-ui/react'
-import { Button, Text as CText } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
+import { Box, Button, Flex, Skeleton, Text as CText } from '@chakra-ui/react'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
@@ -27,7 +28,9 @@ export const MainOpportunity = ({
   onClick,
   isLoaded,
 }: MainOpportunityProps) => {
-  const translate = useTranslate()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -35,6 +38,17 @@ export const MainOpportunity = ({
     accountNumber: 0,
   })
   const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
+
+  const opportunityButtonTranslation = useMemo(() => {
+    if (hasActiveStaking) return 'plugins.foxPage.manage'
+    if (!wallet || !supportsETH(wallet)) return 'common.connectWallet'
+    return 'plugins.foxPage.getStarted'
+  }, [wallet, hasActiveStaking])
+
+  const isOpportunityButtonReady = useMemo(
+    () => Boolean((wallet && !supportsETH(wallet)) || isFoxyBalancesLoading),
+    [wallet, isFoxyBalancesLoading],
+  )
 
   return (
     <Card display='block' width='full'>
@@ -96,14 +110,10 @@ export const MainOpportunity = ({
               {balance}
             </CText>
           </Flex>
-          <Skeleton width='full' isLoaded={!isFoxyBalancesLoading} alignSelf='center'>
+          <Skeleton width='full' isLoaded={isOpportunityButtonReady} alignSelf='center'>
             <Box width='full'>
               <Button width='full' onClick={onClick} colorScheme={'blue'}>
-                <CText>
-                  {translate(
-                    hasActiveStaking ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted',
-                  )}
-                </CText>
+                <Text translation={opportunityButtonTranslation} />
               </Button>
             </Box>
           </Skeleton>

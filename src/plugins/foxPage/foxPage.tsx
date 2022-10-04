@@ -17,14 +17,18 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
@@ -70,6 +74,10 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
 }
 
 export const FoxPage = () => {
+  const {
+    state: { wallet },
+  } = useWallet()
+  const dispatch = useDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
@@ -140,16 +148,39 @@ export const FoxPage = () => {
   })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
-  const handleTabClick = (assetId: AssetId) => {
-    if (assetId === activeAssetId) {
+  const handleTabClick = useCallback(
+    (assetId: AssetId) => {
+      if (assetId === activeAssetId) {
+        return
+      }
+
+      history.push(assetsRoutes[assetId])
+    },
+    [activeAssetId, history],
+  )
+
+  const handleOpportunityClick = useCallback(() => {
+    if (!wallet || !supportsETH(wallet)) {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
 
-    history.push(assetsRoutes[assetId])
-  }
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
+        provider: DefiProvider.ShapeShift,
+        chainId: assetFoxy.chainId,
+        contractAddress: foxyAddresses[0].staking,
+        assetReference: foxyAddresses[0].fox,
+        rewardId: foxyAddresses[0].foxy,
+        modal: 'overview',
+      }),
+      state: { background: location },
+    })
+  }, [assetFoxy.chainId, dispatch, history, location, wallet])
 
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
-  if (isFoxyBalancesLoading || !foxyBalancesData) return null
+  if (wallet && supportsETH(wallet) && (isFoxyBalancesLoading || !foxyBalancesData)) return null
 
   return (
     <Layout
@@ -232,23 +263,10 @@ export const FoxPage = () => {
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
                   apy={foxyAprData?.foxyApr ?? ''}
-                  tvl={bnOrZero(foxyBalancesData.opportunities?.[0]?.tvl).toString()}
+                  tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
                   isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
                   balance={cryptoBalances[selectedAssetIndex]}
-                  onClick={() => {
-                    history.push({
-                      pathname: location.pathname,
-                      search: qs.stringify({
-                        provider: DefiProvider.ShapeShift,
-                        chainId: assetFoxy.chainId,
-                        contractAddress: foxyAddresses[0].staking,
-                        assetReference: foxyAddresses[0].fox,
-                        rewardId: foxyAddresses[0].foxy,
-                        modal: 'overview',
-                      }),
-                      state: { background: location },
-                    })
-                  }}
+                  onClick={handleOpportunityClick}
                 />
 
                 <OtherOpportunities

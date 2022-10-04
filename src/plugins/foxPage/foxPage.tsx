@@ -23,7 +23,6 @@ import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCom
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
 import { WalletActions } from 'context/WalletProvider/actions'

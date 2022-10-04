@@ -43,6 +43,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     bip44Params,
     chainId,
     receiveAddress,
+    sendMax,
   } = input
 
   if (!bip44Params) {
@@ -155,6 +156,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             pubkey,
             sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>,
             buyAssetTradeFeeUsd: buyAssetTradeFeeUsdOrMinimum,
+            sendMax,
           })
 
           return {

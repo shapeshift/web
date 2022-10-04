@@ -33,6 +33,7 @@ export const buildTrade = async ({
       bip44Params,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
       wallet,
+      sendMax,
     } = input
 
     const quote = await getThorTradeQuote({ deps, input })
@@ -98,6 +99,7 @@ export const buildTrade = async ({
             .satsPerByte,
           opReturnData,
         },
+        sendMax,
       })
 
       return {

@@ -606,6 +606,7 @@
       "password": {
         "header": "Enter Your Password",
         "walletName": "Wallet nickname (optional)",
+        "walletNameRequired": "Wallet nickname (required)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",

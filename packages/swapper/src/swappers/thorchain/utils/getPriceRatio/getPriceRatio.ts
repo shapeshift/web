@@ -1,7 +1,7 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { bn } from '../../../utils/bignumber'
+import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
 import { isRune } from '../../utils/isRune/isRune'
 import { thorService } from '../thorService'
@@ -37,6 +37,20 @@ export const getPriceRatio = async (
 
     const buyPool = responseData.find((response) => response.asset === buyPoolId)
     const sellPool = responseData.find((response) => response.asset === sellPoolId)
+
+    /**
+     * there is no rune pool, rune *is* the pool, special logic case buying RUNE
+     */
+    if (isRune(buyAssetId) && sellPool) {
+      const sellAssetBalance = bnOrZero(sellPool.balance_asset)
+      const runeBalance = bnOrZero(sellPool.balance_rune)
+      // guard against division by zero
+      if (sellAssetBalance.eq(0))
+        throw new SwapError(
+          `[getPriceRatio] zero sell asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+        )
+      return bn(runeBalance).dividedBy(sellAssetBalance).toString()
+    }
 
     if (!buyPool || !sellPool) {
       throw new SwapError(`[getPriceRatio]: pools not found`, {

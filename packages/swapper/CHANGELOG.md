@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.2...@shapeshiftoss/swapper-v11.5.3) (2022-10-04)
+
+
+### Bug Fixes
+
+* **swapper:** plumb `sendMax` through ThorSwapper ([#1046](https://github.com/shapeshift/lib/issues/1046)) ([f8183ca](https://github.com/shapeshift/lib/commit/f8183cae9eed294d52a3b8c3bf1db9ec878ac4b6))
+
 # [@shapeshiftoss/swapper-v11.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.1...@shapeshiftoss/swapper-v11.5.2) (2022-10-03)
 
 

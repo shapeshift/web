@@ -39,6 +39,7 @@ export const useSwapper = () => {
   const quote = useWatch({ control, name: 'quote' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
+  const isSendMax = useWatch({ control, name: 'isSendMax' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -141,7 +142,7 @@ export const useSwapper = () => {
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,
-      sendMax: false,
+      sendMax: isSendMax,
       receiveAddress,
     }
     const sellAssetChainId = sellAsset.chainId
@@ -173,6 +174,7 @@ export const useSwapper = () => {
   }, [
     bestTradeSwapper,
     buyTradeAsset?.asset,
+    isSendMax,
     receiveAddress,
     sellAccountBip44Params,
     sellAsset,

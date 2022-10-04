@@ -33,6 +33,7 @@ export const useTradeAmounts = () => {
   const feesFormState = useWatch({ control, name: 'fees' })
   const amountFormState = useWatch({ control, name: 'amount' })
   const actionFormState = useWatch({ control, name: 'action' })
+  const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
 
   const dispatch = useAppDispatch()
   const { swapperManager, getReceiveAddressFromBuyAsset } = useSwapper()
@@ -50,6 +51,7 @@ export const useTradeAmounts = () => {
     buyAssetId?: AssetId
     amount?: string
     action?: TradeAmountInputField
+    sendMax?: boolean
   }
   type SetTradeAmountsArgs = CalculateAmountsArgs
 
@@ -124,7 +126,13 @@ export const useTradeAmounts = () => {
   // Use the args provided to get new fiat rates and a fresh quote
   // Useful when changing assets where we expect response data to meaningfully change - so wait before updating amounts
   const setTradeAmountsRefetchData = useCallback(
-    async ({ sellAssetId, buyAssetId, amount, action }: SetTradeAmountsSynchronousArgs) => {
+    async ({
+      sellAssetId,
+      buyAssetId,
+      amount,
+      action,
+      sendMax,
+    }: SetTradeAmountsSynchronousArgs) => {
       // Eagerly update the input field to improve UX whilst we wait for API responses
       switch (action) {
         case TradeAmountInputField.SELL_FIAT:
@@ -182,6 +190,7 @@ export const useTradeAmounts = () => {
         wallet,
         receiveAddress,
         sellAmount: sellTradeAsset?.amount || amountToUse || '0',
+        isSendMax: sendMax ?? isSendMaxFormState,
       })
 
       const quoteResponse = tradeQuoteArgs
@@ -235,6 +244,7 @@ export const useTradeAmounts = () => {
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,
+      isSendMaxFormState,
       selectedCurrencyToUsdRate,
       sellAssetFormState?.assetId,
       sellTradeAsset?.amount,

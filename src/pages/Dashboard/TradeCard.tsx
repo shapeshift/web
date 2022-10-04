@@ -2,6 +2,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Bridge } from 'components/Bridge/Bridge'
 import type { CardProps } from 'components/Card/Card'
@@ -22,8 +23,14 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
   } = useWallet()
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
 
+  const translate = useTranslate()
+  const overlayTitle = useMemo(
+    () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
+    [translate],
+  )
+
   return (
-    <MessageOverlay show={isKeplr} title='Swapping for Keplr is coming soon'>
+    <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Card flex={1} variant='outline' {...rest}>
         <Tabs isFitted variant='enclosed'>
           {Axelar && (

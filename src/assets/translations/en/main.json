@@ -543,6 +543,7 @@
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
     },
+    "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades"
   },
   "modals": {

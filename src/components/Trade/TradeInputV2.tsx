@@ -37,7 +37,7 @@ import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
-import { TradeAmountInputField, TradeRoutePaths, type TradeState } from './types'
+import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 

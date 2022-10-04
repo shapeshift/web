@@ -6,7 +6,6 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
-import { useDispatch } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -26,8 +25,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
 }) => {
   const {
     state: { wallet },
+    dispatch,
   } = useWallet()
-  const dispatch = useDispatch()
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
   const { defiOpportunity } = useDefiOpportunity(opportunity)
   const hasActivePosition = bnOrZero(defiOpportunity?.fiatAmount).gt(0) ?? false

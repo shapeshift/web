@@ -76,8 +76,8 @@ const assetsTradeOpportunitiesBuckets: Record<AssetId, TradeOpportunitiesBucket[
 export const FoxPage = () => {
   const {
     state: { wallet },
+    dispatch,
   } = useWallet()
-  const dispatch = useDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()

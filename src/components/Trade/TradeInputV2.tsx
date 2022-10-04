@@ -369,7 +369,7 @@ export const TradeInput = () => {
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
-              beforeFees={tradeAmountConstants?.buyAmountBeforeFees ?? ''}
+              beforeFees={tradeAmountConstants?.sellAmountBeforeFeesBuyAsset ?? ''}
               protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
@@ -380,6 +380,7 @@ export const TradeInput = () => {
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
           size='lg'
+          data-test='trade-form-preview-button'
           isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
           isLoading={isLoading}
         >

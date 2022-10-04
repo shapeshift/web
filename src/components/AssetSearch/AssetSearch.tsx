@@ -66,6 +66,7 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
             pl={10}
             variant='filled'
+            autoComplete='off'
           />
         </InputGroup>
       </Box>

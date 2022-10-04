@@ -627,8 +627,10 @@ export const selectPortfolioAssets = createSelector(
     }, {}),
 )
 
-export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
-  state.portfolio.accounts.ids
+export const selectPortfolioAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState): AccountSpecifier[] => state.portfolio.accounts.ids,
+  accountIds => accountIds,
+)
 
 /**
  * selects portfolio account ids that *can* contain an assetId

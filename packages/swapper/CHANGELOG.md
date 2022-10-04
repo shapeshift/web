@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.3...@shapeshiftoss/swapper-v11.5.4) (2022-10-04)
+
+
+### Bug Fixes
+
+* get price ratio when buy asset is rune ([#1049](https://github.com/shapeshift/lib/issues/1049)) ([a6cf661](https://github.com/shapeshift/lib/commit/a6cf661172f2c6b5c53b44c9c07a9366912dd746))
+
 # [@shapeshiftoss/swapper-v11.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.2...@shapeshiftoss/swapper-v11.5.3) (2022-10-04)
 
 

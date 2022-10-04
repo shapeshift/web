@@ -282,7 +282,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={tradeAmountConstants?.sellAmountBeforeFeesBuyAsset ?? ''}
+                  beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
                   protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}

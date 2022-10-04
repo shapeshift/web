@@ -369,7 +369,7 @@ export const TradeInput = () => {
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
-              beforeFees={tradeAmountConstants?.sellAmountBeforeFeesBuyAsset ?? ''}
+              beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
               protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}

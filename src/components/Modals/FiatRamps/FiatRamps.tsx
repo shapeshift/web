@@ -1,14 +1,17 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
+import { useMediaQuery } from '@chakra-ui/react'
 import { useModal } from 'hooks/useModal/useModal'
+import { breakpoints } from 'theme/theme'
 
-import { FiatRampsRouter } from './FiatRampsRouter'
+import { Manager } from './views/Manager'
 
 export const FiatRampsModal = () => {
   const { fiatRamps } = useModal()
   const { close, isOpen } = fiatRamps
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
+    <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} variant='fluid'>
       <ModalOverlay />
 
       <ModalContent
@@ -17,7 +20,7 @@ export const FiatRampsModal = () => {
         minWidth={{ base: '100%', md: '500px' }}
         maxWidth={{ base: 'full', md: '500px' }}
       >
-        <FiatRampsRouter />
+        <Manager />
       </ModalContent>
     </Modal>
   )

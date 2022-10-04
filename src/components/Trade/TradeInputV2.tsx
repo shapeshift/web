@@ -302,6 +302,16 @@ export const TradeInput = () => {
     }
   }, [getTranslationKey])
 
+  const sellAmountTooSmall = useMemo(() => {
+    switch (true) {
+      case getTranslationKey() === 'trade.errors.sellAmountDoesNotCoverFee':
+      case getTranslationKey()[0] === 'trade.errors.amountTooSmall':
+        return true
+      default:
+        return false
+    }
+  }, [getTranslationKey])
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -364,7 +374,7 @@ export const TradeInput = () => {
             isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
           />
-          {walletSupportsTradeAssetChains ? (
+          {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
             <ReceiveSummary
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}

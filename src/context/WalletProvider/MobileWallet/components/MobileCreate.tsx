@@ -133,7 +133,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
             size='lg'
             variant='filled'
             id='name'
-            placeholder={translate('walletProvider.shapeShift.rename.walletName')}
+            placeholder={translate('modals.shapeShift.password.walletNameRequired')}
             data-test='wallet-native-set-name-input'
           />
           <FormErrorMessage>

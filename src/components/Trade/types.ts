@@ -53,6 +53,7 @@ export type TradeState<C extends ChainId> = {
   amount: string
   receiveAddress: string | null // TODO: Implement
   slippage: number
+  isSendMax: boolean
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

@@ -118,6 +118,8 @@ export const TradeInput = () => {
     async (action: TradeAmountInputField, amount: string) => {
       setValue('amount', amount)
       setValue('action', action)
+      // If we've overridden the input we are no longer in sendMax mode
+      setValue('isSendMax', false)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -157,7 +159,7 @@ export const TradeInput = () => {
     }
   }, [getValues, setValue])
 
-  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(() => {
+  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
@@ -168,17 +170,23 @@ export const TradeInput = () => {
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
+    setValue('isSendMax', true)
 
-    setTradeAmountsUsingExistingData({
+    // We need to get a fresh quote with the sendMax flag true
+    await setTradeAmountsRefetchData({
+      sellAssetId: sellTradeAsset.asset.assetId,
+      buyAssetId: buyTradeAsset?.asset?.assetId,
       amount: maxSendAmount,
       action: TradeAmountInputField.SELL_CRYPTO,
+      sendMax: true,
     })
   }, [
+    buyTradeAsset?.asset?.assetId,
     quote,
     sellAssetBalanceCrypto,
     sellFeeAsset,
     sellTradeAsset?.asset,
-    setTradeAmountsUsingExistingData,
+    setTradeAmountsRefetchData,
     setValue,
   ])
 

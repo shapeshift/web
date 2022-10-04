@@ -29,6 +29,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       isExactAllowance: false,
       slippage: 0.002,
       action: TradeAmountInputField.SELL_CRYPTO,
+      isSendMax: false,
     },
   })
 

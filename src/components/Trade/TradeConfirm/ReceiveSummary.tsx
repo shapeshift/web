@@ -66,7 +66,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={isAmountPositive ? amountAfterSlippage : '0'} symbol={symbol} />
+              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>

@@ -13,7 +13,6 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
@@ -25,6 +24,7 @@ type ReceiveSummaryProps = {
   protocolFee?: string
   shapeShiftFee?: string
   slippage: number
+  swapperName: string
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
@@ -35,6 +35,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   protocolFee,
   shapeShiftFee,
   slippage,
+  swapperName,
   isLoading,
   ...rest
 }) => {
@@ -46,7 +47,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const redColor = useColorModeValue('red.500', 'red.300')
   const greenColor = useColorModeValue('green.500', 'green.200')
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
-  const { bestTradeSwapper } = useSwapper()
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const amountAfterSlippage = bnOrZero(amount)
@@ -87,22 +87,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           px={4}
           py={2}
         >
-          {bestTradeSwapper && (
-            <Row>
-              <HelperTooltip label={translate('trade.tooltip.protocol')}>
-                <Row.Label>
-                  <Text translation='trade.protocol' />
-                </Row.Label>
-              </HelperTooltip>
-              <Row.Value>
-                <Row.Label>
-                  <RawText fontWeight='semibold' color={textColor}>
-                    {bestTradeSwapper.name}
-                  </RawText>
-                </Row.Label>
-              </Row.Value>
-            </Row>
-          )}
+          <Row>
+            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+              <Row.Label>
+                <Text translation='trade.protocol' />
+              </Row.Label>
+            </HelperTooltip>
+            <Row.Value>
+              <Row.Label>
+                <RawText fontWeight='semibold' color={textColor}>
+                  {swapperName}
+                </RawText>
+              </Row.Label>
+            </Row.Value>
+          </Row>
           {beforeFees && (
             <Row>
               <Row.Label>

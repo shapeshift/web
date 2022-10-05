@@ -33,6 +33,7 @@ type GetTradeQuoteInputArgs = {
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
   sellAmount: string
+  isSendMax: boolean
 }
 
 export const getTradeQuoteArgs = async ({
@@ -43,13 +44,14 @@ export const getTradeQuoteArgs = async ({
   wallet,
   receiveAddress,
   sellAmount,
+  isSendMax,
 }: GetTradeQuoteInputArgs) => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmount: toBaseUnit(sellAmount, sellAsset?.precision || 0),
     sellAsset,
     buyAsset,
-    sendMax: false,
+    sendMax: isSendMax,
     receiveAddress,
   }
   if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
@@ -90,6 +92,7 @@ export const useTradeQuoteService = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
+  const isSendMax = useWatch({ control, name: 'isSendMax' })
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -152,6 +155,7 @@ export const useTradeQuoteService = () => {
           wallet,
           receiveAddress,
           sellAmount: sellTradeAssetAmount,
+          isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
@@ -168,6 +172,7 @@ export const useTradeQuoteService = () => {
     sellTradeAsset,
     setValue,
     wallet,
+    isSendMax,
   ])
 
   // Set trade quote

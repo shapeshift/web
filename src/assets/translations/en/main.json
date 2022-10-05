@@ -543,6 +543,7 @@
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
     },
+    "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades"
   },
   "modals": {
@@ -606,6 +607,7 @@
       "password": {
         "header": "Enter Your Password",
         "walletName": "Wallet nickname (optional)",
+        "walletNameRequired": "Wallet nickname (required)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",

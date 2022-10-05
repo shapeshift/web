@@ -53,6 +53,7 @@ export const useTradeRoutes = (): {
       setValue('sellAssetFiatRate', undefined)
       setValue('buyAssetFiatRate', undefined)
       setValue('feeAssetFiatRate', undefined)
+      setValue('isSendMax', false)
 
       history.push(TradeRoutePaths.Input)
 

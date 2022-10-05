@@ -118,6 +118,8 @@ export const TradeInput = () => {
     async (action: TradeAmountInputField, amount: string) => {
       setValue('amount', amount)
       setValue('action', action)
+      // If we've overridden the input we are no longer in sendMax mode
+      setValue('isSendMax', false)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -157,7 +159,7 @@ export const TradeInput = () => {
     }
   }, [getValues, setValue])
 
-  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(() => {
+  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
@@ -168,17 +170,23 @@ export const TradeInput = () => {
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
     setValue('sellTradeAsset.amount', maxSendAmount)
     setValue('amount', maxSendAmount)
+    setValue('isSendMax', true)
 
-    setTradeAmountsUsingExistingData({
+    // We need to get a fresh quote with the sendMax flag true
+    await setTradeAmountsRefetchData({
+      sellAssetId: sellTradeAsset.asset.assetId,
+      buyAssetId: buyTradeAsset?.asset?.assetId,
       amount: maxSendAmount,
       action: TradeAmountInputField.SELL_CRYPTO,
+      sendMax: true,
     })
   }, [
+    buyTradeAsset?.asset?.assetId,
     quote,
     sellAssetBalanceCrypto,
     sellFeeAsset,
     sellTradeAsset?.asset,
-    setTradeAmountsUsingExistingData,
+    setTradeAmountsRefetchData,
     setValue,
   ])
 
@@ -229,6 +237,33 @@ export const TradeInput = () => {
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
     setValue('selectedBuyAssetAccountId', accountId)
 
+  const isBelowMinSellAmount = useMemo(() => {
+    const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)
+
+    return (
+      bnOrZero(
+        toBaseUnit(bnOrZero(sellTradeAsset?.amount), sellTradeAsset?.asset?.precision || 0),
+      ).lt(minSellAmount) &&
+      hasValidSellAmount &&
+      !isTradeQuotePending
+    )
+  }, [
+    hasValidSellAmount,
+    isTradeQuotePending,
+    quote?.minimum,
+    quote?.sellAsset.precision,
+    sellTradeAsset?.amount,
+    sellTradeAsset?.asset?.precision,
+  ])
+
+  const feesExceedsSellAmount = useMemo(
+    () =>
+      bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
+      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
+      !isTradeQuotePending,
+    [sellTradeAsset?.amount, buyTradeAsset?.amount, isTradeQuotePending],
+  )
+
   const getTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellTradeAsset?.amount),
@@ -243,18 +278,7 @@ export const TradeInput = () => {
       .minus(tradeDeduction)
       .gte(0)
 
-    const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
-    const isBelowMinSellAmount =
-      bnOrZero(
-        toBaseUnit(bnOrZero(sellTradeAsset?.amount), sellTradeAsset?.asset?.precision || 0),
-      ).lt(minSellAmount) &&
-      hasValidSellAmount &&
-      !isTradeQuotePending
-    const feesExceedsSellAmount =
-      bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
-      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
-      !isTradeQuotePending
 
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
@@ -277,19 +301,21 @@ export const TradeInput = () => {
 
     return 'trade.previewTrade'
   }, [
-    sellAssetBalanceHuman,
-    sellTradeAsset,
-    sellFeeAsset,
-    feeAssetBalance,
-    quote,
-    hasValidSellAmount,
-    isTradeQuotePending,
-    buyTradeAsset,
-    wallet,
-    walletSupportsSellAssetChain,
-    walletSupportsBuyAssetChain,
     bestTradeSwapper,
+    buyTradeAsset,
+    feeAssetBalance,
+    feesExceedsSellAmount,
+    hasValidSellAmount,
+    isBelowMinSellAmount,
+    isTradeQuotePending,
+    quote,
     quoteAvailableForCurrentAssetPair,
+    sellAssetBalanceHuman,
+    sellFeeAsset,
+    sellTradeAsset,
+    wallet,
+    walletSupportsBuyAssetChain,
+    walletSupportsSellAssetChain,
   ])
 
   const hasError = useMemo(() => {
@@ -301,6 +327,18 @@ export const TradeInput = () => {
         return true
     }
   }, [getTranslationKey])
+
+  const sellAmountTooSmall = useMemo(() => {
+    switch (true) {
+      case isBelowMinSellAmount:
+      case feesExceedsSellAmount:
+        return true
+      default:
+        return false
+    }
+  }, [isBelowMinSellAmount, feesExceedsSellAmount])
+
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   return (
     <SlideTransition>
@@ -364,15 +402,16 @@ export const TradeInput = () => {
             isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
           />
-          {walletSupportsTradeAssetChains ? (
+          {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
             <ReceiveSummary
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
               amount={buyTradeAsset?.amount ?? ''}
-              beforeFees={tradeAmountConstants?.sellAmountBeforeFeesBuyAsset ?? ''}
+              beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
               protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
+              swapperName={swapperName}
             />
           ) : null}
         </Stack>

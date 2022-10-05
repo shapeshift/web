@@ -37,6 +37,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -46,7 +47,6 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { selectFeatureFlags } from '../../../state/slices/preferencesSlice/selectors'
 import { getSwapperManager } from '../hooks/useSwapper/swapperManager'
 import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'

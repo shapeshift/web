@@ -1,6 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -349,9 +348,18 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
-  const testClick = (asset: Asset, action: AssetClickAction) => {
-    handleAssetClick(asset, action)
-  }
+  const handleInputAssetClick = useCallback(
+    (action: AssetClickAction) => {
+      assetSearch.open({
+        onClick: asset => handleAssetClick(asset, action),
+        filterBy:
+          action === AssetClickAction.Sell
+            ? getSupportedSellableAssets
+            : getSupportedBuyAssetsFromSellAsset,
+      })
+    },
+    [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
+  )
 
   return (
     <SlideTransition>
@@ -368,12 +376,7 @@ export const TradeInput = () => {
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onMaxClick={handleSendMax}
-            onAssetClick={() =>
-              assetSearch.open({
-                onClick: asset => testClick(asset, AssetClickAction.Sell),
-                filterBy: getSupportedSellableAssets,
-              })
-            }
+            onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
             onAccountIdChange={handleSellAccountIdChange}
             showFiatSkeleton={isUsdRatesPending}
           />
@@ -405,12 +408,7 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            onAssetClick={() =>
-              assetSearch.open({
-                onClick: asset => testClick(asset, AssetClickAction.Buy),
-                filterBy: getSupportedBuyAssetsFromSellAsset,
-              })
-            }
+            onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
             onAccountIdChange={handleBuyAccountIdChange}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}

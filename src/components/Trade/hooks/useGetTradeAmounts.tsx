@@ -196,21 +196,22 @@ export const useGetTradeAmounts = () => {
   const sellAsset = sellTradeAsset?.asset
   const sellAssetTradeFeeUsd = bnOrZero(fees?.sellAssetTradeFeeUsd)
   const buyAssetTradeFeeUsd = bnOrZero(fees?.buyAssetTradeFeeUsd)
+  if (!bnOrZero(buyTradeAsset?.amount).gt(0) || !bnOrZero(sellTradeAsset?.amount).gt(0)) return
+  if (!amount) return
+  if (!action) return
+  if (!fees) return
+  if (!buyAsset || !sellAsset) return
+  if (!buyAssetUsdRate || !sellAssetUsdRate) return
 
-  const tradeAmountConstants =
-    buyAsset && sellAsset && action && buyAssetUsdRate && sellAssetUsdRate
-      ? getTradeAmountConstants({
-          amount,
-          buyAsset,
-          sellAsset,
-          buyAssetUsdRate,
-          sellAssetUsdRate,
-          selectedCurrencyToUsdRate,
-          sellAssetTradeFeeUsd,
-          buyAssetTradeFeeUsd,
-          action,
-        })
-      : undefined
-
-  return tradeAmountConstants
+  return getTradeAmountConstants({
+    amount,
+    buyAsset,
+    sellAsset,
+    buyAssetUsdRate,
+    sellAssetUsdRate,
+    selectedCurrencyToUsdRate,
+    sellAssetTradeFeeUsd,
+    buyAssetTradeFeeUsd,
+    action,
+  })
 }

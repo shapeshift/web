@@ -4,6 +4,7 @@ import { curveLinear } from '@visx/curve'
 import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import type { Margin } from '@visx/xychart'
+import { AnimatedAreaSeries, AnimatedAreaStack } from '@visx/xychart'
 import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
 import type { Numeric } from 'd3-array'
 import { extent } from 'd3-array'
@@ -93,7 +94,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
-        <AreaSeries
+        <AnimatedAreaSeries
           key={assetId}
           data={data}
           dataKey={assetId}
@@ -107,65 +108,64 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   )
 
   return (
-    <div style={{ position: 'relative' }}>
-      <ScaleSVG width={width} height={height}>
-        <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-          <Group top={margin.top} left={margin.left}>
-            <AreaStack order='ascending' curve={curveLinear}>
-              {areaLines}
-            </AreaStack>
-          </Group>
-          <Axis
-            key={'date'}
-            orientation={'bottom'}
-            top={height - magicXAxisOffset}
-            hideTicks
-            hideAxisLine
-            numTicks={5}
-            tickLabelProps={() => tickLabelProps}
-          />
-          <Tooltip<RainbowData>
-            applyPositionStyle
-            style={{ zIndex: 10 }} // render over swapper TokenButton component
-            showVerticalCrosshair
-            verticalCrosshairStyle={{
-              stroke: colors.blue[500],
-              strokeWidth: 2,
-              opacity: 0.5,
-              strokeDasharray: '5,2',
-              pointerEvents: 'none',
-            }}
-            renderTooltip={({ tooltipData }) => {
-              const { datum, key: assetId } = tooltipData?.nearestDatum!
-              const price = datum[assetId]
-              const { date } = datum
-              const asset = assets[assetId]!
-              const { symbol } = asset
-              return (
-                <Stack
-                  borderRadius={'lg'}
-                  borderColor={tooltipBorder}
-                  borderWidth={1}
-                  color={tooltipColor}
-                  bgColor={tooltipBg}
-                  direction='column'
-                  spacing={0}
-                  p={2}
-                >
-                  <Stack direction='row' alignItems={'center'}>
-                    <AssetIcon assetId={assetId} size='2xs' />
-                    <Text fontWeight='bold'>{symbol}</Text>
-                  </Stack>
-                  <Amount.Fiat value={price} fontWeight='bold' />
-                  <Text fontSize={'xs'} color={colors.gray[500]}>
-                    {dayjs(date).locale(selectedLocale).format('LLL')}
-                  </Text>
-                </Stack>
-              )
-            }}
-          />
-        </XYChart>
-      </ScaleSVG>
-    </div>
+    <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
+      <Group top={margin.top} left={margin.left}>
+        <AnimatedAreaStack order='ascending' curve={curveLinear}>
+          {areaLines}
+        </AnimatedAreaStack>
+      </Group>
+      <Axis
+        key={'date'}
+        orientation={'bottom'}
+        top={height - magicXAxisOffset}
+        hideTicks
+        hideAxisLine
+        numTicks={5}
+        tickLabelProps={() => tickLabelProps}
+      />
+      <Tooltip<RainbowData>
+        applyPositionStyle
+        style={{ zIndex: 10 }} // render over swapper TokenButton component
+        showVerticalCrosshair
+        snapTooltipToDatumX
+        showSeriesGlyphs
+        verticalCrosshairStyle={{
+          stroke: colors.blue[500],
+          strokeWidth: 2,
+          opacity: 0.5,
+          strokeDasharray: '5,2',
+          pointerEvents: 'none',
+        }}
+        detectBounds
+        renderTooltip={({ tooltipData }) => {
+          const { datum, key: assetId } = tooltipData?.nearestDatum!
+          const price = datum[assetId]
+          const { date } = datum
+          const asset = assets[assetId]!
+          const { symbol } = asset
+          return (
+            <Stack
+              borderRadius={'lg'}
+              borderColor={tooltipBorder}
+              borderWidth={1}
+              color={tooltipColor}
+              bgColor={tooltipBg}
+              direction='column'
+              spacing={0}
+              p={2}
+            >
+              <Stack direction='row' alignItems={'center'}>
+                <AssetIcon assetId={assetId} size='2xs' />
+                <Text fontWeight='bold'>{symbol}</Text>
+              </Stack>
+              <Amount.Fiat value={price} fontWeight='bold' />
+              <Text fontSize={'xs'} color={colors.gray[500]}>
+                {dayjs(date).locale(selectedLocale).format('LLL')}
+              </Text>
+            </Stack>
+          )
+        }}
+      />
+    </XYChart>
   )
 }

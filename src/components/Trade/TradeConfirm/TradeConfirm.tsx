@@ -27,6 +27,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -63,6 +64,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [buyTxid, setBuyTxid] = useState('')
   const flags = useSelector(selectFeatureFlags)
   const [swapperName, setSwapperName] = useState<string>('')
+  const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
+    useState<ReturnType<typeof getTradeAmountConstants>>()
   const {
     getValues,
     handleSubmit,
@@ -142,7 +145,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
       setSwapperName(bestSwapper?.name ?? '')
     })()
-  }, [flags, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
+  }, [flags, trade])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
@@ -177,7 +180,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         return
       }
 
-      if (!swapperName) throw new Error('swapperName is undefined')
+      setExecutedTradeAmountConstants(tradeAmountConstants)
+
       const result = await executeQuote()
       setSellTxid(result.tradeId)
 
@@ -299,8 +303,16 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
-                  protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
+                  beforeFees={
+                    executedTradeAmountConstants?.beforeFeesBuyAsset ??
+                    tradeAmountConstants?.beforeFeesBuyAsset ??
+                    ''
+                  }
+                  protocolFee={
+                    executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
+                    tradeAmountConstants?.totalTradeFeeBuyAsset ??
+                    ''
+                  }
                   shapeShiftFee='0'
                   slippage={slippage}
                   swapperName={swapperName}

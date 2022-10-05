@@ -233,6 +233,7 @@ export const useTradeAmounts = () => {
         setValue('sellAssetFiatRate', undefined)
         setValue('buyAssetFiatRate', undefined)
         setValue('feeAssetFiatRate', undefined)
+        setValue('fees', undefined)
       }
     },
     [

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.1...@shapeshiftoss/caip-v8.4.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* add support for EUROC, LUSD, XCHF ([#1048](https://github.com/shapeshift/lib/issues/1048)) ([a2fc8b7](https://github.com/shapeshift/lib/commit/a2fc8b7508ace45f36bd25d3ef8e4799c9442455))
+
 # [@shapeshiftoss/caip-v8.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.0...@shapeshiftoss/caip-v8.4.1) (2022-09-29)
 
 

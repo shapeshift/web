@@ -51,7 +51,7 @@ export const MainOpportunity = ({
   )
 
   return (
-    <Card display='block' width='full'>
+    <Card display='block' width='auto'>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />

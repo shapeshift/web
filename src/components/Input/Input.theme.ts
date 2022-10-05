@@ -12,6 +12,11 @@ export const InputStyle = {
   }),
   // Styles for the size variations
   sizes: {
+    md: {
+      field: {
+        borderRadius: 'xl',
+      },
+    },
     lg: {
       field: {
         borderRadius: 'xl',

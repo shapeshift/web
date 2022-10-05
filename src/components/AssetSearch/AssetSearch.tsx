@@ -52,10 +52,11 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
       <Box
         as='form'
         mb={3}
+        px={4}
         visibility='visible'
         onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
       >
-        <InputGroup>
+        <InputGroup size='lg'>
           <InputLeftElement pointerEvents='none'>
             <SearchIcon color='gray.300' />
           </InputLeftElement>

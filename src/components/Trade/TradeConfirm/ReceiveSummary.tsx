@@ -87,22 +87,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           px={4}
           py={2}
         >
-          {swapperName && (
-            <Row>
-              <HelperTooltip label={translate('trade.tooltip.protocol')}>
-                <Row.Label>
-                  <Text translation='trade.protocol' />
-                </Row.Label>
-              </HelperTooltip>
-              <Row.Value>
-                <Row.Label>
-                  <RawText fontWeight='semibold' color={textColor}>
-                    {swapperName}
-                  </RawText>
-                </Row.Label>
-              </Row.Value>
-            </Row>
-          )}
+          <Row>
+            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+              <Row.Label>
+                <Text translation='trade.protocol' />
+              </Row.Label>
+            </HelperTooltip>
+            <Row.Value>
+              <Row.Label>
+                <RawText fontWeight='semibold' color={textColor}>
+                  {swapperName}
+                </RawText>
+              </Row.Label>
+            </Row.Value>
+          </Row>
           {beforeFees && (
             <Row>
               <Row.Label>

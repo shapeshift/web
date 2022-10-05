@@ -16,9 +16,10 @@ import {
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { type RouterProps, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -44,6 +45,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { selectFeatureFlags } from '../../../state/slices/preferencesSlice/selectors'
+import { getSwapperManager } from '../hooks/useSwapper/swapperManager'
 import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
@@ -58,6 +61,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
+  const flags = useSelector(selectFeatureFlags)
+  const [swapperName, setSwapperName] = useState<string>('')
   const {
     getValues,
     handleSubmit,
@@ -128,6 +133,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     buyTxid,
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      const buyAssetId = trade?.buyAsset.assetId
+      const sellAssetId = trade?.sellAsset.assetId
+      if (!buyAssetId || !sellAssetId) return ''
+      const swapperManager = await getSwapperManager(flags)
+      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+      setSwapperName(bestSwapper?.name ?? '')
+    })()
+  }, [flags, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
+
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
@@ -161,6 +177,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         return
       }
 
+      if (!swapperName) throw new Error('swapperName is undefined')
       const result = await executeQuote()
       setSellTxid(result.tradeId)
 
@@ -286,6 +303,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
+                  swapperName={swapperName}
                 />
               </Stack>
               <Stack spacing={4}>

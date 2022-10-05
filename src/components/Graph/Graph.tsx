@@ -29,7 +29,7 @@ export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, is
             margin: {
               top: 16,
               right: 0,
-              bottom: 60,
+              bottom: 32,
               left: 0,
             },
           }

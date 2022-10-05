@@ -82,7 +82,7 @@ export const PrimaryChart = ({
     <XYChart
       width={width}
       height={height}
-      margin={{ left: 0, right: 0, top: 16, bottom: 32 }}
+      margin={margin}
       xScale={{ type: 'utc' }}
       yScale={{ type: 'log', range: [yMax + margin.top - 32, margin.top + 32] }}
     >

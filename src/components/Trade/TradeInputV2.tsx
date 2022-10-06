@@ -1,5 +1,6 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -351,7 +352,7 @@ export const TradeInput = () => {
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       assetSearch.open({
-        onClick: asset => handleAssetClick(asset, action),
+        onClick: (asset: Asset) => handleAssetClick(asset, action),
         filterBy:
           action === AssetClickAction.Sell
             ? getSupportedSellableAssets
@@ -360,6 +361,7 @@ export const TradeInput = () => {
     },
     [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
   )
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   return (
     <SlideTransition>
@@ -432,6 +434,7 @@ export const TradeInput = () => {
               protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
+              swapperName={swapperName}
             />
           ) : null}
         </Stack>

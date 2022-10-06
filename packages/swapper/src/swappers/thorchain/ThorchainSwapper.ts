@@ -163,14 +163,15 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       const { chainNamespace } = fromAssetId(trade.sellAsset.assetId)
 
       if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-        const signedTx = await (
-          adapter as unknown as EvmBaseAdapter<EvmSupportedChainIds>
-        ).signTransaction({
-          txToSign: (trade as ThorTrade<KnownChainIds.EthereumMainnet>).txData as ETHSignTx,
-          wallet,
-        })
-        const txid = await adapter.broadcastTransaction(signedTx)
-        return { tradeId: txid }
+        const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmSupportedChainIds>
+        const txToSign = (trade as ThorTrade<KnownChainIds.EthereumMainnet>).txData as ETHSignTx
+        if (wallet.supportsBroadcast()) {
+          const tradeId = await evmAdapter.signAndBroadcastTransaction({ txToSign, wallet })
+          return { tradeId }
+        }
+        const signedTx = await evmAdapter.signTransaction({ txToSign, wallet })
+        const tradeId = await adapter.broadcastTransaction(signedTx)
+        return { tradeId }
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (
           adapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>

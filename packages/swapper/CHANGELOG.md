@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v11.5.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.4...@shapeshiftoss/swapper-v11.5.5) (2022-10-06)
+
+
+### Bug Fixes
+
+* allow thor trades for wallets that require signAndBroadcast ([#1051](https://github.com/shapeshift/lib/issues/1051)) ([33ad6c0](https://github.com/shapeshift/lib/commit/33ad6c0ea9ebc5f00145507f83149a7b05b388f6))
+
 # [@shapeshiftoss/swapper-v11.5.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v11.5.3...@shapeshiftoss/swapper-v11.5.4) (2022-10-04)
 
 

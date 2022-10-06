@@ -1365,6 +1365,14 @@
         "neverCollectIp": "Nunca coletar seu endereço IP completo",
         "neverSellData": "Nunca vender dados com fins lucrativos"
       }
+    },
+    "walletConnectToDapps": {
+      "registry": {
+        "banner": {
+        },
+        "pageInput": {
+        }
+      }
     }
   },
   "features": {

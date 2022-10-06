@@ -25,7 +25,7 @@ export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
         handleClick,
       }}
       itemCount={assets.length}
-      className='token-list scroll-container'
+      className='token-list'
       overscanCount={6}
     >
       {AssetRow}

@@ -33,6 +33,21 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
 
   /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
 
+  if (flags.ThorSwap) {
+    await (async () => {
+      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+      const thorSwapper = new ThorchainSwapper({
+        daemonUrl,
+        midgardUrl,
+        adapterManager,
+        web3: ethWeb3,
+      })
+      await thorSwapper.initialize()
+      _swapperManager.addSwapper(thorSwapper)
+    })()
+  }
+
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
@@ -62,21 +77,6 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     adapter: avalancheChainAdapter,
   })
   _swapperManager.addSwapper(zrxAvalancheSwapper)
-
-  if (flags.ThorSwap) {
-    await (async () => {
-      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const thorSwapper = new ThorchainSwapper({
-        daemonUrl,
-        midgardUrl,
-        adapterManager,
-        web3: ethWeb3,
-      })
-      await thorSwapper.initialize()
-      _swapperManager.addSwapper(thorSwapper)
-    })()
-  }
 
   if (flags.Osmosis) {
     const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL

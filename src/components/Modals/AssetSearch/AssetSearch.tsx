@@ -7,6 +7,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 
@@ -16,6 +17,7 @@ type AssetSearchModalProps = {
 }
 
 export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) => {
+  const translate = useTranslate()
   const { assetSearch } = useModal()
   const { close, isOpen } = assetSearch
   const handleClick = (asset: Asset) => {
@@ -28,7 +30,7 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
     <Modal isOpen={isOpen} onClose={close} isCentered trapFocus={false}>
       <ModalOverlay />
       <ModalContent height={`${modalHeight}vh`}>
-        <ModalHeader>Select</ModalHeader>
+        <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody p={2} height={modalHeight} display='flex' flexDir='column'>
           <AssetSearch onClick={handleClick} filterBy={filterBy} />

@@ -10,6 +10,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 
 type AssetSearchModalProps = {
   onClick: (asset: Asset) => void
@@ -18,21 +19,25 @@ type AssetSearchModalProps = {
 
 export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) => {
   const translate = useTranslate()
+  const { height: windowHeight } = useWindowSize()
   const { assetSearch } = useModal()
   const { close, isOpen } = assetSearch
   const handleClick = (asset: Asset) => {
     onClick(asset)
     close()
   }
-  const windowHeight = window.innerHeight
-  let modalHeight = Math.min(Math.round((680 / windowHeight) * 100), 80)
+  let modalHeight: number | undefined = 80
+  if (windowHeight) {
+    // Converts pixel units to vh for Modal component
+    modalHeight = Math.min(Math.round((680 / windowHeight) * 100), 80)
+  }
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered trapFocus={false}>
       <ModalOverlay />
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody p={2} height={modalHeight} display='flex' flexDir='column'>
+        <ModalBody p={2} display='flex' flexDir='column'>
           <AssetSearch onClick={handleClick} filterBy={filterBy} />
         </ModalBody>
       </ModalContent>

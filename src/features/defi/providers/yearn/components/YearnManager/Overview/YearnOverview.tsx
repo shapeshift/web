@@ -91,6 +91,42 @@ export const YearnOverview: React.FC<{
     })()
   }, [api, vaultAddress, chainId, toast, translate])
 
+  const underlyingAssets = useMemo(
+    () => [
+      {
+        ...underlyingToken,
+        cryptoBalance: cryptoAmountAvailable.toPrecision(),
+        allocationPercentage: '1',
+      },
+    ],
+    [cryptoAmountAvailable, underlyingToken],
+  )
+
+  const description = useMemo(
+    () => ({
+      description: underlyingToken.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: underlyingToken.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, underlyingToken.description, underlyingToken.isTrustedDescription],
+  )
+
+  const menu = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+    ],
+    [],
+  )
+
   if (!opportunity) {
     return (
       <Center minW='500px' minH='350px'>
@@ -106,33 +142,12 @@ export const YearnOverview: React.FC<{
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
-        {
-          ...underlyingToken,
-          cryptoBalance: cryptoAmountAvailable.toPrecision(),
-          allocationPercentage: '1',
-        },
-      ]}
+      underlyingAssets={underlyingAssets}
       provider='Yearn Finance'
-      description={{
-        description: underlyingToken.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: underlyingToken.isTrustedDescription,
-      }}
+      description={description}
       tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toString()}
       apy={opportunity.apy.toString()}
-      menu={[
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-        },
-        {
-          label: 'common.withdraw',
-          icon: <ArrowDownIcon />,
-          action: DefiAction.Withdraw,
-        },
-      ]}
+      menu={menu}
     />
   )
 }

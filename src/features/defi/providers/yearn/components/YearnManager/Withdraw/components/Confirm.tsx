@@ -10,6 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -136,15 +137,24 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     yearnInvestor,
   ])
 
-  if (!state || !dispatch) return null
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
-  }
+  }, [onNext])
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
     .gte(0)
+
+  const notEnoughGasTranslation = useMemo(
+    () =>
+      ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }] as [
+        string,
+        InterpolationOptions,
+      ],
+    [feeAsset.symbol],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm
@@ -196,7 +206,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={notEnoughGasTranslation} />
           </Alert>
         )}
       </Summary>

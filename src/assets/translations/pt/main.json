@@ -192,7 +192,7 @@
         }
       },
       "getStarted": {
-        "header": "Deposite seu %{assetName} para ganhar %{apr}% APR*",
+        "header": "Deposite seu %{assetName} para ganhar",
         "body": "Staking é o processo de manter fundos em uma carteira de criptomoedas para apoiar as operações de uma rede blockchain e, em troca, os detentores são recompensados por sua contribuição.",
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {

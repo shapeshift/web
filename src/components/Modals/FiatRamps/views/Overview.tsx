@@ -138,22 +138,20 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }, [addressOrNameFull, toast, translate])
 
-  // TODO(0xdef1cafe):
-  const supportsAddressVerifying = false
+  const supportsAddressVerifying = useMemo(() => wallet?.hasOnDeviceDisplay, [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return
     if (!wallet) return
-    const { chainId } = fromAccountId(accountId)
-    const chainAdapter = getChainAdapterManager().get(chainId)
-    if (!chainAdapter) return
     const address = addressByAccountId[accountId]
     if (!address) return
     if (!accountMetadata) return
     const { accountType, bip44Params } = accountMetadata
     const showOnDevice = true
     const payload = { accountType, bip44Params, wallet, showOnDevice }
-    const verifiedAddress = await chainAdapter.getAddress(payload)
+    const verifiedAddress = await getChainAdapterManager()
+      .get(fromAccountId(accountId).chainId)!
+      .getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, addressByAccountId, wallet])

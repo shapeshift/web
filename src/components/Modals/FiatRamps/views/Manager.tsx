@@ -56,7 +56,6 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const location = useLocation<RouterLocationState>()
 
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
-
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const filter = useMemo(
     () => ({ assetId: selectedAsset?.assetId ?? '', accountId: accountId ?? '' }),

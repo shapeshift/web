@@ -312,6 +312,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 assetId={selectedAsset.assetId}
                 onChange={handleAccountIdChange}
                 buttonProps={{ variant: 'solid', width: 'full', ml: 0, mr: 0 }}
+                boxProps={{ px: 0 }}
               />
               <InputGroup size='md'>
                 <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />

@@ -342,44 +342,41 @@ export const Overview: React.FC<OverviewProps> = ({
           {selectedAsset && (
             <Flex flexDirection='column' mb='10px'>
               <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
-              {multiAccountsEnabled ? (
-                <AccountDropdown
-                  assetId={selectedAsset.assetId}
-                  onChange={handleAccountIdChange}
-                  buttonProps={{ variant: 'solid' }}
-                />
-              ) : (
-                <InputGroup size='md'>
-                  <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
+              <AccountDropdown
+                assetId={selectedAsset.assetId}
+                onChange={handleAccountIdChange}
+                buttonProps={{ variant: 'solid', width: 'full', ml: 0, mr: 0 }}
+              />
+              <InputGroup size='md'>
+                <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
+                <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
+                  <IconButton
+                    icon={<CopyIcon />}
+                    aria-label='copy-icon'
+                    size='sm'
+                    isRound
+                    variant='ghost'
+                    onClick={handleCopyClick}
+                  />
+                  {supportsAddressVerifying && (
                     <IconButton
-                      icon={<CopyIcon />}
-                      aria-label='copy-icon'
+                      icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                      onClick={handleVerify}
+                      aria-label='check-icon'
                       size='sm'
+                      color={
+                        shownOnDisplay
+                          ? 'green.500'
+                          : shownOnDisplay === false
+                          ? 'red.500'
+                          : 'gray.500'
+                      }
                       isRound
                       variant='ghost'
-                      onClick={handleCopyClick}
                     />
-                    {supportsAddressVerifying && (
-                      <IconButton
-                        icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                        onClick={handleVerify}
-                        aria-label='check-icon'
-                        size='sm'
-                        color={
-                          shownOnDisplay
-                            ? 'green.500'
-                            : shownOnDisplay === false
-                            ? 'red.500'
-                            : 'gray.500'
-                        }
-                        isRound
-                        variant='ghost'
-                      />
-                    )}
-                  </InputRightElement>
-                </InputGroup>
-              )}
+                  )}
+                </InputRightElement>
+              </InputGroup>
             </Flex>
           )}
         </Stack>

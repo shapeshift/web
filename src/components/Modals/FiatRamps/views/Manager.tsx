@@ -1,14 +1,8 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
-import {
-  supportsBTC,
-  supportsCosmos,
-  supportsETH,
-  supportsEthSwitchChain,
-} from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -27,6 +21,7 @@ import { logger } from 'lib/logger'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
+import { selectPortfolioAccountMetadata } from '../../../../state/slices/portfolioSlice/selectors'
 import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
@@ -55,33 +50,19 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
+export type AddressByAccountId = Record<AccountId, string>
+
 const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
+  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
-  // TODO: once MultiAccounts feature flag was removed, we can get rid of this
-  // whole addresses, since AccountDropdown will manage this part
-  // We keep addresses in manager so we don't have to on every <Overview /> mount
-  const [btcAddress, setBtcAddress] = useState<string>('')
-  const [bchAddress, setBchAddress] = useState<string>('')
-  const [dogeAddress, setDogeAddress] = useState<string>('')
-  const [ltcAddress, setLtcAddress] = useState<string>('')
-  const [ethAddress, setEthAddress] = useState<string | undefined>()
-  const [avalancheAddress, setAvalancheAddress] = useState<string>('')
-  const [cosmosAddress, setCosmosAddress] = useState<string>('')
+
+  const [addressByAccountId, setAddressByAccountId] = useState<AddressByAccountId>({})
+
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
   const [ensName, setEnsName] = useState<string>('')
-
-  const chainAdapterManager = getChainAdapterManager()
-  const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-  const avalancheChainAdapter = chainAdapterManager.get(KnownChainIds.AvalancheMainnet)
-  const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
-  const bitcoinCashChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinCashMainnet)
-  const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)
-  const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
-  const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
-
   const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
   const {
@@ -91,48 +72,21 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
 
   useEffect(() => {
     ;(async () => {
+      if (!accountId) return
       if (!wallet) return
+      const { accountType, bip44Params } = portfolioAccountMetadata[accountId]
       moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-      const payload = { wallet }
-      try {
-        if (supportsETH(wallet) && ethereumChainAdapter) {
-          setEthAddress(await ethereumChainAdapter.getAddress(payload))
-        }
-        if (supportsEthSwitchChain(wallet) && avalancheChainAdapter) {
-          setAvalancheAddress(await avalancheChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && bitcoinChainAdapter) {
-          setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && bitcoinCashChainAdapter) {
-          setBchAddress(await bitcoinCashChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && dogecoinChainAdapter) {
-          setDogeAddress(await dogecoinChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && litecoinChainAdapter) {
-          setLtcAddress(await litecoinChainAdapter.getAddress(payload))
-        }
-        if (supportsCosmos(wallet) && cosmosChainAdapter) {
-          setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
-        }
-      } catch (e) {
-        moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
-      }
+      const payload = { accountType, bip44Params, wallet }
+      const { chainId } = fromAccountId(accountId)
+      const address = await getChainAdapterManager().get(chainId)!.getAddress(payload)
+      setAddressByAccountId({ ...addressByAccountId, [accountId]: address })
     })()
-  }, [
-    wallet,
-    bitcoinChainAdapter,
-    bitcoinCashChainAdapter,
-    dogecoinChainAdapter,
-    litecoinChainAdapter,
-    ethereumChainAdapter,
-    avalancheChainAdapter,
-    cosmosChainAdapter,
-  ])
+    // addressByAccountId is set by this effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId, portfolioAccountMetadata, selectedAsset, wallet])
 
   const { data: ensNameResponse, isSuccess: isEnsNameLoaded } = useEnsName({
-    address: ethAddress,
+    address: addressByAccountId[''],
     cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
     staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
   })
@@ -142,7 +96,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
       if (ensName || !(isEnsNameLoaded && ensNameResponse)) return
       setEnsName(ensNameResponse)
     })()
-  }, [ensName, ensNameResponse, ethAddress, isEnsNameLoaded])
+  }, [ensName, ensNameResponse, isEnsNameLoaded])
 
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
     path: '/:fiatRampAction',
@@ -190,16 +144,9 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
             selectedAsset={selectedAsset}
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
-            btcAddress={btcAddress}
-            bchAddress={bchAddress}
-            dogeAddress={dogeAddress}
-            ltcAddress={ltcAddress}
-            cosmosAddress={cosmosAddress}
-            ethAddress={ethAddress ?? ''}
-            avalancheAddress={avalancheAddress}
+            addressByAccountId={addressByAccountId}
             supportsAddressVerifying={supportsAddressVerifying}
             setSupportsAddressVerifying={setSupportsAddressVerifying}
-            chainAdapterManager={chainAdapterManager}
             chainId={chainId}
             setChainId={setChainId}
             ensName={ensName}

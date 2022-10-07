@@ -15,30 +15,25 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
-  avalancheChainId,
-  bchChainId,
-  btcChainId,
   CHAIN_NAMESPACE,
-  cosmosChainId,
-  dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
   fromChainId,
-  ltcChainId,
 } from '@shapeshiftoss/caip'
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -57,16 +52,12 @@ import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
 import { middleEllipsis } from '../utils'
+import type { AddressByAccountId } from './Manager'
 
 type GenerateAddressProps = {
+  accountId: Nullable<AccountId>
+  addressByAccountId: AddressByAccountId
   selectedAsset: FiatRampAsset | null
-  btcAddress: string
-  bchAddress: string
-  dogeAddress: string
-  ltcAddress: string
-  ethAddress: string
-  avalancheAddress: string
-  cosmosAddress: string
   ensName: string
 }
 
@@ -77,7 +68,6 @@ type OverviewProps = GenerateAddressProps & {
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
   chainId: ChainId
   setChainId: Dispatch<SetStateAction<ChainId>>
-  chainAdapterManager: ChainAdapterManager
   handleAccountIdChange: (accountId: AccountId) => void
   accountId: Nullable<AccountId>
 }
@@ -89,38 +79,19 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const {
-    selectedAsset,
-    btcAddress,
-    bchAddress,
-    dogeAddress,
-    ltcAddress,
-    avalancheAddress,
-    ethAddress,
-    ensName,
-    cosmosAddress,
-  } = props
+  const { accountId, addressByAccountId, selectedAsset, ensName } = props
   const assetId = selectedAsset?.assetId
   const empty: GenerateAddressesReturn = ['', '', '']
   if (!assetId) return empty
+  if (!accountId) return empty
+  const address = addressByAccountId[accountId]
+  if (!address) return empty
   const chainId = fromAssetId(assetId).chainId
   switch (chainId) {
-    case avalancheChainId:
-      return [avalancheAddress, avalancheAddress, middleEllipsis(avalancheAddress, 11)]
     case ethChainId:
-      return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
-    case btcChainId:
-      return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
-    case bchChainId:
-      return [bchAddress, bchAddress, middleEllipsis(bchAddress, 11)]
-    case dogeChainId:
-      return [dogeAddress, dogeAddress, middleEllipsis(dogeAddress, 11)]
-    case ltcChainId:
-      return [ltcAddress, ltcAddress, middleEllipsis(ltcAddress, 11)]
-    case cosmosChainId:
-      return [cosmosAddress, cosmosAddress, middleEllipsis(cosmosAddress, 11)]
+      return [ensName || address, address, ensName || middleEllipsis(address, 11)]
     default:
-      return empty
+      return [address, address, middleEllipsis(address, 11)]
   }
 }
 
@@ -133,20 +104,13 @@ export const Overview: React.FC<OverviewProps> = ({
   onFiatRampActionClick,
   supportsAddressVerifying,
   setSupportsAddressVerifying,
-  btcAddress,
-  bchAddress,
-  dogeAddress,
-  ltcAddress,
-  ethAddress,
-  avalancheAddress,
-  cosmosAddress,
   ensName,
   selectedAsset,
   chainId,
   setChainId,
-  chainAdapterManager,
   handleAccountIdChange,
   accountId,
+  addressByAccountId,
 }) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
@@ -160,6 +124,8 @@ export const Overview: React.FC<OverviewProps> = ({
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, selectedAsset?.assetId ?? ''),
   )
+
+  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const { providers, loading: providersLoading } = useFiatRampByAssetId({
     assetId: selectedAsset?.assetId,
@@ -176,7 +142,7 @@ export const Overview: React.FC<OverviewProps> = ({
     const { chainId: accountChainId } = fromAccountId(accountId)
     // race condition between selected asset and selected account
     if (assetChainId !== accountChainId) return
-    const chainAdapter = chainAdapterManager.get(assetChainId)
+    const chainAdapter = getChainAdapterManager().get(assetChainId)
     if (!chainAdapter) return
     const accountMeta = accountMetadata[accountId]
     const accountType = accountMeta?.accountType
@@ -196,7 +162,7 @@ export const Overview: React.FC<OverviewProps> = ({
         moduleLogger.error(error, 'Error getting address')
       }
     })()
-  }, [wallet, selectedAsset, chainAdapterManager, accountId, accountMetadata])
+  }, [wallet, selectedAsset, accountId, accountMetadata])
 
   const accountFiatBalance = useMemo(
     () =>
@@ -215,16 +181,12 @@ export const Overview: React.FC<OverviewProps> = ({
     ],
   )
 
+  // TODO(0xdef1cafe): useCallback
   const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
-    selectedAsset,
-    btcAddress,
-    bchAddress,
-    ltcAddress,
-    dogeAddress,
-    ethAddress,
-    avalancheAddress,
-    cosmosAddress,
+    accountId,
+    addressByAccountId,
     ensName,
+    selectedAsset,
   })
 
   useEffect(() => {
@@ -264,14 +226,18 @@ export const Overview: React.FC<OverviewProps> = ({
   }
 
   const handleVerify = async () => {
-    const chainAdapter = chainAdapterManager.get(chainId)
-    if (!(wallet && chainAdapter)) return
-    const deviceAddress = await chainAdapter.getAddress({
-      wallet,
-      showOnDevice: true,
-    })
-    const shownOnDisplay =
-      Boolean(deviceAddress) && (deviceAddress === ethAddress || deviceAddress === btcAddress)
+    const chainAdapter = getChainAdapterManager().get(chainId)
+    if (!accountId) return
+    if (!wallet) return
+    if (!chainAdapter) return
+    const address = addressByAccountId[accountId]
+    if (!address) return
+    const accountMetadata = portfolioAccountMetadata[accountId]
+    const { accountType, bip44Params } = accountMetadata
+    const showOnDevice = true
+    const payload = { accountType, bip44Params, wallet, showOnDevice }
+    const verifiedAddress = await chainAdapter.getAddress(payload)
+    const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
   }
 

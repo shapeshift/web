@@ -131,7 +131,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
 
   const assetSelectProps = useMemo(
     () => ({
-      selectAssetTranslation: location.state.selectAssetTranslation,
+      selectAssetTranslation: location.state?.selectAssetTranslation,
       onAssetSelect,
     }),
     [location.state, onAssetSelect],

@@ -16,7 +16,7 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
@@ -112,6 +112,8 @@ export const Overview: React.FC<OverviewProps> = ({
     [accountId, addressByAccountId, selectedAsset],
   )
 
+  useEffect(() => setShownOnDisplay(null), [accountId])
+
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
       fiatRampAction === FiatRampAction.Buy
@@ -157,6 +159,7 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [accountId, accountMetadata, addressByAccountId, wallet])
 
   const renderProviders = useMemo(() => {
+    if (!addressFull) return null
     if (!selectedAsset) return null
     const { assetId } = selectedAsset
     return providers.length ? (
@@ -250,7 +253,7 @@ export const Overview: React.FC<OverviewProps> = ({
             </Flex>
           )}
         </Stack>
-        {selectedAsset && (
+        {selectedAsset && addressFull && (
           <Stack spacing={4}>
             {providers.length && (
               <Box>

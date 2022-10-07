@@ -26,7 +26,6 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
@@ -41,7 +40,7 @@ import { logger } from 'lib/logger'
 import {
   selectMarketDataById,
   selectPortfolioAccountBalances,
-  selectPortfolioAccountMetadata,
+  selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -125,30 +124,26 @@ export const Overview: React.FC<OverviewProps> = ({
     selectMarketDataById(state, selectedAsset?.assetId ?? ''),
   )
 
-  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const filter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
   const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const { providers, loading: providersLoading } = useFiatRampByAssetId({
     assetId: selectedAsset?.assetId,
     action: fiatRampAction,
   })
 
-  // TODO: change the following with `selectPortfolioAccountMetadataByAccountId`
-  // once web/#2632 got merged
-  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
-
   useEffect(() => {
-    if (!(wallet && accountId && selectedAsset)) return
+    if (!(wallet && accountId && selectedAsset && accountMetadata)) return
     const { chainId: assetChainId } = fromAssetId(selectedAsset.assetId)
     const { chainId: accountChainId } = fromAccountId(accountId)
     // race condition between selected asset and selected account
     if (assetChainId !== accountChainId) return
     const chainAdapter = getChainAdapterManager().get(assetChainId)
     if (!chainAdapter) return
-    const accountMeta = accountMetadata[accountId]
-    const accountType = accountMeta?.accountType
-    const bip44Params = accountMeta?.bip44Params
+    const { accountType, bip44Params } = accountMetadata
     if (!bip44Params) return
     const { chainNamespace } = fromChainId(accountChainId)
+    // TODO(0xdef1cafe): https://github.com/shapeshift/lib/pull/1015
     if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
     ;(async () => {
       try {
@@ -225,6 +220,7 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }
 
+  // TODO(0xdef1cafe): useCallback
   const handleVerify = async () => {
     const chainAdapter = getChainAdapterManager().get(chainId)
     if (!accountId) return
@@ -232,7 +228,7 @@ export const Overview: React.FC<OverviewProps> = ({
     if (!chainAdapter) return
     const address = addressByAccountId[accountId]
     if (!address) return
-    const accountMetadata = portfolioAccountMetadata[accountId]
+    if (!accountMetadata) return
     const { accountType, bip44Params } = accountMetadata
     const showOnDevice = true
     const payload = { accountType, bip44Params, wallet, showOnDevice }
@@ -311,7 +307,7 @@ export const Overview: React.FC<OverviewProps> = ({
               <AccountDropdown
                 assetId={selectedAsset.assetId}
                 onChange={handleAccountIdChange}
-                buttonProps={{ variant: 'solid', width: 'full', ml: 0, mr: 0 }}
+                buttonProps={{ variant: 'solid', width: 'full' }}
                 boxProps={{ px: 0 }}
               />
               <InputGroup size='md'>

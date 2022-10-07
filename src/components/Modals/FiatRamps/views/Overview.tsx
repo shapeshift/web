@@ -13,17 +13,10 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import {
-  CHAIN_NAMESPACE,
-  ethChainId,
-  fromAccountId,
-  fromAssetId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import type { Dispatch, SetStateAction } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
@@ -33,14 +26,10 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import {
-  selectMarketDataById,
-  selectPortfolioAccountBalances,
   selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -57,16 +46,11 @@ type GenerateAddressProps = {
   accountId: Nullable<AccountId>
   addressByAccountId: AddressByAccountId
   selectedAsset: FiatRampAsset | null
-  ensName: string
 }
 
 type OverviewProps = GenerateAddressProps & {
-  supportsAddressVerifying: boolean
-  setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
-  chainId: ChainId
-  setChainId: Dispatch<SetStateAction<ChainId>>
   handleAccountIdChange: (accountId: AccountId) => void
   accountId: Nullable<AccountId>
 }
@@ -78,35 +62,21 @@ type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEll
 type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
 
 const generateAddresses: GenerateAddresses = props => {
-  const { accountId, addressByAccountId, selectedAsset, ensName } = props
-  const assetId = selectedAsset?.assetId
+  const { accountId, addressByAccountId, selectedAsset } = props
   const empty: GenerateAddressesReturn = ['', '', '']
+  if (!selectedAsset) return empty
+  const { assetId } = selectedAsset
   if (!assetId) return empty
   if (!accountId) return empty
   const address = addressByAccountId[accountId]
   if (!address) return empty
-  const chainId = fromAssetId(assetId).chainId
-  switch (chainId) {
-    case ethChainId:
-      return [ensName || address, address, ensName || middleEllipsis(address, 11)]
-    default:
-      return [address, address, middleEllipsis(address, 11)]
-  }
+  return [address, address, middleEllipsis(address, 11)]
 }
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'Views', 'Overview'],
-})
 
 export const Overview: React.FC<OverviewProps> = ({
   onIsSelectingAsset,
   onFiatRampActionClick,
-  supportsAddressVerifying,
-  setSupportsAddressVerifying,
-  ensName,
   selectedAsset,
-  chainId,
-  setChainId,
   handleAccountIdChange,
   accountId,
   addressByAccountId,
@@ -117,82 +87,30 @@ export const Overview: React.FC<OverviewProps> = ({
   const {
     state: { wallet },
   } = useWallet()
-  const multiAccountsEnabled = useFeatureFlag('MultiAccounts')
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
-  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
-  const marketData = useAppSelector(state =>
-    selectMarketDataById(state, selectedAsset?.assetId ?? ''),
-  )
 
-  const filter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const assetId = useMemo(() => selectedAsset?.assetId, [selectedAsset])
+  const filter = useMemo(
+    () => ({ assetId: assetId ?? '', accountId: accountId ?? '' }),
+    [assetId, accountId],
+  )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
-  const [accountAddress, setAccountAddress] = useState<string | null>(null)
   const { providers, loading: providersLoading } = useFiatRampByAssetId({
     assetId: selectedAsset?.assetId,
     action: fiatRampAction,
   })
 
-  useEffect(() => {
-    if (!(wallet && accountId && selectedAsset && accountMetadata)) return
-    const { chainId: assetChainId } = fromAssetId(selectedAsset.assetId)
-    const { chainId: accountChainId } = fromAccountId(accountId)
-    // race condition between selected asset and selected account
-    if (assetChainId !== accountChainId) return
-    const chainAdapter = getChainAdapterManager().get(assetChainId)
-    if (!chainAdapter) return
-    const { accountType, bip44Params } = accountMetadata
-    if (!bip44Params) return
-    const { chainNamespace } = fromChainId(accountChainId)
-    // TODO(0xdef1cafe): https://github.com/shapeshift/lib/pull/1015
-    if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
-    ;(async () => {
-      try {
-        const selectedAccountAddress = await chainAdapter.getAddress({
-          wallet,
-          accountType,
-          bip44Params,
-        })
-        setAccountAddress(selectedAccountAddress)
-      } catch (error) {
-        moduleLogger.error(error, 'Error getting address')
-      }
-    })()
-  }, [wallet, selectedAsset, accountId, accountMetadata])
+  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
 
-  const accountFiatBalance = useMemo(
+  const [addressOrNameFull, addressFull, addressOrNameEllipsed] = useMemo(
     () =>
-      bnOrZero(
-        multiAccountsEnabled
-          ? accountId && accountBalances[accountId][selectedAsset?.assetId ?? '']
-          : selectedAsset?.cryptoBalance,
-      ).times(marketData.price),
-    [
-      accountBalances,
-      accountId,
-      marketData.price,
-      multiAccountsEnabled,
-      selectedAsset?.assetId,
-      selectedAsset?.cryptoBalance,
-    ],
+      generateAddresses({
+        accountId,
+        addressByAccountId,
+        selectedAsset,
+      }),
+    [accountId, addressByAccountId, selectedAsset],
   )
-
-  // TODO(0xdef1cafe): useCallback
-  const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
-    accountId,
-    addressByAccountId,
-    ensName,
-    selectedAsset,
-  })
-
-  useEffect(() => {
-    if (!wallet) return
-    supportsAddressVerifying && setSupportsAddressVerifying(true)
-    const maybeAssetId = selectedAsset?.assetId
-    const chainId = maybeAssetId ? fromAssetId(maybeAssetId).chainId : ethChainId
-    setChainId(chainId)
-    // supportsAddressVerifying will cause infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -202,7 +120,7 @@ export const Overview: React.FC<OverviewProps> = ({
     [fiatRampAction],
   )
 
-  const handleCopyClick = async () => {
+  const handleCopyClick = useCallback(async () => {
     const duration = 2500
     const isClosable = true
     const toastPayload = { duration, isClosable }
@@ -218,13 +136,16 @@ export const Overview: React.FC<OverviewProps> = ({
       const description = translate('common.copyFailedDescription')
       toast({ description, title, status })
     }
-  }
+  }, [addressOrNameFull, toast, translate])
 
-  // TODO(0xdef1cafe): useCallback
-  const handleVerify = async () => {
-    const chainAdapter = getChainAdapterManager().get(chainId)
+  // TODO(0xdef1cafe):
+  const supportsAddressVerifying = false
+
+  const handleVerify = useCallback(async () => {
     if (!accountId) return
     if (!wallet) return
+    const { chainId } = fromAccountId(accountId)
+    const chainAdapter = getChainAdapterManager().get(chainId)
     if (!chainAdapter) return
     const address = addressByAccountId[accountId]
     if (!address) return
@@ -235,19 +156,15 @@ export const Overview: React.FC<OverviewProps> = ({
     const verifiedAddress = await chainAdapter.getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
-  }
+  }, [accountId, accountMetadata, addressByAccountId, wallet])
 
   const renderProviders = useMemo(() => {
+    if (!selectedAsset) return null
+    const { assetId } = selectedAsset
     return providers.length ? (
       providers.map(provider => (
         <FiatRampButton
-          onClick={() =>
-            provider.onSubmit(
-              fiatRampAction,
-              selectedAsset?.assetId || '',
-              (multiAccountsEnabled ? accountAddress : addressFull) || '',
-            )
-          }
+          onClick={() => provider.onSubmit(fiatRampAction, assetId, addressFull)}
           accountFiatBalance={accountFiatBalance}
           action={fiatRampAction}
           {...provider}
@@ -262,15 +179,7 @@ export const Overview: React.FC<OverviewProps> = ({
         <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
       </Center>
     )
-  }, [
-    accountAddress,
-    accountFiatBalance,
-    addressFull,
-    fiatRampAction,
-    multiAccountsEnabled,
-    providers,
-    selectedAsset?.assetId,
-  ])
+  }, [accountFiatBalance, addressFull, fiatRampAction, providers, selectedAsset])
 
   return (
     <>

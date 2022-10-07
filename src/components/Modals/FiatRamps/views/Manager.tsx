@@ -1,8 +1,7 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useMemo, useState } from 'react'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -13,13 +12,13 @@ import {
   useHistory,
   useLocation,
 } from 'react-router'
-import { useEnsName } from 'wagmi'
 import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import type { FiatRampAsset } from '../FiatRampsCommon'
@@ -56,25 +55,25 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
-  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
 
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const filter = useMemo(
+    () => ({ assetId: selectedAsset?.assetId ?? '', accountId: accountId ?? '' }),
+    [selectedAsset, accountId],
+  )
+  const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
   const [addressByAccountId, setAddressByAccountId] = useState<AddressByAccountId>({})
-
-  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
-  const [ensName, setEnsName] = useState<string>('')
-  const [chainId, setChainId] = useState<ChainId>(ethChainId)
 
   const {
     state: { wallet },
   } = useWallet()
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
 
   useEffect(() => {
     ;(async () => {
       if (!accountId) return
       if (!wallet) return
-      const { accountType, bip44Params } = portfolioAccountMetadata[accountId]
+      const { accountType, bip44Params } = accountMetadata
       moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
       const payload = { accountType, bip44Params, wallet }
       const { chainId } = fromAccountId(accountId)
@@ -83,25 +82,13 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     })()
     // addressByAccountId is set by this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, portfolioAccountMetadata, selectedAsset, wallet])
-
-  const { data: ensNameResponse, isSuccess: isEnsNameLoaded } = useEnsName({
-    address: addressByAccountId[''],
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-  })
-
-  useEffect(() => {
-    ;(async () => {
-      if (ensName || !(isEnsNameLoaded && ensNameResponse)) return
-      setEnsName(ensNameResponse)
-    })()
-  }, [ensName, ensNameResponse, isEnsNameLoaded])
+  }, [accountId, accountMetadata, wallet])
 
   const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
     path: '/:fiatRampAction',
   })
 
+  // TODO(0xdef1cafe): useCallback
   const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
     const route =
       fiatRampAction === FiatRampAction.Buy ? FiatRampManagerRoutes.Buy : FiatRampManagerRoutes.Sell
@@ -109,6 +96,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     history.push(route)
   }
 
+  // TODO(0xdef1cafe): useCallback
   const onAssetSelect = (asset: FiatRampAsset | null) => {
     if (!wallet) return
     const route =
@@ -119,6 +107,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     history.push(route)
   }
 
+  // TODO(0xdef1cafe): useCallback
   const handleIsSelectingAsset = (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
     if (!wallet) return
     const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
@@ -129,8 +118,10 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     history.push(route, { walletSupportsAsset, selectAssetTranslation })
   }
 
+  // TODO(0xdef1cafe): useMemo
   const { selectAssetTranslation } = location.state ?? {}
 
+  // TODO(0xdef1cafe): useMemo
   const assetSelectProps = {
     selectAssetTranslation,
     onAssetSelect,
@@ -145,11 +136,6 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
             addressByAccountId={addressByAccountId}
-            supportsAddressVerifying={supportsAddressVerifying}
-            setSupportsAddressVerifying={setSupportsAddressVerifying}
-            chainId={chainId}
-            setChainId={setChainId}
-            ensName={ensName}
             handleAccountIdChange={setAccountId}
             accountId={accountId}
           />

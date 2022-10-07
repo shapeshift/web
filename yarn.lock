@@ -4015,10 +4015,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.1.1":
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.1.tgz#1ff24ad6a027fc945475c224baae0c4155d7b965"
-  integrity sha512-VB03FTKk+HIHtaDgsPsN9g6ciEMuVI/KzwP14f9blDzbFGA8a2l3QVnQyDDOVn+S8hwv4nqunAxqg7xOI//EyA==
+"@shapeshiftoss/asset-service@^8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.2.tgz#35f11e151130e5dfd14a860ad216bf554830c9b6"
+  integrity sha512-v5K+ePJn2EJvNy6SqGe/fcEka6vhpvD4o3E2xRHSLfSlvN3ceAYRkdXP16UwHj+5JY/pMRYw/sp5bxm1NxLzmw==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4053,10 +4053,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.4.1":
-  version "8.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.1.tgz#8c18952dcdadda09553f218707223a38cde393e3"
-  integrity sha512-DUV1m+87KMA8qBU3nx53sSC3JoPQlrHk1dUkfA9KSpl4oT6iZwxzmxSXxu6pZSDULfnBULo0cfx9FTn0ifcQZQ==
+"@shapeshiftoss/caip@^8.4.2":
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.2.tgz#dfee57a24967af28bf52b6dd8057d1a57e9ad0ec"
+  integrity sha512-vIIEs0ks9gU+CE1NdqvDos2JTJeJhYgeWmxGM6vlJt/6p7lieyWP5JC1y4UKcJAmxVBGrq6oVf8ys+2b5Kqtrw==
 
 "@shapeshiftoss/chain-adapters@^9.2.0":
   version "9.2.0"
@@ -4340,10 +4340,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^11.5.4":
-  version "11.5.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.4.tgz#bf869af04f76e2064346a179d4d93efe1879fdff"
-  integrity sha512-DKLKiqt6+vaZEaEUawSUgKLJCO6ep9no+4NloP4J247BCazoH3woCfbdxQ1H0rATyCHzEjvqiAAQ2WSUuBJnhg==
+"@shapeshiftoss/swapper@^11.5.5":
+  version "11.5.5"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.5.tgz#78aec5496abbf348b657dc602138b81dc0d72b91"
+  integrity sha512-7jLYlo+BIZZODMoCYWMPmseSLsThOKazV1eQQgAvD4BUIyw4LGYFKsCHpT14O8u4LvSrgJofY30ur222RAVj/Q==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"

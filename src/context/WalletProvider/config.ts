@@ -10,7 +10,6 @@ import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
-import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
 import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
 import { KeepKeyLabel } from './KeepKey/components/Label'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
@@ -127,7 +126,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.RecoverySettings, component: KeepKeyRecoverySettings },
       { path: KeepKeyRoutes.RecoverySettingUp, component: RecoverySettingUp },
       { path: KeepKeyRoutes.RecoverySentenceInvalid, component: KeepKeyRecoverySentenceInvalid },
-      { path: KeepKeyRoutes.DownloadUpdater, component: KeepKeyDownloadUpdaterApp },
     ],
     connectedWalletMenuRoutes: [
       { path: WalletConnectedRoutes.KeepKey, component: KeepKeyMenu },

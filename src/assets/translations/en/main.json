@@ -601,11 +601,6 @@
         "header": "Invalid Recovery Phrase",
         "body": "The Recovery Phrase you have entered is invalid.",
         "button": "Try Again"
-      },
-      "downloadUpdater": {
-        "header": "Download KeepKey Updater",
-        "button": "Download %{filename}",
-        "wrongPlatform": "Not using %{platform}? Click here"
       }
     },
     "shapeShift": {
@@ -877,12 +872,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
+      "walletNotFound": "Unable to communicate with your wallet"
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
-        "updateAlert": "Firmware 6.1.0 or later is required to use your Keepkey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"
@@ -891,8 +885,7 @@
         "header": "Pair Your KeepKey",
         "body": "Connect a KeepKey device and click Pair.",
         "button": "Pair",
-        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
-        "downloadUpdaterApp": "Download updater app"
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
       },
       "pin": {
         "header": "Enter Your PIN",

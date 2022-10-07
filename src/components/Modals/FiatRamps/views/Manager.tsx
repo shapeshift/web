@@ -83,9 +83,13 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId, accountMetadata, wallet])
 
-  const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
-    path: '/:fiatRampAction',
-  })
+  const match = useMemo(
+    () =>
+      matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
+        path: '/:fiatRampAction',
+      }),
+    [location.pathname],
+  )
 
   const handleFiatRampActionClick = useCallback(
     (fiatRampAction: FiatRampAction) => {

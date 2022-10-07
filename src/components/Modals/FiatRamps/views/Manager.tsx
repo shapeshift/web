@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -87,44 +87,51 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     path: '/:fiatRampAction',
   })
 
-  // TODO(0xdef1cafe): useCallback
-  const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
-    const route =
-      fiatRampAction === FiatRampAction.Buy ? FiatRampManagerRoutes.Buy : FiatRampManagerRoutes.Sell
-    setSelectedAsset(null)
-    history.push(route)
-  }
+  const handleFiatRampActionClick = useCallback(
+    (fiatRampAction: FiatRampAction) => {
+      const route =
+        fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.Buy
+          : FiatRampManagerRoutes.Sell
+      setSelectedAsset(null)
+      history.push(route)
+    },
+    [history],
+  )
 
-  // TODO(0xdef1cafe): useCallback
-  const onAssetSelect = (asset: FiatRampAsset | null) => {
-    if (!wallet) return
-    const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy
-        ? FiatRampManagerRoutes.Buy
-        : FiatRampManagerRoutes.Sell
-    setSelectedAsset(asset)
-    history.push(route)
-  }
+  const onAssetSelect = useCallback(
+    (asset: FiatRampAsset | null) => {
+      if (!wallet) return
+      const route =
+        match?.params.fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.Buy
+          : FiatRampManagerRoutes.Sell
+      setSelectedAsset(asset)
+      history.push(route)
+    },
+    [history, match?.params.fiatRampAction, wallet],
+  )
 
-  // TODO(0xdef1cafe): useCallback
-  const handleIsSelectingAsset = (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
-    if (!wallet) return
-    const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
-    const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy
-        ? FiatRampManagerRoutes.BuySelect
-        : FiatRampManagerRoutes.SellSelect
-    history.push(route, { walletSupportsAsset, selectAssetTranslation })
-  }
+  const handleIsSelectingAsset = useCallback(
+    (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
+      if (!wallet) return
+      const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
+      const route =
+        match?.params.fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.BuySelect
+          : FiatRampManagerRoutes.SellSelect
+      history.push(route, { walletSupportsAsset, selectAssetTranslation })
+    },
+    [history, match?.params.fiatRampAction, wallet],
+  )
 
-  // TODO(0xdef1cafe): useMemo
-  const { selectAssetTranslation } = location.state ?? {}
-
-  // TODO(0xdef1cafe): useMemo
-  const assetSelectProps = {
-    selectAssetTranslation,
-    onAssetSelect,
-  }
+  const assetSelectProps = useMemo(
+    () => ({
+      selectAssetTranslation: location.state.selectAssetTranslation,
+      onAssetSelect,
+    }),
+    [location.state, onAssetSelect],
+  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

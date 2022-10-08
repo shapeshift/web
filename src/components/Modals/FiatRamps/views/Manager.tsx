@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
+import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router'
@@ -174,9 +175,12 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   )
 
   const { address, vanityAddress } = useMemo(() => {
-    if (!accountId) return { address: '', vanityAddress: '' }
-    const { address, vanityAddress } = addressByAccountId[accountId]
-    return { address: address ?? '', vanityAddress: vanityAddress ?? '' }
+    const empty = { address: '', vanityAddress: '' }
+    if (isEmpty(addressByAccountId)) return empty
+    if (!accountId) return empty
+    const address = addressByAccountId[accountId]?.address ?? ''
+    const vanityAddress = addressByAccountId[accountId]?.vanityAddress ?? ''
+    return { address, vanityAddress }
   }, [addressByAccountId, accountId])
 
   return (

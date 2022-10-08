@@ -7,14 +7,17 @@ import {
   IconButton,
   Input,
   InputGroup,
+  InputLeftElement,
   InputRightElement,
   ModalBody,
+  Spinner,
   Stack,
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -107,7 +110,7 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }, [address, vanityAddress, toast, translate])
 
-  const supportsAddressVerifying = useMemo(() => wallet?.hasOnDeviceDisplay, [wallet])
+  const supportsAddressVerifying = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return
@@ -146,6 +149,11 @@ export const Overview: React.FC<OverviewProps> = ({
       </Center>
     )
   }, [address, accountFiatBalance, fiatRampAction, providers, selectedAsset])
+
+  const inputValue = useMemo(() => {
+    if (vanityAddress) return vanityAddress
+    return address ? middleEllipsis(address, 11) : ''
+  }, [address, vanityAddress])
 
   return (
     <>
@@ -186,34 +194,42 @@ export const Overview: React.FC<OverviewProps> = ({
                 boxProps={{ px: 0 }}
               />
               <InputGroup size='md'>
-                <Input pr='4.5rem' value={vanityAddress || middleEllipsis(address, 11)} readOnly />
-                <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
-                  <IconButton
-                    icon={<CopyIcon />}
-                    aria-label='copy-icon'
-                    size='sm'
-                    isRound
-                    variant='ghost'
-                    onClick={handleCopyClick}
-                  />
-                  {supportsAddressVerifying && (
+                <Input
+                  pr='4.5rem'
+                  value={inputValue}
+                  readOnly
+                  placeholder={translate('common.loadingText')}
+                />
+                {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                {address && (
+                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                     <IconButton
-                      icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                      onClick={handleVerify}
-                      aria-label='check-icon'
+                      icon={<CopyIcon />}
+                      aria-label='copy-icon'
                       size='sm'
-                      color={
-                        shownOnDisplay
-                          ? 'green.500'
-                          : shownOnDisplay === false
-                          ? 'red.500'
-                          : 'gray.500'
-                      }
                       isRound
                       variant='ghost'
+                      onClick={handleCopyClick}
                     />
-                  )}
-                </InputRightElement>
+                    {supportsAddressVerifying && address && (
+                      <IconButton
+                        icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                        onClick={handleVerify}
+                        aria-label='check-icon'
+                        size='sm'
+                        color={
+                          shownOnDisplay
+                            ? 'green.500'
+                            : shownOnDisplay === false
+                            ? 'red.500'
+                            : 'gray.500'
+                        }
+                        isRound
+                        variant='ghost'
+                      />
+                    )}
+                  </InputRightElement>
+                )}
               </InputGroup>
             </Flex>
           )}

@@ -2,6 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -15,10 +16,14 @@ import {
 import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { ParseAddressInputReturn } from 'lib/address/address'
+import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioAccountIds,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/portfolioSlice/selectors'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import type { FiatRampAsset } from '../FiatRampsCommon'
@@ -49,39 +54,70 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
-export type AddressByAccountId = Record<AccountId, string>
+export type AddressesByAccountId = Record<AccountId, Partial<ParseAddressInputReturn>>
 
 const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
+  const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
+  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
-  const filter = useMemo(
-    () => ({ assetId: selectedAsset?.assetId ?? '', accountId: accountId ?? '' }),
-    [selectedAsset, accountId],
-  )
-  const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
-  const [addressByAccountId, setAddressByAccountId] = useState<AddressByAccountId>({})
+  const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
 
   const {
     state: { wallet },
   } = useWallet()
 
+  /**
+   * preload all addresses, and reverse resolved vanity addresses for all account ids
+   */
   useEffect(() => {
+    if (!wallet) return
     ;(async () => {
-      if (!accountId) return
-      if (!wallet) return
-      const { accountType, bip44Params } = accountMetadata
-      moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-      const payload = { accountType, bip44Params, wallet }
-      const { chainId } = fromAccountId(accountId)
-      const address = await getChainAdapterManager().get(chainId)!.getAddress(payload)
-      setAddressByAccountId({ ...addressByAccountId, [accountId]: address })
+      const plainAddressResults = await Promise.allSettled(
+        portfolioAccountIds.map(accountId => {
+          const accountMetadata = portfolioAccountMetadata[accountId]
+          const { accountType, bip44Params } = accountMetadata
+          moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
+          const payload = { accountType, bip44Params, wallet }
+          const { chainId } = fromAccountId(accountId)
+          return getChainAdapterManager().get(chainId)!.getAddress(payload)
+        }),
+      )
+      const plainAddresses = plainAddressResults.reduce<string[]>((acc, cur) => {
+        if (cur.status === 'rejected') {
+          moduleLogger.error(cur.reason, 'failed to get address')
+          acc.push('') // keep same length of accumulator
+          return acc
+        }
+        acc.push(cur.value)
+        return acc
+      }, [])
+
+      const parseAddressResults = await Promise.allSettled(
+        plainAddresses.map((value, idx) => {
+          if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
+          const { chainId } = fromAccountId(portfolioAccountIds[idx])
+          return parseAddressInput({ chainId, value })
+        }),
+      )
+
+      const addressesByAccountId = parseAddressResults.reduce<AddressesByAccountId>(
+        (acc, cur, idx) => {
+          if (cur.status === 'rejected') return acc
+          const accountId = portfolioAccountIds[idx]
+          const { value } = cur
+          acc[accountId] = value
+          return acc
+        },
+        {},
+      )
+
+      setAddressByAccountId(addressesByAccountId)
     })()
-    // addressByAccountId is set by this effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountId, accountMetadata, wallet])
+  }, [portfolioAccountIds, portfolioAccountMetadata, wallet])
 
   const match = useMemo(
     () =>
@@ -137,6 +173,12 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     [location.state, onAssetSelect],
   )
 
+  const { address, vanityAddress } = useMemo(() => {
+    if (!accountId) return { address: '', vanityAddress: '' }
+    const { address, vanityAddress } = addressByAccountId[accountId]
+    return { address: address ?? '', vanityAddress: vanityAddress ?? '' }
+  }, [addressByAccountId, accountId])
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
@@ -145,7 +187,8 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
             selectedAsset={selectedAsset}
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
-            addressByAccountId={addressByAccountId}
+            address={address}
+            vanityAddress={vanityAddress}
             handleAccountIdChange={setAccountId}
             accountId={accountId}
           />

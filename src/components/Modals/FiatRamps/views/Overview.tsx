@@ -40,37 +40,15 @@ import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
 import { middleEllipsis } from '../utils'
-import type { AddressByAccountId } from './Manager'
 
-type GenerateAddressProps = {
+type OverviewProps = {
   accountId: Nullable<AccountId>
-  addressByAccountId: AddressByAccountId
+  address: string
+  vanityAddress: string
   selectedAsset: FiatRampAsset | null
-}
-
-type OverviewProps = GenerateAddressProps & {
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
   onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
   handleAccountIdChange: (accountId: AccountId) => void
-  accountId: Nullable<AccountId>
-}
-
-type AddressOrNameFull = string
-type AddressFull = string
-type AddressOrNameEllipsed = string
-type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEllipsed]
-type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
-
-const generateAddresses: GenerateAddresses = props => {
-  const { accountId, addressByAccountId, selectedAsset } = props
-  const empty: GenerateAddressesReturn = ['', '', '']
-  if (!selectedAsset) return empty
-  const { assetId } = selectedAsset
-  if (!assetId) return empty
-  if (!accountId) return empty
-  const address = addressByAccountId[accountId]
-  if (!address) return empty
-  return [address, address, middleEllipsis(address, 11)]
 }
 
 export const Overview: React.FC<OverviewProps> = ({
@@ -79,7 +57,8 @@ export const Overview: React.FC<OverviewProps> = ({
   selectedAsset,
   handleAccountIdChange,
   accountId,
-  addressByAccountId,
+  address,
+  vanityAddress,
 }) => {
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
@@ -88,6 +67,7 @@ export const Overview: React.FC<OverviewProps> = ({
     state: { wallet },
   } = useWallet()
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+  useEffect(() => setShownOnDisplay(null), [accountId])
 
   const assetId = useMemo(() => selectedAsset?.assetId, [selectedAsset])
   const filter = useMemo(
@@ -95,24 +75,11 @@ export const Overview: React.FC<OverviewProps> = ({
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
+  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
   const { providers, loading: providersLoading } = useFiatRampByAssetId({
-    assetId: selectedAsset?.assetId,
+    assetId,
     action: fiatRampAction,
   })
-
-  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
-
-  const [addressOrNameFull, addressFull, addressOrNameEllipsed] = useMemo(
-    () =>
-      generateAddresses({
-        accountId,
-        addressByAccountId,
-        selectedAsset,
-      }),
-    [accountId, addressByAccountId, selectedAsset],
-  )
-
-  useEffect(() => setShownOnDisplay(null), [accountId])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -127,10 +94,10 @@ export const Overview: React.FC<OverviewProps> = ({
     const isClosable = true
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(addressOrNameFull)
+      await navigator.clipboard.writeText(vanityAddress ?? address)
       const title = translate('common.copied')
       const status = 'success'
-      const description = addressOrNameFull
+      const description = vanityAddress ?? address
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('common.copyFailed')
@@ -138,14 +105,13 @@ export const Overview: React.FC<OverviewProps> = ({
       const description = translate('common.copyFailedDescription')
       toast({ description, title, status })
     }
-  }, [addressOrNameFull, toast, translate])
+  }, [address, vanityAddress, toast, translate])
 
   const supportsAddressVerifying = useMemo(() => wallet?.hasOnDeviceDisplay, [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return
     if (!wallet) return
-    const address = addressByAccountId[accountId]
     if (!address) return
     if (!accountMetadata) return
     const { accountType, bip44Params } = accountMetadata
@@ -156,16 +122,15 @@ export const Overview: React.FC<OverviewProps> = ({
       .getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
-  }, [accountId, accountMetadata, addressByAccountId, wallet])
+  }, [accountId, accountMetadata, address, wallet])
 
   const renderProviders = useMemo(() => {
-    if (!addressFull) return null
     if (!selectedAsset) return null
     const { assetId } = selectedAsset
     return providers.length ? (
       providers.map(provider => (
         <FiatRampButton
-          onClick={() => provider.onSubmit(fiatRampAction, assetId, addressFull)}
+          onClick={() => provider.onSubmit(fiatRampAction, assetId, address)}
           accountFiatBalance={accountFiatBalance}
           action={fiatRampAction}
           {...provider}
@@ -180,7 +145,7 @@ export const Overview: React.FC<OverviewProps> = ({
         <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
       </Center>
     )
-  }, [accountFiatBalance, addressFull, fiatRampAction, providers, selectedAsset])
+  }, [address, accountFiatBalance, fiatRampAction, providers, selectedAsset])
 
   return (
     <>
@@ -221,7 +186,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 boxProps={{ px: 0 }}
               />
               <InputGroup size='md'>
-                <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
+                <Input pr='4.5rem' value={vanityAddress || middleEllipsis(address, 11)} readOnly />
                 <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                   <IconButton
                     icon={<CopyIcon />}
@@ -253,7 +218,7 @@ export const Overview: React.FC<OverviewProps> = ({
             </Flex>
           )}
         </Stack>
-        {selectedAsset && addressFull && (
+        {selectedAsset && address && (
           <Stack spacing={4}>
             {providers.length && (
               <Box>

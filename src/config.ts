@@ -104,6 +104,12 @@ const validators = {
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
   REACT_APP_ONRAMPER_API_URL: url(),
   REACT_APP_ONRAMPER_API_KEY: str(),
+  REACT_APP_KEEPKEY_UPDATER_RELEASE_PAGE: url({
+    default: 'https://github.com/keepkey/keepkey-updater/releases/latest',
+  }),
+  REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
+    default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

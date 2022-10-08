@@ -9,26 +9,32 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])
 
   const platformFilename = useMemo(() => {
-    if (platform === 'Mac OS') {
-      return 'KeepKey-Updater-2.1.4.dmg'
-    } else if (platform === 'Windows') {
-      return 'KeepKey-Updater-Setup-2.1.4.exe'
-    } else if (platform === 'Linux') {
-      return 'KeepKey-Updater-2.1.4.AppImage'
+    switch (platform) {
+      case 'Mac OS':
+        return 'KeepKey-Updater-2.1.4.dmg'
+      case 'Windows':
+        return 'KeepKey-Updater-Setup-2.1.4.exe'
+      case 'Linux':
+        return 'KeepKey-Updater-2.1.4.AppImage'
+      default:
+        return null
     }
   }, [platform])
 
   const platformIcon = useMemo(() => {
-    if (platform === 'Mac OS') {
-      return FaApple
-    } else if (platform === 'Windows') {
-      return FaWindows
-    } else if (platform === 'Linux') {
-      return FaLinux
+    switch (platform) {
+      case 'Mac OS':
+        return FaApple
+      case 'Windows':
+        return FaWindows
+      case 'Linux':
+        return FaLinux
+      default:
+        return null
     }
   }, [platform])
 
-  const updaterUrl = `${UPDATER_BASE_URL}${platformFilename}`
+  const updaterUrl = platformFilename ? `${UPDATER_BASE_URL}${platformFilename}` : RELEASE_PAGE
 
   return (
     <>
@@ -36,18 +42,25 @@ export const KeepKeyDownloadUpdaterApp = () => {
         <Text translation={'modals.keepKey.downloadUpdater.header'} />
       </ModalHeader>
       <ModalBody textAlign='center'>
-        <Icon as={platformIcon} boxSize={20} mb={4} color='white' />
-        <CText fontWeight='bold'>{platform}</CText>
-        <Link isExternal href={RELEASE_PAGE}>
-          <Text
-            color='gray.500'
-            translation={['modals.keepKey.downloadUpdater.wrongPlatform', { platform }]}
-            mb={2}
-          />
-        </Link>
+        {platformIcon && <Icon as={platformIcon} boxSize={20} mb={4} color='white' />}
+        {platform && (
+          <>
+            <CText fontWeight='bold'>{platform}</CText>
+            <Link isExternal href={RELEASE_PAGE}>
+              <Text
+                color='gray.500'
+                translation={['modals.keepKey.downloadUpdater.wrongPlatform', { platform }]}
+                mb={2}
+              />
+            </Link>
+          </>
+        )}
         <Button as={Link} width='full' isExternal href={updaterUrl} colorScheme='blue' mt={2}>
           <Text
-            translation={['modals.keepKey.downloadUpdater.button', { filename: platformFilename }]}
+            translation={[
+              'modals.keepKey.downloadUpdater.button',
+              { filename: platformFilename || 'Updater App' },
+            ]}
           />
         </Button>
       </ModalBody>

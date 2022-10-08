@@ -94,7 +94,7 @@ export const Overview: React.FC<OverviewProps> = ({
     const isClosable = true
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(vanityAddress ?? address)
+      await navigator.clipboard.writeText(vanityAddress || address)
       const title = translate('common.copied')
       const status = 'success'
       const description = vanityAddress ?? address

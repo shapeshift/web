@@ -79,6 +79,11 @@
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "updateToast": {
     "body": "A new version of the app is available",
     "cta": "Reload App",

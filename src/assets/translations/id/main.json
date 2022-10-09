@@ -59,6 +59,11 @@
     "notRobot": "Saya bukan Robot",
     "skip": "Lewati"
   },
+  "errorPage": {
+    "title": "Ups!",
+    "body": "Ada yang tidak beres",
+    "cta": "Coba lagi"
+  },
   "updateToast": {
     "body": "Versi baru aplikasi tersedia",
     "cta": "Muat Ulang Aplikasi"

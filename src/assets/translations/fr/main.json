@@ -79,6 +79,11 @@
     "unsupportedNetwork": "Réseau non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}."
   },
+  "errorPage": {
+    "title": "Oups !",
+    "body": "Quelque chose s'est mal passé",
+    "cta": "Réessayez"
+  },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
     "cta": "Rafraîchir l'app",

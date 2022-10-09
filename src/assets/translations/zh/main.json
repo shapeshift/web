@@ -59,6 +59,11 @@
     "notRobot": "我不是一个机器人",
     "skip": "跳过"
   },
+  "errorPage": {
+    "title": "糟糕！",
+    "body": "出了点问题",
+    "cta": "再试一次"
+  },
   "updateToast": {
     "body": "应用有新版本",
     "cta": "重新加载应用"

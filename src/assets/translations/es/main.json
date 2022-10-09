@@ -79,6 +79,11 @@
     "unsupportedNetwork": "Red No Soportada",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}."
   },
+  "errorPage": {
+    "título": "¡Ups!",
+    "cuerpo": "Algo salió mal",
+    "cta": "Inténtalo de nuevo"
+  },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
     "cta": "Recargar App",

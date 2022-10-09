@@ -79,6 +79,11 @@
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar."
   },
+  "errorPage": {
+    "title": "Ups!",
+    "body": "Etwas ist schief gelaufen",
+    "cta": "Erneut versuchen"
+  },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
     "cta": "App neu laden",

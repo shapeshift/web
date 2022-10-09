@@ -79,6 +79,11 @@
     "unsupportedNetwork": "Rede não suportada",
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}."
   },
+  "errorPage": {
+    "título": "Opa!",
+    "body": "Algo deu errado",
+    "cta": "Tente novamente"
+  },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
     "cta": "Recarregar Aplicativo",

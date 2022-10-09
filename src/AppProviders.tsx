@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -21,6 +22,7 @@ import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsP
 import { WagmiProvider } from 'context/WagmiProvider/WagmiProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
+import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -39,30 +41,32 @@ export function AppProviders({ children }: ProvidersProps) {
         <PluginProvider>
           <ColorModeScript storageKey='ss-theme' />
           <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-            <ToastContainer />
-            <Zendesk />
-            <PersistGate loading={<SplashScreen />} persistor={persistor}>
-              <HashRouter basename='/'>
-                <ScrollToTop />
-                <BrowserRouterProvider>
-                  <I18nProvider>
-                    <WalletProvider>
-                      <KeepKeyProvider>
-                        <ModalProvider>
-                          <TransactionsProvider>
-                            <AppProvider>
-                              <FoxEthProvider>
-                                <DefiManagerProvider>{children}</DefiManagerProvider>
-                              </FoxEthProvider>
-                            </AppProvider>
-                          </TransactionsProvider>
-                        </ModalProvider>
-                      </KeepKeyProvider>
-                    </WalletProvider>
-                  </I18nProvider>
-                </BrowserRouterProvider>
-              </HashRouter>
-            </PersistGate>
+            <ErrorBoundary FallbackComponent={ErrorPage}>
+              <ToastContainer />
+              <Zendesk />
+              <PersistGate loading={<SplashScreen />} persistor={persistor}>
+                <HashRouter basename='/'>
+                  <ScrollToTop />
+                  <BrowserRouterProvider>
+                    <I18nProvider>
+                      <WalletProvider>
+                        <KeepKeyProvider>
+                          <ModalProvider>
+                            <TransactionsProvider>
+                              <AppProvider>
+                                <FoxEthProvider>
+                                  <DefiManagerProvider>{children}</DefiManagerProvider>
+                                </FoxEthProvider>
+                              </AppProvider>
+                            </TransactionsProvider>
+                          </ModalProvider>
+                        </KeepKeyProvider>
+                      </WalletProvider>
+                    </I18nProvider>
+                  </BrowserRouterProvider>
+                </HashRouter>
+              </PersistGate>
+            </ErrorBoundary>
           </ChakraProvider>
         </PluginProvider>
       </WagmiProvider>

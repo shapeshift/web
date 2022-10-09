@@ -1,31 +1,14 @@
-import {
-  Button,
-  Flex,
-  Skeleton,
-  Stack,
-  Stat,
-  StatArrow,
-  StatNumber,
-  Switch,
-} from '@chakra-ui/react'
+import { Button, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectPortfolioAssetIds,
-  selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceWithStakingData,
-} from 'state/slices/selectors'
+import { selectPortfolioAssetIds, selectPortfolioLoading } from 'state/slices/selectors'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 
@@ -34,12 +17,6 @@ export const Portfolio = () => {
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)
-
-  const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const { totalBalance: lpHoldingsBalance } = useFoxEth()
-  const totalBalancePlusLpHoldings = bnOrZero(totalBalance)
-    .plus(bnOrZero(lpHoldingsBalance))
-    .toFixed(2)
 
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
@@ -58,11 +35,11 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-            <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
-              <Text translation='dashboard.portfolio.totalChart' />
-              <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
-              <Text translation='dashboard.portfolio.rainbowChart' />
-            </Button>
+          <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
+            <Text translation='dashboard.portfolio.totalChart' />
+            <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
+            <Text translation='dashboard.portfolio.rainbowChart' />
+          </Button>
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>

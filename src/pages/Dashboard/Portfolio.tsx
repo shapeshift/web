@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -34,6 +35,7 @@ export const Portfolio = () => {
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useSelector(selectPortfolioAssetIds)
+
   const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   const { totalBalance: lpHoldingsBalance } = useFoxEth()
   const totalBalancePlusLpHoldings = bnOrZero(totalBalance)
@@ -138,6 +140,7 @@ export const Portfolio = () => {
           />
         </Skeleton>
       </Card>
+      <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
       <Card>
         <Card.Header>

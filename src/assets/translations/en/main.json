@@ -41,7 +41,12 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "degradedState": "The App is in a degraded state",
+    "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "retry": "Retry",
+    "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -71,7 +76,8 @@
     "txId": "Tx ID",
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
-    "unsupportedNetwork": "Unsupported Network"
+    "unsupportedNetwork": "Unsupported Network",
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -371,6 +377,7 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Opportunities",
+    "dApps": "dApps",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
@@ -482,6 +489,9 @@
     "free": "Free",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
+    "updatingQuote": "Updating quote...",
+    "intoRUNETitle": "Trading into RUNE",
+    "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -533,6 +543,7 @@
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
     },
+    "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades"
   },
   "modals": {
@@ -596,6 +607,7 @@
       "password": {
         "header": "Enter Your Password",
         "walletName": "Wallet nickname (optional)",
+        "walletNameRequired": "Wallet nickname (required)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",
@@ -603,6 +615,7 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
+          "walletNameRequired": "Wallet nickname is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
@@ -814,6 +827,8 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "clearWalletAccountData": "Delete all accounts & wallet data",
+      "deleteAccountsConfirm": "Are you sure?\n\nThis will remove all personal data including wallets, accounts, balances.\n\nVerify that you have backed up your wallets before continuing.",
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
@@ -1375,6 +1390,23 @@
         "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
         "neverCollectIp": "Never collect your full IP address",
         "neverSellData": "Never sell data for profit"
+      }
+    },
+    "walletConnectToDapps": {
+      "registry": {
+        "availableDapps": "Available dApps",
+        "getStarted": "Get Started",
+        "learnMore": "Learn More",
+        "banner": {
+          "title": "Connect to over 300+ dApps",
+          "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
+        },
+        "emptyStateDescription": "Try adjusting your search query and try again.",
+        "pageInput": {
+          "label": "%{current} of %{total}",
+          "nextPage": "Next Page",
+          "prevPage": "Previous Page"
+        }
       }
     }
   },

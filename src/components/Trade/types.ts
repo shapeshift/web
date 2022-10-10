@@ -26,7 +26,10 @@ export type TradeAsset = {
   fiatAmount?: string
 }
 
-export type DisplayFeeData<C extends ChainId> = QuoteFeeData<C> & { tradeFeeSource: string }
+export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFee'> & {
+  tradeFeeSource: string
+  networkFeeCryptoHuman: string
+}
 
 export type TradeState<C extends ChainId> = {
   sellTradeAsset: TradeAsset | undefined
@@ -37,9 +40,9 @@ export type TradeState<C extends ChainId> = {
   buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string
   fiatBuyAmount: string
-  sellAssetFiatRate: string
-  buyAssetFiatRate: string
-  feeAssetFiatRate: string
+  sellAssetFiatRate?: string
+  buyAssetFiatRate?: string
+  feeAssetFiatRate?: string
   fees?: DisplayFeeData<C>
   action: TradeAmountInputField | undefined
   isExactAllowance?: boolean
@@ -50,6 +53,7 @@ export type TradeState<C extends ChainId> = {
   amount: string
   receiveAddress: string | null // TODO: Implement
   slippage: number
+  isSendMax: boolean
 }
 
 export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>

@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { InputProps } from '@chakra-ui/react'
+import type { FormControlProps, InputProps } from '@chakra-ui/react'
 import {
   Button,
   FormControl,
@@ -36,13 +36,14 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     fontSize='xl'
     borderRadius={0}
-    py={1}
+    py={0}
     height='auto'
     type='number'
     textAlign='right'
     variant='inline'
     placeholder='Enter amount'
     style={{ caretColor: colors.blue[200] }}
+    autoComplete='off'
     {...props}
   />
 )
@@ -68,6 +69,7 @@ export type AssetInputProps = {
   onAccountIdChange?: AccountDropdownProps['onChange']
   showInputSkeleton?: boolean
   showFiatSkeleton?: boolean
+  formControlProps?: FormControlProps
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -92,6 +94,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onAccountIdChange: handleAccountIdChange,
   showInputSkeleton,
   showFiatSkeleton,
+  formControlProps,
 }) => {
   const {
     number: { localeParts },
@@ -107,9 +110,13 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
-  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
-    ? cryptoAmount
-    : bnOrZero(cryptoAmount).toFixed(3)
+  const formattedCryptoAmount = bnOrZero(cryptoAmount).gt(0)
+    ? bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+      ? cryptoAmount
+      : bnOrZero(cryptoAmount).toFixed(3)
+    : null
+
+  const formattedFiatAmount = bnOrZero(fiatAmount).gt(0) ? bnOrZero(fiatAmount).toFixed(2) : null
 
   return (
     <FormControl
@@ -119,7 +126,9 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? bgColor : focusBg }}
       isInvalid={!!errors}
-      py={2}
+      pt={3}
+      pb={2}
+      {...formControlProps}
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
@@ -145,10 +154,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               disabled={isReadOnly}
               suffix={isFiat ? localeParts.postfix : ''}
               prefix={isFiat ? localeParts.prefix : ''}
+              placeholder={isFiat ? `${localeParts.prefix}0.00${localeParts.postfix}` : '0.00'}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
-              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
+              value={isFiat ? formattedFiatAmount : formattedCryptoAmount}
               onValueChange={values => {
                 // This fires anytime value changes including setting it on max click
                 // Store the value in a ref to send when we actually want the onChange to fire
@@ -167,20 +177,23 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       </Stack>
 
-      {showFiatAmount && !showFiatSkeleton && (
-        <Stack width='full' alignItems='flex-end' px={4} pb={2}>
+      {showFiatAmount && (
+        <Stack width='full' alignItems='flex-end' px={4} pb={2} mt={1}>
           <Button
             onClick={toggleIsFiat}
             size='xs'
+            disabled={showFiatSkeleton}
             fontWeight='medium'
             variant='link'
             color='gray.500'
           >
-            {isFiat ? (
-              <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-            ) : (
-              <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-            )}
+            <Skeleton isLoaded={!showFiatSkeleton}>
+              {isFiat ? (
+                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+              ) : (
+                <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+              )}
+            </Skeleton>
           </Button>
         </Stack>
       )}

@@ -12,14 +12,18 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual } from 'react-icons/fa'
+import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { mobileLogger } from 'context/WalletProvider/MobileWallet/config'
+import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 import {
   selectCurrencyFormat,
   selectSelectedCurrency,
@@ -37,6 +41,7 @@ type SettingsListProps = {
 } & RouteComponentProps
 
 export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) => {
+  const { disconnect } = useWallet()
   const translate = useTranslate()
   const { settings } = useModal()
   const { toggleColorMode } = useColorMode()
@@ -65,6 +70,18 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
     appHistory.push(linkHref)
+  }
+
+  const handleDeleteAccountsClick = async () => {
+    if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
+      try {
+        await deleteWallet('*')
+        settings.close()
+        disconnect()
+      } catch (e) {
+        mobileLogger.error(e, 'Error deleting wallets')
+      }
+    }
   }
 
   return (
@@ -144,6 +161,17 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             onClick={() => closeModalAndNavigateTo('/legal/privacy-policy')}
             icon={<Icon as={IoDocumentTextOutline} color='gray.500' />}
           />
+          {isMobileApp && (
+            <>
+              <Divider my={1} />
+              <SettingsListItem
+                color='red.500'
+                label='modals.settings.clearWalletAccountData'
+                onClick={handleDeleteAccountsClick}
+                icon={<FaTrash />}
+              />
+            </>
+          )}
         </Stack>
       </ModalBody>
     </SlideTransition>

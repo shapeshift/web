@@ -11,14 +11,12 @@ import {
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
 } from 'components/Trade/hooks/useSwapper/utils'
-import type { TS } from 'components/Trade/types'
-import { type AssetIdTradePair, TradeAmountInputField } from 'components/Trade/types'
+import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
@@ -39,7 +37,6 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     state: { wallet },
   } = useWallet()
   const { connectedEvmChainId } = useEvm()
-  const { setValue } = useFormContext<TS>()
   const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
 
   const featureFlags = useAppSelector(selectFeatureFlags)
@@ -86,7 +83,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     [previousBuyAssetId],
   )
 
-  const setDefaultAssets = useCallback(async () => {
+  const getDefaultAssets = useCallback(async () => {
     if (buyChainId !== previousBuyChainId) return
 
     const maybeBuyAssetChainId = routeBuyAssetId
@@ -134,6 +131,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const firstAccountId = accountIds[0]
       if (!firstAccountId) return
       const accountMetadata = portfolioAccountMetaData[firstAccountId]
+      if (!accountMetadata) return
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,
@@ -142,15 +140,12 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       })
       const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
       const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
-      setValue('action', TradeAmountInputField.SELL_CRYPTO)
-      setValue('amount', '0')
-      setValue('buyTradeAsset.asset', buyAsset)
-      setValue('sellTradeAsset.asset', sellAsset)
+      return { sellAsset, buyAsset }
     }
   }, [
     assets,
-    buyChainId,
     buyAssetId,
+    buyChainId,
     dispatch,
     featureFlags,
     getUsdRates,
@@ -159,9 +154,8 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     portfolioAccountMetaData,
     previousBuyChainId,
     routeBuyAssetId,
-    setValue,
     wallet,
   ])
 
-  return { setDefaultAssets }
+  return { getDefaultAssets }
 }

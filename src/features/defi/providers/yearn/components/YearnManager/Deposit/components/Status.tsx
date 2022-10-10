@@ -75,14 +75,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.push('/defi')
   }, [browserHistory])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     browserHistory.goBack()
-  }
+  }, [browserHistory])
 
-  if (!state) return null
-
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    switch (state.deposit.txStatus) {
+  const { statusIcon, statusText, statusBg, statusBody } = useMemo(() => {
+    switch (state?.deposit.txStatus) {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
@@ -107,7 +105,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusBg: 'transparent',
         }
     }
-  })()
+  }, [asset?.icon, asset.name, state?.deposit.txStatus, translate])
+
+  const externalLinkIcon = useMemo(() => <ExternalLinkIcon />, [])
+
+  if (!state) return null
 
   return (
     <TxStatus
@@ -179,7 +181,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

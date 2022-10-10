@@ -91,6 +91,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       // WalletProvider.create looks for the first path that ends in "create"
       { path: '/mobile/legacy/create', component: MobileLegacyCreate },
     ],
+    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
+    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
   },
   [KeyManager.Native]: {
     ...NativeConfig,

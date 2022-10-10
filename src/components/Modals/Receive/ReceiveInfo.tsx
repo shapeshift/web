@@ -179,6 +179,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
+            <AccountDropdown
+              assetId={asset.assetId}
+              defaultAccountId={selectedAccountId || undefined}
+              onChange={setSelectedAccountId}
+              buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
+            />
             <Flex justifyContent='center'>
               {ensReceiveAddress && (
                 <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
@@ -186,6 +192,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 </Tag>
               )}
             </Flex>
+
             <Card
               variant='unstyled'
               borderRadius='xl'
@@ -199,12 +206,6 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             >
               <Card.Body display='inline-block' textAlign='center' p={6}>
                 <LightMode>
-                  <AccountDropdown
-                    assetId={asset.assetId}
-                    defaultAccountId={selectedAccountId || undefined}
-                    onChange={setSelectedAccountId}
-                    buttonProps={{ variant: 'solid', width: 'full' }}
-                  />
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>

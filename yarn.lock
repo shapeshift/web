@@ -4015,10 +4015,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.1.1":
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.1.tgz#1ff24ad6a027fc945475c224baae0c4155d7b965"
-  integrity sha512-VB03FTKk+HIHtaDgsPsN9g6ciEMuVI/KzwP14f9blDzbFGA8a2l3QVnQyDDOVn+S8hwv4nqunAxqg7xOI//EyA==
+"@shapeshiftoss/asset-service@^8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.2.tgz#35f11e151130e5dfd14a860ad216bf554830c9b6"
+  integrity sha512-v5K+ePJn2EJvNy6SqGe/fcEka6vhpvD4o3E2xRHSLfSlvN3ceAYRkdXP16UwHj+5JY/pMRYw/sp5bxm1NxLzmw==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4053,15 +4053,15 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.4.0":
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.0.tgz#1aa7a2e79ec806fe1ef705e50e9e87ba04680a48"
-  integrity sha512-NhS4WBRtms4rkdfCrvqWItvODlVPFqb7d5514TBxoLDtJNYm8O/nXD8IyL6MUTSR3mHtSla1FSu3RPqKUdSeOw==
+"@shapeshiftoss/caip@^8.4.2":
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.2.tgz#dfee57a24967af28bf52b6dd8057d1a57e9ad0ec"
+  integrity sha512-vIIEs0ks9gU+CE1NdqvDos2JTJeJhYgeWmxGM6vlJt/6p7lieyWP5JC1y4UKcJAmxVBGrq6oVf8ys+2b5Kqtrw==
 
-"@shapeshiftoss/chain-adapters@^9.1.5":
-  version "9.1.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-9.1.5.tgz#0798f3a756cbe4a4695c84c0379c29072a2f1a80"
-  integrity sha512-FPsNwE97M/Td/R39jnXrfmqgzoVRzlCc2ebm6UxfTAk2M1kTrD6ZC/tsVogG4t+4Eiw9CG5wMbZTroAtVB0WwA==
+"@shapeshiftoss/chain-adapters@^9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-9.2.0.tgz#7c5c16def6658eefb81b8e53937df5f2b4d137b8"
+  integrity sha512-MjqGmeGIeiEKgKoUX3wRpeLibp06cSqKa3O1wZYYDOqSuc7Hz+6eHlG35vp8KEr04JF41H6aDB5LbwrnIzGgHA==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4340,10 +4340,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^11.4.0":
-  version "11.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.4.0.tgz#9c801aba8d38bbac06836d23e1f565fe32b05e2d"
-  integrity sha512-sB2VSYX0PsVe8UhZTrbw9UEzrVj8m0JlA0X3vOOza4aI5AQyqLYpWuvOZ+mx9tOEbAZdCAyaNS+kCn1PPaWvsQ==
+"@shapeshiftoss/swapper@^11.5.5":
+  version "11.5.5"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.5.tgz#78aec5496abbf348b657dc602138b81dc0d72b91"
+  integrity sha512-7jLYlo+BIZZODMoCYWMPmseSLsThOKazV1eQQgAvD4BUIyw4LGYFKsCHpT14O8u4LvSrgJofY30ur222RAVj/Q==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -6462,17 +6462,16 @@
   resolved "https://registry.yarnpkg.com/@uniswap/v2-core/-/v2-core-1.0.1.tgz#af8f508bf183204779938969e2e54043e147d425"
   integrity sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==
 
-"@unstoppabledomains/resolution@^7.1.4":
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-7.1.4.tgz#f3f0f9d2f36b88bf0a3af92c26731a01e5dba94b"
-  integrity sha512-GdXLpP+oRk4lLWMISo7g7gPyKoCONyLoQtYH6GVhXtyY9t+CeHJW2kZ/btcbXg0lmEO6PSr5yYOlDz4wRCq2RA==
+"@unstoppabledomains/resolution@^8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-8.3.3.tgz#599c5e2f068a36e24bd19c0f9e2f753036264a3b"
+  integrity sha512-jQ9757Lvx/xqU7Lg7JT4L9WQZuElHkMiJmtph0e6TSwfguIlkv1i5UgzURgVXDvVizVKpDejGS60kuvICkz9ZQ==
   dependencies:
     "@ethersproject/abi" "^5.0.1"
     bn.js "^4.4.0"
     cross-fetch "^3.1.4"
+    crypto-js "^4.1.1"
     elliptic "^6.5.4"
-    js-sha256 "^0.9.0"
-    js-sha3 "^0.8.0"
 
 "@visx/annotation@2.12.2":
   version "2.12.2"
@@ -15151,11 +15150,6 @@ js-pixel-fonts@^1.5.0:
   dependencies:
     loglevel "^1.6.1"
     pngjs "^3.3.3"
-
-js-sha256@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
-  integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
 
 js-sha3@0.8.0, js-sha3@^0.8.0:
   version "0.8.0"

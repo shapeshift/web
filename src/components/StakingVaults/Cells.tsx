@@ -79,7 +79,7 @@ export const AssetCell = ({
         </Popover>
       )}
       <HStack flex={1}>
-        <SkeletonCircle isLoaded={!!asset}>
+        <SkeletonCircle isLoaded={!!asset} mr={2}>
           {icons ? (
             <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
               {icons.map((iconSrc, i) => (
@@ -93,7 +93,7 @@ export const AssetCell = ({
               ))}
             </Flex>
           ) : (
-            <AssetIcon src={asset.icon} boxSize='8' />
+            <AssetIcon assetId={asset.assetId} boxSize='8' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>

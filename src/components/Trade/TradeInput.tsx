@@ -205,7 +205,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     feeAsset?.assetId === sellTradeAsset?.asset?.assetId ? bnOrZero(sellTradeAsset.amount) : bn(0)
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(fromBaseUnit(bnOrZero(quote?.feeData.fee), feeAsset?.precision))
+    .minus(fromBaseUnit(bnOrZero(quote?.feeData.networkFee), feeAsset?.precision))
     .minus(tradeDeduction)
     .gte(0)
 

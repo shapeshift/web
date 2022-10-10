@@ -33,6 +33,7 @@ type GetTradeQuoteInputArgs = {
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
   sellAmount: string
+  isSendMax: boolean
 }
 
 export const getTradeQuoteArgs = async ({
@@ -43,13 +44,14 @@ export const getTradeQuoteArgs = async ({
   wallet,
   receiveAddress,
   sellAmount,
+  isSendMax,
 }: GetTradeQuoteInputArgs) => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmount: toBaseUnit(sellAmount, sellAsset?.precision || 0),
     sellAsset,
     buyAsset,
-    sendMax: false,
+    sendMax: isSendMax,
     receiveAddress,
   }
   if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
@@ -59,7 +61,7 @@ export const getTradeQuoteArgs = async ({
       bip44Params: sellAccountBip44Params,
     }
   } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
-    if (!sellAccountType) throw new Error('no accountType')
+    if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
@@ -90,6 +92,7 @@ export const useTradeQuoteService = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
+  const isSendMax = useWatch({ control, name: 'isSendMax' })
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -129,7 +132,14 @@ export const useTradeQuoteService = () => {
   // Trigger trade quote query
   useEffect(() => {
     const sellTradeAssetAmount = sellTradeAsset?.amount
-    if (sellAsset && buyAsset && wallet && sellTradeAssetAmount && receiveAddress) {
+    if (
+      sellAsset &&
+      buyAsset &&
+      wallet &&
+      sellTradeAssetAmount &&
+      receiveAddress &&
+      sellAccountMetadata
+    ) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -145,6 +155,7 @@ export const useTradeQuoteService = () => {
           wallet,
           receiveAddress,
           sellAmount: sellTradeAssetAmount,
+          isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
@@ -155,17 +166,18 @@ export const useTradeQuoteService = () => {
     buyAsset,
     buyTradeAsset,
     receiveAddress,
-    selectedCurrencyToUsdRate,
     sellAccountMetadata,
+    selectedCurrencyToUsdRate,
     sellAsset,
     sellTradeAsset,
     setValue,
     wallet,
+    isSendMax,
   ])
 
   // Set trade quote
   useEffect(() => {
-    tradeQuote && setValue('quote', tradeQuote)
+    setValue('quote', tradeQuote)
   }, [tradeQuote, setValue])
 
   return { isLoadingTradeQuote }

@@ -41,7 +41,12 @@
     "or": "oder",
     "somethingWentWrong": "Etwas ist schief gelaufen",
     "somethingWentWrongBody": "Etwas ist schief gelaufen",
+    "accountError": "Fehler beim Laden der Konten für %{erroredAccountNames}.",
+    "degradedState": "Die App befindet sich in einem heruntergestuften Zustand",
+    "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",
+    "retry": "Neuer Versuch",
+    "retryQuestion": "Wiederholen?",
     "transactionFailed": "Transaktion fehlgeschlagen",
     "transactionFailedBody": "Transaktion fehlgeschlagen",
     "submitFeedback": "Feedback senden",
@@ -71,7 +76,8 @@
     "txId": "Tx ID",
     "selectAsset": "Wählen Sie einen Vermögenswert aus",
     "switchNetwork": "Netzwerk wechseln",
-    "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
+    "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
+    "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar."
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -121,20 +127,26 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
+    "asset": "Vermögenswert",
     "assetToBuy": "Zu kaufender Vermögenswert",
-    "selectAnAssetToBuy": "Wählen Sie einen Vermögenswert aus, den Sie kaufen möchten",
+    "selectAnAssetToBuy": "Wählen Sie den zu kaufenden Vermögenswert aus",
+    "selectBody": "Wählen Sie aus einer wachsenden Liste von Kryptowährungen.",
     "assetToSell": "Vermögenswert zu verkaufen",
-    "selectAnAssetToSell": "Wählen Sie einen zu verkaufenden Vermögenswert aus",
+    "selectAnAssetToSell": "Wählen Sie den zu verkaufenden Vermögenswert aus",
     "fundsTo": "Finanzmittel wird gesendet an",
     "fundsFrom": "Die Mittel werden von gesendet",
     "headerLabel": "Krypto kaufen/verkaufen",
     "insufficientCryptoAmountToSell": "Der Mindestverkaufsbetrag beträgt $%{amount}",
     "usOnly": "nur US Bürger(innen)",
     "noKYC": "kein KYC",
-    "nonUS": "Nicht-US Bürger"
+    "nonUS": "Nicht-US Bürger",
+    "availableProviders": "Verfügbare Anbieter",
+    "noProvidersAvailable": "Keine Anbieter verfügbar",
+    "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -365,6 +377,7 @@
     "transactions": "Transaktionen",
     "tradeHistory": "Handelsverlauf",
     "foxToken": "FOX Verdienstmöglichkeiten ",
+    "dApps": "dApps",
     "featureFlags": "Eigenschaften ändern",
     "demoMode": "Demo Modus",
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
@@ -450,10 +463,12 @@
     "allowance": "Genehmigung",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
+    "noRateAvailable": "Kein Wechselkurs verfügbar.",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
+    "protocol": "Protokoll",
     "tradeFeeSource": "%{tradeFeeSource} Gebühr",
     "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
@@ -471,9 +486,17 @@
     "expectedAmount": "Erwarteter Betrag",
     "beforeFees": "Vor Gebühren",
     "minAmountAfterSlippage": "Min. erwarteter Betrag nach Marktabweichung (%{slippage}%)",
+    "free": "Gratis",
+    "slowSwapTitle": "%{protocol} Handel",
+    "slowSwapBody": "Dieser Wechsel kann einige Minuten dauern.",
+    "updatingQuote": "Angebot aktualisieren...",
+    "intoRUNETitle": "Handel mit RUNE",
+    "intoRUNEBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von RUNE ist vorübergehend nicht verfügbar",
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
+      "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
+      "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉"
     },
@@ -512,6 +535,7 @@
       "unsupportedPair": "Dieses Handelspaar wird derzeit nicht unterstützt.",
       "unsupportedChain": "Diese Blockchain wird derzeit nicht unterstützt.",
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
+      "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -800,6 +824,8 @@
     "settings": {
       "settings": "Einstellungen",
       "currency": "Währung",
+      "clearWalletAccountData": "Löschen Sie alle Konten und Wallets",
+      "deleteAccountsConfirm": "Sind Sie sicher?\n\nDadurch werden alle persönlichen Daten einschließlich Wallet, Konten und Guthaben entfernt.\n\nVergewissern Sie sich, dass Sie Ihre Wallets gesichert haben, bevor Sie fortfahren.",
       "currencyFormat": "Währungsformat",
       "language": "Sprache",
       "balanceThreshold": "Kontostand Schwellwert",
@@ -1361,6 +1387,23 @@
         "neverCollectPersonalInformations": "Sammelt niemals Schlüssel, Adressen, Transaktionen, Guthaben oder persönliche Informationen",
         "neverCollectIp": "Niemals Ihren vollständige IP-Adresse aufzeichnen",
         "neverSellData": "Niemals Ihre Daten zwecks Profit verkaufen"
+      }
+    },
+    "walletConnectToDapps": {
+      "registry": {
+        "availableDapps": "Verfügbare dApps",
+        "getStarted": "Loslegen",
+        "learnMore": "Erfahren Sie mehr",
+        "banner": {
+          "title": "Verbinden Sie sich mit über 300+ dApps",
+          "subtitle": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und starten Sie Transaktionen "
+        },
+        "emptyStateDescription": "Verfeinern Sie Ihre Suchanfrage und versuchen Sie es erneut.",
+        "pageInput": {
+          "label": "%{current} von %{total}",
+          "nextPage": "Nächste Seite",
+          "prevPage": "Vorherige Seite"
+        }
       }
     }
   },

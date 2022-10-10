@@ -661,7 +661,7 @@
       "errorTitle": "Votre envoi en %{asset} a échoué",
       "errors": {
         "generic": "Une erreur s'est produite.",
-        "notEnoughNativeToken": "Solde %{asset} insuffisant pour  couvrir le carburant",
+        "notEnoughNativeToken": "Solde %{asset} insuffisant pour couvrir le carburant",
         "transactionRejected": "L'utilisateur a rejeté la transaction",
         "qrPermissions": "Cette fonctionnalité nécessite des autorisations d'accès à la caméra pour fonctionner. Veuillez modifier les paramètres de votre navigateur."
       },

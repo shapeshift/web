@@ -59,7 +59,7 @@ export const PortfolioBreakdown = () => {
   const netWorth = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
-  if (!isDashboardBreakdownEnabled) return
+  if (!isDashboardBreakdownEnabled) return null
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard

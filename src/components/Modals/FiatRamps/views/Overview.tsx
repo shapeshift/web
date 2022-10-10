@@ -110,7 +110,7 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }, [address, vanityAddress, toast, translate])
 
-  const supportsAddressVerifying = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
+  const supportsAddressVerification = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return
@@ -188,6 +188,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Flex flexDirection='column' mb='10px'>
               <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
               <AccountDropdown
+                autoSelectHighestBalance={true}
                 assetId={selectedAsset.assetId}
                 onChange={handleAccountIdChange}
                 buttonProps={{ variant: 'solid', width: 'full' }}
@@ -202,7 +203,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 />
                 {!address && <InputLeftElement children={<Spinner size='sm' />} />}
                 {address && (
-                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
+                  <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
                     <IconButton
                       icon={<CopyIcon />}
                       aria-label='copy-icon'
@@ -211,7 +212,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       variant='ghost'
                       onClick={handleCopyClick}
                     />
-                    {supportsAddressVerifying && address && (
+                    {supportsAddressVerification && address && (
                       <IconButton
                         icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
                         onClick={handleVerify}

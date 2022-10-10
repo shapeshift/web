@@ -89,17 +89,17 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
           return maybeAdapter.getAddress(payload)
         }),
       )
-      const plainAddresses = plainAddressResults.reduce<string[]>((acc, cur) => {
-        if (cur.status === 'rejected') {
-          moduleLogger.error(cur.reason, 'failed to get address')
-          acc.push('') // keep same length of accumulator
+      const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
+        if (result.status === 'rejected') {
+          moduleLogger.error(result.reason, 'failed to get address')
+          acc.push() // keep same length of accumulator
           return acc
         }
-        acc.push(cur.value)
+        acc.push(result.value)
         return acc
       }, [])
 
-      const parseAddressResults = await Promise.allSettled(
+      const parsedAddressResults = await Promise.allSettled(
         plainAddresses.map((value, idx) => {
           if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
           const { chainId } = fromAccountId(portfolioAccountIds[idx])
@@ -107,11 +107,11 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
         }),
       )
 
-      const addressesByAccountId = parseAddressResults.reduce<AddressesByAccountId>(
-        (acc, cur, idx) => {
-          if (cur.status === 'rejected') return acc
+      const addressesByAccountId = parsedAddressResults.reduce<AddressesByAccountId>(
+        (acc, parsedAddressResult, idx) => {
+          if (parsedAddressResult.status === 'rejected') return acc
           const accountId = portfolioAccountIds[idx]
-          const { value } = cur
+          const { value } = parsedAddressResult
           acc[accountId] = value
           return acc
         },

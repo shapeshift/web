@@ -483,6 +483,7 @@ export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   },
 )
 
+// TODO(0xdef1cafe): delete me - i don't respect account ids
 export const selectTotalFiatBalanceWithDelegations = createSelector(
   selectPortfolioCryptoHumanBalanceByFilter,
   selectTotalStakingDelegationCryptoByFilter,

@@ -35,6 +35,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
+  const externalLinkIcon = useMemo(() => <ExternalLinkIcon />, [])
+
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
@@ -188,7 +190,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={<ExternalLinkIcon />}
+            rightIcon={externalLinkIcon}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

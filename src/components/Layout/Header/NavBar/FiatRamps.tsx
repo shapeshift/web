@@ -1,4 +1,5 @@
 import type { BoxProps } from '@chakra-ui/react'
+import { useMediaQuery } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import { keyframes } from '@chakra-ui/react'
 import { Box, IconButton, Tooltip } from '@chakra-ui/react'
@@ -7,12 +8,14 @@ import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { breakpoints } from 'theme/theme'
 
 type FiatRampsProps = BoxProps
 
 export const FiatRamps = (props: FiatRampsProps) => {
   const { fiatRamps } = useModal()
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const {
     state: { isConnected },
     dispatch,
@@ -46,7 +49,7 @@ export const FiatRamps = (props: FiatRampsProps) => {
 
   return (
     <Box {...props}>
-      <Tooltip label={translate('fiatRamps.headerLabel')}>
+      <Tooltip label={translate('fiatRamps.headerLabel')} isDisabled={!isLargerThanMd}>
         <IconButton
           icon={<FaCreditCard />}
           data-test='fiat-ramps-button'

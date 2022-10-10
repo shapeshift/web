@@ -350,6 +350,7 @@ export const useSwapper = () => {
   }
 
   const executeQuote = async (): Promise<TradeResult> => {
+    // TODO(0xdef1cafe): this should be pure be passed a quote to execute - the best swapper could change underneath us...
     const swapper = await swapperManager.getBestSwapper({
       buyAssetId: trade.buyAsset.assetId,
       sellAssetId: trade.sellAsset.assetId,

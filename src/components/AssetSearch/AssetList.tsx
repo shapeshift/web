@@ -1,4 +1,5 @@
 import type { ListProps } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -47,7 +48,9 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>
         assets?.length === 0 ? (
-          <Text translation='common.noResultsFound' />
+          <Center>
+            <Text color='gray.500' translation='common.noResultsFound' />
+          </Center>
         ) : (
           <FixedSizeList
             itemSize={60}
@@ -59,7 +62,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
             }}
             itemCount={assets.length}
             ref={setTokenListRef}
-            className='token-list scroll-container'
+            className='token-list'
             overscanCount={6}
           >
             {AssetRow}

@@ -11,7 +11,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -101,7 +101,7 @@ export const YearnWithdraw: React.FC<{
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -109,7 +109,7 @@ export const YearnWithdraw: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

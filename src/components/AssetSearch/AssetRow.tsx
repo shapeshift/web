@@ -29,7 +29,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
         shadow: 'outline-inset',
       }}
     >
-      <AssetIcon assetId={asset.assetId} boxSize='24px' mr={4} />
+      <AssetIcon assetId={asset.assetId} size='sm' mr={4} />
       <Box textAlign='left'>
         <Text lineHeight={1}>{asset.name}</Text>
         <Text fontWeight='normal' fontSize='sm' color={color}>

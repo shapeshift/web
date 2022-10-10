@@ -190,6 +190,17 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
     yearnInvestor,
   ])
 
+  const handleToggle = useCallback(() => {
+    if (!(dispatch && state)) return
+
+    dispatch({
+      type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
+      payload: !state.isExactAllowance,
+    })
+  }, [dispatch, state])
+
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
   if (!state || !dispatch) return null
 
   return (
@@ -206,16 +217,11 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
         .toFixed(2)}
       loading={state.loading}
       isExactAllowance={state.isExactAllowance}
-      onToggle={() =>
-        dispatch({
-          type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
-          payload: !state.isExactAllowance,
-        })
-      }
+      onToggle={handleToggle}
       loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       contractAddress={ssRouterContractAddress}
     />

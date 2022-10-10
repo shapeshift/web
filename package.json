@@ -17,7 +17,7 @@
     "minify": "yarn yarn-minify",
     "test": "yarn jest --preset ts-jest react-app-rewired && react-app-rewired test --coverage --watchAll=false",
     "test:cypress": "yarn cypress open",
-    "test:cypress:headless": "yarn cypress run --headless",
+    "test:cypress:headless": "yarn cypress run --browser chrome --headless",
     "test:cypress:rerecord": "yarn cypress run --browser chrome --headless --env forceRecord=true",
     "test:cypress:clean": "yarn cypress run --browser chrome --headless --env cleanMocks=true",
     "clean": "rimraf node_modules",

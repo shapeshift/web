@@ -52,21 +52,21 @@ export const PortfolioBreakdown = () => {
   const balances = useEarnBalances()
   const { totalBalance: lpBalance } = useFoxEth()
   const netWorth = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const actualNetworth = bn(netWorth).plus(bn(lpBalance))
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(bn(lpBalance))
-  const walletBalanceWithoutEarn = bn(actualNetworth).minus(bn(balances.totalEarningBalance))
+  const actualNetWorth = bn(netWorth).plus(lpBalance)
+  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
+  const walletBalanceWithoutEarn = bn(actualNetWorth).minus(balances.totalEarningBalance)
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard
         value={walletBalanceWithoutEarn.toString()}
-        percentage={walletBalanceWithoutEarn.div(actualNetworth).times(100).toNumber()}
+        percentage={walletBalanceWithoutEarn.div(actualNetWorth).times(100).toNumber()}
         label='defi.walletBalance'
         onClick={() => history.push('/accounts')}
         isLoading={balances.loading}
       />
       <BreakdownCard
         value={totalEarnBalance.toString()}
-        percentage={totalEarnBalance.div(actualNetworth).times(100).toNumber()}
+        percentage={totalEarnBalance.div(actualNetWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
         onClick={() => history.push('/defi')}

@@ -273,7 +273,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <AlertIcon />
                     <Stack spacing={0}>
                       <AlertTitle>
-                        {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+                        {translate('trade.slowSwapTitle', { protocol: 'THORChain' })}
                       </AlertTitle>
                       <AlertDescription lineHeight='short'>
                         {translate('trade.slowSwapBody')}

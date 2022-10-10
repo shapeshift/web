@@ -7,6 +7,7 @@ import {
   SwapError,
   SwapErrorTypes,
   Swapper,
+  SwapperName,
   SwapperType,
   Trade,
   TradeQuote,
@@ -19,7 +20,7 @@ import {
  * Meant for local testing only
  */
 export class TestSwapper implements Swapper<ChainId> {
-  readonly name = 'Test'
+  readonly name = SwapperName.Test
   supportAssets: string[]
 
   // noop for test

@@ -14,6 +14,7 @@ import {
   ExecuteTradeInput,
   GetTradeQuoteInput,
   Swapper,
+  SwapperName,
   SwapperType,
   TradeQuote,
   TradeResult,
@@ -36,7 +37,7 @@ export type CowSwapperDeps = {
 }
 
 export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
-  readonly name = 'CowSwap'
+  readonly name = SwapperName.CowSwap
   deps: CowSwapperDeps
 
   constructor(deps: CowSwapperDeps) {

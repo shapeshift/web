@@ -180,6 +180,14 @@ export type ApprovalNeededOutput = {
   approvalNeeded: boolean
 }
 
+export enum SwapperName {
+  Thorchain = 'THORChain',
+  Osmosis = 'Osmosis',
+  CowSwap = 'CowSwap',
+  Zrx = '0x',
+  Test = 'Test',
+}
+
 export enum SwapperType {
   ZrxEthereum = '0xEthereum',
   ZrxAvalanche = '0xAvalanche',

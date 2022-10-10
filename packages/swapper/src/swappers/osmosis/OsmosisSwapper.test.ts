@@ -1,5 +1,6 @@
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 
+import { SwapperName } from '../../api'
 import { OsmosisSwapper } from './OsmosisSwapper'
 
 describe('OsmosisSwapper', () => {
@@ -11,7 +12,7 @@ describe('OsmosisSwapper', () => {
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
-      expect(swapper.name).toEqual('Osmosis')
+      expect(swapper.name).toEqual(SwapperName.Osmosis)
     })
   })
 })

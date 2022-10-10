@@ -2,6 +2,7 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import Web3 from 'web3'
 
+import { SwapperName } from '../../api'
 import { ThorchainSwapper } from './ThorchainSwapper'
 import { thorService } from './utils/thorService'
 
@@ -19,7 +20,7 @@ describe('ThorchainSwapper', () => {
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
-      expect(swapper.name).toEqual('Thorchain')
+      expect(swapper.name).toEqual(SwapperName.Thorchain)
     })
   })
 

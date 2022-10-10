@@ -23,6 +23,7 @@ import {
   SwapError,
   SwapErrorTypes,
   Swapper,
+  SwapperName,
   SwapperType,
   Trade,
   TradeQuote,
@@ -46,7 +47,7 @@ import { thorService } from './utils/thorService'
 export * from './types'
 
 export class ThorchainSwapper implements Swapper<ChainId> {
-  readonly name = 'Thorchain'
+  readonly name = SwapperName.Thorchain
   private sellSupportedChainIds: Record<ChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true,

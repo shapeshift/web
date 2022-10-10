@@ -19,6 +19,7 @@ import {
   SwapError,
   SwapErrorTypes,
   Swapper,
+  SwapperName,
   SwapperType,
   Trade,
   TradeQuote,
@@ -43,7 +44,7 @@ import {
 import { OsmosisTradeResult, OsmoSwapperDeps } from './utils/types'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
-  readonly name = 'Osmosis'
+  readonly name = SwapperName.Osmosis
   supportedAssetIds: string[]
   deps: OsmoSwapperDeps
 

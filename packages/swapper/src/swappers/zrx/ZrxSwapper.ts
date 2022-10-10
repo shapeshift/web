@@ -14,6 +14,7 @@ import {
   SwapError,
   SwapErrorTypes,
   Swapper,
+  SwapperName,
   SwapperType,
   TradeQuote,
   TradeResult,
@@ -29,7 +30,7 @@ import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
 export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
-  readonly name = '0x'
+  readonly name = SwapperName.Zrx
   deps: ZrxSwapperDeps
   chainId: ChainId
 

@@ -1,18 +1,24 @@
-import { useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
@@ -30,6 +36,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { accountAddress } = useFoxEth()
   const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
+  const alertText = useColorModeValue('blue.800', 'white')
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -43,10 +50,19 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
 
-  const handleApprove = async () => {
-    if (!opportunity || !wallet || !supportsETH(wallet)) return
+  const handleApprove = useCallback(async () => {
+    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
@@ -87,19 +103,59 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    allowance,
+    approve,
+    dispatch,
+    getWithdrawGasData,
+    foxAsset.precision,
+    feeAsset.precision,
+    state?.withdraw.lpAmount,
+    state?.withdraw.ethAmount,
+    state?.withdraw.foxAmount,
+    onNext,
+    opportunity,
+    toast,
+    translate,
+    wallet,
+  ])
+
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.withdraw.withdrawFee')}
+          </AlertDescription>
+        </Alert>
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text
+              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+            />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
+      preFooter={preFooter}
       providerIcon={foxAsset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}

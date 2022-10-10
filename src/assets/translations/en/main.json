@@ -749,6 +749,7 @@
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withdrawalFee": "Withdrawal Fee",
       "status": {

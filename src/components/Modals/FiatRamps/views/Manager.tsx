@@ -84,7 +84,9 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
           moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
           const payload = { accountType, bip44Params, wallet }
           const { chainId } = fromAccountId(accountId)
-          return getChainAdapterManager().get(chainId)!.getAddress(payload)
+          const maybeAdapter = getChainAdapterManager().get(chainId)
+          if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)
+          return maybeAdapter.getAddress(payload)
         }),
       )
       const plainAddresses = plainAddressResults.reduce<string[]>((acc, cur) => {

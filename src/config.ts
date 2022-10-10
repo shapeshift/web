@@ -3,25 +3,10 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
-import { isMobile as isMobileApp } from 'lib/globals'
 
 import env from './env'
 
-const { cleanEnv, makeValidator, str, url } = envalid
-
-/**
- * nasty, nasty, but well-documented hack
- *
- * we want to enable REACT_APP_FEATURE_THOR_SWAP for the mobile app only, otherwise respect the value of the flag
- *
- * remove this once the following issues are closed
- *
- * https://github.com/shapeshift/web/issues/2961
- * https://github.com/shapeshift/web/issues/2960
- *
- * see https://github.com/af/envalid#custom-validators for reference
- */
-const thorSwapHackValidator = isMobileApp ? makeValidator(() => true) : bool
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -74,7 +59,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN: bool({ default: false }),
-  REACT_APP_FEATURE_THOR_SWAP: thorSwapHackValidator(),
+  REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),

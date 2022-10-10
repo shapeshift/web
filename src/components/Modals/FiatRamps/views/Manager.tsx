@@ -92,7 +92,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
       const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
         if (result.status === 'rejected') {
           moduleLogger.error(result.reason, 'failed to get address')
-          acc.push() // keep same length of accumulator
+          acc.push(undefined) // keep same length of accumulator
           return acc
         }
         acc.push(result.value)

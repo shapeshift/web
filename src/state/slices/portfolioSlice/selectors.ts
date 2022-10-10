@@ -471,6 +471,7 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
   },
 )
 
+// TODO(0xdef1cafe): DO NOT USE THIS - delete when there are no references
 export const selectTotalStakingDelegationCryptoByFilter = createSelector(
   selectAssetIdParamFromFilterOptional,
   (state: ReduxState) => state.assets.byId,
@@ -497,6 +498,7 @@ export const selectTotalFiatBalanceWithDelegations = createSelector(
   },
 )
 
+// TODO(0xdef1cafe): DO NOT USE THIS - delete when there are no references
 export const selectTotalCryptoBalanceWithDelegations = createSelector(
   selectPortfolioCryptoHumanBalanceByFilter,
   selectTotalStakingDelegationCryptoByFilter,
@@ -919,7 +921,7 @@ export const selectFiatBalanceIncludingStakingByFilter = createSelector(
   genericBalanceIncludingStakingByFilter,
 )
 
-export const selectCryptoBalanceIncludingStakingByFilter = createSelector(
+export const selectCryptoHumanBalanceIncludingStakingByFilter = createSelector(
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectAssetIdParamFromFilterOptional,
   selectAccountIdParamFromFilterOptional,

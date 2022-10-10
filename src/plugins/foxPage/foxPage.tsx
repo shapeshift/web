@@ -33,12 +33,9 @@ import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
-} from 'state/slices/portfolioSlice/selectors'
-import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -100,33 +97,25 @@ export const FoxPage = () => {
 
   const selectedAsset = assets[selectedAssetIndex]
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, selectedAsset?.chainId),
+  const foxFilter = useMemo(() => ({ assetId: foxAssetId }), [])
+  const foxyFilter = useMemo(() => ({ assetId: foxyAssetId }), [])
+  const fiatBalanceFox = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter))
+  const fiatBalanceFoxy = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter))
+  const cryptoHumanBalanceFox = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter),
+  )
+  const cryptoHumanBalanceFoxy = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter),
   )
 
-  const fiatBalanceFox = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, { assetId: foxAssetId, accountSpecifier }),
+  const fiatBalances = useMemo(
+    () => [fiatBalanceFox, fiatBalanceFoxy],
+    [fiatBalanceFox, fiatBalanceFoxy],
   )
 
-  const fiatBalanceFoxy = useAppSelector(state =>
-    selectTotalFiatBalanceWithDelegations(state, { assetId: foxyAssetId, accountSpecifier }),
-  )
-
-  const cryptoBalanceFox = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, { assetId: foxAssetId, accountSpecifier }),
-  )
-
-  const cryptoBalanceFoxy = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, { assetId: foxyAssetId, accountSpecifier }),
-  )
-
-  const fiatBalances = useMemo(() => {
-    return [fiatBalanceFox, fiatBalanceFoxy]
-  }, [fiatBalanceFox, fiatBalanceFoxy])
-
-  const cryptoBalances = useMemo(
-    () => [cryptoBalanceFox, cryptoBalanceFoxy],
-    [cryptoBalanceFox, cryptoBalanceFoxy],
+  const cryptoHumanBalances = useMemo(
+    () => [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
+    [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
   )
 
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
@@ -205,7 +194,7 @@ export const FoxPage = () => {
                   key={asset.assetId}
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
-                  cryptoAmount={cryptoBalances[index]}
+                  cryptoAmount={cryptoHumanBalances[index]}
                   fiatAmount={fiatBalances[index]}
                   onClick={() => handleTabClick(asset.assetId)}
                 />
@@ -227,7 +216,7 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={selectedAsset.symbol}
                           assetIcon={selectedAsset.icon}
-                          cryptoAmount={cryptoBalances[selectedAssetIndex]}
+                          cryptoAmount={cryptoHumanBalances[selectedAssetIndex]}
                           fiatAmount={fiatBalances[selectedAssetIndex]}
                         />
                       )}
@@ -239,7 +228,7 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
-                          cryptoAmount={cryptoBalances[index]}
+                          cryptoAmount={cryptoHumanBalances[index]}
                           fiatAmount={fiatBalances[index]}
                           as={Box}
                         />
@@ -265,7 +254,7 @@ export const FoxPage = () => {
                   apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
                   isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
-                  balance={cryptoBalances[selectedAssetIndex]}
+                  balance={cryptoHumanBalances[selectedAssetIndex]}
                   onClick={handleOpportunityClick}
                 />
 

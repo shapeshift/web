@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
@@ -25,10 +26,13 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
   const { height: windowHeight } = useWindowSize()
   const { assetSearch } = useModal()
   const { close, isOpen } = assetSearch
-  const handleClick = (asset: Asset) => {
-    onClick(asset)
-    close()
-  }
+  const handleClick = useCallback(
+    (asset: Asset) => {
+      onClick(asset)
+      close()
+    },
+    [close, onClick],
+  )
   let modalHeight: number | undefined = 80
   if (windowHeight) {
     // Converts pixel units to vh for Modal component

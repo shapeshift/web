@@ -17,11 +17,11 @@ import { PairIcons } from './PairIcons'
 
 type ApproveProps = {
   asset: Asset
+  disabled?: boolean
   providerIcon?: string
   icons?: string[]
   feeAsset: Asset
   cryptoEstimatedGasFee: string
-  disableAction?: boolean
   fiatEstimatedGasFee: string
   isExactAllowance?: boolean
   learnMoreLink?: string
@@ -36,20 +36,21 @@ type ApproveProps = {
 
 export const Approve = ({
   asset,
+  contractAddress,
   cryptoEstimatedGasFee,
+  disabled,
   feeAsset,
-  providerIcon,
   fiatEstimatedGasFee,
+  icons,
   isExactAllowance,
   learnMoreLink,
   loading,
   loadingText,
-  preFooter,
-  contractAddress,
-  onToggle,
   onCancel,
   onConfirm,
-  icons,
+  onToggle,
+  preFooter,
+  providerIcon,
 }: ApproveProps) => {
   const translate = useTranslate()
 
@@ -136,6 +137,7 @@ export const Approve = ({
         <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
+            disabled={disabled}
             size='lg'
             colorScheme='blue'
             width='full'

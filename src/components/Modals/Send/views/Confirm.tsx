@@ -12,6 +12,8 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -46,19 +48,25 @@ export const Confirm = () => {
   const history = useHistory()
   const translate = useTranslate()
   const {
-    vanityAddress,
+    accountId,
     address,
     asset,
     cryptoAmount,
     cryptoSymbol,
-    fiatAmount,
     feeType,
-    accountId,
+    fiatAmount,
+    memo,
+    vanityAddress,
   } = useWatch({
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
   const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
+
+  const showMemoRow = useMemo(
+    () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
+    [asset],
+  )
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
@@ -127,6 +135,18 @@ export const Confirm = () => {
               {vanityAddress ? vanityAddress : <MiddleEllipsis value={address} />}
             </Row.Value>
           </Row>
+          {showMemoRow && (
+            <Row>
+              <Row.Label>
+                <Text
+                  translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
+                />
+              </Row.Label>
+              <Row.Value>
+                <RawText>{memo}</RawText>
+              </Row.Value>
+            </Row>
+          )}
           <FormControl mt={4}>
             <Row variant='vertical'>
               <Row.Label>

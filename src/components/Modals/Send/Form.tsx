@@ -3,6 +3,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
+import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
@@ -61,25 +62,28 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     },
   })
 
-  const handleAssetSelect = async (asset: Asset) => {
-    methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
-    methods.setValue(SendFormFields.Input, '')
-    methods.setValue(SendFormFields.AccountId, '')
-    methods.setValue(SendFormFields.CryptoAmount, '')
-    methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
-    methods.setValue(SendFormFields.FiatAmount, '')
-    methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
+  const handleAssetSelect = useCallback(
+    async (asset: Asset) => {
+      methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+      methods.setValue(SendFormFields.Input, '')
+      methods.setValue(SendFormFields.AccountId, '')
+      methods.setValue(SendFormFields.CryptoAmount, '')
+      methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
+      methods.setValue(SendFormFields.FiatAmount, '')
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
-    history.push(SendRoutes.Address)
-  }
+      history.push(SendRoutes.Address)
+    },
+    [history, marketData, methods, selectedCurrency],
+  )
 
-  const handleSelectBack = () => {
-    history.push(SendRoutes.Address)
-  }
+  const handleSelectBack = useCallback(() => {
+    history.goBack()
+  }, [history])
 
-  const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+  const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') event.preventDefault()
-  }
+  }, [])
 
   return (
     <FormProvider {...methods}>

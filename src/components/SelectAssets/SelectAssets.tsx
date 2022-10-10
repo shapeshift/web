@@ -12,7 +12,7 @@ type SelectAssetsProps = {
   onBack?: () => void
 } & RouteComponentProps
 
-export const SelectAssets = ({ onClick, onBack }: SelectAssetsProps) => {
+export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>
@@ -24,7 +24,7 @@ export const SelectAssets = ({ onClick, onBack }: SelectAssetsProps) => {
           fontSize='xl'
           size='sm'
           isRound
-          onClick={onBack}
+          onClick={handleBack}
         />
         <ModalHeader textAlign='center' flex={1}>
           {translate('common.selectAsset')}

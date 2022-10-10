@@ -6,6 +6,7 @@ import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
@@ -48,6 +49,7 @@ const BreakdownCard: React.FC<StatCardProps> = ({
 }
 
 export const PortfolioBreakdown = () => {
+  const isDashboardBreakdownEnabled = useFeatureFlag('DashboardBreakdown')
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
@@ -57,6 +59,7 @@ export const PortfolioBreakdown = () => {
   const netWorth = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
+  if (!isDashboardBreakdownEnabled) return
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard

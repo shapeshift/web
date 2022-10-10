@@ -25,6 +25,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
+import type { SendInput } from 'components/Modals/Send/Form'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from 'components/Modals/Send/SendCommon'
 import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
@@ -33,9 +34,6 @@ import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-
-import type { SendInput } from '../Form'
-import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 
 const MAX_MEMO_LENGTH = 256
 
@@ -62,9 +60,9 @@ export const Details = () => {
 
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
-      setValue(CosmosSendFormFields.AccountId, accountId)
-      setValue(CosmosSendFormFields.CryptoAmount, '')
-      setValue(CosmosSendFormFields.FiatAmount, '')
+      setValue(SendFormFields.AccountId, accountId)
+      setValue(SendFormFields.CryptoAmount, '')
+      setValue(SendFormFields.FiatAmount, '')
     },
     [setValue],
   )
@@ -227,7 +225,7 @@ export const Details = () => {
             </FormHelperText>
           </Box>
           <Controller
-            name={CosmosSendFormFields.Memo}
+            name={SendFormFields.Memo}
             render={({ field: { onChange, value } }) => (
               <Input
                 size='lg'

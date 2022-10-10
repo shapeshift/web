@@ -18,19 +18,20 @@ import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
 
 export type SendInput<T extends ChainId = ChainId> = {
-  [SendFormFields.Input]: string
-  [SendFormFields.Address]: string
-  [SendFormFields.VanityAddress]: string
   [SendFormFields.AccountId]: AccountId
+  [SendFormFields.Address]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
-  [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
+  [SendFormFields.FeeType]: FeeDataKey
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
+  [SendFormFields.Input]: string
+  [SendFormFields.Memo]?: string
   [SendFormFields.SendMax]: boolean
+  [SendFormFields.VanityAddress]: string
 }
 
 type SendFormProps = {

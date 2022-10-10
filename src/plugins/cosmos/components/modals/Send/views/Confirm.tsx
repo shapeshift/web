@@ -20,6 +20,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import type { SendInput } from 'components/Modals/Send/Form'
 import { useSendFees } from 'components/Modals/Send/hooks/useSendFees/useSendFees'
 import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
@@ -28,8 +29,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-
-import type { SendInput } from '../Form'
 
 export const Confirm = () => {
   const {

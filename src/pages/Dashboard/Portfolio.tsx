@@ -11,6 +11,7 @@ import { Text } from 'components/Text'
 import { selectPortfolioAssetIds, selectPortfolioLoading } from 'state/slices/selectors'
 
 import { AccountTable } from './components/AccountList/AccountTable'
+import { PortfolioBreakdown } from './PortfolioBreakdown'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
@@ -66,6 +67,7 @@ export const Portfolio = () => {
         </Skeleton>
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
+      <PortfolioBreakdown />
       <Card>
         <Card.Header>
           <Card.Heading>

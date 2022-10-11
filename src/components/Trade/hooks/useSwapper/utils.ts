@@ -28,7 +28,7 @@ import {
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -78,14 +78,14 @@ export const getSendMaxAmount = (
   const feeEstimate = bnOrZero(quote?.feeData?.fee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
-  const maxSendAmount = fromBaseUnit(
-    bnOrZero(sellAssetBalance)
-      .minus(isFeeAsset ? feeEstimate : 0)
-      .toString(),
-    sellAsset.precision,
-  )
-
-  return bn(maxSendAmount).isPositive() ? maxSendAmount : '0'
+  return positiveOrZero(
+    fromBaseUnit(
+      bnOrZero(sellAssetBalance)
+        .minus(isFeeAsset ? feeEstimate : 0)
+        .toString(),
+      sellAsset.precision,
+    ),
+  ).toString()
 }
 
 const getEvmFees = <T extends EvmChainId>(

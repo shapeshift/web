@@ -100,7 +100,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰 Total",
       "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
+      "yourAssets": "Wallet Assets",
       "asset": "Asset",
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
@@ -754,6 +754,7 @@
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withdrawalFee": "Withdrawal Fee",
       "status": {
@@ -1385,7 +1386,12 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "dappBack": {
+        "title": "✨ Get FOX rewards + more! ✨",
+        "body": "Earn FOX rewards by completing tasks on DappBack",
+        "cta": "Launch DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

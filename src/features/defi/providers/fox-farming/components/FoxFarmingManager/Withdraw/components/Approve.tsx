@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -8,16 +8,21 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -58,10 +63,19 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     state: { wallet },
   } = useWallet()
 
-  if (!state || !dispatch || !opportunity) return null
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
 
-  const handleApprove = async () => {
-    if (!opportunity || !wallet || !supportsETH(wallet)) return
+  const handleApprove = useCallback(async () => {
+    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
@@ -98,28 +112,59 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    allowance,
+    approve,
+    asset.precision,
+    dispatch,
+    feeAsset.precision,
+    getUnstakeGasData,
+    onNext,
+    opportunity,
+    state?.withdraw.lpAmount,
+    state?.withdraw.isExiting,
+    toast,
+    translate,
+    wallet,
+  ])
 
-  return (
-    <ReusableApprove
-      asset={asset}
-      feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
-      disableAction
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .times(feeMarketData.price)
-        .toFixed(2)}
-      loading={state.loading}
-      loadingText={translate('common.approve')}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
+  const preFooter = useMemo(
+    () => (
+      <>
         <Alert status='info' borderRadius='lg' color='blue.500'>
           <FaGasPump />
           <AlertDescription textAlign='left' ml={3} color={alertText}>
             {translate('modals.withdraw.withdrawFee')}
           </AlertDescription>
         </Alert>
-      }
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text
+              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+            />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
+  if (!state || !dispatch || !opportunity) return null
+
+  return (
+    <ReusableApprove
+      asset={asset}
+      feeAsset={feeAsset}
+      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      disabled={!hasEnoughBalanceForGas}
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+        .times(feeMarketData.price)
+        .toFixed(2)}
+      loading={state.loading}
+      loadingText={translate('common.approve')}
+      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+      preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
       contractAddress={contractAddress}

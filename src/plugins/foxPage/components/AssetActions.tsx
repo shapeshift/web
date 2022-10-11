@@ -153,13 +153,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                   </Button>
                 )}
                 <Skeleton width='full' isLoaded={Boolean(wallet)}>
-                  <Button
-                    disabled={!walletSupportsETH}
-                    onClick={handleReceiveClick}
-                    width='full'
-                    size='lg'
-                    colorScheme='gray'
-                  >
+                  <Button onClick={handleReceiveClick} width='full' size='lg' colorScheme='gray'>
                     <Text translation={receiveButtonTranslation} />
                   </Button>
                 </Skeleton>

@@ -33,11 +33,10 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
     },
     [close, onClick],
   )
-  let modalHeight: number | undefined = 80
-  if (windowHeight) {
-    // Converts pixel units to vh for Modal component
-    modalHeight = Math.min(Math.round((680 / windowHeight) * 100), 80)
-  }
+  const modalHeight: number | undefined = windowHeight
+    ? // Converts pixel units to vh for Modal component
+      Math.min(Math.round((680 / windowHeight) * 100), 80)
+    : 80
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} trapFocus={false}>
       <ModalOverlay />

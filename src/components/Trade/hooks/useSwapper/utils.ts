@@ -78,12 +78,14 @@ export const getSendMaxAmount = (
   const feeEstimate = bnOrZero(quote?.feeData?.fee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
-  return fromBaseUnit(
+  const maxSendAmount = fromBaseUnit(
     bnOrZero(sellAssetBalance)
       .minus(isFeeAsset ? feeEstimate : 0)
       .toString(),
     sellAsset.precision,
   )
+
+  return bn(maxSendAmount).isPositive() ? maxSendAmount : '0'
 }
 
 const getEvmFees = <T extends EvmChainId>(

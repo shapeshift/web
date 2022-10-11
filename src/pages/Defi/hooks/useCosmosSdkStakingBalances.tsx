@@ -53,13 +53,13 @@ export function useCosmosSdkStakingBalances({
     selectFirstAccountSpecifierByChainId(state, asset?.chainId),
   )
 
-  const defaultAccountSpecifier = useMemo(
+  const dummyAccountSpecifier = useMemo(
     () => getDefaultValidatorAddressFromAssetId(assetId),
     [assetId],
   )
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFull(state, {
-      accountSpecifier: supportsCosmosSdk ? accountId ?? accountSpecifier : defaultAccountSpecifier,
+      accountSpecifier: supportsCosmosSdk ? accountId ?? accountSpecifier : dummyAccountSpecifier,
       assetId,
       supportsCosmosSdk,
     }),

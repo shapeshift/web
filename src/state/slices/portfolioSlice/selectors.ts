@@ -115,6 +115,7 @@ export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
+// TODO(0xdef1cafe): DO NOT USE - use selectAccountIdParamFromFilter instead
 const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
@@ -1238,30 +1239,16 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
   },
 )
 
-export const selectRewardsByValidator = createDeepEqualOutputSelector(
-  selectPortfolioAccounts,
-  selectValidatorAddressParamFromFilter,
-  selectAccountSpecifierParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (allPortfolioAccounts, validatorAddress, accountSpecifier, assetId): string => {
-    const cosmosAccount = allPortfolioAccounts?.[accountSpecifier]
-
-    if (!cosmosAccount) return '0'
-
-    const rewards =
-      cosmosAccount.stakingDataByValidatorId?.[validatorAddress]?.[assetId]?.rewards?.[0]?.amount ??
-      '0'
-
-    return rewards
-  },
-)
-
 // New array object reference every time we return this expression: [SHAPESHIFT_VALIDATOR_ADDRESS]
 // We need to explicitly deep output compare, since ([SHAPESHIFT_VALIDATOR_ADDRESS] === [SHAPESHIFT_VALIDATOR_ADDRESS]) === false
-export const selectValidatorIds = createDeepEqualOutputSelector(
+export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAccountSpecifierParamFromFilter,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
+    if (!accountSpecifier)
+      return values(portfolioAccounts).flatMap(
+        portfolioAccount => portfolioAccount.validatorIds ?? [],
+      )
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
     if (!portfolioAccount?.validatorIds?.length)
@@ -1284,19 +1271,19 @@ const selectDefaultStakingDataByValidatorId = createSelector(
   },
 )
 export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
-  selectValidatorIds,
+  selectValidatorIdsByFilter,
   selectValidators,
   selectStakingDataByAccountSpecifier,
   selectAssetIdParamFromFilter,
   selectDefaultStakingDataByValidatorId,
   (
-    validatorIds,
+    portfolioValidatorIds,
     validatorsData,
     stakingDataByValidator,
     assetId,
     defaultStakingData,
   ): OpportunitiesDataFull[] => {
-    if (defaultStakingData && !validatorIds.length)
+    if (defaultStakingData && !portfolioValidatorIds.length)
       return [
         {
           isLoaded: true,
@@ -1305,7 +1292,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
           ...defaultStakingData,
         },
       ]
-    return validatorIds.map(validatorId => {
+    return portfolioValidatorIds.map(validatorId => {
       const delegatedAmount = bnOrZero(
         stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
       ).toString()

@@ -1,6 +1,11 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { type Swapper, type UtxoSupportedChainIds, SwapperManager } from '@shapeshiftoss/swapper'
+import {
+  type Swapper,
+  type UtxoSupportedChainIds,
+  SwapperManager,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -91,6 +96,19 @@ export const useSwapper = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
+
+  const swapperSupportsCrossAccountTrade = useMemo(() => {
+    if (!bestTradeSwapper) return false
+    switch (bestTradeSwapper.name) {
+      case SwapperName.Thorchain:
+        return true
+      case SwapperName.Zrx:
+      case SwapperName.CowSwap:
+        return false
+      default:
+        return false
+    }
+  }, [bestTradeSwapper])
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
@@ -227,5 +245,6 @@ export const useSwapper = () => {
     receiveAddress,
     getReceiveAddressFromBuyAsset,
     getTrade,
+    swapperSupportsCrossAccountTrade,
   }
 }

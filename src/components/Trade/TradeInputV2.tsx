@@ -54,6 +54,7 @@ export const TradeInput = () => {
     bestTradeSwapper,
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
+    swapperSupportsCrossAccountTrade,
   } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -412,6 +413,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
             onAccountIdChange={handleBuyAccountIdChange}
+            accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
           />

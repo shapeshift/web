@@ -54,7 +54,7 @@ export class VisitorDataManager {
    */
   static async getId(): Promise<string> {
     const currentVisitorId = VisitorDataManager.#visitorId
-    if (currentVisitorId) return currentVisitorId.id
+    if (currentVisitorId.id) return currentVisitorId.id
 
     const newVisitorId = {
       id: Buffer.from(window.crypto.getRandomValues(new Uint8Array(16))).toString('hex'),

@@ -20,10 +20,9 @@ import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accou
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectFiatBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -52,18 +51,13 @@ export const AssetAccountRow = ({
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
-  const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
-    [rowAssetId, accountId, accountSpecifier],
-  )
-  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter),
+  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+
+  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
   const allocation = useAppSelector(state =>
     selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
@@ -97,7 +91,6 @@ export const AssetAccountRow = ({
     >
       <Flex alignItems='center'>
         <Box position='relative'>
-          {/** don't show "exponentiated" asset icons for fee assets */}
           <AssetIcon assetId={asset.assetId} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>

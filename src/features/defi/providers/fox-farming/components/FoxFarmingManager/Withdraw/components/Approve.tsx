@@ -1,28 +1,24 @@
-import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { makeHasEnoughBalanceForGas } from 'features/defi/helpers/utils'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useCallback, useContext, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -35,7 +31,6 @@ const moduleLogger = logger.child({
 export const Approve = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const alertText = useColorModeValue('blue.800', 'white')
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
   const opportunity = state?.opportunity
@@ -62,17 +57,6 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   const {
     state: { wallet },
   } = useWallet()
-
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
-  )
-  const hasEnoughBalanceForGas = useMemo(
-    () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-        .gte(0),
-    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
-  )
 
   const handleApprove = useCallback(async () => {
     if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
@@ -128,26 +112,20 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     wallet,
   ])
 
+  const hasEnoughBalanceForGas = useMemo(
+    () => makeHasEnoughBalanceForGas(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
   const preFooter = useMemo(
     () => (
-      <>
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.withdraw.withdrawFee')}
-          </AlertDescription>
-        </Alert>
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text
-              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
-            />
-          </Alert>
-        )}
-      </>
+      <ApprovePreFooter
+        action={DefiAction.Withdraw}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
     ),
-    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+    [feeAsset, state?.approve.estimatedGasCrypto],
   )
 
   if (!state || !dispatch || !opportunity) return null

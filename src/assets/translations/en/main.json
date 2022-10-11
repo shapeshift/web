@@ -1379,7 +1379,12 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "dappBack": {
+        "title": "✨ Get FOX rewards + more! ✨",
+        "body": "Earn FOX rewards by completing tasks on DappBack",
+        "cta": "Launch DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

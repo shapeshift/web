@@ -31,6 +31,7 @@ export const selectAccountSpecifiersByChainId = (state: ReduxState, chainId: Cha
     return acc
   }, [])
 
+// TODO(0xdef1cafe): DELETE - this is dangerous with multi account
 export const selectFirstAccountSpecifierByChainId = createSelector(
   selectAccountSpecifiersByChainId,
   accountSpecifiers => accountSpecifiers[0],

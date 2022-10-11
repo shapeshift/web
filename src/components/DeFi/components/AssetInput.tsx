@@ -112,13 +112,9 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
-  const formattedCryptoAmount = bnOrZero(cryptoAmount).gt(0)
-    ? bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
-      ? cryptoAmount
-      : bnOrZero(cryptoAmount).toFixed(3)
-    : null
-
-  const formattedFiatAmount = bnOrZero(fiatAmount).gt(0) ? bnOrZero(fiatAmount).toFixed(2) : null
+  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+    ? cryptoAmount
+    : bnOrZero(cryptoAmount).toFixed(3)
 
   return (
     <FormControl
@@ -156,11 +152,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               disabled={isReadOnly}
               suffix={isFiat ? localeParts.postfix : ''}
               prefix={isFiat ? localeParts.prefix : ''}
-              placeholder={isFiat ? `${localeParts.prefix}0.00${localeParts.postfix}` : '0.00'}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
-              value={isFiat ? formattedFiatAmount : formattedCryptoAmount}
+              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
               onValueChange={values => {
                 // This fires anytime value changes including setting it on max click
                 // Store the value in a ref to send when we actually want the onChange to fire

@@ -67,7 +67,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   )
   const handleReceiveClick = useCallback(
     () =>
-      isDemoWallet || (isConnected && walletSupportsETH)
+      !isDemoWallet && isConnected && walletSupportsETH
         ? receive.open({ asset, accountId })
         : handleWalletModalOpen(),
     [

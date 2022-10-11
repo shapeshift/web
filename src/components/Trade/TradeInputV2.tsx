@@ -45,7 +45,8 @@ export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
-  const { checkApprovalNeeded, getTrade, bestTradeSwapper } = useSwapper()
+  const { checkApprovalNeeded, getTrade, bestTradeSwapper, swapperSupportsCrossAccountTrade } =
+    useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
@@ -389,6 +390,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
             onAccountIdChange={handleBuyAccountIdChange}
+            accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
           />

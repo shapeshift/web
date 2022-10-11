@@ -70,6 +70,7 @@ export type AssetInputProps = {
   showInputSkeleton?: boolean
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
+  accountSelectionDisabled?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -95,6 +96,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   showInputSkeleton,
   showFiatSkeleton,
   formControlProps,
+  accountSelectionDisabled,
 }) => {
   const {
     number: { localeParts },
@@ -223,6 +225,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           assetId={assetId}
           onChange={handleAccountIdChange}
           buttonProps={{ variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }}
+          disabled={accountSelectionDisabled}
           autoSelectHighestBalance
         />
       )}

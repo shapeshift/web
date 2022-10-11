@@ -4340,10 +4340,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^11.5.5":
-  version "11.5.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.5.tgz#78aec5496abbf348b657dc602138b81dc0d72b91"
-  integrity sha512-7jLYlo+BIZZODMoCYWMPmseSLsThOKazV1eQQgAvD4BUIyw4LGYFKsCHpT14O8u4LvSrgJofY30ur222RAVj/Q==
+"@shapeshiftoss/swapper@^11.5.6":
+  version "11.5.6"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-11.5.6.tgz#d8c2b9dd1f1d51823905759c8e3f01580f0b2716"
+  integrity sha512-Ksmhdf7Mg0mYgXTyHxppFfMxrzviGA8CVdAqAvfm0jGkU5KJokOm+3Mfjfk4pXwHK0s0lgdHv3y+hJhBi9R++A==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -9003,9 +9003,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001297, caniuse-lite@^1.0.30001332:
-  version "1.0.30001332"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001332.tgz#39476d3aa8d83ea76359c70302eafdd4a1d727dd"
-  integrity sha512-10T30NYOEQtN6C11YGg411yebhvpnC6Z102+B95eAsN0oB6KUs01ivE8u+G6FMIRtIrVlYXhL+LUwQ3/hXwDWw==
+  version "1.0.30001418"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001418.tgz#5f459215192a024c99e3e3a53aac310fc7cf24e6"
+  integrity sha512-oIs7+JL3K9JRQ3jPZjlH6qyYDp+nBTCais7hjh0s+fuBwufc7uZ7hPYMXrDOJhV360KGMTcczMRObk0/iMqZRg==
 
 capture-exit@^2.0.0:
   version "2.0.0"

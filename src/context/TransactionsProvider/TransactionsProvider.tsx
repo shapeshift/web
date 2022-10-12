@@ -73,7 +73,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           // subscribe to new transactions for all supported accounts
           try {
             return adapter?.subscribeTxs(
-              { wallet, accountType, ...bip44Params },
+              { wallet, accountType, bip44Params },
               msg => {
                 const { getAccount } = portfolioApi.endpoints
                 const { getValidatorData } = validatorDataApi.endpoints

@@ -1,3 +1,15 @@
+# [@shapeshiftoss/investor-foxy-v7.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v6.1.2...@shapeshiftoss/investor-foxy-v7.0.0) (2022-10-12)
+
+
+### Features
+
+* **chain-adapters:** make bip44Params required in `chain-adapters` ([#1057](https://github.com/shapeshift/lib/issues/1057)) ([9cee51e](https://github.com/shapeshift/lib/commit/9cee51e66cee984adc70475230d1d4893128e5fc))
+
+
+### BREAKING CHANGES
+
+* **chain-adapters:** Makes bip44Params required in chain-adapters
+
 # [@shapeshiftoss/investor-foxy-v6.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v6.1.1...@shapeshiftoss/investor-foxy-v6.1.2) (2022-09-16)
 
 # [@shapeshiftoss/investor-foxy-v6.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v6.1.0...@shapeshiftoss/investor-foxy-v6.1.1) (2022-09-16)

@@ -1,5 +1,4 @@
 import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
@@ -84,12 +83,21 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 supportedAccountTypes.map(async accountType => {
                   moduleLogger.debug({ chainId, accountType }, 'subscribing txs')
 
-                  const accountParams = accountType
-                    ? utxoAccountParams(chainId, accountType, 0)
-                    : {}
+                  const bip44Params = adapter?.getBIP44Params({ accountNumber: 0, accountType })
+                  if (!bip44Params) {
+                    moduleLogger.error(
+                      { chainId, accountType },
+                      'no bip44 params found for chain/accountType',
+                    )
+                    return
+                  }
 
                   return adapter?.subscribeTxs(
-                    { wallet, accountType, ...accountParams },
+                    {
+                      wallet,
+                      accountType,
+                      bip44Params,
+                    },
                     msg => {
                       const state = store.getState()
                       const accountId = selectAccountIdByAddress(state, {

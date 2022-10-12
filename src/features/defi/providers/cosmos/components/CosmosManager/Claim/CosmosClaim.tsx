@@ -19,7 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -47,6 +47,9 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
     assetReference, // TODO: handle multiple denoms
   })
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
@@ -65,7 +68,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
           chainId,
         ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params })
 
         dispatch({ type: CosmosClaimActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
@@ -77,7 +80,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
         moduleLogger.error(error, 'CosmosClaim error')
       }
     })()
-  }, [chainId, cosmosOpportunity, contractAddress, walletState.wallet])
+  }, [chainId, cosmosOpportunity, contractAddress, walletState.wallet, bip44Params])
 
   // Asset info
 

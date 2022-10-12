@@ -28,6 +28,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectFeatureFlags,
   selectMarketDataById,
   selectTxById,
@@ -161,6 +162,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     skip: !featureFlags.FoxLP,
   })
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')
   const [foxFarmingOpportunities, setFoxFarmingOpportunities] = useState<
@@ -212,11 +216,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (wallet && adapter) {
       ;(async () => {
         if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet })
+        const address = await adapter.getAddress({ wallet, bip44Params })
         setAccountAddress(address)
       })()
     }
-  }, [adapter, wallet])
+  }, [adapter, wallet, bip44Params])
 
   useEffect(() => {
     if (!accountId) return

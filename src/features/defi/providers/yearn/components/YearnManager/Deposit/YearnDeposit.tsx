@@ -23,6 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -58,6 +59,9 @@ export const YearnDeposit: React.FC<{
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   // user info
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
@@ -68,7 +72,7 @@ export const YearnDeposit: React.FC<{
       try {
         if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
         const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),

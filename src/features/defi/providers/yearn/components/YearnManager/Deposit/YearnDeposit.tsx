@@ -93,7 +93,7 @@ export const YearnDeposit: React.FC<{
         moduleLogger.error(error, 'YearnDeposit error')
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
 
   const handleBack = useCallback(() => {
     history.push({

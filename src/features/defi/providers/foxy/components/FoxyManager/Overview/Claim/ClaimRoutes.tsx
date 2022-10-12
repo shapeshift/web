@@ -45,7 +45,9 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: bip44Params?.accountNumber })
+  const { data: foxyBalancesData } = useFoxyBalances({
+    accountNumber: bip44Params?.accountNumber ?? 0,
+  })
   const opportunity = (foxyBalancesData?.opportunities || []).find(
     e => e.contractAddress === contractAddress,
   )

@@ -52,7 +52,7 @@ export async function cowBuildTrade(
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-    const receiveAddress = await adapter.getAddress({ wallet })
+    const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
     const normalizedSellAmount = normalizeAmount(sellAmount)
 
     /**

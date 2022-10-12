@@ -83,7 +83,7 @@ export type FeeDataEstimate<T extends ChainId> = {
 
 export type SubscribeTxsInput = {
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   accountType?: UtxoAccountType
 }
 
@@ -166,7 +166,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   to: string
   value: string
   wallet: HDWallet
-  bip44Params?: BIP44Params // TODO maybe these shouldnt be optional
+  bip44Params: BIP44Params
   sendMax?: boolean
   memo?: string
 } & ChainSpecificBuildTxData<T>
@@ -204,7 +204,7 @@ export interface TxHistoryInput {
 
 export type GetAddressInputBase = {
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   /**
    * Request that the address be shown to the user by the device, if supported
    */

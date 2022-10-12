@@ -213,7 +213,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ])
 
   useEffect(() => {
-    if (wallet && adapter) {
+    if (wallet && adapter && bip44Params) {
       ;(async () => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet, bip44Params })

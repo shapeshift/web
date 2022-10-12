@@ -61,7 +61,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!cosmosOpportunity) return
+        if (!(cosmosOpportunity && bip44Params)) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(

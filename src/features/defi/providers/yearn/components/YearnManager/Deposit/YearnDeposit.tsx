@@ -70,7 +70,7 @@ export const YearnDeposit: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && api && bip44Params)) return
         const [address, opportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.findByOpportunityId(

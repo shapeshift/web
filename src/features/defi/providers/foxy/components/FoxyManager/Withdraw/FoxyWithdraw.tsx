@@ -87,7 +87,7 @@ export const FoxyWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && api)) return
+        if (!(walletState.wallet && contractAddress && chainAdapter && api && bip44Params)) return
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),

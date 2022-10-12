@@ -24,6 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -67,6 +68,8 @@ export const YearnWithdraw: React.FC<{
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
@@ -77,9 +80,9 @@ export const YearnWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && api && chainAdapter && bip44Params)) return
         const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
@@ -99,7 +102,7 @@ export const YearnWithdraw: React.FC<{
         moduleLogger.error(error, 'YearnWithdraw error')
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
 
   const handleBack = useCallback(() => {
     history.push({

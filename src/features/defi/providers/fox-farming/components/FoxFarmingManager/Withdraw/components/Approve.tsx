@@ -8,7 +8,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { makeHasEnoughBalanceForGas } from 'features/defi/helpers/utils'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -113,7 +113,7 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => makeHasEnoughBalanceForGas(feeAsset, state?.approve.estimatedGasCrypto),
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 

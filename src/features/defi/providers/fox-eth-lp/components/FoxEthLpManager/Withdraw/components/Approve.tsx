@@ -4,7 +4,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { makeHasEnoughBalanceForGas } from 'features/defi/helpers/utils'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useCallback, useContext, useMemo } from 'react'
@@ -105,7 +105,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => makeHasEnoughBalanceForGas(feeAsset, state?.approve.estimatedGasCrypto),
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 

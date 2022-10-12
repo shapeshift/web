@@ -1,14 +1,12 @@
 import { Alert, AlertDescription, AlertIcon, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { bnOrZero } from '@shapeshiftoss/investor-yearn/dist/utils/bignumber'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 export const ApprovePreFooter = ({
   action,
@@ -21,17 +19,10 @@ export const ApprovePreFooter = ({
 }) => {
   const translate = useTranslate()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
-  )
-
-  const alertText = useColorModeValue('blue.800', 'white')
+  const alertTextColor = useColorModeValue('blue.800', 'white')
   const hasEnoughBalanceForGas = useMemo(
-    () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-        .gte(0),
-    [feeAsset.precision, feeAssetBalance, estimatedGasCrypto],
+    () => canCoverTxFees(feeAsset, estimatedGasCrypto),
+    [feeAsset, estimatedGasCrypto],
   )
 
   const feeTranslation = useMemo(
@@ -54,7 +45,7 @@ export const ApprovePreFooter = ({
     <>
       <Alert status='info' borderRadius='lg' color='blue.500'>
         <FaGasPump />
-        <AlertDescription textAlign='left' ml={3} color={alertText}>
+        <AlertDescription textAlign='left' ml={3} color={alertTextColor}>
           {feeTranslation}
         </AlertDescription>
       </Alert>

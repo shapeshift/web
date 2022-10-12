@@ -11,7 +11,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { makeHasEnoughBalanceForGas } from 'features/defi/helpers/utils'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -169,7 +169,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => makeHasEnoughBalanceForGas(feeAsset, state?.approve.estimatedGasCrypto),
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 

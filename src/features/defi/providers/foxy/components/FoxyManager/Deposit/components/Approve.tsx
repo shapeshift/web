@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { makeHasEnoughBalanceForGas } from 'features/defi/helpers/utils'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -171,7 +171,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => makeHasEnoughBalanceForGas(feeAsset, state?.approve.estimatedGasCrypto),
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 

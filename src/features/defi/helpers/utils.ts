@@ -17,10 +17,7 @@ export const chainIdToLabel = (chainId: ChainId): string => {
   }
 }
 
-export const makeHasEnoughBalanceForGas = (
-  feeAsset: Asset,
-  estimatedGasCrypto?: string | undefined,
-) => {
+export const canCoverTxFees = (feeAsset: Asset, estimatedGasCrypto?: string | undefined) => {
   const state = store.getState()
   const feeAssetBalance = selectPortfolioCryptoHumanBalanceByAssetId(state, {
     assetId: feeAsset?.assetId ?? '',

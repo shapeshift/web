@@ -543,6 +543,7 @@
       "generalError": "Ha ocurrido un error comercial",
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
     },
+    "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
     "shapeshiftFee": "Tarifa de ShapeShift"
   },
@@ -608,6 +609,7 @@
       "password": {
         "header": "Ingresa tu contraseña",
         "walletName": "Apodo de billetera (opcional)",
+        "walletNameRequired": "Apodo de Billetera (requerido)",
         "body": "Ingrese su contraseña para descifrar su billetera",
         "placeholder": "Introducir la contraseña",
         "show": "Mostrar Contraseña",
@@ -615,6 +617,7 @@
         "error": {
           "invalid": "Contraseña Incorrecta",
           "required": "Contraseña Requerida",
+          "walletNameRequired": "Se requiere Apodo para la Billetera",
           "length": "Su contraseña debe ser al menos %{length} caracteres",
           "maxLength": "El apodo debe ser %{length} máximo de caracteres"
         }
@@ -748,6 +751,7 @@
       "noFee": "Sin cargo de %{symbol}",
       "requestWithdraw": "Solicitar Retiro",
       "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
+      "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
       "disclaimer": "Las solicitudes posteriores se combinarán y restablecerán el tiempo de retiro.",
       "withdrawalFee": "Cargo por retiro",
       "status": {
@@ -1347,7 +1351,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
+      "buyAssetOnCoinbase": "Compre %{assetSymbol} en Coinbase",
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",

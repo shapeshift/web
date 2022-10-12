@@ -163,7 +163,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   })
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  // Use the account number of the consumer if we have it, else use account 0
+  const bip44Params =
+    useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter)) ??
+    adapter.getBIP44Params({ accountNumber: 0 })
 
   const [farmingLoading, setFarmingLoading] = useState<boolean>(true)
   const [foxFarmingTotalBalance, setFoxFarmingTotalBalance] = useState<string>('')

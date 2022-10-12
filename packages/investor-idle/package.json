@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/investor-idle",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "An api layer for interaction with the ShapeShift Idle Router Contract and the Idle Vault contracts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

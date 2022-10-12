@@ -1,3 +1,5 @@
+# [@shapeshiftoss/investor-idle-v2.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.2...@shapeshiftoss/investor-idle-v2.1.3) (2022-10-12)
+
 # [@shapeshiftoss/investor-idle-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.1...@shapeshiftoss/investor-idle-v2.1.2) (2022-09-16)
 
 # [@shapeshiftoss/investor-idle-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.0...@shapeshiftoss/investor-idle-v2.1.1) (2022-09-16)

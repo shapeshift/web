@@ -331,64 +331,6 @@ export const yearnVaultDeposit: Tx = {
   txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083',
 }
 
-export const uniswapUsdcFox: Tx = {
-  address: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-  blockHash: '0xd8e239be41b36baed2c904270e4bdea5b7ff812ff4fde8c3bc7619d891336ff6',
-  blockHeight: 14303074,
-  blockTime: 1646163896,
-  chainId: 'eip155:1',
-  confirmations: 135709,
-  fee: { assetId: ethAssetId, value: '10652333620222860' },
-  status: TxStatus.Confirmed,
-  trade: undefined,
-  transfers: [
-    {
-      assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      from: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-      to: '0x40C6Bc1dB179a5c3D464Cac557AB890825C638F3',
-      type: TransferType.Send,
-      value: '50000000',
-    },
-    {
-      assetId: foxAssetId,
-      from: '0xBEdDB932490e776301c776526615965fAE2440de',
-      to: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-      type: TransferType.Receive,
-      value: '157732112096181967404',
-    },
-  ],
-  txid: '0xa6b1b97f3822c83f0efdd5835ef08094a1f9e367ed70986168bd6a1e91919959',
-}
-
-export const cow: Tx = {
-  address: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-  blockHash: '0x756d964fd1e6814ede7a6266e15ea76f85e87974cd5dfad737f7d8df8d1f1bf4',
-  blockHeight: 14432191,
-  blockTime: 1647899121,
-  chainId: 'eip155:1',
-  confirmations: 6592,
-  fee: undefined,
-  status: TxStatus.Confirmed,
-  trade: undefined,
-  transfers: [
-    {
-      assetId: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      from: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-      to: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
-      type: TransferType.Send,
-      value: '24874176864645602',
-    },
-    {
-      assetId: 'eip155:1/erc20:0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
-      from: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
-      to: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
-      type: TransferType.Receive,
-      value: '3000000000000000000',
-    },
-  ],
-  txid: '0x07406bb5be2534849bf8de5662a239035c993599b1857b52ae6aefa39126b2f4',
-}
-
 export const createMockEthTxs = (account: string): Tx[] => {
   // UNI -> yvUNI
   const deposit: Tx = {

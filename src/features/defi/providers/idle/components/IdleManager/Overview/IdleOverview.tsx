@@ -86,14 +86,18 @@ export const IdleOverview = () => {
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
+  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
 
   useEffect(() => {
     ;(async () => {
-      if (!(walletState.wallet && chainAdapter)) return
-      const walletAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
+      if (!(walletState.wallet && chainAdapter && bip44Params)) return
+      const walletAddress = await chainAdapter.getAddress({
+        wallet: walletState.wallet,
+        bip44Params,
+      })
       setWalletAddress(walletAddress)
     })()
-  }, [chainAdapter, walletState])
+  }, [chainAdapter, walletState, bip44Params])
 
   useEffect(() => {
     if (!(vaultAddress && idleInvestor)) return

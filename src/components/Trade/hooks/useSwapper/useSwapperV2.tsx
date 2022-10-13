@@ -154,6 +154,7 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('Missing wallet')
     if (!receiveAddress) throw new Error('Missing receiveAddress')
     if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
+    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),

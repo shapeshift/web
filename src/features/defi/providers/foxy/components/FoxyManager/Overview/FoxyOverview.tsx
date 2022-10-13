@@ -44,7 +44,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
-    accountNumber: bip44Params?.accountNumber,
+    accountNumber: bip44Params?.accountNumber ?? 0,
   })
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()

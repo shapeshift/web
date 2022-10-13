@@ -224,7 +224,7 @@ export const TradeInput = () => {
         setIsLoading(false)
       }
     },
-    [checkApprovalNeeded, feeAssetFiatRate, getTrade, history, setValue, sellAssetAccountId],
+    [checkApprovalNeeded, feeAssetFiatRate, getTrade, history, setValue],
   )
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

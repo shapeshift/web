@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.0.0...@shapeshiftoss/chain-adapters-v10.1.0) (2022-10-13)
+
+
+### Features
+
+* **chain-adapter:** enforce bip44Params on all remaining `chain-adapters` methods ([#1060](https://github.com/shapeshift/lib/issues/1060)) ([bb3bfd0](https://github.com/shapeshift/lib/commit/bb3bfd05a8440ffc1e551729067c00c65de54e04))
+
 # [@shapeshiftoss/chain-adapters-v10.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v9.2.0...@shapeshiftoss/chain-adapters-v10.0.0) (2022-10-12)
 
 

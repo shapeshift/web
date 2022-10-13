@@ -134,7 +134,7 @@ export type BuildDelegateTxInput<T extends ChainId> = {
   validator: string
   value: string
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
@@ -142,7 +142,7 @@ export type BuildUndelegateTxInput<T extends ChainId> = {
   validator: string
   value: string
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
@@ -151,14 +151,14 @@ export type BuildRedelegateTxInput<T extends ChainId> = {
   toValidator: string
   value: string
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
 export type BuildClaimRewardsTxInput<T extends ChainId> = {
   validator: string
   wallet: HDWallet
-  bip44Params?: BIP44Params
+  bip44Params: BIP44Params
   memo?: string
 } & ChainSpecificBuildTxData<T>
 

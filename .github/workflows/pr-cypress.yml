@@ -6,7 +6,7 @@ on:
 jobs:
   test-chrome:
     name: Cypress
-    runs-on: ubuntu-latest
+    runs-on: size-bertha
     strategy:
       # When one test fails, do not cancel the other
       # containers, because this will kill Cypress processes,

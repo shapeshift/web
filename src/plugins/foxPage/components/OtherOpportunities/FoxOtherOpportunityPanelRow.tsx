@@ -24,7 +24,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   opportunity,
 }) => {
   const {
-    state: { wallet },
+    state: { isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
@@ -43,7 +43,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       return
     }
 
-    if (!wallet || !supportsETH(wallet)) {
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
@@ -65,18 +65,18 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       })
       return
     }
-  }, [defiOpportunity, dispatch, history, location, opportunity.link, wallet])
+  }, [isDemoWallet, defiOpportunity, dispatch, history, location, opportunity.link, wallet])
 
   const opportunityButtonTranslation = useMemo(() => {
     if (opportunity.link) return 'plugins.foxPage.getStarted'
-    if (!wallet || !supportsETH(wallet)) return 'common.connectWallet'
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
 
     return hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
-  }, [opportunity.link, hasActivePosition, wallet])
+  }, [isDemoWallet, opportunity.link, hasActivePosition, wallet])
 
   const isOpportunityButtonReady = useMemo(
-    () => Boolean((wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
-    [wallet, defiOpportunity],
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
+    [isDemoWallet, wallet, defiOpportunity],
   )
 
   return (

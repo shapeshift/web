@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
 import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -17,6 +18,9 @@ export const useAccountsService = () => {
   const selectedBuyAssetAccountId = useWatch({ control, name: 'selectedBuyAssetAccountId' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+
+  // Custom hooks
+  const { swapperSupportsCrossAccountTrade } = useSwapper()
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
@@ -42,37 +46,29 @@ export const useAccountsService = () => {
     selectFirstAccountSpecifierByChainId(state, buyAsset?.chainId ?? ''),
   )
 
+  const sellAssetAccountId = useMemo(
+    () =>
+      selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? sellAssetAccountSpecifier,
+    [highestFiatBalanceSellAccountId, selectedSellAssetAccountId, sellAssetAccountSpecifier],
+  )
+
+  const buyAssetAccountId = useMemo(
+    () => selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? buyAssetAccountSpecifier,
+    [buyAssetAccountSpecifier, highestFiatBalanceBuyAccount, selectedBuyAssetAccountId],
+  )
+
   // Set sellAssetAccountId
   useEffect(
-    () =>
-      setValue(
-        'sellAssetAccountId',
-        selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? sellAssetAccountSpecifier,
-      ),
-    [
-      selectedSellAssetAccountId,
-      highestFiatBalanceSellAccountId,
-      setValue,
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetAccountSpecifier,
-    ],
+    () => setValue('sellAssetAccountId', sellAssetAccountId),
+    [sellAssetAccountId, setValue],
   )
 
   // Set buyAssetAccountId
-  useEffect(
-    () =>
-      setValue(
-        'buyAssetAccountId',
-        selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? buyAssetAccountSpecifier,
-      ),
-    [
-      buyAssetAccountSpecifier,
-      highestFiatBalanceBuyAccount,
-      selectedBuyAssetAccountId,
-      setValue,
-      sellTradeAsset,
-      buyTradeAsset,
-    ],
-  )
+  useEffect(() => {
+    setValue(
+      'buyAssetAccountId',
+      // If the swapper does not support cross-account trades the buyAssetAccountId must match the sellAssetAccountId
+      swapperSupportsCrossAccountTrade ? buyAssetAccountId : sellAssetAccountId,
+    )
+  }, [buyAssetAccountId, sellAssetAccountId, setValue, swapperSupportsCrossAccountTrade])
 }

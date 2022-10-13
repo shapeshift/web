@@ -1,5 +1,6 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -15,6 +16,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -36,6 +38,7 @@ import { useAppSelector } from 'state/store'
 import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
+import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 
@@ -45,7 +48,14 @@ export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
-  const { checkApprovalNeeded, getTrade, bestTradeSwapper } = useSwapper()
+  const {
+    checkApprovalNeeded,
+    getTrade,
+    bestTradeSwapper,
+    getSupportedSellableAssets,
+    getSupportedBuyAssetsFromSellAsset,
+    swapperSupportsCrossAccountTrade,
+  } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
@@ -53,6 +63,8 @@ export const TradeInput = () => {
     state: { wallet },
   } = useWallet()
   const tradeAmountConstants = useGetTradeAmounts()
+  const { assetSearch } = useModal()
+  const { handleAssetClick } = useTradeRoutes()
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
@@ -338,6 +350,18 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
+  const handleInputAssetClick = useCallback(
+    (action: AssetClickAction) => {
+      assetSearch.open({
+        onClick: (asset: Asset) => handleAssetClick(asset, action),
+        filterBy:
+          action === AssetClickAction.Sell
+            ? getSupportedSellableAssets
+            : getSupportedBuyAssetsFromSellAsset,
+      })
+    },
+    [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
+  )
   const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   return (
@@ -355,7 +379,7 @@ export const TradeInput = () => {
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onMaxClick={handleSendMax}
-            onAssetClick={() => history.push(TradeRoutePaths.SellSelect)}
+            onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
             onAccountIdChange={handleSellAccountIdChange}
             showFiatSkeleton={isUsdRatesPending}
           />
@@ -387,8 +411,9 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            onAssetClick={() => history.push(TradeRoutePaths.BuySelect)}
+            onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
             onAccountIdChange={handleBuyAccountIdChange}
+            accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
           />

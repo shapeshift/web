@@ -29,7 +29,7 @@ export const MainOpportunity = ({
   isLoaded,
 }: MainOpportunityProps) => {
   const {
-    state: { wallet },
+    state: { wallet, isDemoWallet },
   } = useWallet()
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
@@ -40,14 +40,14 @@ export const MainOpportunity = ({
   const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
 
   const opportunityButtonTranslation = useMemo(() => {
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
     if (hasActiveStaking) return 'plugins.foxPage.manage'
-    if (!wallet || !supportsETH(wallet)) return 'common.connectWallet'
     return 'plugins.foxPage.getStarted'
-  }, [wallet, hasActiveStaking])
+  }, [isDemoWallet, wallet, hasActiveStaking])
 
   const isOpportunityButtonReady = useMemo(
-    () => Boolean((wallet && !supportsETH(wallet)) || isFoxyBalancesLoading),
-    [wallet, isFoxyBalancesLoading],
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || !isFoxyBalancesLoading),
+    [wallet, isDemoWallet, isFoxyBalancesLoading],
   )
 
   return (

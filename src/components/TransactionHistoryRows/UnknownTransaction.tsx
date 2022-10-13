@@ -1,3 +1,5 @@
+import { TransferType } from '@shapeshiftoss/unchained-client'
+
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -8,7 +10,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, parseRelevantAssetFromTx } from './utils'
+import { getDisplayTransfers } from './utils'
 
 export const UnknownTransaction = ({
   txDetails,
@@ -18,9 +20,8 @@ export const UnknownTransaction = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  let assets = []
-  if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
-  if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
+  const types = [TransferType.Send, TransferType.Receive]
+
   return (
     <>
       <TransactionGenericRow
@@ -29,9 +30,8 @@ export const UnknownTransaction = ({
         compactMode={compactMode}
         title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
-        symbol={txDetails.symbol}
-        assets={assets}
-        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
+        displayTransfers={getDisplayTransfers(txDetails.transfers, types)}
+        fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
@@ -56,12 +56,12 @@ export const UnknownTransaction = ({
               <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
-          {txDetails.feeAsset && (
+          {txDetails.fee && (
             <Row title='minerFee'>
               <Amount
-                value={txDetails.tx.fee?.value ?? '0'}
-                precision={txDetails.feeAsset.precision}
-                symbol={txDetails.feeAsset.symbol}
+                value={txDetails.fee.value}
+                precision={txDetails.fee.asset.precision}
+                symbol={txDetails.fee.asset.symbol}
               />
             </Row>
           )}

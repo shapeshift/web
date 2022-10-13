@@ -1,89 +1,43 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
-import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-
-export enum AssetTypes {
-  Source = 'source',
-  Destination = 'destination',
-  Fee = 'fee',
-}
-
-const fallback = {
-  symbol: ' N/A',
-  precision: 18,
-}
 
 export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
   if (txMetadata && 'assetId' in txMetadata) return txMetadata
 }
 
-export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetTypes | null) => {
-  switch (assetType) {
-    case AssetTypes.Source:
-      return {
-        assetId: txDetails.sellAsset?.assetId ?? '',
-        symbol: txDetails.sellAsset?.symbol ?? fallback.symbol,
-        amount: txDetails.sellTransfer?.value ?? '0',
-        precision: txDetails.sellAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.sourceMarketData?.price,
-        icon: txDetails.sellAsset?.icon,
-      }
-    case AssetTypes.Destination:
-      return {
-        assetId: txDetails.buyAsset?.assetId ?? '',
-        symbol: txDetails.buyAsset?.symbol ?? fallback.symbol,
-        amount: txDetails.buyTransfer?.value ?? '0',
-        precision: txDetails.buyAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.destinationMarketData?.price,
-        icon: txDetails.buyAsset?.icon,
-      }
-    case AssetTypes.Fee:
-      return {
-        assetId: txDetails.feeAsset?.assetId ?? '',
-        symbol: txDetails.feeAsset?.symbol ?? fallback.symbol,
-        amount: txDetails.tx.fee?.value ?? '0',
-        precision: txDetails.feeAsset?.precision ?? fallback.precision,
-        currentPrice: txDetails.feeMarketData?.price,
-        icon: txDetails.feeAsset?.icon,
-      }
-    default:
-      return {
-        assetId: undefined,
-        symbol: txDetails.symbol ?? fallback.symbol,
-        amount: txDetails.value ?? '0',
-        precision: txDetails.precision ?? fallback.precision,
-        currentPrice: undefined,
-      }
-  }
+export const getDisplayTransfers = (transfers: Transfer[], types: TransferType[]): Transfer[] => {
+  return types.reduce<Transfer[]>((prev, type) => {
+    const transfer = transfers.find(t => t.type === type)
+    if (!transfer) return prev
+    return [...prev, transfer]
+  }, [])
 }
 
 type GetTradeFeesInput = {
-  buyAsset: Asset
-  sellAsset: Asset
-  buyAmount: string
-  sellAmount: string
+  buy: Transfer
+  sell: Transfer
   blockTime: number
   cryptoPriceHistoryData: PriceHistoryData
 }
-export const getTradeFees = memoize(
-  ({
-    sellAsset,
-    buyAsset,
-    buyAmount,
-    sellAmount,
-    blockTime,
-    cryptoPriceHistoryData,
-  }: GetTradeFeesInput) => {
-    const sellAssetPriceHistoryData = cryptoPriceHistoryData[sellAsset.assetId]
-    const buyAssetPriceHistoryData = cryptoPriceHistoryData[buyAsset.assetId]
 
-    if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return null
+export type TradeFees = {
+  value: string
+  asset: Asset
+}
+
+export const getTradeFees = memoize(
+  ({ sell, buy, blockTime, cryptoPriceHistoryData }: GetTradeFeesInput): TradeFees | undefined => {
+    const sellAssetPriceHistoryData = cryptoPriceHistoryData[sell.asset.assetId]
+    const buyAssetPriceHistoryData = cryptoPriceHistoryData[buy.asset.assetId]
+
+    if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return
 
     const sellAssetPriceAtDate = priceAtDate({
       date: blockTime,
@@ -95,19 +49,22 @@ export const getTradeFees = memoize(
       priceHistoryData: buyAssetPriceHistoryData,
     })
 
-    if (bn(sellAssetPriceAtDate).isZero() || bn(buyAssetPriceAtDate).isZero()) return null
+    if (bn(sellAssetPriceAtDate).isZero() || bn(buyAssetPriceAtDate).isZero()) return
 
-    const sellAmountFiat = bnOrZero(sellAmount)
-      .div(bn(10).pow(sellAsset.precision))
+    const sellAmountFiat = bnOrZero(sell.value)
+      .div(bn(10).pow(sell.asset.precision))
       .times(bnOrZero(sellAssetPriceAtDate))
 
-    const buyAmountFiat = bnOrZero(buyAmount)
-      .div(bn(10).pow(buyAsset.precision))
+    const buyAmountFiat = bnOrZero(buy.value)
+      .div(bn(10).pow(buy.asset.precision))
       .times(bnOrZero(buyAssetPriceAtDate))
 
     const sellTokenFee = sellAmountFiat.minus(buyAmountFiat).div(sellAssetPriceAtDate)
 
-    return sellTokenFee.toString()
+    return {
+      asset: sell.asset,
+      value: sellTokenFee.toString(),
+    }
   },
 )
 

@@ -104,6 +104,6 @@ export abstract class InvestorOpportunity<TxType = unknown, MetaData = unknown> 
     tx: TxType
     /** Specify the user's preferred fee priority (fast/average/slow) */
     feePriority?: FeePriority
-    bip44Params?: BIP44Params
+    bip44Params: BIP44Params
   }) => Promise<string>
 }

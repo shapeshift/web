@@ -1,3 +1,17 @@
+# [@shapeshiftoss/investor-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.1.1...@shapeshiftoss/investor-v3.0.0) (2022-10-13)
+
+
+### Features
+
+* **investor:** enforce `bip44Params` on `signAndBroadcast` ([#1061](https://github.com/shapeshift/lib/issues/1061)) ([19a6c7c](https://github.com/shapeshift/lib/commit/19a6c7c732db506b69548791c188868104738115))
+
+
+### BREAKING CHANGES
+
+* **investor:** makes bip44Params required for signAndBroadcast
+
+Co-authored-by: gomes <17035424+gomesalexandre@users.noreply.github.com>
+
 # [@shapeshiftoss/investor-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.1.0...@shapeshiftoss/investor-v2.1.1) (2022-09-16)
 
 # [@shapeshiftoss/investor-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.0.1...@shapeshiftoss/investor-v2.1.0) (2022-09-12)

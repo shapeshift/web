@@ -19,10 +19,6 @@ export type PubKey = string
 
 type SingleValidatorDataArgs = { accountSpecifier: string; chainId: ChainId }
 
-export type Validators = {
-  validators: cosmossdk.Validator[]
-}
-
 export type ValidatorData = {
   byValidator: ValidatorDataByPubKey
   validatorIds: PubKey[]

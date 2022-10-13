@@ -1,24 +1,25 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
+import qs from 'qs'
+import { useEffect, useMemo } from 'react'
+import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import qs from 'qs'
-import { useEffect, useMemo } from 'react'
-import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
-    selectAssetById,
-    selectFoxEthLpOpportunityByAccountAddress,
-    selectVisibleFoxFarmingOpportunities
+  selectAssetById,
+  selectFoxEthLpOpportunityByAccountAddress,
+  selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

@@ -4058,10 +4058,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.2.tgz#dfee57a24967af28bf52b6dd8057d1a57e9ad0ec"
   integrity sha512-vIIEs0ks9gU+CE1NdqvDos2JTJeJhYgeWmxGM6vlJt/6p7lieyWP5JC1y4UKcJAmxVBGrq6oVf8ys+2b5Kqtrw==
 
-"@shapeshiftoss/chain-adapters@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.0.0.tgz#e66ffc0053ac08551913f5f4e6b66512c1f00589"
-  integrity sha512-V5vh6K0M4HY1jqdvldWC12vqyFnP72Bwtfj53cwHG07s9/eCzBya0EqMgtfARtGAIGYXdSJLJ9n04HdD1m4f5g==
+"@shapeshiftoss/chain-adapters@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.1.0.tgz#2c69564fd79201be7f733971d069bf4a4ca495f7"
+  integrity sha512-yebUgJS0Pb/9U5b0AS7OnQQv76WWGIjewjRaaGib40IETk6fJHcEFibU1MIlAuiEvml/YKKZGp4dnokPpfjY8A==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4284,10 +4284,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-idle@^2.1.3":
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.1.3.tgz#90b6ba4704086cd956747c4a5c243fa059915584"
-  integrity sha512-BJ835xBO0JxSlLuXHeCDNutRT6MT1/d5qXi2JbX63dlzXJWY2qb/ppFDjMOFc7Aqexq3O+Z9JnS8L5REMzZfyQ==
+"@shapeshiftoss/investor-idle@^2.1.4":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.1.4.tgz#33e3ada16b7271faac3e1bbaed607de318cb2d5d"
+  integrity sha512-k2QXH6Y78tzxwOnCtgz0OjmhgfSA1LH/DAFAx5wFkVlA98Ffg3dzLNyMYiH8ThpBCqDgagEkbGTNoembQDWARA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     bignumber.js "^9.0.2"
@@ -4296,10 +4296,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-yearn@^6.1.3":
-  version "6.1.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-6.1.3.tgz#dbd7ff0f89f8cb150405004779f2422653c26d23"
-  integrity sha512-xVre9t6wO6zmFDkk0hILW71NElRE20aEN1wjXirBI2KeOe/6JovsAlp3S6a0CieycwHAyE7lH8/jh16N+Nqwqw==
+"@shapeshiftoss/investor-yearn@^6.1.4":
+  version "6.1.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-6.1.4.tgz#f4353c62f176a6e1d24865015f91f82decace361"
+  integrity sha512-LE5pWIzDSZ9rNEXp3KAqkcHuPDBCluc33pcRjF8/R807LCE81ektADzsGuAQgnrSLbdgHe9A4mR8Hs7/zxWGCg==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.30"

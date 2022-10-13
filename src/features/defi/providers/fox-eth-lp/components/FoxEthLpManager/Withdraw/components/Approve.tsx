@@ -1,24 +1,20 @@
-import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useCallback, useContext, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
@@ -36,7 +32,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { accountAddress } = useFoxEth()
   const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(accountAddress)
   const opportunity = state?.opportunity
-  const alertText = useColorModeValue('blue.800', 'white')
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -49,17 +44,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
 
   // notify
   const toast = useToast()
-
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
-  )
-  const hasEnoughBalanceForGas = useMemo(
-    () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-        .gte(0),
-    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
-  )
 
   const handleApprove = useCallback(async () => {
     if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
@@ -120,26 +104,20 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     wallet,
   ])
 
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
   const preFooter = useMemo(
     () => (
-      <>
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.withdraw.withdrawFee')}
-          </AlertDescription>
-        </Alert>
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text
-              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
-            />
-          </Alert>
-        )}
-      </>
+      <ApprovePreFooter
+        action={DefiAction.Withdraw}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
     ),
-    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+    [feeAsset, state?.approve.estimatedGasCrypto],
   )
 
   if (!state || !dispatch) return null

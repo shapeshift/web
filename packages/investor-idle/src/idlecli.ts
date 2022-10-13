@@ -58,11 +58,13 @@ const main = async (): Promise<void> => {
   const approvalPreparedTx = await opportunity.prepareApprove(address)
   const withdrawPreparedTx = await opportunity.prepareDeposit({ address, amount: bn(1000) })
   const depositPreparedTx = await opportunity.prepareWithdrawal({ address, amount: bn(1000) })
+  const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
 
   const signedTx = await opportunity.signAndBroadcast({
     wallet,
     tx: depositPreparedTx,
     feePriority: 'fast',
+    bip44Params,
   })
   console.info(
     JSON.stringify(

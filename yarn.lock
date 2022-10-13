@@ -2884,6 +2884,16 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
+"@shapeshiftoss/hdwallet-core@^1.35.0":
+  version "1.35.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.35.0.tgz#fe056d61c79a43d40951bb92a58ec4655681f514"
+  integrity sha512-QENbf7kLEUWFHuw4X6uZQJTyDPFAVRTJCnJ+wpTLw1CgvmDcBSTrRR/X/HF2Ao6M86Fm6GtKY/hfdEV3JKHc0w==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.19.0.tgz#7eeae9be9f90fff53887611c6ac02c334781baa3"
@@ -2921,23 +2931,10 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/investor-foxy@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-5.0.1.tgz#1b8befc2335bd89103d3a3556a1d6d2856f806c2"
-  integrity sha512-q/rj1ofOdyiS8xbYZOJ3DOyulEoR7nmLILTQeVHZ7XEPaY+sfO2Cb+WU70xzlu0/gG84PIej5tM0s6rU82sUeg==
-  dependencies:
-    "@ethersproject/providers" "^5.5.3"
-    axios "^0.26.1"
-    bignumber.js "^9.0.2"
-    lodash "^4.17.21"
-    web3 "1.7.4"
-    web3-core "1.7.4"
-    web3-utils "1.7.4"
-
-"@shapeshiftoss/investor@^1.0.1":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor/-/investor-1.0.2.tgz#32ed90a96e122bb8f6dfdea088a2df9b88527eef"
-  integrity sha512-COHhutd7gPe9tUCdog8YK9OXSU5tu5eXlNdS0g+3XEv4DloaS/q0va/azfNUOj3bPFInsIHY/bojqUm61dDSbA==
+"@shapeshiftoss/investor@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor/-/investor-3.0.0.tgz#d748f4ff6378d0351b57deb72ad5d829651e0edf"
+  integrity sha512-dR+qXunrTojB1HI1NtGFJpUnxVLjrV/rWOZiv/WRxUVWHAwKdj0tZC0A4k3fKVSaA0q/z5aucKvG3q/oJX3qgQ==
 
 "@shapeshiftoss/proto-tx-builder@^0.3.0":
   version "0.3.0"

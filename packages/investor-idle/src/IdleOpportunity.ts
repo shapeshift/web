@@ -8,7 +8,7 @@ import {
   InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import toLower from 'lodash/toLower'
 import Web3 from 'web3'
@@ -36,7 +36,7 @@ export type PreparedTransaction = {
   value: '0'
 }
 
-const feeMultipier: Record<FeePriority, number> = Object.freeze({
+const feeMultiplier: Record<FeePriority, number> = Object.freeze({
   fast: 1,
   average: 0.8,
   slow: 0.5,
@@ -449,12 +449,13 @@ export class IdleOpportunity
     wallet: HDWallet
     tx: PreparedTransaction
     feePriority?: FeePriority
+    bip44Params: BIP44Params
   }): Promise<string> {
-    const { wallet, tx, feePriority } = input
+    const { wallet, tx, feePriority, bip44Params } = input
     const feeSpeed: FeePriority = feePriority ? feePriority : 'fast'
     const chainAdapter = this.#internals.chainAdapter
 
-    const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultipier[feeSpeed]).toString())
+    const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultiplier[feeSpeed]).toString())
     const txToSign: ETHSignTx = {
       ...tx,
       gasPrice,
@@ -462,7 +463,7 @@ export class IdleOpportunity
       gasLimit: numberToHex(tx.estimatedGas.times(1.5).integerValue().toString()),
       nonce: numberToHex(tx.nonce),
       value: numberToHex(tx.value),
-      addressNList: toAddressNList(chainAdapter.buildBIP44Params({ accountNumber: 0 })),
+      addressNList: toAddressNList(bip44Params),
     }
 
     // console.log('signAndBroadcast', txToSign)

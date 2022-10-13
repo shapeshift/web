@@ -8,8 +8,7 @@ import {
   InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { BIP44Params } from '@shapeshiftoss/types'
+import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import { type ChainId, type Vault, type VaultMetadata, Yearn } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
@@ -41,7 +40,7 @@ export type PreparedTransaction = {
   value: '0'
 }
 
-const feeMultipier: Record<FeePriority, number> = Object.freeze({
+const feeMultiplier: Record<FeePriority, number> = Object.freeze({
   fast: 1,
   average: 0.8,
   slow: 0.5,
@@ -177,7 +176,7 @@ export class YearnOpportunity
     wallet: HDWallet
     tx: PreparedTransaction
     feePriority?: FeePriority
-    bip44Params?: BIP44Params
+    bip44Params: BIP44Params
   }): Promise<string> {
     const { bip44Params, wallet, tx, feePriority } = input
 
@@ -186,7 +185,7 @@ export class YearnOpportunity
     const feeSpeed: FeePriority = feePriority ? feePriority : 'fast'
     const chainAdapter = this.#internals.chainAdapter
 
-    const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultipier[feeSpeed]).toString())
+    const gasPrice = numberToHex(bnOrZero(tx.gasPrice).times(feeMultiplier[feeSpeed]).toString())
     const txToSign: ETHSignTx = {
       ...tx,
       gasPrice,

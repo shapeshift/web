@@ -65,6 +65,13 @@ const initialState: MarketDataState = {
   },
 }
 
+export const defaultMarketData: MarketData = {
+  price: '0',
+  marketCap: '0',
+  volume: '0',
+  changePercent24Hr: 0,
+}
+
 // do not directly use or export, singleton
 let _marketServiceManager: MarketServiceManager | undefined
 

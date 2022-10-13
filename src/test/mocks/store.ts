@@ -43,7 +43,6 @@ export const mockStore: ReduxState = {
     },
     accountSpecifiers: {
       accountMetadataById: {},
-      byId: {},
       ids: [],
     },
   },
@@ -55,7 +54,6 @@ export const mockStore: ReduxState = {
       Osmosis: false,
       FoxLP: false,
       FoxFarming: false,
-      Avalanche: false,
       Thorchain: false,
       ThorSwap: false,
       CowSwap: false,

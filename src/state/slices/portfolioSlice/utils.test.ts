@@ -7,7 +7,6 @@ import { mockChainAdapters } from 'test/mocks/portfolio'
 import {
   accountIdToFeeAssetId,
   accountIdToLabel,
-  accountIdToSpecifier,
   findAccountsByAssetId,
   makeBalancesByChainBucketsFlattened,
   makeSortedAccountBalances,
@@ -28,22 +27,6 @@ describe('accountIdToFeeAssetId', () => {
     const accountId = 'eip155:43114:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(avalancheAssetId)
-  })
-})
-
-describe('accountIdToSpecifier', () => {
-  it('can get eth address from accountId', () => {
-    const address = '0xdef1cafe'
-    const accountId = 'eip155:1:0xdef1cafe'
-    const result = accountIdToSpecifier(accountId)
-    expect(result).toEqual(address)
-  })
-
-  it('can get xpub form accountId', () => {
-    const xpub = 'xpubfoobarbaz'
-    const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
-    const result = accountIdToSpecifier(accountId)
-    expect(result).toEqual(xpub)
   })
 })
 

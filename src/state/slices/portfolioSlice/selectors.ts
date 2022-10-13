@@ -23,7 +23,6 @@ import maxBy from 'lodash/maxBy'
 import reduce from 'lodash/reduce'
 import size from 'lodash/size'
 import sum from 'lodash/sum'
-import toLower from 'lodash/toLower'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
@@ -57,7 +56,6 @@ import type {
   AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountBalancesById,
-  PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
   PortfolioAssets,
   PortfolioBalancesById,
@@ -141,8 +139,6 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 )
 export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
-export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
-  state.portfolio.accountSpecifiers.byId
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
@@ -1041,24 +1037,6 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
           bnOrZero(assetFiatBalance).gte(bnOrZero(balanceThreshold)),
       )
       .map(([assetId]) => assetId)
-  },
-)
-
-export const selectAccountIdByAddress = createSelector(
-  selectAccountIds,
-  selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, filterAccountId): string => {
-    let accountSpecifier = ''
-    for (const portfolioAccount in portfolioAccounts) {
-      const isAccountSpecifier = !!portfolioAccounts[portfolioAccount].find(
-        accountId => toLower(accountId) === toLower(filterAccountId),
-      )
-      if (isAccountSpecifier) {
-        accountSpecifier = portfolioAccount
-        break
-      }
-    }
-    return accountSpecifier
   },
 )
 

@@ -131,7 +131,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
     isImplemented: true,
-    isActive: featureFlags => featureFlags.MtPelerinFiatRamp,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
@@ -156,7 +156,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: [],
     logo: OnRamperLogo,
     isImplemented: true,
-    isActive: featureFlags => featureFlags.OnRamperFiatRamp,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: true,
     minimumSellThreshold: 0,

@@ -94,8 +94,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [accountId, asset.symbol, handleAccountIdChange, translate])
 
   useEffect(() => {
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: opportunity })

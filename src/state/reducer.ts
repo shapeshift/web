@@ -39,6 +39,7 @@ export const sliceReducers = {
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   accountSpecifiers: accountSpecifiers.reducer,
   validatorData: validatorData.reducer,
+  swapperApi: swapperApi.reducer,
   foxEth: foxEth.reducer,
 }
 

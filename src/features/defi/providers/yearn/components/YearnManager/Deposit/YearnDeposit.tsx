@@ -10,7 +10,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -23,6 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -58,6 +59,9 @@ export const YearnDeposit: React.FC<{
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   // user info
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
@@ -66,9 +70,9 @@ export const YearnDeposit: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && api)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && api && bip44Params)) return
         const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
@@ -89,9 +93,9 @@ export const YearnDeposit: React.FC<{
         moduleLogger.error(error, 'YearnDeposit error')
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -99,7 +103,7 @@ export const YearnDeposit: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

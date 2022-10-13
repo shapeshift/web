@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
@@ -9,7 +9,6 @@ import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'
@@ -19,7 +18,7 @@ import { supportsStaking } from './components/modals/Staking/StakingCommon'
 
 type AssetDetailsProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
 export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
@@ -38,7 +37,7 @@ export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsPr
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <AssetAccounts assetId={assetId} accountId={accountId} />
           {supportsStaking(fromAssetId(assetId).chainId) && (
-            <StakingOpportunities assetId={assetId} />
+            <StakingOpportunities accountId={accountId} assetId={assetId} />
           )}
           <AssetTransactionHistory assetId={assetId} accountId={accountId} />
         </Stack>

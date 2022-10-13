@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, useColorModeValue, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -13,6 +13,7 @@ import { useCallback, useContext, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -22,6 +23,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -175,6 +177,40 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     walletState.wallet,
   ])
 
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  )
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.approve.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAsset.precision, feeAssetBalance, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <>
+        <Alert status='info' borderRadius='lg' color='blue.500'>
+          <FaGasPump />
+          <AlertDescription textAlign='left' ml={3} color={alertText}>
+            {translate('modals.withdraw.withdrawFee')}
+          </AlertDescription>
+        </Alert>
+
+        {!hasEnoughBalanceForGas && (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <Text
+              translation={['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+            />
+          </Alert>
+        )}
+      </>
+    ),
+    [alertText, feeAsset.symbol, hasEnoughBalanceForGas, translate],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -184,7 +220,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
@@ -192,14 +228,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.withdraw.withdrawFee')}
-          </AlertDescription>
-        </Alert>
-      }
+      preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
       contractAddress={contractAddress}

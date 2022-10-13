@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SupportedFiatRampConfig } from '../config'
@@ -13,7 +12,7 @@ import { FiatRampAction } from '../FiatRampsCommon'
 
 type FiatRampButtonProps = {
   onClick: () => void
-  accountFiatBalance: BigNumber
+  accountFiatBalance: string
   action: FiatRampAction
 } & SupportedFiatRampConfig
 
@@ -71,9 +70,9 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
       >
         <Flex
           flex={1}
-          flexDirection={['column', 'row']}
+          flexWrap='wrap'
           justifyContent='space-between'
-          alignItems={['baseline', 'center']}
+          alignItems='center'
           gap={['1em', 0]}
           width='100%'
         >
@@ -84,9 +83,7 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
               <Text translation={info ?? ''} />
             </Box>
           </Flex>
-          <Flex display={['none', 'flex']} gap={2}>
-            {renderTags}
-          </Flex>
+          <Flex gap={2}>{renderTags}</Flex>
         </Flex>
       </Button>
     </Tooltip>

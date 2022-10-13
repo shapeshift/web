@@ -125,8 +125,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
       validatedAccountIdFromArgs ??
       (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
       firstAccountId
-    firstAccountId !== selectedAccountId && setSelectedAccountId(preSelectedAccountId) // don't set to same thing again
-    // this effect sets selectedAccountId for the first render when we receive accountIds
+    setSelectedAccountId(preSelectedAccountId)
+    // this effect sets selectedAccountId on first render when we receive accountIds and when defaultAccountId changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetId, accountIds, defaultAccountId])
 

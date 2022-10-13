@@ -33,6 +33,7 @@ export const useTradeAmounts = () => {
   const feesFormState = useWatch({ control, name: 'fees' })
   const amountFormState = useWatch({ control, name: 'amount' })
   const actionFormState = useWatch({ control, name: 'action' })
+  const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
 
   const dispatch = useAppDispatch()
   const { swapperManager, getReceiveAddressFromBuyAsset } = useSwapper()
@@ -50,6 +51,7 @@ export const useTradeAmounts = () => {
     buyAssetId?: AssetId
     amount?: string
     action?: TradeAmountInputField
+    sendMax?: boolean
   }
   type SetTradeAmountsArgs = CalculateAmountsArgs
 
@@ -124,7 +126,13 @@ export const useTradeAmounts = () => {
   // Use the args provided to get new fiat rates and a fresh quote
   // Useful when changing assets where we expect response data to meaningfully change - so wait before updating amounts
   const setTradeAmountsRefetchData = useCallback(
-    async ({ sellAssetId, buyAssetId, amount, action }: SetTradeAmountsSynchronousArgs) => {
+    async ({
+      sellAssetId,
+      buyAssetId,
+      amount,
+      action,
+      sendMax,
+    }: SetTradeAmountsSynchronousArgs) => {
       // Eagerly update the input field to improve UX whilst we wait for API responses
       switch (action) {
         case TradeAmountInputField.SELL_FIAT:
@@ -157,7 +165,11 @@ export const useTradeAmounts = () => {
         sellAssetId: sellAssetIdToUse,
       })
 
-      if (!bestTradeSwapper) return
+      if (!bestTradeSwapper) {
+        setValue('quote', undefined)
+        setValue('fees', undefined)
+        return
+      }
       const state = store.getState()
       const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
         assetId: sellAsset.assetId,
@@ -178,13 +190,12 @@ export const useTradeAmounts = () => {
         wallet,
         receiveAddress,
         sellAmount: sellTradeAsset?.amount || amountToUse || '0',
+        isSendMax: sendMax ?? isSendMaxFormState,
       })
 
       const quoteResponse = tradeQuoteArgs
         ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
         : undefined
-
-      quoteResponse?.data ? setValue('quote', quoteResponse.data) : setValue('quote', undefined)
 
       // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
       const formFees = quoteResponse?.data
@@ -196,8 +207,6 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      formFees ? setValue('fees', formFees) : setValue('fees', undefined)
-
       const { data: usdRates } = await dispatch(
         getUsdRates.initiate({
           buyAssetId: buyAssetIdToUse,
@@ -206,7 +215,9 @@ export const useTradeAmounts = () => {
         }),
       )
 
-      usdRates &&
+      if (usdRates) {
+        setValue('quote', quoteResponse?.data)
+        setValue('fees', formFees)
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,
@@ -218,6 +229,12 @@ export const useTradeAmounts = () => {
           buyAssetTradeFeeUsd: bnOrZero(formFees?.buyAssetTradeFeeUsd),
           sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
+      } else {
+        setValue('sellAssetFiatRate', undefined)
+        setValue('buyAssetFiatRate', undefined)
+        setValue('feeAssetFiatRate', undefined)
+        setValue('fees', undefined)
+      }
     },
     [
       actionFormState,
@@ -228,6 +245,7 @@ export const useTradeAmounts = () => {
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,
+      isSendMaxFormState,
       selectedCurrencyToUsdRate,
       sellAssetFormState?.assetId,
       sellTradeAsset?.amount,

@@ -17,7 +17,6 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -26,6 +25,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AccountTable } from './components/AccountList/AccountTable'
+import { PortfolioBreakdown } from './PortfolioBreakdown'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
@@ -40,7 +40,6 @@ export const Portfolio = () => {
   const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
-  const isRainbowChartsEnabled = useFeatureFlag('RainbowCharts')
   const [isRainbowChart, setIsRainbowChart] = useState(false)
   const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
 
@@ -55,65 +54,37 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          {isRainbowChartsEnabled ? (
-            // TODO: only keep this part after `RainbowCharts` feature flag removal
-            <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
-              <Text translation='dashboard.portfolio.totalChart' />
-              <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
-              <Text translation='dashboard.portfolio.rainbowChart' />
-            </Button>
-          ) : (
-            <Flex flexDir='column'>
-              <Card.Heading as='div' color='gray.500'>
-                <Skeleton isLoaded={isLoaded} mb={2}>
-                  <Text translation='dashboard.portfolio.portfolioBalance' />
-                </Skeleton>
-              </Card.Heading>
-              <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
-                <Skeleton isLoaded={isLoaded}>
-                  <Amount.Fiat value={totalBalance} />
-                </Skeleton>
-              </Card.Heading>
-              {isFinite(percentChange) && (
-                <Skeleton mt={2} isLoaded={!!percentChange}>
-                  <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
-                    <StatNumber fontSize='md' display='flex' alignItems='center'>
-                      <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-                      <Amount.Percent value={percentChange * 0.01} />
-                    </StatNumber>
-                  </Stat>
-                </Skeleton>
-              )}
-            </Flex>
-          )}
+          <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
+            <Text translation='dashboard.portfolio.totalChart' />
+            <Switch isChecked={isRainbowChart} pointerEvents='none' mx={2} size='sm' />
+            <Text translation='dashboard.portfolio.rainbowChart' />
+          </Button>
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
-        {isRainbowChartsEnabled && (
-          <Flex flexDir='column' justifyContent='center' alignItems='center'>
-            <Card.Heading as='div' color='gray.500'>
-              <Skeleton isLoaded={isLoaded}>
-                <Text translation='dashboard.portfolio.portfolioBalance' />
-              </Skeleton>
-            </Card.Heading>
-            <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
-              <Skeleton isLoaded={isLoaded}>
-                <Amount.Fiat value={totalBalance} />
-              </Skeleton>
-            </Card.Heading>
-            {isFinite(percentChange) && (
-              <Skeleton mt={2} isLoaded={!!percentChange}>
-                <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
-                  <StatNumber fontSize='md' display='flex' alignItems='center'>
-                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-                    <Amount.Percent value={percentChange * 0.01} />
-                  </StatNumber>
-                </Stat>
-              </Skeleton>
-            )}
-          </Flex>
-        )}
+        <Flex flexDir='column' justifyContent='center' alignItems='center'>
+          <Card.Heading as='div' color='gray.500'>
+            <Skeleton isLoaded={isLoaded}>
+              <Text translation='defi.netWorth' />
+            </Skeleton>
+          </Card.Heading>
+          <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+            <Skeleton isLoaded={isLoaded}>
+              <Amount.Fiat value={totalBalance} />
+            </Skeleton>
+          </Card.Heading>
+          {isFinite(percentChange) && (
+            <Skeleton mt={2} isLoaded={!!percentChange}>
+              <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                <StatNumber fontSize='md' display='flex' alignItems='center'>
+                  <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                  <Amount.Percent value={percentChange * 0.01} />
+                </StatNumber>
+              </Stat>
+            </Skeleton>
+          )}
+        </Flex>
         <BalanceChart
           assetIds={assetIds}
           timeframe={timeframe}
@@ -136,6 +107,7 @@ export const Portfolio = () => {
         </Skeleton>
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
+      <PortfolioBreakdown />
       <Card>
         <Card.Header>
           <Card.Heading>

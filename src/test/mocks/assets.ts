@@ -50,19 +50,6 @@ export const usdc: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-export const aapl: Asset = {
-  chainId: ethChainId,
-  assetId: 'eip155:1/erc20:0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
-  color: '#FFFFFF',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  icon: 'https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463',
-  name: ' AAPL',
-  precision: 18,
-  symbol: 'AAPL',
-}
-
 export const zero: Asset = {
   chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',

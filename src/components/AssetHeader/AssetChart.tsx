@@ -32,7 +32,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
-  selectCryptoBalanceIncludingStakingByFilter,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
   selectPortfolioStakingCryptoHumanBalanceByFilter,
@@ -73,7 +73,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const translate = useTranslate()
 
   const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
-  const cryptoBalance = useAppSelector(s => selectCryptoBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
+  )
 
   const stakingFiatBalance = useAppSelector(s =>
     selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
@@ -137,7 +139,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoHumanBalance} ${asset.symbol}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}

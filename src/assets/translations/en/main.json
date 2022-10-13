@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -437,6 +438,15 @@
         "approve": "Approve",
         "revoke": "Revoke",
         "infinite": "Infinite ∞"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Refund",
+        "outbound": "Outbound"
+      },
+      "lp": {
+        "deposit": "Add Liquidity"
       }
     },
     "unknown": "Transaction"
@@ -1342,6 +1352,7 @@
     "receivedFrom": "Received From",
     "orderRoute": "Order Route",
     "status": "Status",
+    "memo": "Memo",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
     "approvalAmount": "Approval Amount",

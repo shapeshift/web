@@ -1,23 +1,26 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { ethChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
-import { useEnsName } from 'wagmi'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { ReduxState } from 'state/reducer'
-import {
-  selectAssetById,
-  selectFeeAssetByChainId,
-  selectMarketDataById,
-  selectTxById,
-} from 'state/slices/selectors'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-// Adding a new supported method? Also update transactionRow.parser translations accordingly
-export enum ContractMethod {
+export type Transfer = TxTransfer & { asset: Asset; marketData: MarketData }
+export type Fee = unchained.Fee & { asset: Asset; marketData: MarketData }
+
+export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'unknown'
+
+// Adding a new supported method?
+// Also update transactionRow.parser translations and TransactionContract.tsx
+export enum Method {
   Deposit = 'deposit',
   Approve = 'approve',
+  Revoke = 'revoke',
   Withdraw = 'withdraw',
   AddLiquidityEth = 'addLiquidityETH',
   RemoveLiquidityEth = 'removeLiquidityETH',
@@ -27,172 +30,58 @@ export enum ContractMethod {
   InstantUnstake = 'instantUnstake',
   ClaimWithdraw = 'claimWithdraw',
   Exit = 'exit',
-}
-
-export enum Direction {
-  InPlace = 'in-place',
   Outbound = 'outbound',
-  Inbound = 'inbound',
+  Refund = 'refund',
+  Out = 'out',
 }
 
 export interface TxDetails {
   tx: Tx
-  buyTransfer?: TxTransfer
-  sellTransfer?: TxTransfer
-  tradeTx?: TxTransfer
-  feeAsset?: Asset
-  buyAsset?: Asset
-  sellAsset?: Asset
-  value?: string
-  to: string
-  ensTo?: string
-  from: string
-  ensFrom?: string
-  type: TradeType | TransferType | ''
-  symbol: string
-  precision: number
+  transfers: Transfer[]
+  fee?: Fee
+  type: TxType
   explorerTxLink: string
-  explorerAddressLink: string
-  direction?: Direction
-  sourceMarketData: MarketData
-  destinationMarketData: MarketData
-  feeMarketData: MarketData
 }
 
-export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getTransferByType = (tx: Tx, TransferType: TransferType) =>
-  tx.transfers.find(t => t.type === TransferType)
-export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, TransferType.Receive)
-export const getSellTransfer = (tx: Tx) => getTransferByType(tx, TransferType.Send)
-export const getTransferByAsset = (tx: Tx, asset: Asset) =>
-  tx.transfers.find(t => t.assetId === asset.assetId)
+export const isSupportedMethod = (tx: Tx) =>
+  Object.values(Method).includes(tx.data?.method as Method)
 
-export const isSupportedContract = (tx: Tx) =>
-  Object.values(ContractMethod).includes(tx.data?.method as ContractMethod)
-
-/**
- * isTradeContract
- *
- * Returns true when a tx has transfers matching the generalized idea of a
- * trade (i.e. some account sells to pool A and buys from pool B).
- *
- * @param buyTransfer transfer with TransferType.Receive
- * @param sellTransfer transfer with TransferType.Send
- * @returns boolean
- */
-export const isTradeContract = (buyTransfer: TxTransfer, sellTransfer: TxTransfer): boolean => {
-  return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
-}
-
-export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
+export const useTxDetails = (
+  txId: string,
+  assets: AssetsById,
+  marketData: Record<AssetId, MarketData | undefined>,
+  activeAsset?: Asset,
+): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
-  const method = tx.data?.method
 
-  const standardTx = getStandardTx(tx)
-  const buyTransfer = getTransferByType(tx, TransferType.Receive)
-  const sellTransfer = getTransferByType(tx, TransferType.Send)
-  const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
+  const transfers = tx.transfers.reduce<Transfer[]>((prev, transfer) => {
+    if (activeAsset && activeAsset.assetId !== transfer.assetId) return prev
+    const asset = assets[transfer.assetId]
+    return [
+      ...prev,
+      { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
+    ]
+  }, [])
 
-  const direction: Direction | undefined = (() => {
-    switch (method) {
-      case ContractMethod.Deposit:
-      case ContractMethod.AddLiquidityEth:
-      case ContractMethod.TransferOut:
-      case ContractMethod.Stake:
-        return Direction.Outbound
-      case ContractMethod.Withdraw:
-      case ContractMethod.RemoveLiquidityEth:
-      case ContractMethod.Unstake:
-      case ContractMethod.InstantUnstake:
-      case ContractMethod.ClaimWithdraw:
-      case ContractMethod.Exit:
-        return Direction.Inbound
-      case ContractMethod.Approve:
-        return Direction.InPlace
-      default:
-        return undefined
-    }
-  })()
-
-  const standardAsset = useAppSelector((state: ReduxState) =>
-    selectAssetById(state, standardTx?.assetId ?? ''),
-  )
-
-  // stables need precision of eth (18) rather than 10
   const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, tx.fee?.assetId ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyTransfer?.assetId ?? ''))
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellTransfer?.assetId ?? ''))
-  const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
-  const sourceMarketData = useAppSelector(state =>
-    selectMarketDataById(state, sellTransfer?.assetId ?? ''),
-  )
-  const destinationMarketData = useAppSelector(state =>
-    selectMarketDataById(state, buyTransfer?.assetId ?? ''),
-  )
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.assetId ?? ''))
+  const fee = tx.fee && {
+    ...tx.fee,
+    asset: assets[tx.fee.assetId] ?? defaultFeeAsset,
+    marketData: marketData[tx.fee.assetId] ?? defaultMarketData,
+  }
 
-  const value = standardTx?.value ?? tradeTx?.value ?? undefined
-  const to = standardTx?.to ?? tradeTx?.to ?? ''
-  const from = standardTx?.from ?? tradeTx?.from ?? ''
-
-  const { data: ensFrom = '' } = useEnsName({
-    address: from,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-    enabled: tx.chainId === ethChainId,
-  })
-
-  const { data: ensTo = '' } = useEnsName({
-    address: to,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-    enabled: tx.chainId === ethChainId,
-  })
-
-  const tradeType =
-    buyTransfer && sellTransfer && isTradeContract(buyTransfer, sellTransfer)
-      ? TradeType.Trade
-      : undefined
-  const type = isSupportedContract(tx)
-    ? TransferType.Contract
-    : standardTx?.type ?? tx.trade?.type ?? tradeType ?? ''
-  const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
-  const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
-  const explorerTxLink =
-    standardAsset?.explorerTxLink ??
-    tradeAsset?.explorerTxLink ??
-    feeAsset?.explorerTxLink ??
-    defaultFeeAsset?.explorerTxLink ??
-    ''
-  const explorerAddressLink =
-    standardAsset?.explorerAddressLink ??
-    tradeAsset?.explorerAddressLink ??
-    feeAsset?.explorerAddressLink ??
-    defaultFeeAsset?.explorerAddressLink ??
-    ''
+  const type: TxType = (() => {
+    if (tx.trade) return tx.trade.type
+    if (isSupportedMethod(tx)) return 'method'
+    if (transfers.length === 1) return transfers[0].type // standard send/receive
+    return 'unknown'
+  })()
 
   return {
     tx,
-    buyTransfer,
-    sellTransfer,
-    tradeTx,
-    feeAsset,
-    buyAsset,
-    sellAsset,
-    value,
-    to,
-    ensTo: ensTo!,
-    from,
-    ensFrom: ensFrom!,
+    fee,
+    transfers,
     type,
-    symbol,
-    precision,
-    explorerTxLink,
-    explorerAddressLink,
-    direction,
-    sourceMarketData,
-    destinationMarketData,
-    feeMarketData,
+    explorerTxLink: fee?.asset.explorerTxLink ?? defaultFeeAsset.explorerTxLink,
   }
 }

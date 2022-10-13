@@ -5,7 +5,12 @@ import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDa
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { selectAssetById, selectTxDateByIds } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketData,
+  selectTxDateByIds,
+} from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -25,6 +30,8 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
 }) => {
   const assetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketData)
 
   const { setNode, entry } = useResizeObserver()
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
@@ -54,6 +61,8 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
           <TransactionRow
             key={txId}
             txId={txId}
+            assets={assets}
+            marketData={marketData}
             activeAsset={asset}
             useCompactMode={useCompactMode}
             showDateAndGuide={index === 0}
@@ -62,7 +71,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
         ))}
       </Stack>
     ))
-  }, [asset, entry?.contentRect.width, txRows, useCompactMode])
+  }, [asset, assets, marketData, entry?.contentRect.width, txRows, useCompactMode])
 
   return (
     <Stack ref={setNode} divider={<StackDivider borderColor={borderTopColor} />}>

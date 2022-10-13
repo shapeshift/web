@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -40,6 +41,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const opportunity = state?.opportunity
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const chainAdapter = getChainAdapterManager().get(chainId)
 
   const assetNamespace = 'erc20'
 
@@ -49,13 +51,9 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     assetReference: vaultAddress,
   })
 
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeAssetId = chainAdapter?.getFeeAssetId()
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   // user info
   const { state: walletState } = useWallet()
@@ -122,7 +120,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   }, [state.claim, feeAssetBalance, feeAsset])
 
   const handleConfirm = useCallback(async () => {
-    if (!dispatch) return
+    if (!(dispatch && chainAdapter)) return
     try {
       if (
         !(
@@ -138,6 +136,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       const idleOpportunity = await idleInvestor?.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
+      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareClaimTokens(state.userAddress)
       const txid = await idleOpportunity.signAndBroadcast({
@@ -145,6 +144,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
+        bip44Params,
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -155,12 +155,13 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     }
   }, [
     dispatch,
+    chainAdapter,
     state.userAddress,
-    state.opportunity,
-    idleInvestor,
+    state.opportunity?.positionAsset.assetId,
     assetReference,
     walletState.wallet,
     opportunity,
+    idleInvestor,
     onNext,
   ])
 

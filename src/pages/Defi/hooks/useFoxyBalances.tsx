@@ -2,16 +2,9 @@ import { ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
 import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
 import { selectPortfolioAccountsGroupedByNumberByChainId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-export type UseFoxyBalancesReturn = {
-  opportunities: MergedFoxyOpportunity[]
-  totalBalance: string
-  loading: boolean
-}
 
 export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
   const {

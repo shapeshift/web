@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-idle'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -14,6 +14,7 @@ import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -38,17 +39,14 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   const { chainId, assetReference } = query
   const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
+  const chainAdapter = getChainAdapterManager().get(chainId)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
+  const feeAssetId = chainAdapter?.getFeeAssetId()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   // user info
   const { state: walletState } = useWallet()
@@ -105,7 +103,8 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         state?.userAddress &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
-        opportunity
+        opportunity &&
+        chainAdapter
       )
     )
       return
@@ -115,6 +114,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       const idleOpportunity = await idleInvestor?.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
+      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareApprove(state.userAddress)
       await idleOpportunity.signAndBroadcast({
@@ -122,6 +122,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
+        bip44Params,
       })
       const address = state.userAddress
       await poll({
@@ -154,18 +155,19 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    assetReference,
-    idleInvestor,
-    asset?.precision,
-    state?.deposit,
-    state?.userAddress,
-    walletState?.wallet,
-    opportunity,
     dispatch,
+    assetReference,
+    state?.userAddress,
+    state?.deposit,
+    walletState.wallet,
+    opportunity,
+    chainAdapter,
+    idleInvestor,
+    getDepositGasEstimate,
+    onNext,
+    asset.precision,
     toast,
     translate,
-    onNext,
-    getDepositGasEstimate,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

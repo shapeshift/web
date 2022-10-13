@@ -543,6 +543,7 @@
       "generalError": "Ein Handelsfehler ist aufgetreten",
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
     },
+    "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
@@ -581,7 +582,7 @@
       },
       "factoryState": {
         "header": "Beginnen Sie mit Keepkey",
-        "body": "Ihr KeepKey wurde auf die Werkseinstellungen zurückgesetzt. Erstellen Sie eine neue Brieftasche oder stellen Sie eine Wallet mit Ihrer geheimen Wiederherstellungsphrase wieder her",
+        "body": "Ihr KeepKey wurde auf die Werkseinstellungen zurückgesetzt. Erstellen Sie eine neue Wallet oder stellen Sie eine Wallet mit Ihrer geheimen Wiederherstellungsphrase wieder her",
         "createButton": "Erstellen Sie eine neue Wallet",
         "recoverButton": "Wallet wiederherstellen"
       },
@@ -606,6 +607,7 @@
       "password": {
         "header": "Geben Sie Ihr Passwort ein",
         "walletName": "Wallet Spitzname (optional)",
+        "walletNameRequired": "Wallet Spitzname (erforderlich)",
         "body": "Geben Sie Ihr Passwort ein, um Ihre Wallet zu entschlüsseln",
         "placeholder": "Passwort eingeben",
         "show": "Passwort anzeigen",
@@ -613,6 +615,7 @@
         "error": {
           "invalid": "Ungültiges Passwort",
           "required": "Passwort wird benötigt",
+          "walletNameRequired": "Wallet Spitzname ist erforderlich",
           "length": "Ihr Passwort muss mindestens %{length} Zeichen lang sein",
           "maxLength": "Spitzname darf maximal %{length} Zeichen lang sein"
         }
@@ -746,6 +749,7 @@
       "noFee": "Keine %{symbol}-Gebühr",
       "requestWithdraw": "Auszahlung beantragen",
       "withdrawFee": "Für die Auszahlung wird eine separate Gasgebühr erhoben.",
+      "notEnoughGas": "Nicht genug %{assetSymbol}, um Gaskosten abzudecken",
       "disclaimer": "Nachfolgende Anfragen werden kombiniert und setzen die Auszahlungszeit zurück.",
       "withdrawalFee": "Abhebegebühr",
       "status": {

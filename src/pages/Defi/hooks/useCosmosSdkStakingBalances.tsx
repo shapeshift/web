@@ -1,5 +1,4 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { cosmos } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -29,13 +28,6 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
   chainId: ChainId
   tvl: string
   isLoaded?: boolean
-}
-
-export type MergedStakingOpportunity = cosmos.Validator & {
-  tokenAddress: string
-  assetId: AssetId
-  chainId: ChainId
-  tvl: string
 }
 
 export function useCosmosSdkStakingBalances({

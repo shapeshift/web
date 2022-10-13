@@ -34,12 +34,6 @@ export enum DefiStep {
   Status = 'status',
 }
 
-export enum Templates {
-  Deposit = 'deposit',
-  Withdraw = 'withdraw',
-  Overview = 'overview',
-}
-
 export type DefiParams = {
   provider: DefiProvider
   earnType: DefiType

@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -85,7 +85,7 @@ export type AccountMetadata = {
 }
 
 export type AccountMetadataById = {
-  [k: AccountSpecifier]: AccountMetadata
+  [k: AccountId]: AccountMetadata
 }
 
 /**

@@ -94,8 +94,6 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
   const hasActiveStaking = useAppSelector(state => selectHasActiveStakingOpportunity(state, filter))
-  console.log('hasActiveStaking', hasActiveStaking)
-  console.log('stakingOpportunitiesData', stakingOpportunitiesData)
 
   const handleClick = useCallback(
     (values: Row<OpportunitiesDataFull>) => {

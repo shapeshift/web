@@ -443,7 +443,7 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)((_accountIds, { assetId }) => assetId ?? 'undefined')
+)((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
 
 // If an AccountId is passed, selects data by AccountId
 // Else, aggregates the data for all AccountIds for said asset

@@ -19,7 +19,7 @@ import {
   selectAssetById,
   selectHasActiveStakingOpportunity,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -91,7 +91,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
 
   // this is returning data grouped by validator, not by account
   const stakingOpportunitiesData = useAppSelector(s =>
-    selectStakingOpportunitiesDataFull(s, filter),
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
   const hasActiveStaking = useAppSelector(state => selectHasActiveStakingOpportunity(state, filter))
   console.log('hasActiveStaking', hasActiveStaking)

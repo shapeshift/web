@@ -6,11 +6,9 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ActiveStakingOpportunity } from 'state/slices/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
-import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -48,18 +46,9 @@ export function useCosmosSdkStakingBalances({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  const dummyAccountSpecifier = useMemo(
-    () => getDefaultValidatorAddressFromAssetId(assetId),
-    [assetId],
-  )
   const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, {
-      accountSpecifier: supportsCosmosSdk ? accountId ?? accountSpecifier : dummyAccountSpecifier,
+    selectStakingOpportunitiesDataFullByFilter(state, {
+      accountSpecifier: accountId,
       assetId,
       supportsCosmosSdk,
     }),

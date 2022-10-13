@@ -16,6 +16,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { uniq } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -81,7 +82,7 @@ type ParamFilter = {
 type OptionalParamFilter = {
   assetId: AssetId
   accountId?: AccountId
-  accountSpecifier?: string
+  accountSpecifier?: string | null
   validatorAddress?: PubKey
   supportsCosmosSdk?: boolean
 }
@@ -122,6 +123,9 @@ const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('ac
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 const selectSupportsCosmosSdkParamFromFilterOptional =
   selectParamFromFilterOptional('supportsCosmosSdk')
+// TODO(gomes): DO NOT USE - use selectAccountIdParamFromFilterOptional instead
+const selectAccountSpecifierParamFromFilterOptional =
+  selectParamFromFilterOptional('accountSpecifier')
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -420,21 +424,53 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   },
 )
 
-export const selectStakingDataByAccountSpecifier = createSelector(
+export const selectPortfolioAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState): AccountSpecifier[] => state.portfolio.accounts.ids,
+  (accountIds): AccountId[] => accountIds,
+)
+
+/**
+ * selects portfolio account ids that *can* contain an assetId
+ * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
+ * but can contain it
+ */
+export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
+  selectPortfolioAccountIds,
+  selectAssetIdParamFromFilter,
+  (accountIds, assetId): AccountId[] => {
+    // early return for scenarios where assetId is not available yet
+    if (!assetId) return []
+    const { chainId } = fromAssetId(assetId)
+    return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
+  },
+)((_accountIds, { assetId }) => assetId ?? 'undefined')
+
+// If an AccountId is passed, selects data by AccountId
+// Else, aggregates the data for all AccountIds for said asset
+// Always returns an array, either of one or many - needs to be unwrapped
+// TODO(gomes): remove accountSpecifier terminology here, this really is an AccountId but we're dependant on this wrong terminology because of selector usages
+export const selectStakingDataByMaybeAccountSpecifier = createSelector(
   selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilter,
-  (portfolioAccounts, accountSpecifier): StakingDataByValidatorId | null => {
-    return portfolioAccounts?.[accountSpecifier]?.stakingDataByValidatorId || null
+  selectAccountSpecifierParamFromFilterOptional,
+  selectPortfolioAccountIdsByAssetId,
+  selectAssetIdParamFromFilter,
+  (portfolioAccounts, accountId, accountIds): (StakingDataByValidatorId | null)[] => {
+    return (accountId ? [accountId] : accountIds).map(
+      accountId => portfolioAccounts?.[accountId]?.stakingDataByValidatorId || null,
+    )
   },
 )
 
 export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDataByAccountSpecifier,
+  selectStakingDataByMaybeAccountSpecifier,
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId): string => {
-    const delegations = Object.values(stakingData || {})
+    // Since we pass an accountSpecifier (AccountId) in, stakingData is guaranteed to be 0-length
+    // Thus, we can simply unwrap it by accessing the 0th item
+    const unwrappedStakingData = stakingData[0] ?? {}
+    const delegations = Object.values(unwrappedStakingData)
       .flatMap(validatorStaking => validatorStaking[assetId]?.delegations?.[0])
       .filter(Boolean)
     const amount = reduce(
@@ -448,14 +484,17 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEq
 )
 
 export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSelector(
-  selectStakingDataByAccountSpecifier,
+  selectStakingDataByMaybeAccountSpecifier,
   selectAssetIdParamFromFilter,
   // We make the assumption that all delegation rewards come from a single denom (asset)
   // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
   (stakingData, assetId) => {
-    if (!stakingData) return '0'
+    // Since we pass an accountSpecifier (AccountId) in, stakingData is guaranteed to be 0-length
+    // Thus, we can simply unwrap it by accessing the 0th item
+    const unwrappedStakingData = stakingData[0]
+    if (!unwrappedStakingData) return '0'
 
-    const stakingDataFilteredByAssetId = Object.values(stakingData).flatMap(
+    const stakingDataFilteredByAssetId = Object.values(unwrappedStakingData).flatMap(
       validatorStakingData => validatorStakingData[assetId],
     )
     const amount = Object.values(stakingDataFilteredByAssetId)
@@ -630,27 +669,6 @@ export const selectPortfolioAssets = createSelector(
       return acc
     }, {}),
 )
-
-export const selectPortfolioAccountIds = createDeepEqualOutputSelector(
-  (state: ReduxState): AccountSpecifier[] => state.portfolio.accounts.ids,
-  (accountIds): AccountId[] => accountIds,
-)
-
-/**
- * selects portfolio account ids that *can* contain an assetId
- * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
- * but can contain it
- */
-export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
-  selectPortfolioAccountIds,
-  selectAssetIdParamFromFilter,
-  (accountIds, assetId): AccountId[] => {
-    // early return for scenarios where assetId is not available yet
-    if (!assetId) return []
-    const { chainId } = fromAssetId(assetId)
-    return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
-  },
-)((_accountIds, { assetId }) => assetId ?? 'undefined')
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
 export const selectPortfolioLoading = createSelector(
@@ -1195,20 +1213,33 @@ export type AmountByValidatorAddressType = {
 }
 
 export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
-  selectStakingDataByAccountSpecifier,
+  selectStakingDataByMaybeAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
   (stakingData, validatorAddress, assetId): string => {
-    return stakingData?.[validatorAddress]?.[assetId]?.delegations[0]?.amount ?? '0'
+    return stakingData
+      .reduce((acc, currentStakingData) => {
+        if (!currentStakingData) return acc
+
+        acc = acc.plus(
+          currentStakingData[validatorAddress]?.[assetId]?.delegations[0]?.amount ?? '0',
+        )
+
+        return acc
+      }, bn(0))
+      .toString()
   },
 )
 
 export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDataByAccountSpecifier,
+  selectStakingDataByMaybeAccountSpecifier,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
   (stakingDataByValidator, validatorAddress, assetId): cosmossdk.UndelegationEntry[] => {
-    const validatorStakingData = stakingDataByValidator?.[validatorAddress]?.[assetId]
+    // Since we pass an accountSpecifier (AccountId) in, stakingDataByValidator is guaranteed to be 0-length
+    // Thus, we can simply unwrap it by accessing the 0th item
+    const unwrappedStakingDataByValidator = stakingDataByValidator[0]
+    const validatorStakingData = unwrappedStakingDataByValidator?.[validatorAddress]?.[assetId]
 
     if (!validatorStakingData?.undelegations?.length) return []
 
@@ -1243,11 +1274,11 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
 // We need to explicitly deep output compare, since ([SHAPESHIFT_VALIDATOR_ADDRESS] === [SHAPESHIFT_VALIDATOR_ADDRESS]) === false
 export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilter,
+  selectAccountSpecifierParamFromFilterOptional,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
     if (!accountSpecifier)
-      return values(portfolioAccounts).flatMap(
-        portfolioAccount => portfolioAccount.validatorIds ?? [],
+      return uniq(
+        values(portfolioAccounts).flatMap(portfolioAccount => portfolioAccount.validatorIds ?? []),
       )
     const portfolioAccount = portfolioAccounts?.[accountSpecifier]
     if (!portfolioAccount) return []
@@ -1270,10 +1301,10 @@ const selectDefaultStakingDataByValidatorId = createSelector(
     return stakingDataByValidator[defaultValidatorAddress]
   },
 )
-export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
+export const selectStakingOpportunitiesDataFullByFilter = createDeepEqualOutputSelector(
   selectValidatorIdsByFilter,
   selectValidators,
-  selectStakingDataByAccountSpecifier,
+  selectStakingDataByMaybeAccountSpecifier,
   selectAssetIdParamFromFilter,
   selectDefaultStakingDataByValidatorId,
   (
@@ -1293,11 +1324,28 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         },
       ]
     return portfolioValidatorIds.map(validatorId => {
-      const delegatedAmount = bnOrZero(
-        stakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount,
-      ).toString()
-      const undelegatedEntries: cosmossdk.UndelegationEntry[] =
-        stakingDataByValidator?.[validatorId]?.[assetId]?.undelegations ?? []
+      const delegatedAmount = stakingDataByValidator
+        .reduce((acc, currentStakingDataByValidator) => {
+          acc = acc.plus(
+            currentStakingDataByValidator?.[validatorId]?.[assetId]?.delegations?.[0]?.amount ??
+              '0',
+          )
+
+          return acc
+        }, bn(0))
+        .toString()
+
+      const undelegatedEntries: cosmossdk.UndelegationEntry[] = stakingDataByValidator.reduce(
+        (acc, currentStakingDataByValidator) => {
+          if (currentStakingDataByValidator?.[validatorId]?.[assetId]?.undelegations) {
+            acc = [...acc, ...currentStakingDataByValidator[validatorId]?.[assetId].undelegations]
+          }
+
+          return acc
+        },
+        [] as cosmossdk.UndelegationEntry[],
+      )
+
       const totalDelegations = bnOrZero(delegatedAmount)
         .plus(
           undelegatedEntries.reduce<BN>(
@@ -1311,7 +1359,15 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
         // Delegated/Redelegated + Undelegation
         totalDelegations,
         // Rewards at 0 index: since we normalize staking data, we are guaranteed to have only one entry for the validatorId + assetId combination
-        rewards: stakingDataByValidator?.[validatorId]?.[assetId]?.rewards?.[0]?.amount ?? '0',
+        rewards: stakingDataByValidator
+          .reduce((acc, currentStakingDataByValidator) => {
+            acc = acc.plus(
+              currentStakingDataByValidator?.[validatorId]?.[assetId]?.rewards?.[0]?.amount ?? '0',
+            )
+
+            return acc
+          }, bn(0))
+          .toString(),
         isLoaded: Boolean(validatorsData[validatorId]),
       }
     })
@@ -1319,7 +1375,7 @@ export const selectStakingOpportunitiesDataFull = createDeepEqualOutputSelector(
 )
 
 export const selectHasActiveStakingOpportunity = createSelector(
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
   stakingOpportunitiesData =>
     // More than one opportunity data means we have more than the default opportunity
     size(stakingOpportunitiesData) > 1 ||

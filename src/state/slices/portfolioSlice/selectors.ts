@@ -41,6 +41,7 @@ import {
   genericBalanceIncludingStakingByFilter,
 } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
+import type { Nullable } from 'types/common'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -75,14 +76,12 @@ type ParamFilter = {
   accountId: AccountId
   accountNumber: number
   chainId: ChainId
-  accountSpecifier: string
   validatorAddress: PubKey
   supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
   assetId: AssetId
-  accountId?: AccountId
-  accountSpecifier?: string | null
+  accountId?: Nullable<AccountId>
   validatorAddress?: PubKey
   supportsCosmosSdk?: boolean
 }
@@ -116,16 +115,11 @@ export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
-// TODO(0xdef1cafe): DO NOT USE - use selectAccountIdParamFromFilter instead
-const selectAccountSpecifierParamFromFilter = selectParamFromFilter('accountSpecifier')
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 const selectSupportsCosmosSdkParamFromFilterOptional =
   selectParamFromFilterOptional('supportsCosmosSdk')
-// TODO(gomes): DO NOT USE - use selectAccountIdParamFromFilterOptional instead
-const selectAccountSpecifierParamFromFilterOptional =
-  selectParamFromFilterOptional('accountSpecifier')
 
 export type OpportunitiesDataFull = {
   totalDelegations: string
@@ -451,7 +445,7 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
 // TODO(gomes): remove accountSpecifier terminology here, this really is an AccountId but we're dependant on this wrong terminology because of selector usages
 export const selectStakingDataByMaybeAccountSpecifier = createSelector(
   selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
   selectPortfolioAccountIdsByAssetId,
   selectAssetIdParamFromFilter,
   (portfolioAccounts, accountId, accountIds): (StakingDataByValidatorId | null)[] => {
@@ -1065,7 +1059,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
 
 export const selectAccountIdByAddress = createSelector(
   selectAccountIds,
-  selectAccountSpecifierParamFromFilter,
+  selectAccountIdParamFromFilter,
   (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, filterAccountId): string => {
     let accountSpecifier = ''
     for (const portfolioAccount in portfolioAccounts) {
@@ -1274,7 +1268,7 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
 // We need to explicitly deep output compare, since ([SHAPESHIFT_VALIDATOR_ADDRESS] === [SHAPESHIFT_VALIDATOR_ADDRESS]) === false
 export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
-  selectAccountSpecifierParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
   (portfolioAccounts, accountSpecifier): PubKey[] => {
     if (!accountSpecifier)
       return uniq(

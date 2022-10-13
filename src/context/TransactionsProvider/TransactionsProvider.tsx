@@ -101,7 +101,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                     msg => {
                       const state = store.getState()
                       const accountId = selectAccountIdByAddress(state, {
-                        accountSpecifier: `${msg.chainId}:${msg.address}`,
+                        accountId: `${msg.chainId}:${msg.address}`,
                       })
 
                       const { getAccount } = portfolioApi.endpoints

@@ -48,7 +48,7 @@ export function useCosmosSdkStakingBalances({
 
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunitiesDataFullByFilter(state, {
-      accountSpecifier: accountId,
+      accountId,
       assetId,
       supportsCosmosSdk,
     }),

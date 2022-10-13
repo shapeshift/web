@@ -36,6 +36,7 @@ import toLower from 'lodash/toLower'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { Nullable } from 'types/common'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
@@ -457,7 +458,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
 export const genericBalanceIncludingStakingByFilter = (
   accountBalances: PortfolioAccountBalancesById,
   assetId: AssetId | undefined,
-  accountId: AccountId | undefined,
+  accountId: Nullable<AccountId> | undefined,
 ): string => {
   const totalByAccountId = Object.entries(accountBalances)
     .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all

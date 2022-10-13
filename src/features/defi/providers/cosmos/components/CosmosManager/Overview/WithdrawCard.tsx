@@ -13,10 +13,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectFirstAccountSpecifierByChainId,
-  selectUnbondingEntriesByAccountSpecifier,
-} from 'state/slices/selectors'
+import { selectUnbondingEntriesByAccountSpecifier } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -29,14 +26,10 @@ export const WithdrawCard = ({ asset, accountId }: WithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
   // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const undelegationEntries = useAppSelector(state =>
     selectUnbondingEntriesByAccountSpecifier(state, {
-      accountSpecifier: accountId ?? accountSpecifier,
+      accountId,
       validatorAddress: contractAddress,
       assetId: asset.assetId,
     }),

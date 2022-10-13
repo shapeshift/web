@@ -268,10 +268,10 @@ describe('portfolioSlice', () => {
 
       it('can select account id by address (accountId)', () => {
         const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
+          accountId: btcAccountIds[0],
         })
         const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0],
+          accountId: ethAccountIds[0],
         })
 
         expect(btcAccSpecifier).toEqual(btcAccountId)
@@ -281,13 +281,13 @@ describe('portfolioSlice', () => {
       it('can select account id with address in non checksum format', () => {
         // AccountIds in state in non checksum format
         const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
+          accountId: btcAccountIds[0],
         })
         expect(btcAccSpecifier).toEqual(btcAccountId)
 
         // AccountId argument in non checksum format
         const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0].toUpperCase(),
+          accountId: ethAccountIds[0].toUpperCase(),
         })
         expect(ethAccSpecifier).toEqual(ethAccountId)
       })
@@ -864,7 +864,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
+          accountId: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.25002845')
       })
@@ -895,7 +895,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
+          accountId: cosmosAccountSpecifier,
         })
         expect(result).toEqual('1.17247845')
       })
@@ -927,7 +927,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
+          accountId: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0.0271425')
       })
@@ -951,7 +951,7 @@ describe('portfolioSlice', () => {
 
         const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
           assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
+          accountId: cosmosAccountSpecifier,
         })
         expect(result).toEqual('0')
       })

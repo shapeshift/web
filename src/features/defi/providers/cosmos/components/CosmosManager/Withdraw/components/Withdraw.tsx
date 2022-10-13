@@ -21,7 +21,6 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -74,14 +73,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const cryptoStakeBalance = useAppSelector(state =>
     selectDelegationCryptoAmountByAssetIdAndValidator(state, {
-      accountSpecifier: accountId ?? accountSpecifier,
+      accountId,
       validatorAddress: contractAddress,
       assetId,
     }),

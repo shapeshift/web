@@ -25,6 +25,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -74,6 +75,8 @@ export const FoxyWithdraw: React.FC<{
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
@@ -84,9 +87,9 @@ export const FoxyWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && api)) return
+        if (!(walletState.wallet && contractAddress && chainAdapter && api && bip44Params)) return
         const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         // Get foxy fee for instant sends
@@ -111,7 +114,7 @@ export const FoxyWithdraw: React.FC<{
         moduleLogger.error(error, 'FoxyWithdraw error:')
       }
     })()
-  }, [api, chainAdapter, contractAddress, walletState.wallet])
+  }, [api, bip44Params, chainAdapter, contractAddress, walletState.wallet])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

@@ -1,11 +1,11 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
+import { forwardRef } from 'react'
 
-export const TransactionHistorySearch = ({
-  handleInputChange,
-}: {
-  handleInputChange: Function
-}) => {
+export const TransactionHistorySearch = forwardRef<
+  HTMLInputElement,
+  { handleInputChange: Function }
+>(({ handleInputChange }, ref) => {
   return (
     <InputGroup mr={[3, 3, 6]}>
       <InputLeftElement pointerEvents='none'>
@@ -17,7 +17,8 @@ export const TransactionHistorySearch = ({
         placeholder='Search'
         pl={10}
         variant='filled'
+        ref={ref}
       />
     </InputGroup>
   )
-}
+})

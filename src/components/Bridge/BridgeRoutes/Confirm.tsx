@@ -86,9 +86,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
   )
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, asset?.chainId),
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset?.chainId))
 
   const sourceChainName = fromChain?.name ? chainNameToEvmChain(fromChain.name) : undefined
   const destinationChainName = toChain?.name ? chainNameToEvmChain(toChain.name) : undefined
@@ -143,7 +141,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         asset,
         address: depositAddress,
         sendMax: false,
-        accountId: accountSpecifier,
+        accountId: accountId ?? '',
         contractAddress: assetReference,
       }
 
@@ -154,7 +152,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         asset,
         address: depositAddress,
         sendMax: false,
-        accountId: accountSpecifier,
+        accountId: accountId ?? '',
         amountFieldError: '',
         cryptoSymbol: bridgeAsset?.symbol ?? '',
         estimatedFees,

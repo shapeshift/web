@@ -73,14 +73,12 @@ type ParamFilter = {
   accountId: AccountId
   accountNumber: number
   chainId: ChainId
-  accountSpecifier: string
   validatorAddress: PubKey
   supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
-  assetId: AssetId
+  assetId?: AssetId
   accountId?: AccountId
-  accountSpecifier?: string | null
   validatorAddress?: PubKey
   supportsCosmosSdk?: boolean
 }
@@ -1002,7 +1000,7 @@ export type AccountRowData = {
   symbol: string
   fiatAmount: string
   cryptoAmount: string
-  assetId: AccountId
+  assetId: AssetId
   allocation: number
   price: string
   priceChange: number

@@ -38,12 +38,16 @@ export function useCosmosSdkStakingBalances({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFullByFilter(state, {
-      accountSpecifier: accountId,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       assetId,
       supportsCosmosSdk,
     }),
+    [accountId, assetId, supportsCosmosSdk],
+  )
+  const stakingOpportunities = useAppSelector(s =>
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
 
   const mergedActiveStakingOpportunities = useMemo(() => {

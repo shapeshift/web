@@ -101,11 +101,12 @@ type GetFoxEthLpAccountDataReturn = {
   fiatAmount: string
 }
 
-type GetFoxFarmingContractMetricsReturn = {
+export type GetFoxFarmingContractMetricsReturn = {
   expired: boolean
 } & GetFoxEthLpMetricsReturn
 
 type GetFoxFarmingContractMetricsArgs = {
+  accountAddress: string
   contractAddress: string
 }
 
@@ -251,7 +252,7 @@ export const foxEthApi = createApi({
       GetFoxFarmingContractMetricsReturn,
       GetFoxFarmingContractMetricsArgs
     >({
-      queryFn: async ({ contractAddress }, injectedStore) => {
+      queryFn: async ({ accountAddress, contractAddress }, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
@@ -305,6 +306,7 @@ export const foxEthApi = createApi({
             expired = dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
           }
           const data = {
+            accountAddress,
             tvl,
             expired,
             apy,

@@ -8,10 +8,8 @@ import {
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  foxEthApi,
-  useGetFoxFarmingContractMetricsQuery,
-} from 'state/slices/foxEthSlice/foxEthSlice'
+import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/foxEthSlice'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -21,10 +19,11 @@ import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const dispatch = useAppDispatch()
-  const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
-    useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
   const [lpApy, setLpApy] = useState<Nullable<string>>(null)
+  const [farmingV4Data, setFarmingV4Data] =
+    useState<Nullable<GetFoxFarmingContractMetricsReturn>>(null)
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
+  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 
   const ethAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
@@ -45,6 +44,28 @@ export const useOtherOpportunities = (assetId: AssetId) => {
       if (isSuccess) {
         setLpApy(data.apy)
         setIsLpAprLoaded(true)
+      }
+    })()
+  }, [ethAccountIds, dispatch])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!ethAccountIds?.length) return
+
+      // For getting the FOX farming contract metrics, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
+      const { isLoading, isSuccess, data } = await dispatch(
+        foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
+          contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+          accountAddress: firstEthAccountAddress,
+        }),
+      )
+
+      if (isLoading || !data) return
+
+      if (isSuccess) {
+        setFarmingV4Data(data)
+        setIsFarmingAprV4Loaded(true)
       }
     })()
   }, [ethAccountIds, dispatch])

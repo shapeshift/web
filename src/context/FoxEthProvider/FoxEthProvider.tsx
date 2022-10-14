@@ -13,7 +13,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
 import { farmingOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
-import { foxEthApi, useGetFoxEthLpAccountDataQuery } from 'state/slices/foxEthSlice/foxEthSlice'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -89,12 +89,22 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     })
   }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData])
 
-  const { refetch: refetchFoxEthLpAccountData } = useGetFoxEthLpAccountDataQuery(
-    { accountAddress },
-    {
-      skip: !readyToFetchLpAccountData,
-    },
-  )
+  const refetchFoxEthLpAccountData = useCallback(async () => {
+    if (!ethAccountIds?.length || !readyToFetchLpAccountData) return
+
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+    await Promise.all(
+      ethAccountAddresses.map(async accountAddress => {
+        await dispatch(
+          foxEthApi.endpoints.getFoxEthLpAccountData.initiate(
+            { accountAddress },
+            { forceRefetch: true },
+          ),
+        )
+      }),
+    )
+  }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   // Use the account number of the consumer if we have it, else use account 0
@@ -124,12 +134,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     // getting fox-eth lp token data
     const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
     ;(async () => {
+      // For getting the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
+
       // getting fox-eth lp token balances
       farmingOpportunities.forEach(opportunity => {
         const { contractAddress } = opportunity
         // getting fox farm contract data
         dispatch(
           getFoxFarmingContractMetrics.initiate({
+            accountAddress: firstEthAccountAddress,
             contractAddress,
           }),
         )
@@ -144,7 +158,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           )
       })
     })()
-  }, [accountAddress, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
+  }, [accountAddress, ethAccountIds, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

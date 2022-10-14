@@ -24,10 +24,8 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  foxEthApi,
-  useGetFoxFarmingContractMetricsQuery,
-} from 'state/slices/foxEthSlice/foxEthSlice'
+import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/foxEthSlice'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -50,11 +48,12 @@ const FoxFarmCTA = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
-  const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
-    useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
 
   const [lpApy, setLpApy] = useState<Nullable<string>>(null)
+  const [farmingV4Data, setFarmingV4Data] =
+    useState<Nullable<GetFoxFarmingContractMetricsReturn>>(null)
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
+  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 
   const ethAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
@@ -90,6 +89,28 @@ const FoxFarmCTA = () => {
       if (isSuccess) {
         setLpApy(data.apy)
         setIsLpAprLoaded(true)
+      }
+    })()
+  }, [ethAccountIds, dispatch])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!ethAccountIds?.length) return
+
+      // For getting the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
+      const { isLoading, isSuccess, data } = await dispatch(
+        foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
+          contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+          accountAddress: firstEthAccountAddress,
+        }),
+      )
+
+      if (isLoading || !data) return
+
+      if (isSuccess) {
+        setFarmingV4Data(data)
+        setIsFarmingAprV4Loaded(true)
       }
     })()
   }, [ethAccountIds, dispatch])

@@ -1087,13 +1087,6 @@ export type ActiveStakingOpportunity = {
   rewards?: string
 }
 
-export type AmountByValidatorAddressType = {
-  // This maps from validator pubkey -> staked asset in base precision
-  // e.g for 1 ATOM staked on ShapeShift DAO validator:
-  // {"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": "1000000"}
-  [k: PubKey]: string
-}
-
 export const selectDelegationCryptoAmountByAssetIdAndValidator = createSelector(
   selectStakingDataByFilter,
   selectValidatorAddressParamFromFilter,

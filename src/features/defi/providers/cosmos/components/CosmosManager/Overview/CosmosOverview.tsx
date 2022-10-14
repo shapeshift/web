@@ -95,13 +95,15 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId),
   )
 
-  const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, {
+  const filter = useMemo(
+    () => ({
       accountId: firstAccountId ?? accountId,
       validatorAddress: contractAddress,
       assetId: stakingAsset.assetId,
     }),
+    [accountId, contractAddress, firstAccountId, stakingAsset.assetId],
   )
+  const totalBondings = useAppSelector(s => selectTotalBondingsBalanceByAssetId(s, filter))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailable = bnOrZero(totalBondings).div(`1e${stakingAsset.precision}`)

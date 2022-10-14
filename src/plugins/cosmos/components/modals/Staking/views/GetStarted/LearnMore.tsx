@@ -89,13 +89,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
         onClick={handlePrevClick}
       />
       <Box pt='36px' pb='20px' px='24px'>
-        <Flex
-          direction='column'
-          maxWidth='395px'
-          height='520px'
-          alignItems='center'
-          justifyContent='space-between'
-        >
+        <Flex direction='column' height='520px' alignItems='center' justifyContent='space-between'>
           <SlideTransition key={activeStep}>
             <Flex direction='column' alignItems='center'>
               <DefiModalHeader

@@ -89,7 +89,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     }),
     [accountId, contractAddress, firstAccountId, stakingAsset.assetId],
   )
-  // TODO(0xdef1cafe): this selector needs to respect the accountId too
   const totalBondings = useAppSelector(s => selectTotalBondingsBalanceByAssetId(s, filter))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))

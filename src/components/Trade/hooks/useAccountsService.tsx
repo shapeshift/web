@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
-import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -42,10 +42,10 @@ export const useAccountsService = () => {
     }),
   )
   const sellAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
+    selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
   const buyAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, buyAsset?.chainId ?? ''),
+    selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
 
   const sellAssetAccountId = useMemo(

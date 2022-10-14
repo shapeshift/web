@@ -59,28 +59,37 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
-      const stateOpportunityIndex = (
+      if (
+        state[action.payload.accountAddress ?? ''] &&
+        !state[action.payload.accountAddress ?? ''].farmingOpportunities
+      ) {
+        state[action.payload.accountAddress ?? ''].farmingOpportunities = []
+      }
+
+      const stateFarmingOpportunities =
         state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
-      ).findIndex(opportunity => opportunity.contractAddress === action.payload.contractAddress)
+      const stateOpportunityIndex =
+        stateFarmingOpportunities.findIndex(
+          opportunity => opportunity.contractAddress === action.payload.contractAddress,
+        ) || 0
 
       if (
         action.payload.accountAddress &&
         !state[action.payload.accountAddress]?.farmingOpportunities
       ) {
         state[action.payload.accountAddress] = {
-          farmingOpportunities: action.payload,
+          farmingOpportunities: [action.payload],
         } as FoxEthOpportunities
 
         return
       }
 
-      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex ?? 0] =
-        {
-          ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
-            stateOpportunityIndex ?? 0
-          ] ?? {}),
-          ...action.payload,
-        }
+      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
+        ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
+          stateOpportunityIndex
+        ] ?? {}),
+        ...action.payload,
+      }
     },
   },
 })
@@ -187,6 +196,7 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
         } catch (err) {
+          console.trace()
           moduleLogger.error(err, 'getFoxEthLpMetrics')
           return {
             error: {

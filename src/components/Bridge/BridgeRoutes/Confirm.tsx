@@ -27,7 +27,7 @@ import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
@@ -87,7 +87,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   )
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
   const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+    selectFirstAccountIdByChainId(state, asset?.chainId),
   )
 
   const sourceChainName = fromChain?.name ? chainNameToEvmChain(fromChain.name) : undefined

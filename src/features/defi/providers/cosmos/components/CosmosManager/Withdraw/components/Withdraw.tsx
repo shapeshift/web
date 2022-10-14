@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -21,7 +21,6 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -74,17 +73,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
-  const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(state, {
-      accountSpecifier: accountId ?? accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       validatorAddress: contractAddress,
       assetId,
     }),
+    [accountId, assetId, contractAddress],
+  )
+  const cryptoStakeBalance = useAppSelector(s =>
+    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 

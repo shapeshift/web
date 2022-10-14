@@ -23,7 +23,7 @@ import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakin
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectSelectedLocale,
   selectTotalBondingsBalanceByAssetId,
@@ -91,13 +91,13 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, stakingAsset?.chainId),
+  const firstAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId),
   )
 
   const totalBondings = useAppSelector(state =>
     selectTotalBondingsBalanceByAssetId(state, {
-      accountSpecifier: accountId ?? accountSpecifier,
+      accountId: firstAccountId ?? accountId,
       validatorAddress: contractAddress,
       assetId: stakingAsset.assetId,
     }),

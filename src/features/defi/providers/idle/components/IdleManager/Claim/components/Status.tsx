@@ -18,7 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -57,9 +57,7 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
-  )
+  const accountSpecifier = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && state?.userAddress)) return ''

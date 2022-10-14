@@ -1,8 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { cosmosChainId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -17,7 +16,6 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -61,21 +59,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     assetReference,
   })
 
-  const {
-    state: { wallet },
-  } = useWallet()
-
-  const supportsCosmosSdk = useMemo(() => {
-    if (!wallet) return
-
-    if (chainId === cosmosChainId) return supportsCosmos(wallet)
-    if (chainId === osmosisChainId) return supportsOsmosis(wallet)
-  }, [chainId, wallet])
-
   const opportunities = useCosmosSdkStakingBalances({
     accountId,
     assetId: stakingAssetId,
-    supportsCosmosSdk,
   })
 
   const opportunity = useMemo(

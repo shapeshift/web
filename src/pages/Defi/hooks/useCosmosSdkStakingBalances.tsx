@@ -14,7 +14,6 @@ import type { Nullable } from 'types/common'
 type UseCosmosStakingBalancesProps = {
   accountId?: Nullable<AccountId>
   assetId: AssetId
-  supportsCosmosSdk?: boolean
 }
 
 export type UseCosmosStakingBalancesReturn = {

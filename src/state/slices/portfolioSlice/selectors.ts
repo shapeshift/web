@@ -511,47 +511,6 @@ export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSele
   },
 )
 
-// TODO(0xdef1cafe): DO NOT USE THIS - delete when there are no references
-export const selectTotalStakingDelegationCryptoByFilter = createSelector(
-  selectAssetIdParamFromFilterOptional,
-  (state: ReduxState) => state.assets.byId,
-  selectTotalStakingDelegationCryptoByAccountSpecifier,
-  selectTotalStakingUndelegationCryptoByAccountSpecifier,
-  (assetId, assets, totalDelegations, totalUndelegations) => {
-    const total = bnOrZero(totalDelegations).plus(totalUndelegations)
-    return fromBaseUnit(total, assets?.[assetId]?.precision ?? 0).toString()
-  },
-)
-
-// TODO(0xdef1cafe): delete me - i don't respect account ids
-export const selectTotalFiatBalanceWithDelegations = createSelector(
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectTotalStakingDelegationCryptoByFilter,
-  selectMarketData,
-  selectAssetIdParamFromFilter,
-  (cryptoBalance, delegationCryptoBalance, marketData, assetId): string => {
-    const price = marketData[assetId]?.price ?? 0
-    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
-      .plus(delegationCryptoBalance)
-      .toString()
-
-    return bnOrZero(cryptoBalanceWithDelegations).times(price).toString()
-  },
-)
-
-// TODO(0xdef1cafe): DO NOT USE THIS - delete when there are no references
-export const selectTotalCryptoBalanceWithDelegations = createSelector(
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectTotalStakingDelegationCryptoByFilter,
-  (cryptoBalance, delegationCryptoBalance): string => {
-    const cryptoBalanceWithDelegations = bnOrZero(cryptoBalance)
-      .plus(delegationCryptoBalance)
-      .toString()
-
-    return bnOrZero(cryptoBalanceWithDelegations).toString()
-  },
-)
-
 /**
  * this selector is very specific; we need to consider
  * - raw account balances, that are

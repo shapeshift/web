@@ -74,13 +74,11 @@ type ParamFilter = {
   accountNumber: number
   chainId: ChainId
   validatorAddress: PubKey
-  supportsCosmosSdk: boolean
 }
 type OptionalParamFilter = {
   assetId?: AssetId
   accountId?: AccountId
   validatorAddress?: PubKey
-  supportsCosmosSdk?: boolean
 }
 type ParamFilterKey = keyof ParamFilter
 type OptionalParamFilterKey = keyof OptionalParamFilter
@@ -115,19 +113,6 @@ const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAd
 
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
-const selectSupportsCosmosSdkParamFromFilterOptional =
-  selectParamFromFilterOptional('supportsCosmosSdk')
-
-export type OpportunitiesDataFull = {
-  totalDelegations: string
-  rewards: string
-  isLoaded: boolean
-  address: string
-  moniker: string
-  tokens?: string
-  apr: string
-  commission: string
-}
 
 export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
 
@@ -1164,16 +1149,22 @@ export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
 
 const selectDefaultStakingDataByValidatorId = createSelector(
   selectAssetIdParamFromFilterOptional,
-  selectSupportsCosmosSdkParamFromFilterOptional,
   selectValidators,
-  (assetId, supportsCosmosSdk = true, stakingDataByValidator) => {
-    if (supportsCosmosSdk || !assetId) return null
-
-    const defaultValidatorAddress = getDefaultValidatorAddressFromAssetId(assetId)
-
-    return stakingDataByValidator[defaultValidatorAddress]
-  },
+  (assetId, stakingDataByValidator) =>
+    stakingDataByValidator[getDefaultValidatorAddressFromAssetId(assetId)],
 )
+
+export type OpportunitiesDataFull = {
+  totalDelegations: string
+  rewards: string
+  isLoaded: boolean
+  address: string
+  moniker: string
+  tokens?: string
+  apr: string
+  commission: string
+}
+
 export const selectStakingOpportunitiesDataFullByFilter = createDeepEqualOutputSelector(
   selectValidatorIdsByFilter,
   selectValidators,

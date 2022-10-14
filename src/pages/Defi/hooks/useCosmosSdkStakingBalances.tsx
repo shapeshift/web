@@ -33,7 +33,6 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
 export function useCosmosSdkStakingBalances({
   assetId,
   accountId,
-  supportsCosmosSdk = true,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -42,9 +41,8 @@ export function useCosmosSdkStakingBalances({
     () => ({
       accountId: accountId ?? '',
       assetId,
-      supportsCosmosSdk,
     }),
-    [accountId, assetId, supportsCosmosSdk],
+    [accountId, assetId],
   )
   const stakingOpportunities = useAppSelector(s =>
     selectStakingOpportunitiesDataFullByFilter(s, filter),

@@ -1,5 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
+import keys from 'lodash/keys'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -23,22 +25,25 @@ const selectContractAddressParamFromFilter = (
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilter,
-  (foxEthState, accountAddress) => foxEthState[accountAddress]?.lpOpportunity,
+  (foxEthState, accountAddress) => {
+    return foxEthState[accountAddress]?.lpOpportunity
+  },
 )
 
 export const selectFoxFarmingOpportunitiesByAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilter,
-  (foxEthState, accountAddress) => foxEthState[accountAddress]?.farmingOpportunities,
+  (foxEthState, accountAddress) => foxEthState[accountAddress]?.farmingOpportunities ?? [],
 )
 
 export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByAccountAddress,
-  opportunities =>
-    opportunities.filter(
+  opportunities => {
+    return opportunities.filter(
       opportunity =>
         !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
-    ),
+    )
+  },
 )
 
 export const selectFoxFarmingOpportunityByContractAddress = createSelector(
@@ -73,12 +78,30 @@ export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
   },
 )
 
+// Redeclared here because of circular deps
+const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
+
 export const selectFoxEthLpFiatBalance = createSelector(
   selectMarketData,
-  selectFoxEthLpOpportunityByAccountAddress,
-  (marketData, lpOpportunity) => {
+  selectPortfolioAccounts,
+  (state: ReduxState) => state.foxEth,
+  (marketData, portfolioAccounts, foxEthState) => {
+    // Cannot use selectAccountIdsByAssetId because of a. circular deps and b. it applying balance threshold
+    const accountIds = keys(portfolioAccounts).filter(
+      accountId => fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Evm,
+    )
+    const accountAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
+    const lpOpportunities = accountAddresses
+      .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
+      .filter(Boolean)
+
     const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
-    return bnOrZero(lpOpportunity.cryptoAmount).times(lpTokenPrice).toFixed(2)
+    const lpOpportunitiesCryptoAmount = lpOpportunities.reduce((acc, currentLpOpportunity) => {
+      acc = acc.plus(currentLpOpportunity?.cryptoAmount ?? 0)
+
+      return acc
+    }, bn(0))
+    return bnOrZero(lpOpportunitiesCryptoAmount).times(lpTokenPrice).toFixed(2)
   },
 )
 

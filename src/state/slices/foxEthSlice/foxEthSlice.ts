@@ -27,12 +27,14 @@ import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
+type FoxEthOpportunities = {
+  farmingOpportunities: FoxFarmingEarnOpportunityType[]
+  lpOpportunity: FoxEthLpEarnOpportunityType
+}
+
 type FoxEthState = Record<
-  string, // accountAddress
-  {
-    farmingOpportunities: FoxFarmingEarnOpportunityType[]
-    lpOpportunity: FoxEthLpEarnOpportunityType
-  }
+  string, // accountAddress,
+  FoxEthOpportunities
 >
 
 const initialState: FoxEthState = {}
@@ -45,6 +47,9 @@ export const foxEth = createSlice({
   reducers: {
     clear: () => initialState,
     upsertLpOpportunity: (state, action: PayloadAction<Partial<FoxEthLpEarnOpportunityType>>) => {
+      if (action.payload.accountAddress && !state[action.payload.accountAddress]) {
+        state[action.payload.accountAddress] = {} as FoxEthOpportunities
+      }
       state[action.payload.accountAddress ?? ''].lpOpportunity = {
         ...(state[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
@@ -54,17 +59,28 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
-      const stateOpportunityIndex = state[
-        action.payload.accountAddress ?? ''
-      ]?.farmingOpportunities.findIndex(
-        opportunity => opportunity.contractAddress === action.payload.contractAddress,
-      )
-      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
-        ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities[
-          stateOpportunityIndex
-        ] ?? {}),
-        ...action.payload,
+      const stateOpportunityIndex = (
+        state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
+      ).findIndex(opportunity => opportunity.contractAddress === action.payload.contractAddress)
+
+      if (
+        action.payload.accountAddress &&
+        !state[action.payload.accountAddress]?.farmingOpportunities
+      ) {
+        state[action.payload.accountAddress] = {
+          farmingOpportunities: action.payload,
+        } as FoxEthOpportunities
+
+        return
       }
+
+      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex ?? 0] =
+        {
+          ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
+            stateOpportunityIndex ?? 0
+          ] ?? {}),
+          ...action.payload,
+        }
     },
   },
 })
@@ -73,6 +89,11 @@ type GetFoxEthLpMetricsReturn = {
   tvl: string
   apy: string
 }
+
+type GetFoxEthLpMetricsArgs = {
+  accountAddress: string
+}
+
 type GetFoxEthLpAccountDataReturn = {
   underlyingFoxAmount: string
   underlyingEthAmount: string
@@ -107,8 +128,8 @@ export const foxEthApi = createApi({
   reducerPath: 'foxEthApi',
   ...BASE_RTK_CREATE_API_CONFIG,
   endpoints: build => ({
-    getFoxEthLpMetrics: build.query<GetFoxEthLpMetricsReturn, void>({
-      queryFn: async (_args, injectedStore) => {
+    getFoxEthLpMetrics: build.query<GetFoxEthLpMetricsReturn, GetFoxEthLpMetricsArgs>({
+      queryFn: async ({ accountAddress }, injectedStore) => {
         try {
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
@@ -161,7 +182,7 @@ export const foxEthApi = createApi({
               }),
             )
           })
-          const data = { tvl, apy, isLoaded: true }
+          const data = { accountAddress, tvl, apy, isLoaded: true }
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
         } catch (err) {

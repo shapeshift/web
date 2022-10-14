@@ -60,7 +60,7 @@ export const PortfolioBreakdown = () => {
   const opportunity = useAppSelector(state =>
     selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
   )
-  const { underlyingFoxAmount: lpBalance = '0' } = opportunity
+  const lpBalance = opportunity?.underlyingFoxAmount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state =>
     selectPortfolioTotalFiatBalanceWithStakingData(state, { accountAddress }),

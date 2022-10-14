@@ -53,9 +53,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const farmContractsFiatBalance = useAppSelector(state =>
     selectFarmContractsFiatBalance(state, { accountAddress: accountAddress ?? '' }),
   )
-  const foxEthLpFiatBalance = useAppSelector(state =>
-    selectFoxEthLpFiatBalance(state, { accountAddress: accountAddress ?? '' }),
-  )
+  const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({

@@ -8,13 +8,13 @@ import {
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import qs from 'qs'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -25,11 +25,16 @@ import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunit
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  useGetFoxEthLpMetricsQuery,
+  foxEthApi,
   useGetFoxFarmingContractMetricsQuery,
 } from 'state/slices/foxEthSlice/foxEthSlice'
-import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectAccountIdsByAssetId,
+  selectAssetById,
+  selectFeatureFlags,
+} from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -41,12 +46,54 @@ const DefiHeader = () => {
 }
 
 const FoxFarmCTA = () => {
+  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
   const { data: farmingV4Data, isSuccess: isFarmingAprV4Loaded } =
     useGetFoxFarmingContractMetricsQuery({ contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS })
-  const { data: lpData, isSuccess: isLpAprLoaded } = useGetFoxEthLpMetricsQuery()
+
+  const [lpApy, setLpApy] = useState<Nullable<string>>(null)
+  const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
+
+  const ethAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
+  )
+
+  // useEffect(() => {
+  // ;(async () => {
+  // if (!ethAccountIds?.length) return
+  //
+  // const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+  //
+  // const test = (await Promise.all(
+  // ethAccountAddresses.map(async accountAddress => {
+  // return dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
+  // }),
+  // ))
+  // .reduce((acc, data) => , bn(0))
+  // })()
+  // }, [ethAccountIds, dispatch])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!ethAccountIds?.length) return
+
+      // For getting the APY, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
+      const { isLoading, isSuccess, data } = await dispatch(
+        foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress: firstEthAccountAddress }),
+      )
+
+      if (isLoading || !data) return
+
+      if (isSuccess) {
+        setLpApy(data.apy)
+        setIsLpAprLoaded(true)
+      }
+    })()
+  }, [ethAccountIds, dispatch])
+
   const featureFlags = useAppSelector(selectFeatureFlags)
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -103,7 +150,7 @@ const FoxFarmCTA = () => {
               <Amount.Percent
                 as='span'
                 value={bnOrZero(farmingV4Data?.apy)
-                  .plus(lpData?.apy ?? 0)
+                  .plus(lpApy ?? 0)
                   .toString()}
               />
             </Skeleton>

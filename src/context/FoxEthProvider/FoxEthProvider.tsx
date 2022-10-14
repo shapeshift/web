@@ -13,12 +13,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
 import { farmingOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
+import { foxEthApi, useGetFoxEthLpAccountDataQuery } from 'state/slices/foxEthSlice/foxEthSlice'
 import {
-  foxEthApi,
-  useGetFoxEthLpAccountDataQuery,
-  useGetFoxEthLpMetricsQuery,
-} from 'state/slices/foxEthSlice/foxEthSlice'
-import {
+  selectAccountIdsByAssetId,
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
@@ -78,9 +75,20 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const readyToFetchLpAccountData =
     readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0'
 
-  useGetFoxEthLpMetricsQuery(undefined, {
-    skip: !readyToFetchLpData,
-  })
+  const ethAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
+  )
+
+  useEffect(() => {
+    if (!readyToFetchLpData || !ethAccountIds?.length) return
+
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+    ethAccountAddresses.forEach(accountAddress => {
+      dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
+    })
+  }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData])
+
   const { refetch: refetchFoxEthLpAccountData } = useGetFoxEthLpAccountDataQuery(
     { accountAddress },
     {

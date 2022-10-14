@@ -461,56 +461,6 @@ export const selectStakingDataByMaybeAccountSpecifier = createSelector(
   },
 )
 
-export const selectTotalStakingDelegationCryptoByAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDataByMaybeAccountSpecifier,
-  selectAssetIdParamFromFilter,
-  // We make the assumption that all delegation rewards come from a single denom (asset)
-  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, assetId): string => {
-    // Since we pass an accountSpecifier (AccountId) in, stakingData is guaranteed to be 0-length
-    // Thus, we can simply unwrap it by accessing the 0th item
-    const unwrappedStakingData = stakingData[0] ?? {}
-    const delegations = Object.values(unwrappedStakingData)
-      .flatMap(validatorStaking => validatorStaking[assetId]?.delegations?.[0])
-      .filter(Boolean)
-    const amount = reduce(
-      delegations,
-      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
-      bn(0),
-    )
-
-    return amount.toString()
-  },
-)
-
-export const selectTotalStakingUndelegationCryptoByAccountSpecifier = createSelector(
-  selectStakingDataByMaybeAccountSpecifier,
-  selectAssetIdParamFromFilter,
-  // We make the assumption that all delegation rewards come from a single denom (asset)
-  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-  (stakingData, assetId) => {
-    // Since we pass an accountSpecifier (AccountId) in, stakingData is guaranteed to be 0-length
-    // Thus, we can simply unwrap it by accessing the 0th item
-    const unwrappedStakingData = stakingData[0]
-    if (!unwrappedStakingData) return '0'
-
-    const stakingDataFilteredByAssetId = Object.values(unwrappedStakingData).flatMap(
-      validatorStakingData => validatorStakingData[assetId],
-    )
-    const amount = Object.values(stakingDataFilteredByAssetId)
-      .reduce((acc, validatorStakingData) => {
-        validatorStakingData?.undelegations?.forEach(undelegationEntry => {
-          acc = acc.plus(undelegationEntry.amount)
-        })
-
-        return acc
-      }, bn(0))
-      .toString()
-
-    return amount
-  },
-)
-
 /**
  * this selector is very specific; we need to consider
  * - raw account balances, that are

@@ -97,7 +97,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const filter = useMemo(
     () => ({
-      accountId: firstAccountId ?? accountId,
+      accountId: accountId ?? firstAccountId,
       validatorAddress: contractAddress,
       assetId: stakingAsset.assetId,
     }),

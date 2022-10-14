@@ -1148,10 +1148,12 @@ export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
 )
 
 const selectDefaultStakingDataByValidatorId = createSelector(
-  selectAssetIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
   selectValidators,
-  (assetId, stakingDataByValidator) =>
-    stakingDataByValidator[getDefaultValidatorAddressFromAssetId(assetId)],
+  (assetId, stakingDataByValidator) => {
+    if (!assetId) return
+    return stakingDataByValidator[getDefaultValidatorAddressFromAssetId(assetId)]
+  },
 )
 
 export type OpportunitiesDataFull = {

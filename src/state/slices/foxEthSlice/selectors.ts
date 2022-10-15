@@ -97,27 +97,29 @@ export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createSelector
 export const selectFoxFarmingAccountsOpportunitiesAggregated = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   foxFarmingOpportunities => {
-    return foxFarmingOpportunities.reduce((acc, currentOpportunities) => {
-      currentOpportunities.forEach((opportunity, i) => {
-        if (!acc[i] && opportunity) acc[i] = { ...opportunity }
-        if (!opportunity) return
-
-        acc[i] = {
-          ...acc[i],
-          cryptoAmount: bnOrZero(acc[i]?.cryptoAmount)
+    const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
+      .flatMap(opportunity => opportunity)
+      .reduce((acc, opportunity) => {
+        if (!acc[opportunity.contractAddress]) {
+          acc[opportunity.contractAddress] = opportunity
+        }
+        acc[opportunity.contractAddress] = {
+          ...(acc[opportunity.contractAddress] ?? {}),
+          cryptoAmount: bnOrZero(acc[opportunity.contractAddress]?.cryptoAmount)
             .plus(bnOrZero(opportunity.cryptoAmount))
             .toString(),
-          fiatAmount: bnOrZero(acc[i]?.fiatAmount)
+          fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
             .plus(bnOrZero(opportunity.fiatAmount))
             .toString(),
-          unclaimedRewards: bnOrZero(acc[i]?.unclaimedRewards)
+          unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
             .plus(bnOrZero(opportunity.unclaimedRewards))
             .toString(),
         }
-      })
 
-      return acc
-    }, [] as FoxFarmingEarnOpportunityType[])
+        return acc
+      }, {} as Record<string, FoxFarmingEarnOpportunityType>)
+
+    return Object.values(aggregatedOpportunitiesByContractAddress)
   },
 )
 
@@ -133,15 +135,36 @@ export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelecto
   },
 )
 
-export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepEqualOutputSelector(
+export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  opportunities => {
-    return opportunities
+  foxFarmingOpportunities => {
+    const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
       .flatMap(opportunity => opportunity)
       .filter(
         opportunity =>
           !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
       )
+      .reduce((acc, opportunity) => {
+        if (!acc[opportunity.contractAddress]) {
+          acc[opportunity.contractAddress] = opportunity
+        }
+        acc[opportunity.contractAddress] = {
+          ...(acc[opportunity.contractAddress] ?? {}),
+          cryptoAmount: bnOrZero(acc[opportunity.contractAddress]?.cryptoAmount)
+            .plus(bnOrZero(opportunity.cryptoAmount))
+            .toString(),
+          fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
+            .plus(bnOrZero(opportunity.fiatAmount))
+            .toString(),
+          unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
+            .plus(bnOrZero(opportunity.unclaimedRewards))
+            .toString(),
+        }
+
+        return acc
+      }, {} as Record<string, FoxFarmingEarnOpportunityType>)
+
+    return Object.values(aggregatedOpportunitiesByContractAddress)
   },
 )
 

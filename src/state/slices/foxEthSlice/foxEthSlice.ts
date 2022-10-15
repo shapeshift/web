@@ -26,7 +26,7 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-import { baseFarmingOpportunity, lpOpportunity } from './foxEthCommon'
+import { baseFarmingOpportunity, farmingOpportunities, lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
@@ -84,8 +84,12 @@ export const foxEth = createSlice({
       if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
         state[action.payload.accountAddress ?? ''].farmingOpportunities = []
       }
+      const baseOpportunity =
+        farmingOpportunities.find(
+          opportunity => opportunity.contractAddress === action.payload.contractAddress ?? '',
+        ) ?? {}
       state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
-        ...baseFarmingOpportunity,
+        ...baseOpportunity,
         ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
           stateOpportunityIndex
         ] ?? {}),

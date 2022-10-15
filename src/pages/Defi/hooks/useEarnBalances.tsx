@@ -9,7 +9,7 @@ import {
   selectFeatureFlags,
   selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFoxEthLpFiatBalance,
-  selectVisibleFoxFarmingOpportunities,
+  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,7 +43,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {}),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),

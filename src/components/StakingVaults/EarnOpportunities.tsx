@@ -19,7 +19,7 @@ import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlic
 import {
   selectAssetById,
   selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectVisibleFoxFarmingOpportunities,
+  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -49,7 +49,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {
+      accountAddress: accountAddress ?? '',
+    }),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),

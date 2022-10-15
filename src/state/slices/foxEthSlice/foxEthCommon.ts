@@ -43,7 +43,7 @@ export const lpOpportunity: EarnOpportunityType = {
   icons,
 }
 
-const baseFarmingOpportunity = {
+export const baseFarmingOpportunity = {
   provider: DefiProvider.FoxFarming,
   rewardAddress: FOX_TOKEN_CONTRACT_ADDRESS,
   tvl: '',

@@ -16,7 +16,7 @@ import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import {
   selectFeatureFlags,
   selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectVisibleFoxFarmingOpportunities,
+  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,7 +35,9 @@ export const AllEarnOpportunities = () => {
 
   const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {
+      accountAddress: accountAddress ?? '',
+    }),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),

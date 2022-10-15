@@ -25,7 +25,7 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-import { lpOpportunity } from './foxEthCommon'
+import { baseFarmingOpportunity, lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
@@ -61,20 +61,27 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
+      // TODO: This is absolute immer madness 🤮 clean me before opening the PR
       const stateFarmingOpportunities =
         state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
+
       const stateOpportunityIndex = (() => {
         const foundIndex = stateFarmingOpportunities.findIndex(
           opportunity => opportunity.contractAddress === action.payload.contractAddress,
         )
 
-        return foundIndex < 0 ? 0 : foundIndex
+        return foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
       })()
+
+      if (!state[action.payload.accountAddress ?? '']) {
+        state[action.payload.accountAddress ?? ''] = { farmingOpportunities: [] }
+      }
 
       if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
         state[action.payload.accountAddress ?? ''].farmingOpportunities = []
       }
       state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
+        ...baseFarmingOpportunity,
         ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
           stateOpportunityIndex
         ] ?? {}),
@@ -313,6 +320,7 @@ export const foxEthApi = createApi({
             isLoaded: true,
             contractAddress,
           }
+          console.log('upserting farming opportunity', { data })
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }
         } catch (err) {
@@ -356,6 +364,7 @@ export const foxEthApi = createApi({
             contractAddress,
             accountAddress,
           }
+
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }
         } catch (err) {

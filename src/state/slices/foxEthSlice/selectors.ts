@@ -12,7 +12,7 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { foxEthLpAssetId } from './constants'
-import type { FoxEthLpEarnOpportunityType } from './foxEthCommon'
+import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
 
 // TODO(gomes): DeepEqual Output compareFn
 const selectAccountAddressParamFromFilter = (
@@ -82,36 +82,93 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
     }, {} as FoxEthLpEarnOpportunityType),
 )
 
-export const selectFoxFarmingOpportunitiesByAccountAddress = createSelector(
+export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilter,
-  (foxEthState, accountAddress) => foxEthState[accountAddress]?.farmingOpportunities ?? [],
-)
-
-export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
-  selectFoxFarmingOpportunitiesByAccountAddress,
-  opportunities => {
-    return opportunities.filter(
-      opportunity =>
-        !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+  selectEthAccountIdsByAssetId,
+  (foxEthState, accountAddress, ethAccountIds) => {
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
+      accountAddress => foxEthState[accountAddress]?.farmingOpportunities ?? [],
     )
   },
 )
 
-export const selectFoxFarmingOpportunityByContractAddress = createSelector(
-  selectFoxFarmingOpportunitiesByAccountAddress,
-  selectContractAddressParamFromFilter,
-  (opportunities, contractAddress) =>
-    opportunities.find(opportunity => opportunity.contractAddress === contractAddress),
+export const selectFoxFarmingAccountsOpportunitiesAggregated = createSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
+  foxFarmingOpportunities => {
+    return foxFarmingOpportunities.reduce((acc, currentOpportunities) => {
+      currentOpportunities.forEach((opportunity, i) => {
+        if (!acc[i] && opportunity) acc[i] = { ...opportunity }
+        if (!opportunity) return
+
+        acc[i] = {
+          ...acc[i],
+          cryptoAmount: bnOrZero(acc[i]?.cryptoAmount)
+            .plus(bnOrZero(opportunity.cryptoAmount))
+            .toString(),
+          fiatAmount: bnOrZero(acc[i]?.fiatAmount)
+            .plus(bnOrZero(opportunity.fiatAmount))
+            .toString(),
+          unclaimedRewards: bnOrZero(acc[i]?.unclaimedRewards)
+            .plus(bnOrZero(opportunity.unclaimedRewards))
+            .toString(),
+        }
+      })
+
+      return acc
+    }, [] as FoxFarmingEarnOpportunityType[])
+  },
 )
 
-export const selectFarmContractsBalance = createSelector(
-  selectFoxFarmingOpportunitiesByAccountAddress,
+export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
+  opportunities => {
+    return opportunities
+      .flatMap(opportunity => opportunity) // TODO: actual aggregation
+      .filter(
+        opportunity =>
+          !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+      )
+  },
+)
+
+export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepEqualOutputSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
+  opportunities => {
+    console.log({ opportunities })
+    return opportunities
+      .flatMap(opportunity => opportunity)
+      .filter(
+        opportunity =>
+          !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+      )
+  },
+)
+
+export const selectFoxFarmingOpportunityByContractAddress = createSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
+  selectContractAddressParamFromFilter,
+  selectAccountAddressParamFromFilter,
+  (opportunities, contractAddress, accountAddress) =>
+    opportunities
+      .flatMap(opportunity => opportunity)
+      .find(
+        opportunity =>
+          opportunity.contractAddress === contractAddress &&
+          opportunity.accountAddress === accountAddress,
+      ),
+)
+
+export const selectFarmContractsAccountsBalanceAggregated = createSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   (farmingOpportunities): string => {
-    const foxFarmingTotalCryptoAmount = (farmingOpportunities ?? []).reduce(
-      (totalBalance, opportunity) => totalBalance.plus(bnOrZero(opportunity.cryptoAmount)),
-      bnOrZero(0),
-    )
+    const foxFarmingTotalCryptoAmount = (farmingOpportunities ?? [])
+      .flatMap(opportunity => opportunity)
+      .reduce(
+        (totalBalance, opportunity) => totalBalance.plus(bnOrZero(opportunity.cryptoAmount)),
+        bnOrZero(0),
+      )
     return foxFarmingTotalCryptoAmount.toString()
   },
 )
@@ -119,7 +176,7 @@ export const selectFarmContractsBalance = createSelector(
 export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
   selectAssets,
   selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectFarmContractsBalance,
+  selectFarmContractsAccountsBalanceAggregated,
   (assetsById, lpOpportunity, farmContractsBalance) => {
     const lpAsset = assetsById[foxEthLpAssetId]
     return toBaseUnit(
@@ -159,7 +216,7 @@ export const selectFoxEthLpFiatBalance = createSelector(
 
 export const selectFarmContractsFiatBalance = createSelector(
   selectMarketData,
-  selectFarmContractsBalance,
+  selectFarmContractsAccountsBalanceAggregated,
   (marketData, foxFarmingTotalCryptoAmount) => {
     const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
     return bnOrZero(foxFarmingTotalCryptoAmount).times(lpTokenPrice).toFixed(2)

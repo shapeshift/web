@@ -52,7 +52,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const opportunity = useAppSelector(state =>
     selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
   )
-  const { underlyingFoxAmount, underlyingEthAmount } = opportunity
+  const { underlyingFoxAmount, underlyingEthAmount } = opportunity!
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
     useFoxEthLiquidityPool(accountAddress)
@@ -62,18 +62,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
+  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
-  const fiatAmountAvailable = bnOrZero(opportunity.fiatAmount).toString()
+  const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount).toString()
 
   // user info
   const filter = useMemo(
-    () => ({ assetId: opportunity?.assetId, accountId: accountId ?? '' }),
+    () => ({ assetId: opportunity?.assetId ?? '', accountId: accountId ?? '' }),
     [opportunity?.assetId, accountId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
@@ -179,7 +179,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <ReusableWithdraw
         accountId={accountId}
         asset={asset}
-        icons={opportunity.icons}
+        icons={opportunity?.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,
@@ -194,7 +194,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
-        isLoading={state.loading || !opportunity.isLoaded}
+        isLoading={state.loading || !opportunity?.isLoaded}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}

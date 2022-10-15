@@ -79,16 +79,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
   )
 
-  useEffect(() => {
-    if (!readyToFetchLpData || !ethAccountIds?.length) return
-
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-    ethAccountAddresses.forEach(accountAddress => {
-      dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
-    })
-  }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData])
-
   const refetchFoxEthLpAccountData = useCallback(async () => {
     if (!ethAccountIds?.length || !readyToFetchLpAccountData) return
 
@@ -105,6 +95,19 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       }),
     )
   }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!readyToFetchLpData || !ethAccountIds?.length) return
+
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+      ethAccountAddresses.forEach(accountAddress => {
+        dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
+      })
+      await refetchFoxEthLpAccountData()
+    })()
+  }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   // Use the account number of the consumer if we have it, else use account 0
@@ -147,15 +150,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             contractAddress,
           }),
         )
-        // getting fox farm contract balances
-        // TODO: remove this condition when flags were removed
-        if (foxFarmingEnabled && accountAddress)
+
+        const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+        ethAccountAddresses.map(async accountAddress => {
           dispatch(
             getFoxFarmingContractAccountData.initiate({
               contractAddress,
               accountAddress,
             }),
           )
+        })
       })
     })()
   }, [accountAddress, ethAccountIds, dispatch, foxFarmingEnabled, readyToFetchFarmingData])

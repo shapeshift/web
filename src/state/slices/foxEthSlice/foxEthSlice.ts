@@ -25,6 +25,7 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import { lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
@@ -51,6 +52,7 @@ export const foxEth = createSlice({
         state[action.payload.accountAddress] = {} as FoxEthOpportunities
       }
       state[action.payload.accountAddress ?? ''].lpOpportunity = {
+        ...lpOpportunity, // Shared LP properties
         ...(state[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
       }
@@ -59,31 +61,19 @@ export const foxEth = createSlice({
       state,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
-      if (
-        state[action.payload.accountAddress ?? ''] &&
-        !state[action.payload.accountAddress ?? ''].farmingOpportunities
-      ) {
-        state[action.payload.accountAddress ?? ''].farmingOpportunities = []
-      }
-
       const stateFarmingOpportunities =
         state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
-      const stateOpportunityIndex =
-        stateFarmingOpportunities.findIndex(
+      const stateOpportunityIndex = (() => {
+        const foundIndex = stateFarmingOpportunities.findIndex(
           opportunity => opportunity.contractAddress === action.payload.contractAddress,
-        ) || 0
+        )
 
-      if (
-        action.payload.accountAddress &&
-        !state[action.payload.accountAddress]?.farmingOpportunities
-      ) {
-        state[action.payload.accountAddress] = {
-          farmingOpportunities: [action.payload],
-        } as FoxEthOpportunities
+        return foundIndex < 0 ? 0 : foundIndex
+      })()
 
-        return
+      if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
+        state[action.payload.accountAddress ?? ''].farmingOpportunities = []
       }
-
       state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
         ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
           stateOpportunityIndex

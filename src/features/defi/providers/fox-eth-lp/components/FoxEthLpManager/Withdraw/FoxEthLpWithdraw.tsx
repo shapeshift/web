@@ -81,7 +81,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState) return
+    if (!walletState || !opportunity) return
     dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
   }, [opportunity, walletState])
 

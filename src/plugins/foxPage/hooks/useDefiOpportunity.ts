@@ -3,7 +3,7 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import { useEffect, useState } from 'react'
 import {
   selectFeatureFlags,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFoxFarmingOpportunitiesByAccountAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -18,9 +18,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity, accountAddr
     }),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
   )
   const featureFlags = useAppSelector(selectFeatureFlags)
 

@@ -1,6 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import keys from 'lodash/keys'
+import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
@@ -8,7 +10,9 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
+import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { foxEthLpAssetId } from './constants'
+import type { FoxEthLpEarnOpportunityType } from './foxEthCommon'
 
 // TODO(gomes): DeepEqual Output compareFn
 const selectAccountAddressParamFromFilter = (
@@ -22,12 +26,60 @@ const selectContractAddressParamFromFilter = (
   filter: { accountAddress?: string; contractAddress?: string },
 ): string => filter?.contractAddress ?? ''
 
-export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
+// Copied over from portfolioSlice because circular deps, do not export me
+const selectPortfolioAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState): AccountSpecifier[] => state.portfolio.accounts.ids,
+  (accountIds): AccountId[] => accountIds,
+)
+// Copied over from portfolioSlice because circular deps, do not export me
+const selectEthAccountIdsByAssetId = createCachedSelector(
+  selectPortfolioAccountIds,
+  (accountIds): AccountId[] => {
+    const { chainId } = fromAssetId(ethAssetId)
+    return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
+  },
+)((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
+
+export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilter,
-  (foxEthState, accountAddress) => {
-    return foxEthState[accountAddress]?.lpOpportunity
+  selectEthAccountIdsByAssetId,
+  (foxEthState, accountAddress, ethAccountIds) => {
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
+      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
+    )
   },
+)
+
+export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
+  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
+  selectAccountAddressParamFromFilter,
+  (foxEthAccountOpportunities, accountAddress) =>
+    foxEthAccountOpportunities.find(opportunity => opportunity.accountAddress === accountAddress),
+)
+
+export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
+  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
+  wrappedEthLpOpportunities =>
+    wrappedEthLpOpportunities.filter(Boolean).reduce((acc, currentOpportunity) => {
+      acc = {
+        ...currentOpportunity,
+        underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
+          .plus(currentOpportunity.underlyingFoxAmount ?? '')
+          .toString(),
+        underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
+          .plus(currentOpportunity.underlyingEthAmount ?? '')
+          .toString(),
+        cryptoAmount: bnOrZero(acc.cryptoAmount)
+          .plus(currentOpportunity.cryptoAmount ?? '')
+          .toString(),
+        fiatAmount: bnOrZero(acc.fiatAmount)
+          .plus(currentOpportunity.fiatAmount ?? '')
+          .toString(),
+      }
+      return acc
+    }, {} as FoxEthLpEarnOpportunityType),
 )
 
 export const selectFoxFarmingOpportunitiesByAccountAddress = createSelector(
@@ -66,7 +118,7 @@ export const selectFarmContractsBalance = createSelector(
 
 export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
   selectAssets,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFarmContractsBalance,
   (assetsById, lpOpportunity, farmContractsBalance) => {
     const lpAsset = assetsById[foxEthLpAssetId]

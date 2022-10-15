@@ -18,11 +18,8 @@ const DefiHeader = () => {
 }
 
 export const Overview = () => {
-  const accountAddress = '' // TODO(gomes)
   const balances = useEarnBalances()
-  const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, { accountAddress: accountAddress ?? '' }),
-  )
+  const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state, {}))
   return (
     <Main titleComponent={<DefiHeader />}>
       <OverviewHeader earnBalance={balances} netWorth={netWorth} />

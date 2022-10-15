@@ -10,6 +10,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
+  selectAccountIdsByAssetId,
   selectAssetById,
   selectFoxEthLpOpportunityByAccountAddress,
   selectSelectedLocale,
@@ -26,24 +27,35 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const ethAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
+  )
+  const ethAccountAddresses = useMemo(
+    () => ethAccountIds.map(accountId => fromAccountId(accountId).account),
+    [ethAccountIds],
+  )
   const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
+    () => (accountId ? fromAccountId(accountId).account : ethAccountAddresses[0]),
+    [ethAccountAddresses, accountId],
   )
 
   const opportunity = useAppSelector(state =>
     selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
   )
-  const { underlyingFoxAmount, underlyingEthAmount } = opportunity
 
-  const lpAsset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
+  const { underlyingFoxAmount, underlyingEthAmount } = opportunity!
+
+  const lpAsset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: lpAsset.assetId, selectedLocale })
+  const descriptionQuery = useGetAssetDescriptionQuery({
+    assetId: lpAsset?.assetId,
+    selectedLocale,
+  })
 
-  if (!opportunity || !opportunity.isLoaded) {
+  if (!lpAsset || !opportunity || !opportunity.isLoaded) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -67,9 +79,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       ]}
       provider='UNI V2'
       description={{
-        description: lpAsset.description,
+        description: lpAsset?.description,
         isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: lpAsset.isTrustedDescription,
+        isTrustedDescription: lpAsset?.isTrustedDescription,
       }}
       tvl={opportunity.tvl}
       apy={opportunity.apy?.toString()}

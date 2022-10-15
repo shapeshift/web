@@ -18,7 +18,7 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -52,7 +52,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
   )
 
   const { setAccountId } = useFoxEth()

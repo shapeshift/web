@@ -8,7 +8,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import {
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
   selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -56,14 +56,13 @@ export const PortfolioBreakdown = () => {
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
   //FOX/ETH LP Balance
-  const accountAddress = '' // TODO(gomes): implement me, or maybe not? This should aggregate over balances, not select the one from a specific account/address
   const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
   )
   const lpBalance = opportunity?.underlyingFoxAmount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, { accountAddress }),
+    selectPortfolioTotalFiatBalanceWithStakingData(state, {}),
   )
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)

@@ -57,8 +57,10 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
   )
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, opportunity.assetId))
+  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunity?.assetId ?? ''),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 
@@ -97,6 +99,8 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   }, [accountId, asset.symbol, handleAccountIdChange, translate])
 
   useEffect(() => {
+    if (!opportunity) return
+
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: opportunity })
   }, [opportunity])
 

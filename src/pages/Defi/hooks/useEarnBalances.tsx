@@ -7,8 +7,8 @@ import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakin
 import {
   selectFarmContractsFiatBalance,
   selectFeatureFlags,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFoxEthLpFiatBalance,
-  selectFoxEthLpOpportunityByAccountAddress,
   selectVisibleFoxFarmingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -46,9 +46,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     selectVisibleFoxFarmingOpportunities(state, { accountAddress: accountAddress ?? '' }),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
   )
   const farmContractsFiatBalance = useAppSelector(state =>
     selectFarmContractsFiatBalance(state, { accountAddress: accountAddress ?? '' }),

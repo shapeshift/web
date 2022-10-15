@@ -50,7 +50,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
   )
 
   const feeAssetId = toAssetId({
@@ -129,7 +131,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
-      pairIcons={foxEthLpOpportunity.icons}
+      pairIcons={foxEthLpOpportunity?.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>

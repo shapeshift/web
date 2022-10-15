@@ -45,7 +45,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   return (
     <Box pt='51px' pb='20px' px='24px'>
       <ModalCloseButton borderRadius='full' />
-      <Flex direction='column' maxWidth='395px' alignItems='center' justifyContent='space-between'>
+      <Flex direction='column' alignItems='center' justifyContent='space-between'>
         <DefiModalHeader
           headerImageSrc={asset.icon}
           headerImageMaxWidth={68}

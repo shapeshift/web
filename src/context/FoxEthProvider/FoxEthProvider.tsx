@@ -70,10 +70,21 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
   const [accountAddress, setAccountAddress] = useState<string>('')
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
-  const readyToFetchLpData = !isPortfolioLoading && wallet && supportsETH(wallet)
-  const readyToFetchFarmingData = readyToFetchLpData && foxEthLpMarketData.price !== '0'
-  const readyToFetchLpAccountData =
-    readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0'
+  const readyToFetchLpData = useMemo(
+    () => !isPortfolioLoading && wallet && supportsETH(wallet),
+    [isPortfolioLoading, wallet],
+  )
+  const readyToFetchFarmingData = useMemo(
+    () => Boolean(readyToFetchLpData && foxEthLpMarketData.price !== '0'),
+    [foxEthLpMarketData.price, readyToFetchLpData],
+  )
+  const readyToFetchLpAccountData = useMemo(
+    () =>
+      Boolean(
+        readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0',
+      ),
+    [readyToFetchLpData, accountAddress, foxLpEnabled, foxEthLpMarketData.price],
+  )
 
   const ethAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
@@ -105,9 +116,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ethAccountAddresses.forEach(accountAddress => {
         dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
       })
-      await refetchFoxEthLpAccountData()
     })()
   }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!readyToFetchLpData) return
+
+      await refetchFoxEthLpAccountData()
+    })()
+  }, [refetchFoxEthLpAccountData, readyToFetchLpData])
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   // Use the account number of the consumer if we have it, else use account 0

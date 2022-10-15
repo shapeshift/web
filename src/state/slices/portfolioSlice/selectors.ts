@@ -1097,7 +1097,7 @@ export const selectAccountIdByAddress = createSelector(
   },
 )
 
-export const selectAccountIdsByAssetId = createSelector(
+export const selectAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   findAccountsByAssetId,

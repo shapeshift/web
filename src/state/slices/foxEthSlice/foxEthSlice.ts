@@ -6,6 +6,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -74,7 +75,10 @@ export const foxEth = createSlice({
       })()
 
       if (!state[action.payload.accountAddress ?? '']) {
-        state[action.payload.accountAddress ?? ''] = { farmingOpportunities: [] }
+        state[action.payload.accountAddress ?? ''] = {
+          farmingOpportunities: [],
+          lpOpportunity: {} as EarnOpportunityType,
+        } as FoxEthOpportunities
       }
 
       if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
@@ -320,7 +324,6 @@ export const foxEthApi = createApi({
             isLoaded: true,
             contractAddress,
           }
-          console.log('upserting farming opportunity', { data })
           dispatch(foxEth.actions.upsertFarmingOpportunity(data))
           return { data }
         } catch (err) {

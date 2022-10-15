@@ -136,7 +136,6 @@ export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelecto
 export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   opportunities => {
-    console.log({ opportunities })
     return opportunities
       .flatMap(opportunity => opportunity)
       .filter(

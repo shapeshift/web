@@ -19,7 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddressAggregated,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -50,7 +50,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddressAggregated(state, {
+    selectFoxEthLpOpportunityByAccountAddress(state, {
       accountAddress: accountAddress ?? '',
     }),
   )

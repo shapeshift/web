@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -10,6 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
+import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -40,8 +41,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
+
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress, accountAddress }),
   )
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
@@ -49,6 +56,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     assetNamespace,
     assetReference,
   })
+
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
@@ -58,6 +66,8 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+
+  console.log({ opportunity, contractAddress, accountAddress })
 
   if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
     return (

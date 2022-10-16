@@ -12,7 +12,7 @@ import { foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddressAggregated,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -40,7 +40,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   )
 
   const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddressAggregated(state, {
+    selectFoxEthLpOpportunityByAccountAddress(state, {
       accountAddress: accountAddress ?? '',
     }),
   )

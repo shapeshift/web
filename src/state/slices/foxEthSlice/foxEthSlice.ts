@@ -26,7 +26,7 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-import { baseFarmingOpportunity, farmingOpportunities, lpOpportunity } from './foxEthCommon'
+import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {

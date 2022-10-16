@@ -14,13 +14,31 @@ import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifie
 import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
 
-// TODO(gomes): DeepEqual Output compareFn
-const selectAccountAddressParamFromFilter = (
-  _state: ReduxState,
-  filter: { accountAddress?: string; contractAddress?: string },
-): string => filter?.accountAddress ?? ''
+type ParamFilter = {
+  accountAddress?: string
+  contractAddress?: string
+}
+type OptionalParamFilter = {
+  accountAddress?: string
+  contractAddress?: string
+}
 
-// TODO(gomes): DeepEqual Output compareFn
+type ParamFilterKey = keyof ParamFilter
+type OptionalParamFilterKey = keyof OptionalParamFilter
+
+const selectParamFromFilter =
+  <T extends ParamFilterKey>(param: T) =>
+  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
+    filter?.[param] ?? ''
+
+const selectParamFromFilterOptional =
+  <T extends OptionalParamFilterKey>(param: T) =>
+  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
+    filter?.[param] ?? ''
+
+const selectAccountAddressParamFromFilterOptional = selectParamFromFilterOptional('accountAddress')
+const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
+
 const selectContractAddressParamFromFilter = (
   _state: ReduxState,
   filter: { accountAddress?: string; contractAddress?: string },
@@ -42,7 +60,7 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
 
 export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
   (foxEthState, accountAddress, ethAccountIds) => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
@@ -54,9 +72,7 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createSel
 
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  selectAccountAddressParamFromFilter,
-  (foxEthAccountOpportunities, accountAddress) =>
-    foxEthAccountOpportunities.find(opportunity => opportunity.accountAddress === accountAddress),
+  foxEthAccountOpportunities => foxEthAccountOpportunities[0],
 )
 
 export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
@@ -84,7 +100,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
 
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createSelector(
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
   (foxEthState, accountAddress, ethAccountIds) => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)

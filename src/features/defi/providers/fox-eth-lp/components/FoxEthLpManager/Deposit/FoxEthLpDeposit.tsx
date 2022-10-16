@@ -19,7 +19,7 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectFoxEthLpOpportunityByAccountAddressAggregated,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -54,7 +54,9 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   )
 
   const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, { accountAddress: accountAddress ?? '' }),
+    selectFoxEthLpOpportunityByAccountAddressAggregated(state, {
+      accountAddress: accountAddress ?? '',
+    }),
   )
 
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))

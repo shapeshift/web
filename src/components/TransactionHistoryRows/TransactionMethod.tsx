@@ -127,13 +127,6 @@ export const TransactionMethod = ({
           )}
         </TxGrid>
       </TransactionDetailsContainer>
-      <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        {'memo' in txMetadata && (
-          <Row title='memo'>
-            <Text value={txMetadata.memo} />
-          </Row>
-        )}
-      </TransactionDetailsContainer>
     </>
   )
 }

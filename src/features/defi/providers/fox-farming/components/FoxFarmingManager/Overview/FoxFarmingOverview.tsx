@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -21,6 +21,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import {
   selectAssetById,
   selectFoxFarmingOpportunityByContractAddress,
+  selectHighestBalanceFoxFarmingOpportunityAccountAddress,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -42,9 +43,12 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
 
+  const highestBalanceAccountAddress = useAppSelector(state =>
+    selectHighestBalanceFoxFarmingOpportunityAccountAddress(state, { contractAddress }),
+  )
   const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : ''),
-    [accountId],
+    () => fromAccountId(accountId ?? highestBalanceAccountAddress ?? '').account,
+    [accountId, highestBalanceAccountAddress],
   )
 
   const opportunity = useAppSelector(state =>
@@ -66,8 +70,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
-
-  console.log({ opportunity, contractAddress, accountAddress })
 
   if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
     return (

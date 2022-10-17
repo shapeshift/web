@@ -58,24 +58,25 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
   },
 )((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
 
-export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createSelector(
-  (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
-  selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds) => {
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-    )
-  },
-)
+export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress =
+  createDeepEqualOutputSelector(
+    (state: ReduxState) => state.foxEth,
+    selectAccountAddressParamFromFilterOptional,
+    selectEthAccountIdsByAssetId,
+    (foxEthState, accountAddress, ethAccountIds) => {
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+      return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
+        accountAddress => foxEthState[accountAddress]?.lpOpportunity,
+      )
+    },
+  )
 
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   foxEthAccountOpportunities => foxEthAccountOpportunities[0],
 )
 
-export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
+export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   wrappedEthLpOpportunities =>
     wrappedEthLpOpportunities.filter(Boolean).reduce((acc, currentOpportunity) => {
@@ -98,7 +99,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createSelector(
     }, {} as FoxEthLpEarnOpportunityType),
 )
 
-export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createSelector(
+export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
@@ -110,7 +111,7 @@ export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createSelector
   },
 )
 
-export const selectFoxFarmingAccountsOpportunitiesAggregated = createSelector(
+export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   foxFarmingOpportunities => {
     const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities

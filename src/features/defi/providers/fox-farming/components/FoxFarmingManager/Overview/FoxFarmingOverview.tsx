@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {

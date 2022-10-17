@@ -201,7 +201,6 @@ export const foxEthApi = createApi({
           dispatch(foxEth.actions.upsertLpOpportunity(data))
           return { data }
         } catch (err) {
-          console.trace()
           moduleLogger.error(err, 'getFoxEthLpMetrics')
           return {
             error: {

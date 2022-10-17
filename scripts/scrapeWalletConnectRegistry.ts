@@ -16,7 +16,7 @@ async function run() {
 
     const newListings = await fetch(`${registryJsonUrl}?search=${searchQuery}`)
       .then(res => res.json())
-      .then(res => res.pageProps.listings.filter((l: RegistryItem) => !listings.some(ll => l.id === ll.id)))
+      .then(res => res.pageProps.listings.filter((l: RegistryItem) => !listings.some(ll => l.id === ll.id) && l.category !== 'wallet'))
     listings.push(...newListings)
   }
 

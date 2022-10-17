@@ -35,14 +35,12 @@ export const DappRegistryGrid: FC = () => {
   const page = useWatch({ control, name: 'page' })
   useEffect(() => setValue('page', 0), [search, setValue])
 
-  const filteredItems = useMemo(() => registryItems.filter(e => e.category !== 'wallet'), [])
-
   const filteredListings = useMemo(
     () =>
-      filteredItems.filter(
+      registryItems.filter(
         registryItem => !search || registryItem.name.toLowerCase().includes(search.toLowerCase()),
       ),
-    [filteredItems, search],
+    [search],
   )
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)

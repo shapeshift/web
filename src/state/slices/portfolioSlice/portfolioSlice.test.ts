@@ -1,17 +1,11 @@
-import { btcAssetId, cosmosAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import merge from 'lodash/merge'
+import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import {
   assetIds,
-  btcAccountIds,
   btcAddresses,
   btcPubKeys,
-  ethAccountIds,
   ethPubKeys,
   mockBtcAccount,
   mockBtcAddress,
-  mockCosmosAccount,
-  mockCosmosAccountWithOnlyUndelegations,
-  mockCosmosAccountWithStakingData,
   mockEthAccount,
   mockEthAndBtcAccounts,
   mockEthToken,
@@ -22,7 +16,7 @@ import {
   yvusdcAssetId,
   zeroAssetId,
 } from 'test/mocks/accounts'
-import { cosmos, mockAssetState } from 'test/mocks/assets'
+import { mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
@@ -31,7 +25,6 @@ import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  selectAccountIdByAddress,
   selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAccountRows,
@@ -44,7 +37,6 @@ import {
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioTotalFiatBalanceByAccount,
-  selectTotalFiatBalanceWithDelegations,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -252,44 +244,6 @@ describe('portfolioSlice', () => {
         const selected = selectPortfolioAssetAccounts(state, ethAssetId)
         const expected = [ethAccountId, ethAccount2Id]
         expect(selected).toEqual(expected)
-      })
-    })
-
-    describe('selectAccountIdByAddress', () => {
-      const store = createStore()
-      const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockEthAndBtcAccounts()
-
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, btcAccount], assetIds),
-        ),
-      )
-      const state = store.getState()
-
-      it('can select account id by address (accountId)', () => {
-        const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
-        })
-        const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0],
-        })
-
-        expect(btcAccSpecifier).toEqual(btcAccountId)
-        expect(ethAccSpecifier).toEqual(ethAccountId)
-      })
-
-      it('can select account id with address in non checksum format', () => {
-        // AccountIds in state in non checksum format
-        const btcAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: btcAccountIds[0],
-        })
-        expect(btcAccSpecifier).toEqual(btcAccountId)
-
-        // AccountId argument in non checksum format
-        const ethAccSpecifier = selectAccountIdByAddress(state, {
-          accountSpecifier: ethAccountIds[0].toUpperCase(),
-        })
-        expect(ethAccSpecifier).toEqual(ethAccountId)
       })
     })
 
@@ -828,132 +782,6 @@ describe('portfolioSlice', () => {
       it('should return correct portfolio rows in case of 100% allocation on one asset', () => {
         const result = selectPortfolioAccountRows(state)
         expect(result).toMatchSnapshot()
-      })
-    })
-
-    describe('selectTotalFiatBalanceWithDelegations', () => {
-      const cosmosAccountSpecifier: string =
-        'cosmos:cosmoshub-4:cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'
-
-      it('should return correct fiat balance in case there are delegations, undelegations and asset balance', () => {
-        const store = createStore()
-        const assetData = mockAssetState({
-          byId: {
-            [cosmos.assetId]: cosmos,
-          },
-          ids: [cosmos.assetId],
-        })
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
-
-        const cosmosMarketData = mockMarketData({ price: '77.55' })
-        store.dispatch(
-          marketDataSlice.actions.setCryptoMarketData({
-            [cosmos.assetId]: cosmosMarketData,
-          }),
-        )
-
-        const cosmosAccount = merge(mockCosmosAccount(mockCosmosAccountWithStakingData), {
-          balance: '1000',
-        })
-
-        store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
-          ),
-        )
-
-        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
-        })
-        expect(result).toEqual('1.25002845')
-      })
-
-      it('should return correct fiat balance in case there are delegations and undelegations but no asset balance', () => {
-        const store = createStore()
-        const assetData = mockAssetState({
-          byId: {
-            [cosmos.assetId]: cosmos,
-          },
-          ids: [cosmos.assetId],
-        })
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
-
-        const cosmosMarketData = mockMarketData({ price: '77.55' })
-        store.dispatch(
-          marketDataSlice.actions.setCryptoMarketData({
-            [cosmos.assetId]: cosmosMarketData,
-          }),
-        )
-
-        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithStakingData)
-        store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
-          ),
-        )
-
-        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
-        })
-        expect(result).toEqual('1.17247845')
-      })
-
-      it('should return non zero fiat balance in case there are only undelegations but no asset balance', () => {
-        const store = createStore()
-        const assetData = mockAssetState({
-          byId: {
-            [cosmos.assetId]: cosmos,
-          },
-          ids: [cosmos.assetId],
-        })
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
-
-        const cosmosMarketData = mockMarketData({ price: '77.55' })
-        store.dispatch(
-          marketDataSlice.actions.setCryptoMarketData({
-            [cosmos.assetId]: cosmosMarketData,
-          }),
-        )
-
-        const cosmosAccount = mockCosmosAccount(mockCosmosAccountWithOnlyUndelegations)
-
-        store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([cosmosAccount], [cosmosAssetId]),
-          ),
-        )
-
-        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
-        })
-        expect(result).toEqual('0.0271425')
-      })
-
-      it('should return zero fiat balance in case there are no delegations nor asset balance', () => {
-        const store = createStore()
-        const assetData = mockAssetState({
-          byId: {
-            [cosmos.assetId]: cosmos,
-          },
-          ids: [cosmos.assetId],
-        })
-        store.dispatch(assetsSlice.actions.setAssets(assetData))
-
-        const cosmosMarketData = mockMarketData({ price: '77.55' })
-        store.dispatch(
-          marketDataSlice.actions.setCryptoMarketData({
-            [cosmos.assetId]: cosmosMarketData,
-          }),
-        )
-
-        const result = selectTotalFiatBalanceWithDelegations(store.getState(), {
-          assetId: cosmosAssetId,
-          accountSpecifier: cosmosAccountSpecifier,
-        })
-        expect(result).toEqual('0')
       })
     })
   })

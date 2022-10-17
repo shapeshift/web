@@ -10,9 +10,8 @@ import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accou
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectFiatBalanceIncludingStakingByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,16 +28,11 @@ export const AssetAccountRow = ({ accountId, assetId, onClick }: AssetAccountRow
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-  const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
-    [rowAssetId, accountId, accountSpecifier],
-  )
-  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter),
+  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  // i don't care if this change works - this is all dead code only used by old swapper
+  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
 
   const label = accountIdToLabel(accountId)

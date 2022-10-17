@@ -14,7 +14,6 @@ import type { Nullable } from 'types/common'
 type UseCosmosStakingBalancesProps = {
   accountId?: Nullable<AccountId>
   assetId: AssetId
-  supportsCosmosSdk?: boolean
 }
 
 export type UseCosmosStakingBalancesReturn = {
@@ -33,17 +32,19 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
 export function useCosmosSdkStakingBalances({
   assetId,
   accountId,
-  supportsCosmosSdk = true,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFullByFilter(state, {
-      accountSpecifier: accountId,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       assetId,
-      supportsCosmosSdk,
     }),
+    [accountId, assetId],
+  )
+  const stakingOpportunities = useAppSelector(s =>
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
 
   const mergedActiveStakingOpportunities = useMemo(() => {

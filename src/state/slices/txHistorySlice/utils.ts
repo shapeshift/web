@@ -1,8 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import union from 'lodash/union'
 
-import type { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
 import type { Tx } from './txHistorySlice'
 
 type TxIndex = string
@@ -48,7 +47,7 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
 export const serializeTxIndex = (
-  accountId: AccountSpecifier,
+  accountId: AccountId,
   txid: Tx['txid'],
   address: Tx['address'],
   data?: Tx['data'],

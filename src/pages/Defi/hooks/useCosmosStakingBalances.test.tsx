@@ -58,25 +58,7 @@ function setup() {
   return { result }
 }
 
-// TODO: Will unskip
 describe('useCosmosStakingBalances', () => {
-  it('returns empty array for active opportunities and the shapeshift validator as a staking opportunity when staking data is empty and validators data are loaded', async () => {
-    store.dispatch(
-      validatorData.actions.upsertValidatorData({
-        validators: MOCK_VALIDATORS,
-      }),
-    )
-    store.dispatch(
-      validatorData.actions.upsertValidatorData({
-        validators: MOCK_VALIDATORS,
-      }),
-    )
-
-    const { result } = setup()
-    expect(result.current.cosmosSdkStakingOpportunities).toMatchSnapshot()
-    expect(result.current.totalBalance).toEqual('0')
-  })
-
   it('returns active and non active staking opportunities when staking and validators data are loaded', async () => {
     store.dispatch(
       validatorData.actions.upsertValidatorData({

@@ -30,7 +30,7 @@ import {
   selectAssetById,
   selectFeatureFlags,
   selectFiatToUsdRate,
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectHighestFiatBalanceAccountByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -121,7 +121,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   )
 
   const sellAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
+    selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
   const filter = useMemo(
     () => ({

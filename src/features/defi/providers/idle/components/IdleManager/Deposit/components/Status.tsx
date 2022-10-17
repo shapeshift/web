@@ -18,7 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -47,14 +47,12 @@ export const Status = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountSpecifier])
+    if (!(state?.txid && state?.userAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, state.userAddress)
+  }, [state?.txid, state?.userAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

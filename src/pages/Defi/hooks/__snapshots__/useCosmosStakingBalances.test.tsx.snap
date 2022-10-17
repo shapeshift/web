@@ -39,5 +39,3 @@ Array [
   },
 ]
 `;
-
-exports[`useCosmosStakingBalances returns empty array for active opportunities and the shapeshift validator as a staking opportunity when staking data is empty and validators data are loaded 1`] = `Array []`;

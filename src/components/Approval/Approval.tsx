@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -56,7 +56,8 @@ export const Approval = () => {
     getValues,
     setValue,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { isSubmitting },
   } = useFormContext<TS<KnownChainIds.EthereumMainnet>>()
   const { checkApprovalNeeded, approve } = useSwapper()
   const {
@@ -68,7 +69,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const [isExactAllowance] = useWatch({ name: ['isExactAllowance'] }) as [TS['isExactAllowance']]
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -122,15 +123,6 @@ export const Approval = () => {
     quote,
     showErrorToast,
   ])
-
-  useEffect(() => {
-    // TODO: (ryankk) fix errors to reflect correct attribute
-    const error = errors?.quote?.rate ?? null
-    if (error) {
-      moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
-      history.push(TradeRoutePaths.Input)
-    }
-  }, [errors, history])
 
   return (
     <SlideTransition>

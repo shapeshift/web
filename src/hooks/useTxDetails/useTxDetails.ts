@@ -82,6 +82,6 @@ export const useTxDetails = (
     fee,
     transfers,
     type: getTxType(tx, transfers),
-    explorerTxLink: fee?.asset.explorerTxLink ?? defaultFeeAsset.explorerTxLink,
+    explorerTxLink: fee?.asset?.explorerTxLink ?? defaultFeeAsset.explorerTxLink,
   }
 }

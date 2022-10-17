@@ -1,143 +1,112 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
-import {
-  getBuyTransfer,
-  getSellTransfer,
-  getStandardTx,
-  getTransferByAsset,
-  getTransferByType,
-  isSupportedContract,
-  isTradeContract,
-} from 'hooks/useTxDetails/useTxDetails'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
+import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { renderHook } from '@testing-library/react'
+import { ethereum, mockAssetState, usdc } from 'test/mocks/assets'
+import { createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
+import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+import * as store from 'state/store'
 
-describe('getStandardTx', () => {
-  it('returns the expected values', () => {
-    expect(getStandardTx(EthSend)).toEqual(EthSend.transfers[0]) // When 1 transfer (an ETH tx)
-    expect(getStandardTx(BtcSend)).toBeUndefined() // When !== 1 transfer (a BTC tx)
-  })
-})
+const [deposit, , withdrawUsdc] = createMockEthTxs('foo')
 
-describe('getBuyTransfer', () => {
-  it('returns the expected values', () => {
-    expect(getBuyTransfer(EthSend)).toBeUndefined()
-    expect(getBuyTransfer(EthReceive)).toEqual(EthReceive.transfers[0])
-    expect(getBuyTransfer(TradeTx)).toEqual(TradeTx.transfers[0])
-  })
-})
+const useSelectorSpy = jest.spyOn(store, 'useAppSelector')
 
-describe('getSellTransfer', () => {
-  it('returns the expected values', () => {
-    expect(getSellTransfer(EthSend)).toEqual(EthSend.transfers[0])
-    expect(getSellTransfer(EthReceive)).toBeUndefined()
-    expect(getSellTransfer(TradeTx)).toEqual(TradeTx.transfers[1])
-  })
-})
+const marketData = {} as Record<AssetId, MarketData | undefined>
 
-describe('isTradeContract', () => {
-  it('returns true for trade', () => {
-    const account = '0xfoxy'
-    const buy = {
-      from: '0xpoolA',
-      to: account,
-    } as TxTransfer
-    const sell = {
-      from: account,
-      to: '0xpoolB',
-    } as TxTransfer
-    expect(isTradeContract(buy, sell)).toEqual(true)
+describe('useTxDetails', () => {
+  it('should get tx details for a standard send', () => {
+    useSelectorSpy.mockReturnValueOnce(EthSend) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(EthSend.txid, mockAssetState().byId, marketData),
+    )
+
+    expect(result.current.type).toEqual(TransferType.Send)
   })
 
-  it('returns false when seller.from !== buyer.to', () => {
-    const buy = {
-      from: '0xpoolA',
-      to: '0xfoxy',
-    } as TxTransfer
-    const sell = {
-      from: '0xzyzz',
-      to: '0xpoolB',
-    } as TxTransfer
-    expect(isTradeContract(buy, sell)).toEqual(false)
+  it('should get tx details for a standard receive', () => {
+    useSelectorSpy.mockReturnValueOnce(EthReceive) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(EthReceive.txid, mockAssetState().byId, marketData),
+    )
+
+    expect(result.current.type).toEqual(TransferType.Receive)
   })
 
-  it('returns false when sellTransfer.to === buyTransfer.from', () => {
-    const account = '0xfoxy'
-    const pool = '0xpool'
-    const buy = {
-      from: pool,
-      to: account,
-    } as TxTransfer
-    const sell = {
-      from: account,
-      to: pool,
-    } as TxTransfer
-    expect(isTradeContract(buy, sell)).toEqual(false)
-  })
-})
+  it('should get tx details for a trade', () => {
+    useSelectorSpy.mockReturnValueOnce(TradeTx) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
 
-describe('getTransferByType', () => {
-  describe('TransferType.Send', () => {
-    it('finds transfer with TransferType.Send', () => {
-      const result = getTransferByType(EthSend, TransferType.Send)
-      const expected = EthSend.transfers[0]
-      expect(result).toEqual(expected)
-    })
-    it('returns undefined on failure', () => {
-      // receive !== send
-      const result = getTransferByType(EthReceive, TransferType.Send)
-      expect(result).toBeUndefined()
-    })
+    const { result } = renderHook(() =>
+      useTxDetails(TradeTx.txid, mockAssetState().byId, marketData),
+    )
 
-    describe('TransferType.Receive', () => {
-      it('finds transfer with TransferType.Receive', () => {
-        const result = getTransferByType(EthReceive, TransferType.Receive)
-        const expected = EthReceive.transfers[0]
-        expect(result).toEqual(expected)
-      })
-      it('returns undefined on failure', () => {
-        // send !== receive
-        const result = getTransferByType(EthSend, TransferType.Receive)
-        expect(result).toBeUndefined()
-      })
-    })
-  })
-})
-
-describe('getTransferByAsset', () => {
-  it('finds transfer with asset', () => {
-    const asset = {
-      assetId: 'eip155:1/slip44:60',
-    } as Asset
-    const result = getTransferByAsset(EthSend, asset)
-    const expected = EthSend.transfers[0]
-    expect(result).toEqual(expected)
-  })
-  it('returns undefined on failure', () => {
-    const asset = {
-      assetId: 'eip999:1/0x:ZZ',
-    } as Asset
-    const result = getTransferByAsset(EthSend, asset)
-    expect(result).toBeUndefined()
-  })
-})
-
-describe('isSupportedContract', () => {
-  it('returns true for being supported', () => {
-    createMockEthTxs('0xcafe').forEach(tx => expect(isSupportedContract(tx)).toBe(true))
+    expect(result.current.type).toEqual(TradeType.Trade)
   })
 
-  it('returns false when unsupported', () => {
-    createMockEthTxs('0xface').forEach((tx, idx) => {
-      expect(tx.data).toHaveProperty('method')
-      if (tx.data?.method) tx.data.method += `-fail-${idx}`
-      expect(isSupportedContract(tx)).toBe(false)
-    })
+  it('should get tx details for a supported method', () => {
+    useSelectorSpy.mockReturnValueOnce(deposit) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(deposit.txid, mockAssetState().byId, marketData),
+    )
+
+    expect(result.current.type).toEqual('method')
   })
 
-  it('returns false for undefined', () => {
-    const tx = { data: { method: undefined } } as Tx
-    expect(isSupportedContract(tx)).toBe(false)
+  it('should get tx details for an unknown tx type', () => {
+    const unknown = deposit
+    unknown.data!.method = 'unknown'
+
+    useSelectorSpy.mockReturnValueOnce(unknown) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(unknown.txid, mockAssetState().byId, marketData),
+    )
+
+    expect(result.current.type).toEqual('unknown')
+  })
+
+  it('should get tx details for an active asset', () => {
+    useSelectorSpy.mockReturnValueOnce(withdrawUsdc) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(withdrawUsdc.txid, mockAssetState().byId, marketData, usdc),
+    )
+
+    expect(result.current.transfers.length).toEqual(1)
+    expect(result.current.transfers[0].asset).toEqual(usdc)
+  })
+
+  it('should use default fee asset', () => {
+    const invalidFeeAsset = EthSend
+    invalidFeeAsset.fee!.assetId = 'foo'
+
+    useSelectorSpy.mockReturnValueOnce(invalidFeeAsset) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() =>
+      useTxDetails(invalidFeeAsset.txid, mockAssetState().byId, marketData),
+    )
+
+    expect(result.current.fee?.asset).toEqual(ethereum)
+  })
+
+  it('should use default explorer tx link', () => {
+    const noFee = EthSend
+    delete noFee.fee
+
+    useSelectorSpy.mockReturnValueOnce(noFee) // selectTxById
+    useSelectorSpy.mockReturnValueOnce(ethereum) // selectFeeAssetByChainId
+
+    const { result } = renderHook(() => useTxDetails(noFee.txid, mockAssetState().byId, marketData))
+
+    expect(result.current.explorerTxLink).toEqual('https://etherscan.io/tx/')
   })
 })

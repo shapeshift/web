@@ -45,7 +45,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const filter = useMemo(
     () => ({
-      accountAddress: fromAccountId(accountId ?? '').account,
+      accountAddress: accountId ? fromAccountId(accountId ?? '').account : '',
     }),
     [accountId],
   )

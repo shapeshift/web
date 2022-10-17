@@ -1,4 +1,5 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -18,37 +19,44 @@ export const TransactionSend = ({
   isOpen,
   toggleOpen,
   parentWidth,
-}: TransactionRowProps) => (
-  <>
-    <TransactionGenericRow
-      type={txDetails.type}
-      toggleOpen={toggleOpen}
-      compactMode={compactMode}
-      blockTime={txDetails.tx.blockTime}
-      displayTransfers={getDisplayTransfers(txDetails.transfers, [TransferType.Send])}
-      fee={txDetails.fee}
-      explorerTxLink={txDetails.explorerTxLink}
-      txid={txDetails.tx.txid}
-      showDateAndGuide={showDateAndGuide}
-      parentWidth={parentWidth}
-    />
-    <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-      <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
-      <TxGrid compactMode={compactMode}>
-        <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
-        <Row title='status'>
-          <Status status={txDetails.tx.status} />
-        </Row>
-        {txDetails.fee && (
-          <Row title='minerFee'>
-            <Amount
-              value={txDetails.fee.value}
-              precision={txDetails.fee.asset.precision}
-              symbol={txDetails.fee.asset.symbol}
-            />
+}: TransactionRowProps) => {
+  const displayTransfers = useMemo(
+    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send]),
+    [txDetails.transfers],
+  )
+
+  return (
+    <>
+      <TransactionGenericRow
+        type={txDetails.type}
+        toggleOpen={toggleOpen}
+        compactMode={compactMode}
+        blockTime={txDetails.tx.blockTime}
+        displayTransfers={displayTransfers}
+        fee={txDetails.fee}
+        explorerTxLink={txDetails.explorerTxLink}
+        txid={txDetails.tx.txid}
+        showDateAndGuide={showDateAndGuide}
+        parentWidth={parentWidth}
+      />
+      <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
+        <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        <TxGrid compactMode={compactMode}>
+          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+          <Row title='status'>
+            <Status status={txDetails.tx.status} />
           </Row>
-        )}
-      </TxGrid>
-    </TransactionDetailsContainer>
-  </>
-)
+          {txDetails.fee && (
+            <Row title='minerFee'>
+              <Amount
+                value={txDetails.fee.value}
+                precision={txDetails.fee.asset.precision}
+                symbol={txDetails.fee.asset.symbol}
+              />
+            </Row>
+          )}
+        </TxGrid>
+      </TransactionDetailsContainer>
+    </>
+  )
+}

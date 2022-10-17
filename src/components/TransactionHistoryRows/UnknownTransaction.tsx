@@ -1,4 +1,5 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -20,7 +21,10 @@ export const UnknownTransaction = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  const types = [TransferType.Send, TransferType.Receive]
+  const displayTransfers = useMemo(
+    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+    [txDetails.transfers],
+  )
 
   return (
     <>
@@ -30,7 +34,7 @@ export const UnknownTransaction = ({
         compactMode={compactMode}
         title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={getDisplayTransfers(txDetails.transfers, types)}
+        displayTransfers={displayTransfers}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

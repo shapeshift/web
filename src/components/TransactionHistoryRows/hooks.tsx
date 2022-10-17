@@ -1,7 +1,7 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -20,8 +20,15 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
 
   const { findPriceHistoryByAssetId } = marketApi.endpoints
 
-  const buy = txDetails.transfers.find(transfer => transfer.type === TransferType.Receive)
-  const sell = txDetails.transfers.find(transfer => transfer.type === TransferType.Send)
+  const buy = useMemo(
+    () => txDetails.transfers.find(transfer => transfer.type === TransferType.Receive),
+    [txDetails.transfers],
+  )
+
+  const sell = useMemo(
+    () => txDetails.transfers.find(transfer => transfer.type === TransferType.Send),
+    [txDetails.transfers],
+  )
 
   useEffect(() => {
     if (!(txDetails.tx.trade && buy && sell)) return

@@ -3,10 +3,17 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectMarketData,
+  selectTxById,
+} from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -53,15 +60,13 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
   return 'unknown'
 }
 
-export const useTxDetails = (
-  txId: string,
+export const getTransfers = (
+  transfers: TxTransfer[],
   assets: AssetsById,
   marketData: Record<AssetId, MarketData | undefined>,
   activeAsset?: Asset,
-): TxDetails => {
-  const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
-
-  const transfers = tx.transfers.reduce<Transfer[]>((prev, transfer) => {
+): Transfer[] => {
+  return transfers.reduce<Transfer[]>((prev, transfer) => {
     if (activeAsset && activeAsset.assetId !== transfer.assetId) return prev
     const asset = assets[transfer.assetId]
     return [
@@ -69,19 +74,33 @@ export const useTxDetails = (
       { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
     ]
   }, [])
+}
 
-  const defaultFeeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
-  const fee = tx.fee && {
-    ...tx.fee,
-    asset: assets[tx.fee.assetId] ?? defaultFeeAsset,
-    marketData: marketData[tx.fee.assetId] ?? defaultMarketData,
-  }
+export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
+  const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketData)
+  const transfers = useMemo(
+    () => getTransfers(tx.transfers, assets, marketData, activeAsset),
+    [tx.transfers, assets, marketData, activeAsset],
+  )
+
+  const fee = useMemo(() => {
+    if (!tx.fee) return
+    return {
+      ...tx.fee,
+      asset: assets[tx.fee.assetId] ?? defaultAsset,
+      marketData: marketData[tx.fee.assetId] ?? defaultMarketData,
+    }
+  }, [tx.fee, assets, marketData])
+
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
 
   return {
     tx,
     fee,
     transfers,
     type: getTxType(tx, transfers),
-    explorerTxLink: fee?.asset?.explorerTxLink ?? defaultFeeAsset.explorerTxLink,
+    explorerTxLink: feeAsset.explorerTxLink,
   }
 }

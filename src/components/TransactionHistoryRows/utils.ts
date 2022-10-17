@@ -16,7 +16,8 @@ export const getDisplayTransfers = (transfers: Transfer[], types: TransferType[]
   return types.reduce<Transfer[]>((prev, type) => {
     const transfer = transfers.find(t => t.type === type)
     if (!transfer) return prev
-    return [...prev, transfer]
+    prev.push(transfer)
+    return prev
   }, [])
 }
 

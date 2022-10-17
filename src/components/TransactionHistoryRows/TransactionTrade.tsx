@@ -1,4 +1,5 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 
 import { useTradeFees } from './hooks'
@@ -22,8 +23,13 @@ export const TransactionTrade = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  const { tradeFees } = useTradeFees({ txDetails })
-  const types = [TransferType.Send, TransferType.Receive]
+  const tradeFeeInput = useMemo(() => ({ txDetails }), [txDetails])
+  const { tradeFees } = useTradeFees({ txDetails: tradeFeeInput.txDetails })
+
+  const displayTransfers = useMemo(
+    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+    [txDetails.transfers],
+  )
 
   return (
     <>
@@ -32,7 +38,7 @@ export const TransactionTrade = ({
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={getDisplayTransfers(txDetails.transfers, types)}
+        displayTransfers={displayTransfers}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

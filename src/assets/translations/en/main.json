@@ -1353,7 +1353,6 @@
     "receivedFrom": "Received From",
     "orderRoute": "Order Route",
     "status": "Status",
-    "memo": "Memo",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
     "approvalAmount": "Approval Amount",

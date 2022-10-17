@@ -1,6 +1,8 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
+import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,8 +28,17 @@ export const TransactionMethod = ({
   parentWidth,
 }: TransactionRowProps) => {
   const translate = useTranslate()
-  const txMetadata = txDetails.tx.data! // we are guaranteed to have had metadata to render this component
-  const txMetadataWithAssetId = getTxMetadataWithAssetId(txMetadata)
+  const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
+  const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
+
+  const asset = useAppSelector(state =>
+    selectAssetById(state, txMetadataWithAssetId?.assetId ?? ''),
+  )
+
+  const displayTransfers = useMemo(
+    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+    [txDetails.transfers],
+  )
 
   const titlePrefix = translate(
     txMetadata.parser
@@ -39,17 +50,8 @@ export const TransactionMethod = ({
   // to accomodate for different languages and their syntax
   const titleSuffix = txMetadata.method === 'revoke' ? ' approval' : ''
 
-  const asset = useAppSelector(state =>
-    selectAssetById(state, txMetadataWithAssetId?.assetId ?? ''),
-  )
-
   const symbol = asset?.symbol
   const title = symbol ? `${titlePrefix} ${symbol}${titleSuffix}` : titlePrefix
-
-  const displayTransfers = getDisplayTransfers(txDetails.transfers, [
-    TransferType.Send,
-    TransferType.Receive,
-  ])
 
   const type = (() => {
     switch (txMetadata.method) {
@@ -72,6 +74,7 @@ export const TransactionMethod = ({
       case Method.Revoke:
         return Method.Approve
       default: {
+        logger.warn(`unhandled method: ${txMetadata.method}`)
         if (displayTransfers.length === 1) return displayTransfers[0].type // known single direction
         return ''
       }

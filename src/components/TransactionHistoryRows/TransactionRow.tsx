@@ -1,7 +1,5 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -13,7 +11,6 @@ import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionT
 import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
-import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 dayjs.extend(relativeTime)
 
@@ -28,16 +25,12 @@ export type TransactionRowProps = {
 
 export const TransactionRow = ({
   txId,
-  assets,
-  marketData,
   activeAsset,
   showDateAndGuide = false,
   useCompactMode = false,
   parentWidth,
 }: {
   txId: string
-  assets: AssetsById
-  marketData: Record<AssetId, MarketData | undefined>
   activeAsset?: Asset
   showDateAndGuide?: boolean
   useCompactMode?: boolean
@@ -47,7 +40,7 @@ export const TransactionRow = ({
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const txDetails = useTxDetails(txId, assets, marketData, activeAsset)
+  const txDetails = useTxDetails(txId, activeAsset)
 
   const renderTransactionType = (
     txDetails: TxDetails,

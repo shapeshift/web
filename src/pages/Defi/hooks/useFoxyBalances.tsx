@@ -62,15 +62,5 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
     },
   )
 
-  console.log('xxx useFoxyBalances', {
-    userAddress,
-    maybeAccountIdFilter,
-    accountNumber,
-    accountsByNumber,
-    foxyBalances,
-    foxyAprData,
-    supportsEthereumChain,
-  })
-
   return foxyBalances
 }

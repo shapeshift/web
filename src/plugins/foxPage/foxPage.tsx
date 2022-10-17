@@ -86,8 +86,6 @@ export const FoxPage = () => {
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
-  console.log('xxx foxPage data', { foxyBalancesData, otherOpportunities })
-
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
 
   const selectedAssetIndex = useMemo(

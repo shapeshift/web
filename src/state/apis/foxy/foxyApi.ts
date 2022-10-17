@@ -132,8 +132,6 @@ async function getFoxyOpportunities(
   accountIds: AccountId[],
 ) {
   // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
-  console.log('xxx accountsIds', { accountIds, accountIdFilter: accountIds })
-
   const acc: Record<string, FoxyOpportunity> = {}
   try {
     const opportunities = await api.getFoxyOpportunities()

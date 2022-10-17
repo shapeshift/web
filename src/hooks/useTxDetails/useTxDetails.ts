@@ -46,6 +46,13 @@ export interface TxDetails {
 export const isSupportedMethod = (tx: Tx) =>
   Object.values(Method).includes(tx.data?.method as Method)
 
+export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
+  if (tx.trade) return tx.trade.type
+  if (isSupportedMethod(tx)) return 'method'
+  if (transfers.length === 1) return transfers[0].type // standard send/receive
+  return 'unknown'
+}
+
 export const useTxDetails = (
   txId: string,
   assets: AssetsById,
@@ -70,18 +77,11 @@ export const useTxDetails = (
     marketData: marketData[tx.fee.assetId] ?? defaultMarketData,
   }
 
-  const type: TxType = (() => {
-    if (tx.trade) return tx.trade.type
-    if (isSupportedMethod(tx)) return 'method'
-    if (transfers.length === 1) return transfers[0].type // standard send/receive
-    return 'unknown'
-  })()
-
   return {
     tx,
     fee,
     transfers,
-    type,
+    type: getTxType(tx, transfers),
     explorerTxLink: fee?.asset.explorerTxLink ?? defaultFeeAsset.explorerTxLink,
   }
 }

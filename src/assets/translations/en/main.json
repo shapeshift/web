@@ -1339,9 +1339,10 @@
       "outputAddress": "Output address"
     },
     "transactionTypes": {
-      "send": "Send",
-      "receive": "Receive",
-      "trade": "Trade"
+      "Send": "Send",
+      "Receive": "Receive",
+      "Trade": "Trade",
+      "Refund": "Refund"
     },
     "assets": "Assets",
     "txid": "TX ID",

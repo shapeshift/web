@@ -41,7 +41,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
+  const { data: foxyBalancesData } = useFoxyBalances()
 
   const filter = useMemo(
     () => ({

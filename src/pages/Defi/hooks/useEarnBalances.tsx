@@ -26,10 +26,7 @@ export type UseEarnBalancesReturn = {
 export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const accountAddress = '' // TODO
-  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances({
-    accountNumber: 0,
-  })
+  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
@@ -49,10 +46,10 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   )
 
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
   )
   const farmContractsFiatBalance = useAppSelector(state =>
-    selectFarmContractsFiatBalance(state, { accountAddress: accountAddress ?? '' }),
+    selectFarmContractsFiatBalance(state, emptyFilter),
   )
   const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
   const featureFlags = useAppSelector(selectFeatureFlags)

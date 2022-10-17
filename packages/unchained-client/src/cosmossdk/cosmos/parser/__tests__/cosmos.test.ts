@@ -106,10 +106,11 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'delegate',
         delegator: address,
         destinationValidator: 'cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl',
+        assetId: cosmosAssetId,
         value: '1920000',
       },
     }
@@ -147,10 +148,11 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'begin_unbonding',
-        delegator: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
-        destinationValidator: address,
+        delegator: address,
+        destinationValidator: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
+        assetId: cosmosAssetId,
         value: '200000',
       },
     }
@@ -179,7 +181,7 @@ describe('parseTx', () => {
       },
       transfers: [],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'begin_redelegate',
         sourceValidator: 'cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0',
         delegator: address,
@@ -230,8 +232,9 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'withdraw_delegator_reward',
+        delegator: address,
         destinationValidator: address,
         value: '39447',
         assetId: cosmosAssetId,
@@ -271,8 +274,8 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
-        method: 'ibc_transfer',
+        parser: 'ibc',
+        method: 'transfer',
         ibcDestination: 'osmo1syj2za9lxkhgpd9zm5lzfss9f6qcuycae0x7pf',
         ibcSource: address,
         assetId: cosmosAssetId,
@@ -309,8 +312,8 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
-        method: 'ibc_transfer',
+        parser: 'ibc',
+        method: 'transfer',
         ibcDestination: address,
         ibcSource: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
         assetId: cosmosAssetId,

@@ -18,6 +18,7 @@ const tx: Tx = {
     {
       origin: 'osmo1qxtuxfu0axkrvwpncj26asv4py3x6mmw8hln6h',
       from: 'osmo1qxtuxfu0axkrvwpncj26asv4py3x6mmw8hln6h',
+      to: '',
       type: 'swap_exact_amount_in',
       value: {
         amount: '790572',

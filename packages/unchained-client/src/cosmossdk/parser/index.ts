@@ -1,31 +1,12 @@
-import {
-  AssetId,
-  ChainId,
-  cosmosAssetId,
-  osmosisAssetId,
-  thorchainAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
+import { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
 import { TransferType, TxStatus } from '../../types'
 import { aggregateTransfer } from '../../utils'
 import { ParsedTx, Tx } from './types'
-import { metaData } from './utils'
+import { getAssetIdByDenom, metaData } from './utils'
 
 export * from './types'
-
-const logger = new Logger({
-  namespace: ['unchained-client', 'cosmossdk', 'parser'],
-  level: process.env.LOG_LEVEL,
-})
-
-const assetIdByDenom = new Map<string, AssetId>([
-  ['uatom', cosmosAssetId],
-  ['uosmo', osmosisAssetId],
-  ['rune', thorchainAssetId],
-])
 
 export interface BaseTransactionParserArgs {
   chainId: ChainId
@@ -52,23 +33,24 @@ export class BaseTransactionParser<T extends Tx> {
       txid: tx.txid,
     }
 
-    parsedTx.data = metaData(tx.messages[0], this.assetId)
+    tx.messages.forEach((msg, i) => {
+      const { from, to, value, origin } = msg
 
-    tx.messages.forEach(({ from = '', to = '', value, origin }) => {
-      const amount = new BigNumber(value?.amount ?? 0)
-
-      const assetId = (() => {
-        if (!value?.denom) return this.assetId
-        if (assetIdByDenom.has(value.denom)) return assetIdByDenom.get(value.denom) as AssetId
-
-        const [assetNamespace, assetReference] = value.denom.split('/')
-        if (assetNamespace === 'ibc' && assetReference) {
-          return toAssetId({ chainId: this.chainId, assetNamespace, assetReference })
+      // We use origin for fees because some txs have a different from and origin addresses
+      if (origin === address) {
+        // network fee
+        const fees = new BigNumber(tx.fee.amount)
+        if (fees.gt(0)) {
+          parsedTx.fee = { assetId: this.assetId, value: fees.toString(10) }
         }
+      }
 
-        logger.warn(`unknown denom: ${value.denom}, defaulting to: ${this.assetId}`)
-        return this.assetId
-      })()
+      const assetId = getAssetIdByDenom(value?.denom, this.assetId)
+
+      if (!assetId) return
+      if (i === 0) parsedTx.data = metaData(msg, tx.events[String(i)], assetId)
+
+      const amount = new BigNumber(value?.amount ?? 0)
 
       if (from === address && amount.gt(0)) {
         parsedTx.transfers = aggregateTransfer(
@@ -90,15 +72,6 @@ export class BaseTransactionParser<T extends Tx> {
           to,
           amount.toString(10),
         )
-      }
-
-      // We use origin for fees because some txs have a different from and origin addresses
-      if (origin === address) {
-        // network fee
-        const fees = new BigNumber(tx.fee.amount)
-        if (fees.gt(0)) {
-          parsedTx.fee = { assetId: this.assetId, value: fees.toString(10) }
-        }
       }
     })
 

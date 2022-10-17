@@ -55,8 +55,11 @@ export class Parser<T extends Tx> implements SubParser<T> {
     }
 
     switch (txSigHash) {
-      case this.supportedFunctions.approveSigHash:
-        return { data: { ...data, value: (decoded?.args.amount as BigNumber).toString() } }
+      case this.supportedFunctions.approveSigHash: {
+        const value = decoded.args.amount as BigNumber
+        if (value.isZero()) return { data: { ...data, method: 'revoke', value: value.toString() } }
+        return { data: { ...data, value: value.toString() } }
+      }
       default:
         return { data }
     }

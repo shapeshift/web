@@ -86,7 +86,7 @@ describe('parseTx', () => {
     expect(expected).toEqual(actual)
   })
 
-  it('should be able to parse a delegate tx with fee', async () => {
+  it('should be able to parse a delegate tx', async () => {
     const { tx, txNoFee, txWithFee } = delegate
     const address = 'osmo1t5nts8y096tezaspwzanpsw6dgdh32u8ehu72v'
 
@@ -115,10 +115,11 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'delegate',
         delegator: address,
         destinationValidator: 'osmovaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxwmj9we',
+        assetId: osmosisAssetId,
         value: '22824',
       },
     }
@@ -132,43 +133,6 @@ describe('parseTx', () => {
     const actualNoFee = await txParser.parse(txNoFee, address)
 
     expect(expectedNoFee).toEqual(actualNoFee)
-  })
-
-  it('should be able to parse a delegate tx with zero fee', async () => {
-    const { tx } = delegate
-    const address = 'osmo1t5nts8y096tezaspwzanpsw6dgdh32u8ehu72v'
-
-    const expected: ParsedTx = {
-      txid: tx.txid,
-      blockHash: tx.blockHash,
-      blockHeight: tx.blockHeight,
-      blockTime: tx.timestamp,
-      confirmations: tx.confirmations,
-      status: TxStatus.Confirmed,
-      address,
-      chainId: osmosisChainId,
-      transfers: [
-        {
-          type: TransferType.Send,
-          assetId: osmosisAssetId,
-          from: address,
-          to: 'osmovaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxwmj9we',
-          totalValue: '22824',
-          components: [{ value: '22824' }],
-        },
-      ],
-      data: {
-        parser: 'cosmos',
-        method: 'delegate',
-        delegator: address,
-        destinationValidator: 'osmovaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxwmj9we',
-        value: '22824',
-      },
-    }
-
-    const actual = await txParser.parse(tx, address)
-
-    expect(expected).toEqual(actual)
   })
 
   it('should be able to parse a undelegate tx', async () => {
@@ -200,10 +164,11 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'begin_unbonding',
-        delegator: 'osmovaloper1t8qckan2yrygq7kl9apwhzfalwzgc2429p8f0s',
-        destinationValidator: address,
+        delegator: address,
+        destinationValidator: 'osmovaloper1t8qckan2yrygq7kl9apwhzfalwzgc2429p8f0s',
+        assetId: osmosisAssetId,
         value: '526000000',
       },
     }
@@ -239,7 +204,7 @@ describe('parseTx', () => {
       chainId: osmosisChainId,
       transfers: [],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'begin_redelegate',
         sourceValidator: 'osmovaloper1ej2es5fjztqjcd4pwa0zyvaevtjd2y5w37wr9t',
         delegator: address,
@@ -297,8 +262,9 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'withdraw_delegator_reward',
+        delegator: address,
         destinationValidator: address,
         value: '273799',
         assetId: osmosisAssetId,
@@ -346,11 +312,12 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
-        method: 'ibc_transfer',
+        parser: 'ibc',
+        method: 'transfer',
         ibcDestination: 'cosmos1wrk4vlk03unephl72ntttcd80lnf7a2ywtzrvu',
         ibcSource: address,
-        assetId: osmosisAssetId,
+        assetId:
+          'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
         value: '2898071',
       },
     }
@@ -391,11 +358,12 @@ describe('parseTx', () => {
         },
       ],
       data: {
-        parser: 'cosmos',
-        method: 'ibc_transfer',
+        parser: 'ibc',
+        method: 'recv_packet',
         ibcDestination: address,
         ibcSource: 'evmos1mmxzd4c4kap3x60eu2rvnfrac264sjgxwu930y',
-        assetId: osmosisAssetId,
+        assetId:
+          'cosmos:osmosis-1/ibc:6AE98883D4D5D5FF9E50D7130F1305DA2FFA0C652D1DD9C123657C6B4EB2DF8A',
         value: '4190000000000000000',
       },
     }

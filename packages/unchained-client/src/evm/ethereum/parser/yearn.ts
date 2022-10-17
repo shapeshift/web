@@ -84,19 +84,22 @@ export class Parser implements SubParser<Tx> {
     }
 
     switch (txSigHash) {
-      case this.supportedYearnFunctions.approveSigHash:
+      case this.supportedYearnFunctions.approveSigHash: {
         if (decoded.args._spender !== SHAPE_SHIFT_ROUTER_CONTRACT) return
-        return {
-          data: {
-            ...data,
-            assetId: toAssetId({
-              chainId: this.chainId,
-              assetNamespace: 'erc20',
-              assetReference: tx.to,
-            }),
-            value: (decoded.args._value as BigNumber).toString(),
-          },
+
+        const value = decoded.args._value as BigNumber
+        const assetId = toAssetId({
+          chainId: this.chainId,
+          assetNamespace: 'erc20',
+          assetReference: tx.to,
+        })
+
+        if (value.isZero()) {
+          return { data: { ...data, assetId, method: 'revoke', value: value.toString() } }
         }
+
+        return { data: { ...data, assetId, value: value.toString() } }
+      }
       case this.supportedShapeShiftFunctions.depositSigHash:
         if (tx.to !== SHAPE_SHIFT_ROUTER_CONTRACT) return
         return { data }

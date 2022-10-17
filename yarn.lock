@@ -2931,11 +2931,6 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/investor@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor/-/investor-3.0.0.tgz#d748f4ff6378d0351b57deb72ad5d829651e0edf"
-  integrity sha512-dR+qXunrTojB1HI1NtGFJpUnxVLjrV/rWOZiv/WRxUVWHAwKdj0tZC0A4k3fKVSaA0q/z5aucKvG3q/oJX3qgQ==
-
 "@shapeshiftoss/proto-tx-builder@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.3.0.tgz#713413b3352d73bcc1ea1b04068522216950d38a"

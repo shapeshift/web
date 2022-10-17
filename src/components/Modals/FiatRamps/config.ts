@@ -142,9 +142,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const mtPelerinAssets = await getMtPelerinAssets()
       return [mtPelerinAssets, mtPelerinAssets]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action: FiatRampAction, assetId: AssetId) => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address)
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')

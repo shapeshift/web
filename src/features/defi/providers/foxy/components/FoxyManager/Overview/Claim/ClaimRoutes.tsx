@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -10,7 +10,7 @@ import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { selectBIP44ParamsByAccountId, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -51,6 +51,12 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
   const opportunity = (foxyBalancesData?.opportunities || []).find(
     e => e.contractAddress === contractAddress,
   )
+  const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  const withdrawInfo = accountId
+    ? // Look up the withdrawInfo for the current account, if we have one
+      opportunity?.withdrawInfo[accountId]
+    : // Else, get the withdrawInfo for the first account
+      opportunity?.withdrawInfo[firstAccountId ?? '']
   const location = useLocation()
 
   return (
@@ -64,7 +70,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={opportunity?.withdrawInfo.amount}
+              amount={withdrawInfo?.amount}
             />
           </Route>
           <Route exact path='/status'>

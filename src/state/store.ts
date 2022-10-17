@@ -90,7 +90,7 @@ const stateSanitizer = (state: any) => {
   return {
     ...state,
     assets: msg,
-    // marketData: msg,
+    marketData: msg,
     assetApi: msg,
     marketApi: msg,
   }

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.1.2...@shapeshiftoss/unchained-client-v10.2.0) (2022-10-17)
+
+
+### Features
+
+* explicit metadata and support new message types ([#1063](https://github.com/shapeshift/lib/issues/1063)) ([4259cce](https://github.com/shapeshift/lib/commit/4259cce24092f5be5e549c2035f16511d5c4c6ec))
+
 # [@shapeshiftoss/unchained-client-v10.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.1.1...@shapeshiftoss/unchained-client-v10.1.2) (2022-09-20)
 
 

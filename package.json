@@ -1,7 +1,13 @@
 {
-  "name": "@shapeshiftoss/web",
-  "version": "1.27.0",
+  "name": "keepkey-desktop",
+  "version": "0.1.60",
+  "author": "Highlander <bithighlander@gmail.com>",
+  "email": "bithighlander@gmail.com",
   "private": true,
+  "main": "electron/dist/main.js",
+  "repository": {
+    "url": "https://github.com/keepkey/keepkey-desktop"
+  },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
     "link-packages": "./scripts/link-packages.sh",
@@ -61,6 +67,7 @@
       "./src/test/setupGlobalMocks.ts"
     ]
   },
+  "homepage": "./",
   "build": {
     "appId": "com.keepkey.desktop",
     "productName": "KeepKey Desktop",

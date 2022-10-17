@@ -42,9 +42,12 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useCosmosSdkStakingBalances({
     assetId: osmosisAssetId,
   })
+
+  const emptyFilter = useMemo(() => ({}), [])
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {}),
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
   )
+
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
   )

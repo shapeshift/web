@@ -60,6 +60,7 @@ export const OpportunityCard = ({
   icons,
   opportunityName,
   version,
+  highestBalanceAccountAddress,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
@@ -80,6 +81,7 @@ export const OpportunityCard = ({
         search: qs.stringify({
           provider,
           chainId,
+          highestBalanceAccountAddress,
           contractAddress,
           assetReference,
           rewardId: rewardAddress,

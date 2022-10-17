@@ -53,7 +53,7 @@ export const foxEth = createSlice({
         state[action.payload.accountAddress] = {} as FoxEthOpportunities
       }
       state[action.payload.accountAddress ?? ''].lpOpportunity = {
-        ...lpOpportunity, // Shared LP properties
+        ...lpOpportunity, // Common LP properties
         ...(state[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
       }
@@ -74,6 +74,7 @@ export const foxEth = createSlice({
         return foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
       })()
 
+      // No state entry for that accountAddress altogether, insert it
       if (!state[action.payload.accountAddress ?? '']) {
         state[action.payload.accountAddress ?? ''] = {
           farmingOpportunities: [],
@@ -81,19 +82,23 @@ export const foxEth = createSlice({
         } as FoxEthOpportunities
       }
 
+      // There's an entry for that accountAddress but no farmingOpportunities field - meaning we only have lpOpportunity so far
       if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
         state[action.payload.accountAddress ?? ''].farmingOpportunities = []
       }
+
       const baseOpportunity =
         farmingOpportunities.find(
           opportunity => opportunity.contractAddress === action.payload.contractAddress ?? '',
         ) ?? {}
+
       state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
-        ...baseOpportunity,
+        ...baseOpportunity, // Specific propertie for that opportunity e.g name
         ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
           stateOpportunityIndex
         ] ?? {}),
         ...action.payload,
+        isLoaded: true,
       }
     },
   },

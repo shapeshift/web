@@ -22,7 +22,6 @@ import { useAppSelector } from 'state/store'
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
-  const accountAddress = '' // TODO(gomes)
   const history = useHistory()
   const location = useLocation()
   const {
@@ -33,10 +32,10 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedVaults()
 
   const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
+
+  const emptyFilter = useMemo(() => ({}), [])
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),

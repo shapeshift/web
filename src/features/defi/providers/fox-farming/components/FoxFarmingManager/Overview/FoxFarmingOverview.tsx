@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -21,7 +21,6 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import {
   selectAssetById,
   selectFoxFarmingOpportunityByContractAddress,
-  selectHighestBalanceFoxFarmingOpportunityAccountAddress,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -41,19 +40,30 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
 
-  const highestBalanceAccountAddress = useAppSelector(state =>
-    selectHighestBalanceFoxFarmingOpportunityAccountAddress(state, { contractAddress }),
-  )
   const accountAddress = useMemo(
-    () => fromAccountId(accountId ?? highestBalanceAccountAddress ?? '').account,
-    [accountId, highestBalanceAccountAddress],
+    () => (accountId ? fromAccountId(accountId ?? '').account : ''),
+    [accountId],
   )
 
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, { contractAddress, accountAddress }),
   )
+
+  // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
+  useEffect(() => {
+    if (highestBalanceAccountAddress && accountAddress !== highestBalanceAccountAddress) {
+      const highestBalanceAccountId = toAccountId({
+        account: highestBalanceAccountAddress,
+        chainId: ethChainId,
+      })
+      handleAccountIdChange(highestBalanceAccountId)
+    }
+    // This should run only once, else we won't be able to select another account than the defaulted highest balance one
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,

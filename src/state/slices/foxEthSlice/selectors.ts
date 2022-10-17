@@ -76,27 +76,42 @@ export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   foxEthAccountOpportunities => foxEthAccountOpportunities[0],
 )
 
+// Aggregated multi-account opportunities, and slaps the highest balance accountAddress in
 export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  wrappedEthLpOpportunities =>
-    wrappedEthLpOpportunities.filter(Boolean).reduce((acc, currentOpportunity) => {
-      acc = {
-        ...currentOpportunity,
-        underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
-          .plus(currentOpportunity.underlyingFoxAmount ?? '')
-          .toString(),
-        underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
-          .plus(currentOpportunity.underlyingEthAmount ?? '')
-          .toString(),
-        cryptoAmount: bnOrZero(acc.cryptoAmount)
-          .plus(currentOpportunity.cryptoAmount ?? '')
-          .toString(),
-        fiatAmount: bnOrZero(acc.fiatAmount)
-          .plus(currentOpportunity.fiatAmount ?? '')
-          .toString(),
-      }
-      return acc
-    }, {} as FoxEthLpEarnOpportunityType),
+  (state: ReduxState) => state,
+  (wrappedEthLpOpportunities, state) => {
+    const aggregatedOpportunity = wrappedEthLpOpportunities
+      .filter(Boolean)
+      .reduce((acc, currentOpportunity) => {
+        acc = {
+          ...currentOpportunity,
+          underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
+            .plus(currentOpportunity.underlyingFoxAmount ?? '')
+            .toString(),
+          underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
+            .plus(currentOpportunity.underlyingEthAmount ?? '')
+            .toString(),
+          cryptoAmount: bnOrZero(acc.cryptoAmount)
+            .plus(currentOpportunity.cryptoAmount ?? '')
+            .toString(),
+          fiatAmount: bnOrZero(acc.fiatAmount)
+            .plus(currentOpportunity.fiatAmount ?? '')
+            .toString(),
+        }
+        return acc
+      }, {} as FoxEthLpEarnOpportunityType)
+
+    const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
+      state,
+      {},
+    )
+
+    return {
+      ...aggregatedOpportunity,
+      highestBalanceAccountAddress,
+    }
+  },
 )
 
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
@@ -140,9 +155,26 @@ export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOu
   },
 )
 
+// Non-aggregated opportunities, to use for account-level granularity
+export const selectVisibleFoxFarmingAccountOpportunities = createSelector(
+  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
+  selectAccountAddressParamFromFilter,
+  (foxFarmingOpportunities, accountAddress) => {
+    return foxFarmingOpportunities
+      .flatMap(opportunity => opportunity)
+      .filter(
+        opportunity =>
+          (opportunity.accountAddress === accountAddress && !opportunity.expired) ||
+          (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+      )
+  },
+)
+
+// Aggregated multi-account opportunities, and slaps the highest balance accountAddress in
 export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  foxFarmingOpportunities => {
+  (state: ReduxState) => state,
+  (foxFarmingOpportunities, state) => {
     const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
       .flatMap(opportunity => opportunity)
       .filter(
@@ -169,7 +201,17 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelec
         return acc
       }, {} as Record<string, FoxFarmingEarnOpportunityType>)
 
-    return Object.values(aggregatedOpportunitiesByContractAddress)
+    return Object.values(aggregatedOpportunitiesByContractAddress).map(opportunity => {
+      const highestBalanceAccountAddress = selectHighestBalanceFoxFarmingOpportunityAccountAddress(
+        state,
+        { contractAddress: opportunity.contractAddress },
+      )
+
+      return {
+        ...opportunity,
+        highestBalanceAccountAddress,
+      }
+    })
   },
 )
 
@@ -180,11 +222,12 @@ export const selectFoxFarmingOpportunityByContractAddress = createSelector(
   (opportunities, contractAddress, accountAddress) =>
     opportunities
       .flatMap(opportunity => opportunity)
-      .find(
-        opportunity =>
+      .find(opportunity => {
+        return (
           opportunity.contractAddress === contractAddress &&
-          opportunity.accountAddress === accountAddress,
-      ),
+          opportunity.accountAddress === accountAddress
+        )
+      }),
 )
 
 // Aggregations give precisely that, an aggregation
@@ -197,7 +240,20 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
     opportunities
       .flatMap(opportunity => opportunity)
       .filter(opportunity => opportunity.contractAddress === contractAddress)
-      .sort((a, b) => bn(a.fiatAmount).plus(b.fiatAmount).toNumber())[0].accountAddress,
+      .sort((a, b) => {
+        return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
+      })[0]?.accountAddress ?? '',
+)
+
+// Aggregations give precisely that, an aggregation
+// When going from the context of an aggregation (e.g a DeFi card), to a specific account, we don't yet know which account has a / the highest balance
+// By selecting the account with the highest balance, we ensure that we select an account with an actual balance for a given LP opportunity
+export const selectHighestBalanceFoxLpOpportunityAccountAddress = createSelector(
+  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
+  opportunities =>
+    opportunities.sort((a, b) => {
+      return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
+    })[0]?.accountAddress ?? '',
 )
 
 export const selectFarmContractsAccountsBalanceAggregated = createSelector(

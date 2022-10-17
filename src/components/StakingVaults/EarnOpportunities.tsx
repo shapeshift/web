@@ -18,8 +18,8 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetById,
-  selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
+  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
+  selectVisibleFoxFarmingAccountOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,18 +43,19 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const { vaults } = useVaultBalances()
   const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
+  const filter = useMemo(
+    () => ({
+      accountAddress: fromAccountId(accountId ?? '').account,
+    }),
     [accountId],
   )
 
   const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+    selectVisibleFoxFarmingAccountOpportunities(state, filter),
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
+
+  const foxEthLpOpportunitiesWrapped = useAppSelector(state =>
+    selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress(state, filter),
   )
 
   const { setAccountId } = useFoxEth()
@@ -67,7 +68,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     vaultArray: Object.values(vaults),
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity,
+    foxEthLpOpportunity: foxEthLpOpportunitiesWrapped[0],
     foxFarmingOpportunities: visibleFoxFarmingOpportunities,
   }).filter(
     row =>

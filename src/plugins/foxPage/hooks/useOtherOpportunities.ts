@@ -33,11 +33,22 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     ;(async () => {
       if (!ethAccountIds?.length) return
 
-      // For getting the APY, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
-      const { isLoading, isSuccess, data } = await dispatch(
-        foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress: firstEthAccountAddress }),
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+      const metricsPromises = await Promise.all(
+        ethAccountAddresses.map(
+          async accountAddress =>
+            await dispatch(
+              foxEthApi.endpoints.getFoxEthLpMetrics.initiate({
+                accountAddress,
+              }),
+            ),
+        ),
       )
+
+      // To get the APY, we need to fire the metrics requests for all accounts
+      // However, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const { isLoading, isSuccess, data } = metricsPromises[0]
 
       if (isLoading || !data) return
 
@@ -52,14 +63,22 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     ;(async () => {
       if (!ethAccountIds?.length) return
 
-      // For getting the FOX farming contract metrics, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
-      const { isLoading, isSuccess, data } = await dispatch(
-        foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
-          contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-          accountAddress: firstEthAccountAddress,
-        }),
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+      const metricsPromises = await Promise.all(
+        ethAccountAddresses.map(
+          async accountAddress =>
+            await dispatch(
+              foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
+                contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+                accountAddress,
+              }),
+            ),
+        ),
       )
+
+      // To get the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const { isLoading, isSuccess, data } = metricsPromises[0]
 
       if (isLoading || !data) return
 

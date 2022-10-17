@@ -155,22 +155,18 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     // getting fox-eth lp token data
     const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
     ;(async () => {
-      // For getting the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const firstEthAccountAddress = fromAccountId(ethAccountIds[0]).account
-
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
       // getting fox-eth lp token balances
       farmingOpportunities.forEach(opportunity => {
         const { contractAddress } = opportunity
         // getting fox farm contract data
-        dispatch(
-          getFoxFarmingContractMetrics.initiate({
-            accountAddress: firstEthAccountAddress,
-            contractAddress,
-          }),
-        )
-
-        const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-        ethAccountAddresses.map(async accountAddress => {
+        ethAccountAddresses.forEach(accountAddress => {
+          dispatch(
+            getFoxFarmingContractMetrics.initiate({
+              contractAddress,
+              accountAddress,
+            }),
+          )
           dispatch(
             getFoxFarmingContractAccountData.initiate({
               contractAddress,

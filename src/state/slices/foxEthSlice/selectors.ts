@@ -156,7 +156,7 @@ export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOu
 )
 
 // Non-aggregated opportunities, to use for account-level granularity
-export const selectVisibleFoxFarmingAccountOpportunities = createSelector(
+export const selectVisibleFoxFarmingAccountOpportunities = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   selectAccountAddressParamFromFilter,
   (foxFarmingOpportunities, accountAddress) => {
@@ -171,7 +171,7 @@ export const selectVisibleFoxFarmingAccountOpportunities = createSelector(
 )
 
 // Aggregated multi-account opportunities, and slaps the highest balance accountAddress in
-export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelector(
+export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   (state: ReduxState) => state,
   (foxFarmingOpportunities, state) => {
@@ -215,7 +215,7 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelec
   },
 )
 
-export const selectFoxFarmingOpportunityByContractAddress = createSelector(
+export const selectFoxFarmingOpportunityByContractAddress = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   selectContractAddressParamFromFilter,
   selectAccountAddressParamFromFilter,

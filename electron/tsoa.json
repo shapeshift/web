@@ -1,0 +1,43 @@
+{
+  "entryFile": "./electron/src/bridge/index.ts",
+  "host": "localhost:1646",
+  "schemes": [
+    "http",
+    "ws"
+  ],
+  "noImplicitAdditionalProperties": "silently-remove-extras",
+  "basePath": "",
+  "specVersion": 3,
+  "outputDirectory": "./electron/api/dist",
+  "controllerPathGlobs": [
+    "./electron/src/bridge/controllers/**/*controller.ts"
+  ],
+  "spec": {
+    "host": "localhost:1646",
+    "schemes": [
+      "http",
+      "ws"
+    ],
+    "basePath": "",
+    "entryFile": "./electron/src/bridge/index.ts",
+    "specVersion": 3,
+    "outputDirectory": "./electron/api/dist",
+    "controllerPathGlobs": [
+      "./electron/src/bridge/controllers/**/*controller.ts"
+    ],
+    "securityDefinitions": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "authorization",
+        "in": "header"
+      }
+    }
+  },
+  "routes": {
+    "basePath": "",
+    "entryFile": "./electron/src/bridge/index.ts",
+    "routesDir": "./electron/src/bridge/routes",
+    "middleware": "express",
+    "authenticationModule": "./electron/src/bridge/auth.ts"
+  }
+}

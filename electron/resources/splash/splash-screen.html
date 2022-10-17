@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeepKey Desktop</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/3.18.0/inter.css" rel="stylesheet">
+</head>
+
+<body>
+    <style>
+        :root {
+            user-select: none;
+        }
+
+        body {
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        #progress {
+            width: 75%;
+            height: 10px;
+            background-color: #242C37;
+            border-radius: 10px;
+        }
+
+        #bar {
+            height: 10px;
+            width: 40%;
+            background-color: #3761f9;
+            border-radius: 10px;
+            transition: width 2s;
+        }
+    </style>
+    <div
+        style="background-color: #181c27; border-radius: 5%; height: 400px; width: 300px; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); -webkit-app-region: drag;">
+        <svg viewBox="0 0 30 30" focusable="false"
+            style="height:120px; position:fixed; top:35%; left:50%; transform:translate(-50%, -50%);">
+            <path
+                d="M20.625 0A9.375 9.375 0 0 1 30 9.375v11.25A9.375 9.375 0 0 1 20.625 30H9.375A9.375 9.375 0 0 1 0 20.625V9.375A9.375 9.375 0 0 1 9 .007v23.981h2.753v-7.897L19.94 24H24l-8.788-8.198 7.976-6.848H19.27l-7.517 6.623L11.752 0h8.873Z"
+                fill="#ffffff" fill-rule="evenodd"></path>
+        </svg>
+
+        <h4
+            style="color: #718096; font-family: 'Inter'; position:fixed; top:68%; left:50%; transform:translate(-50%, -50%); width: 100%; text-align: center;">
+            Checking for updates...
+        </h4>
+
+        <div id="progress" style="position:fixed; top:83%; left:50%; transform:translate(-50%, -50%); display: none;">
+            <div id="bar"></div>
+        </div>
+
+        <script>
+            const { ipcRenderer } = require('electron');
+            const header = document.querySelector('h4');
+            const text = {
+                check: "Checking for updates...",
+                download: "Downloading Updates...",
+                relaunch: "Relaunching...",
+                launch: "Launching...",
+                skipCheck: "Skipping update checks...",
+                notfound: "No updates found..."
+            };
+            ipcRenderer.on('@update/download', () => {
+                header.textContent = text.download;
+            });
+            ipcRenderer.on('@update/percentage', (event, percent) => {
+                header.textContent = `${text.download} ${JSON.stringify(percent)}%`;
+                document.getElementById('progress').style.display = 'inherit';
+                document.getElementById('bar').style.width = `${JSON.stringify(percent)}%`;
+            });
+            ipcRenderer.on('@update/relaunch', () => {
+                header.textContent = text.relaunch;
+            });
+            ipcRenderer.on('@update/launch', () => {
+                header.textContent = text.launch;
+            });
+            ipcRenderer.on('@update/skipCheck', () => {
+                header.textContent = text.skipCheck;
+            });
+            ipcRenderer.on('@update/notfound', () => {
+                header.textContent = text.notfound;
+            });
+        </script>
+    </div>
+</body>
+
+</html>

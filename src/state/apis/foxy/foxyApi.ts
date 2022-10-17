@@ -55,7 +55,7 @@ export type FoxyOpportunity = {
   tokenAssetId: AssetId
   rewardTokenAssetId: AssetId
   pricePerShare: string
-  withdrawInfo: WithdrawInfo
+  withdrawInfo: Record<AccountId, WithdrawInfo>
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
@@ -155,37 +155,35 @@ async function getFoxyOpportunities(
 
       const pricePerShare = api.pricePerShare()
 
-      const accountOpportunities = await Promise.all(
-        accountIds.map(async accountId => {
+      const accountOpportunities = await accountIds.reduce(
+        async (acc, accountId) => {
+          const resolvedAcc = await acc
+          const balance = selectPortfolioCryptoBalanceByFilter(state, {
+            accountId,
+            assetId: rewardTokenAssetId,
+          })
+
           const accountFilter = { accountId }
           const userAddress = fromAccountId(accountId).account
           const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
-
           if (!bip44Params) {
             throw new Error(`AccountMetadata for AccountId ${accountId} not loaded`)
           }
-          // TODO: assetIds in vaults
           const withdrawInfo = await api.getWithdrawInfo({
             contractAddress: opportunity.contractAddress,
             userAddress,
             bip44Params,
           })
 
-          const balance = selectPortfolioCryptoBalanceByFilter(state, {
-            accountId,
-            assetId: rewardTokenAssetId,
-          })
-
-          return { balance, withdrawInfo }
-        }),
-      )
-
-      // calculate the total balance for all accountOpportunities
-      const aggregatedAccountBalance = accountOpportunities.reduce(
-        (balance, accountOpportunity) => {
-          return balance.plus(bnOrZero(accountOpportunity.balance))
+          return {
+            balance: resolvedAcc.balance.plus(balance),
+            withdrawInfo: { ...resolvedAcc.withdrawInfo, [accountId]: withdrawInfo },
+          }
         },
-        bn(0),
+        Promise.resolve({
+          balance: bn(0),
+          withdrawInfo: {},
+        }),
       )
 
       acc[opportunity.contractAddress] = {
@@ -193,12 +191,12 @@ async function getFoxyOpportunities(
         tvl: opportunity.tvl.toString(),
         apy: foxyApr,
         chainId: opportunity.chain,
-        balance: aggregatedAccountBalance.toString(),
+        balance: accountOpportunities.balance.toString(),
         contractAssetId,
         tokenAssetId,
         rewardTokenAssetId,
         pricePerShare: bnOrZero(pricePerShare).toString(),
-        withdrawInfo: accountOpportunities[0].withdrawInfo, // FIXME: aggregate withdrawInfo
+        withdrawInfo: accountOpportunities.withdrawInfo,
       }
     })
 

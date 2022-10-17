@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse } from '@tsoa/runtime';
+import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CIndexController } from './../controllers/c-index.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -19,6 +19,7 @@ import { BDeviceController } from './../controllers/b-device-controller';
 import { expressAuthentication } from './../auth';
 // @ts-ignore - no great way to install types from subpackage
 const promiseAny = require('promise.any');
+import type { RequestHandler } from 'express';
 import * as express from 'express';
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -220,7 +221,7 @@ const models: TsoaRoute.Models = {
     "Thorchain.StdSignature": {
         "dataType": "refObject",
         "properties": {
-            "pub_key": {"ref":"crypto.PubKey"},
+            "pub_key": {"ref":"crypto.PubKey","required":true},
             "signature": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -231,8 +232,8 @@ const models: TsoaRoute.Models = {
         "properties": {
             "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Thorchain.Msg"},"required":true},
             "fee": {"ref":"Thorchain.StdFee","required":true},
-            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"Thorchain.StdSignature"}}],"required":true},
-            "memo": {"dataType":"string","required":true},
+            "signatures": {"dataType":"array","array":{"dataType":"refObject","ref":"Thorchain.StdSignature"},"required":true},
+            "memo": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -258,7 +259,7 @@ const models: TsoaRoute.Models = {
     "StdSignature": {
         "dataType": "refObject",
         "properties": {
-            "pub_key": {"ref":"crypto.PubKey"},
+            "pub_key": {"ref":"crypto.PubKey","required":true},
             "signature": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -268,9 +269,9 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "fee": {"ref":"StdFee","required":true},
-            "memo": {"dataType":"string","required":true},
+            "memo": {"dataType":"string"},
             "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Msg"},"required":true},
-            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"}}],"required":true},
+            "signatures": {"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -305,7 +306,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Msg"},"required":true},
             "fee": {"ref":"StdFee","required":true},
-            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"}}]},
+            "signatures": {"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"},"required":true},
             "memo": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -485,6 +486,8 @@ export function RegisterRoutes(app: express.Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.get('/status',
+            ...(fetchMiddlewares<RequestHandler>(CIndexController)),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController.prototype.status)),
 
             function CIndexController_status(request: any, response: any, next: any) {
             const args = {
@@ -507,6 +510,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/device',
+            ...(fetchMiddlewares<RequestHandler>(CIndexController)),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController.prototype.device)),
 
             function CIndexController_device(request: any, response: any, next: any) {
             const args = {
@@ -529,6 +534,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/pair',
+            ...(fetchMiddlewares<RequestHandler>(CIndexController)),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController.prototype.pair)),
 
             function CIndexController_pair(request: any, response: any, next: any) {
             const args = {
@@ -554,6 +561,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/auth/verify',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController)),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController.prototype.verifyAuth)),
 
             function CIndexController_verifyAuth(request: any, response: any, next: any) {
             const args = {
@@ -577,6 +586,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/user',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController)),
+            ...(fetchMiddlewares<RequestHandler>(CIndexController.prototype.user)),
 
             function CIndexController_user(request: any, response: any, next: any) {
             const args = {
@@ -600,6 +611,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/getPublicKeys',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.getPublicKeys)),
 
             function DPubkeyController_getPublicKeys(request: any, response: any, next: any) {
             const args = {
@@ -624,6 +637,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/btcGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.btcGetAddress)),
 
             function DPubkeyController_btcGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -648,6 +663,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/ethGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.ethGetAddress)),
 
             function DPubkeyController_ethGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -672,6 +689,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/thorchainGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.thorchainGetAddress)),
 
             function DPubkeyController_thorchainGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -696,6 +715,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/osmosisGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.osmosisGetAddress)),
 
             function DPubkeyController_osmosisGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -720,6 +741,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/binanceGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.binanceGetAddress)),
 
             function DPubkeyController_binanceGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -744,6 +767,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/cosmosGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.cosmosGetAddress)),
 
             function DPubkeyController_cosmosGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -768,6 +793,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/rippleGetAddress',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.rippleGetAddress)),
 
             function DPubkeyController_rippleGetAddress(request: any, response: any, next: any) {
             const args = {
@@ -792,6 +819,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/eosGetPublicKey',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController)),
+            ...(fetchMiddlewares<RequestHandler>(DPubkeyController.prototype.eosGetPublicKey)),
 
             function DPubkeyController_eosGetPublicKey(request: any, response: any, next: any) {
             const args = {
@@ -816,6 +845,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/btcSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.btcSignTx)),
 
             function ESignController_btcSignTx(request: any, response: any, next: any) {
             const args = {
@@ -840,6 +871,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/thorchainSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.thorchainSignTx)),
 
             function ESignController_thorchainSignTx(request: any, response: any, next: any) {
             const args = {
@@ -864,6 +897,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/cosmosSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.cosmosSignTx)),
 
             function ESignController_cosmosSignTx(request: any, response: any, next: any) {
             const args = {
@@ -888,6 +923,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/osmosisSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.osmosisSignTx)),
 
             function ESignController_osmosisSignTx(request: any, response: any, next: any) {
             const args = {
@@ -912,6 +949,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/rippleSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.rippleSignTx)),
 
             function ESignController_rippleSignTx(request: any, response: any, next: any) {
             const args = {
@@ -936,6 +975,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/binanceSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.binanceSignTx)),
 
             function ESignController_binanceSignTx(request: any, response: any, next: any) {
             const args = {
@@ -960,6 +1001,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/ethSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.ethSignTx)),
 
             function ESignController_ethSignTx(request: any, response: any, next: any) {
             const args = {
@@ -984,6 +1027,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/eosSignTx',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.eosSignTx)),
 
             function ESignController_eosSignTx(request: any, response: any, next: any) {
             const args = {
@@ -1008,6 +1053,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/sign',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(ESignController)),
+            ...(fetchMiddlewares<RequestHandler>(ESignController.prototype.signTransaction)),
 
             function ESignController_signTransaction(request: any, response: any, next: any) {
             const args = {
@@ -1032,6 +1079,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/loadDevice',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.loadDevice)),
 
             function FDeveloperController_loadDevice(request: any, response: any, next: any) {
             const args = {
@@ -1056,6 +1105,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/removePin',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.removePin)),
 
             function FDeveloperController_removePin(request: any, response: any, next: any) {
             const args = {
@@ -1080,6 +1131,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/softReset',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.softReset)),
 
             function FDeveloperController_softReset(request: any, response: any, next: any) {
             const args = {
@@ -1104,6 +1157,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/clearSession',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.clearSession)),
 
             function FDeveloperController_clearSession(request: any, response: any, next: any) {
             const args = {
@@ -1128,6 +1183,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/reset',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.reset)),
 
             function FDeveloperController_reset(request: any, response: any, next: any) {
             const args = {
@@ -1152,6 +1209,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/wipe',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.wipe)),
 
             function FDeveloperController_wipe(request: any, response: any, next: any) {
             const args = {
@@ -1176,6 +1235,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/disconnect',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.disconnect)),
 
             function FDeveloperController_disconnect(request: any, response: any, next: any) {
             const args = {
@@ -1200,6 +1261,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/applyPolicy',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.applyPolicy)),
 
             function FDeveloperController_applyPolicy(request: any, response: any, next: any) {
             const args = {
@@ -1224,6 +1287,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/applySettings',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.applySettings)),
 
             function FDeveloperController_applySettings(request: any, response: any, next: any) {
             const args = {
@@ -1248,6 +1313,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/firmwareErase',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.firmwareErase)),
 
             function FDeveloperController_firmwareErase(request: any, response: any, next: any) {
             const args = {
@@ -1272,6 +1339,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/firmwareUpload',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController)),
+            ...(fetchMiddlewares<RequestHandler>(FDeveloperController.prototype.firmwareUpload)),
 
             function FDeveloperController_firmwareUpload(request: any, response: any, next: any) {
             const args = {
@@ -1296,6 +1365,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/recover',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.recover)),
 
             function GRecoveryController_recover(request: any, response: any, next: any) {
             const args = {
@@ -1320,6 +1391,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/changePin',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.changePin)),
 
             function GRecoveryController_changePin(request: any, response: any, next: any) {
             const args = {
@@ -1344,6 +1417,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/sendWord',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.sendWord)),
 
             function GRecoveryController_sendWord(request: any, response: any, next: any) {
             const args = {
@@ -1368,6 +1443,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/sendCharacter',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.sendCharacter)),
 
             function GRecoveryController_sendCharacter(request: any, response: any, next: any) {
             const args = {
@@ -1392,6 +1469,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/sendCharacterDelete',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.sendCharacterDelete)),
 
             function GRecoveryController_sendCharacterDelete(request: any, response: any, next: any) {
             const args = {
@@ -1416,6 +1495,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/sendCharacterDone',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController)),
+            ...(fetchMiddlewares<RequestHandler>(GRecoveryController.prototype.sendCharacterDone)),
 
             function GRecoveryController_sendCharacterDone(request: any, response: any, next: any) {
             const args = {
@@ -1440,6 +1521,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getNumCoins',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getNumCoins)),
 
             function HDeviceInfoController_getNumCoins(request: any, response: any, next: any) {
             const args = {
@@ -1463,6 +1546,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getCoinTable',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getCoinTable)),
 
             function HDeviceInfoController_getCoinTable(request: any, response: any, next: any) {
             const args = {
@@ -1486,6 +1571,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getDeviceID',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getDeviceID)),
 
             function HDeviceInfoController_getDeviceID(request: any, response: any, next: any) {
             const args = {
@@ -1509,6 +1596,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getVendor',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getVendor)),
 
             function HDeviceInfoController_getVendor(request: any, response: any, next: any) {
             const args = {
@@ -1532,6 +1621,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getModel',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getModel)),
 
             function HDeviceInfoController_getModel(request: any, response: any, next: any) {
             const args = {
@@ -1555,6 +1646,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getFirmwareVersion',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getFirmwareVersion)),
 
             function HDeviceInfoController_getFirmwareVersion(request: any, response: any, next: any) {
             const args = {
@@ -1578,6 +1671,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/getLabel',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.getLabel)),
 
             function HDeviceInfoController_getLabel(request: any, response: any, next: any) {
             const args = {
@@ -1601,6 +1696,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/isInitialized',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.isInitialized)),
 
             function HDeviceInfoController_isInitialized(request: any, response: any, next: any) {
             const args = {
@@ -1624,6 +1721,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/isLocked',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.isLocked)),
 
             function HDeviceInfoController_isLocked(request: any, response: any, next: any) {
             const args = {
@@ -1647,6 +1746,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/hasOnDevicePinEntry',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.hasOnDevicePinEntry)),
 
             function HDeviceInfoController_hasOnDevicePinEntry(request: any, response: any, next: any) {
             const args = {
@@ -1670,6 +1771,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/hasOnDevicePassphrase',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.hasOnDevicePassphrase)),
 
             function HDeviceInfoController_hasOnDevicePassphrase(request: any, response: any, next: any) {
             const args = {
@@ -1693,6 +1796,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/hasOnDeviceDisplay',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.hasOnDeviceDisplay)),
 
             function HDeviceInfoController_hasOnDeviceDisplay(request: any, response: any, next: any) {
             const args = {
@@ -1716,6 +1821,8 @@ export function RegisterRoutes(app: express.Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/hasOnDeviceRecovery',
             authenticateMiddleware([{"api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController)),
+            ...(fetchMiddlewares<RequestHandler>(HDeviceInfoController.prototype.hasOnDeviceRecovery)),
 
             function HDeviceInfoController_hasOnDeviceRecovery(request: any, response: any, next: any) {
             const args = {
@@ -1738,6 +1845,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/exchange/device',
+            ...(fetchMiddlewares<RequestHandler>(BDeviceController)),
+            ...(fetchMiddlewares<RequestHandler>(BDeviceController.prototype.readDevice)),
 
             function BDeviceController_readDevice(request: any, response: any, next: any) {
             const args = {
@@ -1760,6 +1869,8 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/exchange/device',
+            ...(fetchMiddlewares<RequestHandler>(BDeviceController)),
+            ...(fetchMiddlewares<RequestHandler>(BDeviceController.prototype.writeDevice)),
 
             function BDeviceController_writeDevice(request: any, response: any, next: any) {
             const args = {

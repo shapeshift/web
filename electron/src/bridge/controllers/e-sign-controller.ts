@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';

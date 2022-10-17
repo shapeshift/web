@@ -61,6 +61,55 @@
       "./src/test/setupGlobalMocks.ts"
     ]
   },
+  "build": {
+    "appId": "com.keepkey.desktop",
+    "productName": "KeepKey Desktop",
+    "afterSign": "electron-builder-notarize",
+    "files": [
+      "assets/**/*",
+      "resources/**/*",
+      "build/**/*",
+      "electron/**/*",
+      "api/**/*",
+      "sentry-symbols.js",
+      "package.json"
+    ],
+    "asar": true,
+    "extends": null,
+    "mac": {
+      "hardenedRuntime": true,
+      "category": "public.app-category.finance",
+      "icon": "electron/icon.png",
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "protocols": [
+        {
+          "name": "Keepkey Desktop",
+          "schemes": [
+            "keepkey"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "icon": "electron/icon.png",
+      "target": "nsis",
+      "publish": [
+        "github"
+      ]
+    },
+    "linux": {
+      "icon": "electron/icon.png",
+      "target": [
+        "deb",
+        "AppImage"
+      ]
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",

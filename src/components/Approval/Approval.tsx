@@ -23,7 +23,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -58,7 +58,7 @@ export const Approval = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useFormContext<TS<KnownChainIds.EthereumMainnet>>()
-  const { checkApprovalNeeded, updateTrade, approve } = useSwapper()
+  const { checkApprovalNeeded, approve } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -107,12 +107,6 @@ export const Approval = () => {
         }
         approvalInterval.current && clearInterval(approvalInterval.current)
 
-        await updateTrade({
-          sellAsset: quote.sellAsset,
-          buyAsset: quote.buyAsset,
-          amount: quote.sellAmount,
-        })
-
         history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
       }, 5000)
     } catch (e) {
@@ -127,7 +121,6 @@ export const Approval = () => {
     isConnected,
     quote,
     showErrorToast,
-    updateTrade,
   ])
 
   useEffect(() => {

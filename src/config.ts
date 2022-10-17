@@ -66,7 +66,6 @@ const validators = {
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
   REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),
-  REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
   REACT_APP_DASHBOARD_BREAKDOWN: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),

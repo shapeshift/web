@@ -139,18 +139,6 @@ export const selectFoxFarmingAccountsOpportunitiesAggregated = createSelector(
   },
 )
 
-export const selectVisibleFoxFarmingOpportunities = createDeepEqualOutputSelector(
-  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  opportunities => {
-    return opportunities
-      .flatMap(opportunity => opportunity) // TODO: actual aggregation
-      .filter(
-        opportunity =>
-          !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
-      )
-  },
-)
-
 export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   foxFarmingOpportunities => {

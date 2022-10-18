@@ -12,7 +12,7 @@ Object.defineProperty(window, 'crypto', {
   },
 })
 
-// No idea why we need this nonsens, but whatever Blob polyfill jsdom is using
+// No idea why we need this nonsense, but whatever Blob polyfill jsdom is using
 // doesn't have .text() or anything similar
 function readBlobAsText(x: Blob): Promise<string> {
   return new Promise(resolve => {

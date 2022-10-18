@@ -17,7 +17,7 @@ body:
     id: reference
     attributes:
       label: References and additional details
-      description: An explanation as to relevant or affected code. Include any relevent transaction IDs and replication steps.
+      description: An explanation as to relevant or affected code. Include any relevant transaction IDs and replication steps.
       placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
     validations:
       required: true

@@ -21,6 +21,7 @@ import type { Nullable } from 'types/common'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
+
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
@@ -121,7 +122,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     const percentage = bnOrZero(value).div(
       bnOrZero(isFiat ? totalFiatBalance : cryptoAmountAvailable),
     )
-    // exit if widhtrawing total balance
+    // exit if withdrawing total balance
     if (percentage.eq(1)) setIsExiting(true)
     else setIsExiting(false)
   }

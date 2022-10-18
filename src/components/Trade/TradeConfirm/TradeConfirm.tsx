@@ -17,7 +17,7 @@ import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { type RouterProps, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -63,31 +63,22 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     useState<ReturnType<typeof getTradeAmountConstants>>()
   const { bestTradeSwapper } = useSwapper()
   const {
-    getValues,
     handleSubmit,
     setValue,
+    control,
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  const {
-    trade,
-    fees,
-    sellAssetFiatRate,
-    slippage,
-    buyAssetAccountId,
-    sellAssetAccountId,
-    buyTradeAsset,
-  }: Pick<
-    TS,
-    | 'sellAssetAccountId'
-    | 'buyAssetAccountId'
-    | 'trade'
-    | 'fees'
-    | 'sellAssetFiatRate'
-    | 'slippage'
-    | 'buyTradeAsset'
-  > = getValues()
+
+  const trade = useWatch({ control, name: 'trade' })
+  const fees = useWatch({ control, name: 'fees' })
+  const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
+  const slippage = useWatch({ control, name: 'slippage' })
+  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+
   const tradeAmountConstants = useGetTradeAmounts()
   const location = useLocation<TradeConfirmParams>()
   // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.

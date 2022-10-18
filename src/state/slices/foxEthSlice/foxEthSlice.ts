@@ -326,6 +326,7 @@ export const foxEthApi = createApi({
             .div(100)
             .toString()
 
+          const timeStamp = await foxFarmingContract.periodFinish()
           const expired =
             timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
           const data = {

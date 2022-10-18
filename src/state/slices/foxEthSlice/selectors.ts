@@ -15,8 +15,8 @@ import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
 
 type ParamFilter = {
-  accountAddress?: string
-  contractAddress?: string
+  accountAddress: string
+  contractAddress: string
 }
 type OptionalParamFilter = {
   accountAddress?: string
@@ -218,7 +218,7 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepE
 export const selectFoxFarmingOpportunityByContractAddress = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   selectContractAddressParamFromFilter,
-  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
   (opportunities, contractAddress, accountAddress) =>
     opportunities
       .flatMap(opportunity => opportunity)

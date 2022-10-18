@@ -34,6 +34,19 @@ const initialState: AssetsState = {
   ids: [],
 }
 
+export const defaultAsset: Asset = {
+  assetId: '',
+  chainId: '',
+  symbol: 'N/A',
+  name: 'Unknown',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: '',
+  explorer: '',
+  explorerTxLink: '',
+  explorerAddressLink: '',
+}
+
 export const assets = createSlice({
   name: 'asset',
   initialState,

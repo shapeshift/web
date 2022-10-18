@@ -1,7 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -9,7 +10,8 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
-import { Direction } from 'hooks/useTxDetails/useTxDetails'
+import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
+import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -17,6 +19,9 @@ import { breakpoints } from 'theme/theme'
 
 import { ApproveIcon } from './components/ApproveIcon'
 import type { getTxMetadataWithAssetId } from './utils'
+
+const FALLBACK_PRECISION = 18
+const FALLBACK_SYMBOL = 'N/A'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -51,14 +56,12 @@ const TransactionIcon = ({
 }) => {
   switch (type) {
     case TransferType.Send:
-    case Direction.Outbound:
       return <ArrowUpIcon />
     case TransferType.Receive:
-    case Direction.Inbound:
       return <ArrowDownIcon color='green.500' />
     case TradeType.Trade:
       return <FaExchangeAlt />
-    case Direction.InPlace: {
+    case Method.Approve: {
       return assetId && value ? (
         <ApproveIcon assetId={assetId} value={value} compactMode={compactMode} />
       ) : (
@@ -70,36 +73,25 @@ const TransactionIcon = ({
   }
 }
 
-type TransactionRowAsset = {
-  assetId?: string
-  symbol: string
-  amount: string
-  precision: number
-  currentPrice?: string
-  icon?: string
-}
-
 type TransactionGenericRowProps = {
   type: string
-  symbol: string
   title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
-  assets: TransactionRowAsset[]
-  fee?: TransactionRowAsset
+  displayTransfers: Transfer[]
+  fee?: Fee
   txid: TxId
   txData?: ReturnType<typeof getTxMetadataWithAssetId>
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  isFirstAssetOutgoing?: boolean
   parentWidth: number
 }
 
 export const TransactionGenericRow = ({
   type,
   title,
-  assets,
+  displayTransfers,
   fee,
   txid,
   txData,
@@ -107,7 +99,6 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  isFirstAssetOutgoing = false,
   parentWidth,
 }: TransactionGenericRowProps) => {
   const {
@@ -115,6 +106,54 @@ export const TransactionGenericRow = ({
     dateFormat,
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
+
+  const transfers = useMemo(() => {
+    return displayTransfers.map((transfer, index) => (
+      <Stack
+        alignItems='center'
+        key={index}
+        flex={1}
+        mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+        direction={index === 0 ? 'row' : 'row-reverse'}
+        textAlign={index === 0 ? 'left' : 'right'}
+      >
+        <AssetIcon
+          assetId={transfer.asset?.assetId}
+          boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+        />
+        <Box flex={1}>
+          <Amount.Crypto
+            color='inherit'
+            fontWeight='medium'
+            value={fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION)}
+            symbol={transfer.asset?.symbol ?? FALLBACK_SYMBOL}
+            maximumFractionDigits={4}
+          />
+          {transfer.marketData.price && (
+            <Amount.Fiat
+              color='gray.500'
+              fontSize='sm'
+              lineHeight='1'
+              value={bnOrZero(
+                fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
+              )
+                .times(transfer.marketData.price)
+                .toString()}
+            />
+          )}
+        </Box>
+      </Stack>
+    ))
+  }, [compactMode, displayTransfers])
+
+  const cryptoValue = useMemo(() => {
+    if (!fee) return '0'
+    return fromBaseUnit(fee.value, fee.asset.precision)
+  }, [fee])
+
+  const fiatValue = useMemo(() => {
+    return bnOrZero(fee?.marketData?.price).times(cryptoValue).toString()
+  }, [fee?.marketData?.price, cryptoValue])
 
   return (
     <Button
@@ -149,11 +188,23 @@ export const TransactionGenericRow = ({
               fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
               alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
             >
-              <Text
-                fontWeight='bold'
-                flex={1}
-                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
-              />
+              <Flex alignItems='center' gap={2} flex={1}>
+                <Text
+                  fontWeight='bold'
+                  translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+                />
+                {txData?.parser === 'ibc' && (
+                  <Tag
+                    size='sm'
+                    colorScheme='blue'
+                    variant='subtle'
+                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
+                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                  >
+                    IBC
+                  </Tag>
+                )}
+              </Flex>
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>
           </Flex>
@@ -176,71 +227,25 @@ export const TransactionGenericRow = ({
               </Box>
             }
           >
-            {assets.map((asset, index) => (
-              <Stack
-                alignItems='center'
-                key={index}
-                flex={1}
-                mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
-                direction={index === 0 ? 'row' : 'row-reverse'}
-                textAlign={index === 0 ? 'left' : 'right'}
-              >
-                <AssetIcon
-                  assetId={asset.assetId}
-                  boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
-                />
-                <Box flex={1}>
-                  <Amount.Crypto
-                    color='inherit'
-                    fontWeight='medium'
-                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                    value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
-                    symbol={asset.symbol}
-                    maximumFractionDigits={4}
-                  />
-                  {asset.currentPrice && (
-                    <Amount.Fiat
-                      color='gray.500'
-                      fontSize='sm'
-                      lineHeight='1'
-                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
-                        .times(asset.currentPrice)
-                        .toString()}
-                    />
-                  )}
-                </Box>
-              </Stack>
-            ))}
+            {transfers}
           </Stack>
         </Flex>
         {isLargerThanLg && (
           <Flex alignItems='flex-start' flex={1} flexDir='column' textAlign='right'>
-            {fee && bnOrZero(fee?.amount).gt(0) ? (
+            {fee && bnOrZero(fee.value).gt(0) && (
               <Flex alignItems='flex-end' width='full'>
                 <Box flex={1}>
                   <Amount.Crypto
                     color='inherit'
                     fontWeight='bold'
-                    value={fromBaseUnit(fee.amount, fee.precision)}
-                    symbol={fee.symbol}
+                    value={cryptoValue}
+                    symbol={fee.asset.symbol}
                     maximumFractionDigits={6}
                   />
-                  <Amount.Fiat
-                    color='gray.500'
-                    fontSize='sm'
-                    lineHeight='1'
-                    value={
-                      fee.amount
-                        ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
-                            .times(fee.currentPrice ?? 0)
-                            .toString()
-                        : '0'
-                    }
-                  />
+                  <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatValue} />
                 </Box>
               </Flex>
-            ) : null}
+            )}
           </Flex>
         )}
         {isLargerThanLg && (

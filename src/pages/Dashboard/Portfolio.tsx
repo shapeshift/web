@@ -11,20 +11,18 @@ import {
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
@@ -33,15 +31,13 @@ export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
 
-  const assetIds = useSelector(selectPortfolioAssetIds)
+  const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const totalBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const { totalBalance: lpHoldingsBalance } = useFoxEth()
-  const totalBalancePlusLpHoldings = bnOrZero(totalBalance)
-    .plus(bnOrZero(lpHoldingsBalance))
-    .toFixed(2)
+  const totalBalance = useAppSelector(state =>
+    selectPortfolioTotalFiatBalanceWithStakingData(state, { accountAddress: '' }),
+  )
 
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
   const [isRainbowChart, setIsRainbowChart] = useState(false)
@@ -75,7 +71,7 @@ export const Portfolio = () => {
           </Card.Heading>
           <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
             <Skeleton isLoaded={isLoaded}>
-              <Amount.Fiat value={totalBalancePlusLpHoldings} />
+              <Amount.Fiat value={totalBalance} />
             </Skeleton>
           </Card.Heading>
           {isFinite(percentChange) && (

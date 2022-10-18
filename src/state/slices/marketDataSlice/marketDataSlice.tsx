@@ -17,6 +17,8 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
+import { foxEthLpAssetId } from '../foxEthSlice/constants'
+
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 export type PriceHistoryData = {
@@ -64,6 +66,11 @@ const initialState: MarketDataState = {
     priceHistory: INITIAL_PRICE_HISTORY,
   },
 }
+
+// TODO: remove this once single and multi sided delegation abstraction is implemented
+// since foxEthLpAsset market data is monkey-patched, requesting its price history
+// will return an empty array which overrides the patch.
+const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
 
 export const defaultMarketData: MarketData = {
   price: '0',
@@ -166,9 +173,10 @@ export const marketApi = createApi({
         }
       },
     }),
-    findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
+    findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
+        if (ignoreAssetIds.includes(assetId)) return { data: [] }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,

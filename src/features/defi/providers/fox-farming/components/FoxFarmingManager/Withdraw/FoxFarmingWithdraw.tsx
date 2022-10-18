@@ -18,7 +18,11 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
-import { selectPortfolioLoading } from 'state/slices/selectors'
+import {
+  selectFoxFarmingOpportunityByContractAddress,
+  selectPortfolioLoading,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
@@ -47,10 +51,13 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = useMemo(
-    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, foxFarmingOpportunities],
+  const { accountAddress } = useFoxEth()
+
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, {
+      accountAddress: accountAddress ?? '',
+      contractAddress,
+    }),
   )
 
   const loading = useSelector(selectPortfolioLoading)
@@ -121,7 +128,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     translate,
   ])
 
-  if (loading || !opportunity || foxFarmingLoading)
+  if (loading || !opportunity || !opportunity.isLoaded)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

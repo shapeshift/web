@@ -1,25 +1,93 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpOpportunityName,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
-import { useFarmingApr } from 'plugins/foxPage/hooks/useFarmingApr'
-import { useLpApr } from 'plugins/foxPage/hooks/useLpApr'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const featureFlags = useAppSelector(selectFeatureFlags)
-  const { farmingAprV4, isFarmingAprV4Loaded } = useFarmingApr({ skip: !featureFlags.FoxFarming })
-  const { lpApr, isLpAprLoaded } = useLpApr({ skip: !featureFlags.FoxLP })
+  const dispatch = useAppDispatch()
+  const [lpApy, setLpApy] = useState<Nullable<string>>(null)
+  const [farmingV4Data, setFarmingV4Data] =
+    useState<Nullable<GetFoxFarmingContractMetricsReturn>>(null)
+  const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
+  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
+
+  const ethAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
+  )
+
+  useEffect(() => {
+    ;(async () => {
+      if (!ethAccountIds?.length) return
+
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+      const metricsPromises = await Promise.all(
+        ethAccountAddresses.map(
+          async accountAddress =>
+            await dispatch(
+              foxEthApi.endpoints.getFoxEthLpMetrics.initiate({
+                accountAddress,
+              }),
+            ),
+        ),
+      )
+
+      // To get the APY, we need to fire the metrics requests for all accounts
+      // However, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const { isLoading, isSuccess, data } = metricsPromises[0]
+
+      if (isLoading || !data) return
+
+      if (isSuccess) {
+        setLpApy(data.apy)
+        setIsLpAprLoaded(true)
+      }
+    })()
+  }, [ethAccountIds, dispatch])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!ethAccountIds?.length) return
+
+      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+
+      const metricsPromises = await Promise.all(
+        ethAccountAddresses.map(
+          async accountAddress =>
+            await dispatch(
+              foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
+                contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+                accountAddress,
+              }),
+            ),
+        ),
+      )
+
+      // To get the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
+      const { isLoading, isSuccess, data } = metricsPromises[0]
+
+      if (isLoading || !data) return
+
+      if (isSuccess) {
+        setFarmingV4Data(data)
+        setIsFarmingAprV4Loaded(true)
+      }
+    })()
+  }, [ethAccountIds, dispatch])
 
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
@@ -33,8 +101,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               isLoaded: isFarmingAprV4Loaded && isLpAprLoaded,
               apy:
                 isFarmingAprV4Loaded && isLpAprLoaded
-                  ? bnOrZero(farmingAprV4)
-                      .plus(lpApr ?? 0)
+                  ? bnOrZero(farmingV4Data?.apy)
+                      .plus(lpApy ?? 0)
                       .toString()
                   : null,
               icons: [
@@ -53,7 +121,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: foxEthLpOpportunityName,
               isLoaded: isLpAprLoaded,
-              apy: isLpAprLoaded ? lpApr : null,
+              apy: lpApy ?? null,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',
@@ -98,7 +166,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [lpApr, farmingAprV4, assetId, isLpAprLoaded, isFarmingAprV4Loaded])
+  }, [isFarmingAprV4Loaded, isLpAprLoaded, farmingV4Data?.apy, lpApy, assetId])
 
   return otherOpportunities
 }

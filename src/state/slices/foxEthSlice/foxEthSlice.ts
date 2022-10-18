@@ -150,7 +150,8 @@ export const foxEthApi = createApi({
         try {
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
-          const ethPrecision = state.assets.byId[ethAssetId].precision
+          const assets: AssetsState = state.assets
+          const ethPrecision = assets.byId[ethAssetId].precision
           const lpAssetPrecision = state.assets.byId[foxEthLpAssetId].precision
           const ethPrice = state.marketData.crypto.byId[ethAssetId].price
           const ethersProvider = getEthersProvider()

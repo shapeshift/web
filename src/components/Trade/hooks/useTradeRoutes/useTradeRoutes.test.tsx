@@ -38,6 +38,10 @@ jest.mock('state/slices/selectors', () => ({
 
   selectAccountSpecifiers: () => ({}),
   selectFiatToUsdRate: () => ({}),
+  selectPortfolioAccountMetadataByAccountId: () => ({
+    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountType: undefined,
+  }),
 }))
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

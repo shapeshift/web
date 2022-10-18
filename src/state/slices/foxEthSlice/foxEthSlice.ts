@@ -21,14 +21,26 @@ import {
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
+import type {
+  marketData as marketDataSlice,
+  MarketDataState,
+} from 'state/slices/marketDataSlice/marketDataSlice'
 
 import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
 import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
+import type {
+  GetFoxEthLpAccountDataArgs,
+  GetFoxEthLpAccountDataReturn,
+  GetFoxEthLpMetricsArgs,
+  GetFoxEthLpMetricsReturn,
+  GetFoxFarmingContractAccountDataArgs,
+  GetFoxFarmingContractAccountDataReturn,
+  GetFoxFarmingContractMetricsArgs,
+  GetFoxFarmingContractMetricsReturn,
+} from './types'
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
@@ -106,46 +118,6 @@ export const foxEth = createSlice({
     },
   },
 })
-
-type GetFoxEthLpMetricsReturn = {
-  tvl: string
-  apy: string
-}
-
-type GetFoxEthLpMetricsArgs = {
-  accountAddress: string
-}
-
-type GetFoxEthLpAccountDataReturn = {
-  underlyingFoxAmount: string
-  underlyingEthAmount: string
-  cryptoAmount: string
-  fiatAmount: string
-}
-
-export type GetFoxFarmingContractMetricsReturn = {
-  expired: boolean
-} & GetFoxEthLpMetricsReturn
-
-type GetFoxFarmingContractMetricsArgs = {
-  accountAddress: string
-  contractAddress: string
-}
-
-type GetFoxFarmingContractAccountDataReturn = {
-  cryptoAmount: string
-  fiatAmount: string
-  unclaimedRewards: string
-}
-
-type GetFoxFarmingContractAccountDataArgs = {
-  contractAddress: string
-  accountAddress: string
-}
-
-type GetFoxEthLpAccountDataArgs = {
-  accountAddress: string
-}
 
 export const foxEthApi = createApi({
   reducerPath: 'foxEthApi',

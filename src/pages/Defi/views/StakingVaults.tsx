@@ -24,8 +24,8 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/foxEthSlice'
 import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,

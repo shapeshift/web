@@ -32,7 +32,7 @@ export type EarnOpportunityType = {
   icons?: string[]
   // overrides any name down the road
   opportunityName?: string
-  highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opoprtunities
+  highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
 const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportunityType[] => {

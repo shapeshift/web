@@ -53,7 +53,7 @@ export const TransactionMethod = ({
   const symbol = asset?.symbol
   const title = symbol ? `${titlePrefix} ${symbol}${titleSuffix}` : titlePrefix
 
-  const type = (() => {
+  const type = useMemo(() => {
     switch (txMetadata.method) {
       case Method.Deposit:
       case Method.AddLiquidityEth:
@@ -79,7 +79,7 @@ export const TransactionMethod = ({
         return ''
       }
     }
-  })()
+  }, [displayTransfers, txMetadata.method])
 
   return (
     <>

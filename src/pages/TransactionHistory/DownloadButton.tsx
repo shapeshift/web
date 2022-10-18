@@ -5,12 +5,11 @@ import fileDownload from 'js-file-download'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { getTxType } from 'hooks/useTxDetails/useTxDetails'
+import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectTxs } from 'state/slices/selectors'
+import { selectAssets, selectMarketData, selectTxs } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -46,6 +45,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketData)
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),
@@ -68,23 +68,18 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     const report: ReportRow[] = []
     for (const txId of txIds) {
       const tx = allTxs[txId]
-
-      const transfers = tx.transfers.map(t => ({
-        ...t,
-        asset: assets[t.assetId],
-        marketData: defaultMarketData,
-      }))
-
+      const transfers = getTransfers(tx.transfers, assets, marketData)
       const type = getTxType(tx, transfers)
-      const send =
-        transfers.length === 1
-          ? transfers[0]
-          : transfers.find(transfer => transfer.type === TransferType.Send)
-      const receive =
-        transfers.length === 1
-          ? transfers[0]
-          : transfers.find(transfer => transfer.type === TransferType.Receive)
+
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
+
+      const { send, receive } = (() => {
+        if (transfers.length === 1) return { send: transfers[0], receive: transfers[0] }
+        return {
+          send: transfers.find(transfer => transfer.type === TransferType.Send),
+          receive: transfers.find(transfer => transfer.type === TransferType.Receive),
+        }
+      })()
 
       const typeLabel = (() => {
         if (type === 'unknown') return 'transactionRow.unknown'

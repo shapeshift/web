@@ -95,7 +95,7 @@ export const foxEth = createSlice({
 
       draftState[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] =
         {
-          ...baseOpportunity, // Specific propertie for that opportunity e.g name
+          ...baseOpportunity, // Specific properties for that opportunity e.g name
           ...(draftState[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
             stateOpportunityIndex
           ] ?? {}),

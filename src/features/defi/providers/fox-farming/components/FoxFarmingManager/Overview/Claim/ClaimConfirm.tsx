@@ -81,7 +81,7 @@ export const ClaimConfirm = ({
     try {
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
-      onOngoingTxIdChange(txid)
+      onOngoingTxIdChange(txid, contractAddress)
       history.push('/status', {
         txid,
         assetId,
@@ -89,6 +89,7 @@ export const ClaimConfirm = ({
         userAddress: accountAddress,
         estimatedGas,
         chainId,
+        contractAddress,
       })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')

@@ -7,13 +7,16 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectFeatureFlags } from 'state/slices/selectors'
+import {
+  selectFeatureFlags,
+  selectFoxEthLpAccountsOpportunitiesAggregated,
+  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -29,8 +32,14 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedVaults()
 
   const { data: foxyBalancesData } = useFoxyBalances()
-  const { onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
 
+  const emptyFilter = useMemo(() => ({}), [])
+  const visibleFoxFarmingOpportunities = useAppSelector(state =>
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
+  )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -49,9 +58,7 @@ export const AllEarnOpportunities = () => {
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming
-      ? onlyVisibleFoxFarmingOpportunities
-      : undefined,
+    foxFarmingOpportunities: featureFlags.FoxFarming ? visibleFoxFarmingOpportunities : undefined,
   })
 
   const handleClick = useCallback(

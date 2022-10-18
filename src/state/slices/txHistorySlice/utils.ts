@@ -48,6 +48,14 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 export const UNIQUE_TX_ID_DELIMITER = '*'
 export const serializeTxIndex = (
   accountId: AccountId,
-  txId: Tx['txid'],
-  txAddress: Tx['address'],
-): TxIndex => [accountId, txId, txAddress.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+  txid: Tx['txid'],
+  address: Tx['address'],
+  data?: Tx['data'],
+): TxIndex => {
+  // special case for thorchain transactions sent back in multiple parts
+  if (data && data.parser === 'swap') {
+    return [accountId, txid, address.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
+  }
+
+  return [accountId, txid, address.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+}

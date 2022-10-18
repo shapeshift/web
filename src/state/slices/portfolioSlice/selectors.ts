@@ -34,6 +34,10 @@ import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import {
+  selectFarmContractsFiatBalance,
+  selectLpPlusFarmContractsBaseUnitBalance,
+} from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import {
   accountIdToFeeAssetId,
@@ -41,6 +45,7 @@ import {
 } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
+import { foxEthLpAssetId } from '../foxEthSlice/constants'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -340,10 +345,17 @@ export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
   selectTotalStakingUndelegationFiat,
-  (portfolioFiatBalance, delegationFiatBalance, undelegationFiatBalance): string => {
+  selectFarmContractsFiatBalance,
+  (
+    portfolioFiatBalance,
+    delegationFiatBalance,
+    undelegationFiatBalance,
+    foxFarmingFiatBalance,
+  ): string => {
     return bnOrZero(portfolioFiatBalance)
       .plus(delegationFiatBalance)
       .plus(undelegationFiatBalance)
+      .plus(foxFarmingFiatBalance)
       .toString()
   },
 )
@@ -452,7 +464,8 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectMarketData,
     selectBalanceThreshold,
     selectPortfolioAccounts,
-    (_state: ReduxState, accountId?: string) => accountId,
+    selectLpPlusFarmContractsBaseUnitBalance,
+    (_state: ReduxState, filter: { accountId?: string }) => filter?.accountId ?? '', // TODO(gomes): selector
     (
       assetsById,
       accountBalances,
@@ -460,6 +473,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       marketData,
       balanceThreshold,
       portfolioAccounts,
+      lpPlusFarmContractsBaseUnitBalance,
       accountId,
     ): PortfolioBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
@@ -488,6 +502,8 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         )
         return acc
       }, cloneDeep(rawBalances))
+      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] =
+        lpPlusFarmContractsBaseUnitBalance
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<PortfolioAssetBalances['byId']>((acc, [assetId, baseUnitBalance]) => {
@@ -946,7 +962,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
   },
 )
 
-export const selectAccountIdsByAssetId = createSelector(
+export const selectAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   findAccountsByAssetId,

@@ -8,8 +8,9 @@ import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { selectFoxFarmingOpportunityByContractAddress } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -33,8 +34,9 @@ type ClaimRouteProps = {
 export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
-  const { foxFarmingOpportunities } = useFoxEth()
-  const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress }),
+  )
   const location = useLocation()
 
   if (!opportunity) return null

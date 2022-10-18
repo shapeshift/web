@@ -6,7 +6,6 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
 import intersection from 'lodash/intersection'
@@ -18,7 +17,6 @@ import reverse from 'lodash/reverse'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -35,7 +33,6 @@ import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
-  selectFeatureFlags,
   selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
@@ -355,8 +352,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
+  const emptyFilter = useMemo(() => ({}), [])
   const balances = useAppSelector(state =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, emptyFilter),
   )
 
   const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])
@@ -381,8 +379,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const {
     state: { walletInfo },
   } = useWallet()
-  const { lpTokenPrice, foxFarmingTotalBalanceInBaseUnit } = useFoxEth()
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
 
@@ -432,17 +428,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({
       assetIds,
-      // TODO: this should be removed when defi opportunity abstractions were completed.
-      // fox farming balances are not in the Portfolio by default
-      // this hack will add the fox farming balances to the LP token balance
-      balances: {
-        ...balances,
-        [foxEthLpAssetId]: featureFlags.FoxFarming
-          ? bnOrZero(balances[foxEthLpAssetId])
-              .plus(bnOrZero(foxFarmingTotalBalanceInBaseUnit))
-              .toString()
-          : '0',
-      },
+      balances,
       timeframe,
     })
     // put each tx into a bucket for the chart
@@ -452,12 +438,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const calculatedBuckets = calculateBucketPrices({
       assetIds,
       buckets,
-      cryptoPriceHistoryData: {
-        ...cryptoPriceHistoryData,
-        // TODO: this should be removed when defi opportunity abstractions were completed.
-        // this is an ugly hack to overcome missing lp token price for charts
-        [foxEthLpAssetId]: [{ price: bnOrZero(lpTokenPrice).toNumber(), date: 0 }],
-      },
+      cryptoPriceHistoryData,
       fiatPriceHistoryData,
       portfolioAssets,
     })
@@ -484,9 +465,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     walletInfo?.deviceId,
     rebases,
     txHistoryStatus,
-    lpTokenPrice,
-    foxFarmingTotalBalanceInBaseUnit,
-    featureFlags.FoxFarming,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

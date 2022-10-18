@@ -37,9 +37,15 @@ export enum Method {
   InstantUnstake = 'instantUnstake',
   ClaimWithdraw = 'claimWithdraw',
   Exit = 'exit',
+  Delegate = 'delegate',
+  BeginUnbonding = 'begin_unbonding',
+  BeginRedelegate = 'begin_redelegate',
+  WithdrawDelegatorReward = 'withdraw_delegator_reward',
   Outbound = 'outbound',
   Refund = 'refund',
   Out = 'out',
+  Transfer = 'transfer',
+  RecvPacket = 'recv_packet',
 }
 
 export interface TxDetails {

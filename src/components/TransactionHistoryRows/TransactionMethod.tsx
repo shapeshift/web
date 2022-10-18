@@ -46,12 +46,18 @@ export const TransactionMethod = ({
       : 'transactionRow.unknown',
   )
 
-  // TODO(gomes): translation - we will need to revamp the prefix-suffix logic
-  // to accomodate for different languages and their syntax
-  const titleSuffix = txMetadata.method === 'revoke' ? ' approval' : ''
+  const title = useMemo(() => {
+    const symbol = asset?.symbol
 
-  const symbol = asset?.symbol
-  const title = symbol ? `${titlePrefix} ${symbol}${titleSuffix}` : titlePrefix
+    switch (txMetadata.method) {
+      case 'approve':
+        return `${titlePrefix} ${symbol}`
+      case 'revoke':
+        return `${titlePrefix} ${symbol} approval`
+      default:
+        return titlePrefix
+    }
+  }, [asset?.symbol, titlePrefix, txMetadata.method])
 
   const type = useMemo(() => {
     switch (txMetadata.method) {
@@ -59,6 +65,9 @@ export const TransactionMethod = ({
       case Method.AddLiquidityEth:
       case Method.TransferOut:
       case Method.Stake:
+      case Method.Delegate:
+      case Method.BeginRedelegate:
+      case Method.Transfer:
         return TransferType.Send
       case Method.Withdraw:
       case Method.RemoveLiquidityEth:
@@ -69,6 +78,9 @@ export const TransactionMethod = ({
       case Method.Outbound:
       case Method.Out:
       case Method.Refund:
+      case Method.BeginUnbonding:
+      case Method.WithdrawDelegatorReward:
+      case Method.RecvPacket:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:

@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
@@ -188,11 +188,18 @@ export const TransactionGenericRow = ({
               fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
               alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
             >
-              <Text
-                fontWeight='bold'
-                flex={1}
-                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
-              />
+              <Flex>
+                <Text
+                  fontWeight='bold'
+                  flex={1}
+                  translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+                />
+                {txData?.parser === 'ibc' && (
+                  <Tag size='sm' colorScheme='blue' variant='subtle' ml={2}>
+                    IBC
+                  </Tag>
+                )}
+              </Flex>
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>
           </Flex>

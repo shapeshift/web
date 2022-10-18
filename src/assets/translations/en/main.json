@@ -439,11 +439,21 @@
         "revoke": "Revoke",
         "infinite": "Infinite ∞"
       },
+      "staking": {
+        "delegate": "Delegate",
+        "begin_unbonding": "Undelegate",
+        "begin_redelegate": "Redelegate",
+        "withdraw_delegator_reward": "Claim Reward"
+      },
       "swap": {
         "deposit": "Swap",
         "out": "Swap",
         "refund": "Refund",
         "outbound": "Outbound"
+      },
+      "ibc": {
+        "transfer": "Sent",
+        "recv_packet": "Received"
       },
       "lp": {
         "deposit": "Add Liquidity"

@@ -42,27 +42,41 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
 
+  const highestBalanceAccountId = useMemo(
+    () =>
+      highestBalanceAccountAddress
+        ? toAccountId({
+            account: highestBalanceAccountAddress,
+            chainId: ethChainId,
+          })
+        : null,
+    [highestBalanceAccountAddress],
+  )
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId ?? '').account : ''),
     [accountId],
   )
 
+  const filter = useMemo(
+    () => ({
+      accountAddress,
+      contractAddress,
+    }),
+    [accountAddress, contractAddress],
+  )
+
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, { contractAddress, accountAddress }),
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
   )
 
   // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
   useEffect(() => {
-    if (highestBalanceAccountAddress && accountAddress !== highestBalanceAccountAddress) {
-      const highestBalanceAccountId = toAccountId({
-        account: highestBalanceAccountAddress,
-        chainId: ethChainId,
-      })
+    if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
       handleAccountIdChange(highestBalanceAccountId)
     }
-    // This should run only once, else we won't be able to select another account than the defaulted highest balance one
+    // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [highestBalanceAccountId])
 
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({

@@ -34,29 +34,40 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { highestBalanceAccountAddress } = query
 
+  const highestBalanceAccountId = useMemo(
+    () =>
+      highestBalanceAccountAddress
+        ? toAccountId({
+            account: highestBalanceAccountAddress,
+            chainId: ethChainId,
+          })
+        : null,
+    [highestBalanceAccountAddress],
+  )
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId ?? '').account : ''),
     [accountId],
   )
 
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
+  const filter = useMemo(
+    () => ({
+      accountAddress,
     }),
+    [accountAddress],
   )
 
-  // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
+  const opportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, filter),
+  )
+
+  // Making sure we don't display empty state if account 0 has no LP data for the current opportunity but another account has
   useEffect(() => {
-    if (highestBalanceAccountAddress && accountAddress !== highestBalanceAccountAddress) {
-      const highestBalanceAccountId = toAccountId({
-        account: highestBalanceAccountAddress,
-        chainId: ethChainId,
-      })
+    if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
       handleAccountIdChange(highestBalanceAccountId)
     }
-    // This should run only once, else we won't be able to select another account than the defaulted highest balance one
+    // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [highestBalanceAccountId])
 
   const { underlyingFoxAmount, underlyingEthAmount } = opportunity!
 

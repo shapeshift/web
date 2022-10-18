@@ -21,10 +21,8 @@ import {
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type {
-  marketData as marketDataSlice,
-  MarketDataState,
-} from 'state/slices/marketDataSlice/marketDataSlice'
+import type { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
+import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
@@ -129,11 +127,10 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketData: MarketDataState = state.marketData
-          const marketDataActions: typeof marketDataSlice['actions'] = state.marketData.actions
+          const marketDataState: MarketDataState = state.marketData
           const ethPrecision = assets.byId[ethAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const ethPrice = marketData.crypto.byId[ethAssetId]?.price ?? '0'
+          const ethPrice = marketDataState.crypto.byId[ethAssetId]?.price ?? '0'
           const ethersProvider = getEthersProvider()
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -171,10 +168,10 @@ export const foxEthApi = createApi({
             [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
           }
           // hacks for adding lp price and price history
-          dispatch(marketDataActions.setCryptoMarketData(lpMarketData))
+          dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
           Object.values(HistoryTimeframe).forEach(timeframe => {
             dispatch(
-              marketDataActions.setCryptoPriceHistory({
+              marketData.actions.setCryptoPriceHistory({
                 data: [{ price: bnOrZero(price).toNumber(), date: 0 }],
                 args: { timeframe, assetId: foxEthLpAssetId },
               }),
@@ -200,11 +197,11 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency\
           const assets: AssetsState = state.assets
-          const marketData: MarketDataState = state.marketData
+          const marketDataState: MarketDataState = state.marketData
           const ethPrecision = assets.byId[ethAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const lpTokenPrice = marketData.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
@@ -256,11 +253,11 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketData: MarketDataState = state.marketData
+          const marketDataState: MarketDataState = state.marketData
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const ethPrecision = assets.byId[ethAssetId].precision
-          const lpTokenPrice = marketData.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
 
           const ethersProvider = getEthersProvider()
           const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
@@ -331,10 +328,10 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketData: MarketDataState = state.marketData
+          const marketDataState: MarketDataState = state.marketData
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
-          const lpTokenPrice = marketData.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
 
           const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
 

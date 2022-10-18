@@ -23,6 +23,7 @@ import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
+import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
@@ -48,40 +49,43 @@ export const foxEth = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertLpOpportunity: (state, action: PayloadAction<Partial<FoxEthLpEarnOpportunityType>>) => {
-      if (action.payload.accountAddress && !state[action.payload.accountAddress]) {
-        state[action.payload.accountAddress] = {} as FoxEthOpportunities
+    upsertLpOpportunity: (
+      draftState,
+      action: PayloadAction<Partial<FoxEthLpEarnOpportunityType>>,
+    ) => {
+      if (action.payload.accountAddress && !draftState[action.payload.accountAddress]) {
+        draftState[action.payload.accountAddress] = {} as FoxEthOpportunities
       }
-      state[action.payload.accountAddress ?? ''].lpOpportunity = {
+      draftState[action.payload.accountAddress ?? ''].lpOpportunity = {
         ...lpOpportunity, // Common LP properties
-        ...(state[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
+        ...(draftState[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
       }
     },
     upsertFarmingOpportunity: (
-      state,
+      draftState,
       action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
     ) => {
       // TODO: This is absolute immer madness 🤮 clean me before opening the PR
       const stateFarmingOpportunities =
-        state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
+        draftState[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
 
-const foundIndex = stateFarmingOpportunities.findIndex(
-  opportunity => opportunity.contractAddress === action.payload.contractAddress,
-)
-const stateOpportunityIndex = foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
+      const foundIndex = stateFarmingOpportunities.findIndex(
+        opportunity => opportunity.contractAddress === action.payload.contractAddress,
+      )
+      const stateOpportunityIndex = foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
 
       // No state entry for that accountAddress altogether, insert it
-      if (!state[action.payload.accountAddress ?? '']) {
-        state[action.payload.accountAddress ?? ''] = {
+      if (!draftState[action.payload.accountAddress ?? '']) {
+        draftState[action.payload.accountAddress ?? ''] = {
           farmingOpportunities: [],
           lpOpportunity: {} as EarnOpportunityType,
         } as FoxEthOpportunities
       }
 
       // There's an entry for that accountAddress but no farmingOpportunities field - meaning we only have lpOpportunity so far
-      if (!state[action.payload.accountAddress ?? ''].farmingOpportunities) {
-        state[action.payload.accountAddress ?? ''].farmingOpportunities = []
+      if (!draftState[action.payload.accountAddress ?? ''].farmingOpportunities) {
+        draftState[action.payload.accountAddress ?? ''].farmingOpportunities = []
       }
 
       const baseOpportunity =
@@ -89,14 +93,15 @@ const stateOpportunityIndex = foundIndex < 0 ? stateFarmingOpportunities.length 
           opportunity => opportunity.contractAddress === action.payload.contractAddress ?? '',
         ) ?? {}
 
-      state[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] = {
-        ...baseOpportunity, // Specific propertie for that opportunity e.g name
-        ...(state[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
-          stateOpportunityIndex
-        ] ?? {}),
-        ...action.payload,
-        isLoaded: true,
-      }
+      draftState[action.payload.accountAddress ?? ''].farmingOpportunities[stateOpportunityIndex] =
+        {
+          ...baseOpportunity, // Specific propertie for that opportunity e.g name
+          ...(draftState[action.payload.accountAddress ?? '']?.farmingOpportunities?.[
+            stateOpportunityIndex
+          ] ?? {}),
+          ...action.payload,
+          isLoaded: true,
+        }
     },
   },
 })

@@ -264,11 +264,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           }
         }),
       )
-      const totalOportunitiesBalances = newOpportunities.reduce(
+      const totalOpportunitiesBalances = newOpportunities.reduce(
         (acc, newOpportunity) => acc.plus(bnOrZero(newOpportunity.fiatAmount)),
         bnOrZero(0),
       )
-      setFoxFarmingTotalBalance(totalOportunitiesBalances.toFixed(2))
+      setFoxFarmingTotalBalance(totalOpportunitiesBalances.toFixed(2))
       setFoxFarmingOpportunities(newOpportunities)
     } catch (error) {
       moduleLogger.error(error, 'fetchFarmingOpportunities failed')
@@ -287,7 +287,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ])
 
   const fetchLpOpportunity = useCallback(async () => {
-    moduleLogger.info('fetching LP pportunity')
+    moduleLogger.info('fetching LP opportunity')
     try {
       const balances = await calculateHoldings()
       if (balances) {

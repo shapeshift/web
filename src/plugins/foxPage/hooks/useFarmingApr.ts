@@ -22,7 +22,7 @@ type UseFarmingAprInput = {
 }
 
 export const useFarmingApr = ({ skip }: UseFarmingAprInput = {}) => {
-  const [farmingAprV4, setfarmingAprV4] = useState<string | null>(null)
+  const [farmingAprV4, setFarmingAprV4] = useState<string | null>(null)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState(false)
   const blockNumber = useCurrentBlockNumber({ skip })
 
@@ -69,7 +69,7 @@ export const useFarmingApr = ({ skip }: UseFarmingAprInput = {}) => {
 
       const aprV4 = makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken) // Fox Rewards per second for 1 staked LP token
 
-      setfarmingAprV4(bnOrZero(aprV4).div(100).toString())
+      setFarmingAprV4(bnOrZero(aprV4).div(100).toString())
       setIsFarmingAprV4Loaded(true)
     })()
   }, [skip, blockNumber, uniV2LPContract, farmingRewardsContractV4])

@@ -80,7 +80,7 @@ export const FoxPage = () => {
   const location = useLocation()
 
   const activeAssetId = useRouteAssetId()
-  // TODO(gomes): Use useRouteAssetId and selectAssetById programatically
+  // TODO(gomes): Use useRouteAssetId and selectAssetById programmatically
   const assetFox = useAppSelector(state => selectAssetById(state, foxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, foxyAssetId))
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()

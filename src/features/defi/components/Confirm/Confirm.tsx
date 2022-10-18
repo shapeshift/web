@@ -10,7 +10,7 @@ type ConfirmProps = {
   onCancel(): void
   onConfirm(): Promise<void>
   headerText: string
-  prefooter?: React.ReactNode
+  preFooter?: React.ReactNode
   isDisabled: boolean
   loading: boolean
   loadingText?: string
@@ -21,7 +21,7 @@ export const Confirm = ({
   onConfirm,
   onCancel,
   children,
-  prefooter,
+  preFooter,
   isDisabled,
   loading,
   loadingText,
@@ -48,7 +48,7 @@ export const Confirm = ({
     <>
       <Stack width='full' spacing={6} {...rest}>
         {children}
-        {prefooter}
+        {preFooter}
         <Stack width='full' direction='row'>
           <Button size='lg' colorScheme='gray' width='full' onClick={onCancel} isDisabled={loading}>
             {translate('modals.confirm.cancel')}

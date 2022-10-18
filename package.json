@@ -148,7 +148,6 @@
     "@formatjs/intl-locale": "^3.0.2",
     "@formatjs/intl-numberformat": "^8.0.2",
     "@formatjs/intl-pluralrules": "^5.0.2",
-    "@keepkey/keepkey-hardware-controller": "^0.0.18",
     "@metamask/detect-provider": "^1.2.0",
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.8.2",

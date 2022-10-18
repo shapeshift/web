@@ -54,6 +54,8 @@ export const KeepKeyConnect = () => {
     setLoading(true)
     if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
       // if keepkey is connected to another tab, it does not get added to state.adapters.
+
+      console.log('shit is fucked 1', state.adapters)
       setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
       return
     }
@@ -63,6 +65,9 @@ export const KeepKeyConnect = () => {
         ?.pairDevice()
         .catch(err => {
           if (err.name === 'ConflictingApp') {
+
+            console.log('shit is fucked 2 conflicting')
+
             setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
             return
           }

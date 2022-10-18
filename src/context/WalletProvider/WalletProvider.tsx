@@ -417,6 +417,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               break
             case KeyManager.KeepKey:
+
+            console.log('loading keepkey')
               try {
                 const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
                 /**
@@ -433,6 +435,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
                   await localKeepKeyWallet.initialize()
 
+                  console.log('keepkey loaded', localKeepKeyWallet)
                   dispatch({
                     type: WalletActions.SET_WALLET,
                     payload: {
@@ -737,6 +740,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useEffect(() => {
     if (state.keyring) {
+
+      console.log('keyring useEffect', KeyManager)
+
       ;(async () => {
         const adapters: Adapters = new Map()
         let options: undefined | { portisAppId: string } | WalletConnectProviderConfig

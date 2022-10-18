@@ -6,7 +6,7 @@ import { RegistryItem } from '../src/plugins/walletConnectToDapps/types'
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
 const registryJsonUrl =
-  'https://explorer.walletconnect.com/_next/data/CWVJGGRcXLbAilG1CUAn3/index.json'
+  'https://explorer.walletconnect.com/_next/data/rBOMJOAm1Nrct0fjtOOlA/index.json'
 
 async function run() {
   const listings: RegistryItem[] = []

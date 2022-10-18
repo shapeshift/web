@@ -26,6 +26,29 @@ type OptionalParamFilter = {
 type ParamFilterKey = keyof ParamFilter
 type OptionalParamFilterKey = keyof OptionalParamFilter
 
+const farmingOpportunitiesReducer = (
+  acc: Record<string, FoxFarmingEarnOpportunityType>,
+  opportunity: FoxFarmingEarnOpportunityType,
+) => {
+  if (!acc[opportunity.contractAddress]) {
+    acc[opportunity.contractAddress] = opportunity
+  }
+  acc[opportunity.contractAddress] = {
+    ...(acc[opportunity.contractAddress] ?? {}),
+    cryptoAmount: bnOrZero(acc[opportunity.contractAddress]?.cryptoAmount)
+      .plus(bnOrZero(opportunity.cryptoAmount))
+      .toString(),
+    fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
+      .plus(bnOrZero(opportunity.fiatAmount))
+      .toString(),
+    unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
+      .plus(bnOrZero(opportunity.unclaimedRewards))
+      .toString(),
+  }
+
+  return acc
+}
+
 const selectParamFromFilter =
   <T extends ParamFilterKey>(param: T) =>
   (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
@@ -131,25 +154,7 @@ export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOu
   foxFarmingOpportunities => {
     const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
       .flatMap(opportunity => opportunity)
-      .reduce((acc, opportunity) => {
-        if (!acc[opportunity.contractAddress]) {
-          acc[opportunity.contractAddress] = opportunity
-        }
-        acc[opportunity.contractAddress] = {
-          ...(acc[opportunity.contractAddress] ?? {}),
-          cryptoAmount: bnOrZero(acc[opportunity.contractAddress]?.cryptoAmount)
-            .plus(bnOrZero(opportunity.cryptoAmount))
-            .toString(),
-          fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
-            .plus(bnOrZero(opportunity.fiatAmount))
-            .toString(),
-          unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
-            .plus(bnOrZero(opportunity.unclaimedRewards))
-            .toString(),
-        }
-
-        return acc
-      }, {} as Record<string, FoxFarmingEarnOpportunityType>)
+      .reduce(farmingOpportunitiesReducer, {} as Record<string, FoxFarmingEarnOpportunityType>)
 
     return Object.values(aggregatedOpportunitiesByContractAddress)
   },
@@ -181,25 +186,7 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepE
         opportunity =>
           !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
       )
-      .reduce((acc, opportunity) => {
-        if (!acc[opportunity.contractAddress]) {
-          acc[opportunity.contractAddress] = opportunity
-        }
-        acc[opportunity.contractAddress] = {
-          ...(acc[opportunity.contractAddress] ?? {}),
-          cryptoAmount: bnOrZero(acc[opportunity.contractAddress]?.cryptoAmount)
-            .plus(bnOrZero(opportunity.cryptoAmount))
-            .toString(),
-          fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
-            .plus(bnOrZero(opportunity.fiatAmount))
-            .toString(),
-          unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
-            .plus(bnOrZero(opportunity.unclaimedRewards))
-            .toString(),
-        }
-
-        return acc
-      }, {} as Record<string, FoxFarmingEarnOpportunityType>)
+      .reduce(farmingOpportunitiesReducer, {} as Record<string, FoxFarmingEarnOpportunityType>)
 
     return Object.values(aggregatedOpportunitiesByContractAddress).map(opportunity => {
       const highestBalanceAccountAddress = selectHighestBalanceFoxFarmingOpportunityAccountAddress(

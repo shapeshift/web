@@ -66,13 +66,10 @@ export const foxEth = createSlice({
       const stateFarmingOpportunities =
         state[action.payload.accountAddress ?? '']?.farmingOpportunities ?? []
 
-      const stateOpportunityIndex = (() => {
-        const foundIndex = stateFarmingOpportunities.findIndex(
-          opportunity => opportunity.contractAddress === action.payload.contractAddress,
-        )
-
-        return foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
-      })()
+const foundIndex = stateFarmingOpportunities.findIndex(
+  opportunity => opportunity.contractAddress === action.payload.contractAddress,
+)
+const stateOpportunityIndex = foundIndex < 0 ? stateFarmingOpportunities.length : foundIndex
 
       // No state entry for that accountAddress altogether, insert it
       if (!state[action.payload.accountAddress ?? '']) {

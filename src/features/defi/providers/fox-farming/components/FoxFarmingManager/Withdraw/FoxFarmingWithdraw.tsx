@@ -51,11 +51,11 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const { accountAddress } = useFoxEth()
+  const { farmingAccountAddress } = useFoxEth()
 
   const filter = useMemo(
-    () => ({ accountAddress, contractAddress }),
-    [accountAddress, contractAddress],
+    () => ({ accountAddress: farmingAccountAddress ?? '', contractAddress }),
+    [farmingAccountAddress, contractAddress],
   )
 
   const opportunity = useAppSelector(state =>
@@ -67,16 +67,19 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(accountAddress && contractAddress && opportunity)) return
+        if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: accountAddress })
+        dispatch({
+          type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
+          payload: farmingAccountAddress,
+        })
         dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [accountAddress, translate, contractAddress, opportunity])
+  }, [farmingAccountAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

@@ -59,11 +59,11 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const { accountAddress } = useFoxEth()
+  const { farmingAccountAddress } = useFoxEth()
 
   const filter = useMemo(
-    () => ({ accountAddress, contractAddress }),
-    [accountAddress, contractAddress],
+    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
+    [farmingAccountAddress, contractAddress],
   )
 
   const opportunity = useAppSelector(state =>
@@ -75,16 +75,19 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(accountAddress && contractAddress && opportunity)) return
+        if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
+        dispatch({
+          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
+          payload: farmingAccountAddress,
+        })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [accountAddress, translate, toast, contractAddress, opportunity])
+  }, [farmingAccountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({

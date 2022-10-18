@@ -963,24 +963,6 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqual
   },
 )
 
-export const selectAccountIdByAddress = createSelector(
-  selectAccountIds,
-  selectAccountIdParamFromFilter,
-  (portfolioAccounts: { [k: AccountSpecifier]: AccountId[] }, filterAccountId): string => {
-    let accountSpecifier = ''
-    for (const portfolioAccount in portfolioAccounts) {
-      const isAccountSpecifier = !!portfolioAccounts[portfolioAccount].find(
-        accountId => toLower(accountId) === toLower(filterAccountId),
-      )
-      if (isAccountSpecifier) {
-        accountSpecifier = portfolioAccount
-        break
-      }
-    }
-    return accountSpecifier
-  },
-)
-
 export const selectAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,

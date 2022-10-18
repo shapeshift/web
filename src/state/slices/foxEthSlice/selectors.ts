@@ -232,7 +232,7 @@ export const selectFoxFarmingOpportunityByContractAddress = createDeepEqualOutpu
 
 // Aggregations give precisely that, an aggregation
 // When going from the context of an aggregation (e.g a DeFi card), to a specific account, we don't yet know which account has a / the highest balance
-// By selecting the account with the highest balance, we ensure that we select an account with an actual balance for a farming opportunity at a given contractaddress
+// By selecting the account with the highest balance, we ensure that we select an account with an actual balance for a farming opportunity at a given contractAddress
 export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   selectContractAddressParamFromFilter,

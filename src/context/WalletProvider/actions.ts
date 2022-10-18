@@ -27,6 +27,8 @@ export enum WalletActions {
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
+  SET_KEEPKEY_STATE = 'SET_KEEPKEY_STATE',
+  SET_KEEPKEY_STATUS = 'SET_KEEPKEY_STATUS',
 }
 
 export type ActionTypes =
@@ -93,3 +95,5 @@ export type ActionTypes =
         deviceId: string
       }
     }
+  | { type: WalletActions.SET_KEEPKEY_STATE; payload: string }
+  | { type: WalletActions.SET_KEEPKEY_STATUS; payload: string }

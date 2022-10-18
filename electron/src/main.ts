@@ -50,6 +50,7 @@ import { getWalletconnectSession, pairWalletConnect, walletConnectClient } from 
 import { Settings } from './settings'
 import { getWallectConnectUri } from './utils'
 import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
+import fs from 'fs'
 
 dotenvConfig()
 
@@ -109,7 +110,8 @@ export const kkAutoLauncher = new AutoLaunch({
 
 try {
     if (isWin && nativeTheme.shouldUseDarkColors === true) {
-        require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
+        // require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
+        fs.unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
     }
 } catch (_) { }
 

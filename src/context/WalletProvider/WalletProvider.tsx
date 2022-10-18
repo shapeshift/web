@@ -22,7 +22,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
-
+import { ipcRenderer } from 'electron'
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
@@ -40,6 +40,9 @@ import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandle
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
+import { KeepKeyService } from './KeepKey'
+
+const keepkey = new KeepKeyService()
 
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
@@ -753,11 +756,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               default:
                 break
             }
-            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
-            adapters.set(wallet, adapter)
-            // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-            await adapter.initialize?.()
-            adapters.set(wallet, adapter)
+            if(wallet === 'keepkey') {
+              console.log('pairing keepkey device')
+              const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+              await adapter.pairDevice('http://localhost:1646')
+              adapters.set(wallet, adapter)
+            }
+            else {
+              const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+              adapters.set(wallet, adapter)
+              // useKeyring returns the instance of the adapter. We'll keep it for future reference.
+              await adapter.initialize?.()
+              adapters.set(wallet, adapter)                
+            }
           } catch (e) {
             moduleLogger.error(e, 'Error initializing HDWallet adapters')
           }
@@ -767,6 +778,262 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })()
     }
   }, [state.keyring])
+
+
+  useEffect(() => {
+
+    // TODO walletconnect
+    // ipcRenderer.on('@walletconnect/paired', (_event, data) => {
+    //   dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
+    // })
+
+
+    // TODO add some sound
+    // //listen to events on main
+    // ipcRenderer.on('hardware', (_event, data) => {
+    //   //event
+    //   //console.log('hardware event: ', data)
+
+    //   switch (data.event.event) {
+    //     case 'connect':
+    //       playSound('success')
+    //       break
+    //     case 'disconnect':
+    //       playSound('fail')
+    //       break
+    //     default:
+    //     //TODO Spammy
+    //     //console.log("unhandled event! ",data.event)
+    //   }
+    // })
+
+    ipcRenderer.on('playSound', (_event, _data) => {})
+
+    ipcRenderer.on('@keepkey/state', (_event, data) => {
+      console.info('@keepkey/state', data)
+      dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
+    })
+
+    ipcRenderer.on('@keepkey/status', (_event, data) => {
+      dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
+    })
+
+    // TODO pair modal
+    // ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
+    //   pair.open(data)
+    // })
+
+    ipcRenderer.on('loadKeepKeyInfo', (_event, data) => {
+      keepkey.updateFeatures(data.payload)
+    })
+
+    ipcRenderer.on('setUpdaterMode', (_event, _data) => {
+      keepkey.setUpdaterMode()
+    })
+
+    ipcRenderer.on('setNeedsBootloaderUpdate', (_event, _data) => {
+      keepkey.setNeedsBootloaderUpdate(true)
+    })
+
+    ipcRenderer.on('loadKeepKeyFirmwareLatest', (_event, data) => {
+      keepkey.updateKeepKeyFirmwareLatest(data.payload)
+    })
+
+    ipcRenderer.on('onCompleteBootloaderUpload', (_event, _data) => {
+      keepkey.setNeedsBootloaderUpdate(false)
+    })
+
+    // ipcRenderer.on('onCompleteFirmwareUpload', (event, data) => {
+    //   firmware.close()
+    // })
+
+    // ipcRenderer.on('openFirmwareUpdate', (event, data) => {
+    //   firmware.open({})
+    // })
+
+    // ipcRenderer.on('openBootloaderUpdate', (event, data) => {
+    //   bootloader.open({})
+    // })
+
+    // ipcRenderer.on('closeBootloaderUpdate', (event, data) => {
+    //   bootloader.close()
+    // })
+
+    //HDwallet API
+    //TODO moveme into own file
+    ipcRenderer.on('@hdwallet/getPublicKeys', async (_event, data) => {
+      if (state.wallet) {
+        // @ts-ignore
+        let pubkeys = await state.wallet.getPublicKeys(data.payload.paths)
+        console.info('pubkeys: ', pubkeys)
+        ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/btcGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        console.info('payload: ', payload)
+        // @ts-ignore
+        let pubkeys = await state.wallet.btcGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response/btcGetAddress', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/ethGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        console.info('payload: ', payload)
+        // @ts-ignore
+        let pubkeys = await state.wallet.ethGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response/ethGetAddress', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/thorchainGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.thorchainGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response/thorchainGetAddress', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/osmosisGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.osmosisGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response/osmosisGetAddress', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/binanceGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.binanceGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response', pubkeys)
+      } else {
+        ipcRenderer.send('@hdwallet/response/binanceGetAddress', { error: 'wallet not online!' })
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/cosmosGetAddress', async (_event, data) => {
+      let payload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.cosmosGetAddress(payload)
+        ipcRenderer.send('@hdwallet/response', pubkeys)
+      } else {
+        ipcRenderer.send('@hdwallet/response/cosmosGetAddress', { error: 'wallet not online!' })
+      }
+    })
+
+    //signTx
+    ipcRenderer.on('@hdwallet/btcSignTx', async (_event, data) => {
+      let HDwalletPayload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.btcSignTx(HDwalletPayload)
+        ipcRenderer.send('@hdwallet/response/btcSignTx', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/thorchainSignTx', async (_event, data) => {
+      let HDwalletPayload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
+        ipcRenderer.send('@hdwallet/response/thorchainSignTx', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/cosmosSignTx', async (_event, data) => {
+      let HDwalletPayload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
+        ipcRenderer.send('@hdwallet/cosmosSignTx', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/osmosisSignTx', async (_event, data) => {
+      let HDwalletPayload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.osmosisSignTx(HDwalletPayload)
+        ipcRenderer.send('@hdwallet/response/osmosisSignTx', pubkeys)
+      }
+    })
+
+    ipcRenderer.on('@hdwallet/ethSignTx', async (_event, data) => {
+      let HDwalletPayload = data.payload
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        // @ts-ignore
+        let pubkeys = await state.wallet.ethSignTx(HDwalletPayload)
+        ipcRenderer.send('@hdwallet/response/ethSignTx', pubkeys)
+      }
+    })
+
+    //END HDwallet API
+
+    ipcRenderer.on('setDevice', () => {})
+
+    // TODO add modal
+    // ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
+    //   let unsignedTx = data.payload.data
+    //   //open signTx
+    //   if (
+    //     unsignedTx &&
+    //     unsignedTx.invocation &&
+    //     unsignedTx.invocation.unsignedTx &&
+    //     unsignedTx.invocation.unsignedTx.HDwalletPayload
+    //   ) {
+    //     sign.open({ unsignedTx, nonce: data.nonce })
+    //   } else {
+    //     console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
+    //   }
+    // })
+
+    //start keepkey
+    async function startPioneer() {
+      try {
+        //keepkey
+        await keepkey.init()
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    startPioneer()
+
+    if (!state.wallet) {
+      console.info('Starting bridge')
+      ipcRenderer.send('@app/start', {
+        username: keepkey.username,
+        queryKey: keepkey.queryKey,
+        spec: process.env.REACT_APP_URL_PIONEER_SPEC,
+      })
+    } else {
+      ipcRenderer.send('@wallet/connected')
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.wallet]) // we explicitly only want this to happen once
+
+
+
 
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

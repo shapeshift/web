@@ -209,22 +209,19 @@ export const TradeInput = () => {
       try {
         const isApproveNeeded = await checkApprovalNeeded()
         if (isApproveNeeded) {
-          history.push({
-            pathname: TradeRoutePaths.Approval,
-            state: { fiatRate: feeAssetFiatRate },
-          })
+          history.push({ pathname: TradeRoutePaths.Approval })
           return
         }
         const trade = await getTrade()
         setValue('trade', trade)
-        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
+        history.push({ pathname: TradeRoutePaths.Confirm })
       } catch (e) {
         moduleLogger.error(e, 'onSubmit error')
       } finally {
         setIsLoading(false)
       }
     },
-    [checkApprovalNeeded, feeAssetFiatRate, getTrade, history, setValue],
+    [checkApprovalNeeded, getTrade, history, setValue],
   )
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

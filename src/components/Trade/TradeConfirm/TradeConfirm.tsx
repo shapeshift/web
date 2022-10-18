@@ -19,7 +19,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { type RouterProps, useLocation } from 'react-router-dom'
+import { type RouterProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -51,10 +51,6 @@ import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
 
-type TradeConfirmParams = {
-  fiatRate: string
-}
-
 export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
@@ -74,15 +70,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const trade = useWatch({ control, name: 'trade' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const slippage = useWatch({ control, name: 'slippage' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 
   const tradeAmountConstants = useGetTradeAmounts()
-  const location = useLocation<TradeConfirmParams>()
-  // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
-  const { fiatRate } = location.state
   const {
     number: { toFiat },
   } = useLocaleFormatter()
@@ -208,7 +202,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     .times(selectedCurrencyToUsdRate)
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(fiatRate)
+    .times(feeAssetFiatRate ?? 1)
     .times(selectedCurrencyToUsdRate)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage

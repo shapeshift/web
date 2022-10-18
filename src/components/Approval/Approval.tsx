@@ -17,7 +17,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -36,20 +36,14 @@ import { selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
 
-type ApprovalParams = {
-  fiatRate: string
-}
-
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 const moduleLogger = logger.child({ namespace: ['Approval'] })
 
 export const Approval = () => {
   const history = useHistory()
-  const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { fiatRate } = location.state
   const translate = useTranslate()
 
   const {
@@ -69,7 +63,10 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
+
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -108,21 +105,12 @@ export const Approval = () => {
         }
         approvalInterval.current && clearInterval(approvalInterval.current)
 
-        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
+        history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
       showErrorToast(e)
     }
-  }, [
-    approve,
-    checkApprovalNeeded,
-    dispatch,
-    fiatRate,
-    history,
-    isConnected,
-    quote,
-    showErrorToast,
-  ])
+  }, [approve, checkApprovalNeeded, dispatch, history, isConnected, quote, showErrorToast])
 
   return (
     <SlideTransition>
@@ -247,7 +235,10 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <RawText>
                     {toFiat(
-                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toString(),
+                      bnOrZero(fee)
+                        .times(feeAssetFiatRate ?? 1)
+                        .times(selectedCurrencyToUsdRate)
+                        .toString(),
                     )}
                   </RawText>
                   <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>

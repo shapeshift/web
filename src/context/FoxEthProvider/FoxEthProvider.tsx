@@ -138,7 +138,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ;(async () => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet, bip44Params })
-        setAccountAddress(address)
+        // eth.getAddress and similar return a checksummed address, but state opportunities aren't
+        setAccountAddress(address.toLowerCase())
       })()
     }
   }, [adapter, wallet, bip44Params])

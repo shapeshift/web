@@ -355,7 +355,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const balances = useAppSelector(state =>
     selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, {
       accountId: accountId ?? '',
-      accountAddress: '', // TODO(gomes)
     }),
   )
 

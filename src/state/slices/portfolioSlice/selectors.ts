@@ -16,7 +16,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
-import { toLower, uniq } from 'lodash'
+import { uniq } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -45,7 +45,6 @@ import {
 } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
-import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { foxEthLpAssetId } from '../foxEthSlice/constants'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,

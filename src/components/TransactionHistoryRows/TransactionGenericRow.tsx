@@ -188,14 +188,19 @@ export const TransactionGenericRow = ({
               fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
               alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
             >
-              <Flex>
+              <Flex alignItems='center' gap={2} flex={1}>
                 <Text
                   fontWeight='bold'
-                  flex={1}
                   translation={title ? title : `transactionRow.${type.toLowerCase()}`}
                 />
                 {txData?.parser === 'ibc' && (
-                  <Tag size='sm' colorScheme='blue' variant='subtle' ml={2}>
+                  <Tag
+                    size='sm'
+                    colorScheme='blue'
+                    variant='subtle'
+                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
+                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                  >
                     IBC
                   </Tag>
                 )}

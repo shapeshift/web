@@ -176,7 +176,7 @@ export const marketApi = createApi({
     findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
-        if (ignoreAssetIds.includes(assetId)) return { data: null }
+        if (ignoreAssetIds.includes(assetId)) return { data: [] }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,

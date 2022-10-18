@@ -38,7 +38,7 @@ export const AllEarnOpportunities = () => {
     selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, {}),
+    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
   )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {

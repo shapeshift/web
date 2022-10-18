@@ -322,7 +322,6 @@ ipcMain.on('@account/balance', async (event, data) => {
 log.info("__dirname", __dirname)
 ipcMain.on('@app/get-asset-url', (event, data) => {
     const assetUrl = !isDev ? `file://${path.resolve(__dirname, "../../build/", data.assetPath)}` : data.assetPath
-    console.log('asset url', assetUrl)
     event.sender.send(`@app/get-asset-url-${data.nonce}`, { nonce: data.nonce, assetUrl })
 })
 

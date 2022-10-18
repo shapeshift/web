@@ -6,19 +6,18 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import type { Event } from '@shapeshiftoss/hdwallet-core'
-import { useCallback, useState } from 'react'
+import { Event } from '@shapeshiftoss/hdwallet-core'
+import { ipcRenderer } from 'electron'
+import { useCallback, useEffect, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
   let t: string
@@ -38,40 +37,31 @@ const translateError = (event: Event) => {
 }
 
 export const KeepKeyConnect = () => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, connect } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  // const { initialize } = useModal()
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  const handleDownloadButtonClick = useCallback(() => {
-    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
-  }, [dispatch])
-
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
     if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
       // if keepkey is connected to another tab, it does not get added to state.adapters.
-
-      console.log('shit is fucked 1', state.adapters)
       setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
       return
     }
     if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
       const wallet = await state.adapters
         .get(KeyManager.KeepKey)
-        ?.pairDevice()
+        ?.pairDevice('http://localhost:1646')
         .catch(err => {
           if (err.name === 'ConflictingApp') {
-
-            console.log('shit is fucked 2 conflicting')
-
             setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
             return
           }
-          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
+          console.error('KeepKey Connect: There was an error initializing the wallet', err)
           setErrorLoading('walletProvider.errors.walletNotFound')
           return
         })
@@ -84,7 +74,8 @@ export const KeepKeyConnect = () => {
       try {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
-        await wallet.getFeatures()
+        let features = await wallet.getFeatures()
+        ipcRenderer.send('@keepkey/info', features)
         // Show the label from the wallet instead of a generic name
         const label = (await wallet.getLabel()) || name
         state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
@@ -108,12 +99,38 @@ export const KeepKeyConnect = () => {
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        moduleLogger.error(e, 'KeepKey Connect: There was an error initializing the wallet')
+        console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
     }
     setLoading(false)
-  }
+  }, [dispatch, state.adapters, state.keyring])
+
+  useEffect(() => {
+    let tries = 0
+    ipcRenderer.removeAllListeners('@bridge/running')
+    ipcRenderer.removeAllListeners('@bridge/start')
+    ipcRenderer.on('@bridge/running', async (_event, bridgeRunning) => {
+      if (tries > 0) {
+        setLoading(false)
+        setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+        return (tries = 0)
+      }
+      tries++
+      if (!bridgeRunning) {
+        ipcRenderer.send('@bridge/start')
+      } else {
+        await connect(KeyManager.KeepKey)
+        ipcRenderer.removeAllListeners('@bridge/running')
+        ipcRenderer.removeAllListeners('@bridge/start')
+        pairDevice()
+        return (tries = 0)
+      }
+    })
+    ipcRenderer.on('@bridge/start', async () => {
+      ipcRenderer.send('@bridge/running')
+    })
+  }, [pairDevice, connect])
 
   return (
     <>
@@ -122,7 +139,15 @@ export const KeepKeyConnect = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
-        <Button width='full' colorScheme='blue' onClick={pairDevice} disabled={loading}>
+
+        <Button
+          colorScheme='blue'
+          onClick={() => {
+            ipcRenderer.send('@bridge/running')
+            setLoading(true)
+          }}
+          disabled={loading}
+        >
           {loading ? (
             <CircularProgress size='5' />
           ) : (
@@ -136,19 +161,6 @@ export const KeepKeyConnect = () => {
               <Text translation={error} />
             </AlertDescription>
           </Alert>
-        )}
-        {error === 'walletProvider.errors.walletNotFound' && (
-          <>
-            <Alert status='error' mt={4}>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={'walletProvider.keepKey.errors.updateAlert'} />
-              </AlertDescription>
-            </Alert>
-            <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
-              <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
-            </Button>
-          </>
         )}
       </ModalBody>
     </>

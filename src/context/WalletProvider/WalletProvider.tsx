@@ -18,8 +18,6 @@ import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
-import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
-import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
 import { ipcRenderer } from 'electron'
@@ -365,43 +363,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
 
           switch (localWalletType) {
-            case KeyManager.Mobile:
-              try {
-                const w = await getWallet(localWalletDeviceId)
-                fnLogger.trace({ id: w?.id, label: w?.label }, 'Found mobile wallet')
-                if (w && w.mnemonic && w.label) {
-                  const localMobileWallet = await state.adapters
-                    .get(KeyManager.Native)
-                    ?.pairDevice(localWalletDeviceId)
-
-                  if (localMobileWallet) {
-                    localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
-                    const { name, icon } = MobileConfig
-                    dispatch({
-                      type: WalletActions.SET_WALLET,
-                      payload: {
-                        wallet: localMobileWallet,
-                        name,
-                        icon,
-                        deviceId: w.id || localWalletDeviceId,
-                        meta: { label: w.label },
-                      },
-                    })
-                    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                    // Turn off the loading spinner for the wallet button in
-                    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-                  } else {
-                    disconnect()
-                  }
-                } else {
-                  // in the case we return a null from the mobile app and fail to get the wallet
-                  // we want to disconnect and return the user back to the splash screen
-                  disconnect()
-                }
-              } catch (e) {
-                moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')
-              }
-              break
             case KeyManager.Native:
               const localNativeWallet = await state.adapters
                 .get(KeyManager.Native)
@@ -457,142 +418,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   disconnect()
                 }
               } catch (e) {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.Portis:
-              const localPortisWallet = await state.adapters.get(KeyManager.Portis)?.pairDevice()
-              if (localPortisWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
-                try {
-                  await localPortisWallet.initialize()
-                  const deviceId = await localPortisWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localPortisWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.MetaMask:
-              //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
-              if (
-                localWalletType === 'metamask' &&
-                (window?.ethereum as MetaMaskLikeProvider)?.isTally
-              )
-                disconnect()
-              const localMetaMaskWallet = await state.adapters
-                .get(KeyManager.MetaMask)
-                ?.pairDevice()
-              if (localMetaMaskWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
-                try {
-                  await localMetaMaskWallet.initialize()
-                  const deviceId = await localMetaMaskWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localMetaMaskWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.TallyHo:
-              //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
-              if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
-              const localTallyHoWallet = await state.adapters.get(KeyManager.TallyHo)?.pairDevice()
-              if (localTallyHoWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
-                try {
-                  await localTallyHoWallet.initialize()
-                  const deviceId = await localTallyHoWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localTallyHoWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.XDefi:
-              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
-              if (localXDEFIWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
-                try {
-                  await localXDEFIWallet.initialize()
-                  const deviceId = await localXDEFIWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localXDEFIWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.Keplr:
-              const localKeplrWallet = await state.adapters.get(KeyManager.Keplr)?.pairDevice()
-              if (localKeplrWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Keplr]
-                try {
-                  await localKeplrWallet.initialize()
-                  const deviceId = await localKeplrWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localKeplrWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -738,11 +563,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })()
   }, [state.wallet, onProviderChange])
 
-  useEffect(() => {
+  const doSetupKeyring = () => {
     if (state.keyring) {
-
-      console.log('keyring useEffect', KeyManager)
-
       ;(async () => {
         const adapters: Adapters = new Map()
         let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
@@ -763,7 +585,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 break
             }
             if(wallet === 'keepkey') {
-              console.log('pairing keepkey device')
               const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
               await adapter.pairDevice('http://localhost:1646')
               adapters.set(wallet, adapter)
@@ -783,10 +604,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
       })()
     }
-  }, [state.keyring])
+  }
 
-
-  useEffect(() => {
+  const doStartBridge = () => {
 
     // TODO walletconnect
     // ipcRenderer.on('@walletconnect/paired', (_event, data) => {
@@ -997,7 +817,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('setDevice', () => {})
 
-    // TODO add modal
+    // TODO add open modal
     // ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
     //   let unsignedTx = data.payload.data
     //   //open signTx
@@ -1025,7 +845,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     startPioneer()
 
     if (!state.wallet) {
-      console.info('Starting bridge')
       ipcRenderer.send('@app/start', {
         username: keepkey.username,
         queryKey: keepkey.queryKey,
@@ -1036,10 +855,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.wallet]) // we explicitly only want this to happen once
-
-
-
+  }
 
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
@@ -1121,8 +937,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setDeviceState,
       onProviderChange,
       connectDemo,
+      doStartBridge,
+      doSetupKeyring
     }),
-    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
+    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange, doStartBridge, doSetupKeyring],
   )
 
   return (

@@ -9,14 +9,13 @@ import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
-  const { state, dispatch, connectDemo } = useWallet()
+  const { state, dispatch, doStartBridge, doSetupKeyring } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
   const history = useHistory()
@@ -91,10 +90,23 @@ export const ConnectWallet = () => {
                   size='lg'
                   zIndex={1}
                   colorScheme='blue'
-                  onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+                  // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+                  onClick={() => doStartBridge()}
+
                   data-test='connect-wallet-button'
                 >
-                  <Text translation='connectWalletPage.cta' />
+                  Start Bridge (Do this first)
+                </Button>
+                <Button
+                  size='lg'
+                  zIndex={1}
+                  colorScheme='blue'
+                  // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+                  onClick={() => doSetupKeyring()}
+
+                  data-test='connect-wallet-button'
+                >
+                  Setup keyring (Do this next)
                 </Button>
                 <Flex alignItems='center' justifyContent='center'>
                   <Text
@@ -105,16 +117,6 @@ export const ConnectWallet = () => {
                     translation='common.or'
                   />
                 </Flex>
-                <Button
-                  size='lg'
-                  zIndex={1}
-                  variant='outline'
-                  onClick={connectDemo}
-                  isLoading={state.isLoadingLocalWallet}
-                  data-test='connect-demo-wallet-button'
-                >
-                  <Text translation='connectWalletPage.viewADemo' />
-                </Button>
               </Stack>
             </Center>
             <Flex

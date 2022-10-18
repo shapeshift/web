@@ -159,6 +159,7 @@
     "@shapeshiftoss/hdwallet-core": "^1.33.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.33.0",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.35.0",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.35.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.33.0",
     "@shapeshiftoss/hdwallet-keplr": "^1.33.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.33.0",

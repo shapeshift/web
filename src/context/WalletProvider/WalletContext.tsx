@@ -15,6 +15,8 @@ export interface IWalletContext {
   setDeviceState: (deviceState: Partial<DeviceState>) => void
   connectDemo: () => Promise<void>
   onProviderChange: (localWalletType: KeyManagerWithProvider) => Promise<void>
+  doStartBridge: any
+  doSetupKeyring: any
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

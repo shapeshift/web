@@ -65,7 +65,7 @@ import { WalletConnectConfig } from './WalletConnect/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
-
+import * as keepkeyTcp from '@shapeshiftoss/hdwallet-keepkey-tcp'
 export interface SupportedWalletInfo {
   adapter: any
   supportsMobile?: 'browser' | 'app' | 'both'
@@ -115,6 +115,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
+    adapter: keepkeyTcp.TCPKeepKeyAdapter,
     routes: [
       { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },

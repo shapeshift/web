@@ -16,7 +16,7 @@ import {
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { type RouterProps } from 'react-router-dom'
@@ -89,11 +89,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setValue('buyTradeAsset.amount', '')
     setValue('sellTradeAsset.amount', '')
     setValue('fiatSellAmount', '')
-  }
+  }, [setValue])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(

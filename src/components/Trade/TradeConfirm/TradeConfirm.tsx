@@ -13,12 +13,15 @@ import {
   StackDivider,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Swapper } from '@shapeshiftoss/swapper'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { type RouterProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -28,7 +31,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -38,6 +41,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
@@ -57,7 +61,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [buyTxid, setBuyTxid] = useState('')
   const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
-  const { bestTradeSwapper } = useSwapper()
   const {
     handleSubmit,
     setValue,
@@ -66,6 +69,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext<TS>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+  const [swapper, setSwapper] = useState<Swapper<ChainId>>()
+  const flags = useSelector(selectFeatureFlags)
 
   const trade = useWatch({ control, name: 'trade' })
   const fees = useWatch({ control, name: 'fees' })
@@ -123,6 +128,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     buyTxid,
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      const buyAssetId = trade?.buyAsset.assetId
+      const sellAssetId = trade?.sellAsset.assetId
+      if (!buyAssetId || !sellAssetId) return ''
+      const swapperManager = await getSwapperManager(flags)
+      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+      setSwapper(bestSwapper)
+    })()
+  }, [flags, trade])
+
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
@@ -146,7 +162,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     try {
-      if (!isConnected || !bestTradeSwapper || !wallet) {
+      if (!isConnected || !swapper || !wallet) {
         /**
          * call handleBack to reset current form state
          * before opening the connect wallet modal.
@@ -158,7 +174,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
       setExecutedTradeAmountConstants(tradeAmountConstants)
 
-      const result = await bestTradeSwapper.executeTrade({ trade, wallet })
+      const result = await swapper.executeTrade({ trade, wallet })
       setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid
@@ -166,7 +182,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       const txs = await poll({
         fn: async () => {
           try {
-            return { ...(await bestTradeSwapper.getTradeTxs(result)) }
+            return { ...(await swapper.getTradeTxs(result)) }
           } catch (e) {
             return { sellTxid: '', buyTxid: '', e }
           }
@@ -291,7 +307,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   }
                   shapeShiftFee='0'
                   slippage={slippage}
-                  swapperName={bestTradeSwapper?.name ?? ''}
+                  swapperName={swapper?.name ?? ''}
                 />
               </Stack>
               <Stack spacing={4}>

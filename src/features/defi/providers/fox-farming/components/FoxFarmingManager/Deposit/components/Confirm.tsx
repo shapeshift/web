@@ -48,7 +48,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const opportunity = state?.opportunity
-  const { onOngoingTxIdChange } = useFoxEth()
+  const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -77,7 +77,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       const txid = await stake(state.deposit.cryptoAmount)
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
-      onOngoingTxIdChange(txid, contractAddress)
+      onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')

@@ -80,7 +80,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         `${this.deps.daemonUrl}/lcd/thorchain/pools`,
       )
 
-      this.supportedSellAssetIds = data.reduce<AssetId[]>((acc, pool) => {
+      const pools = data.filter((pool) => pool.status === 'Available')
+
+      this.supportedSellAssetIds = pools.reduce<AssetId[]>((acc, pool) => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId || !this.sellSupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)
@@ -88,7 +90,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       }, [])
       this.supportedSellAssetIds.push(thorchainAssetId)
 
-      this.supportedBuyAssetIds = data.reduce<AssetId[]>((acc, pool) => {
+      this.supportedBuyAssetIds = pools.reduce<AssetId[]>((acc, pool) => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId || !this.buySupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)

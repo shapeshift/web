@@ -1,5 +1,4 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
@@ -15,7 +14,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
@@ -61,17 +60,11 @@ import type {
   AccountMetadataById,
   PortfolioAccountBalances,
   PortfolioAccountBalancesById,
-  PortfolioAccountSpecifiers,
   PortfolioAssetBalances,
-  PortfolioAssets,
   PortfolioBalancesById,
   StakingDataByValidatorId,
 } from './portfolioSliceCommon'
-import {
-  findAccountsByAssetId,
-  makeBalancesByChainBucketsFlattened,
-  makeSortedAccountBalances,
-} from './utils'
+import { findAccountsByAssetId } from './utils'
 
 type ParamFilter = {
   assetId: AssetId
@@ -130,8 +123,6 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 )
 export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
-export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
-  state.portfolio.accountSpecifiers.byId
 export const selectPortfolioAccountBalances = (
   state: ReduxState,
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
@@ -156,13 +147,6 @@ export const selectBIP44ParamsByAccountId = createSelector(
 export const selectAccountNumberByAccountId = createSelector(
   selectBIP44ParamsByAccountId,
   (bip44Params): number | undefined => bip44Params?.accountNumber,
-)
-
-export const selectAccountTypeByAccountId = createSelector(
-  selectPortfolioAccountMetadata,
-  selectAccountIdParamFromFilter,
-  (accountMetadata, accountId): UtxoAccountType | undefined =>
-    accountMetadata[accountId]?.accountType,
 )
 
 type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
@@ -562,31 +546,10 @@ export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
     ),
 )
 
-export const selectPortfolioAssets = createSelector(
-  selectAssets,
-  selectPortfolioAssetIds,
-  (assetsById, portfolioAssetIds): { [k: AssetId]: Asset } =>
-    portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
-      acc[cur] = assetsById[cur]
-      return acc
-    }, {}),
-)
-
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
 export const selectPortfolioLoading = createSelector(
   selectPortfolioAccountIds,
   (ids): boolean => !Boolean(ids.length),
-)
-
-export const selectPortfolioAssetBalancesSortedFiat = createSelector(
-  selectPortfolioFiatBalances,
-  (portfolioFiatBalances): { [k: AssetId]: string } =>
-    Object.entries(portfolioFiatBalances)
-      .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-      .reduce<PortfolioAssetBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
-        acc[assetId] = assetFiatBalance
-        return acc
-      }, {}),
 )
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
@@ -626,42 +589,6 @@ export const selectHighestFiatBalanceAccountByAssetId = createSelector(
   },
 )
 
-export const selectPortfolioAssetIdsSortedFiat = createSelector(
-  selectPortfolioAssetBalancesSortedFiat,
-  (sortedBalances): AssetId[] => Object.keys(sortedBalances),
-)
-
-export const selectPortfolioAllocationPercent = createSelector(
-  selectPortfolioTotalFiatBalance,
-  selectPortfolioFiatBalances,
-  (totalBalance, fiatBalances): { [k: AssetId]: number } =>
-    Object.entries(fiatBalances).reduce<{ [k: AssetId]: number }>((acc, [assetId, fiatBalance]) => {
-      acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
-      return acc
-    }, {}),
-)
-
-export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
-  selectPortfolioFiatAccountBalances,
-  selectBalanceThreshold,
-  (accountBalances, balanceThreshold) => {
-    return Object.entries(accountBalances).reduce<{ [k: AccountId]: string }>(
-      (acc, [accountId, balanceObj]) => {
-        const totalAccountFiatBalance = Object.values(balanceObj).reduce(
-          (totalBalance, currentBalance) => {
-            return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
-          },
-          bnOrZero('0'),
-        )
-        if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
-        acc[accountId] = totalAccountFiatBalance.toFixed(2)
-        return acc
-      },
-      {},
-    )
-  },
-)
-
 export const selectPortfolioAllocationPercentByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
@@ -681,19 +608,6 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     }, {})
 
     return balanceAllocationById[accountId]
-  },
-)
-
-export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectAssets,
-  (totalAccountBalances, assets) => {
-    const sortedAccountBalances = makeSortedAccountBalances(totalAccountBalances)
-    const sortedAccountBalancesByChainBuckets = makeBalancesByChainBucketsFlattened(
-      sortedAccountBalances,
-      assets,
-    )
-    return sortedAccountBalancesByChainBuckets
   },
 )
 
@@ -917,34 +831,6 @@ export const selectPortfolioAccountsGroupedByNumberByChainId = createDeepEqualOu
       {},
     )
   },
-)
-
-export const selectPortfolioIsEmpty = createSelector(
-  selectPortfolioAssetIds,
-  (assetIds): boolean => !assetIds.length,
-)
-
-export const selectPortfolioAssetAccounts = createSelector(
-  selectPortfolioAccounts,
-  (_state: ReduxState, assetId: AssetId) => assetId,
-  (portfolioAccounts, assetId): AccountId[] =>
-    Object.keys(portfolioAccounts).filter(accountSpecifier =>
-      portfolioAccounts[accountSpecifier].assetIds.find(
-        accountAssetId => accountAssetId === assetId,
-      ),
-    ),
-)
-
-export const selectPortfolioAccountById = createSelector(
-  selectPortfolioAccounts,
-  (_state: ReduxState, accountId: AccountId) => accountId,
-  (portfolioAccounts, accountId) => portfolioAccounts[accountId].assetIds,
-)
-
-export const selectPortfolioAssetIdsByAccountId = createSelector(
-  selectPortfolioAccountBalances,
-  selectAccountIdParamFromFilter,
-  (accounts, accountId) => Object.keys(accounts[accountId]),
 )
 
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqualOutputSelector(

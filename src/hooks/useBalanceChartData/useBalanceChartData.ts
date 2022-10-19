@@ -25,17 +25,13 @@ import { logger } from 'lib/logger'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import type {
-  PortfolioAssets,
-  PortfolioBalancesById,
-} from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
-  selectPortfolioAssets,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectRebasesByFilter,
   selectTxHistoryStatus,
@@ -169,7 +165,7 @@ export const bucketEvents = (
 
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
-  portfolioAssets: PortfolioAssets
+  assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
 }
@@ -180,7 +176,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   cryptoPriceHistoryData,
   fiatPriceHistoryData,
-  portfolioAssets,
+  assets,
 }) => {
   const { balance, end } = bucket
   const date = end.valueOf()
@@ -190,7 +186,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const portfolioAsset = portfolioAssets[assetId]
+    const portfolioAsset = assets[assetId]
     if (!portfolioAsset) return acc
     const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
     // fallback to 1 if fiat data is missing, note || required over ?? here
@@ -208,7 +204,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 type CalculateBucketPricesArgs = {
   assetIds: AssetId[]
   buckets: Bucket[]
-  portfolioAssets: PortfolioAssets
+  assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
 }
@@ -217,7 +213,7 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
+  const { assetIds, buckets, assets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
 
   const startingBucket = buckets[buckets.length - 1]
 
@@ -283,7 +279,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       bucket,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets,
     })
     buckets[i] = bucket
   }
@@ -375,7 +371,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo },
   } = useWallet()
@@ -440,7 +435,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       buckets,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets,
     })
 
     debugCharts({ assets, calculatedBuckets, timeframe, txs })
@@ -461,7 +456,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     timeframe,
     balances,
     setBalanceChartData,
-    portfolioAssets,
     walletInfo?.deviceId,
     rebases,
     txHistoryStatus,

@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -33,7 +34,11 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.chainId
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const accountIdsFilter = useMemo(() => ({ assetId }), [assetId])
+  const accountIds = useAppSelector(
+    state => selectAccountIdsByAssetId(state, accountIdsFilter),
+    isEqual,
+  )
   const filter = useMemo(
     // if we are passed an accountId, we're on an asset account page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset

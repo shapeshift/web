@@ -45,6 +45,7 @@ export const useSwapper = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -144,6 +145,16 @@ export const useSwapper = () => {
     const { approvalNeeded } = await bestTradeSwapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }, [bestTradeSwapper, quote, wallet])
+
+  const approve = useCallback(async (): Promise<string> => {
+    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!wallet) throw new Error('no wallet available')
+    if (!quote) throw new Error('no quote available')
+    const txid = isExactAllowance
+      ? await bestTradeSwapper.approveAmount({ amount: quote.sellAmount, quote, wallet })
+      : await bestTradeSwapper.approveInfinite({ quote, wallet })
+    return txid
+  }, [bestTradeSwapper, isExactAllowance, quote, wallet])
 
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
@@ -247,5 +258,6 @@ export const useSwapper = () => {
     getReceiveAddressFromBuyAsset,
     getTrade,
     swapperSupportsCrossAccountTrade,
+    approve,
   }
 }

@@ -56,7 +56,7 @@ export const ClaimConfirm = ({
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
-  const { onOngoingTxIdChange } = useFoxEth()
+  const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -81,7 +81,7 @@ export const ClaimConfirm = ({
     try {
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
-      onOngoingTxIdChange(txid, contractAddress)
+      onOngoingFarmingTxIdChange(txid, contractAddress)
       history.push('/status', {
         txid,
         assetId,

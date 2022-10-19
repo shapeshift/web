@@ -48,8 +48,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
-  const { accountAddress } = useFoxEth()
-  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
+  const { lpAccountAddress } = useFoxEth()
+  const { allowance, getApproveGasData, getDepositGasData } =
+    useFoxEthLiquidityPool(lpAccountAddress)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })

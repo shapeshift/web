@@ -58,11 +58,14 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress(state, filter),
   )
 
-  const { setAccountId } = useFoxEth()
+  const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
   useEffect(() => {
-    if (accountId) setAccountId(accountId)
-  }, [setAccountId, accountId])
+    if (accountId) {
+      setFarmingAccountId(accountId)
+      setLpAccountId(accountId)
+    }
+  }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
     vaultArray: Object.values(vaults),

@@ -39,17 +39,25 @@ type FoxEthProviderProps = {
 }
 
 type IFoxEthContext = {
-  accountId: Nullable<AccountId>
-  setAccountId: (accountId: AccountId) => void
-  accountAddress: string
-  onOngoingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
+  farmingAccountId: Nullable<AccountId>
+  setFarmingAccountId: (accountId: AccountId) => void
+  lpAccountId: Nullable<AccountId>
+  setLpAccountId: (accountId: AccountId) => void
+  lpAccountAddress: string
+  farmingAccountAddress: string
+  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
+  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
-  setAccountId: _accountId => {},
-  accountId: null,
-  accountAddress: '',
-  onOngoingTxIdChange: (_txid: string) => Promise.resolve(),
+  lpAccountId: null,
+  farmingAccountId: null,
+  setLpAccountId: _accountId => {},
+  setFarmingAccountId: _accountId => {},
+  lpAccountAddress: '',
+  farmingAccountAddress: '',
+  onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
+  onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
@@ -69,8 +77,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
-  const [accountAddress, setAccountAddress] = useState<string>('')
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [lpAccountAddress, setLpAccountAddress] = useState<string>('')
+  const [farmingAccountAddress, setFarmingAccountAddress] = useState<string>('')
+  const [farmingAccountId, setFarmingAccountId] = useState<Nullable<AccountId>>(null)
+  const [lpAccountId, setLpAccountId] = useState<Nullable<AccountId>>(null)
   const readyToFetchLpData = useMemo(
     () => !isPortfolioLoading && wallet && supportsETH(wallet),
     [isPortfolioLoading, wallet],
@@ -82,9 +92,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const readyToFetchLpAccountData = useMemo(
     () =>
       Boolean(
-        readyToFetchLpData && accountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0',
+        readyToFetchLpData && lpAccountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0',
       ),
-    [readyToFetchLpData, accountAddress, foxLpEnabled, foxEthLpMarketData.price],
+    [readyToFetchLpData, lpAccountAddress, foxLpEnabled, foxEthLpMarketData.price],
   )
 
   const filter = useMemo(() => ({ assetId: ethAssetId }), [])
@@ -120,7 +130,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
       })
     })()
-  }, [ethAccountIds, accountAddress, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
+  }, [ethAccountIds, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
 
   useEffect(() => {
     ;(async () => {
@@ -130,28 +140,35 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     })()
   }, [refetchFoxEthLpAccountData, readyToFetchLpData])
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId ?? '' }), [lpAccountId])
   // Use the account number of the consumer if we have it, else use account 0
-  const bip44Params =
-    useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter)) ??
+  const lpBip44Params =
+    useAppSelector(state => selectBIP44ParamsByAccountId(state, lpAccountFilter)) ??
     adapter.getBIP44Params({ accountNumber: 0 })
 
   useEffect(() => {
-    if (wallet && adapter && bip44Params) {
+    // Get initial account 0 address from wallet, TODO: nuke it?
+    if (wallet && adapter && lpBip44Params) {
       ;(async () => {
         if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet, bip44Params })
+        const address = await adapter.getAddress({ wallet, bip44Params: lpBip44Params })
         // eth.getAddress and similar return a checksummed address, but state opportunities aren't
-        setAccountAddress(address.toLowerCase())
+        setLpAccountAddress(address.toLowerCase())
       })()
     }
-  }, [adapter, wallet, bip44Params])
+  }, [adapter, wallet, lpBip44Params])
 
   useEffect(() => {
-    if (!accountId) return
-    const accountAddress = fromAccountId(accountId).account
-    setAccountAddress(accountAddress)
-  }, [accountId])
+    if (!lpAccountId) return
+    const lpAccountAddress = fromAccountId(lpAccountId).account
+    setLpAccountAddress(lpAccountAddress)
+  }, [lpAccountId])
+
+  useEffect(() => {
+    if (!farmingAccountId) return
+    const farmingAccountAddress = fromAccountId(farmingAccountId).account
+    setFarmingAccountAddress(farmingAccountAddress)
+  }, [farmingAccountId])
 
   // this hook handles the data we need from the farming opportunities
   useEffect(() => {
@@ -180,28 +197,45 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         })
       })
     })()
-  }, [accountAddress, ethAccountIds, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
+  }, [ethAccountIds, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
-      if (!accountAddress) return
+    async (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+      const accountId = type === 'farming' ? farmingAccountId : lpAccountId
+      const accountAddress = type === 'farming' ? farmingAccountAddress : lpAccountAddress
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
-    [accountId, accountAddress],
+    [lpAccountId, lpAccountAddress, farmingAccountId, farmingAccountAddress],
+  )
+
+  const handleOngoingFarmingTxIdChange = useCallback(
+    async (txid: string, contractAddress?: string) => {
+      if (!farmingAccountAddress) return
+      handleOngoingTxIdChange('farming', txid, contractAddress)
+    },
+    [farmingAccountAddress, handleOngoingTxIdChange],
+  )
+
+  const handleOngoingLpTxIdChange = useCallback(
+    async (txid: string, contractAddress?: string) => {
+      if (!lpAccountAddress) return
+      handleOngoingTxIdChange('lp', txid, contractAddress)
+    },
+    [lpAccountAddress, handleOngoingTxIdChange],
   )
 
   useEffect(() => {
-    if (accountAddress && transaction && transaction.status !== TxStatus.Pending) {
+    if (farmingAccountAddress && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         moduleLogger.info('Refetching fox lp/farming opportunities')
         refetchFoxEthLpAccountData()
         if (ongoingTxContractAddress)
           dispatch(
             foxEthApi.endpoints.getFoxFarmingContractAccountData.initiate(
-              { accountAddress, contractAddress: ongoingTxContractAddress },
+              { accountAddress: farmingAccountAddress, contractAddress: ongoingTxContractAddress },
               { forceRefetch: true },
             ),
           )
@@ -209,16 +243,36 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         setOngoingTxContractAddress(null)
       }
     }
-  }, [accountAddress, ongoingTxContractAddress, dispatch, transaction, refetchFoxEthLpAccountData])
+  }, [
+    dispatch,
+    farmingAccountAddress,
+    ongoingTxContractAddress,
+    refetchFoxEthLpAccountData,
+    transaction,
+  ])
 
   const value = useMemo(
     () => ({
-      accountId,
-      setAccountId,
-      accountAddress,
-      onOngoingTxIdChange: handleOngoingTxIdChange,
+      farmingAccountAddress,
+      farmingAccountId,
+      lpAccountAddress,
+      lpAccountId,
+      onOngoingLpTxIdChange: handleOngoingLpTxIdChange,
+      onOngoingFarmingTxIdChange: handleOngoingFarmingTxIdChange,
+      setFarmingAccountId,
+      setLpAccountId,
+      setLpAccountAddress,
     }),
-    [accountId, setAccountId, accountAddress, handleOngoingTxIdChange],
+    [
+      farmingAccountAddress,
+      farmingAccountId,
+      handleOngoingFarmingTxIdChange,
+      handleOngoingLpTxIdChange,
+      lpAccountAddress,
+      lpAccountId,
+      setLpAccountAddress,
+      setLpAccountId,
+    ],
   )
 
   return <FoxEthContext.Provider value={value}>{children}</FoxEthContext.Provider>

@@ -2471,10 +2471,10 @@
   resolved "https://registry.yarnpkg.com/@ensdomains/resolver/-/resolver-0.2.4.tgz#c10fe28bf5efbf49bff4666d909aed0265efbc89"
   integrity sha512-bvaTH34PMCbv6anRa9I/0zjLJgY4EuznbEMgbV77JBCQ9KNC46rzi0avuxpOfu+xDjPEtSFGqVEOr5GlUSGudA==
 
-"@epnsproject/sdk-restapi@^0.1.13":
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/@epnsproject/sdk-restapi/-/sdk-restapi-0.1.13.tgz#c97ad111d6e89a484726678b8b9a83e45caeafd5"
-  integrity sha512-S5fn5/xOM1f0/5PFeQJ4QGU7TYtzeOVAcgBruC73h060t8nVlz5Nv9z3HhFgnj5TB/KnhvXhJZTL59g7gvpeyw==
+"@epnsproject/sdk-restapi@^0.1.20":
+  version "0.1.20"
+  resolved "https://registry.yarnpkg.com/@epnsproject/sdk-restapi/-/sdk-restapi-0.1.20.tgz#64f466ec494837e756763ecf0dc27c932d4696cb"
+  integrity sha512-XyTWsVIuiargVOszPEsVZyGaTLPeCoaKdgNPonqxJ79LsLxu7HkzzIVBe9LarHg1Il6RfbscjkHKi6UvqMEvGw==
   dependencies:
     axios "^0.27.2"
     tslib "^2.3.0"
@@ -3912,10 +3912,10 @@
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
-"@popperjs/core@^2.9.2", "@popperjs/core@^2.9.3":
-  version "2.11.5"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.5.tgz#db5a11bf66bdab39569719555b0f76e138d7bd64"
-  integrity sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==
+"@popperjs/core@^2.11.6", "@popperjs/core@^2.9.2", "@popperjs/core@^2.9.3":
+  version "2.11.6"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
+  integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
 
 "@portis/web3@3.0.10":
   version "3.0.10"
@@ -7314,19 +7314,22 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
-"@wherever/react-notification-feed@^0.1.12":
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.1.12.tgz#86efcdb8c38591e73cf69f4af760bb76f502abd0"
-  integrity sha512-KuY1a4gNoAf7vdhUCJISh0Vy4DQHoLdXLEUJ+PLEonsq/K/hteZij2kzIeBxDID7ZNVGn+6NSMPLocosN5X5Gg==
+"@wherever/react-notification-feed@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.5.tgz#69e307d06bc11867be468e1e60c01b8832b6ca93"
+  integrity sha512-MrrNJuJZfGKyCNsJmbuD5kgC82H4UEDADVYmetp7O0x26NYYbb4T40xOYA28nH+m+nbzwhmWTqL4sqMleWec6g==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@emotion-icons/octicons" "^3.27.0"
-    "@epnsproject/sdk-restapi" "^0.1.13"
+    "@epnsproject/sdk-restapi" "^0.1.20"
+    "@popperjs/core" "^2.11.6"
     dayjs "^1.11.5"
     ethers "^5.6.9"
     graphql "^16.6.0"
-    react-tiny-popover "^7.1.0"
+    react-click-away-listener "^2.2.2"
+    react-popper "^2.3.0"
     react-verification-input "^3.1.1"
+    rudder-js "^1.0.13"
     siwe "^1.1.6"
     styled-components "^5.3.5"
     wagmi "^0.6.3"
@@ -18980,6 +18983,11 @@ react-app-rewired@^2.1.9:
   dependencies:
     semver "^5.6.0"
 
+react-click-away-listener@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/react-click-away-listener/-/react-click-away-listener-2.2.2.tgz#933104ae8df6bec1272b5738ebce4b665de16917"
+  integrity sha512-6x5Ra+2xagMq+5YcBu42jtht+bKVErgPXaI/GqYP5M8Xz2o/UbGyMd3TISQK6ixfORUTvdHeRnOVU3TbSpZ5Zg==
+
 react-clientside-effect@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/react-clientside-effect/-/react-clientside-effect-1.2.6.tgz#29f9b14e944a376b03fb650eed2a754dd128ea3a"
@@ -19164,10 +19172,10 @@ react-polyglot@^0.7.2:
     hoist-non-react-statics "^3.3.0"
     prop-types "^15.5.8"
 
-react-popper@^2.2.5:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.2.5.tgz#1214ef3cec86330a171671a4fbcbeeb65ee58e96"
-  integrity sha512-kxGkS80eQGtLl18+uig1UIf9MKixFSyPxglsgLBxlYnyDf65BiY9B3nZSc6C9XUNDgStROB0fMQlTEz1KxGddw==
+react-popper@^2.2.5, react-popper@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"
+  integrity sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==
   dependencies:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
@@ -19333,11 +19341,6 @@ react-text-mask@^5.4.3:
   integrity sha1-mR77QpnjDC5sLEbRP2FxaUY+DS0=
   dependencies:
     prop-types "^15.5.6"
-
-react-tiny-popover@^7.1.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/react-tiny-popover/-/react-tiny-popover-7.1.0.tgz#809bffefd54c7921eba96991f964953858e3388f"
-  integrity sha512-vlZFs8/uFWwLY+JwXL4Fwjvz+c5rqKUlg5b9UOgc/gJiRdp1lk+FachCdZlDIQwk8UOADMu8YxYp0VV3rXLU9g==
 
 react-use-measure@^2.0.4:
   version "2.0.4"
@@ -20013,6 +20016,11 @@ rsvp@^4.8.4:
   version "4.8.5"
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
   integrity sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA==
+
+rudder-js@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/rudder-js/-/rudder-js-1.0.13.tgz#a481fbaefe57045728e36a80d58c322221e8262a"
+  integrity sha512-uQlviv/jsSweF5TzC1geNmCliWlj26+2Yh+AlqIDJjuWmp5kqxA3v40nTiH1UdsQ5+abbQ+HJvXdiP+I5fRlzg==
 
 run-async@^2.4.0:
   version "2.4.1"

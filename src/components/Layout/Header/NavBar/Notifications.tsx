@@ -8,8 +8,7 @@ export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   if (!isWhereverEnabled) return null
 
-  // TODO: add option to disable analytics in widget, and disable them using variable below
-  // const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
+  const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
 
   const mobileBreakpoint = Number(breakpoints.md.replace('px', ''))
 
@@ -19,6 +18,7 @@ export const Notifications = () => {
       env={'staging'}
       theme={{ borderRadius: 'md', mobileBreakpoint }}
       partnerKey={'dea07569-c7b3-445a-ad1a-57f94c1d03d6'}
+      disableAnalytics={disableAnalytics}
     >
       <NotificationFeed>
         <Button colorScheme='blue' variant='ghost-filled'>

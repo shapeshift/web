@@ -119,7 +119,10 @@ const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAd
 const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
 const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 
-export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
+export const selectPortfolioAccounts = createSelector(
+  (state: ReduxState) => state.portfolio.accounts.byId,
+  byId => byId,
+)
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
   (state: ReduxState): PortfolioAssetBalances['ids'] => state.portfolio.assetBalances.ids,

@@ -33,7 +33,8 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
 
-  const { color, name } = asset
+  const color = asset?.color
+  const name = asset?.name
 
   const accountRows = useMemo(() => {
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
@@ -52,7 +53,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     ))
   }, [accountIdsByAccountNumber, chainId, history])
 
-  return (
+  return asset ? (
     <ListItem as={Card} py={4} pl={2} fontWeight='semibold' fontSize={{ base: 'sm', md: 'md' }}>
       <Stack
         direction='row'
@@ -82,5 +83,5 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         {accountRows}
       </NestedList>
     </ListItem>
-  )
+  ) : null
 }

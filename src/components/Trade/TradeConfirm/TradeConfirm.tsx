@@ -342,8 +342,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
-                    {toFiat(networkFeeFiat.toNumber())}
+                    {defaultFeeAsset &&
+                      `${bnOrZero(fees?.fee).toNumber()} ${defaultFeeAsset.symbol} ≃ ${toFiat(
+                        networkFeeFiat.toNumber(),
+                      )}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

@@ -216,7 +216,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       if (!farmingAccountAddress) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
-    [farmingAccountId, farmingAccountAddress, handleOngoingTxIdChange],
+    [farmingAccountAddress, handleOngoingTxIdChange],
   )
 
   const handleOngoingLpTxIdChange = useCallback(
@@ -224,7 +224,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       if (!lpAccountAddress) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },
-    [lpAccountId, lpAccountAddress, handleOngoingTxIdChange],
+    [lpAccountAddress, handleOngoingTxIdChange],
   )
 
   useEffect(() => {

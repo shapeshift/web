@@ -1,12 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -16,7 +16,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
+  selectVisibleFoxFarmingAccountOpportunities,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -37,25 +41,38 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances({ accountNumber: 0 })
+  const { data: foxyBalancesData } = useFoxyBalances()
 
-  const { setAccountId, onlyVisibleFoxFarmingOpportunities, foxEthLpOpportunity } = useFoxEth()
+  const filter = useMemo(
+    () => ({
+      accountAddress: accountId ? fromAccountId(accountId ?? '').account : '',
+    }),
+    [accountId],
+  )
+
+  const visibleFoxFarmingOpportunities = useAppSelector(state =>
+    selectVisibleFoxFarmingAccountOpportunities(state, filter),
+  )
+
+  const foxEthLpOpportunitiesWrapped = useAppSelector(state =>
+    selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress(state, filter),
+  )
+
+  const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
   useEffect(() => {
-    if (accountId) setAccountId(accountId)
-  }, [setAccountId, accountId])
-
-  const featureFlags = useAppSelector(selectFeatureFlags)
-  //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
+    if (accountId) {
+      setFarmingAccountId(accountId)
+      setLpAccountId(accountId)
+    }
+  }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
     vaultArray: Object.values(vaults),
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming
-      ? onlyVisibleFoxFarmingOpportunities
-      : undefined,
+    foxEthLpOpportunity: foxEthLpOpportunitiesWrapped[0],
+    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

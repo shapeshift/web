@@ -100,7 +100,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰 Total",
       "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
+      "yourAssets": "Wallet Assets",
       "asset": "Asset",
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -437,6 +438,25 @@
         "approve": "Approve",
         "revoke": "Revoke",
         "infinite": "Infinite ∞"
+      },
+      "staking": {
+        "delegate": "Delegate",
+        "begin_unbonding": "Undelegate",
+        "begin_redelegate": "Redelegate",
+        "withdraw_delegator_reward": "Claim Reward"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Refund",
+        "outbound": "Outbound"
+      },
+      "ibc": {
+        "transfer": "Sent",
+        "recv_packet": "Received"
+      },
+      "lp": {
+        "deposit": "Add Liquidity"
       }
     },
     "unknown": "Transaction"
@@ -601,6 +621,11 @@
         "header": "Invalid Recovery Phrase",
         "body": "The Recovery Phrase you have entered is invalid.",
         "button": "Try Again"
+      },
+      "downloadUpdater": {
+        "header": "Download KeepKey Updater",
+        "button": "Download %{filename}",
+        "wrongPlatform": "Not using %{platform}? Click here"
       }
     },
     "shapeShift": {
@@ -749,6 +774,7 @@
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withdrawalFee": "Withdrawal Fee",
       "status": {
@@ -872,11 +898,12 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet"
+      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
+        "updateAlert": "Firmware 6.1.0 or later is required to use your Keepkey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"
@@ -885,7 +912,8 @@
         "header": "Pair Your KeepKey",
         "body": "Connect a KeepKey device and click Pair.",
         "button": "Pair",
-        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
+        "downloadUpdaterApp": "Download updater app"
       },
       "pin": {
         "header": "Enter Your PIN",
@@ -1321,9 +1349,10 @@
       "outputAddress": "Output address"
     },
     "transactionTypes": {
-      "send": "Send",
-      "receive": "Receive",
-      "trade": "Trade"
+      "Send": "Send",
+      "Receive": "Receive",
+      "Trade": "Trade",
+      "Refund": "Refund"
     },
     "assets": "Assets",
     "txid": "TX ID",
@@ -1378,7 +1407,12 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "dappBack": {
+        "title": "✨ Get FOX rewards + more! ✨",
+        "body": "Earn FOX rewards by completing tasks on DappBack",
+        "cta": "Launch DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

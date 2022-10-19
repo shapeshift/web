@@ -131,7 +131,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
     isImplemented: true,
-    isActive: featureFlags => featureFlags.MtPelerinFiatRamp,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
@@ -142,9 +142,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const mtPelerinAssets = await getMtPelerinAssets()
       return [mtPelerinAssets, mtPelerinAssets]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action: FiatRampAction, assetId: AssetId) => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address)
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
@@ -156,7 +156,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: [],
     logo: OnRamperLogo,
     isImplemented: true,
-    isActive: featureFlags => featureFlags.OnRamperFiatRamp,
+    isActive: () => true,
     supportsBuy: true,
     supportsSell: true,
     minimumSellThreshold: 0,

@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -85,37 +85,11 @@ export type AccountMetadata = {
 }
 
 export type AccountMetadataById = {
-  [k: AccountSpecifier]: AccountMetadata
+  [k: AccountId]: AccountMetadata
 }
-
-/**
- * important note about this type
- *
- * for EVM and CosmosSDK-based chains, the address is the same as the account
- * for UTXO based chains, the account is an xpub or variety thereof, and addresses
- * belong to accounts.
- *
- * in the future we will refer to accounts on all varieties of chains as a Pubkey
- *
- * w.r.t this type, for
- * * Bitcoin Legacy this is a 1-prefixed address
- * * Bitcoin Segwit this is a 3-prefixed address
- * * Bitcoin Segwit Native this is a bc1-prefixed address
- *
- * as soon as we change websocket subscription logic, this entire byId section
- * can be removed from the store, as the only reason we currently maintain this mapping
- * is to be able to lookup an account from an address for websocket messages for UTXO chains
- */
-type Address = string
 
 export type PortfolioAccountSpecifiers = {
   accountMetadataById: AccountMetadataById
-  byId: {
-    // this maps an account identifier to a list of addresses
-    // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
-    // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: AccountSpecifier]: Address[]
-  }
   ids: AccountSpecifier[]
 }
 
@@ -137,7 +111,6 @@ export const initialState: Portfolio = {
   },
   accountSpecifiers: {
     accountMetadataById: {},
-    byId: {},
     ids: [],
   },
   accountBalances: {

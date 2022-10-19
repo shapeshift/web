@@ -31,12 +31,13 @@ const DefiModules = {
   [DefiProvider.Osmosis]: CosmosManager,
 }
 
+const modules = Object.keys(DefiModules)
+
 /*
 Cosmos modals are not part of this provider, those can be found under plugins/cosmos/components/modals.
 Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the modals in order to use them in this file)
 */
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
-  const modules = Object.keys(DefiModules)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { provider } = query
 
@@ -49,7 +50,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
         </DefiModal>
       )
     })
-  }, [modules, provider])
+  }, [provider])
 
   return (
     <DefiManagerContext.Provider value={null}>

@@ -41,7 +41,12 @@
     "or": "ó",
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
+    "accountError": "Error al cargar cuentas para %{erroredAccountNames}.",
+    "degradedState": "La aplicación está en un estado degradado",
+    "degradedInfo": "No se pueden obtener los datos de algunas cuentas.",
     "success": "Éxito",
+    "retry": "Reintentar",
+    "retryQuestion": "¿Reintentar?",
     "transactionFailed": "Transacción fallida",
     "transactionFailedBody": "Transacción fallida",
     "submitFeedback": "Enviar Comentarios",
@@ -71,7 +76,8 @@
     "txId": "ID Tx",
     "selectAsset": "Seleccione un Activo",
     "switchNetwork": "Cambiar Red",
-    "unsupportedNetwork": "Red No Soportada"
+    "unsupportedNetwork": "Red No Soportada",
+    "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}."
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -121,11 +127,14 @@
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "Rampa de entrada",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
+    "asset": "Activo",
     "assetToBuy": "Activo a comprar",
     "selectAnAssetToBuy": "Seleccione un activo para comprar",
+    "selectBody": "Elija de una lista creciente de criptomonedas.",
     "assetToSell": "Activo para vender",
     "selectAnAssetToSell": "Seleccione un activo para vender",
     "fundsTo": "Los fondos se enviarán a",
@@ -134,7 +143,10 @@
     "insufficientCryptoAmountToSell": "Monto mínimo para vender $%{amount}",
     "usOnly": "Solamente - EEUU",
     "noKYC": "SIN KYC",
-    "nonUS": "NO-USA"
+    "nonUS": "NO-USA",
+    "availableProviders": "Proveedores Disponibles",
+    "noProvidersAvailable": "No hay Proveedores Disponibles",
+    "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -180,7 +192,7 @@
         }
       },
       "getStarted": {
-        "header": "Stake su %{assetName} para ganar %{apr}% APR*",
+        "header": "Stake su %{assetName} para ganar",
         "body": "El staking es el proceso de mantener fondos en una billetera de criptomonedas para respaldar las operaciones de una blockchain, a cambio, los titulares son recompensados por su contribución.",
         "userProtectionInfo": "*Los rendimientos son estimados y fluctúan con las condiciones del mercado.",
         "cta": {
@@ -365,6 +377,7 @@
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
     "foxToken": "FOX Opportunities",
+    "dApps": "dApps",
     "featureFlags": "Indicadores de Funciones",
     "demoMode": "Modo Demo",
     "clickToConnect": "Haga clic para conectar una billetera",
@@ -450,10 +463,12 @@
     "allowance": "Tolerancia",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
+    "noRateAvailable": "No hay tarifa disponible.",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "minerFee": "Tarifa de minero",
     "protocolFee": "Tarifa de protocolo",
+    "protocol": "Protocolo",
     "tradeFeeSource": "Tarifa de %{tradeFeeSource}",
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
@@ -471,9 +486,17 @@
     "expectedAmount": "Cantidad esperada",
     "beforeFees": "Antes de las tarifas",
     "minAmountAfterSlippage": "mín. cantidad esperada después del deslizamiento (%{slippage}%)",
+    "free": "Gratis",
+    "slowSwapTitle": "%{protocol} intercambiar",
+    "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
+    "updatingQuote": "Actualizando cotización...",
+    "intoRUNETitle": "Intercambiando a RUNE",
+    "intoRUNEBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir RUNE no está disponible temporalmente",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
+      "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
+      "protocol": "Este es el protocolo donde se enruta su intercambio.",
       "protocolFee": "Esta es la tarifa cobrada por el protocolo seleccionado para procesar, No es una tarifa cobrada por ShapeShift",
       "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉"
     },
@@ -512,6 +535,7 @@
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
       "unsupportedChain": "Esta cadena no es compatible actualmente.",
       "rateError": "Se produjo un error al obtener las tasas comerciales",
+      "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -519,6 +543,7 @@
       "generalError": "Ha ocurrido un error comercial",
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
     },
+    "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
     "shapeshiftFee": "Tarifa de ShapeShift"
   },
@@ -584,6 +609,7 @@
       "password": {
         "header": "Ingresa tu contraseña",
         "walletName": "Apodo de billetera (opcional)",
+        "walletNameRequired": "Apodo de Billetera (requerido)",
         "body": "Ingrese su contraseña para descifrar su billetera",
         "placeholder": "Introducir la contraseña",
         "show": "Mostrar Contraseña",
@@ -591,6 +617,7 @@
         "error": {
           "invalid": "Contraseña Incorrecta",
           "required": "Contraseña Requerida",
+          "walletNameRequired": "Se requiere Apodo para la Billetera",
           "length": "Su contraseña debe ser al menos %{length} caracteres",
           "maxLength": "El apodo debe ser %{length} máximo de caracteres"
         }
@@ -724,6 +751,7 @@
       "noFee": "Sin cargo de %{symbol}",
       "requestWithdraw": "Solicitar Retiro",
       "withdrawFee": "Habrá una tarifa de gas por separado para retirar.",
+      "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
       "disclaimer": "Las solicitudes posteriores se combinarán y restablecerán el tiempo de retiro.",
       "withdrawalFee": "Cargo por retiro",
       "status": {
@@ -802,6 +830,8 @@
     "settings": {
       "settings": "Ajustes",
       "currency": "Divisa",
+      "clearWalletAccountData": "Eliminar todas las cuentas y los datos de la billetera",
+      "deleteAccountsConfirm": "¿Está seguro?\n\nEsto eliminará todos los datos personales, incluidas billeteras, cuentas, saldos.\n\nVerifique que haya realizado una copia de seguridad de sus billeteras antes de continuar.",
       "currencyFormat": "Formato de Moneda",
       "language": "Idioma",
       "balanceThreshold": "Umbral de saldo",
@@ -1321,7 +1351,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
+      "buyAssetOnCoinbase": "Compre %{assetSymbol} en Coinbase",
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",
@@ -1366,6 +1396,23 @@
         "neverCollectPersonalInformations": "Nunca recopila claves, direcciones, transacciones, saldos o cualquier información personal",
         "neverCollectIp": "Nunca recopila su dirección IP completa",
         "neverSellData": "Nunca vende datos con fines de lucro"
+      }
+    },
+    "walletConnectToDapps": {
+      "registry": {
+        "availableDapps": "dApps Disponibles",
+        "getStarted": "Iniciar",
+        "learnMore": "Aprende más",
+        "banner": {
+          "title": "Conéctese a más de 300+ dApps",
+          "subtitle": "Conecte su billetera a una dApp a través de WalletConnect y active transacciones"
+        },
+        "emptyStateDescription": "Intente ajustar su búsqueda y vuelva a intentarlo.",
+        "pageInput": {
+          "label": "%{current} de %{total}",
+          "nextPage": "Siguiente Página",
+          "prevPage": "Pagina Anterior"
+        }
       }
     }
   },

@@ -29,6 +29,7 @@ interface ClaimStatusState {
   usedGasFee?: string
   status: string
   chainId: ChainId
+  contractAddress: string
 }
 
 enum TxStatus {
@@ -65,7 +66,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()
   const translate = useTranslate()
   const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
+    state: { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress },
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.PENDING,
@@ -101,7 +102,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           : '0',
       })
     }
-  }, [confirmedTransaction, feeAsset.precision])
+  }, [confirmedTransaction, contractAddress, feeAsset.precision])
 
   return (
     <SlideTransition>

@@ -37,7 +37,7 @@ const canvasStyle: CSSProperties = {
   zIndex: 1,
 }
 
-export const AuroraBackground: React.FC<{}> = props => {
+export const AuroraBackground: React.FC = props => {
   const canvasRefB = useRef(null)
 
   useEffect(() => {

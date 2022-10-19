@@ -4,13 +4,11 @@ import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 import { SelectAccount } from 'components/Trade/SelectAccount'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapperV2'
 import { AssetClickAction, useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
-import { TradeInput as TradeInputV1 } from '../TradeInput'
 import { TradeInput as TradeInputV2 } from '../TradeInputV2'
 import { TradeRoutePaths } from '../types'
 
@@ -21,8 +19,6 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const { handleAssetClick } = useTradeRoutes()
 
-  const isSwapperV2 = useFeatureFlag('SwapperV2')
-  const TradeInputComponent = isSwapperV2 ? TradeInputV2 : TradeInputV1
   const handleAssetClickWithAction = (action: AssetClickAction) => (asset: Asset) =>
     handleAssetClick(asset, action)
 
@@ -49,7 +45,7 @@ export const TradeRoutes = () => {
             />
           )}
         />
-        <Route path={TradeRoutePaths.Input} component={TradeInputComponent} />
+        <Route path={TradeRoutePaths.Input} component={TradeInputV2} />
         <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
         <Route path={TradeRoutePaths.Approval} component={Approval} />
         <Route path={TradeRoutePaths.AccountSelect} component={SelectAccount} />

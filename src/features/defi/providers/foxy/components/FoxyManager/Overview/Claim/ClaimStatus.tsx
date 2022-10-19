@@ -101,7 +101,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const { refetch: refetchFoxyBalances } = useFoxyBalances({
-    accountNumber: bip44Params?.accountNumber,
+    accountNumber: bip44Params?.accountNumber ?? 0,
   })
   useEffect(() => {
     ;(async () => {

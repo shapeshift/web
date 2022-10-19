@@ -5,7 +5,6 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 import { TestProviders } from 'test/TestProviders'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeAmountInputField } from 'components/Trade/types'
 
 import { AssetClickAction, useTradeRoutes } from './useTradeRoutes'
@@ -15,9 +14,9 @@ jest.mock('react-router-dom', () => ({
     push: jest.fn(),
   }),
 }))
+jest.mock('plugins/foxPage/utils.ts')
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
-jest.mock('../useSwapper/useSwapper')
 jest.mock('hooks/useWallet/useWallet', () => ({
   useWallet: () => ({
     state: { wallet: {} },
@@ -37,13 +36,13 @@ jest.mock('state/slices/selectors', () => ({
     [mockFoxAssetId]: '0xFoo',
   }),
   selectBIP44ParamsByAccountId: () => ({ purpose: 44, coinType: 60, accountNumber: 0 }),
+
+  selectAccountSpecifiers: () => ({}),
+  selectFiatToUsdRate: () => ({}),
   selectPortfolioAccountMetadataByAccountId: () => ({
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
     accountType: undefined,
   }),
-
-  selectAccountSpecifiers: () => ({}),
-  selectFiatToUsdRate: () => ({}),
 }))
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
@@ -52,7 +51,6 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const setValue = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
-  ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({}))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     getValues: jest.fn((search: string) => {

@@ -3,25 +3,10 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
-import { isMobile as isMobileApp } from 'lib/globals'
 
 import env from './env'
 
-const { cleanEnv, makeValidator, str, url } = envalid
-
-/**
- * nasty, nasty, but well-documented hack
- *
- * we want to enable REACT_APP_FEATURE_THOR_SWAP for the mobile app only, otherwise respect the value of the flag
- *
- * remove this once the following issues are closed
- *
- * https://github.com/shapeshift/web/issues/2961
- * https://github.com/shapeshift/web/issues/2960
- *
- * see https://github.com/af/envalid#custom-validators for reference
- */
-const thorSwapHackValidator = isMobileApp ? makeValidator(() => true) : bool
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -74,17 +59,14 @@ const validators = {
   REACT_APP_FEATURE_FOX_LP: bool({ default: false }),
   REACT_APP_FEATURE_FOX_FARMING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN: bool({ default: false }),
-  REACT_APP_FEATURE_THOR_SWAP: thorSwapHackValidator(),
+  REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
-  REACT_APP_FEATURE_RAINBOW_CHARTS: bool({ default: false }),
-  REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP: bool({ default: false }),
-  REACT_APP_FEATURE_ONRAMPER_FIAT_RAMP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_ACCOUNTS: bool({ default: false }),
   REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),
-  REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
+  REACT_APP_DASHBOARD_BREAKDOWN: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
@@ -119,6 +101,12 @@ const validators = {
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
   REACT_APP_ONRAMPER_API_URL: url(),
   REACT_APP_ONRAMPER_API_KEY: str(),
+  REACT_APP_KEEPKEY_UPDATER_RELEASE_PAGE: url({
+    default: 'https://github.com/keepkey/keepkey-updater/releases/latest',
+  }),
+  REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
+    default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

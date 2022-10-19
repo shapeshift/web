@@ -56,11 +56,7 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
   return assets
 }
 
-export const createMtPelerinUrl = (
-  action: FiatRampAction,
-  assetId: AssetId,
-  address: string,
-): string => {
+export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
@@ -99,7 +95,10 @@ export const createMtPelerinUrl = (
   // List of authorized networks
   params.set('nets', network)
   params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
-  params.set('addr', address)
+  //@TODO: Figure out how to sign a message using the wallet for us to be able to do this.
+  //https://developers.mtpelerin.com/integration-guides/options
+  // params.set('addr', address)
+  // params.set('code', code)
 
   return `${baseUrl.toString()}?${params.toString()}`
 }

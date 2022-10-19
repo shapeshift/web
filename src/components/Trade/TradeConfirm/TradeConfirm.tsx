@@ -13,21 +13,25 @@ import {
   StackDivider,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Swapper } from '@shapeshiftoss/swapper'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMemo, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { type RouterProps, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { type RouterProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -37,6 +41,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
@@ -50,55 +55,58 @@ import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
 
-type TradeConfirmParams = {
-  fiatRate: string
-}
-
 export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
+  const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
+    useState<ReturnType<typeof getTradeAmountConstants>>()
+  const [executedTrade, setExecutedTrade] = useState<TS['trade']>()
   const {
-    getValues,
     handleSubmit,
+    setValue,
+    control,
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
   const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  const {
-    trade,
-    fees,
-    sellAssetFiatRate,
-    slippage,
-    buyAssetAccountId,
-    sellAssetAccountId,
-    buyTradeAsset,
-  }: Pick<
-    TS,
-    | 'sellAssetAccountId'
-    | 'buyAssetAccountId'
-    | 'trade'
-    | 'fees'
-    | 'sellAssetFiatRate'
-    | 'slippage'
-    | 'buyTradeAsset'
-  > = getValues()
-  const { executeQuote, reset, getTradeTxs } = useSwapper()
+  const [swapper, setSwapper] = useState<Swapper<ChainId>>()
+  const flags = useSelector(selectFeatureFlags)
+
+  const formTrade = useWatch({ control, name: 'trade' })
+  const fees = useWatch({ control, name: 'fees' })
+  const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+  const slippage = useWatch({ control, name: 'slippage' })
+  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
+  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+
   const tradeAmountConstants = useGetTradeAmounts()
-  const location = useLocation<TradeConfirmParams>()
-  // TODO: Refactor to use fiatRate from TradeState - we don't need to pass fiatRate around.
-  const { fiatRate } = location.state
   const {
     number: { toFiat },
   } = useLocaleFormatter()
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
     dispatch,
   } = useWallet()
+
+  // If an executed value exists we want to ignore any subsequent updates and use the executed value
+  const trade = useMemo(() => executedTrade ?? formTrade, [executedTrade, formTrade])
+  const tradeAmounts = useMemo(
+    () => executedTradeAmountConstants ?? tradeAmountConstants,
+    [executedTradeAmountConstants, tradeAmountConstants],
+  )
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
+
+  const reset = useCallback(() => {
+    setValue('buyTradeAsset.amount', '')
+    setValue('sellTradeAsset.amount', '')
+    setValue('fiatSellAmount', '')
+  }, [setValue])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -128,6 +136,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     buyTxid,
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      const buyAssetId = trade?.buyAsset.assetId
+      const sellAssetId = trade?.sellAsset.assetId
+      if (!buyAssetId || !sellAssetId) return ''
+      const swapperManager = await getSwapperManager(flags)
+      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+      setSwapper(bestSwapper)
+    })()
+  }, [flags, trade])
+
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
@@ -151,7 +170,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     try {
-      if (!isConnected) {
+      if (!isConnected || !swapper || !wallet) {
         /**
          * call handleBack to reset current form state
          * before opening the connect wallet modal.
@@ -161,7 +180,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         return
       }
 
-      const result = await executeQuote()
+      const result = await swapper.executeTrade({ trade, wallet })
+      setExecutedTradeAmountConstants(tradeAmountConstants)
+      setExecutedTrade(formTrade)
       setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid
@@ -169,7 +190,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       const txs = await poll({
         fn: async () => {
           try {
-            return { ...(await getTradeTxs(result)) }
+            return { ...(await swapper.getTradeTxs(result)) }
           } catch (e) {
             return { sellTxid: '', buyTxid: '', e }
           }
@@ -195,17 +216,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const sellAmountCrypto = fromBaseUnit(
-    bnOrZero(trade?.sellAmount),
-    trade?.sellAsset?.precision ?? 0,
-  )
+  const sellAmountCrypto = fromBaseUnit(bnOrZero(trade.sellAmount), trade.sellAsset?.precision ?? 0)
 
   const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(fiatRate)
+    .times(feeAssetFiatRate ?? 1)
     .times(selectedCurrencyToUsdRate)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
@@ -252,7 +270,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <AlertIcon />
                     <Stack spacing={0}>
                       <AlertTitle>
-                        {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+                        {translate('trade.slowSwapTitle', { protocol: 'THORChain' })}
                       </AlertTitle>
                       <AlertDescription lineHeight='short'>
                         {translate('trade.slowSwapBody')}
@@ -260,7 +278,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Stack>
                   </Alert>
                 )}
-                {trade?.buyAsset.assetId === thorchainAssetId && (
+                {trade.buyAsset.assetId === thorchainAssetId && (
                   <Alert status='info' width='auto' mb={3} fontSize='sm'>
                     <AlertIcon />
                     <Stack spacing={0}>
@@ -282,10 +300,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
-                  protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
+                  beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
+                  protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
+                  swapperName={swapper?.name ?? ''}
                 />
               </Stack>
               <Stack spacing={4}>
@@ -309,8 +328,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </HelperTooltip>
                   <Box textAlign='right'>
                     <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                      bnOrZero(trade?.rate),
-                    )} ${trade?.buyAsset?.symbol}`}</RawText>
+                      bnOrZero(trade.rate),
+                    )} ${trade.buyAsset?.symbol}`}</RawText>
                     {!!fees?.tradeFeeSource && (
                       <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
                     )}
@@ -323,8 +342,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
-                    {toFiat(networkFeeFiat.toNumber())}
+                    {defaultFeeAsset &&
+                      `${bnOrZero(fees?.fee).toNumber()} ${defaultFeeAsset.symbol} ≃ ${toFiat(
+                        networkFeeFiat.toNumber(),
+                      )}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

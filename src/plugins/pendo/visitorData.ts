@@ -5,7 +5,6 @@ const moduleLogger = logger.child({ namespace: ['Plugin', 'Pendo', 'VisitorDataM
 
 export type VisitorId = {
   id: string
-  expiry: number
 }
 
 export type VisitorData = {
@@ -15,7 +14,7 @@ export type VisitorData = {
 
 export class VisitorDataManager {
   static readonly #consentMap = new Map<string, boolean>()
-  static #visitorId: VisitorId = { id: '', expiry: 0 }
+  static #visitorId: VisitorId = { id: '' }
 
   static load(): void {
     const raw = window.localStorage.getItem('visitorData') ?? '{"consent":{}}'
@@ -23,7 +22,6 @@ export class VisitorDataManager {
     try {
       const data: VisitorData = JSON.parse(raw)
       VisitorDataManager.#visitorId.id = data.visitorId?.id
-      VisitorDataManager.#visitorId.expiry = data.visitorId?.expiry
       VisitorDataManager.#consentMap.clear()
       forEach(data.consent, (v, k) => VisitorDataManager.#consentMap.set(k, v))
 
@@ -52,23 +50,17 @@ export class VisitorDataManager {
   }
 
   /**
-   * Get the current visitorId
-   *
-   * Set the ID to expire after a maximum of two weeks so that tracking of a user is limited
+   * Get the current visitorId, or set a new one and return it
    */
   static async getId(): Promise<string> {
     const currentVisitorId = VisitorDataManager.#visitorId
-    if (currentVisitorId && currentVisitorId.expiry > Date.now()) {
-      return currentVisitorId.id
-    }
+    if (currentVisitorId.id) return currentVisitorId.id
+
     const newVisitorId = {
-      id: Buffer.from(await window.crypto.getRandomValues(new Uint8Array(16))).toString('hex'),
-      // random 1-2 week timeout
-      expiry: Math.floor(Date.now() + (1 + Math.random()) * 7 * 24 * 60 * 60 * 1000),
+      id: Buffer.from(window.crypto.getRandomValues(new Uint8Array(16))).toString('hex'),
     }
     moduleLogger.debug({ fn: 'getId', visitorId: newVisitorId }, 'setting new visitor ID')
     VisitorDataManager.#visitorId.id = newVisitorId.id
-    VisitorDataManager.#visitorId.expiry = newVisitorId.expiry
     VisitorDataManager.#save()
     return newVisitorId.id
   }
@@ -77,7 +69,6 @@ export class VisitorDataManager {
     moduleLogger.trace({ fn: 'reset' }, 'resetting visitor data')
     window.localStorage.removeItem('visitorData')
     VisitorDataManager.#visitorId.id = ''
-    VisitorDataManager.#visitorId.expiry = 0
     VisitorDataManager.#consentMap.clear()
     // reload to force agent to randomize its tab/session IDs as well
     window.location.reload()

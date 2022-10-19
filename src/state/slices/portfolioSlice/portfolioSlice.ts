@@ -69,10 +69,6 @@ export const portfolio = createSlice({
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId,
       }
-      state.accountSpecifiers.byId = {
-        ...state.accountSpecifiers.byId,
-        ...payload.accountSpecifiers.byId,
-      }
       const assetBalanceIds = Array.from(
         new Set([...state.assetBalances.ids, ...payload.assetBalances.ids]),
       )

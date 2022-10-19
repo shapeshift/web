@@ -1,7 +1,9 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 
+import { selectPortfolioAccountIds } from '../portfolioSlice/selectors'
 import { createDeepEqualOutputSelector } from './../../selector-utils'
 
 export const selectAccountSpecifiers = createDeepEqualOutputSelector(
@@ -15,23 +17,9 @@ export const selectAccountSpecifierStrings = (state: ReduxState) =>
     Object.entries(accountSpecifier)[0].join(':'),
   )
 
-// Returns a ChainId-indexed object with all the `chainId:pubkeyish` accounts for that chainId
-// For most accounts, that's effectively an AssetId, but not for e.g UTXO chains thus the pubkeyish naming
-// We use this in cosmos plugin to get the pubkey as an AssetId, without needing to use chain-adapters in components
-// Since the pubkey is already in state
-export const selectAccountSpecifiersByChainId = (state: ReduxState, chainId: ChainId) =>
-  state.accountSpecifiers.accountSpecifiers.reduce<string[]>((acc, accountSpecifier) => {
-    const pubkeyish = Object.entries(accountSpecifier)[0].join(':')
-    const currentChainId = Object.keys(accountSpecifier)[0]
-
-    if (currentChainId !== chainId) return acc
-
-    acc.push(pubkeyish)
-
-    return acc
-  }, [])
-
-export const selectFirstAccountSpecifierByChainId = createSelector(
-  selectAccountSpecifiersByChainId,
-  accountSpecifiers => accountSpecifiers[0],
+export const selectFirstAccountIdByChainId = createSelector(
+  selectPortfolioAccountIds,
+  (_s: ReduxState, chainId: ChainId) => chainId,
+  (accountIds, chainId): AccountId | undefined =>
+    accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0],
 )

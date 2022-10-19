@@ -34,12 +34,6 @@ export enum DefiStep {
   Status = 'status',
 }
 
-export enum Templates {
-  Deposit = 'deposit',
-  Withdraw = 'withdraw',
-  Overview = 'overview',
-}
-
 export type DefiParams = {
   provider: DefiProvider
   earnType: DefiType
@@ -49,6 +43,7 @@ export type DefiParams = {
 export type DefiQueryParams = {
   defaultAccountId?: AccountId
   chainId: ChainId
+  highestBalanceAccountAddress?: string
   contractAddress: string
   assetReference: string
   rewardId: string

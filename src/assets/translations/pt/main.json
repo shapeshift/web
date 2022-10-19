@@ -41,7 +41,12 @@
     "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
+    "accountError": "Erro no carregamento de contas para %{erroredAccountNames}.",
+    "degradedState": "Este aplicativo foi descontinuado.",
+    "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
+    "retry": "Tente novamente",
+    "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
     "submitFeedback": "Deixe um comentário",
@@ -71,7 +76,8 @@
     "txId": "Tx ID",
     "selectAsset": "Selecione um ativo.",
     "switchNetwork": "Mudar a rede",
-    "unsupportedNetwork": "Rede não suportada"
+    "unsupportedNetwork": "Rede não suportada",
+    "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}."
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -125,8 +131,10 @@
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
+    "asset": "Ativo",
     "assetToBuy": "Ativo para comprar",
     "selectAnAssetToBuy": "Selecione um ativo para comprar",
+    "selectBody": "Escolha entre uma crescente lista de criptomoedas.",
     "assetToSell": "Ativo para vender",
     "selectAnAssetToSell": "Selecione um ativo para vender",
     "fundsTo": "Os fundos serão enviados para",
@@ -135,7 +143,10 @@
     "insufficientCryptoAmountToSell": "Quantidade mínima para venda $%{amount}",
     "usOnly": "Apenas EUA",
     "noKYC": "Sem KYC",
-    "nonUS": "não residente nos EUA"
+    "nonUS": "não residente nos EUA",
+    "availableProviders": "Soluções disponíveis",
+    "noProvidersAvailable": "Nenhuma solução disponível",
+    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -181,7 +192,7 @@
         }
       },
       "getStarted": {
-        "header": "Deposite seu %{assetName} para ganhar %{apr}% APR*",
+        "header": "Deposite seu %{assetName} para ganhar",
         "body": "Staking é o processo de manter fundos em uma carteira de criptomoedas para apoiar as operações de uma rede blockchain e, em troca, os detentores são recompensados por sua contribuição.",
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {
@@ -366,6 +377,7 @@
     "transactions": "Transações",
     "tradeHistory": "Histórico de Negociações",
     "foxToken": "Oportunidades FOX",
+    "dApps": "dApps",
     "featureFlags": "Recursos",
     "demoMode": "Modo de demonstração",
     "clickToConnect": "Clique para conectar uma carteira",
@@ -451,10 +463,12 @@
     "allowance": "Quota",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
+    "noRateAvailable": "Nenhuma taxa disponível.",
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "minerFee": "Taxa de Mineração",
     "protocolFee": "Taxa do Protocolo",
+    "protocol": "Protocolo",
     "tradeFeeSource": "%{tradeFeeSource} Taxa",
     "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
@@ -472,9 +486,17 @@
     "expectedAmount": "Quantia esperada",
     "beforeFees": "Antes das taxas ",
     "minAmountAfterSlippage": "Quantia esperada após o slippage (%{slippage}%)",
+    "free": "De graça",
+    "slowSwapTitle": "%{protocol} negocie",
+    "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
+    "updatingQuote": "Atualizando dados...",
+    "intoRUNETitle": "Negociando com a RUNE",
+    "intoRUNEBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber RUNE está temporariamente indisponível",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
+      "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
       "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
+      "protocol": "Este é o protocolo onde sua negociação está sendo direcionada.",
       "protocolFee": "Esta é a taxa cobrada pelo protocolo selecionado para processar esta transação, esta não é uma taxa cobrada pela ShapeShift",
       "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
     },
@@ -513,6 +535,7 @@
       "unsupportedPair": "Este par de negociação não é suportado atualmente.",
       "unsupportedChain": "Esta rede não é suportada atualmente.",
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
+      "assetNotSupportedByWallet": "%{assetSymbol} incompatível com a carteira",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
@@ -520,6 +543,7 @@
       "generalError": "Ocorreu um erro durante a troca.",
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
+    "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
     "shapeshiftFee": "Taxa ShapeShift"
   },
@@ -584,6 +608,7 @@
       "password": {
         "header": "Insira sua Senha",
         "walletName": "Nome da carteira (opcional)",
+        "walletNameRequired": "Nome da Wallet (necessário)",
         "body": "Insira sua senha para descriptografar sua carteira",
         "placeholder": "Sua Senha",
         "show": "Exibir senha",
@@ -591,6 +616,7 @@
         "error": {
           "invalid": "Senha Inválida",
           "required": "É necessário inserir sua senha",
+          "walletNameRequired": "Nome da Wallet é necessária.",
           "length": "Sua senha deve conter ao menos %{length} caracteres",
           "maxLength": "Apelido deve conter no máximo %{length} caracteres"
         }
@@ -724,6 +750,7 @@
       "noFee": "Sem taxa de %{symbol}",
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
+      "notEnoughGas": "Insuficiente %{assetSymbol} para cobrir as taxas.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
       "withdrawalFee": "Taxa de saque",
       "status": {
@@ -802,6 +829,8 @@
     "settings": {
       "settings": "Configurações",
       "currency": "Moeda",
+      "clearWalletAccountData": "Apagar dados de todas as carteiras & contas. ",
+      "deleteAccountsConfirm": "Tem certeza?\n\nIsso removerá todos os dados pessoais, incluindo carteiras, contas, saldos.\n\nVerifique se você fez backup de suas carteiras antes de continuar.",
       "currencyFormat": "Formato da moeda",
       "language": "Idioma",
       "balanceThreshold": "Limite de saldo",
@@ -1364,6 +1393,23 @@
         "neverCollectPersonalInformations": "Nunca coletar chaves, endereços, transações, saldos ou qualquer informação pessoal",
         "neverCollectIp": "Nunca coletar seu endereço IP completo",
         "neverSellData": "Nunca vender dados com fins lucrativos"
+      }
+    },
+    "walletConnectToDapps": {
+      "registry": {
+        "availableDapps": "dApps disponíveis.",
+        "getStarted": "Começando",
+        "learnMore": "Aprenda mais",
+        "banner": {
+          "title": "Conecte-se em mais de 300 dApps",
+          "subtitle": "Conecte sua carteira a um dApp via WalletConnect e realize transações"
+        },
+        "emptyStateDescription": "Tente ajustar a sua pesquisa e tente novamente.",
+        "pageInput": {
+          "label": "%{current} de %{total}",
+          "nextPage": "Próxima página",
+          "prevPage": "Página anterior"
+        }
       }
     }
   },

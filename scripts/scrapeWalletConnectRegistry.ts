@@ -6,7 +6,7 @@ import { RegistryItem } from '../src/plugins/walletConnectToDapps/types'
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
 const registryJsonUrl =
-  'https://explorer.walletconnect.com/_next/data/CWVJGGRcXLbAilG1CUAn3/index.json'
+  'https://explorer.walletconnect.com/_next/data/rBOMJOAm1Nrct0fjtOOlA/index.json'
 
 async function run() {
   const listings: RegistryItem[] = []
@@ -16,7 +16,7 @@ async function run() {
 
     const newListings = await fetch(`${registryJsonUrl}?search=${searchQuery}`)
       .then(res => res.json())
-      .then(res => res.pageProps.listings.filter((l: RegistryItem) => !listings.some(ll => l.id === ll.id)))
+      .then(res => res.pageProps.listings.filter((l: RegistryItem) => !listings.some(ll => l.id === ll.id) && l.category !== 'wallet'))
     listings.push(...newListings)
   }
 

@@ -33,6 +33,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const textColor = useColorModeValue('black', 'white')
   const isAvailable = dayjs().isAfter(dayjs(releaseTime))
   const successColor = useColorModeValue('green.500', 'green.200')
+  const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const handleClick = () => {
     history.push({
@@ -79,7 +80,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
             >
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={isAvailable ? successColor : 'yellow.200'}
+                color={isAvailable ? successColor : pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={isAvailable ? 'common.available' : 'common.pending'}

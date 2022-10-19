@@ -45,6 +45,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')
+  const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const undelegationNodes = useMemo(
     () =>
@@ -70,7 +71,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
             <Stack spacing={0}>
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={'yellow.200'}
+                color={pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={'common.pending'}
@@ -95,7 +96,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
           </Button>
         )
       }),
-    [asset.precision, asset.symbol, textColor, undelegationEntries],
+    [asset.precision, asset.symbol, textColor, pendingColor, undelegationEntries],
   )
 
   return (

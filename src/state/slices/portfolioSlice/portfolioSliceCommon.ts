@@ -5,24 +5,6 @@ import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
-/*
- * we can't retrieve an xpub from an address, but we can derive
- * addresses from xpubs
- * address have sats balances, but we want to display balances aggregated
- * by accountType, so we need a mapping from xpub to a list of addresses
- *
- * in the case of account based chains, e.g. eth, this will be a 1:1
- * mapping as the accountSpecifier (0x address) is the same as the address
- * holding assets with balances
- *
- * this satisfies our requirements of being able to aggregate balances
- * over an entire asset, e.g. show me all the eth i have across all my accounts
- * and also show me all the bitcoin i have across all different accountTypes
- * and addresses, and also preempts supporting more than accountIndex 0 in future
- */
-
-// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
-// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
 export type Staking = {
   delegations: cosmossdk.Delegation[]
   redelegations: cosmossdk.Redelegation[]

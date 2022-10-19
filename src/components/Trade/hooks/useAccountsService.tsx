@@ -41,22 +41,21 @@ export const useAccountsService = () => {
       assetId: buyAssetId ?? '',
     }),
   )
-  const sellAssetAccountSpecifier = useAppSelector(state =>
+  const firstSellAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
-  const buyAssetAccountSpecifier = useAppSelector(state =>
+  const firstBuyAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
 
   const sellAssetAccountId = useMemo(
-    () =>
-      selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? sellAssetAccountSpecifier,
-    [highestFiatBalanceSellAccountId, selectedSellAssetAccountId, sellAssetAccountSpecifier],
+    () => selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? firstSellAssetAccountId,
+    [highestFiatBalanceSellAccountId, selectedSellAssetAccountId, firstSellAssetAccountId],
   )
 
   const buyAssetAccountId = useMemo(
-    () => selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? buyAssetAccountSpecifier,
-    [buyAssetAccountSpecifier, highestFiatBalanceBuyAccount, selectedBuyAssetAccountId],
+    () => selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? firstBuyAssetAccountId,
+    [firstBuyAssetAccountId, highestFiatBalanceBuyAccount, selectedBuyAssetAccountId],
   )
 
   // Set sellAssetAccountId

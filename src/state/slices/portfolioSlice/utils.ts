@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   accountIdToChainId,
@@ -358,30 +357,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   })
 
   return portfolio
-}
-
-export const makeSortedAccountBalances = (totalAccountBalances: { [k: AccountId]: string }) =>
-  Object.entries(totalAccountBalances)
-    .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
-      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1,
-    )
-    .map(([accountId, _]) => accountId)
-
-export const makeBalancesByChainBucketsFlattened = (
-  accountBalances: string[],
-  assets: { [k: AssetId]: Asset },
-) => {
-  const initial = {} as Record<ChainId, AccountId[]>
-  const balancesByChainBuckets = accountBalances.reduce<Record<ChainId, AccountId[]>>(
-    (acc: Record<ChainId, AccountId[]>, accountId) => {
-      const assetId = accountIdToFeeAssetId(accountId)
-      const asset = assets[assetId]
-      acc[asset.chainId] = [...(acc[asset.chainId] ?? []), accountId]
-      return acc
-    },
-    initial,
-  )
-  return Object.values(balancesByChainBuckets).flat()
 }
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {

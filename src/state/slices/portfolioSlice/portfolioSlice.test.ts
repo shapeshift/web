@@ -26,7 +26,6 @@ import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlic
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectHighestFiatBalanceAccountByAssetId,
-  selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
@@ -36,7 +35,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
-  selectPortfolioTotalFiatBalanceByAccount,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -544,57 +542,6 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioTotalFiatBalanceByAccount', () => {
-      const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
-        ethAccountObj: {
-          balance: '1000000000000000000',
-          chainSpecific: {
-            tokens: [
-              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
-              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
-            ],
-          },
-        },
-        ethAccount2Obj: { balance: '2000000000000000000' },
-      })
-
-      // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
-
-      // dispatch market data
-      const ethMarketData = mockMarketData({ price: '1000' })
-      const foxMarketData = mockMarketData({ price: '10' })
-      const usdcMarketData = mockMarketData({ price: '1' })
-
-      store.dispatch(
-        marketDataSlice.actions.setCryptoMarketData({
-          [ethAssetId]: ethMarketData,
-          [foxAssetId]: foxMarketData,
-          [usdcAssetId]: usdcMarketData,
-        }),
-      )
-
-      // dispatch asset data
-      const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
-      const state = store.getState()
-
-      it('should return total fiat balance by accountId', () => {
-        const expected = {
-          [ethAccountId]: '1011.00',
-          [ethAccount2Id]: '2020.00',
-        }
-
-        const result = selectPortfolioTotalFiatBalanceByAccount(state)
-        expect(result).toEqual(expected)
-      })
-    })
-
     describe('selectPortfolioTokenIdsByAccountId', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId } = mockEthAndBtcAccounts({
@@ -637,54 +584,6 @@ describe('portfolioSlice', () => {
       it('should return an array of assetIds by accountId', () => {
         const expected = [ethAssetId, foxAssetId, usdcAssetId]
         const result = selectPortfolioAssetIdsByAccountId(state, { accountId: ethAccountId })
-
-        expect(result).toEqual(expected)
-      })
-    })
-
-    describe('selectPortfolioAccountIdsSortedFiat', () => {
-      const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
-        ethAccountObj: {
-          balance: '1000000000000000000',
-          chainSpecific: {
-            tokens: [
-              mockEthToken({ balance: '1000000000000000000', assetId: foxAssetId }),
-              mockEthToken({ balance: '1000000', assetId: usdcAssetId }),
-            ],
-          },
-        },
-        ethAccount2Obj: { balance: '10000000000' },
-      })
-
-      // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
-
-      // dispatch market data
-      const ethMarketData = mockMarketData({ price: '1000' })
-      const foxMarketData = mockMarketData({ price: '10' })
-      const usdcMarketData = mockMarketData({ price: '1' })
-
-      store.dispatch(
-        marketDataSlice.actions.setCryptoMarketData({
-          [ethAssetId]: ethMarketData,
-          [foxAssetId]: foxMarketData,
-          [usdcAssetId]: usdcMarketData,
-        }),
-      )
-
-      // dispatch asset data
-      const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.setAssets(assetData))
-      const state = store.getState()
-
-      it('should return an array of account IDs sorted by fiat balance', () => {
-        const expected = [ethAccountId, ethAccount2Id]
-        const result = selectPortfolioAccountIdsSortedFiat(state)
 
         expect(result).toEqual(expected)
       })

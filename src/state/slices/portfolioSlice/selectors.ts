@@ -64,11 +64,7 @@ import type {
   PortfolioBalancesById,
   StakingDataByValidatorId,
 } from './portfolioSliceCommon'
-import {
-  findAccountsByAssetId,
-  makeBalancesByChainBucketsFlattened,
-  makeSortedAccountBalances,
-} from './utils'
+import { findAccountsByAssetId } from './utils'
 
 type ParamFilter = {
   assetId: AssetId
@@ -604,42 +600,6 @@ export const selectHighestFiatBalanceAccountByAssetId = createSelector(
   },
 )
 
-export const selectPortfolioAssetIdsSortedFiat = createSelector(
-  selectPortfolioAssetBalancesSortedFiat,
-  (sortedBalances): AssetId[] => Object.keys(sortedBalances),
-)
-
-export const selectPortfolioAllocationPercent = createSelector(
-  selectPortfolioTotalFiatBalance,
-  selectPortfolioFiatBalances,
-  (totalBalance, fiatBalances): { [k: AssetId]: number } =>
-    Object.entries(fiatBalances).reduce<{ [k: AssetId]: number }>((acc, [assetId, fiatBalance]) => {
-      acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
-      return acc
-    }, {}),
-)
-
-export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
-  selectPortfolioFiatAccountBalances,
-  selectBalanceThreshold,
-  (accountBalances, balanceThreshold) => {
-    return Object.entries(accountBalances).reduce<{ [k: AccountId]: string }>(
-      (acc, [accountId, balanceObj]) => {
-        const totalAccountFiatBalance = Object.values(balanceObj).reduce(
-          (totalBalance, currentBalance) => {
-            return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
-          },
-          bnOrZero('0'),
-        )
-        if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
-        acc[accountId] = totalAccountFiatBalance.toFixed(2)
-        return acc
-      },
-      {},
-    )
-  },
-)
-
 export const selectPortfolioAllocationPercentByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
@@ -659,19 +619,6 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     }, {})
 
     return balanceAllocationById[accountId]
-  },
-)
-
-export const selectPortfolioAccountIdsSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectAssets,
-  (totalAccountBalances, assets) => {
-    const sortedAccountBalances = makeSortedAccountBalances(totalAccountBalances)
-    const sortedAccountBalancesByChainBuckets = makeBalancesByChainBucketsFlattened(
-      sortedAccountBalances,
-      assets,
-    )
-    return sortedAccountBalancesByChainBuckets
   },
 )
 

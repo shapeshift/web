@@ -53,11 +53,13 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
 
   const { accountAddress } = useFoxEth()
 
+  const filter = useMemo(
+    () => ({ accountAddress, contractAddress }),
+    [accountAddress, contractAddress],
+  )
+
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, {
-      accountAddress: accountAddress ?? '',
-      contractAddress,
-    }),
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
   )
 
   const loading = useSelector(selectPortfolioLoading)

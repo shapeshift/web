@@ -61,8 +61,13 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
   const { accountAddress } = useFoxEth()
 
+  const filter = useMemo(
+    () => ({ accountAddress, contractAddress }),
+    [accountAddress, contractAddress],
+  )
+
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, { accountAddress, contractAddress }),
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
   )
 
   const loading = useSelector(selectPortfolioLoading)

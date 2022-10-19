@@ -89,8 +89,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * handle wallet disconnect/switch logic
    */
   useEffect(() => {
-    // if we have a wallet and changed account specifiers, we have switched wallets
-    // NOTE! - the wallet will change before the account specifiers does, so clearing here is valid
+    // if we have a wallet and changed account ids, we have switched wallets
+    // NOTE! - the wallet will change before the account ids do, so clearing here is valid
     // check the console logs in the browser for the ordering of actions to verify this logic
     const switched = Boolean(wallet && !requestedAccountIds.length)
     const disconnected = !wallet
@@ -123,7 +123,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [dispatch, wallet, supportedChains])
 
-  // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
+  // once account ids are set after wallet connect, fetch all account data to build out portfolio
   useEffect(() => {
     const { getAccount } = portfolioApi.endpoints
 

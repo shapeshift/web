@@ -286,7 +286,7 @@ export const txHistoryApi = createApi({
     getAllTxHistory: build.query<Transaction[], AccountId[]>({
       queryFn: async (accountIds, { dispatch }) => {
         if (!accountIds.length) {
-          return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }
+          return { error: { data: 'getAllTxHistory: no account ids provided', status: 400 } }
         }
 
         const txHistories = await Promise.allSettled(

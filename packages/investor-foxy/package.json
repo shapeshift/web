@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/investor-foxy",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "An API layer for interaction with the ShapeShift FOXy contract",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

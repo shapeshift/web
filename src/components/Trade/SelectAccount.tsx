@@ -1,5 +1,7 @@
 import { Stack } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import isEqual from 'lodash/isEqual'
+import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import type { RouteComponentProps } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
@@ -16,9 +18,8 @@ import { useAppSelector } from 'state/store'
 export const SelectAccount = ({ history }: RouteComponentProps) => {
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const assetId = getValues('sellTradeAsset')?.asset?.assetId
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
-  )
+  const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const handleBack = () => {

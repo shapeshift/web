@@ -5,6 +5,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import isEqual from 'lodash/isEqual'
 import React, { createContext, useContext, useMemo } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -86,9 +87,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     [readyToFetchLpData, accountAddress, foxLpEnabled, foxEthLpMarketData.price],
   )
 
-  const ethAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
-  )
+  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
+
+  // TODO(gomes): deepEqualOutputFn should happen on the selector itself and give us the same reference every call but it somehow doesn't
+  // Remove the equalityFn second arg here after we figure out why
+  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
     if (!ethAccountIds?.length || !readyToFetchLpAccountData) return

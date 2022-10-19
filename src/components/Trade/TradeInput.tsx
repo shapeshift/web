@@ -2,6 +2,7 @@ import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { SwapErrorTypes } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import isEqual from 'lodash/isEqual'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -99,8 +100,13 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
   const [isUpdatingTrade, setIsUpdatingTrade] = useState(false)
 
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: sellTradeAsset?.asset?.assetId ?? '' }),
+  const accountIdsFilter = useMemo(
+    () => ({ assetId: sellTradeAsset?.asset?.assetId ?? '' }),
+    [sellTradeAsset?.asset?.assetId],
+  )
+  const accountIds = useAppSelector(
+    state => selectAccountIdsByAssetId(state, accountIdsFilter),
+    isEqual,
   )
 
   const shouldShowAccountSelection = sellTradeAsset?.asset && accountIds.length > 1

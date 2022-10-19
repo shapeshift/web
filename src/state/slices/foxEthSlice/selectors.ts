@@ -81,18 +81,18 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
   },
 )((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
 
-export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress =
-  createDeepEqualOutputSelector(
-    (state: ReduxState) => state.foxEth,
-    selectAccountAddressParamFromFilterOptional,
-    selectEthAccountIdsByAssetId,
-    (foxEthState, accountAddress, ethAccountIds) => {
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-      return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-        accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-      )
-    },
-  )
+export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCachedSelector(
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
+  (state: ReduxState) => state.foxEth,
+  selectAccountAddressParamFromFilterOptional,
+  selectEthAccountIdsByAssetId,
+  (foxEthState, accountAddress, ethAccountIds) => {
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
+      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
+    )
+  },
+)((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
@@ -138,6 +138,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
 )
 
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
@@ -276,6 +277,7 @@ const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.
 export const selectFoxEthLpFiatBalance = createSelector(
   selectMarketData,
   selectPortfolioAccounts,
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
   (marketData, portfolioAccounts, foxEthState) => {
     // Cannot use selectAccountIdsByAssetId because of a. circular deps and b. it applying balance threshold

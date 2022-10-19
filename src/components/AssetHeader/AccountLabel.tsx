@@ -1,11 +1,12 @@
 import { HStack, Tag, TagLabel } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { RawText } from 'components/Text'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const AccountLabel = ({ accountId }: { accountId: AccountSpecifier }) => {
+type AccountLabelProps = { accountId: AccountId }
+export const AccountLabel: React.FC<AccountLabelProps> = ({ accountId }) => {
   const label = accountId ? accountIdToLabel(accountId) : null
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))

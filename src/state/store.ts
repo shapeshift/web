@@ -44,7 +44,6 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
-  store.dispatch(slices.accountSpecifiers.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

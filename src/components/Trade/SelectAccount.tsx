@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
@@ -11,7 +12,6 @@ import { Text } from 'components/Text'
 import type { TradeState } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WithBackButton } from 'components/Trade/WithBackButton'
-import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,7 +26,7 @@ export const SelectAccount = ({ history }: RouteComponentProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const handleClick = (accountId: AccountSpecifier) => {
+  const handleClick = (accountId: AccountId) => {
     setValue('selectedSellAssetAccountId', accountId)
     history.push(TradeRoutePaths.Input)
   }

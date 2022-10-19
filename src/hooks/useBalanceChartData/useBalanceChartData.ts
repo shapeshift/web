@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import type { HistoryData } from '@shapeshiftoss/types'
@@ -22,7 +22,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -331,7 +330,7 @@ type UseBalanceChartDataReturn = {
 
 type UseBalanceChartDataArgs = {
   assetIds: AssetId[]
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   timeframe: HistoryTimeframe
 }
 

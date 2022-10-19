@@ -132,6 +132,12 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   accountMetadata => accountMetadata,
 )
 
+/**
+ * the requested accountIds from the wallet, not necessarily loaded
+ */
+export const selectPortfolioRequestedAccountIds = (state: ReduxState) =>
+  state.portfolio.accountSpecifiers.ids
+
 export const selectPortfolioAccountMetadataByAccountId = createSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,
@@ -290,6 +296,13 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
   (allStaked: { [k: string]: string }, marketData, assetsById) => {
     const allStakingData = Object.entries(allStaked)
+    const keys = Object.keys(allStaked)
+    if (
+      keys.includes(
+        'cosmos:thorchain-mainnet-v1:cosmos:thorchain-mainnet-v1:thor1jmj570n7ajcc0fsapjudznrdgv8hnphfhpwsw9',
+      )
+    )
+      debugger
 
     const totalStakingDelegationFiat = reduce(
       allStakingData,
@@ -402,6 +415,13 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
 export const selectPortfolioAccountIds = createDeepEqualOutputSelector(
   (state: ReduxState): AccountId[] => state.portfolio.accounts.ids,
   (accountIds): AccountId[] => accountIds,
+)
+
+export const selectFirstAccountIdByChainId = createSelector(
+  selectPortfolioAccountIds,
+  (_s: ReduxState, chainId: ChainId) => chainId,
+  (accountIds, chainId): AccountId | undefined =>
+    accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0],
 )
 
 /**

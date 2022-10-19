@@ -1,11 +1,10 @@
 import { Box, Flex, Heading } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -17,7 +16,7 @@ import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {

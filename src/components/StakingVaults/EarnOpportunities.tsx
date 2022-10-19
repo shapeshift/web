@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
@@ -15,7 +15,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetById,
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
@@ -28,7 +27,7 @@ import { StakingTable } from './StakingTable'
 type EarnOpportunitiesProps = {
   tokenId?: string
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   isLoaded?: boolean
 }
 

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,7 +6,6 @@ import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -16,7 +15,7 @@ import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   useCompactMode?: boolean
   limit?: number
 }

@@ -43,7 +43,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = state?.opportunity
   const { unstake } = useFoxFarming(contractAddress)
-  const { onOngoingTxIdChange } = useFoxEth()
+  const { onOngoingFarmingTxIdChange } = useFoxEth()
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
@@ -76,7 +76,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
-      onOngoingTxIdChange(txid, contractAddress)
+      onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {

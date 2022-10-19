@@ -205,7 +205,7 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepE
 export const selectFoxFarmingOpportunityByContractAddress = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   selectContractAddressParamFromFilter,
-  selectAccountAddressParamFromFilterOptional,
+  selectAccountAddressParamFromFilter,
   (opportunities, contractAddress, accountAddress) =>
     opportunities
       .flatMap(opportunity => opportunity)

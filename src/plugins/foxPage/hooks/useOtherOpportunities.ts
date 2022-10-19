@@ -6,6 +6,7 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
+import isEqual from 'lodash/isEqual'
 import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
@@ -25,9 +26,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 
-  const ethAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
-  )
+  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
+  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
 
   useEffect(() => {
     ;(async () => {

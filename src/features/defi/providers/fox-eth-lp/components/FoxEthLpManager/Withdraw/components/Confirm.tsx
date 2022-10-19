@@ -34,8 +34,8 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const translate = useTranslate()
-  const { accountAddress, onOngoingTxIdChange } = useFoxEth()
-  const { removeLiquidity } = useFoxEthLiquidityPool(accountAddress)
+  const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()
+  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -65,7 +65,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       )
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
-      onOngoingTxIdChange(txid)
+      onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')

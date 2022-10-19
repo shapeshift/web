@@ -17,6 +17,7 @@ import { foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEqual from 'lodash/isEqual'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -50,7 +51,8 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId
 
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const accountId = accountIds?.[0]
 
   const {

@@ -37,11 +37,11 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
 
-  const { accountAddress } = useFoxEth()
+  const { farmingAccountAddress } = useFoxEth()
 
   const filter = useMemo(
-    () => ({ accountAddress, contractAddress }),
-    [accountAddress, contractAddress],
+    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
+    [farmingAccountAddress, contractAddress],
   )
   const opportunity = useAppSelector(state =>
     selectFoxFarmingOpportunityByContractAddress(state, filter),

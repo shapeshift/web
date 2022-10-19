@@ -120,7 +120,7 @@ export const selectFeeAssetByChainId = createSelector(
   },
 )
 
-export const selectFeeAssetById = createSelector(
+export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
@@ -133,4 +133,4 @@ export const selectFeeAssetById = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')

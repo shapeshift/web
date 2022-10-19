@@ -25,9 +25,8 @@
     "prepare": "yarn build",
     "test": "jest --coverage"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.33.0",
+    "@shapeshiftoss/hdwallet-core": "^1.36.0",
     "@shapeshiftoss/types": "8.1.0",
     "bignumber.js": "^9.0.2"
   }

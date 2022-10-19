@@ -323,6 +323,26 @@ const reducer = (state: InitialState, action: ActionTypes) => {
   }
 }
 
+function playSound(type: any) {
+  if (type === 'send') {
+    const audio = new Audio(require('../../assets/sounds/send.mp3'))
+    audio.play()
+  }
+  if (type === 'receive') {
+    const audio = new Audio(require('../../assets/sounds/chaching.mp3'))
+    audio.play()
+  }
+  if (type === 'success') {
+    const audio = new Audio(require('../../assets/sounds/success.wav'))
+    audio.play()
+  }
+  if (type === 'fail') {
+    //eww nerf
+    // const audio = new Audio(require('../../assets/sounds/fail.mp3'))
+    // audio.play()
+  }
+}
+
 const getInitialState = () => {
   const localWalletType = getLocalWalletType()
   const localWalletDeviceId = getLocalWalletDeviceId()
@@ -616,29 +636,27 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.keyring])
 
   const doStartBridge = useCallback(() => {
-    // TODO walletconnect
-    // ipcRenderer.on('@walletconnect/paired', (_event, data) => {
-    //   dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
-    // })
+    ipcRenderer.on('@walletconnect/paired', (_event, data) => {
+      dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
+    })
 
-    // TODO add some sound
-    // //listen to events on main
-    // ipcRenderer.on('hardware', (_event, data) => {
-    //   //event
-    //   //console.log('hardware event: ', data)
+    //listen to events on main
+    ipcRenderer.on('hardware', (_event, data) => {
+      //event
+      //console.log('hardware event: ', data)
 
-    //   switch (data.event.event) {
-    //     case 'connect':
-    //       playSound('success')
-    //       break
-    //     case 'disconnect':
-    //       playSound('fail')
-    //       break
-    //     default:
-    //     //TODO Spammy
-    //     //console.log("unhandled event! ",data.event)
-    //   }
-    // })
+      switch (data.event.event) {
+        case 'connect':
+          playSound('success')
+          break
+        case 'disconnect':
+          playSound('fail')
+          break
+        default:
+        //TODO Spammy
+        //console.log("unhandled event! ",data.event)
+      }
+    })
 
     ipcRenderer.on('playSound', (_event, _data) => {})
 

@@ -21,10 +21,14 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFoxEthLpOpportunityByAccountAddress,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -39,7 +43,17 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { foxEthLpOpportunity } = useFoxEth()
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
 
   const feeAssetId = toAssetId({
     chainId,
@@ -50,11 +64,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountAddress && accountId)) return ''
@@ -122,7 +131,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
-      pairIcons={foxEthLpOpportunity.icons}
+      pairIcons={foxEthLpOpportunity?.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>

@@ -120,7 +120,7 @@ const initialState: TxHistory = {
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
   const { txs } = txHistory
-  const txIndex = serializeTxIndex(accountSpecifier, tx.txid, tx.address)
+  const txIndex = serializeTxIndex(accountSpecifier, tx.txid, tx.address, tx.data)
 
   const isNew = !txs.byId[txIndex]
 
@@ -131,7 +131,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   if (isNew) {
     const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
     const index = orderedTxs.findIndex(
-      tx => serializeTxIndex(accountSpecifier, tx.txid, tx.address) === txIndex,
+      tx => serializeTxIndex(accountSpecifier, tx.txid, tx.address, tx.data) === txIndex,
     )
     txs.ids.splice(index, 0, txIndex)
   }
@@ -142,7 +142,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      serializeTxIndex(accountSpecifier, tx.txid, tx.address),
+      serializeTxIndex(accountSpecifier, tx.txid, tx.address, tx.data),
     )
   })
 
@@ -150,7 +150,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   txs.byAccountId[accountSpecifier] = addToIndex(
     txs.ids,
     txs.byAccountId[accountSpecifier],
-    serializeTxIndex(accountSpecifier, tx.txid, tx.address),
+    serializeTxIndex(accountSpecifier, tx.txid, tx.address, tx.data),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood

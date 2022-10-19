@@ -11,6 +11,7 @@ import { foxyApi } from './apis/foxy/foxyApi'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
+import { foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
@@ -29,6 +30,7 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
+  foxEthApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
   fiatRampApi.middleware,
@@ -49,6 +51,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
+  store.dispatch(apiSlices.foxEthApi.util.resetApiState())
 }
 
 /**

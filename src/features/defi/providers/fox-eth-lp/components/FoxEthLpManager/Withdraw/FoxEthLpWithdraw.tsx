@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -16,11 +16,11 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectAssetById,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -66,14 +66,22 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const opportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
 
   // user info
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState) return
+    if (!walletState || !opportunity) return
     dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
   }, [opportunity, walletState])
 
@@ -111,9 +119,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-    // We only need this to update on symbol change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [underlyingAsset.symbol])
+  }, [accountId, handleAccountIdChange, translate, underlyingAsset.symbol])
 
   if (loading || !asset || !marketData)
     return (

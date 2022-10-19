@@ -32,8 +32,9 @@ const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 export const Confirm = ({ onNext }: StepComponentProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const opportunity = state?.opportunity
   const translate = useTranslate()
-  const { accountAddress, foxEthLpOpportunity: opportunity, onOngoingTxIdChange } = useFoxEth()
+  const { accountAddress, onOngoingTxIdChange } = useFoxEth()
   const { removeLiquidity } = useFoxEthLiquidityPool(accountAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -50,7 +51,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: ethAsset?.assetId ?? '' }),
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunity) return null
 
   const handleConfirm = async () => {
     try {

@@ -33,7 +33,7 @@ If a need arises were you need to build something completely custom. Please post
 Our maintainers are committed to reviewing patches in a timely manner. That
 said, we do have other things on our plate, so please be patient.
 
-In order to ensure high quality of the codebase, we require signoff from at
+In order to ensure high quality of the codebase, we require sign-off from at
 least one ShapeShift Fox. If you use GPG, feel free to sign your commits.
 
 Once your patch has been reviewed and has been accepted, you are free to merge it.

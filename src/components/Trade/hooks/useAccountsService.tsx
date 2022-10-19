@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
-import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -18,6 +18,8 @@ export const useAccountsService = () => {
   const selectedBuyAssetAccountId = useWatch({ control, name: 'selectedBuyAssetAccountId' })
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const formSellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
 
   // Custom hooks
   const { swapperSupportsCrossAccountTrade } = useSwapper()
@@ -40,10 +42,10 @@ export const useAccountsService = () => {
     }),
   )
   const sellAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, sellAsset?.chainId ?? ''),
+    selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
   const buyAssetAccountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, buyAsset?.chainId ?? ''),
+    selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
 
   const sellAssetAccountId = useMemo(
@@ -60,7 +62,8 @@ export const useAccountsService = () => {
   // Set sellAssetAccountId
   useEffect(
     () => setValue('sellAssetAccountId', sellAssetAccountId),
-    [sellAssetAccountId, setValue],
+    // formSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
+    [sellAssetAccountId, setValue, formSellAssetAccountId],
   )
 
   // Set buyAssetAccountId
@@ -70,5 +73,12 @@ export const useAccountsService = () => {
       // If the swapper does not support cross-account trades the buyAssetAccountId must match the sellAssetAccountId
       swapperSupportsCrossAccountTrade ? buyAssetAccountId : sellAssetAccountId,
     )
-  }, [buyAssetAccountId, sellAssetAccountId, setValue, swapperSupportsCrossAccountTrade])
+    // formBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
+  }, [
+    buyAssetAccountId,
+    sellAssetAccountId,
+    setValue,
+    swapperSupportsCrossAccountTrade,
+    formBuyAssetAccountId,
+  ])
 }

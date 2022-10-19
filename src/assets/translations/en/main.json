@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -437,6 +438,25 @@
         "approve": "Approve",
         "revoke": "Revoke",
         "infinite": "Infinite ∞"
+      },
+      "staking": {
+        "delegate": "Delegate",
+        "begin_unbonding": "Undelegate",
+        "begin_redelegate": "Redelegate",
+        "withdraw_delegator_reward": "Claim Reward"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Refund",
+        "outbound": "Outbound"
+      },
+      "ibc": {
+        "transfer": "Sent",
+        "recv_packet": "Received"
+      },
+      "lp": {
+        "deposit": "Add Liquidity"
       }
     },
     "unknown": "Transaction"
@@ -1329,9 +1349,10 @@
       "outputAddress": "Output address"
     },
     "transactionTypes": {
-      "send": "Send",
-      "receive": "Receive",
-      "trade": "Trade"
+      "Send": "Send",
+      "Receive": "Receive",
+      "Trade": "Trade",
+      "Refund": "Refund"
     },
     "assets": "Assets",
     "txid": "TX ID",

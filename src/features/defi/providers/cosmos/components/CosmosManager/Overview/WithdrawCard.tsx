@@ -14,7 +14,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectUnbondingEntriesByAccountSpecifier,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -25,25 +25,27 @@ type WithdrawCardProps = {
   accountId?: Nullable<AccountId>
 }
 
-export const WithdrawCard = ({ asset, accountId }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset.chainId))
 
-  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
-  const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, {
-      accountSpecifier: accountId ?? accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: routeAccountId ?? accountId,
       validatorAddress: contractAddress,
       assetId: asset.assetId,
     }),
+    [accountId, asset.assetId, contractAddress, routeAccountId],
+  )
+  const undelegationEntries = useAppSelector(s =>
+    selectUnbondingEntriesByAccountSpecifier(s, filter),
   )
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')
+  const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const undelegationNodes = useMemo(
     () =>
@@ -69,7 +71,7 @@ export const WithdrawCard = ({ asset, accountId }: WithdrawCardProps) => {
             <Stack spacing={0}>
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={'yellow.200'}
+                color={pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={'common.pending'}
@@ -94,7 +96,7 @@ export const WithdrawCard = ({ asset, accountId }: WithdrawCardProps) => {
           </Button>
         )
       }),
-    [asset.precision, asset.symbol, textColor, undelegationEntries],
+    [asset.precision, asset.symbol, textColor, pendingColor, undelegationEntries],
   )
 
   return (

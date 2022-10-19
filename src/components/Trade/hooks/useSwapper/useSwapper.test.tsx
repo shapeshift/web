@@ -16,6 +16,7 @@ import { bn } from 'lib/bignumber/bignumber'
 
 import { useSwapper } from './useSwapper'
 
+jest.mock('plugins/foxPage/utils.ts')
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')

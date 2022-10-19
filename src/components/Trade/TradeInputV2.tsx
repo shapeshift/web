@@ -40,6 +40,7 @@ import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
+import type { TS } from './types'
 import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
@@ -58,7 +59,7 @@ export const TradeInput = () => {
   } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { control, setValue, getValues, handleSubmit } = useFormContext<TradeState<KnownChainIds>>()
+  const { control, setValue, getValues, handleSubmit } = useFormContext<TS>()
   const {
     state: { wallet },
   } = useWallet()

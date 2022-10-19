@@ -11,7 +11,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -52,8 +52,8 @@ export const Approval = () => {
     handleSubmit,
     control,
     formState: { isSubmitting },
-  } = useFormContext<TS<KnownChainIds.EthereumMainnet>>()
-  const { checkApprovalNeeded, approve } = useSwapper()
+  } = useFormContext<TS<EvmChainId>>()
+  const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -105,12 +105,24 @@ export const Approval = () => {
         }
         approvalInterval.current && clearInterval(approvalInterval.current)
 
+        const trade = await getTrade()
+        setValue('trade', trade as TS<EvmChainId>['trade'])
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
       showErrorToast(e)
     }
-  }, [approve, checkApprovalNeeded, dispatch, history, isConnected, quote, showErrorToast])
+  }, [
+    approve,
+    checkApprovalNeeded,
+    dispatch,
+    getTrade,
+    history,
+    isConnected,
+    quote,
+    setValue,
+    showErrorToast,
+  ])
 
   return (
     <SlideTransition>

@@ -1,5 +1,4 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
@@ -15,7 +14,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
@@ -62,7 +61,6 @@ import type {
   PortfolioAccountBalances,
   PortfolioAccountBalancesById,
   PortfolioAssetBalances,
-  PortfolioAssets,
   PortfolioBalancesById,
   StakingDataByValidatorId,
 } from './portfolioSliceCommon'
@@ -153,13 +151,6 @@ export const selectBIP44ParamsByAccountId = createSelector(
 export const selectAccountNumberByAccountId = createSelector(
   selectBIP44ParamsByAccountId,
   (bip44Params): number | undefined => bip44Params?.accountNumber,
-)
-
-export const selectAccountTypeByAccountId = createSelector(
-  selectPortfolioAccountMetadata,
-  selectAccountIdParamFromFilter,
-  (accountMetadata, accountId): UtxoAccountType | undefined =>
-    accountMetadata[accountId]?.accountType,
 )
 
 type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
@@ -557,16 +548,6 @@ export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
       },
       {},
     ),
-)
-
-export const selectPortfolioAssets = createSelector(
-  selectAssets,
-  selectPortfolioAssetIds,
-  (assetsById, portfolioAssetIds): { [k: AssetId]: Asset } =>
-    portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
-      acc[cur] = assetsById[cur]
-      return acc
-    }, {}),
 )
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded

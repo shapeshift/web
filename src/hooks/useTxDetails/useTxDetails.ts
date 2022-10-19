@@ -107,6 +107,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     fee,
     transfers,
     type: getTxType(tx, transfers),
-    explorerTxLink: feeAsset.explorerTxLink,
+    explorerTxLink: feeAsset?.explorerTxLink ?? '',
   }
 }

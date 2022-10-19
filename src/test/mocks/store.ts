@@ -66,7 +66,6 @@ export const mockStore: ReduxState = {
       Zendesk: false,
       Yat: false,
       MultiAccounts: false,
-      SwapperV2: false,
       WalletConnectToDapps: false,
       MigrationMessage: false,
       DashboardBreakdown: false,

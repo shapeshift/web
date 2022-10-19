@@ -193,7 +193,7 @@ export const TransactionGenericRow = ({
                   fontWeight='bold'
                   translation={title ? title : `transactionRow.${type.toLowerCase()}`}
                 />
-                {txData?.parser === 'ibc' && (
+                {txData && txData.parser === 'ibc' && (
                   <Tag
                     size='sm'
                     colorScheme='blue'

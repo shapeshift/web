@@ -108,7 +108,8 @@ const chainIdFeeAssetReferenceMap = (
 export const selectFeeAssetByChainId = createSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
-  (assetsById, chainId): Asset => {
+  (assetsById, chainId): Asset | undefined => {
+    if (!chainId) return undefined
     const { chainNamespace, chainReference } = fromChainId(chainId)
     const feeAssetId = toAssetId({
       chainId,

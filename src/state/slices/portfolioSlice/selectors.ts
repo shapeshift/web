@@ -296,13 +296,6 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
   (allStaked: { [k: string]: string }, marketData, assetsById) => {
     const allStakingData = Object.entries(allStaked)
-    const keys = Object.keys(allStaked)
-    if (
-      keys.includes(
-        'cosmos:thorchain-mainnet-v1:cosmos:thorchain-mainnet-v1:thor1jmj570n7ajcc0fsapjudznrdgv8hnphfhpwsw9',
-      )
-    )
-      debugger
 
     const totalStakingDelegationFiat = reduce(
       allStakingData,

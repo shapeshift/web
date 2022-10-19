@@ -2,7 +2,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import type { KeyManager } from './KeyManager'
-import type { Adapters, InitialState, WalletInfo } from './WalletProvider'
+import type { Adapters, InitialState, WalletConnectApp, WalletInfo } from './WalletProvider'
 import type { DeviceState } from './WalletProvider'
 
 export enum WalletActions {
@@ -29,6 +29,7 @@ export enum WalletActions {
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
   SET_KEEPKEY_STATE = 'SET_KEEPKEY_STATE',
   SET_KEEPKEY_STATUS = 'SET_KEEPKEY_STATUS',
+  SET_WALLET_CONNECT_APP = 'SET_WALLET_CONNECT_APP',
 }
 
 export type ActionTypes =
@@ -97,3 +98,4 @@ export type ActionTypes =
     }
   | { type: WalletActions.SET_KEEPKEY_STATE; payload: string }
   | { type: WalletActions.SET_KEEPKEY_STATUS; payload: string }
+  | { type: WalletActions.SET_WALLET_CONNECT_APP; payload: WalletConnectApp | null }

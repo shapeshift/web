@@ -7,9 +7,11 @@ import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/Ba
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
+import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
+import { SignModal } from 'components/Modals/Sign/Sign'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { ModalContext } from './ModalContext'
@@ -20,6 +22,8 @@ import { ModalContext } from './ModalContext'
 const MODALS = {
   receive: ReceiveModal,
   send: SendModal,
+  sign: SignModal,
+  pair: PairModal,
   fiatRamps: FiatRampsModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,

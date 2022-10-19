@@ -17,6 +17,7 @@ export interface IWalletContext {
   onProviderChange: (localWalletType: KeyManagerWithProvider) => Promise<void>
   doStartBridge: any
   doSetupKeyring: any
+  keepkey: any
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

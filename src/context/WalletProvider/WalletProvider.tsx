@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -10,6 +11,7 @@ import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-wallet
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
+import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
@@ -19,11 +21,13 @@ import type { Entropy } from 'context/WalletProvider/KeepKey/components/Recovery
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
+import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
-import { ipcRenderer } from 'electron'
+
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
+import { KeepKeyService } from './KeepKey'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
@@ -38,7 +42,6 @@ import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandle
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-import { KeepKeyService } from './KeepKey'
 
 const keepkey = new KeepKeyService()
 
@@ -56,6 +59,13 @@ export type WalletInfo = {
   icon: ComponentWithAs<'svg', IconProps>
   deviceId: string
   meta?: { label?: string; address?: string }
+}
+
+export type WalletConnectApp = {
+  name: string
+  icons: Array<string>
+  description: string
+  url: string
 }
 
 export type Outcome = 'success' | 'error'
@@ -339,6 +349,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [state, dispatch] = useReducer(reducer, getInitialState())
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
+  const { sign, pair } = useModal()
 
   const disconnect = useCallback(() => {
     /**
@@ -378,8 +389,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               break
             case KeyManager.KeepKey:
-
-            console.log('loading keepkey')
+              console.log('loading keepkey')
               try {
                 const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
                 /**
@@ -563,7 +573,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })()
   }, [state.wallet, onProviderChange])
 
-  const doSetupKeyring = () => {
+  const doSetupKeyring = useCallback(() => {
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
@@ -584,17 +594,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               default:
                 break
             }
-            if(wallet === 'keepkey') {
+            if (wallet === 'keepkey') {
               const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
               await adapter.pairDevice('http://localhost:1646')
               adapters.set(wallet, adapter)
-            }
-            else {
+            } else {
               const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
               adapters.set(wallet, adapter)
               // useKeyring returns the instance of the adapter. We'll keep it for future reference.
               await adapter.initialize?.()
-              adapters.set(wallet, adapter)                
+              adapters.set(wallet, adapter)
             }
           } catch (e) {
             moduleLogger.error(e, 'Error initializing HDWallet adapters')
@@ -604,15 +613,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
       })()
     }
-  }
+  }, [state.keyring])
 
-  const doStartBridge = () => {
-
+  const doStartBridge = useCallback(() => {
     // TODO walletconnect
     // ipcRenderer.on('@walletconnect/paired', (_event, data) => {
     //   dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
     // })
-
 
     // TODO add some sound
     // //listen to events on main
@@ -644,10 +651,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
     })
 
-    // TODO pair modal
-    // ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
-    //   pair.open(data)
-    // })
+    ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
+      pair.open(data)
+    })
 
     ipcRenderer.on('loadKeepKeyInfo', (_event, data) => {
       keepkey.updateFeatures(data.payload)
@@ -817,26 +823,24 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('setDevice', () => {})
 
-    // TODO add open modal
-    // ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
-    //   let unsignedTx = data.payload.data
-    //   //open signTx
-    //   if (
-    //     unsignedTx &&
-    //     unsignedTx.invocation &&
-    //     unsignedTx.invocation.unsignedTx &&
-    //     unsignedTx.invocation.unsignedTx.HDwalletPayload
-    //   ) {
-    //     sign.open({ unsignedTx, nonce: data.nonce })
-    //   } else {
-    //     console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
-    //   }
-    // })
+    ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
+      let unsignedTx = data.payload.data
+      //open signTx
+      if (
+        unsignedTx &&
+        unsignedTx.invocation &&
+        unsignedTx.invocation.unsignedTx &&
+        unsignedTx.invocation.unsignedTx.HDwalletPayload
+      ) {
+        sign.open({ unsignedTx, nonce: data.nonce })
+      } else {
+        console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
+      }
+    })
 
     //start keepkey
     async function startPioneer() {
       try {
-        //keepkey
         await keepkey.init()
       } catch (e) {
         console.error(e)
@@ -853,9 +857,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     } else {
       ipcRenderer.send('@wallet/connected')
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }
+  }, [pair, sign, state.wallet])
 
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
@@ -938,9 +940,21 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       onProviderChange,
       connectDemo,
       doStartBridge,
-      doSetupKeyring
+      doSetupKeyring,
+      keepkey,
     }),
-    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange, doStartBridge, doSetupKeyring],
+    [
+      state,
+      connect,
+      create,
+      disconnect,
+      load,
+      setDeviceState,
+      connectDemo,
+      onProviderChange,
+      doStartBridge,
+      doSetupKeyring,
+    ],
   )
 
   return (

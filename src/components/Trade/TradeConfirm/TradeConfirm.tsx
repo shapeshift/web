@@ -61,6 +61,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [buyTxid, setBuyTxid] = useState('')
   const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
+  const [executedTrade, setExecutedTrade] = useState<TS['trade']>()
   const {
     handleSubmit,
     setValue,
@@ -72,7 +73,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
   const flags = useSelector(selectFeatureFlags)
 
-  const trade = useWatch({ control, name: 'trade' })
+  const formTrade = useWatch({ control, name: 'trade' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
@@ -89,6 +90,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     state: { isConnected, wallet },
     dispatch,
   } = useWallet()
+
+  // If an executed value exists we want to ignore any subsequent updates and use the executed value
+  const trade = useMemo(() => executedTrade ?? formTrade, [executedTrade, formTrade])
+  const tradeAmounts = useMemo(
+    () => executedTradeAmountConstants ?? tradeAmountConstants,
+    [executedTradeAmountConstants, tradeAmountConstants],
+  )
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
@@ -172,9 +180,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         return
       }
 
-      setExecutedTradeAmountConstants(tradeAmountConstants)
-
       const result = await swapper.executeTrade({ trade, wallet })
+      setExecutedTradeAmountConstants(tradeAmountConstants)
+      setExecutedTrade(formTrade)
       setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid
@@ -208,10 +216,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const sellAmountCrypto = fromBaseUnit(
-    bnOrZero(trade?.sellAmount),
-    trade?.sellAsset?.precision ?? 0,
-  )
+  const sellAmountCrypto = fromBaseUnit(bnOrZero(trade.sellAmount), trade.sellAsset?.precision ?? 0)
 
   const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))
@@ -273,7 +278,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Stack>
                   </Alert>
                 )}
-                {trade?.buyAsset.assetId === thorchainAssetId && (
+                {trade.buyAsset.assetId === thorchainAssetId && (
                   <Alert status='info' width='auto' mb={3} fontSize='sm'>
                     <AlertIcon />
                     <Stack spacing={0}>
@@ -295,16 +300,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={
-                    executedTradeAmountConstants?.beforeFeesBuyAsset ??
-                    tradeAmountConstants?.beforeFeesBuyAsset ??
-                    ''
-                  }
-                  protocolFee={
-                    executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
-                    tradeAmountConstants?.totalTradeFeeBuyAsset ??
-                    ''
-                  }
+                  beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
+                  protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
                   swapperName={swapper?.name ?? ''}
@@ -331,8 +328,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </HelperTooltip>
                   <Box textAlign='right'>
                     <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                      bnOrZero(trade?.rate),
-                    )} ${trade?.buyAsset?.symbol}`}</RawText>
+                      bnOrZero(trade.rate),
+                    )} ${trade.buyAsset?.symbol}`}</RawText>
                     {!!fees?.tradeFeeSource && (
                       <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
                     )}

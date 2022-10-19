@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v12.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.0.3...@shapeshiftoss/swapper-v12.1.0) (2022-10-19)
+
+
+### Features
+
+* only show available pools ([#1069](https://github.com/shapeshift/lib/issues/1069)) ([aae41b5](https://github.com/shapeshift/lib/commit/aae41b50cc917a4ec0bd4ceab4a5f4cc78d4f7ba))
+
 # [@shapeshiftoss/swapper-v12.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.0.2...@shapeshiftoss/swapper-v12.0.3) (2022-10-19)
 
 # [@shapeshiftoss/swapper-v12.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.0.1...@shapeshiftoss/swapper-v12.0.2) (2022-10-17)

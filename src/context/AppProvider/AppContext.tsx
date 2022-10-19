@@ -4,7 +4,6 @@ import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shape
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { entries } from 'lodash'
-import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -93,7 +92,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // if we have a wallet and changed account specifiers, we have switched wallets
     // NOTE! - the wallet will change before the account specifiers does, so clearing here is valid
     // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && !isEmpty(requestedAccountIds))
+    const switched = Boolean(wallet && !requestedAccountIds.length)
     const disconnected = !wallet
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')
@@ -101,7 +100,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch(portfolio.actions.clear())
       dispatch(txHistory.actions.clear())
     }
-    // TODO(0xdef1cafe): check deps here
+    // requestedAccountIds is changed by this effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, wallet])
 
   useEffect(() => {

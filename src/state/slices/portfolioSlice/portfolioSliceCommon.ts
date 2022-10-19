@@ -87,13 +87,13 @@ export type AccountMetadataById = {
   [k: AccountId]: AccountMetadata
 }
 
-export type PortfolioAccountSpecifiers = {
-  accountMetadataById: AccountMetadataById
+export type PortfolioAccountMetadata = {
+  byId: AccountMetadataById
   ids: AccountId[]
 }
 
 export type Portfolio = {
-  accountSpecifiers: PortfolioAccountSpecifiers
+  accountMetadata: PortfolioAccountMetadata
   accounts: PortfolioAccounts
   assetBalances: PortfolioAssetBalances
   accountBalances: PortfolioAccountBalances
@@ -108,8 +108,9 @@ export const initialState: Portfolio = {
     byId: {},
     ids: [],
   },
-  accountSpecifiers: {
-    accountMetadataById: {},
+  // requested account ids and associated metadata from when the wallet is connected
+  accountMetadata: {
+    byId: {},
     ids: [],
   },
   accountBalances: {

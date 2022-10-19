@@ -128,7 +128,7 @@ export const selectPortfolioAccountBalances = (
 ): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
-  (state: ReduxState): AccountMetadataById => state.portfolio.accountSpecifiers.accountMetadataById,
+  (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
   accountMetadata => accountMetadata,
 )
 
@@ -136,7 +136,7 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
  * the requested accountIds from the wallet, not necessarily loaded
  */
 export const selectPortfolioRequestedAccountIds = (state: ReduxState) =>
-  state.portfolio.accountSpecifiers.ids
+  state.portfolio.accountMetadata.ids
 
 export const selectPortfolioAccountMetadataByAccountId = createSelector(
   selectPortfolioAccountMetadata,

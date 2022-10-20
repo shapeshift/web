@@ -4015,10 +4015,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.1.2":
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.2.tgz#35f11e151130e5dfd14a860ad216bf554830c9b6"
-  integrity sha512-v5K+ePJn2EJvNy6SqGe/fcEka6vhpvD4o3E2xRHSLfSlvN3ceAYRkdXP16UwHj+5JY/pMRYw/sp5bxm1NxLzmw==
+"@shapeshiftoss/asset-service@^8.1.3":
+  version "8.1.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.3.tgz#b803e0e7426fc55f74a33ce6e331aab2bad1c7b9"
+  integrity sha512-unpD3Huk5+Kw22/8LEAfF/Z/MU1RImEZ3MXUNn7pDdIO1jIk/VqAUgpE9uG5FD6+lmqLAAIMoVEO59yqNm/pNA==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4340,10 +4340,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^12.1.0":
-  version "12.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-12.1.0.tgz#dff60c857dbb7516d65f77a384e92e9a7d6bfad1"
-  integrity sha512-byj1SztyTUaa+q/vsxpnmBuT5tP83FBCg6YVphFUKxnLc7buSTakAoE9NIUsLOUcDD3EKM/0sD/HkyssXqY6Ug==
+"@shapeshiftoss/swapper@^12.2.0":
+  version "12.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-12.2.0.tgz#cb6ff2c22a3d8a651d56939f6c6dd6769385bf7f"
+  integrity sha512-Z+bl2yq1BdW7UpZ2OQDjmmo4RjO98KpIgTvJk1wRAVtRZnca7rYaP8bDQy2BAXm2E0UFPL9KM+AwkFU0ScKwIg==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4361,10 +4361,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.2.tgz#282125c027e8cf07a892229e54b7f7177d2cb941"
   integrity sha512-1gaYbU6pg5VSLXwKuDneerSxv3g2VyKIghvcIxuOiONDvhsjdDRgwuQyWLKfwkNKU/y2q2TZVn5FzYy1+YMroQ==
 
-"@shapeshiftoss/unchained-client@^10.2.0":
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.2.0.tgz#14e436f4fe63b79af2dcb9a5d75bf415df14d7c7"
-  integrity sha512-V6Y3fNdPGqTrcqNdzeSni2Ys1mwC5ejXu0xX6IaDkVefeuMIyT/nHetH6VeBKATGAPLtBxQOFW/a1vKHKLcKgw==
+"@shapeshiftoss/unchained-client@^10.2.1":
+  version "10.2.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.2.1.tgz#3dc842d9afabb805d1d97c6ca4d878af3b4703ba"
+  integrity sha512-sDuRWf2S0xkD5UVJIZqZiUu4tbs0K1mUP7SvEwvh/UMwZ0feeKOH+On0ef00q2MlylW7MCO5b6VR1FHNB0pH9w==
   dependencies:
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"

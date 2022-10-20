@@ -603,6 +603,11 @@
         "header": "Frase de Recuperación no válida",
         "body": "La Frase de Recuperación que ingresó no es válida.",
         "button": "Intentar otra vez"
+      },
+      "downloadUpdater": {
+        "header": "Descargar KeepKey Updater",
+        "button": "Descargar %{filename}",
+        "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
       }
     },
     "shapeShift": {
@@ -880,6 +885,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Se produjo un error inesperado al comunicarse con su KeepKey",
+        "updateAlert": "Se requiere el firmware 6.1.0 o posterior para usar su Keepkey con este cliente. Actualice su dispositivo.",
         "pinCancelled": "Se canceló la entrada del PIN",
         "pinInvalid": "El PIN que ingresó no es válido",
         "pinMismatch": "Los dos PIN que ingresó no coinciden"
@@ -888,7 +894,8 @@
         "header": "Empareje su KeepKey",
         "body": "Conecte un dispositivo KeepKey y haga clic en Emparejar.",
         "button": "Emparejar",
-        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey."
+        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey.",
+        "downloadUpdaterApp": "Descarga la aplicación de actualización"
       },
       "pin": {
         "header": "Introduce tu PIN",
@@ -1351,7 +1358,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Compre %{assetSymbol} en Coinbase",
+      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",
@@ -1384,7 +1391,12 @@
       "seeAllProposals": "Ver todas las Propuestas",
       "availableToTradeOn": "Disponible para Intercambiar",
       "dex": "DEX",
-      "centralized": "Centralizado"
+      "centralized": "Centralizado",
+      "dappBack": {
+        "title": "✨ ¡Obtén recompensas FOX y más! ✨",
+        "body": "Gana recompensas FOX completando tareas en DappBack",
+        "cta": "Iniciar DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

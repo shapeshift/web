@@ -556,6 +556,7 @@
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
+      "noReceiveAddress": "No receive address for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

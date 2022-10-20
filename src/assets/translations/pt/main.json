@@ -602,6 +602,8 @@
         "header": "Frase de recuperação inválida",
         "body": "A Frase de Recuperação que você inseriu é inválida.",
         "button": "Tente novamente"
+      },
+      "downloadUpdater": {
       }
     },
     "shapeShift": {
@@ -1381,7 +1383,9 @@
       "seeAllProposals": "Ver todas as propostas",
       "availableToTradeOn": "Disponível para negociação",
       "dex": "DEX",
-      "centralized": "Centralizada"
+      "centralized": "Centralizada",
+      "dappBack": {
+      }
     },
     "analytics": {
       "optInModal": {

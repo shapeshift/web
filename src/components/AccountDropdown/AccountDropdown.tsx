@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { BoxProps } from '@chakra-ui/react'
+import { usePrevious } from '@chakra-ui/react'
 import {
   type ButtonProps,
   type MenuItemOptionProps,
@@ -101,17 +102,21 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
-  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>()
+  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>(
+    defaultAccountId ?? null,
+  )
+  // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
+  const previousSelectedAccountId = usePrevious(selectedAccountId)
   const isDropdownDisabled = disabled || accountIds.length <= 1
 
   /**
    * react on selectedAccountId change
    */
   useEffect(() => {
-    if (isEmpty(accountMetadata)) return
-    if (!selectedAccountId) return
+    if (isEmpty(accountMetadata)) return // not enough data to set an AccountId
+    if (!selectedAccountId || previousSelectedAccountId === selectedAccountId) return // no-op, this would fire onChange an infuriating amount of times
     handleChange(selectedAccountId)
-  }, [accountMetadata, selectedAccountId, handleChange])
+  }, [accountMetadata, previousSelectedAccountId, selectedAccountId, handleChange])
 
   /**
    * react on accountIds on first render
@@ -216,7 +221,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           />
           {sortedAccountIds.map((iterAccountId, index) => (
             <AccountChildOption
-              key={`${iterAccountId}-${index}`}
+              key={`${accountNumber}-${iterAccountId}-${index}`}
               title={makeTitle(iterAccountId)}
               cryptoBalance={fromBaseUnit(
                 accountBalances?.[iterAccountId]?.[assetId] ?? 0,

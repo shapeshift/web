@@ -162,7 +162,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connecter un porte-monnaie",
-      "switchWallet": "Changer de fournisseur de porte-monnaie",
+      "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)"
     }
@@ -532,10 +532,10 @@
       "grantAllowanceFailed": "Une erreur s'est produite lors de l'octroi de l'allocation.",
       "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
       "executeTradeFailed": "Une erreur s'est produite lors de l'exécution de votre échange.",
-      "unsupportedPair": "Cette paire d'échange n'est pas prise en charge actuellement.",
-      "unsupportedChain": "Cette chaîne n'est pas prise en charge actuellement.",
+      "unsupportedPair": "Paire d'échange non supportée actuellement.",
+      "unsupportedChain": "Chaîne non supportée actuellement.",
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
-      "assetNotSupportedByWallet": "%{assetSymbol} n'est pas pris en charge par le porte-monaie",
+      "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -601,6 +601,11 @@
         "header": "La phrase de récupération est invalide",
         "body": "La phrase de récupération que vous avez saisie est invalide.",
         "button": "Réessayer"
+      },
+      "downloadUpdater": {
+        "header": "Télécharger le programme de mise à jour KeepKey",
+        "button": "Télécharger %{filename}",
+        "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
       }
     },
     "shapeShift": {
@@ -828,7 +833,7 @@
     "settings": {
       "settings": "Paramètres",
       "currency": "Devise",
-      "clearWalletAccountData": "Supprimer tous les comptes et données de porte-monnaie",
+      "clearWalletAccountData": "Supprimer comptes et données de porte-monnaie",
       "deleteAccountsConfirm": "Êtes-vous sûr?\n\nCela supprimera toutes les données personnelles, y compris les porte-monnaie, les comptes et soldes.\n\nVérifiez que vous avez sauvegardé vos porte-monnaie avant de continuer.",
       "currencyFormat": "Format de devise",
       "language": "Langue",
@@ -878,6 +883,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
+        "updateAlert": "Le firmware 6.1.0 ou ultérieur est requis pour utiliser votre Keepkey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du NIP a été annulée",
         "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"
@@ -886,7 +892,8 @@
         "header": "Appairer votre KeepKey",
         "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
-        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
+        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
+        "downloadUpdaterApp": "Télécharger l'app de mise à jour"
       },
       "pin": {
         "header": "Entrer votre NIP",
@@ -1379,7 +1386,12 @@
       "seeAllProposals": "Voir toutes les propositions",
       "availableToTradeOn": "Disponible pour les échanges sur",
       "dex": "DEX",
-      "centralized": "Centralisé"
+      "centralized": "Centralisé",
+      "dappBack": {
+        "title": "✨ Récompenses en FOX et plus encore ! ✨",
+        "body": "Gagnez des récompenses en FOX en accomplissant des tâches sur DappBack",
+        "cta": "Lancer DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

@@ -601,6 +601,11 @@
         "header": "Ungültige Wiederherstellungsphrase",
         "body": "Der von Ihnen eingegebene Wiederherstellungssatz ist ungültig.",
         "button": "Nochmaliger Versuch"
+      },
+      "downloadUpdater": {
+        "header": "Lade den KeepKey-Updater",
+        "button": "Lade %{filename}",
+        "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
       }
     },
     "shapeShift": {
@@ -878,6 +883,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Bei der Kommunikation mit Ihrem KeepKey ist ein unerwarteter Fehler aufgetreten",
+        "updateAlert": "Firmware 6.1.0 oder höher ist erforderlich, um Ihren Keepkey mit diesem Client zu verwenden. Bitte aktualisieren Sie Ihr Gerät.",
         "pinCancelled": "PIN-Eingabe wurde abgebrochen",
         "pinInvalid": "Die eingegebene PIN ist ungültig",
         "pinMismatch": "Die beiden eingegebenen PINs stimmen nicht überein"
@@ -886,7 +892,8 @@
         "header": "Koppeln Sie Ihren KeepKey",
         "body": "Verbinden Sie ein KeepKey-Gerät und klicken Sie auf Koppeln.",
         "button": "Koppeln",
-        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden."
+        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden.",
+        "downloadUpdaterApp": "Lade update App"
       },
       "pin": {
         "header": "PIN eingeben",
@@ -1379,7 +1386,12 @@
       "seeAllProposals": "Siehe Alle Vorschläge",
       "availableToTradeOn": "Verfügbar zum Handeln auf",
       "dex": "DEX",
-      "centralized": "Zentralisiert"
+      "centralized": "Zentralisiert",
+      "dappBack": {
+        "title": "✨ Erhalte FOX-Belohnungen + mehr! ✨",
+        "body": "Verdienen Sie FOX-Belohnungen, indem Sie Aufgaben auf DappBack erledigen",
+        "cta": "Starte DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

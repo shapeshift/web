@@ -304,7 +304,10 @@ export const TradeInput = () => {
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
-      return 'common.insufficientAmountForGas'
+      return [
+        'common.insufficientAmountForGas',
+        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'sell asset' },
+      ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'

@@ -126,7 +126,6 @@ export const getFormFees = ({
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
   const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee, feeAsset.precision)
-  console.log('xxx fee asset calc', { feeAsset, trade, networkFeeCryptoHuman })
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {

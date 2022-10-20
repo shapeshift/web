@@ -19,6 +19,7 @@ export type ExternalOpportunity = {
   isDisabled?: boolean
   opportunityContractAddress?: string
   opportunityProvider?: DefiProvider
+  highestBalanceAccountAddress?: string
 }
 
 export type OpportunitiesBucket = {

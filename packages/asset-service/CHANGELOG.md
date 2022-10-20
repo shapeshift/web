@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.2...@shapeshiftoss/asset-service-v8.1.3) (2022-10-20)
+
+
+### Bug Fixes
+
+* improve asset generation and filter or blacklist all known wormhole assets ([#1072](https://github.com/shapeshift/lib/issues/1072)) ([b37bdef](https://github.com/shapeshift/lib/commit/b37bdef4e378937527bb16973d3042e3ae72757e))
+
 # [@shapeshiftoss/asset-service-v8.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.1...@shapeshiftoss/asset-service-v8.1.2) (2022-10-06)
 
 # [@shapeshiftoss/asset-service-v8.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.0...@shapeshiftoss/asset-service-v8.1.1) (2022-09-14)

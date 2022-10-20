@@ -41,7 +41,7 @@ import { TradeAssetInput } from './Components/TradeAssetInput'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import type { TS } from './types'
-import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
+import { TradeAmountInputField, TradeRoutePaths, type TradeState } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
@@ -304,7 +304,10 @@ export const TradeInput = () => {
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
-      return 'common.insufficientAmountForGas'
+      return [
+        'common.insufficientAmountForGas',
+        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'sell asset' },
+      ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'

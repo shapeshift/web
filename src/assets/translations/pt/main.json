@@ -604,6 +604,9 @@
         "button": "Tente novamente"
       },
       "downloadUpdater": {
+        "header": "Baixar o app para atualizações da KeepKey.",
+        "button": "Baixar %{filename}",
+        "wrongPlatform": "Não está utilizando %{platform}? Clique aqui."
       }
     },
     "shapeShift": {
@@ -881,6 +884,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
+        "updateAlert": "O firmware 6.1.0 ou posterior é necessário para usar a Keepkey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"
@@ -889,7 +893,8 @@
         "header": "Emparelhe sua KeepKey",
         "body": "Conecte sua KeepKey e clique em Emparelhar.",
         "button": "Emparelhar",
-        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo ."
+        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo .",
+        "downloadUpdaterApp": "Baixar o app para atualizações."
       },
       "pin": {
         "header": "Insira seu PIN",
@@ -1385,6 +1390,9 @@
       "dex": "DEX",
       "centralized": "Centralizada",
       "dappBack": {
+        "title": "✨ Receba recompensa em FOX e muito mais! ✨",
+        "body": "Ganhe recompensas em FOX completando tarefas no DappBack.",
+        "cta": "Abrir o DappBack."
       }
     },
     "analytics": {

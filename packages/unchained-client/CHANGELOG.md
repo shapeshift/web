@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.0...@shapeshiftoss/unchained-client-v10.2.1) (2022-10-20)
+
+
+### Bug Fixes
+
+* parse confirmed Txs with univ2 parser ([#1070](https://github.com/shapeshift/lib/issues/1070)) ([a72b7ac](https://github.com/shapeshift/lib/commit/a72b7ac3c27b6286f1f600c799575efb0d61f397))
+
 # [@shapeshiftoss/unchained-client-v10.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.1.2...@shapeshiftoss/unchained-client-v10.2.0) (2022-10-17)
 
 

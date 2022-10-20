@@ -1,10 +1,5 @@
 import type { BigNumber } from 'lib/bignumber/bignumber'
 
-export enum FiatRampsRoutes {
-  Select = '/fiat-ramp/select',
-  Manager = '/fiat-ramp/manager',
-}
-
 export enum FiatRampAction {
   Buy = 'buy',
   Sell = 'sell',

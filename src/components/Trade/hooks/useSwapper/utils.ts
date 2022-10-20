@@ -58,7 +58,7 @@ export const isSupportedNonUtxoSwappingChain = (
 
 // Pure functions
 export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  if (!sellAssetAccountId) throw new Error('No UTXO account id')
   return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 

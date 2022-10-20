@@ -58,6 +58,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           chainId,
           contractAddress,
           assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',
         }),
@@ -65,7 +66,16 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       })
       return
     }
-  }, [isDemoWallet, defiOpportunity, dispatch, history, location, opportunity.link, wallet])
+  }, [
+    opportunity.highestBalanceAccountAddress,
+    isDemoWallet,
+    defiOpportunity,
+    dispatch,
+    history,
+    location,
+    opportunity.link,
+    wallet,
+  ])
 
   const opportunityButtonTranslation = useMemo(() => {
     if (opportunity.link) return 'plugins.foxPage.getStarted'

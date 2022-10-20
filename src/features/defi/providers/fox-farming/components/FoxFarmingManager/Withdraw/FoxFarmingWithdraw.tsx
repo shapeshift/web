@@ -18,7 +18,11 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
-import { selectPortfolioLoading } from 'state/slices/selectors'
+import {
+  selectFoxFarmingOpportunityByContractAddress,
+  selectPortfolioLoading,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
@@ -47,10 +51,15 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = useMemo(
-    () => foxFarmingOpportunities.find(e => e.contractAddress === contractAddress),
-    [contractAddress, foxFarmingOpportunities],
+  const { farmingAccountAddress } = useFoxEth()
+
+  const filter = useMemo(
+    () => ({ accountAddress: farmingAccountAddress ?? '', contractAddress }),
+    [farmingAccountAddress, contractAddress],
+  )
+
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
   )
 
   const loading = useSelector(selectPortfolioLoading)
@@ -58,16 +67,19 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(accountAddress && contractAddress && opportunity)) return
+        if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS, payload: accountAddress })
+        dispatch({
+          type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
+          payload: farmingAccountAddress,
+        })
         dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [accountAddress, translate, contractAddress, opportunity])
+  }, [farmingAccountAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({
@@ -121,7 +133,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     translate,
   ])
 
-  if (loading || !opportunity || foxFarmingLoading)
+  if (loading || !opportunity || !opportunity.isLoaded)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

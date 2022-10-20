@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -11,7 +11,6 @@ import {
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
-import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY_CRYPTO = 'BUY_CRYPTO',
@@ -33,10 +32,10 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
 
 export type TradeState<C extends ChainId> = {
   sellTradeAsset: TradeAsset | undefined
-  sellAssetAccountId: AccountSpecifier | undefined
-  buyAssetAccountId: AccountSpecifier | undefined
-  selectedSellAssetAccountId?: AccountSpecifier
-  selectedBuyAssetAccountId?: AccountSpecifier
+  sellAssetAccountId: AccountId | undefined
+  buyAssetAccountId: AccountId | undefined
+  selectedSellAssetAccountId?: AccountId
+  selectedBuyAssetAccountId?: AccountId
   buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string
   fiatBuyAmount: string

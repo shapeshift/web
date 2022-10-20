@@ -7,7 +7,9 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
@@ -19,7 +21,11 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -65,14 +71,7 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useFoxFarming(contractAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const marketData = {
-    // The LP token doesnt have market data.
-    // We're making our own market data object for the deposit view
-    price: lpTokenPrice ? bnOrZero(lpTokenPrice).toFixed(2) : '0',
-    marketCap: '0',
-    volume: '0',
-    changePercent24Hr: 0,
-  }
+  const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   // notify

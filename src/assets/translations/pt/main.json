@@ -543,6 +543,7 @@
       "generalError": "Ocorreu um erro durante a troca.",
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
+    "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
     "shapeshiftFee": "Taxa ShapeShift"
   },
@@ -601,12 +602,18 @@
         "header": "Frase de recuperação inválida",
         "body": "A Frase de Recuperação que você inseriu é inválida.",
         "button": "Tente novamente"
+      },
+      "downloadUpdater": {
+        "header": "Baixar o app para atualizações da KeepKey.",
+        "button": "Baixar %{filename}",
+        "wrongPlatform": "Não está utilizando %{platform}? Clique aqui."
       }
     },
     "shapeShift": {
       "password": {
         "header": "Insira sua Senha",
         "walletName": "Nome da carteira (opcional)",
+        "walletNameRequired": "Nome da Wallet (necessário)",
         "body": "Insira sua senha para descriptografar sua carteira",
         "placeholder": "Sua Senha",
         "show": "Exibir senha",
@@ -614,6 +621,7 @@
         "error": {
           "invalid": "Senha Inválida",
           "required": "É necessário inserir sua senha",
+          "walletNameRequired": "Nome da Wallet é necessária.",
           "length": "Sua senha deve conter ao menos %{length} caracteres",
           "maxLength": "Apelido deve conter no máximo %{length} caracteres"
         }
@@ -747,6 +755,7 @@
       "noFee": "Sem taxa de %{symbol}",
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
+      "notEnoughGas": "Insuficiente %{assetSymbol} para cobrir as taxas.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
       "withdrawalFee": "Taxa de saque",
       "status": {
@@ -875,6 +884,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
+        "updateAlert": "O firmware 6.1.0 ou posterior é necessário para usar a Keepkey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"
@@ -883,7 +893,8 @@
         "header": "Emparelhe sua KeepKey",
         "body": "Conecte sua KeepKey e clique em Emparelhar.",
         "button": "Emparelhar",
-        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo ."
+        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo .",
+        "downloadUpdaterApp": "Baixar o app para atualizações."
       },
       "pin": {
         "header": "Insira seu PIN",
@@ -1377,7 +1388,12 @@
       "seeAllProposals": "Ver todas as propostas",
       "availableToTradeOn": "Disponível para negociação",
       "dex": "DEX",
-      "centralized": "Centralizada"
+      "centralized": "Centralizada",
+      "dappBack": {
+        "title": "✨ Receba recompensa em FOX e muito mais! ✨",
+        "body": "Ganhe recompensas em FOX completando tarefas no DappBack.",
+        "cta": "Abrir o DappBack."
+      }
     },
     "analytics": {
       "optInModal": {

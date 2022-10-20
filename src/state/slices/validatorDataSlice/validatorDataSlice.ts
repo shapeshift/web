@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   cosmossdk,
   CosmosSdkBaseAdapter,
@@ -16,8 +17,6 @@ import { getDefaultValidatorAddressFromChainId } from './utils'
 const moduleLogger = logger.child({ namespace: ['validatorDataSlice'] })
 
 export type PubKey = string
-
-type SingleValidatorDataArgs = { accountSpecifier: string; chainId: ChainId }
 
 export type ValidatorData = {
   byValidator: ValidatorDataByPubKey
@@ -65,12 +64,13 @@ export const validatorDataApi = createApi({
   // The first won't noticeably change given the Million fiat precision we use, and the former effectively won't noticeably change either in such timeframe
   keepUnusedDataFor: 300,
   endpoints: build => ({
-    getValidatorData: build.query<cosmossdk.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ accountSpecifier, chainId }, { dispatch, getState }) => {
+    getValidatorData: build.query<cosmossdk.Validator, AccountId>({
+      queryFn: async (accountId, { dispatch, getState }) => {
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId } = (getState() as any).portfolio.accounts as PortfolioAccounts
 
-        const portfolioAccount = byId[accountSpecifier]
+        const { chainId } = fromAccountId(accountId)
+        const portfolioAccount = byId[accountId]
 
         const validatorAddress = getDefaultValidatorAddressFromChainId(chainId)
 

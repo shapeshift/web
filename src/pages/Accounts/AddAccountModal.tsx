@@ -23,7 +23,6 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -33,7 +32,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
@@ -121,12 +119,6 @@ export const AddAccountModal = () => {
         wallet,
       })
 
-      // TODO(0xdef1cafe): temporary transform for backwards compatibility until we kill accountSpecifiersSlice
-      const accountSpecifiersPayload = Object.keys(accountMetadataByAccountId).map(accountId => {
-        const { chainId, account } = fromAccountId(accountId)
-        return { [chainId]: account }
-      })
-      dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
       dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]

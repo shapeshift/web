@@ -157,5 +157,5 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     wallet,
   ])
 
-  return { getDefaultAssets }
+  return { getDefaultAssets, defaultAssetIdPair }
 }

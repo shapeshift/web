@@ -26,7 +26,7 @@ function useLocationBackground() {
 export const Routes = () => {
   const dispatch = useDispatch()
   const { background, location } = useLocationBackground()
-  const { connectDemo, state } = useWallet()
+  const { state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
@@ -46,14 +46,13 @@ export const Routes = () => {
     if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)
     if (!matchDemoPath || state.isLoadingLocalWallet) return
 
-    state.isDemoWallet ? setShouldRedirectDemoRoute(true) : connectDemo()
+    setShouldRedirectDemoRoute(true)
   }, [
     matchDemoPath,
     shouldRedirectDemoRoute,
     location.pathname,
     state.isDemoWallet,
     state.isLoadingLocalWallet,
-    connectDemo,
   ])
 
   /**

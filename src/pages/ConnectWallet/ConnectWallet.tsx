@@ -16,7 +16,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
-  const { state, dispatch, doStartBridge, doSetupKeyring } = useWallet()
+  const { state, dispatch, needsReset } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
   const history = useHistory()
@@ -81,45 +81,11 @@ export const ConnectWallet = () => {
                   isMigrationMessageEnabled ? 'connectWalletPage.body2' : 'connectWalletPage.body'
                 }
               />
-              <Stack
-                alignItems='center'
-                spacing={{ base: 2, md: 8 }}
-                mx='auto'
-                direction={{ base: 'column', md: 'row' }}
-              >
-                <Button
-                  size='lg'
-                  zIndex={1}
-                  colorScheme='blue'
-                  // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-                  onClick={() => doStartBridge()}
-                  data-test='connect-wallet-button'
-                >
-                  Start Bridge (Do this first)
-                </Button>
-                <Button
-                  size='lg'
-                  zIndex={1}
-                  colorScheme='blue'
-                  // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-                  onClick={() => {
-                    doSetupKeyring()
-                    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-                  }}
-                  data-test='connect-wallet-button'
-                >
-                  Setup keyring (Do this next)
-                </Button>
-                <Flex alignItems='center' justifyContent='center'>
-                  <Text
-                    color='whiteAlpha.500'
-                    fontSize='lg'
-                    fontWeight='bold'
-                    textAlign='center'
-                    translation='common.or'
-                  />
-                </Flex>
-              </Stack>
+              {needsReset && (
+                <RawText fontSize='3xl' color='red' fontWeight='bold'>
+                  ** UNPLUG & REPLUG KEEPKEY **
+                </RawText>
+              )}
             </Center>
             <Flex
               direction={'column'}

@@ -1,4 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import * as keepkeyTcp from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
@@ -9,7 +10,6 @@ import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 
 import { DemoConfig } from './DemoWallet/config'
-import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
 import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
 import { KeepKeyLabel } from './KeepKey/components/Label'
@@ -65,7 +65,6 @@ import { WalletConnectConfig } from './WalletConnect/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
-import * as keepkeyTcp from '@shapeshiftoss/hdwallet-keepkey-tcp'
 export interface SupportedWalletInfo {
   adapter: any
   supportsMobile?: 'browser' | 'app' | 'both'
@@ -117,7 +116,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...KeepKeyConfig,
     adapter: keepkeyTcp.TCPKeepKeyAdapter,
     routes: [
-      { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPinModal },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },

@@ -104,6 +104,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             log.info(tag, "starting server! **** ")
             server = appExpress.listen(API_PORT, () => {
                 queueIpcEvent('playSound', { sound: 'success' })
+                queueIpcEvent('@bridge/started', {})
                 log.info(`server started at http://localhost:${API_PORT}`)
                 // keepkey.STATE = 3
                 // keepkey.STATUS = 'bridge online'
@@ -134,6 +135,9 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
                 queueIpcEvent('@keepkey/status', { status: keepkey.STATUS })
 
+                if(event.status === 'device connected') {
+                    queueIpcEvent('@keepkey/connected', { status: keepkey.STATUS })
+                }
                 switch (event.state) {
                     case 0:
                         log.info(tag, "No Devices connected")

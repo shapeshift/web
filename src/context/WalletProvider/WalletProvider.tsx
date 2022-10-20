@@ -13,9 +13,10 @@ import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
+import debounce from 'lodash/debounce'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -28,6 +29,7 @@ import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { KeepKeyService } from './KeepKey'
+import { KeepKeyConfig } from './KeepKey/config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
@@ -371,6 +373,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
   const { sign, pair } = useModal()
 
+  // Keepkey is in a fucked state and needs to be unplugged/replugged
+  const [needsReset, setNeedsReset] = useState(false)
+
   const disconnect = useCallback(() => {
     /**
      * in case of KeepKey placeholder wallet,
@@ -394,20 +399,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
 
           switch (localWalletType) {
-            case KeyManager.Native:
-              const localNativeWallet = await state.adapters
-                .get(KeyManager.Native)
-                ?.pairDevice(localWalletDeviceId)
-              if (localNativeWallet) {
-                /**
-                 * This will eventually fire an event, which the native wallet
-                 * password modal will be shown
-                 */
-                await localNativeWallet.initialize()
-              } else {
-                disconnect()
-              }
-              break
             case KeyManager.KeepKey:
               console.log('loading keepkey')
               try {
@@ -593,47 +584,58 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })()
   }, [state.wallet, onProviderChange])
 
-  const doSetupKeyring = useCallback(() => {
-    if (state.keyring) {
-      ;(async () => {
-        const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
-        for (const wallet of Object.values(KeyManager)) {
-          try {
-            switch (wallet) {
-              case 'portis':
-                options = { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                break
-              case 'walletconnect':
-                options = {
-                  rpc: {
-                    1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-                  },
-                }
-                break
-              default:
-                break
-            }
-            if (wallet === 'keepkey') {
-              const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
-              await adapter.pairDevice('http://localhost:1646')
-              adapters.set(wallet, adapter)
-            } else {
-              const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
-              adapters.set(wallet, adapter)
-              // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-              await adapter.initialize?.()
-              adapters.set(wallet, adapter)
-            }
-          } catch (e) {
-            moduleLogger.error(e, 'Error initializing HDWallet adapters')
+  const pairAndConnect = useRef(
+    debounce(async () => {
+      const adapters: Adapters = new Map()
+      let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
+      for (const walletName of Object.values(KeyManager)) {
+        try {
+          if (walletName === 'keepkey') {
+            const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
+            const wallet = await adapter.pairDevice('http://localhost:1646')
+            adapters.set(walletName, adapter)
+            console.log('successfully paired')
+            dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+            const { name, icon } = KeepKeyConfig
+            const deviceId = await wallet.getDeviceID()
+            // This gets the firmware version needed for some KeepKey "supportsX" functions
+            let features = await wallet.getFeatures()
+            ipcRenderer.send('@keepkey/info', features)
+            // Show the label from the wallet instead of a generic name
+            const label = (await wallet.getLabel()) || name
+            await wallet.initialize()
+            dispatch({
+              type: WalletActions.SET_WALLET,
+              payload: { wallet, name: label, icon, deviceId, meta: { label } },
+            })
+            dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+            /**
+             * The real deviceId of KeepKey wallet could be different from the
+             * deviceId recieved from the wallet, so we need to keep
+             * aliases[deviceId] in the local wallet storage.
+             */
+            setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
           }
+        } catch (e) {
+          moduleLogger.error(e, 'Error initializing HDWallet adapters')
+          setNeedsReset(true)
         }
+      }
+    }, 2000),
+  )
 
-        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-      })()
+  const connect = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('connect'),
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
+      })
     }
-  }, [state.keyring])
+  }, [])
 
   const doStartBridge = useCallback(() => {
     ipcRenderer.on('@walletconnect/paired', (_event, data) => {
@@ -643,7 +645,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     //listen to events on main
     ipcRenderer.on('hardware', (_event, data) => {
       //event
-      //console.log('hardware event: ', data)
+      console.log('hardware event: ', data)
 
       switch (data.event.event) {
         case 'connect':
@@ -658,7 +660,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('playSound', (_event, _data) => {})
+    ipcRenderer.on('@bridge/started', (_event, _data) => {
+      pairAndConnect.current()
+    })
 
     ipcRenderer.on('@keepkey/state', (_event, data) => {
       console.info('@keepkey/state', data)
@@ -837,6 +841,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
+    ipcRenderer.on('@keepkey/connected', async (_event, data) => {
+      setNeedsReset(false)
+      pairAndConnect.current()
+    })
+
     //END HDwallet API
 
     ipcRenderer.on('setDevice', () => {})
@@ -877,48 +886,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [pair, sign, state.wallet])
 
-  const connect = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
+  useEffect(() => {
+    disconnect()
+    doStartBridge()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const connectDemo = useCallback(async () => {
-    const { name, icon, adapter } = SUPPORTED_WALLETS[KeyManager.Demo]
-    // For the demo wallet, we use the name, DemoWallet, as the deviceId
-    const deviceId = name
-    setLocalWalletTypeAndDeviceId(KeyManager.Demo, deviceId)
-    setLocalNativeWalletName(name)
-    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
-    const adapterInstance = adapter.useKeyring(state.keyring)
-    const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
-    const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
-    await wallet.loadDevice({
-      mnemonic: await create(PublicWalletXpubs),
-      deviceId,
-    })
-    await wallet.initialize()
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        isDemoWallet: true,
-        wallet,
-        name,
-        icon,
-        deviceId,
-        meta: { label: name },
-      },
-    })
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
-    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-  }, [state.keyring])
 
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
@@ -956,23 +928,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       load,
       setDeviceState,
       onProviderChange,
-      connectDemo,
-      doStartBridge,
-      doSetupKeyring,
       keepkey,
+      needsReset,
     }),
-    [
-      state,
-      connect,
-      create,
-      disconnect,
-      load,
-      setDeviceState,
-      connectDemo,
-      onProviderChange,
-      doStartBridge,
-      doSetupKeyring,
-    ],
+    [state, connect, create, disconnect, load, setDeviceState, onProviderChange, needsReset],
   )
 
   return (

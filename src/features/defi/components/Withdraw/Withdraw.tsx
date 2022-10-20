@@ -16,7 +16,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { PropsWithChildren, ReactNode } from 'react'
 import React from 'react'
-import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
+import type { ControllerProps, FieldValues } from 'react-hook-form'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -29,14 +29,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { Nullable } from 'types/common'
-
-export type FlexFieldProps = {
-  control: any
-  cryptoAmount: ControllerRenderProps<WithdrawValues, 'cryptoAmount'>
-  fiatAmount: ControllerRenderProps<WithdrawValues, 'fiatAmount'>
-  handlePercentClick: (args: number) => void
-  setDisableInput: (args: boolean) => void
-}
 
 type InputDefaultValue = {
   cryptoAmount: string

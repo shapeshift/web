@@ -7,7 +7,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -18,6 +18,7 @@ import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+
 const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
@@ -44,6 +45,10 @@ export const KeepKeyConnect = () => {
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+
+  const handleDownloadButtonClick = useCallback(() => {
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
+  }, [dispatch])
 
   const pairDevice = async () => {
     setError(null)
@@ -93,7 +98,7 @@ export const KeepKeyConnect = () => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
          * The real deviceId of KeepKey wallet could be different from the
-         * deviceId recieved from the wallet, so we need to keep
+         * deviceId received from the wallet, so we need to keep
          * aliases[deviceId] in the local wallet storage.
          */
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
@@ -127,6 +132,19 @@ export const KeepKeyConnect = () => {
               <Text translation={error} />
             </AlertDescription>
           </Alert>
+        )}
+        {error === 'walletProvider.errors.walletNotFound' && (
+          <>
+            <Alert status='error' mt={4}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text translation={'walletProvider.keepKey.errors.updateAlert'} />
+              </AlertDescription>
+            </Alert>
+            <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
+              <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
+            </Button>
+          </>
         )}
       </ModalBody>
     </>

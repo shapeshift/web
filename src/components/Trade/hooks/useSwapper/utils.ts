@@ -28,7 +28,7 @@ import {
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -58,7 +58,7 @@ export const isSupportedNonUtxoSwappingChain = (
 
 // Pure functions
 export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  if (!sellAssetAccountId) throw new Error('No UTXO account id')
   return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
@@ -78,12 +78,14 @@ export const getSendMaxAmount = (
   const feeEstimate = bnOrZero(quote?.feeData?.fee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
-  return fromBaseUnit(
-    bnOrZero(sellAssetBalance)
-      .minus(isFeeAsset ? feeEstimate : 0)
-      .toString(),
-    sellAsset.precision,
-  )
+  return positiveOrZero(
+    fromBaseUnit(
+      bnOrZero(sellAssetBalance)
+        .minus(isFeeAsset ? feeEstimate : 0)
+        .toString(),
+      sellAsset.precision,
+    ),
+  ).toString()
 }
 
 const getEvmFees = <T extends EvmChainId>(

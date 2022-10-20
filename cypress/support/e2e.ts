@@ -11,4 +11,8 @@ Cypress.on('uncaught:exception', err => {
   if (err.message.includes('call revert exception')) return false
   // Ignore this exception
   if (err.message.includes('Error: underlying network changed')) return false
+  // TODO: Work out why Cypress requests are failing
+  // Ignore this exception, it occurs because Cypress doesn't get a response form lcd/thorchain/pools
+  if (err.message.includes('[thorchainInitialize]: initialize failed to set supportedAssetIds'))
+    return false
 })

@@ -1,5 +1,5 @@
 // https://docs.axelar.dev/dev/build/chain-names/mainnet
-import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetId } from '@shapeshiftoss/caip'
 
 export enum AxelarChainNames {
   Avalanche = 'Avalanche',
@@ -30,7 +30,7 @@ export type BridgeChain = {
 }
 
 export type BridgeAsset = {
-  assetId: AccountSpecifier
+  assetId: AssetId
   symbol: string
   icon: string
   name: string

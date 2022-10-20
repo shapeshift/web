@@ -4,7 +4,7 @@ import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
-import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
+import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
@@ -56,15 +56,16 @@ export const TransactionRow = ({
       parentWidth,
     }
 
-    switch (txDetails.type || txDetails.direction) {
+    switch (txDetails.type) {
       case TransferType.Send:
         return <TransactionSend {...props} />
       case TransferType.Receive:
         return <TransactionReceive {...props} />
       case TradeType.Trade:
+      case TradeType.Refund:
         return <TransactionTrade {...props} />
-      case TransferType.Contract:
-        return <TransactionContract {...props} />
+      case 'method':
+        return <TransactionMethod {...props} />
       default:
         return <UnknownTransaction {...props} />
     }

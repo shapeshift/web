@@ -2,14 +2,16 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { ExternalOpportunity } from '../../FoxCommon'
@@ -21,7 +23,10 @@ type FoxOtherOpportunityPanelRowProps = {
 export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowProps> = ({
   opportunity,
 }) => {
-  const translate = useTranslate()
+  const {
+    state: { isDemoWallet, wallet },
+    dispatch,
+  } = useWallet()
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
   const { defiOpportunity } = useDefiOpportunity(opportunity)
   const hasActivePosition = bnOrZero(defiOpportunity?.fiatAmount).gt(0) ?? false
@@ -33,6 +38,16 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   )
 
   const handleClick = useCallback(() => {
+    if (opportunity.link) {
+      window.open(opportunity.link)
+      return
+    }
+
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
+
     if (defiOpportunity) {
       const { provider, chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
       const { assetReference } = fromAssetId(assetId)
@@ -43,15 +58,36 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           chainId,
           contractAddress,
           assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',
         }),
         state: { background: location },
       })
-    } else {
-      window.open(opportunity.link)
+      return
     }
-  }, [defiOpportunity, history, location, opportunity.link])
+  }, [
+    opportunity.highestBalanceAccountAddress,
+    isDemoWallet,
+    defiOpportunity,
+    dispatch,
+    history,
+    location,
+    opportunity.link,
+    wallet,
+  ])
+
+  const opportunityButtonTranslation = useMemo(() => {
+    if (opportunity.link) return 'plugins.foxPage.getStarted'
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
+
+    return hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
+  }, [isDemoWallet, opportunity.link, hasActivePosition, wallet])
+
+  const isOpportunityButtonReady = useMemo(
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
+    [isDemoWallet, wallet, defiOpportunity],
+  )
 
   return (
     <Flex
@@ -96,18 +132,14 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
         </Box>
       </Skeleton>
       <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
-        <Skeleton isLoaded={defiOpportunity?.isLoaded ?? true} textAlign='center'>
+        <Skeleton isLoaded={isOpportunityButtonReady} textAlign='center'>
           {defiOpportunity ? (
             <Button colorScheme='blue' onClick={handleClick}>
-              <Text
-                translation={
-                  hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
-                }
-              />
+              <Text translation={opportunityButtonTranslation} />
             </Button>
           ) : (
             <Button variant='link' colorScheme='blue' onClick={handleClick}>
-              <CText mr={2}>{translate('plugins.foxPage.getStarted')}</CText>
+              <Text translation={opportunityButtonTranslation} mr={2} />
               <ExternalLinkIcon />
             </Button>
           )}

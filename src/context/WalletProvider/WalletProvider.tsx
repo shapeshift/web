@@ -300,6 +300,13 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         },
       }
     }
+    case WalletActions.DOWNLOAD_UPDATER:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.DownloadUpdater,
+      }
     default:
       return state
   }
@@ -383,6 +390,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   } else {
                     disconnect()
                   }
+                } else {
+                  // in the case we return a null from the mobile app and fail to get the wallet
+                  // we want to disconnect and return the user back to the splash screen
+                  disconnect()
                 }
               } catch (e) {
                 moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')

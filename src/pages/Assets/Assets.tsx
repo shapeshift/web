@@ -12,7 +12,7 @@ export const Assets = () => {
     history.push(url)
   }
   return (
-    <Main display='flex' flexDir='column' height='100vh'>
+    <Main display='flex' flexDir='column' height='calc(100vh - 72px)'>
       <AssetSearch onClick={onClick} />
     </Main>
   )

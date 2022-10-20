@@ -1,6 +1,5 @@
 import { adapters, avalancheChainId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import lodash from 'lodash'
 
 import { Asset } from '../service/AssetService'
 import { avax, ethereum } from './baseAssets'
@@ -22,7 +21,7 @@ type TokenList = {
   timestamp: string
   tokens: Token[]
 }
-export async function getAssets(chainId: ChainId, overrideAssets: Asset[] = []): Promise<Asset[]> {
+export async function getAssets(chainId: ChainId): Promise<Asset[]> {
   const { category, explorer, explorerAddressLink, explorerTxLink } = (() => {
     switch (chainId) {
       case ethChainId:
@@ -48,17 +47,7 @@ export async function getAssets(chainId: ChainId, overrideAssets: Asset[] = []):
 
   return data.tokens.reduce<Asset[]>((prev, token) => {
     try {
-      // blacklist wormhole assets - users can't hold a balance and we don't support wormholes
-      if (token.name.toLowerCase().includes('wormhole')) return prev
-
       const assetId = toAssetId({ chainId, assetNamespace: 'erc20', assetReference: token.address })
-
-      const overrideAsset = lodash.find(overrideAssets, (override) => override.assetId == assetId)
-
-      if (overrideAsset) {
-        prev.push(overrideAsset)
-        return prev
-      }
 
       const asset: Asset = {
         assetId,

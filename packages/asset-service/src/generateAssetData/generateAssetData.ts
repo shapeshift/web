@@ -10,7 +10,7 @@ import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as ethereum from './ethereum'
 import * as osmosis from './osmosis'
-import assetOverrides from './overrides.json'
+import { overrideAssets } from './overrides'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
 
@@ -59,7 +59,13 @@ const generateAssetData = async () => {
   }, {})
 
   // do this last such that manual overrides take priority
-  const assetsWithOverridesApplied = merge(generatedAssetData, assetOverrides)
+  const assetsWithOverridesApplied = Object.entries(overrideAssets).reduce<AssetsById>(
+    (prev, [assetId, asset]) => {
+      if (prev[assetId]) prev[assetId] = merge(prev[assetId], asset)
+      return prev
+    },
+    generatedAssetData,
+  )
 
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,

@@ -23,8 +23,8 @@
     "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
     "compile": "tsc -p tsconfig.build.json",
     "dev": "tsc --watch",
-    "generate": "yarn build && node ./dist/generateAssetData/generateAssetData.js",
-    "generate-color-map": "yarn build && node ./dist/generateAssetData/generateColorMap.js",
+    "generate": "yarn build && node ./dist/generateAssetData/generateAssetData.js && yarn build",
+    "generate-color-map": "yarn build && node ./dist/generateAssetData/generateColorMap.js && yarn build",
     "prepare": "yarn build",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.build.json --noEmit"

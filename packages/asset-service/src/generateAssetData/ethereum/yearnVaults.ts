@@ -37,24 +37,6 @@ export const getYearnVaults = async (): Promise<Asset[]> => {
   })
 }
 
-export const getIronBankTokens = async (): Promise<Asset[]> => {
-  const ironBankTokens: Token[] = await yearnSdk.ironBank.tokens()
-  return ironBankTokens.map((token: Token) => {
-    const assetId = toAssetId({ chainId, assetNamespace: 'erc20', assetReference: token.address })
-
-    return {
-      ...explorerData,
-      color: colorMap[assetId] ?? '#FFFFFF',
-      icon: token.icon ?? '',
-      name: token.name,
-      precision: Number(token.decimals),
-      symbol: token.symbol,
-      chainId,
-      assetId,
-    }
-  })
-}
-
 export const getZapperTokens = async (): Promise<Asset[]> => {
   const zapperTokens: Token[] = await yearnSdk.tokens.supported()
   return zapperTokens.map((token: Token) => {

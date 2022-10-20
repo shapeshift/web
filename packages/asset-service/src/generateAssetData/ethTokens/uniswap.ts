@@ -1,10 +1,8 @@
-import { ethChainId as chainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import lodash from 'lodash'
 
 import { Asset } from '../../service/AssetService'
 import { colorMap } from '../colorMap'
-import { overrideTokens } from '../ethereum/overrides'
 
 type UniswapToken = {
   chainId: number
@@ -29,16 +27,6 @@ export async function getUniswapTokens(): Promise<Asset[]> {
   )
 
   return uniswapTokenData.tokens.reduce<Asset[]>((acc, token) => {
-    const overrideToken: Asset | undefined = lodash.find(
-      overrideTokens,
-      (override: Asset) => fromAssetId(override.assetId).assetReference === token.address,
-    )
-
-    if (overrideToken) {
-      acc.push(overrideToken)
-      return acc
-    }
-
     const assetReference = token.address.toLowerCase()
 
     // if no token address, we can't deal with this asset.

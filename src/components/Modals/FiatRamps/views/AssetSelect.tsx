@@ -1,42 +1,46 @@
 import { ModalBody, Stack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useParams } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
-import { useFiatRampCurrencyList } from '../hooks/useFiatRampCurrencyList'
 
 type AssetSelectProps = {
-  onAssetSelect: (asset: FiatRampAsset) => void
+  onAssetSelect: (assetId: AssetId) => void
   selectAssetTranslation: string
 }
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
   const { onAssetSelect, selectAssetTranslation } = props
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
-  const { loading, sellList, buyList } = useFiatRampCurrencyList()
+  const { data: ramps, isLoading } = useGetFiatRampsQuery()
   const translate = useTranslate()
   const history = useHistory()
 
-  const handleBack = useCallback(() => {
-    history.push(`/${fiatRampAction}`)
-  }, [fiatRampAction, history])
+  const handleBack = useCallback(
+    () => history.push(`/${fiatRampAction}`),
+    [fiatRampAction, history],
+  )
+
+  const assetIds = useMemo(
+    () =>
+      fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds ?? [] : ramps?.sellAssetIds ?? [],
+    [fiatRampAction, ramps],
+  )
+  if (isLoading) return null
+  if (!ramps) return null
 
   return (
     <SlideTransition>
       <DefiModalHeader onBack={handleBack} title={translate(selectAssetTranslation)} />
       <ModalBody pb={0}>
         <Stack height='338px'>
-          <AssetSearch
-            onClick={onAssetSelect}
-            type={fiatRampAction}
-            assets={fiatRampAction === FiatRampAction.Buy ? buyList : sellList}
-            loading={loading}
-          />
+          <AssetSearch onClick={onAssetSelect} action={fiatRampAction} assetIds={assetIds} />
         </Stack>
       </ModalBody>
     </SlideTransition>

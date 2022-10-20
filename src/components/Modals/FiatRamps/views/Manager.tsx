@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import isEmpty from 'lodash/isEmpty'
@@ -27,7 +27,6 @@ import {
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
@@ -63,7 +62,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
 
   const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
 
@@ -136,29 +135,29 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
         fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.Buy
           : FiatRampManagerRoutes.Sell
-      setSelectedAsset(null)
+      setSelectedAssetId('')
       history.push(route)
     },
     [history],
   )
 
   const onAssetSelect = useCallback(
-    (asset: FiatRampAsset | null) => {
+    (assetId?: AssetId) => {
       if (!wallet) return
       const route =
         match?.params.fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.Buy
           : FiatRampManagerRoutes.Sell
-      setSelectedAsset(asset)
+      setSelectedAssetId(assetId)
       history.push(route)
     },
     [history, match?.params.fiatRampAction, wallet],
   )
 
   const handleIsSelectingAsset = useCallback(
-    (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
+    (assetId: AssetId | undefined, selectAssetTranslation: string) => {
       if (!wallet) return
-      const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
+      const walletSupportsAsset = isAssetSupportedByWallet(assetId ?? '', wallet)
       const route =
         match?.params.fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.BuySelect
@@ -190,7 +189,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
       <Switch location={location} key={location.key}>
         <Route exact path='/:fiatRampAction'>
           <Overview
-            selectedAsset={selectedAsset}
+            assetId={selectedAssetId}
             onIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
             address={address}

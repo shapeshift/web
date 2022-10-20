@@ -95,7 +95,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -140,7 +140,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token deposit', async () => {
@@ -184,7 +184,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse eth transfer out', async () => {
@@ -224,7 +224,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token transfer out', async () => {
@@ -264,7 +264,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse eth refund', async () => {
@@ -304,7 +304,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -367,7 +367,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse eth -> token', async () => {
@@ -429,7 +429,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token -> token', async () => {
@@ -483,7 +483,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token -> token (multiple swaps)', async () => {
@@ -557,7 +557,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -597,7 +597,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse eth', async () => {
@@ -640,7 +640,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token mempool', async () => {
@@ -680,7 +680,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse token', async () => {
@@ -725,7 +725,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -759,7 +759,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse add liquidity mempool', async () => {
@@ -806,7 +806,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse add liquidity', async () => {
@@ -821,7 +821,10 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
-        data: undefined,
+        data: {
+          method: 'addLiquidityETH',
+          parser: 'uniV2',
+        },
         status: TxStatus.Confirmed,
         fee: {
           value: '26926494400000000',
@@ -859,7 +862,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse remove liquidity mempool', async () => {
@@ -893,7 +896,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse remove liquidity', async () => {
@@ -908,8 +911,12 @@ describe('parseTx', () => {
         address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
-        data: undefined,
+        data: {
+          method: 'removeLiquidityETH',
+          parser: 'uniV2',
+        },
         status: TxStatus.Confirmed,
+        trade: undefined,
         fee: {
           value: '4082585000000000',
           assetId: 'eip155:1/slip44:60',
@@ -946,7 +953,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -984,7 +991,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse stake mempool', async () => {
@@ -1008,7 +1015,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse stake', async () => {
@@ -1047,7 +1054,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse exit mempool', async () => {
@@ -1071,7 +1078,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse exit', async () => {
@@ -1119,7 +1126,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -1151,7 +1158,7 @@ describe('parseTx', () => {
       }
 
       const actual = await txParser.parse(tx, address)
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should parse Yearn deposit to ShapeShift router', async () => {
@@ -1198,7 +1205,7 @@ describe('parseTx', () => {
       }
 
       const actual = await txParser.parse(tx, address)
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should parse withdrawal', async () => {
@@ -1245,7 +1252,7 @@ describe('parseTx', () => {
       }
 
       const actual = await txParser.parse(tx, address)
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should parse Yearn deposit', async () => {
@@ -1292,7 +1299,7 @@ describe('parseTx', () => {
       }
 
       const actual = await txParser.parse(tx, address)
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -1343,7 +1350,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse unstake', async () => {
@@ -1392,7 +1399,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse instant unstake', async () => {
@@ -1441,7 +1448,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse claim withdraw', async () => {
@@ -1481,7 +1488,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 
@@ -1538,7 +1545,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse deposit extra input data', async () => {
@@ -1593,7 +1600,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx2, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
 
     it('should be able to parse withdrawal', async () => {
@@ -1650,7 +1657,7 @@ describe('parseTx', () => {
 
       const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+      expect(actual).toEqual(expected)
     })
   })
 })

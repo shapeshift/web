@@ -59,7 +59,6 @@ export class Parser implements SubParser<Tx> {
 
   async parseUniV2(tx: Tx): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
-    if (tx.confirmations) return
 
     const txSigHash = getSigHash(tx.inputData)
 
@@ -69,6 +68,16 @@ export class Parser implements SubParser<Tx> {
 
     // failed to decode input data
     if (!decoded) return
+
+    // Unconfirmed Txs are the edge case here, we augment them with transfers
+    // For confirmed Tx, the metadata is all we actually need
+    if (tx.confirmations)
+      return {
+        data: {
+          parser: 'uniV2',
+          method: decoded.name,
+        },
+      }
 
     const tokenAddress = ethers.utils.getAddress(decoded.args.token.toLowerCase())
     const lpTokenAddress = Parser.pairFor(tokenAddress, this.wethContract)

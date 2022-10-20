@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v12.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.1.0...@shapeshiftoss/swapper-v12.2.0) (2022-10-20)
+
+
+### Features
+
+* **swapper:** getAllowanceRequired -> isApprovalRequired ([#1053](https://github.com/shapeshift/lib/issues/1053)) ([383ddd7](https://github.com/shapeshift/lib/commit/383ddd7d19562017b70d8cbcffb476a756f379da))
+
 # [@shapeshiftoss/swapper-v12.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.0.3...@shapeshiftoss/swapper-v12.1.0) (2022-10-19)
 
 

@@ -11,7 +11,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectHighestBalanceFoxFarmingOpportunityAccountAddress,
+  selectHighestBalanceFoxLpOpportunityAccountAddress,
+} from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -89,6 +93,24 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     })()
   }, [ethAccountIds, dispatch])
 
+  const highestFarmingBalanceAccountAddressFilter = useMemo(
+    () => ({
+      contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+    }),
+    [],
+  )
+  const highestFarmingBalanceAccountAddress = useAppSelector(state =>
+    selectHighestBalanceFoxFarmingOpportunityAccountAddress(
+      state,
+      highestFarmingBalanceAccountAddressFilter,
+    ),
+  )
+
+  const emptyFilter = useMemo(() => ({}), [])
+  const highestLpBalanceAccountAddress = useAppSelector(state =>
+    selectHighestBalanceFoxLpOpportunityAccountAddress(state, emptyFilter),
+  )
+
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
@@ -111,6 +133,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               ],
               opportunityProvider: DefiProvider.FoxFarming,
               opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+              highestBalanceAccountAddress: highestFarmingBalanceAccountAddress,
             },
           ],
         },
@@ -128,6 +151,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+              highestBalanceAccountAddress: highestLpBalanceAccountAddress,
             },
           ],
         },
@@ -166,7 +190,15 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }
 
     return opportunities[assetId]
-  }, [isFarmingAprV4Loaded, isLpAprLoaded, farmingV4Data?.apy, lpApy, assetId])
+  }, [
+    assetId,
+    farmingV4Data?.apy,
+    highestFarmingBalanceAccountAddress,
+    highestLpBalanceAccountAddress,
+    isFarmingAprV4Loaded,
+    isLpAprLoaded,
+    lpApy,
+  ])
 
   return otherOpportunities
 }

@@ -168,7 +168,7 @@ export const useSwapper = () => {
     if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
+      sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,

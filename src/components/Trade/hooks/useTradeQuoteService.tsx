@@ -48,7 +48,7 @@ export const getTradeQuoteArgs = async ({
 }: GetTradeQuoteInputArgs) => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmount: toBaseUnit(sellAmount, sellAsset?.precision || 0),
+    sellAmountCryptoPrecision: toBaseUnit(sellAmount, sellAsset?.precision || 0),
     sellAsset,
     buyAsset,
     sendMax: isSendMax,

@@ -81,12 +81,12 @@ export type GetReceiveAddressArgs = {
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
+  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
+  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
 >
 
 export type GetFormFeesArgs = {

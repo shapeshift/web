@@ -376,7 +376,7 @@ export const TradeInput = () => {
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
             cryptoAmount={positiveOrZero(sellTradeAsset?.amount).toString()}
             fiatAmount={positiveOrZero(fiatSellAmount).toString()}
-            isSendMaxDisabled={!quote}
+            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onMaxClick={handleSendMax}

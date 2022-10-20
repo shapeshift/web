@@ -6,7 +6,7 @@ import { BuildTradeInput, EvmSupportedChainIds, SwapError, SwapErrorTypes } from
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from '../../utils/constants'
-import { getAllowanceRequired, normalizeAmount } from '../../utils/helpers/helpers'
+import { isApprovalRequired, normalizeAmount } from '../../utils/helpers/helpers'
 import { ZrxQuoteResponse, ZrxSwapperDeps, ZrxTrade } from '../types'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from '../utils/constants'
@@ -85,7 +85,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
     const estimatedGas = bnOrZero(data.gas || 0)
     const networkFee = bnOrZero(estimatedGas).multipliedBy(bnOrZero(data.gasPrice)).toString()
 
-    const allowanceRequired = await getAllowanceRequired({
+    const approvalRequired = await isApprovalRequired({
       adapter,
       sellAsset,
       allowanceContract: data.allowanceTarget,
@@ -111,7 +111,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
           gasPrice: data.gasPrice,
-          approvalFee: allowanceRequired.gt(0) ? approvalFee : undefined,
+          approvalFee: approvalRequired ? approvalFee : undefined,
         },
         tradeFee: '0',
         networkFee,

@@ -3,13 +3,13 @@ import Web3 from 'web3'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
-import { bn, bnOrZero } from '../bignumber'
+import { bn } from '../bignumber'
 import { setupDeps } from '../test-data/setupDeps'
 import { setupQuote } from '../test-data/setupSwapQuote'
 import {
-  getAllowanceRequired,
-  GetAllowanceRequiredArgs,
   grantAllowance,
+  isApprovalRequired,
+  IsApprovalRequiredArgs,
   normalizeAmount,
   normalizeIntegerAmount,
 } from './helpers'
@@ -33,8 +33,8 @@ describe('utils', () => {
   const { tradeQuote, sellAsset } = setupQuote()
   const { web3, adapter } = setupDeps()
 
-  describe('getAllowanceRequired', () => {
-    const getAllowanceInput: GetAllowanceRequiredArgs = {
+  describe('isApprovalRequired', () => {
+    const getAllowanceInput: IsApprovalRequiredArgs = {
       adapter,
       receiveAddress: '0x0',
       web3,
@@ -44,16 +44,16 @@ describe('utils', () => {
       sellAsset,
     }
 
-    it('should return 0 if the sellAsset symbol is ETH', async () => {
+    it('should return false if the sellAsset symbol is ETH', async () => {
       expect(
-        await getAllowanceRequired({
+        await isApprovalRequired({
           ...getAllowanceInput,
           sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' },
         }),
-      ).toEqual(bn(0))
+      ).toEqual(false)
     })
 
-    it('should return sellAmount if allowanceOnChain is 0', async () => {
+    it('should return true if allowanceOnChain is 0', async () => {
       const allowanceOnChain = '0'
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
@@ -63,9 +63,7 @@ describe('utils', () => {
         },
       }))
 
-      expect(await getAllowanceRequired(getAllowanceInput)).toEqual(
-        bnOrZero(getAllowanceInput.sellAmount),
-      )
+      expect(await isApprovalRequired(getAllowanceInput)).toEqual(true)
     })
 
     it('should throw error if allowanceOnChain is undefined', async () => {
@@ -78,12 +76,10 @@ describe('utils', () => {
         },
       }))
 
-      await expect(getAllowanceRequired(getAllowanceInput)).rejects.toThrow(
-        `[getAllowanceRequired]`,
-      )
+      await expect(isApprovalRequired(getAllowanceInput)).rejects.toThrow(`[isApprovalRequired]`)
     })
 
-    it('should return 0 if sellAmount minus allowanceOnChain is negative', async () => {
+    it('should return false if sellAmount minus allowanceOnChain is negative', async () => {
       const allowanceOnChain = '1000'
 
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
@@ -94,23 +90,7 @@ describe('utils', () => {
         },
       }))
 
-      expect(await getAllowanceRequired(getAllowanceInput)).toEqual(bn(0))
-    })
-
-    it('should return sellAsset minus allowanceOnChain', async () => {
-      const allowanceOnChain = '100'
-
-      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
-        methods: {
-          allowance: jest.fn(() => ({
-            call: jest.fn(() => allowanceOnChain),
-          })),
-        },
-      }))
-
-      expect(await getAllowanceRequired({ ...getAllowanceInput, sellAmount: '1000' })).toEqual(
-        bn(900),
-      )
+      expect(await isApprovalRequired(getAllowanceInput)).toEqual(false)
     })
   })
 

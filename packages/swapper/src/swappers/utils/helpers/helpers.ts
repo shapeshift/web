@@ -1,7 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { AbiItem, numberToHex } from 'web3-utils'
 
@@ -16,7 +15,7 @@ import { MAX_ALLOWANCE } from '../../cow/utils/constants'
 import { erc20Abi as erc20AbiImported } from '../abi/erc20-abi'
 import { BN, bn, bnOrZero } from '../bignumber'
 
-export type GetAllowanceRequiredArgs = {
+export type IsApprovalRequiredArgs = {
   adapter: EvmSupportedChainAdapters
   receiveAddress: string
   allowanceContract: string
@@ -59,7 +58,7 @@ export const getERC20Allowance = async ({
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }
 
-export const getAllowanceRequired = async ({
+export const isApprovalRequired = async ({
   adapter,
   receiveAddress,
   allowanceContract,
@@ -67,10 +66,10 @@ export const getAllowanceRequired = async ({
   sellAmount,
   web3,
   erc20AllowanceAbi,
-}: GetAllowanceRequiredArgs): Promise<BigNumber> => {
+}: IsApprovalRequiredArgs): Promise<boolean> => {
   try {
     if (sellAsset.assetId === adapter.getFeeAssetId()) {
-      return bn(0)
+      return false
     }
 
     const ownerAddress = receiveAddress
@@ -85,18 +84,20 @@ export const getAllowanceRequired = async ({
       spenderAddress,
       sellAssetErc20Address,
     })
-    if (allowanceOnChain === '0') return bnOrZero(sellAmount)
     if (!allowanceOnChain) {
-      throw new SwapError(`[getAllowanceRequired] - No allowance data`, {
+      throw new SwapError(`[isApprovalRequired] - No allowance data`, {
         details: { allowanceContract, receiveAddress },
         code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
+
+    if (bn(allowanceOnChain).isZero()) return true
+
     const allowanceRequired = bnOrZero(sellAmount).minus(allowanceOnChain)
-    return allowanceRequired.lt(0) ? bn(0) : allowanceRequired
+    return allowanceRequired.gt(0)
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getAllowanceRequired]', {
+    throw new SwapError('[isApprovalRequired]', {
       cause: e,
       code: SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED,
     })

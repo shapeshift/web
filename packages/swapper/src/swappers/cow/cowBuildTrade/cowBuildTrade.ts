@@ -6,8 +6,8 @@ import { BuildTradeInput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import {
-  getAllowanceRequired,
   getApproveContractData,
+  isApprovalRequired,
   normalizeAmount,
 } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
@@ -134,7 +134,7 @@ export async function cowBuildTrade(
       sellAmountWithoutFee: quote.sellAmount,
     }
 
-    const allowanceRequired = await getAllowanceRequired({
+    const approvalRequired = await isApprovalRequired({
       adapter,
       sellAsset,
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -144,7 +144,7 @@ export async function cowBuildTrade(
       erc20AllowanceAbi,
     })
 
-    if (!allowanceRequired.isZero()) {
+    if (approvalRequired) {
       trade.feeData.chainSpecific.approvalFee = bnOrZero(feeData.chainSpecific.gasLimit)
         .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
         .toString()

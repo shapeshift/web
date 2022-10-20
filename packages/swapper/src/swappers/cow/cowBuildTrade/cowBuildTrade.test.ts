@@ -5,8 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { BuildTradeInput } from '../../../api'
-import { bn } from '../../utils/bignumber'
-import { GetAllowanceRequiredArgs } from '../../utils/helpers/helpers'
+import { IsApprovalRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
@@ -38,11 +37,11 @@ jest.mock('../utils/helpers/helpers', () => {
 jest.mock('../../utils/helpers/helpers', () => {
   return {
     ...jest.requireActual('../../utils/helpers/helpers'),
-    getAllowanceRequired: (args: GetAllowanceRequiredArgs) => {
+    isApprovalRequired: (args: IsApprovalRequiredArgs) => {
       if (args.sellAsset.assetId === WBTC.assetId) {
-        return bn('1000000000000000000')
+        return true
       }
-      return bn(0)
+      return false
     },
     getApproveContractData: () => '0xABCDEFGHIJ',
   }

@@ -56,6 +56,7 @@ export const TradeInput = () => {
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
+    receiveAddress,
   } = useSwapper()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -308,21 +309,32 @@ export const TradeInput = () => {
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'
+    if (!receiveAddress)
+      return [
+        'trade.errors.noReceiveAddress',
+        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'buy asset' },
+      ]
 
     return 'trade.previewTrade'
   }, [
     bestTradeSwapper,
-    buyTradeAsset,
+    buyTradeAsset?.asset?.symbol,
     feeAssetBalance,
     feesExceedsSellAmount,
     hasValidSellAmount,
     isBelowMinSellAmount,
     isTradeQuotePending,
-    quote,
+    quote?.feeData.networkFee,
+    quote?.minimum,
+    quote?.sellAsset.symbol,
     quoteAvailableForCurrentAssetPair,
+    receiveAddress,
     sellAssetBalanceHuman,
-    sellFeeAsset,
-    sellTradeAsset,
+    sellFeeAsset?.assetId,
+    sellFeeAsset?.precision,
+    sellTradeAsset?.amount,
+    sellTradeAsset?.asset?.assetId,
+    sellTradeAsset?.asset?.symbol,
     wallet,
     walletSupportsBuyAssetChain,
     walletSupportsSellAssetChain,

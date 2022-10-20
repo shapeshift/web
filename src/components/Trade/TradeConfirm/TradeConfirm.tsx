@@ -59,9 +59,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
-  const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
+  const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
-  const [executedTrade, setExecutedTrade] = useState<TS['trade']>()
+  const [frozenTrade, setFrozenTrade] = useState<TS['trade']>()
+  const [frozenFees, setFrozenFees] = useState<TS['fees']>()
   const {
     handleSubmit,
     setValue,
@@ -74,7 +75,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const flags = useSelector(selectFeatureFlags)
 
   const formTrade = useWatch({ control, name: 'trade' })
-  const fees = useWatch({ control, name: 'fees' })
+  const formFees = useWatch({ control, name: 'fees' })
   const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const slippage = useWatch({ control, name: 'slippage' })
@@ -86,16 +87,22 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     number: { toFiat },
   } = useLocaleFormatter()
+
+  setFrozenTradeAmountConstants(tradeAmountConstants)
+  setFrozenTrade(formTrade)
+  setFrozenFees(formFees)
+
   const {
     state: { isConnected, wallet },
     dispatch,
   } = useWallet()
 
   // If an executed value exists we want to ignore any subsequent updates and use the executed value
-  const trade = useMemo(() => executedTrade ?? formTrade, [executedTrade, formTrade])
+  const trade = useMemo(() => frozenTrade ?? formTrade, [frozenTrade, formTrade])
+  const fees = useMemo(() => frozenFees ?? formFees, [frozenFees, formFees])
   const tradeAmounts = useMemo(
-    () => executedTradeAmountConstants ?? tradeAmountConstants,
-    [executedTradeAmountConstants, tradeAmountConstants],
+    () => frozenTradeAmountConstants ?? tradeAmountConstants,
+    [frozenTradeAmountConstants, tradeAmountConstants],
   )
 
   const defaultFeeAsset = useAppSelector(state =>
@@ -181,8 +188,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setExecutedTradeAmountConstants(tradeAmountConstants)
-      setExecutedTrade(formTrade)
       setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid

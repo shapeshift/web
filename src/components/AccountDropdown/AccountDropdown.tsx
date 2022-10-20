@@ -26,7 +26,7 @@ import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import sortBy from 'lodash/sortBy'
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -209,9 +209,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
         ? getAccountIdsSortedByBalance(accountIds)
         : getAccountIdsSortedByUtxoAccountType(accountIds)
       return (
-        <>
+        <React.Fragment key={accountNumber}>
           <AccountSegment
-            key={accountNumber}
             title={translate('accounts.accountNumber', { accountNumber })}
             subtitle={''} // hide me until we have the option to "nickname" accounts
           />
@@ -230,7 +229,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
               {...listProps}
             />
           ))}
-        </>
+        </React.Fragment>
       )
     })
   }, [

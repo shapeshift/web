@@ -9,6 +9,7 @@ import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -92,7 +93,6 @@ export const ConnectWallet = () => {
                   colorScheme='blue'
                   // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
                   onClick={() => doStartBridge()}
-
                   data-test='connect-wallet-button'
                 >
                   Start Bridge (Do this first)
@@ -102,8 +102,10 @@ export const ConnectWallet = () => {
                   zIndex={1}
                   colorScheme='blue'
                   // onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-                  onClick={() => doSetupKeyring()}
-
+                  onClick={() => {
+                    doSetupKeyring()
+                    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+                  }}
                   data-test='connect-wallet-button'
                 >
                   Setup keyring (Do this next)

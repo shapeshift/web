@@ -51,6 +51,18 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         // Else, we know the default values have been set, so don't run this again unless the route changes
         setHasSetDefaultValues(true)
       }
+      methods.setValue('action', TradeAmountInputField.SELL_FIAT)
+      methods.setValue('amount', '0')
+      methods.setValue('sellTradeAsset.amount', '0')
+      methods.setValue('buyTradeAsset.amount', '0')
+      methods.setValue('fiatBuyAmount', '0')
+      methods.setValue('fiatSellAmount', '0')
+      methods.setValue('quote', undefined)
+      methods.setValue('trade', undefined)
+      methods.setValue('sellAssetFiatRate', undefined)
+      methods.setValue('buyAssetFiatRate', undefined)
+      methods.setValue('feeAssetFiatRate', undefined)
+      methods.setValue('isSendMax', false)
     })()
   }, [
     defaultBuyAssetId,

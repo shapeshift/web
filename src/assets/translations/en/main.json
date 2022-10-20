@@ -16,7 +16,7 @@
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
-    "insufficientAmountForGas": "Not enough ETH to cover gas",
+    "insufficientAmountForGas": "Not enough %{assetSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
@@ -556,6 +556,7 @@
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
+      "noReceiveAddress": "No receive address for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

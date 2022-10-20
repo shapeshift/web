@@ -166,6 +166,7 @@ export const TradeInput = () => {
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
       setValue('feeAssetFiatRate', undefined)
       setValue('quote', undefined)
+      setValue('trade', undefined)
       setValue('fees', undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')

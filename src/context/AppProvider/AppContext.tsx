@@ -92,7 +92,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // if we have a wallet and changed account ids, we have switched wallets
     // NOTE! - the wallet will change before the account ids do, so clearing here is valid
     // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && !requestedAccountIds.length)
+    const switched = Boolean(wallet && requestedAccountIds.length)
     const disconnected = !wallet
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')

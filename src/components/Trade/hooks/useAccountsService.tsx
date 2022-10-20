@@ -2,9 +2,9 @@ import { useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
-import { selectFirstAccountIdByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
@@ -41,22 +41,21 @@ export const useAccountsService = () => {
       assetId: buyAssetId ?? '',
     }),
   )
-  const sellAssetAccountSpecifier = useAppSelector(state =>
+  const firstSellAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
-  const buyAssetAccountSpecifier = useAppSelector(state =>
+  const firstBuyAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
 
   const sellAssetAccountId = useMemo(
-    () =>
-      selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? sellAssetAccountSpecifier,
-    [highestFiatBalanceSellAccountId, selectedSellAssetAccountId, sellAssetAccountSpecifier],
+    () => selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? firstSellAssetAccountId,
+    [highestFiatBalanceSellAccountId, selectedSellAssetAccountId, firstSellAssetAccountId],
   )
 
   const buyAssetAccountId = useMemo(
-    () => selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? buyAssetAccountSpecifier,
-    [buyAssetAccountSpecifier, highestFiatBalanceBuyAccount, selectedBuyAssetAccountId],
+    () => selectedBuyAssetAccountId ?? highestFiatBalanceBuyAccount ?? firstBuyAssetAccountId,
+    [firstBuyAssetAccountId, highestFiatBalanceBuyAccount, selectedBuyAssetAccountId],
   )
 
   // Set sellAssetAccountId

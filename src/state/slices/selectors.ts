@@ -7,7 +7,6 @@
  * for the rest of the files, they CAN be imported from `state/slices/selectors`.
  */
 
-export * from './accountSpecifiersSlice/selectors'
 export * from './assetsSlice/selectors'
 export * from './marketDataSlice/selectors'
 export * from './portfolioSlice/selectors'

@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import type { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -62,8 +61,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       moduleLogger.debug({ accountIds }, 'subscribing txs')
       await Promise.all(
         accountIds.map(async accountId => {
-          const accountSpecifier = accountId // backwards compatibility, remove me 🔜
-          const { chainId, account } = fromAccountId(accountId)
+          const { chainId } = fromAccountId(accountId)
           const adapter = getChainAdapterManager().get(chainId)
 
           const accountMetadata = portfolioAccountMetadata[accountId]
@@ -81,13 +79,12 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
                 // refetch validator data on new txs in case TVL or APR has changed
                 if ([cosmosChainId, osmosisChainId].includes(msg.chainId))
-                  dispatch(getValidatorData.initiate({ accountSpecifier, chainId }))
+                  dispatch(getValidatorData.initiate(accountId))
 
-                const accountSpecifierMap: AccountSpecifierMap = { [msg.chainId]: account }
                 // refetch account on new tx
-                dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
+                dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
                 // deal with incoming message
-                dispatch(onMessage({ message: { ...msg, accountType }, accountSpecifier }))
+                dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
               },
               (err: any) => moduleLogger.error(err),
             )

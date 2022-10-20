@@ -8,7 +8,6 @@ import {
   Container,
   Flex,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -30,14 +29,7 @@ const DegradedStateBanner = () => {
     Object.entries(portfolioLoadingStatusGranular)
       .filter(([, accountState]) => accountState === 'error', [])
       .forEach(([accountId]) => {
-        const { chainId, account } = fromAccountId(accountId)
-        const accountSpecifierMap = { [chainId]: account }
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountSpecifierMap },
-            { forceRefetch: true },
-          ),
-        )
+        dispatch(portfolioApi.endpoints.getAccount.initiate(accountId, { forceRefetch: true }))
       })
   }, [dispatch, portfolioLoadingStatusGranular])
 

@@ -42,13 +42,10 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
-    accountSpecifiers: {
-      accountMetadataById: {},
+    accountMetadata: {
+      byId: {},
       ids: [],
     },
-  },
-  accountSpecifiers: {
-    accountSpecifiers: [],
   },
   preferences: {
     featureFlags: {

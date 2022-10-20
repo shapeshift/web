@@ -13,7 +13,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
@@ -29,7 +29,6 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -48,7 +47,7 @@ enum View {
 }
 
 type AssetChartProps = {
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   assetId: AssetId
   isLoaded: boolean
 }

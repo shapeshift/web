@@ -20,10 +20,10 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  supportsAvalanche,
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsEthSwitchChain,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -361,7 +361,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
     case avalancheChainId:
-      return supportsAvalanche(wallet)
+      return supportsEthSwitchChain(wallet)
     case ethChainId:
       return supportsETH(wallet)
     case btcChainId:

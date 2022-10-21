@@ -13,6 +13,7 @@ import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { logger } from 'lib/logger'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -70,6 +71,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
+
+  // load fiat ramps
+  useGetFiatRampsQuery()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready

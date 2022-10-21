@@ -130,8 +130,8 @@ export const Overview: React.FC<OverviewProps> = ({
     if (!assetId) return null
     if (isRampsLoading) return null
     if (!ramps) return null
-    const rampIdsByAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
-    if (!rampIdsByAssetIdAndAction.length)
+    const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
+    if (!rampIdsForAssetIdAndAction.length)
       return (
         <Center display='flex' flexDir='column' minHeight='150px'>
           <IconCircle mb={4}>
@@ -141,7 +141,7 @@ export const Overview: React.FC<OverviewProps> = ({
           <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
         </Center>
       )
-    return rampIdsByAssetIdAndAction.map(rampId => {
+    return rampIdsForAssetIdAndAction.map(rampId => {
       const ramp = supportedFiatRamps[rampId]
       return (
         <FiatRampButton

@@ -142,8 +142,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   )
 
   const handleAssetSelect = useCallback(
-    (assetId?: AssetId) => {
-      if (!wallet) return
+    (assetId: AssetId) => {
       const route =
         match?.params.fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.Buy
@@ -151,7 +150,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
       setSelectedAssetId(assetId)
       history.push(route)
     },
-    [history, match?.params.fiatRampAction, wallet],
+    [history, match?.params.fiatRampAction],
   )
 
   const handleIsSelectingAsset = useCallback(

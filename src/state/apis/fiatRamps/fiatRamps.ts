@@ -26,6 +26,7 @@ export const fiatRampApi = createApi({
   reducerPath: 'fiatRampApi',
   endpoints: build => ({
     getFiatRamps: build.query<FiatRampsByAssetId, void>({
+      keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
       queryFn: async () => {
         try {
           const promiseResults = await Promise.allSettled(

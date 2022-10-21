@@ -12,6 +12,7 @@ import { IconCircle } from 'components/IconCircle'
 import type { PairingProps } from 'components/Modals/Pair/Pair'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { selectShowWelcomeModal } from 'state/slices/selectors'
 
@@ -26,7 +27,15 @@ export const App = () => {
     mobileWelcomeModal: { isOpen: isWelcomeModalOpen, open: openWelcomeModal },
   } = useModal()
 
-  const { pair, sign } = useModal()
+  const { needsReset } = useWallet()
+
+  const { pair, sign, hardwareError } = useModal()
+
+  useEffect(() => {
+    if (needsReset) hardwareError.open({})
+    else hardwareError.close()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsReset])
 
   useEffect(() => {
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {

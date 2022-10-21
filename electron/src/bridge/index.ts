@@ -144,7 +144,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         log.info(tag, "No Devices connected")
                         queueIpcEvent('closeBootloaderUpdate', {})
                         queueIpcEvent('closeFirmwareUpdate', {})
-                        queueIpcEvent('@modal/hardwareError', { close: false, data: { error: event.error, code: event.code, event } })
+                        queueIpcEvent('@keepkey/hardwareError', { event })
                         break;
                     case 1:
                         queueIpcEvent('@onboard/open', event)
@@ -155,8 +155,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         queueIpcEvent('@onboard/open', event)
                         break;
                     case 5:
-                        //queueIpcEvent('@wallet/not-initialized', event.deviceId)
-                        queueIpcEvent('@modal/hardwareError', { close: true, data: { error: event.error, code: event.code, event } })
                         queueIpcEvent('closeBootloaderUpdate', {})
                         queueIpcEvent('closeFirmwareUpdate', {})
                         //launch init seed window?
@@ -167,7 +165,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         keepkey.transport = Controller.transport
                         break;
                     case 6:
-                        queueIpcEvent('@modal/hardwareError', { close: true, data: { error: event.error, code: event.code, event } })
                         log.info("Setting device Controller: ", Controller)
                         keepkey.device = Controller.device
                         // @ts-ignore
@@ -182,7 +179,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             //errors
             Controller.events.on('error', function (event) {
                 log.info("error event: ", event)
-                queueIpcEvent('@modal/hardwareError', { close: false, data: { error: event.error, code: event.code, event } })
+                queueIpcEvent('@keepkey/hardwareError', { event })
             })
             // queueIpcEvent('@onboard/open', {})
             //logs
@@ -194,7 +191,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 }
 
                 if (event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) {
-                    queueIpcEvent('@modal/hardwareError', { close: true, data: { error: event.error, code: event.code, event } })
                     queueIpcEvent('@onboard/open', event)
                     queueIpcEvent('@onboard/state', event)
                 }

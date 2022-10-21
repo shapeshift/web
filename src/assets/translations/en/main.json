@@ -557,6 +557,13 @@
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
       },
+      "hardware": {
+        "headerError": "Hardware Error!",
+        "headerConnect": "No Device Found!",
+        "troubleshoot": "troubleshoot",
+        "connect": "Please connect or reconnect your KeepKey to continue.",
+        "reconnect": "Please disconnect, and reconnect your KeepKey to continue."
+      },
       "label": {
         "header": "Label Your KeepKey (optional)",
         "body": "Labeling each of your devices allows you to easily distinguish one from the other.",

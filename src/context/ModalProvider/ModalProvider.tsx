@@ -6,6 +6,7 @@ import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
+import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
@@ -24,6 +25,7 @@ const MODALS = {
   send: SendModal,
   sign: SignModal,
   pair: PairModal,
+  hardwareError: HardwareErrorModal,
   fiatRamps: FiatRampsModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,

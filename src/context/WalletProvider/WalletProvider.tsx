@@ -372,7 +372,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   // Keepkey is in a fucked state and needs to be unplugged/replugged
-  const [needsReset, setNeedsReset] = useState(false)
+  const [needsReset, setNeedsReset] = useState(true)
 
   const disconnect = useCallback(() => {
     /**
@@ -610,6 +610,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
              * aliases[deviceId] in the local wallet storage.
              */
             setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+            setNeedsReset(false)
           }
         } catch (e) {
           moduleLogger.error(e, 'Error initializing HDWallet adapters')
@@ -659,8 +660,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       pairAndConnect.current()
     })
 
+    ipcRenderer.on('@keepkey/hardwareError', (_event, _data) => {
+      setNeedsReset(true)
+    })
+
     ipcRenderer.on('@keepkey/state', (_event, data) => {
       console.info('@keepkey/state', data)
+
+      // if needs initialize we do the normal pair process and then web detects that it needs initialize
+      if (data.state === 5) pairAndConnect.current()
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
     })
 

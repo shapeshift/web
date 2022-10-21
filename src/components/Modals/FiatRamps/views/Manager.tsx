@@ -141,7 +141,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     [history],
   )
 
-  const onAssetSelect = useCallback(
+  const handleAssetSelect = useCallback(
     (assetId?: AssetId) => {
       if (!wallet) return
       const route =
@@ -170,9 +170,9 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const assetSelectProps = useMemo(
     () => ({
       selectAssetTranslation: location.state?.selectAssetTranslation,
-      onAssetSelect,
+      handleAssetSelect,
     }),
-    [location.state, onAssetSelect],
+    [location.state, handleAssetSelect],
   )
 
   const { address, vanityAddress } = useMemo(() => {

@@ -11,12 +11,12 @@ import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 type AssetSelectProps = {
-  onAssetSelect: (assetId: AssetId) => void
+  handleAssetSelect: (assetId: AssetId) => void
   selectAssetTranslation: string
 }
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
-  const { onAssetSelect, selectAssetTranslation } = props
+  const { handleAssetSelect, selectAssetTranslation } = props
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const { data: ramps, isLoading } = useGetFiatRampsQuery()
   const translate = useTranslate()
@@ -40,7 +40,7 @@ export const AssetSelect: React.FC<AssetSelectProps> = props => {
       <DefiModalHeader onBack={handleBack} title={translate(selectAssetTranslation)} />
       <ModalBody pb={0}>
         <Stack height='338px'>
-          <AssetSearch onClick={onAssetSelect} action={fiatRampAction} assetIds={assetIds} />
+          <AssetSearch onClick={handleAssetSelect} action={fiatRampAction} assetIds={assetIds} />
         </Stack>
       </ModalBody>
     </SlideTransition>

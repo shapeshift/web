@@ -98,13 +98,11 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       minimum,
       maximum,
       feeData: {
-        fee,
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
           gasPrice,
           approvalFee,
         },
-        tradeFee: '0',
         networkFee: fee,
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',

@@ -18,8 +18,6 @@ export const setupQuote = () => {
     minimum: '0',
     maximum: '999999999999',
     feeData: {
-      fee: '0', // TODO: remove once web has been updated
-      tradeFee: '0', // TODO: remove once web has been updated
       chainSpecific: {},
       sellAssetTradeFeeUsd: '0',
       networkFee: '0',

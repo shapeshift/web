@@ -113,13 +113,11 @@ export async function cowBuildTrade(
     const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
       rate,
       feeData: {
-        fee: '0', // TODO: remove once web has been updated
         networkFee: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
           gasPrice: feeData.chainSpecific.gasPrice,
         },
-        tradeFee: '0', // TODO: remove once web has been updated
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,
       },

@@ -107,13 +107,11 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
       rate: data.price,
       depositAddress: data.to,
       feeData: {
-        fee: networkFee,
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
           gasPrice: data.gasPrice,
           approvalFee: approvalRequired ? approvalFee : undefined,
         },
-        tradeFee: '0',
         networkFee,
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',

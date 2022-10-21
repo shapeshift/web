@@ -184,9 +184,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             ...commonQuoteFields,
             allowanceContract: '0x0', // not applicable to cosmos
             feeData: {
-              fee: feeData.fast.txFee,
               networkFee: feeData.fast.txFee,
-              tradeFee: buyAssetTradeFeeUsdOrDefault,
               buyAssetTradeFeeUsd: buyAssetTradeFeeUsdOrDefault,
               sellAssetTradeFeeUsd: '0',
               chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },

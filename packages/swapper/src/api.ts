@@ -48,11 +48,6 @@ export type QuoteFeeData<T extends ChainId> = {
   networkFee: string // fee paid to the network from the fee asset
   buyAssetTradeFeeUsd: string // fee taken out of the trade from the buyAsset
   sellAssetTradeFeeUsd?: string // fee taken out of the trade from the sellAsset
-
-  /** @deprecated Use networkFee instead */
-  fee: string
-  /** @deprecated Use sellAssetTradeFeeUsd instead */
-  tradeFee: string // fee taken out of the trade from the buyAsset
 } & ChainSpecificQuoteFeeData<T>
 
 export type ByPairInput = {

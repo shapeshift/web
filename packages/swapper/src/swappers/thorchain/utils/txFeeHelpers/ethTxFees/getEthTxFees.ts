@@ -49,7 +49,6 @@ export const getEthTxFees = async ({
     const feeData = feeDataOptions['fast']
 
     return {
-      fee: feeData.txFee, // TODO: remove once web has been updated
       networkFee: feeData.txFee,
       chainSpecific: {
         estimatedGas: feeData.chainSpecific.gasLimit,
@@ -60,7 +59,6 @@ export const getEthTxFees = async ({
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
             .toString(),
       },
-      tradeFee: buyAssetTradeFeeUsd, // TODO: remove once web has been updated
       buyAssetTradeFeeUsd,
       sellAssetTradeFeeUsd: '0',
     }

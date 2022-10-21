@@ -45,9 +45,7 @@ export const getBtcTxFees = async ({
     const satsPerByte = feeMultiplier.times(feeData.chainSpecific.satoshiPerByte).dp(0).toString()
 
     return {
-      fee: networkFee,
       networkFee,
-      tradeFee: buyAssetTradeFeeUsd,
       buyAssetTradeFeeUsd,
       sellAssetTradeFeeUsd: '0',
       chainSpecific: {

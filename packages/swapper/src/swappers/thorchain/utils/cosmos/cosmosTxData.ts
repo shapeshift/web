@@ -75,7 +75,7 @@ export const cosmosTxData = async (input: {
       wallet,
       memo,
       gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific.estimatedGas,
-      fee: quote.feeData.fee,
+      fee: quote.feeData.networkFee,
     })
     return buildTxResponse.txToSign
   }
@@ -97,7 +97,7 @@ export const cosmosTxData = async (input: {
     memo,
     chainSpecific: {
       gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific.estimatedGas,
-      fee: quote.feeData.fee,
+      fee: quote.feeData.networkFee,
     },
   })
 

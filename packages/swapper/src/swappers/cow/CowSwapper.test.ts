@@ -212,12 +212,10 @@ describe('CowSwapper', () => {
         feeAmountInSellToken: '14557942658757988',
         rate: '14716.04718939437505555958',
         feeData: {
-          fee: '14557942658757988',
           chainSpecific: {
             estimatedGas: '100000',
             gasPrice: '79036500000',
           },
-          tradeFee: '0',
           buyAssetTradeFeeUsd: '0',
           sellAssetTradeFeeUsd: '0',
           networkFee: '14557942658757988',

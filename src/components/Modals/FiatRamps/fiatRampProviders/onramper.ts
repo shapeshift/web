@@ -51,10 +51,14 @@ export const getOnRamperAssets = async (): Promise<AssetId[]> => {
 }
 
 const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] =>
-  response.gateways
-    .flatMap(gateway => gateway.cryptoCurrencies)
-    .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
-    .filter((assetId): assetId is AssetId => Boolean(assetId))
+  Array.from(
+    new Set(
+      response.gateways
+        .flatMap(gateway => gateway.cryptoCurrencies)
+        .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
+        .filter((assetId): assetId is AssetId => Boolean(assetId)),
+    ),
+  )
 
 export const createOnRamperUrl = (
   action: FiatRampAction,

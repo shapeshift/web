@@ -8,11 +8,5 @@ export const csp: Csp = {
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS!,
     // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L50
     process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS!,
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L13
-    process.env.REACT_APP_GEM_ASSET_LOGO!,
-  ],
-  'img-src': [
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L13
-    process.env.REACT_APP_GEM_ASSET_LOGO!,
-  ],
+  ]
 }

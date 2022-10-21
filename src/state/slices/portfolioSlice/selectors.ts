@@ -591,6 +591,25 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutp
   },
 )
 
+export const selectPortfolioAssetIdsSortedFiat = createDeepEqualOutputSelector(
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  (portfolioFiatAccountBalances): AssetId[] => {
+    const assetBalances = Object.values(portfolioFiatAccountBalances).reduce<Record<AssetId, BN>>(
+      (acc, account) => {
+        Object.entries(account).forEach(([assetId, fiatBalance]) => {
+          acc[assetId] = bnOrZero(acc[assetId]).plus(fiatBalance)
+        })
+        return acc
+      },
+      {},
+    )
+    const sortedAssetIds = Object.entries(assetBalances)
+      .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
+      .map(([assetId]) => assetId)
+    return sortedAssetIds
+  },
+)
+
 export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAssetIdParamFromFilter,

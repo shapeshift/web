@@ -32,7 +32,7 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
   const mtPelerinSymbols = Object.values(data).map(({ symbol }) => symbol)
   return Array.from(
     new Set(mtPelerinSymbols.flatMap(symbol => adapters.mtPelerinSymbolToAssetIds(symbol))),
-  )
+  ).filter(Boolean)
 }
 
 export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {

@@ -1,3 +1,15 @@
+# [@shapeshiftoss/swapper-v13.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.2.0...@shapeshiftoss/swapper-v13.0.0) (2022-10-21)
+
+
+### Features
+
+* **swapper:** remove deprecated QuoteFeeData fields ([#1073](https://github.com/shapeshift/lib/issues/1073)) ([28b3762](https://github.com/shapeshift/lib/commit/28b3762b4ea9b5cb0e2c3eed8734303c456235e7))
+
+
+### BREAKING CHANGES
+
+* **swapper:** removes deprecated fields from QuoteFeeData
+
 # [@shapeshiftoss/swapper-v12.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.1.0...@shapeshiftoss/swapper-v12.2.0) (2022-10-20)
 
 

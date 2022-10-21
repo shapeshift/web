@@ -14,7 +14,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FiatRampAction } from '../../FiatRampsCommon'
+import type { FiatRampAction } from '../../FiatRampsCommon'
 
 type FiatRampRow = {
   assetIds: AssetId[]
@@ -43,7 +43,7 @@ export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
     [assetId, wallet],
   )
 
-  const { action, handleClick } = data
+  const { handleClick } = data
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
 
   if (!asset) return null
@@ -69,12 +69,10 @@ export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
           </Text>
         </Box>
       </Box>
-      {action === FiatRampAction.Sell && cryptoHumanBalance && fiatBalance && (
-        <Box textAlign='right'>
-          <Amount.Crypto symbol={asset.symbol} value={cryptoHumanBalance} />
-          <Amount.Fiat value={fiatBalance} />
-        </Box>
-      )}
+      <Box textAlign='right'>
+        <Amount.Crypto symbol={asset.symbol} value={cryptoHumanBalance} />
+        <Amount.Fiat value={fiatBalance} />
+      </Box>
     </Button>
   )
 }

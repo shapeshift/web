@@ -41,15 +41,13 @@ export const fiatRampApi = createApi({
                 return acc
               }
               const ramp = p.value
-              const [buyAssets, sellAssets] = ramp
-              buyAssets.forEach(asset => {
-                const { assetId } = asset
+              const [buyAssetIds, sellAssetIds] = ramp
+              buyAssetIds.forEach(assetId => {
                 if (!acc.byAssetId[assetId]) acc.byAssetId[assetId] = { buy: [], sell: [] }
                 acc.byAssetId[assetId]?.['buy'].push(fiatRamps[idx])
                 if (!acc.buyAssetIds.includes(assetId)) acc.buyAssetIds.push(assetId)
               })
-              sellAssets.forEach(asset => {
-                const { assetId } = asset
+              sellAssetIds.forEach(assetId => {
                 if (!acc.byAssetId[assetId]) acc.byAssetId[assetId] = { buy: [], sell: [] }
                 acc.byAssetId[assetId]?.['sell'].push(fiatRamps[idx])
                 if (!acc.sellAssetIds.includes(assetId)) acc.sellAssetIds.push(assetId)

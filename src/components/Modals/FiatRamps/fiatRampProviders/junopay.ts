@@ -1,9 +1,9 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -30,7 +30,7 @@ type JunoPayResponse = {
   }
 }
 
-export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
+export async function getJunoPayAssets(): Promise<AssetId[]> {
   const data = await (async () => {
     try {
       const baseUrl = getConfig().REACT_APP_JUNOPAY_BASE_API_URL
@@ -49,21 +49,15 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
   const junoPayToCurrencyList = data.settings.buy.to_currency
   const allCurrencyList = data.settings.metadata
 
-  const junoPayAssets = allCurrencyList.filter(({ short_name }) =>
-    junoPayToCurrencyList.includes(short_name.toUpperCase()),
-  )
-
-  const assets = junoPayAssets.reduce<FiatRampAsset[]>((acc, asset) => {
-    const { short_name, long_name: name, logo_url: imageUrl } = asset
-    const assetId = adapters.junoPayTickerToAssetId(short_name)
-    if (!assetId) return acc
-    const symbol = short_name.toUpperCase()
-    const mapped = { assetId, symbol, name, imageUrl }
-    acc.push(mapped)
-    return acc
-  }, [])
-
-  return assets
+  return allCurrencyList
+    .filter(({ short_name }) => junoPayToCurrencyList.includes(short_name.toUpperCase()))
+    .reduce<AssetId[]>((acc, asset) => {
+      const { short_name } = asset
+      const assetId = adapters.junoPayTickerToAssetId(short_name)
+      if (!assetId) return acc
+      acc.push(assetId)
+      return acc
+    }, [])
 }
 
 export const createJunoPayUrl = (

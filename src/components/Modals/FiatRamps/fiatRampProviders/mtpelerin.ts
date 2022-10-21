@@ -4,7 +4,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -14,15 +13,10 @@ const moduleLogger = logger.child({
 type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string
-    network: string
-    decimals: number
-    address: string
-    // probably we can filter out the assets which are not stable yet?
-    isStable: boolean
   }
 }
 
-export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
+export async function getMtPelerinAssets(): Promise<AssetId[]> {
   const data = await (async () => {
     try {
       const url = getConfig().REACT_APP_MTPELERIN_ASSETS_API
@@ -35,25 +29,10 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
-  const mtPelerinAssets = Object.values(data)
-
-  const assets = mtPelerinAssets.reduce<FiatRampAsset[]>((acc, asset) => {
-    const { symbol } = asset
-    // MtPelerin supports multiple networks for a given asset,
-    // so if the asset is already proccessed, skip to the next one
-    if (acc.find(asset => asset.symbol === symbol)) return acc
-
-    const assetIds = adapters.mtPelerinSymbolToAssetIds(symbol)
-    if (!assetIds || !assetIds.length) return acc
-    // if an asset is supported on multiple networks, we need to add them all
-    assetIds.forEach(assetId => {
-      const mapped = { assetId, symbol, name: '' } // name will be set in useFiatRampCurrencyList hook
-      acc.push(mapped)
-    })
-    return acc
-  }, [])
-
-  return assets
+  const mtPelerinSymbols = Object.values(data).map(({ symbol }) => symbol)
+  return Array.from(
+    new Set(mtPelerinSymbols.flatMap(symbol => adapters.mtPelerinSymbolToAssetIds(symbol))),
+  )
 }
 
 export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {

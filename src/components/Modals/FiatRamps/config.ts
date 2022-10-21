@@ -9,7 +9,7 @@ import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
+import { createBanxaUrl } from './fiatRampProviders/banxa'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -20,7 +20,7 @@ import {
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
-import type { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import type { FiatRampAction } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -39,7 +39,7 @@ export interface SupportedFiatRampConfig {
   logo: string
   isImplemented: boolean
   isActive: (featureFlags: FeatureFlags) => boolean
-  getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
+  getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
   onSubmit: (action: FiatRampAction, asset: string, address: string) => void
   minimumSellThreshold?: number
   supportsBuy: boolean
@@ -86,10 +86,8 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     supportsBuy: true,
     supportsSell: true,
     getBuyAndSellList: async () => {
-      const buyAssets = getBanxaAssets()
-      const sellAssets = buyAssets.filter(a =>
-        [btcAssetId, usdcAssetId, usdtAssetId].includes(a.assetId),
-      )
+      const buyAssets = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
+      const sellAssets = [btcAssetId, usdcAssetId, usdtAssetId]
       return [buyAssets, sellAssets]
     },
     onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {

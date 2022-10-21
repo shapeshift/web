@@ -39,7 +39,7 @@ export interface SupportedFiatRampConfig {
   logo: string
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (action: FiatRampAction, asset: string, address: string) => void
+  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
   minimumSellThreshold?: number
 }
 
@@ -59,7 +59,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = parseGemSellAssets(currencyList)
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId: AssetId, address) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToGemTicker(assetId)
         const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
@@ -81,7 +81,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToBanxaTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by Banxa')
@@ -102,7 +102,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds: AssetId[] = []
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToJunoPayTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by JunoPay')
@@ -126,7 +126,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId) => {
+    onSubmit: (action, assetId) => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
@@ -145,7 +145,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const onRamperCheckoutUrl = createOnRamperUrl(
           action,

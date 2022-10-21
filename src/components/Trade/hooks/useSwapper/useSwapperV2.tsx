@@ -151,7 +151,11 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('no wallet available')
     if (!quote) throw new Error('no quote available')
     const txid = isExactAllowance
-      ? await bestTradeSwapper.approveAmount({ amount: quote.sellAmount, quote, wallet })
+      ? await bestTradeSwapper.approveAmount({
+          amount: quote.sellAmountCryptoPrecision,
+          quote,
+          wallet,
+        })
       : await bestTradeSwapper.approveInfinite({ quote, wallet })
     return txid
   }, [bestTradeSwapper, isExactAllowance, quote, wallet])

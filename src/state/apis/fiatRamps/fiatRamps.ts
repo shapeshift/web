@@ -29,9 +29,7 @@ export const fiatRampApi = createApi({
       queryFn: async () => {
         try {
           const promiseResults = await Promise.allSettled(
-            Object.values(supportedFiatRamps)
-              .filter(provider => provider.isImplemented)
-              .map(provider => provider.getBuyAndSellList()),
+            Object.values(supportedFiatRamps).map(provider => provider.getBuyAndSellList()),
           )
 
           const data = promiseResults.reduce<FiatRampsByAssetId>(

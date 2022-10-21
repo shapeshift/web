@@ -15,13 +15,14 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
@@ -30,7 +31,9 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
+  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
@@ -39,30 +42,30 @@ import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { FiatRampAsset } from '../FiatRampsCommon'
+import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
-import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
   accountId: Nullable<AccountId>
   address: string
   vanityAddress: string
-  selectedAsset: FiatRampAsset | null
+  assetId?: AssetId
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
+  handleIsSelectingAsset: (assetId: AssetId | undefined, selectAssetTranslation: string) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
-  onIsSelectingAsset,
+  handleIsSelectingAsset,
   onFiatRampActionClick,
-  selectedAsset,
+  assetId,
   handleAccountIdChange,
   accountId,
   address,
   vanityAddress,
 }) => {
+  const assetsById = useSelector(selectAssets)
   const translate = useTranslate()
   const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
@@ -72,17 +75,13 @@ export const Overview: React.FC<OverviewProps> = ({
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   useEffect(() => setShownOnDisplay(null), [accountId])
 
-  const assetId = useMemo(() => selectedAsset?.assetId, [selectedAsset])
   const filter = useMemo(
     () => ({ assetId: assetId ?? '', accountId: accountId ?? '' }),
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
   const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
-  const { providers, loading: providersLoading } = useFiatRampByAssetId({
-    assetId,
-    action: fiatRampAction,
-  })
+  const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -128,27 +127,33 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [accountId, accountMetadata, address, wallet])
 
   const renderProviders = useMemo(() => {
-    if (!selectedAsset) return null
-    const { assetId } = selectedAsset
-    return providers.length ? (
-      providers.map(provider => (
+    if (!assetId) return null
+    if (isRampsLoading) return null
+    if (!ramps) return null
+    const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
+    if (!rampIdsForAssetIdAndAction.length)
+      return (
+        <Center display='flex' flexDir='column' minHeight='150px'>
+          <IconCircle mb={4}>
+            <FaCreditCard />
+          </IconCircle>
+          <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
+          <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+        </Center>
+      )
+    return rampIdsForAssetIdAndAction.map(rampId => {
+      const ramp = supportedFiatRamps[rampId]
+      return (
         <FiatRampButton
-          onClick={() => provider.onSubmit(fiatRampAction, assetId, address)}
+          key={rampId}
+          onClick={() => ramp.onSubmit(fiatRampAction, assetId, address)}
           accountFiatBalance={accountFiatBalance}
           action={fiatRampAction}
-          {...provider}
+          {...ramp}
         />
-      ))
-    ) : (
-      <Center display='flex' flexDir='column' minHeight='150px'>
-        <IconCircle mb={4}>
-          <FaCreditCard />
-        </IconCircle>
-        <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
-        <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
-      </Center>
-    )
-  }, [address, accountFiatBalance, fiatRampAction, providers, selectedAsset])
+      )
+    })
+  }, [accountFiatBalance, address, assetId, fiatRampAction, isRampsLoading, ramps])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress
@@ -170,26 +175,26 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
+            onClick={() => handleIsSelectingAsset(assetId, selectAssetTranslation)}
             rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
           >
-            {selectedAsset ? (
+            {assetId ? (
               <Flex alignItems='center'>
-                <AssetIcon size='sm' assetId={selectedAsset.assetId} mr={4} />
+                <AssetIcon size='sm' assetId={assetId} mr={4} />
                 <Box textAlign='left'>
-                  <RawText lineHeight={1}>{selectedAsset.name}</RawText>
+                  <RawText lineHeight={1}>{assetsById[assetId].name}</RawText>
                 </Box>
               </Flex>
             ) : (
               <Text translation={selectAssetTranslation} color='gray.500' />
             )}
           </Button>
-          {selectedAsset && (
+          {assetId && (
             <Flex flexDirection='column' mb='10px'>
               <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
               <AccountDropdown
                 autoSelectHighestBalance={true}
-                assetId={selectedAsset.assetId}
+                assetId={assetId}
                 onChange={handleAccountIdChange}
                 buttonProps={{ variant: 'solid', width: 'full' }}
                 boxProps={{ px: 0 }}
@@ -235,22 +240,22 @@ export const Overview: React.FC<OverviewProps> = ({
             </Flex>
           )}
         </Stack>
-        {selectedAsset && address && (
+        {assetId && address && (
           <Stack spacing={4}>
-            {providers.length && (
+            {ramps && (
               <Box>
                 <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
                 <Text
                   color='gray.500'
                   translation={[
                     'fiatRamps.titleMessage',
-                    { action: fiatRampAction, asset: selectedAsset.symbol },
+                    { action: fiatRampAction, asset: assetsById[assetId].symbol },
                   ]}
                 />
               </Box>
             )}
 
-            {providersLoading ? (
+            {isRampsLoading ? (
               <Center minHeight='150px'>
                 <CircularProgress />
               </Center>

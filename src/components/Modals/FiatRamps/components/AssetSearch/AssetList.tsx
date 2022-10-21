@@ -13,8 +13,7 @@ type AssetListProps = {
 } & ListProps
 
 export const AssetList: React.FC<AssetListProps> = props => {
-  const { assetIds } = props
-  if (!assetIds.length) return <Text translation='common.noResultsFound' />
+  if (!props.assetIds.length) return <Text translation='common.noResultsFound' />
 
   return (
     <FixedSizeList
@@ -22,7 +21,7 @@ export const AssetList: React.FC<AssetListProps> = props => {
       height={250}
       width='100%'
       itemData={props}
-      itemCount={assetIds.length}
+      itemCount={props.assetIds.length}
       className='token-list'
       overscanCount={6}
     >

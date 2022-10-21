@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import isEmpty from 'lodash/isEmpty'
@@ -62,7 +63,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
 
   const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
 
@@ -135,7 +136,6 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
         fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.Buy
           : FiatRampManagerRoutes.Sell
-      setSelectedAssetId('')
       history.push(route)
     },
     [history],

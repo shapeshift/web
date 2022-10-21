@@ -22,7 +22,6 @@ import type { Entropy } from 'context/WalletProvider/KeepKey/components/Recovery
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
 
 import type { ActionTypes } from './actions'
@@ -371,7 +370,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [state, dispatch] = useReducer(reducer, getInitialState())
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
-  const { sign, pair } = useModal()
 
   // Keepkey is in a fucked state and needs to be unplugged/replugged
   const [needsReset, setNeedsReset] = useState(false)
@@ -400,7 +398,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
           switch (localWalletType) {
             case KeyManager.KeepKey:
-              console.log('loading keepkey')
               try {
                 const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
                 /**
@@ -417,7 +414,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
                   await localKeepKeyWallet.initialize()
 
-                  console.log('keepkey loaded', localKeepKeyWallet)
                   dispatch({
                     type: WalletActions.SET_WALLET,
                     payload: {
@@ -594,7 +590,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
             const wallet = await adapter.pairDevice('http://localhost:1646')
             adapters.set(walletName, adapter)
-            console.log('successfully paired')
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
             const { name, icon } = KeepKeyConfig
             const deviceId = await wallet.getDeviceID()
@@ -673,9 +668,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
     })
 
-    ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
-      pair.open(data)
-    })
+    // this isnt gonna work here
+    // ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
+    //   pair.open(data)
+    // })
 
     ipcRenderer.on('loadKeepKeyInfo', (_event, data) => {
       keepkey.updateFeatures(data.payload)
@@ -850,21 +846,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('setDevice', () => {})
 
-    ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
-      let unsignedTx = data.payload.data
-      //open signTx
-      if (
-        unsignedTx &&
-        unsignedTx.invocation &&
-        unsignedTx.invocation.unsignedTx &&
-        unsignedTx.invocation.unsignedTx.HDwalletPayload
-      ) {
-        sign.open({ unsignedTx, nonce: data.nonce })
-      } else {
-        console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
-      }
-    })
-
     //start keepkey
     async function startPioneer() {
       try {
@@ -884,7 +865,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     } else {
       ipcRenderer.send('@wallet/connected')
     }
-  }, [pair, sign, state.wallet])
+  }, [state.wallet])
 
   useEffect(() => {
     disconnect()

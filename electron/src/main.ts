@@ -142,7 +142,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    console.log(settings)
     if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
     /**
      * Initial window options
@@ -368,7 +367,6 @@ ipcMain.on('@bridge/running', (event, data) => {
 
 ipcMain.on('@walletconnect/pair', async (event, data) => {
     const tag = TAG + ' | onPairWalletConnect | '
-    console.log(data)
     try {
         pairWalletConnect(data)
     } catch (e) {

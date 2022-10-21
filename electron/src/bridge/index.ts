@@ -1,3 +1,4 @@
+
 const TAG = " | KEEPKEY_BRIDGE | "
 
 import swaggerUi from 'swagger-ui-express'
@@ -161,6 +162,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         //launch init seed window?
                         log.info("Setting device controller: ", Controller)
                         keepkey.device = Controller.device
+                        // @ts-ignore
                         keepkey.wallet = Controller.wallet
                         keepkey.transport = Controller.transport
                         break;
@@ -168,6 +170,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         queueIpcEvent('@modal/hardwareError', { close: true, data: { error: event.error, code: event.code, event } })
                         log.info("Setting device Controller: ", Controller)
                         keepkey.device = Controller.device
+                        // @ts-ignore
                         keepkey.wallet = Controller.wallet
                         keepkey.transport = Controller.transport
                         break;

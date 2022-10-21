@@ -12,12 +12,12 @@ export function expressAuthentication(
             serviceKey = request.headers.authorization;
         }
 
-
         if (!serviceKey) {
             return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
         }
 
         return Promise.resolve(new Promise<any>((resolve, reject) => {
+            
             db.findOne({ type: 'service', serviceKey }, (err, doc) => {
                 if (!doc) {
                     return reject({ success: false, reason: 'Please provice a valid serviceKey' })

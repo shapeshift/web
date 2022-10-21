@@ -2,12 +2,14 @@ import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
 import type { ToastId } from '@chakra-ui/toast'
 import { useToast } from '@chakra-ui/toast'
+import { ipcRenderer } from 'electron'
 import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
+import type { PairingProps } from 'components/Modals/Pair/Pair'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
@@ -23,6 +25,38 @@ export const App = () => {
   const {
     mobileWelcomeModal: { isOpen: isWelcomeModalOpen, open: openWelcomeModal },
   } = useModal()
+
+  const { pair, sign } = useModal()
+
+  useEffect(() => {
+    ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
+      pair.open(data)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    ipcRenderer.on('@modal/sign', (_event, data: PairingProps) => {
+      sign.open(data)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
+    let unsignedTx = data.payload.data
+    //open signTx
+    if (
+      unsignedTx &&
+      unsignedTx.invocation &&
+      unsignedTx.invocation.unsignedTx &&
+      unsignedTx.invocation.unsignedTx.HDwalletPayload
+    ) {
+      sign.open({ unsignedTx, nonce: data.nonce })
+    } else {
+      // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
+      console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
+    }
+  })
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')

@@ -7,7 +7,6 @@ const main = async () => {
   const latestTag = await getLatestSemverTag()
   const headShortCommitHash = await getHeadShortCommitHash()
   const payload = JSON.stringify({ latestTag, headShortCommitHash }, null, 2)
-  console.log(payload)
   writeFileSync('./build/metadata.json', payload)
 }
 

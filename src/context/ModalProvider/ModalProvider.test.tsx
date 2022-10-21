@@ -3,7 +3,7 @@ import {
   createInitialState,
   createModalProvider,
   modalReducer as instanceReducer,
-} from 'context/ModalProvider2/ModalProvider2'
+} from 'context/ModalProvider/ModalProvider'
 import { makeUseModal } from 'hooks/useModal/useModal'
 
 import { createModalContext } from './ModalContext'

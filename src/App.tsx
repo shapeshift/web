@@ -35,13 +35,6 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    ipcRenderer.on('@modal/sign', (_event, data: PairingProps) => {
-      sign.open(data)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
     let unsignedTx = data.payload.data
     //open signTx

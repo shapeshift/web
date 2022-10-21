@@ -190,7 +190,7 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
         <Route exact path='/:fiatRampAction'>
           <Overview
             assetId={selectedAssetId}
-            onIsSelectingAsset={handleIsSelectingAsset}
+            handleIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
             address={address}
             vanityAddress={vanityAddress}

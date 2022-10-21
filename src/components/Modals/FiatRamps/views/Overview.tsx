@@ -52,12 +52,12 @@ type OverviewProps = {
   vanityAddress: string
   assetId?: AssetId
   onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (assetId: AssetId | undefined, selectAssetTranslation: string) => void
+  handleIsSelectingAsset: (assetId: AssetId | undefined, selectAssetTranslation: string) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
-  onIsSelectingAsset,
+  handleIsSelectingAsset,
   onFiatRampActionClick,
   assetId,
   handleAccountIdChange,
@@ -175,7 +175,7 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            onClick={() => onIsSelectingAsset(assetId, selectAssetTranslation)}
+            onClick={() => handleIsSelectingAsset(assetId, selectAssetTranslation)}
             rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
           >
             {assetId ? (

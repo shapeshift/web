@@ -1,11 +1,11 @@
-import type { BackgroundProps, ButtonProps } from '@chakra-ui/react'
+import type { BackgroundProps, ButtonProps, ThemingProps } from '@chakra-ui/react'
 import { useColorMode, useTheme } from '@chakra-ui/react'
 import type { SystemStyleFunction } from '@chakra-ui/theme-tools'
 import { theme } from 'theme/theme'
 
 type UseButtonStyleProps = {
-  variant: string
-  colorScheme: string
+  variant: ThemingProps['variant']
+  colorScheme: NonNullable<ThemingProps['colorScheme']>
 }
 
 export const useButtonStyles = ({ variant, colorScheme }: UseButtonStyleProps) => {

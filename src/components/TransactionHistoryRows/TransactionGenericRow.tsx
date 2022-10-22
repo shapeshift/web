@@ -1,5 +1,15 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Circle,
+  Flex,
+  SimpleGrid,
+  Stack,
+  Tag,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
@@ -12,7 +22,7 @@ import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLi
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
 import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
@@ -79,6 +89,7 @@ type TransactionGenericRowProps = {
   showDateAndGuide?: boolean
   compactMode?: boolean
   displayTransfers: Transfer[]
+  txTransfers: Transfer[]
   fee?: Fee
   txid: TxId
   txData?: ReturnType<typeof getTxMetadataWithAssetId>
@@ -88,10 +99,96 @@ type TransactionGenericRowProps = {
   parentWidth: number
 }
 
+type TransferStackProps = {
+  compactMode?: boolean
+  transfer: Transfer
+  index: number
+}
+
+type TransfersStackProps = {
+  compactMode?: boolean
+  transfers: Transfer[]
+  index: number
+}
+
+const TransferStack: React.FC<TransferStackProps> = ({ index, compactMode, transfer }) => {
+  return (
+    <Stack
+      alignItems='center'
+      key={index}
+      flex={1}
+      mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+      direction={index === 0 ? 'row' : 'row-reverse'}
+      textAlign={index === 0 ? 'left' : 'right'}
+    >
+      <AssetIcon
+        assetId={transfer.asset?.assetId}
+        boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+      />
+      <Box flex={1}>
+        <Amount.Crypto
+          color='inherit'
+          fontWeight='medium'
+          value={fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION)}
+          symbol={transfer.asset?.symbol ?? FALLBACK_SYMBOL}
+          maximumFractionDigits={4}
+        />
+        {transfer.marketData.price && (
+          <Amount.Fiat
+            color='gray.500'
+            fontSize='sm'
+            lineHeight='1'
+            value={bnOrZero(
+              fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
+            )
+              .times(transfer.marketData.price)
+              .toString()}
+          />
+        )}
+      </Box>
+    </Stack>
+  )
+}
+
+const TransfersStack: React.FC<TransfersStackProps> = ({ index, compactMode, transfers }) => {
+  const circleBgColor = useColorModeValue('white', 'whiteAlpha.100')
+  const circleColor = useColorModeValue('blue.100', 'blue.200')
+  const aggregatedFiatValue = transfers
+    .reduce((acc, transfer) => {
+      if (!transfer) return acc
+      return acc.plus(
+        bnOrZero(
+          fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
+        ).times(transfer.marketData.price),
+      )
+    }, bn(0))
+    .toString()
+
+  return (
+    <Stack
+      alignItems='center'
+      key={index}
+      flex={1}
+      mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
+      direction={index === 0 ? 'row' : 'row-reverse'}
+      textAlign={index === 0 ? 'left' : 'right'}
+    >
+      <Circle size={8} color={circleColor} borderWidth={2} bg={circleBgColor}>
+        <CText>{transfers.length}</CText>
+      </Circle>
+      <Box flex={1}>
+        <CText fontWeight='bold'>{`${transfers.length} Assets`}</CText>
+        <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={aggregatedFiatValue} />
+      </Box>
+    </Stack>
+  )
+}
+
 export const TransactionGenericRow = ({
   type,
   title,
   displayTransfers,
+  txTransfers,
   fee,
   txid,
   txData,
@@ -108,43 +205,20 @@ export const TransactionGenericRow = ({
   } = GetTxLayoutFormats({ parentWidth })
 
   const transfers = useMemo(() => {
-    return displayTransfers.map((transfer, index) => (
-      <Stack
-        alignItems='center'
-        key={index}
-        flex={1}
-        mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
-        direction={index === 0 ? 'row' : 'row-reverse'}
-        textAlign={index === 0 ? 'left' : 'right'}
-      >
-        <AssetIcon
-          assetId={transfer.asset?.assetId}
-          boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
-        />
-        <Box flex={1}>
-          <Amount.Crypto
-            color='inherit'
-            fontWeight='medium'
-            value={fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION)}
-            symbol={transfer.asset?.symbol ?? FALLBACK_SYMBOL}
-            maximumFractionDigits={4}
-          />
-          {transfer.marketData.price && (
-            <Amount.Fiat
-              color='gray.500'
-              fontSize='sm'
-              lineHeight='1'
-              value={bnOrZero(
-                fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
-              )
-                .times(transfer.marketData.price)
-                .toString()}
-            />
-          )}
-        </Box>
-      </Stack>
-    ))
-  }, [compactMode, displayTransfers])
+    return displayTransfers.map((transfer, index) => {
+      const displayTransferType = transfer.type
+      const typeTxTransfers = (txTransfers ?? []).filter(({ type }) => type === displayTransferType)
+      const hasManyTypeTransfers = typeTxTransfers.length > 1
+
+      if (hasManyTypeTransfers) {
+        return (
+          <TransfersStack index={index} compactMode={compactMode} transfers={typeTxTransfers} />
+        )
+      }
+
+      return <TransferStack index={index} compactMode={compactMode} transfer={transfer} />
+    })
+  }, [compactMode, txTransfers, displayTransfers])
 
   const cryptoValue = useMemo(() => {
     if (!fee) return '0'

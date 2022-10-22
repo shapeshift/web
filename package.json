@@ -36,14 +36,14 @@
     "release": "ts-node --skipProject ./scripts/release.ts",
     "scrape-walletconnect-dapps": "ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "env": "ts-node --skipProject ./scripts/bootstrap-env.ts",
-    "dev:electron": "concurrently \"yarn dev\" \"yarn watch:electron\" \"wait-on http://localhost:3000 && electron .\"",
-    "fix:electron": "./node_modules/.bin/electron-builder install-app-deps",
-    "compile:electron": "cd electron && tsc && cd ..",
-    "watch:electron": "cd electron && tsc -w && cd ..",
-    "build:electron": "yarn build && yarn compile:electron && electron-builder build",
-    "build:bridge": "yarn build:routes && yarn build:swagger",
-    "build:routes": "tsoa routes --configuration electron/tsoa.json",
-    "build:swagger": "tsoa swagger --configuration electron/tsoa.json"
+    "electron:dev": "concurrently \"yarn dev\" \"yarn watch:electron\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:fix": "./node_modules/.bin/electron-builder install-app-deps",
+    "electron:compile": "cd electron && tsc && cd ..",
+    "electron:watch": "cd electron && tsc -w && cd ..",
+    "electron:build": "yarn build && && electron:build:bridge && yarn electron:compile && electron-builder build",
+    "electron:build:bridge": "yarn electron:build:routes && yarn electron:build:swagger",
+    "electron:build:routes": "tsoa routes --configuration electron/tsoa.json",
+    "electron:build:swagger": "tsoa swagger --configuration electron/tsoa.json"
   },
   "eslintConfig": {
     "extends": "react-app",

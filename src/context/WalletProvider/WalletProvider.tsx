@@ -176,6 +176,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
+    case WalletActions.SET_KEEPKEY_STATE:
+      return { ...state, keepkeyState: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -672,15 +674,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
     })
 
-    ipcRenderer.on('@keepkey/status', (_event, data) => {
-      dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
-    })
-
-    // this isnt gonna work here
-    // ipcRenderer.on('approveOrigin', (_event: any, data: any) => {
-    //   pair.open(data)
-    // })
-
     ipcRenderer.on('loadKeepKeyInfo', (_event, data) => {
       keepkey.updateFeatures(data.payload)
     })
@@ -700,22 +693,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('onCompleteBootloaderUpload', (_event, _data) => {
       keepkey.setNeedsBootloaderUpdate(false)
     })
-
-    // ipcRenderer.on('onCompleteFirmwareUpload', (event, data) => {
-    //   firmware.close()
-    // })
-
-    // ipcRenderer.on('openFirmwareUpdate', (event, data) => {
-    //   firmware.open({})
-    // })
-
-    // ipcRenderer.on('openBootloaderUpdate', (event, data) => {
-    //   bootloader.open({})
-    // })
-
-    // ipcRenderer.on('closeBootloaderUpdate', (event, data) => {
-    //   bootloader.close()
-    // })
 
     //HDwallet API
     //TODO moveme into own file
@@ -851,8 +828,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     //END HDwallet API
-
-    ipcRenderer.on('setDevice', () => {})
 
     //start keepkey
     async function startPioneer() {

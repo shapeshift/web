@@ -372,7 +372,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   // Keepkey is in a fucked state and needs to be unplugged/replugged
-  const [needsReset, setNeedsReset] = useState(true)
+  const [needsReset, setNeedsReset] = useState(false)
 
   const disconnect = useCallback(() => {
     /**
@@ -589,6 +589,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           if (walletName === 'keepkey') {
             const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
             const wallet = await adapter.pairDevice('http://localhost:1646')
+            setNeedsReset(false)
             adapters.set(walletName, adapter)
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
             const { name, icon } = KeepKeyConfig
@@ -610,7 +611,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
              * aliases[deviceId] in the local wallet storage.
              */
             setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
-            setNeedsReset(false)
           }
         } catch (e) {
           moduleLogger.error(e, 'Error initializing HDWallet adapters')

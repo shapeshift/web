@@ -24,13 +24,6 @@ export const HardwareErrorModal = (error: any) => {
 
   const history = useHistory()
 
-  // let errorNoDevice = false
-  // let errorReconnectDevice = false
-  //
-  // if(error.errorCode === 1){
-  //   errorNoDevice = true
-  // }}
-
   useEffect(() => {
     if (
       history.location.pathname === '/onboarding' ||

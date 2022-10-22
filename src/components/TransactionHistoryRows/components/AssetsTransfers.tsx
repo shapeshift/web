@@ -39,7 +39,11 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
       direction={index === 0 ? 'row' : 'row-reverse'}
       textAlign={index === 0 ? 'left' : 'right'}
     >
-      <Circle size={8} color={circleColor} bg={circleBgColor}>
+      <Circle
+        boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+        color={circleColor}
+        bg={circleBgColor}
+      >
         <CText>{transfers.length}</CText>
       </Circle>
       <Box flex={1}>

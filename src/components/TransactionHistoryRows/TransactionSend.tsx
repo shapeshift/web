@@ -33,6 +33,7 @@ export const TransactionSend = ({
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
         displayTransfers={displayTransfers}
+        txTransfers={txDetails.transfers}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

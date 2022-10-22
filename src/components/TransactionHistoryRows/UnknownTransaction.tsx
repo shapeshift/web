@@ -35,6 +35,7 @@ export const UnknownTransaction = ({
         title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
         displayTransfers={displayTransfers}
+        txTransfers={txDetails.transfers}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

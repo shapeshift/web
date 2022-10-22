@@ -10,7 +10,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { getDisplayTransfers, getPairDisplayTransfers } from './utils'
+import { getDisplayTransfers } from './utils'
 
 export const TransactionReceive = ({
   txDetails,
@@ -33,6 +33,7 @@ export const TransactionReceive = ({
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
         displayTransfers={displayTransfers}
+        txTransfers={txDetails.transfers}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

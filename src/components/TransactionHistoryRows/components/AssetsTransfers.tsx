@@ -40,6 +40,7 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
       textAlign={index === 0 ? 'left' : 'right'}
     >
       <Circle
+        // @ts-ignore boxSize is a valid prop for <Circle />
         boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
         color={circleColor}
         bg={circleBgColor}

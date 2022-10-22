@@ -1,5 +1,6 @@
-import { Box, Circle, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Circle, Stack, Text as CText } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
+import { useButtonStyles } from 'hooks/useButtonStyles/useButtonStyles'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -17,8 +18,11 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
   compactMode,
   transfers,
 }) => {
-  const circleBgColor = '#333d59' // TODO: can we reuse the Button.theme here?
-  const circleColor = useColorModeValue('blue.100', 'blue.200')
+  const { bg: circleBgColor, color: circleColor } = useButtonStyles({
+    colorScheme: 'blue',
+    variant: 'ghost-filled',
+  })
+
   const aggregatedFiatValue = transfers
     .reduce((acc, transfer) => {
       if (!transfer) return acc

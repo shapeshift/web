@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v13.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v13.0.0...@shapeshiftoss/swapper-v13.0.1) (2022-10-23)
+
+
+### Bug Fixes
+
+* **swapper:** fix rune as sell asset ([#1075](https://github.com/shapeshift/lib/issues/1075)) ([5eb3f39](https://github.com/shapeshift/lib/commit/5eb3f3992e5e51cb06261fd0bf0ccede639f9b83))
+
 # [@shapeshiftoss/swapper-v13.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v12.2.0...@shapeshiftoss/swapper-v13.0.0) (2022-10-21)
 
 

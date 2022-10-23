@@ -52,6 +52,17 @@ export const getPriceRatio = async (
       return bn(runeBalance).dividedBy(sellAssetBalance).toString()
     }
 
+    if (isRune(sellAssetId) && buyPool) {
+      const buyAssetBalance = bnOrZero(buyPool.balance_asset)
+      const runeBalance = bnOrZero(buyPool.balance_rune)
+      // guard against division by zero
+      if (buyAssetBalance.eq(0))
+        throw new SwapError(
+          `[getPriceRatio] zero buy asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+        )
+      return bn(buyAssetBalance).dividedBy(runeBalance).toString()
+    }
+
     if (!buyPool || !sellPool) {
       throw new SwapError(`[getPriceRatio]: pools not found`, {
         code: SwapErrorTypes.RESPONSE_ERROR,

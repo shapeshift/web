@@ -4,13 +4,10 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import * as native from '@shapeshiftoss/hdwallet-native'
 import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
-import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import debounce from 'lodash/debounce'
@@ -36,7 +33,6 @@ import {
   clearLocalWallet,
   getLocalWalletDeviceId,
   getLocalWalletType,
-  setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId,
 } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
@@ -822,7 +818,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('@keepkey/connected', async (_event, data) => {
+    ipcRenderer.on('@keepkey/connected', async (_event, _data) => {
       setNeedsReset(false)
       pairAndConnect.current()
     })

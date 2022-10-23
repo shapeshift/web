@@ -35,9 +35,9 @@ jobs:
       - name: Save sentry properties
         run: echo "${{ secrets.SENTRY_PROPERTIES }}" >> sentry.properties
       - name: Build UI
-        run: yarn build:ui
+        run: yarn build
       - name: Compile electron typescript
-        run: yarn compile:electron
+        run: yarn electron:compile
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
         # Import Apple API key for app notarization on macOS
@@ -52,7 +52,7 @@ jobs:
           # windows_certs: ${{ secrets.windows_certs }}
           # windows_certs_password: ${{ secrets.windows_certs_password }}
           github_token: ${{ secrets.github_token }}
-          build_script_name: build:bridge
+          build_script_name: electron:build:bridge
           release: true
         env:
           # macOS notarization API key

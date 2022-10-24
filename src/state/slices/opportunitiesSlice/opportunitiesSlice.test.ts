@@ -25,13 +25,13 @@ describe('opportunitiesSlice', () => {
     describe('upsertAccountIds', () => {
       it('insert AccountIds', () => {
         const expectedByAccountId = {
-          'eip155:1/erc20:0xfoo': [],
-          'eip155:1/erc20:0xbar': [],
+          'eip155:1/erc20:0xgomes': [],
+          'eip155:1/erc20:0xdeficapuccino': [],
         }
         store.dispatch(
           opportunities.actions.upsertUserAccountIds([
-            'eip155:1/erc20:0xfoo',
-            'eip155:1/erc20:0xbar',
+            'eip155:1/erc20:0xgomes',
+            'eip155:1/erc20:0xdeficapuccino',
           ]),
         )
         expect(store.getState().opportunities.lp.byAccountId).toEqual(expectedByAccountId)
@@ -81,6 +81,43 @@ describe('opportunitiesSlice', () => {
           },
         }
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
+        expect(store.getState().opportunities.lp.byId).toEqual(expected)
+      })
+    })
+    describe('upsertOpportunityUserData', () => {
+      it('insert user data', () => {
+        const payload = {
+          metadata: {
+            'eip155:1/erc20:0xgomes::eip155:1:0xMyContract': {
+              // The LP token AssetId
+              assetId: foxEthLpAssetId,
+              provider: DefiProvider.FoxEthLP,
+              tvl: '424242',
+              apy: '0.42',
+              type: DefiType.LiquidityPool,
+              underlyingAssetIds: [foxAssetId, ethAssetId],
+              // The amount of held LP tokens
+              cryptoAmount: '42000',
+              underlyingFoxCryptoBaseUnitAmount: '420',
+              underlyingEthCryptoBaseUnitAmount: '840',
+            },
+          },
+          type: 'userLp' as const,
+        }
+        const expected = {
+          'eip155:1/erc20:0xgomes::eip155:1:0xMyContract': {
+            apy: '0.42',
+            assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+            provider: 'UNI V2',
+            tvl: '424242',
+            type: 'liquidity_pool',
+            underlyingAssetIds: [
+              'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+              'eip155:1/slip44:60',
+            ],
+          },
+        }
+        store.dispatch(opportunities.actions.upsertOpportunityUserData(payload))
         expect(store.getState().opportunities.lp.byId).toEqual(expected)
       })
     })

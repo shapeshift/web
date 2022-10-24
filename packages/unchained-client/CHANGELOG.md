@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.1...@shapeshiftoss/unchained-client-v10.2.2) (2022-10-24)
+
+
+### Bug Fixes
+
+* avax asset ref and upgrade yearn sdk ([#1074](https://github.com/shapeshift/lib/issues/1074)) ([315095a](https://github.com/shapeshift/lib/commit/315095a1c21922b329126ffa643db944a4f31bce))
+
 # [@shapeshiftoss/unchained-client-v10.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.0...@shapeshiftoss/unchained-client-v10.2.1) (2022-10-20)
 
 

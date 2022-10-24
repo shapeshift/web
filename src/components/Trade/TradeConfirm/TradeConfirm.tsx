@@ -206,8 +206,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const sellAmountCrypto = fromBaseUnit(bnOrZero(trade.sellAmount), trade.sellAsset?.precision ?? 0)
-  const buyAmountCrypto = fromBaseUnit(bnOrZero(trade.buyAmount), trade.buyAsset?.precision ?? 0)
+  const sellAmountCrypto = fromBaseUnit(
+    bnOrZero(trade.sellAmountCryptoPrecision),
+    trade.sellAsset?.precision ?? 0,
+  )
+  const buyAmountCrypto = fromBaseUnit(
+    bnOrZero(trade.buyAmountCryptoPrecision),
+    trade.buyAsset?.precision ?? 0,
+  )
 
   const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))

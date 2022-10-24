@@ -76,8 +76,7 @@ type TransactionGenericRowProps = {
   title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
-  displayTransfers: Transfer[]
-  txTransfers: Transfer[]
+  transfersByType: Record<TransferType, Transfer[]>
   fee?: Fee
   txid: TxId
   txData?: ReturnType<typeof getTxMetadataWithAssetId>
@@ -90,8 +89,7 @@ type TransactionGenericRowProps = {
 export const TransactionGenericRow = ({
   type,
   title,
-  displayTransfers,
-  txTransfers,
+  transfersByType,
   fee,
   txid,
   txData,
@@ -108,18 +106,16 @@ export const TransactionGenericRow = ({
   } = GetTxLayoutFormats({ parentWidth })
 
   const transfers = useMemo(() => {
-    return displayTransfers.map((transfer, index) => {
-      const displayTransferType = transfer.type
-      const typeTxTransfers = (txTransfers ?? []).filter(({ type }) => type === displayTransferType)
-      const hasManyTypeTransfers = typeTxTransfers.length > 1
+    return Object.entries(transfersByType).map(([, transfersOfType], index) => {
+      const hasManyTypeTransfers = transfersOfType.length > 1
 
       return hasManyTypeTransfers ? (
-        <AssetsTransfers index={index} compactMode={compactMode} transfers={typeTxTransfers} />
+        <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
       ) : (
-        <AssetTransfer index={index} compactMode={compactMode} transfer={transfer} />
+        <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
       )
     })
-  }, [compactMode, txTransfers, displayTransfers])
+  }, [compactMode, transfersByType])
 
   const cryptoValue = useMemo(() => {
     if (!fee) return '0'

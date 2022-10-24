@@ -11,7 +11,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { getDisplayTransfers } from './utils'
+import { getTransfersByType } from './utils'
 
 export const UnknownTransaction = ({
   txDetails,
@@ -21,8 +21,8 @@ export const UnknownTransaction = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  const displayTransfers = useMemo(
-    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
 
@@ -34,8 +34,7 @@ export const UnknownTransaction = ({
         compactMode={compactMode}
         title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={displayTransfers}
-        txTransfers={txDetails.transfers}
+        transfersByType={transfersByType}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

@@ -1,4 +1,5 @@
 import { Box, Circle, Stack, Text as CText } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { useButtonStyles } from 'hooks/useButtonStyles/useButtonStyles'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
@@ -23,17 +24,17 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
     variant: 'ghost-filled',
   })
 
-  const aggregatedFiatValue = transfers
-    .reduce(
-      (acc, transfer) =>
-        acc.plus(
-          bnOrZero(
-            fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
-          ).times(transfer.marketData.price),
-        ),
-      bn(0),
-    )
-    .toString()
+  const aggregatedFiatValue = useMemo(
+    () =>
+      transfers
+        .reduce((acc, transfer) => {
+          const precision = transfer.asset?.precision ?? FALLBACK_PRECISION
+          const cryptoValue = fromBaseUnit(transfer.value, precision)
+          return acc.plus(bnOrZero(cryptoValue).times(transfer.marketData.price))
+        }, bn(0))
+        .toString(),
+    [transfers],
+  )
 
   return (
     <Stack

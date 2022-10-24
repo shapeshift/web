@@ -17,9 +17,9 @@ export const getTransfersByType = (
   types: TransferType[],
 ): Record<TransferType, Transfer[]> =>
   types.reduce((prev, type) => {
-    const transfersOfType = transfers.filter(t => t.type === type)
-    if (!transfersOfType.length) return prev
-    prev[type] = [...(prev[type] ?? []), ...transfersOfType]
+    const transfersByType = transfers.filter(t => t.type === type)
+    if (!transfersByType.length) return prev
+    prev[type] = transfersByType
     return prev
   }, {} as Record<TransferType, Transfer[]>)
 

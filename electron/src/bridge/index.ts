@@ -188,7 +188,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             ipcMain.on('@keepkey/update-firmware', async event => {
                 const tag = TAG + ' | onUpdateFirmware | '
                 try {
-                    log.info(tag, " checkpoint !!!!")
+                    log.info(tag, " checkpoint")
                     let result = await Controller.getLatestFirmwareData()
                     log.info(tag, " result: ", result)
 

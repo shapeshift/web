@@ -17,7 +17,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { getDisplayTransfers, getTxMetadataWithAssetId } from './utils'
+import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
 export const TransactionMethod = ({
   txDetails,
@@ -35,8 +35,8 @@ export const TransactionMethod = ({
     selectAssetById(state, txMetadataWithAssetId?.assetId ?? ''),
   )
 
-  const displayTransfers = useMemo(
-    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
 
@@ -87,11 +87,12 @@ export const TransactionMethod = ({
         return Method.Approve
       default: {
         logger.warn(`unhandled method: ${txMetadata.method}`)
-        if (displayTransfers.length === 1) return displayTransfers[0].type // known single direction
+        const transferTypes = Object.keys(transfersByType)
+        if (transferTypes.length === 1) return transferTypes[0] // known single direction
         return ''
       }
     }
-  }, [displayTransfers, txMetadata.method])
+  }, [transfersByType, txMetadata.method])
 
   return (
     <>
@@ -101,7 +102,7 @@ export const TransactionMethod = ({
         compactMode={compactMode}
         title={title}
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={displayTransfers}
+        transfersByType={transfersByType}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

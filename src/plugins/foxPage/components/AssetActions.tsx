@@ -17,6 +17,7 @@ import { foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEqual from 'lodash/isEqual'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -50,30 +51,41 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId
 
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const accountId = accountIds?.[0]
 
   const {
-    state: { isConnected, wallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const { receive } = useModal()
+
+  const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
+
   const handleWalletModalOpen = useCallback(
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
   const handleReceiveClick = useCallback(
     () =>
-      wallet && isConnected && supportsETH(wallet)
+      !isDemoWallet && isConnected && walletSupportsETH
         ? receive.open({ asset, accountId })
         : handleWalletModalOpen(),
-    [accountId, asset, handleWalletModalOpen, isConnected, receive, wallet],
+    [
+      accountId,
+      asset,
+      handleWalletModalOpen,
+      isConnected,
+      isDemoWallet,
+      receive,
+      walletSupportsETH,
+    ],
   )
 
-  const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
   const receiveButtonTranslation = useMemo(
-    () => (walletSupportsETH ? 'plugins.foxPage.receive' : 'common.connectWallet'),
-    [walletSupportsETH],
+    () => (!isDemoWallet && walletSupportsETH ? 'plugins.foxPage.receive' : 'common.connectWallet'),
+    [isDemoWallet, walletSupportsETH],
   )
 
   const handleGetAssetClick = useCallback(() => {
@@ -145,13 +157,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                   </Button>
                 )}
                 <Skeleton width='full' isLoaded={Boolean(wallet)}>
-                  <Button
-                    disabled={walletSupportsETH}
-                    onClick={handleReceiveClick}
-                    width='full'
-                    size='lg'
-                    colorScheme='gray'
-                  >
+                  <Button onClick={handleReceiveClick} width='full' size='lg' colorScheme='gray'>
                     <Text translation={receiveButtonTranslation} />
                   </Button>
                 </Skeleton>

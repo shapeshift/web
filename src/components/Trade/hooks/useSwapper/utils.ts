@@ -28,7 +28,7 @@ import {
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
@@ -58,7 +58,7 @@ export const isSupportedNonUtxoSwappingChain = (
 
 // Pure functions
 export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  if (!sellAssetAccountId) throw new Error('No UTXO account id')
   return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
@@ -75,15 +75,17 @@ export const getSendMaxAmount = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.fee)
+  const feeEstimate = bnOrZero(quote?.feeData?.networkFee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
-  return fromBaseUnit(
-    bnOrZero(sellAssetBalance)
-      .minus(isFeeAsset ? feeEstimate : 0)
-      .toString(),
-    sellAsset.precision,
-  )
+  return positiveOrZero(
+    fromBaseUnit(
+      bnOrZero(sellAssetBalance)
+        .minus(isFeeAsset ? feeEstimate : 0)
+        .toString(),
+      sellAsset.precision,
+    ),
+  ).toString()
 }
 
 const getEvmFees = <T extends EvmChainId>(
@@ -101,15 +103,12 @@ const getEvmFees = <T extends EvmChainId>(
   const estimatedGas = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
 
   return {
-    fee: networkFeeCryptoHuman,
     chainSpecific: {
       approvalFee,
       gasPrice,
       estimatedGas,
       totalFee,
     },
-    // The fee paid to the protocol for the transaction
-    tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
@@ -136,9 +135,7 @@ export const getFormFees = ({
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         networkFeeCryptoHuman,
-        fee: networkFeeCryptoHuman,
         sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
-        tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
       }
@@ -147,9 +144,7 @@ export const getFormFees = ({
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         networkFeeCryptoHuman,
-        fee: networkFeeCryptoHuman,
         chainSpecific: utxoTrade.feeData.chainSpecific,
-        tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
         sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',

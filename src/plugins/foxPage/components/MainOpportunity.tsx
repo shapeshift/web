@@ -1,8 +1,8 @@
-import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
-import { useMemo } from 'react'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Flex, Skeleton, Text as CText } from '@chakra-ui/react'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import type { Property } from 'csstype'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -32,25 +32,24 @@ export const MainOpportunity = ({
   isLoaded,
 }: MainOpportunityProps) => {
   const {
-    state: { wallet },
+    state: { wallet, isDemoWallet },
   } = useWallet()
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
-    accountNumber: 0,
-  })
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
 
   const opportunityButtonTranslation = useMemo(() => {
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
     if (hasActiveStaking) return 'plugins.foxPage.manage'
-    if (!wallet || !supportsETH(wallet)) return 'common.connectWallet'
     return 'plugins.foxPage.getStarted'
-  }, [wallet, hasActiveStaking])
+  }, [isDemoWallet, wallet, hasActiveStaking])
 
   const isOpportunityButtonReady = useMemo(
     () => Boolean((wallet && !supportsETH(wallet)) || isFoxyBalancesLoading),
-    [wallet, isFoxyBalancesLoading])
+    [wallet, isFoxyBalancesLoading],
+  )
 
   const mainStakingTitleTranslation: TextPropTypes['translation'] = useMemo(
     () => [

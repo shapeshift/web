@@ -1,5 +1,8 @@
 import { Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import isEqual from 'lodash/isEqual'
+import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import type { RouteComponentProps } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
@@ -9,23 +12,21 @@ import { Text } from 'components/Text'
 import type { TradeState } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WithBackButton } from 'components/Trade/WithBackButton'
-import type { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const SelectAccount = ({ history }: RouteComponentProps) => {
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const assetId = getValues('sellTradeAsset')?.asset?.assetId
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
-  )
+  const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const handleBack = () => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const handleClick = (accountId: AccountSpecifier) => {
+  const handleClick = (accountId: AccountId) => {
     setValue('selectedSellAssetAccountId', accountId)
     history.push(TradeRoutePaths.Input)
   }

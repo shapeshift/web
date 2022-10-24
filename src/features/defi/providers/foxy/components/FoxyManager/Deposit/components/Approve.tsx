@@ -1,16 +1,17 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -42,7 +43,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const alertText = useColorModeValue('blue.800', 'white')
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
@@ -170,6 +170,22 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     walletState.wallet,
   ])
 
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        action={DefiAction.Deposit}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
+    ),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -179,7 +195,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
@@ -187,14 +203,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.approve.depositFee')}
-          </AlertDescription>
-        </Alert>
-      }
+      preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}

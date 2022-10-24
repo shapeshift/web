@@ -13,7 +13,7 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
@@ -29,10 +29,9 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetById,
-  selectCryptoBalanceIncludingStakingByFilter,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
   selectPortfolioStakingCryptoHumanBalanceByFilter,
@@ -48,7 +47,7 @@ enum View {
 }
 
 type AssetChartProps = {
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   assetId: AssetId
   isLoaded: boolean
 }
@@ -73,7 +72,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const translate = useTranslate()
 
   const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
-  const cryptoBalance = useAppSelector(s => selectCryptoBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
+  )
 
   const stakingFiatBalance = useAppSelector(s =>
     selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
@@ -137,7 +138,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoHumanBalance} ${asset.symbol}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}

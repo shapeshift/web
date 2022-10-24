@@ -1,6 +1,11 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { type Swapper, type UtxoSupportedChainIds, SwapperManager } from '@shapeshiftoss/swapper'
+import {
+  type Swapper,
+  type UtxoSupportedChainIds,
+  SwapperManager,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -40,6 +45,7 @@ export const useSwapper = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -92,6 +98,19 @@ export const useSwapper = () => {
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
 
+  const swapperSupportsCrossAccountTrade = useMemo(() => {
+    if (!bestTradeSwapper) return false
+    switch (bestTradeSwapper.name) {
+      case SwapperName.Thorchain:
+        return true
+      case SwapperName.Zrx:
+      case SwapperName.CowSwap:
+        return false
+      default:
+        return false
+    }
+  }, [bestTradeSwapper])
+
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
       return getReceiveAddress({
@@ -127,6 +146,20 @@ export const useSwapper = () => {
     return approvalNeeded
   }, [bestTradeSwapper, quote, wallet])
 
+  const approve = useCallback(async (): Promise<string> => {
+    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!wallet) throw new Error('no wallet available')
+    if (!quote) throw new Error('no quote available')
+    const txid = isExactAllowance
+      ? await bestTradeSwapper.approveAmount({
+          amount: quote.sellAmountCryptoPrecision,
+          quote,
+          wallet,
+        })
+      : await bestTradeSwapper.approveInfinite({ quote, wallet })
+    return txid
+  }, [bestTradeSwapper, isExactAllowance, quote, wallet])
+
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
@@ -136,9 +169,10 @@ export const useSwapper = () => {
     if (!wallet) throw new Error('Missing wallet')
     if (!receiveAddress) throw new Error('Missing receiveAddress')
     if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
+    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
+      sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,
@@ -227,5 +261,7 @@ export const useSwapper = () => {
     receiveAddress,
     getReceiveAddressFromBuyAsset,
     getTrade,
+    swapperSupportsCrossAccountTrade,
+    approve,
   }
 }

@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SupportedFiatRampConfig } from '../config'
@@ -13,7 +12,7 @@ import { FiatRampAction } from '../FiatRampsCommon'
 
 type FiatRampButtonProps = {
   onClick: () => void
-  accountFiatBalance: BigNumber
+  accountFiatBalance: string
   action: FiatRampAction
 } & SupportedFiatRampConfig
 

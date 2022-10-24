@@ -27,7 +27,7 @@ const TOKEMAK_STATS_URL = getConfig().REACT_APP_TOKEMAK_STATS_URL
 const TOKEMAK_TFOX_POOL_ADDRESS = '0x808d3e6b23516967ceae4f17a5f9038383ed5311'
 
 type GetFoxyBalancesInput = {
-  accountId: AccountId
+  accountIds: AccountId[]
   foxyApr: string
 }
 type GetFoxyBalancesOutput = {
@@ -55,7 +55,7 @@ export type FoxyOpportunity = {
   tokenAssetId: AssetId
   rewardTokenAssetId: AssetId
   pricePerShare: string
-  withdrawInfo: WithdrawInfo
+  withdrawInfo: Record<AccountId, WithdrawInfo>
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
@@ -129,36 +129,17 @@ async function getFoxyOpportunities(
   state: any, // ReduxState - can't use the actual typings here because of circular dependencies
   api: FoxyApi,
   foxyApr: string,
-  accountId: AccountId,
+  accountIds: AccountId[],
 ) {
   // RTK caches queries from inputs, thus re-calling this query for the same opportunity will return the cache data if not invalidated
-  const accountFilter = { accountId }
-  const userAddress = fromAccountId(accountId).account
-  const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
-
-  if (!bip44Params) {
-    throw new Error(`AccountMetadata for AccountId ${accountId} not loaded`)
-  }
-
   const acc: Record<string, FoxyOpportunity> = {}
   try {
     const opportunities = await api.getFoxyOpportunities()
     const getFoxyOpportunitiesPromises = opportunities.map(async opportunity => {
-      // TODO: assetIds in vaults
-      const withdrawInfo = await api.getWithdrawInfo({
-        contractAddress: opportunity.contractAddress,
-        userAddress,
-        bip44Params,
-      })
       const rewardTokenAssetId = toAssetId({
         chainId: opportunity.chain,
         assetNamespace: 'erc20',
         assetReference: opportunity.rewardToken,
-      })
-
-      const balance = selectPortfolioCryptoBalanceByFilter(state, {
-        accountId,
-        assetId: rewardTokenAssetId,
       })
 
       const contractAssetId = toAssetId({
@@ -173,17 +154,49 @@ async function getFoxyOpportunities(
       })
 
       const pricePerShare = api.pricePerShare()
+
+      const accountOpportunities = await accountIds.reduce(
+        async (acc, accountId) => {
+          const resolvedAcc = await acc
+          const balance = selectPortfolioCryptoBalanceByFilter(state, {
+            accountId,
+            assetId: rewardTokenAssetId,
+          })
+
+          const accountFilter = { accountId }
+          const userAddress = fromAccountId(accountId).account
+          const bip44Params = selectBIP44ParamsByAccountId(state, accountFilter)
+          if (!bip44Params) {
+            throw new Error(`AccountMetadata for AccountId ${accountId} not loaded`)
+          }
+          const withdrawInfo = await api.getWithdrawInfo({
+            contractAddress: opportunity.contractAddress,
+            userAddress,
+            bip44Params,
+          })
+
+          return {
+            balance: resolvedAcc.balance.plus(balance),
+            withdrawInfo: { ...resolvedAcc.withdrawInfo, [accountId]: withdrawInfo },
+          }
+        },
+        Promise.resolve({
+          balance: bn(0),
+          withdrawInfo: {},
+        }),
+      )
+
       acc[opportunity.contractAddress] = {
         ...opportunity,
         tvl: opportunity.tvl.toString(),
         apy: foxyApr,
         chainId: opportunity.chain,
-        balance: bnOrZero(balance).toString(),
+        balance: accountOpportunities.balance.toString(),
         contractAssetId,
         tokenAssetId,
         rewardTokenAssetId,
         pricePerShare: bnOrZero(pricePerShare).toString(),
-        withdrawInfo,
+        withdrawInfo: accountOpportunities.withdrawInfo,
       }
     })
 
@@ -200,7 +213,7 @@ export const foxyApi = createApi({
   reducerPath: 'foxyApi',
   endpoints: build => ({
     getFoxyBalances: build.query<GetFoxyBalancesOutput, GetFoxyBalancesInput>({
-      queryFn: async ({ accountId, foxyApr }, injected) => {
+      queryFn: async ({ accountIds, foxyApr }, injected) => {
         const chainAdapterManager = getChainAdapterManager()
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet))
           return {
@@ -233,7 +246,7 @@ export const foxyApi = createApi({
             state,
             foxy,
             foxyApr ?? '',
-            accountId,
+            accountIds,
           )
 
           const totalBalance = makeTotalBalance(foxyOpportunities, assets, marketData)

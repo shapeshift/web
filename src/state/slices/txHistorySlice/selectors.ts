@@ -6,7 +6,6 @@ import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import {
   selectChainIdParamFromFilter,
@@ -126,7 +125,7 @@ export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byA
 
 type TxHistoryFilter = {
   assetIds: AssetId[]
-  accountIds?: AccountSpecifier[]
+  accountIds?: AccountId[]
 }
 
 const selectAssetIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>

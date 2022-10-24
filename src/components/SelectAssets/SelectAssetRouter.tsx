@@ -18,7 +18,7 @@ export type SelectAssetLocation = {
   assetId: AssetId
 }
 
-export const SelectAssetRouter = ({ onClick, onBack }: SelectAssetRouterProps) => {
+export const SelectAssetRouter = ({ onClick, onBack: handleBack }: SelectAssetRouterProps) => {
   const { state } = useLocation<SelectAssetLocation>()
   return (
     <MemoryRouter initialEntries={entries}>
@@ -26,7 +26,7 @@ export const SelectAssetRouter = ({ onClick, onBack }: SelectAssetRouterProps) =
         <Route
           path='/'
           component={(props: RouteComponentProps) => (
-            <SelectAssetView onClick={onClick} onBack={onBack} {...state} {...props} />
+            <SelectAssetView onClick={onClick} onBack={handleBack} {...state} {...props} />
           )}
         />
       </Switch>

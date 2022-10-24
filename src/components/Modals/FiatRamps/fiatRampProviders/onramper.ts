@@ -3,10 +3,8 @@ import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
-import uniqBy from 'lodash/uniqBy'
 import { logger } from 'lib/logger'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -16,11 +14,6 @@ const moduleLogger = logger.child({
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
 type OnRamperGatewaysResponse = {
   gateways: GatewayItem[]
-  icons: TokenIconMap
-}
-
-type TokenIconMap = {
-  [key: string]: IconGatewaysResponse
 }
 
 type Currency = {
@@ -28,12 +21,6 @@ type Currency = {
   id: string
   network?: string
   displayName?: string
-}
-
-type IconGatewaysResponse = {
-  name: string
-  icon: string
-  symbol?: string
 }
 
 type GatewayItem = {
@@ -57,37 +44,21 @@ const getGatewayData = async () => {
   }
 }
 
-export const getOnRamperAssets = async (): Promise<FiatRampAsset[]> => {
+export const getOnRamperAssets = async (): Promise<AssetId[]> => {
   const data = await getGatewayData()
   if (!data) return []
   return convertOnRamperDataToFiatRampAsset(data)
 }
 
-const convertOnRamperDataToFiatRampAsset = (
-  response: OnRamperGatewaysResponse,
-): FiatRampAsset[] => {
-  const allCoins = response.gateways
-    .flatMap(gateway => gateway.cryptoCurrencies)
-    .map(currency => toFiatRampAsset(currency, response.icons))
-    .filter((a): a is FiatRampAsset => a !== undefined)
-
-  const uniqueCoins = uniqBy(allCoins, 'assetId')
-  return uniqueCoins
-}
-
-const toFiatRampAsset = (currency: Currency, icons: TokenIconMap): FiatRampAsset | undefined => {
-  const assetId = adapters.onRamperTokenIdToAssetId(currency.code)
-  if (assetId) {
-    return {
-      name: currency.displayName ?? '',
-      assetId,
-      symbol: currency.code,
-      imageUrl: icons[currency.code].icon,
-      fiatRampCoinId: currency.id,
-    }
-  }
-  return undefined
-}
+const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] =>
+  Array.from(
+    new Set(
+      response.gateways
+        .flatMap(gateway => gateway.cryptoCurrencies)
+        .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
+        .filter((assetId): assetId is AssetId => Boolean(assetId)),
+    ),
+  )
 
 export const createOnRamperUrl = (
   action: FiatRampAction,

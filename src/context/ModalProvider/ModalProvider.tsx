@@ -4,6 +4,7 @@ import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
+import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
@@ -26,6 +27,7 @@ const MODALS = {
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
+  assetSearch: AssetSearchModal,
 }
 
 // state

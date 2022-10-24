@@ -4,13 +4,15 @@ import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-yearn'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -190,6 +192,32 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
     yearnInvestor,
   ])
 
+  const handleToggle = useCallback(() => {
+    if (!(dispatch && state)) return
+
+    dispatch({
+      type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
+      payload: !state.isExactAllowance,
+    })
+  }, [dispatch, state])
+
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        action={DefiAction.Deposit}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
+    ),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
   if (!state || !dispatch) return null
 
   return (
@@ -199,23 +227,19 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
       isExactAllowance={state.isExactAllowance}
-      onToggle={() =>
-        dispatch({
-          type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
-          payload: !state.isExactAllowance,
-        })
-      }
+      onToggle={handleToggle}
+      preFooter={preFooter}
       loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       contractAddress={ssRouterContractAddress}
     />

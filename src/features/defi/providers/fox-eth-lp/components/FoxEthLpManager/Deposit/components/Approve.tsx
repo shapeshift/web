@@ -2,10 +2,12 @@ import { useToast } from '@chakra-ui/react'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -27,8 +29,8 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { accountAddress } = useFoxEth()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(accountAddress)
+  const { lpAccountAddress } = useFoxEth()
+  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountAddress)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -43,10 +45,8 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
-
-  const handleApprove = async () => {
-    if (!opportunity || !wallet || !supportsETH(wallet)) return
+  const handleApprove = useCallback(async () => {
+    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
@@ -86,19 +86,52 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    allowance,
+    approve,
+    dispatch,
+    getDepositGasData,
+    foxAsset.precision,
+    feeAsset.precision,
+    state?.deposit.foxCryptoAmount,
+    state?.deposit.ethCryptoAmount,
+    onNext,
+    opportunity,
+    toast,
+    translate,
+    wallet,
+  ])
+
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        action={DefiAction.Deposit}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
+    ),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
+      preFooter={preFooter}
       providerIcon={foxAsset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}

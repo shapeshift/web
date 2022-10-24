@@ -1,16 +1,17 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -40,7 +41,6 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const alertText = useColorModeValue('blue.800', 'white')
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
   const toast = useToast()
@@ -175,6 +175,22 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     walletState.wallet,
   ])
 
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        action={DefiAction.Withdraw}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
+    ),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
   if (!state || !dispatch) return null
 
   return (
@@ -184,7 +200,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
@@ -192,14 +208,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.withdraw.withdrawFee')}
-          </AlertDescription>
-        </Alert>
-      }
+      preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
       contractAddress={contractAddress}

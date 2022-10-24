@@ -9,7 +9,7 @@ import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import { createBanxaUrl, getBanxaAssets } from './fiatRampProviders/banxa'
+import { createBanxaUrl } from './fiatRampProviders/banxa'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -20,7 +20,7 @@ import {
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
-import type { FiatRampAction, FiatRampAsset } from './FiatRampsCommon'
+import type { FiatRampAction } from './FiatRampsCommon'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -37,13 +37,10 @@ export interface SupportedFiatRampConfig {
   // array of keys of translation jsons, will be used to show the tags in the list
   tags?: string[]
   logo: string
-  isImplemented: boolean
   isActive: (featureFlags: FeatureFlags) => boolean
-  getBuyAndSellList: () => Promise<[FiatRampAsset[], FiatRampAsset[]]>
-  onSubmit: (action: FiatRampAction, asset: string, address: string) => void
+  getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
+  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
   minimumSellThreshold?: number
-  supportsBuy: boolean
-  supportsSell: boolean
 }
 
 export const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
@@ -54,17 +51,15 @@ export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
     label: 'fiatRamps.gem',
     logo: gemLogo,
-    supportsBuy: true,
-    supportsSell: true,
     getBuyAndSellList: async () => {
       const coinifyAssets = await fetchCoinifySupportedCurrencies()
       const wyreAssets = await fetchWyreSupportedCurrencies()
       const currencyList = concat(coinifyAssets, wyreAssets)
-      const parsedBuyList = parseGemBuyAssets(currencyList)
-      const parsedSellList = parseGemSellAssets(currencyList)
-      return [parsedBuyList, parsedSellList]
+      const buyAssetIds = parseGemBuyAssets(currencyList)
+      const sellAssetIds = parseGemSellAssets(currencyList)
+      return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId: AssetId, address) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToGemTicker(assetId)
         const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
@@ -73,26 +68,20 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
     },
-    isImplemented: true,
     isActive: () => true,
     minimumSellThreshold: 5,
   },
   Banxa: {
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
-    isImplemented: true,
     isActive: () => true,
     minimumSellThreshold: 50,
-    supportsBuy: true,
-    supportsSell: true,
     getBuyAndSellList: async () => {
-      const buyAssets = getBanxaAssets()
-      const sellAssets = buyAssets.filter(a =>
-        [btcAssetId, usdcAssetId, usdtAssetId].includes(a.assetId),
-      )
-      return [buyAssets, sellAssets]
+      const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
+      const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
+      return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToBanxaTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by Banxa')
@@ -107,15 +96,13 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.junoPay',
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
-    isImplemented: true,
     isActive: () => true,
-    supportsBuy: true,
-    supportsSell: false,
     getBuyAndSellList: async () => {
-      const buyAssets = await getJunoPayAssets()
-      return [buyAssets, []]
+      const buyAssetIds = await getJunoPayAssets()
+      const sellAssetIds: AssetId[] = []
+      return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const ticker = adapters.assetIdToJunoPayTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by JunoPay')
@@ -130,21 +117,18 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.mtPelerin',
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
-    isImplemented: true,
-    isActive: featureFlags => featureFlags.MtPelerinFiatRamp,
-    supportsBuy: true,
-    supportsSell: true,
+    isActive: () => true,
     // https://developers.mtpelerin.com/service-information/pricing-and-limits#limits-2
     // 50 CHF is currently equivalent to 51.72 USD
     // note that Mt Pelerin has a minimum of 50 CHF, and our fiat balance is denoted in USD
     minimumSellThreshold: 55,
     getBuyAndSellList: async () => {
-      const mtPelerinAssets = await getMtPelerinAssets()
-      return [mtPelerinAssets, mtPelerinAssets]
+      const buyAndSellAssetIds = await getMtPelerinAssets()
+      return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId) => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address)
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
@@ -155,16 +139,13 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     label: 'fiatRamps.onRamper',
     tags: [],
     logo: OnRamperLogo,
-    isImplemented: true,
-    isActive: featureFlags => featureFlags.OnRamperFiatRamp,
-    supportsBuy: true,
-    supportsSell: true,
+    isActive: () => true,
     minimumSellThreshold: 0,
     getBuyAndSellList: async () => {
-      const onRamperAssets = await getOnRamperAssets()
-      return [onRamperAssets, onRamperAssets]
+      const buyAndSellAssetIds = await getOnRamperAssets()
+      return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action: FiatRampAction, assetId: AssetId, address: string) => {
+    onSubmit: (action, assetId, address) => {
       try {
         const onRamperCheckoutUrl = createOnRamperUrl(
           action,

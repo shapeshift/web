@@ -15,23 +15,23 @@ import { FoxEthLpWithdraw } from './Withdraw/FoxEthLpWithdraw'
 export const FoxEthLpManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
-  const { accountId, setAccountId: handleAccountIdChange } = useFoxEth()
+  const { lpAccountId, setLpAccountId: handleLpAccountIdChange } = useFoxEth()
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <FoxEthLpOverview accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <FoxEthLpOverview accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (
         <SlideTransition key={DefiAction.Deposit}>
-          <FoxEthLpDeposit accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <FoxEthLpDeposit accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
-          <FoxEthLpWithdraw accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <FoxEthLpWithdraw accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
     </AnimatePresence>

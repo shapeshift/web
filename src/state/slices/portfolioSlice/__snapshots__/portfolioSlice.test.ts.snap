@@ -12,16 +12,9 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
-        "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
-      ],
-    },
-    "ids": Array [
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {
@@ -62,20 +55,9 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
-        "bip122:000000000019d6689c085ae165831e93:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l",
-      ],
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
-        "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
-      ],
-    },
-    "ids": Array [
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-      "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {
@@ -132,27 +114,9 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
-        "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
-        "bip122:000000000019d6689c085ae165831e93:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l",
-        "bip122:000000000019d6689c085ae165831e93:bc1q3fmp9tdacg5edlgmh8ttxz7cvj598dcn7w9xxd",
-        "bip122:000000000019d6689c085ae165831e93:bc1qvzuvxskhr5eyaf65w37jxwwvskwyw3rlnqtyzc",
-      ],
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
-        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-      ],
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
-        "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
-      ],
-    },
-    "ids": Array [
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {
@@ -223,23 +187,9 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": Array [
-        "bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7",
-        "bip122:000000000019d6689c085ae165831e93:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l",
-        "bip122:000000000019d6689c085ae165831e93:bc1q3fmp9tdacg5edlgmh8ttxz7cvj598dcn7w9xxd",
-        "bip122:000000000019d6689c085ae165831e93:bc1qvzuvxskhr5eyaf65w37jxwwvskwyw3rlnqtyzc",
-      ],
-      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": Array [
-        "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9",
-      ],
-    },
-    "ids": Array [
-      "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9",
-      "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {
@@ -297,16 +247,9 @@ Object {
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
-        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-      ],
-    },
-    "ids": Array [
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {
@@ -352,20 +295,9 @@ Object {
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
     ],
   },
-  "accountSpecifiers": Object {
-    "accountMetadataById": Object {},
-    "byId": Object {
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
-        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-      ],
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
-        "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
-      ],
-    },
-    "ids": Array [
-      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
-    ],
+  "accountMetadata": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
   "accounts": Object {
     "byId": Object {

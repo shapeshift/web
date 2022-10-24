@@ -5,12 +5,12 @@ on:
     branches:
       - main
       - develop
-      - releases/**
+      - release
 
 jobs:
   install-and-cache:
     name: Install and Cache
-    runs-on: ubuntu-latest
+    runs-on: size-bertha
     steps:
       - name: Checkout
         uses: actions/checkout@v3

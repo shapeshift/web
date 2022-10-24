@@ -50,6 +50,7 @@ export const useTradeRoutes = (): {
       setValue('fiatBuyAmount', '0')
       setValue('fiatSellAmount', '0')
       setValue('quote', undefined)
+      setValue('trade', undefined)
       setValue('sellAssetFiatRate', undefined)
       setValue('buyAssetFiatRate', undefined)
       setValue('feeAssetFiatRate', undefined)

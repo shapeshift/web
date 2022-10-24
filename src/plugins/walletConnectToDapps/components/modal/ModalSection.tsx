@@ -1,17 +1,22 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Collapse } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
-import type { FC, ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
+import { RawText } from 'components/Text'
 
-type Props = {
+type ModalSectionProps = {
   title: string
   icon?: ReactElement
   defaultOpen?: boolean
   children: ReactNode
 }
 
-export const ModalSection: FC<Props> = ({ title, icon, children, defaultOpen = true }) => {
+export const ModalSection: React.FC<ModalSectionProps> = ({
+  title,
+  icon,
+  children,
+  defaultOpen = true,
+}) => {
   const [isOpen, setOpen] = useState(defaultOpen)
   const toggle = useCallback(() => setOpen(prev => !prev), [])
   return (

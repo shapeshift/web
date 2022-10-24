@@ -1350,7 +1350,7 @@
       "outputAddress": "Adresse de sortie"
     },
     "transactionTypes": {
-      "Send": "Send",
+      "Send": "Envoi",
       "Receive": "Réception",
       "Trade": "Échange",
       "Refund": "Remboursement"

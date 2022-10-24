@@ -8,12 +8,12 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
-import { Card } from 'components/Card/Card'
-import { RawText, Text } from 'components/Text'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { RawText, Text } from 'components/Text'
 
 import { WalletSummaryCard } from './WalletSummaryCard'
 

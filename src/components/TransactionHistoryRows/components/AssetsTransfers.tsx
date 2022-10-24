@@ -24,14 +24,15 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
   })
 
   const aggregatedFiatValue = transfers
-    .reduce((acc, transfer) => {
-      if (!transfer) return acc
-      return acc.plus(
-        bnOrZero(
-          fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
-        ).times(transfer.marketData.price),
-      )
-    }, bn(0))
+    .reduce(
+      (acc, transfer) =>
+        acc.plus(
+          bnOrZero(
+            fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
+          ).times(transfer.marketData.price),
+        ),
+      bn(0),
+    )
     .toString()
 
   return (

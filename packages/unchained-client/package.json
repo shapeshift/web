@@ -22,7 +22,7 @@
     "type-check": "tsc --project ./tsconfig.build.json --noEmit"
   },
   "dependencies": {
-    "@yfi/sdk": "^2.1.0",
+    "@yfi/sdk": "^1.2.0",
     "bignumber.js": "^9.0.2",
     "ethers": "^5.5.3",
     "isomorphic-ws": "^4.0.1",

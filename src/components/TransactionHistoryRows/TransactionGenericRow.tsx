@@ -106,7 +106,7 @@ export const TransactionGenericRow = ({
   } = GetTxLayoutFormats({ parentWidth })
 
   const transfers = useMemo(() => {
-    return Object.entries(transfersByType).map(([, transfersOfType], index) => {
+    return Object.values(transfersByType).map((transfersOfType, index) => {
       const hasManyTypeTransfers = transfersOfType.length > 1
 
       return hasManyTypeTransfers ? (

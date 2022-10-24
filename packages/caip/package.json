@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@shapeshiftoss/types": "^8.1.0",
-    "@yfi/sdk": "^1.0.30",
+    "@yfi/sdk": "^2.1.0",
     "axios": "^0.26.1",
     "ts-node": "^10.7.0"
   }

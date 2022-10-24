@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",
-    "@yfi/sdk": "^1.0.30",
+    "@yfi/sdk": "^2.1.0",
     "axios": "^0.26.1",
     "axios-rate-limit": "^1.3.0",
     "bignumber.js": "^9.0.2",

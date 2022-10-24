@@ -208,17 +208,17 @@ describe('AvalancheChainAdapter', () => {
       const wallet = await getWallet()
       const res = await adapter.getAddress({ bip44Params, wallet })
 
-      expect(res).toEqual('0xB442056b3Aa9F6C5bC47f3C1946a8616134Ee300')
+      expect(res).toEqual('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
     })
 
     it('should not show address on device by default', async () => {
       const wallet = await getWallet()
-      wallet.ethGetAddress = fn.mockResolvedValueOnce('0xB442056b3Aa9F6C5bC47f3C1946a8616134Ee300')
+      wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
       await adapter.getAddress({ bip44Params, wallet })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
-        addressNList: [2147483692, 2147492648, 2147483648, 0, 0],
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         showDisplay: false,
       })
     })
@@ -230,7 +230,7 @@ describe('AvalancheChainAdapter', () => {
 
     it('should return true for a valid address', async () => {
       const adapter = new avalanche.ChainAdapter(makeChainAdapterArgs())
-      const res = await adapter.validateAddress('0xB442056b3Aa9F6C5bC47f3C1946a8616134Ee300')
+      const res = await adapter.validateAddress('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
       expect(res).toMatchObject(validAddressTuple)
     })
@@ -276,7 +276,7 @@ describe('AvalancheChainAdapter', () => {
       } as unknown as SignTxInput<ETHSignTx>
 
       await expect(adapter.signTransaction(tx)).resolves.toEqual(
-        '0xf86f808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa9604580880000000000000000830150f7a017e71d4dd07084b83b3e18e66af0e49aee438bae3e4f6379624c7617e76f7ea6a0704cbbafe0a7a795d6b72a9b88da8d9bd0ff5804d68b2e1bcdfcc926b2597394',
+        '0xf86e808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa9604580880000000000000000830150f7a0223295981df317a15971efd35e19cab02f680ff1185de044dd5b2914b49d83489f9e23396841e1364e2518806970d217a2019270a83d0dc2f4a2bc9e060e2e54',
       )
     })
 
@@ -352,7 +352,7 @@ describe('AvalancheChainAdapter', () => {
       }
 
       await expect(adapter.signMessage(message)).resolves.toEqual(
-        '0x4e577cdf5b142018700e3944191516da8037071600c7396c8bbab55cdc852e08375f01a35ebfc72699389a3bfbbe33afd95525207963c29048824c5d5e6cf1841b',
+        '0x05a0edb4b98fe6b6ed270bf55aef84ddcb641512e19e340bf9eed3427854a7a4734fe45551dc24f1843cf2c823a73aa2454e3785eb15120573c522cc114e472d1c',
       )
     })
 

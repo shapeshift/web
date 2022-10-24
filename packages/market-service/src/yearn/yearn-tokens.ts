@@ -38,15 +38,13 @@ export class YearnTokenMarketCapService implements MarketService {
     try {
       const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
       const response = await Promise.allSettled([
-        rateLimiter(() => this.yearnSdk.ironBank.tokens()),
         rateLimiter(() => this.yearnSdk.tokens.supported()),
         rateLimiter(() => this.yearnSdk.vaults.tokens()),
       ])
-      const [ironBankResponse, zapperResponse, underlyingTokensResponse] = response
+      const [zapperResponse, underlyingTokensResponse] = response
 
       // Ignore rejected promises, return successful responses.
       const responseTokens = [
-        ...(ironBankResponse.status === 'fulfilled' ? ironBankResponse.value : []),
         ...(zapperResponse.status === 'fulfilled' ? zapperResponse.value : []),
         ...(underlyingTokensResponse.status === 'fulfilled' ? underlyingTokensResponse.value : []),
       ]
@@ -86,15 +84,13 @@ export class YearnTokenMarketCapService implements MarketService {
       // the price to web. Doing allSettled so that one rejection does not interfere with the other
       // calls.
       const response = await Promise.allSettled([
-        rateLimiter(() => this.yearnSdk.ironBank.tokens()),
         rateLimiter(() => this.yearnSdk.tokens.supported()),
         rateLimiter(() => this.yearnSdk.vaults.tokens()),
       ])
-      const [ironBankResponse, zapperResponse, underlyingTokensResponse] = response
+      const [zapperResponse, underlyingTokensResponse] = response
 
       // Ignore rejected promises, return successful responses.
       const responseTokens = [
-        ...(ironBankResponse.status === 'fulfilled' ? ironBankResponse.value : []),
         ...(zapperResponse.status === 'fulfilled' ? zapperResponse.value : []),
         ...(underlyingTokensResponse.status === 'fulfilled' ? underlyingTokensResponse.value : []),
       ]
@@ -114,7 +110,7 @@ export class YearnTokenMarketCapService implements MarketService {
   }
 
   async findPriceHistoryByAssetId(): Promise<HistoryData[]> {
-    // TODO: figure out a way to get zapper, ironbank and underlying token historical data.
+    // TODO: figure out a way to get zapper and underlying token historical data.
     return []
   }
 }

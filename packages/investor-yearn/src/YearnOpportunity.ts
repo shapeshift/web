@@ -104,7 +104,6 @@ export class YearnOpportunity
     this.apy = bnOrZero(vault.metadata.apy?.net_apy)
     this.isNew = vault.metadata.apy?.type === 'new'
     this.name = `${vault.metadata.displayName} ${vault.version}`
-    this.symbol = vault.metadata.symbol
     this.expired = vault.metadata.depositsDisabled || bnOrZero(vault.metadata.depositLimit).lte(0)
     // @TODO TotalSupply from the API awas 0
     this.supply = bnOrZero(vault.metadata.totalSupply)

@@ -46,7 +46,7 @@
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/investor-idle": "^2.0.1",
     "@types/node-polyglot": "^2.4.2",
-    "@yfi/sdk": "^1.0.30",
+    "@yfi/sdk": "^2.1.0",
     "colorthief": "^2.3.2",
     "dotenv": "^14.3.0",
     "web3": "1.7.4"

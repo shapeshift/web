@@ -22,13 +22,12 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
 }
 
 export const fetchData = async () => {
-  const [vaults, ironBankTokens, zapperTokens, underlyingVaultTokens] = await Promise.all([
+  const [vaults, zapperTokens, underlyingVaultTokens] = await Promise.all([
     yearnSdk.vaults.get(),
-    yearnSdk.ironBank.tokens(),
     yearnSdk.tokens.supported(),
     yearnSdk.vaults.tokens(),
   ])
-  const tokens = [...vaults, ...ironBankTokens, ...zapperTokens, ...underlyingVaultTokens]
+  const tokens = [...vaults, ...zapperTokens, ...underlyingVaultTokens]
   return uniqBy(tokens, 'address')
 }
 

@@ -11,11 +11,6 @@ const mockedYearnSdk = jest.fn(() => ({
       return Promise.resolve(mockYearnTokenRestData)
     }),
   },
-  ironBank: {
-    tokens: jest.fn(() => {
-      return Promise.resolve(mockYearnTokenRestData)
-    }),
-  },
   tokens: {
     supported: jest.fn(() => {
       return Promise.resolve(mockYearnTokenRestData)
@@ -36,7 +31,6 @@ describe('yearn token market service', () => {
     it('can handle api errors', async () => {
       mockedYearnSdk.vaults.tokens.mockResolvedValueOnce({ error: 'foo' } as never)
       mockedYearnSdk.tokens.supported.mockResolvedValueOnce({ error: 'foo' } as never)
-      mockedYearnSdk.ironBank.tokens.mockResolvedValueOnce({ error: 'foo' } as never)
       const result = await yearnTokenMarketCapService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
@@ -44,7 +38,6 @@ describe('yearn token market service', () => {
     it('can handle rate limiting', async () => {
       mockedYearnSdk.vaults.tokens.mockResolvedValueOnce({ status: 429 } as never)
       mockedYearnSdk.tokens.supported.mockResolvedValueOnce({ status: 429 } as never)
-      mockedYearnSdk.ironBank.tokens.mockResolvedValueOnce({ status: 429 } as never)
       const result = await yearnTokenMarketCapService.findAll()
       expect(Object.keys(result).length).toEqual(0)
     })
@@ -52,7 +45,6 @@ describe('yearn token market service', () => {
     it('can use default args', async () => {
       await yearnTokenMarketCapService.findAll()
       expect(mockedYearnSdk.vaults.tokens).toHaveBeenCalledTimes(1)
-      expect(mockedYearnSdk.ironBank.tokens).toHaveBeenCalledTimes(1)
       expect(mockedYearnSdk.tokens.supported).toHaveBeenCalledTimes(1)
     })
 
@@ -60,7 +52,6 @@ describe('yearn token market service', () => {
       const count = 1
       const result = await yearnTokenMarketCapService.findAll({ count })
       expect(mockedYearnSdk.vaults.tokens).toHaveBeenCalledTimes(1)
-      expect(mockedYearnSdk.ironBank.tokens).toHaveBeenCalledTimes(1)
       expect(mockedYearnSdk.tokens.supported).toHaveBeenCalledTimes(1)
       expect(Object.keys(result).length).toEqual(1)
     })
@@ -101,7 +92,6 @@ describe('yearn token market service', () => {
 
     it('should return null on network error', async () => {
       mockedYearnSdk.vaults.tokens.mockRejectedValueOnce(Error as never)
-      mockedYearnSdk.ironBank.tokens.mockRejectedValueOnce(Error as never)
       mockedYearnSdk.tokens.supported.mockRejectedValueOnce(Error as never)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(null)

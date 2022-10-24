@@ -141,7 +141,7 @@ describe('adapters:coingecko:utils', () => {
           'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'shapeshift-fox-token',
         },
         'eip155:43114': {
-          'eip155:43114/slip44:9000': 'avalanche-2',
+          'eip155:43114/slip44:60': 'avalanche-2',
           'eip155:43114/erc20:0xf20d962a6c8f70c731bd838a3a388d7d48fa6e15': 'ethereum',
         },
       }

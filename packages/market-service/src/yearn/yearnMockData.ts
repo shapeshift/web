@@ -311,6 +311,7 @@ export const mockYearnTokenRestData: Token[] = [
     decimals: '8',
     priceUsdc: '50000000000',
     supported: {},
+    dataSource: 'vaults',
   },
   {
     address: '0x19D3364A399d251E894aC732651be8B0E4e85001',
@@ -319,5 +320,6 @@ export const mockYearnTokenRestData: Token[] = [
     decimals: '18',
     priceUsdc: '990000',
     supported: {},
+    dataSource: 'vaults',
   },
 ]

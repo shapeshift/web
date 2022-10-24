@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
@@ -21,10 +22,10 @@ import {
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { MarketDataState } from 'state/slices/marketDataSlice/marketDataSlice'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import type { AssetsState } from '../assetsSlice/assetsSlice'
+import { selectMarketDataById } from '../selectors'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
@@ -127,15 +128,17 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketDataState: MarketDataState = state.marketData
 
-          if (!marketDataState.crypto.byId[ethAssetId]) {
+          const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
+
+          if (!ethMarketData?.price) {
             throw new Error(`Market data not ready for ${ethAssetId}`)
           }
 
           const ethPrecision = assets.byId[ethAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const ethPrice = marketDataState.crypto.byId[ethAssetId].price ?? '0'
+
+          const ethPrice = ethMarketData.price
           const ethersProvider = getEthersProvider()
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -202,16 +205,18 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency\
           const assets: AssetsState = state.assets
-          const marketDataState: MarketDataState = state.marketData
-
-          if (!marketDataState.crypto.byId[foxEthLpAssetId]) {
-            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
-          }
 
           const ethPrecision = assets.byId[ethAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]
+
+          const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
+          const lpTokenPrice = lpTokenMarketData?.price
+
+          if (!lpTokenPrice) {
+            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+          }
+
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
@@ -263,16 +268,17 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketDataState: MarketDataState = state.marketData
-
-          if (!marketDataState.crypto.byId[foxEthLpAssetId]) {
-            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
-          }
 
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const ethPrecision = assets.byId[ethAssetId].precision
-          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+
+          const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
+          const lpTokenPrice = lpTokenMarketData?.price
+
+          if (!lpTokenPrice) {
+            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+          }
 
           const ethersProvider = getEthersProvider()
           const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
@@ -343,10 +349,15 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-          const marketDataState: MarketDataState = state.marketData
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
-          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+
+          const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
+          const lpTokenPrice = lpTokenMarketData?.price
+
+          if (!lpTokenPrice) {
+            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+          }
 
           const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
 

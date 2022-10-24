@@ -168,6 +168,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               width='full'
               size='md'
               isDisabled={!hasAlreadySaved}
+              data-test='wallet-native-login-skip'
               onClick={() => history.push('/native/password', { vault })}
             >
               <Text translation={'common.skip'} />

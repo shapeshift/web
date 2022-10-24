@@ -57,13 +57,15 @@ export const IdleDeposit = () => {
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
+  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor)) return
+        if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor && bip44Params))
+          return
         const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           idleInvestor.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
@@ -84,7 +86,16 @@ export const IdleDeposit = () => {
         moduleLogger.error(error, 'IdleDeposit:useEffect error')
       }
     })()
-  }, [idleInvestor, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [
+    idleInvestor,
+    chainAdapter,
+    vaultAddress,
+    walletState.wallet,
+    translate,
+    toast,
+    chainId,
+    bip44Params,
+  ])
 
   const handleBack = useCallback(() => {
     history.push({

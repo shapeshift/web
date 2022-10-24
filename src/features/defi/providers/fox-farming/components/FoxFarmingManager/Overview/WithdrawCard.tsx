@@ -55,9 +55,11 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
           width='full'
           maxHeight='auto'
           height='auto'
-          alignItems='center'
+          alignItems={{ base: 'flex-start', md: 'center' }}
           justifyContent='flex-start'
           textAlign='left'
+          gap={4}
+          flexDir={{ base: 'column', md: 'row' }}
           py={2}
           onClick={
             !expired
@@ -71,22 +73,34 @@ export const WithdrawCard = ({ asset, amount, expired }: WithdrawCardProps) => {
                     }),
                   })
           }
-          leftIcon={
-            <IconCircle>
+        >
+          <Stack direction='row' alignItems='center' width='full'>
+            <IconCircle boxSize={8}>
               <FaArrowDown />
             </IconCircle>
-          }
-        >
-          <Stack spacing={0}>
-            <Text color={textColor} translation='common.withdrawal' />
-            <Text
-              color={successColor}
-              fontWeight='normal'
-              lineHeight='shorter'
-              translation='common.available'
-            />
+            <Stack
+              justifyContent='space-between'
+              spacing={0}
+              width='full'
+              direction={{ base: 'row', md: 'column' }}
+            >
+              <Text color={textColor} translation='common.withdrawal' />
+              <Text
+                color={successColor}
+                fontWeight='normal'
+                lineHeight='shorter'
+                translation='common.available'
+              />
+            </Stack>
           </Stack>
-          <Stack spacing={0} ml='auto' textAlign='right'>
+          <Stack
+            direction={{ base: 'row', md: 'column' }}
+            spacing={0}
+            gap={{ base: 2, md: 0 }}
+            ml={{ base: 0, md: 'auto' }}
+            flexWrap='wrap'
+            textAlign={{ base: 'left', md: 'right' }}
+          >
             <Amount.Crypto color={textColor} value={amount} symbol={asset.symbol} />
             {!expired && (
               <Stack direction='row' alignItems='center' color='blue.500'>

@@ -34,15 +34,16 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
   const opportunity = state?.opportunity
   const { unstake } = useFoxFarming(contractAddress)
-  const { onOngoingTxIdChange } = useFoxEth()
-
+  const { onOngoingFarmingTxIdChange } = useFoxEth()
   const assetNamespace = 'erc20'
   // Asset info
   const underlyingAssetId = toAssetId({
@@ -75,7 +76,7 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
-      onOngoingTxIdChange(txid)
+      onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {

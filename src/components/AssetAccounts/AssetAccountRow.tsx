@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -16,14 +16,12 @@ import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectFiatBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -33,7 +31,7 @@ import { breakpoints } from 'theme/theme'
 // Link url should be the account page /Accounts/[account] or whatever the route is
 
 type AssetAccountRowProps = {
-  accountId: AccountSpecifier
+  accountId: AccountId
   assetId?: AssetId
   showAllocation?: boolean
   isCompact?: boolean
@@ -52,18 +50,13 @@ export const AssetAccountRow = ({
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
-  const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
-    [rowAssetId, accountId, accountSpecifier],
-  )
-  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter),
+  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+
+  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
   const allocation = useAppSelector(state =>
     selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
@@ -97,19 +90,7 @@ export const AssetAccountRow = ({
     >
       <Flex alignItems='center'>
         <Box position='relative'>
-          {/** don't show "exponentiated" asset icons for fee assets */}
-          {assetNamespace !== 'slip44' && (
-            <AssetIcon
-              src={feeAsset.icon}
-              right={0}
-              top={-1}
-              boxSize='20px'
-              position='absolute'
-              zIndex={2}
-              boxShadow='lg'
-            />
-          )}
-          <AssetIcon src={asset?.icon} boxSize='30px' mr={2} />
+          <AssetIcon assetId={asset.assetId} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (

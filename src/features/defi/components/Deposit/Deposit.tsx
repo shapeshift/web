@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
@@ -14,8 +15,10 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { Nullable } from 'types/common'
 
 type DepositProps = {
+  accountId?: Nullable<AccountId>
   asset: Asset
   rewardAsset?: Asset
   // Estimated apy (Deposit Only)
@@ -61,6 +64,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const Deposit = ({
+  accountId,
   apy,
   asset,
   marketData,
@@ -152,6 +156,7 @@ export const Deposit = ({
       <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
+            accountId={accountId}
             cryptoAmount={cryptoAmount?.value}
             assetId={asset.assetId}
             onAccountIdChange={handleAccountIdChange}
@@ -188,6 +193,7 @@ export const Deposit = ({
           isDisabled={!isValid}
           isLoading={isLoading}
           type='submit'
+          data-test='defi-modal-continue-button'
         >
           {translate(fieldError || 'common.continue')}
         </Button>

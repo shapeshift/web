@@ -13,7 +13,7 @@ type Info = Partial<MobileWalletInfoWithMnemonic>
  * Private variable is used to prevent leaking the information
  */
 class Wallet {
-  #info: Info
+  readonly #info: Info
 
   constructor(wallet: Info) {
     this.#info = { createdAt: Date.now(), ...wallet }

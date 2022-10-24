@@ -1,21 +1,19 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { cosmos } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ActiveStakingOpportunity } from 'state/slices/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
-import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 type UseCosmosStakingBalancesProps = {
+  accountId?: Nullable<AccountId>
   assetId: AssetId
-  supportsCosmosSdk?: boolean
 }
 
 export type UseCosmosStakingBalancesReturn = {
@@ -31,34 +29,22 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
   isLoaded?: boolean
 }
 
-export type MergedStakingOpportunity = cosmos.Validator & {
-  tokenAddress: string
-  assetId: AssetId
-  chainId: ChainId
-  tvl: string
-}
-
 export function useCosmosSdkStakingBalances({
   assetId,
-  supportsCosmosSdk = true,
+  accountId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  const defaultAccountSpecifier = useMemo(
-    () => getDefaultValidatorAddressFromAssetId(assetId),
-    [assetId],
-  )
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, {
-      accountSpecifier: supportsCosmosSdk ? accountSpecifier : defaultAccountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       assetId,
-      supportsCosmosSdk,
     }),
+    [accountId, assetId],
+  )
+  const stakingOpportunities = useAppSelector(s =>
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
 
   const mergedActiveStakingOpportunities = useMemo(() => {

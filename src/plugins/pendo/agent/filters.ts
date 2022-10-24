@@ -88,6 +88,13 @@ export function filterRequest(
     // Verify no unexpected data in the URL parameters
     for (const [k, v] of url.searchParams.entries()) {
       switch (k) {
+        // allow 'track' events
+        case 'type':
+          const expectedV = 'track'
+          if (v !== expectedV) {
+            moduleLogger.error({ v, expectedV }, `url parameter ${k} with unexpected value ${v}`)
+          }
+          break
         case 'jzb':
           break
         case 'v': {

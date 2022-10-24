@@ -19,6 +19,7 @@ import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTea
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
+import type { Nullable } from 'types/common'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
@@ -31,6 +32,7 @@ export type AssetWithBalance = {
 } & Asset
 
 type OverviewProps = {
+  accountId?: Nullable<AccountId>
   onAccountIdChange?: (accountId: AccountId) => void
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
@@ -47,6 +49,7 @@ type OverviewProps = {
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
+  accountId,
   onAccountIdChange,
   underlyingAssets,
   rewardAssets,
@@ -65,7 +68,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderUnderlyingAssets = useMemo(() => {
     return underlyingAssets.map(asset => {
       return (
-        <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
+        <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
           {asset.icons ? (
             <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
           ) : (
@@ -83,7 +86,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
     return rewardAssets.map((asset, index) => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm' key={`${asset.assetId}_${index}`}>
+      <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
         <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
       </Tag>
@@ -117,6 +120,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   </RawText>
                   {onAccountIdChange ? (
                     <AccountDropdown
+                      {...(accountId ? { defaultAccountId: accountId } : {})}
                       assetId={asset.assetId}
                       onChange={onAccountIdChange}
                       buttonProps={{ height: 5, variant: 'solid' }}

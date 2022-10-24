@@ -152,6 +152,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_WALLET:
       return {
         ...state,
+        isDemoWallet: Boolean(action.payload.isDemoWallet),
         wallet: action.payload.wallet,
         walletInfo: {
           name: action?.payload?.name,
@@ -163,8 +164,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
-    case WalletActions.SET_IS_DEMO_WALLET:
-      return { ...state, isDemoWallet: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -301,6 +300,13 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         },
       }
     }
+    case WalletActions.DOWNLOAD_UPDATER:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.DownloadUpdater,
+      }
     default:
       return state
   }
@@ -352,6 +358,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
+          // Fixes issue with wallet `type` being null when the wallet is loaded from state
+          dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
+
           switch (localWalletType) {
             case KeyManager.Mobile:
               try {
@@ -376,9 +385,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       },
                     })
                     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                    // Turn off the loading spinner for the wallet button in
+                    dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                   } else {
                     disconnect()
                   }
+                } else {
+                  // in the case we return a null from the mobile app and fail to get the wallet
+                  // we want to disconnect and return the user back to the splash screen
+                  disconnect()
                 }
               } catch (e) {
                 moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')
@@ -784,6 +799,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     dispatch({
       type: WalletActions.SET_WALLET,
       payload: {
+        isDemoWallet: true,
         wallet,
         name,
         icon,
@@ -793,7 +809,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-    dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: true })
   }, [state.keyring])
 
   const create = useCallback(async (type: KeyManager) => {

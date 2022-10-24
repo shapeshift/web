@@ -8,7 +8,6 @@ import {
   ethChainId,
   foxAssetId,
 } from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { type Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
@@ -29,18 +28,6 @@ export const assetIds = [
   zeroAssetId,
   btcAssetId,
 ]
-
-export const btcAccountIds = Object.freeze([
-  'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
-  'bip122:000000000019d6689c085ae165831e93:bc1qx0aaya6e0e8rfukvma9adhncjd77yhas70qukt',
-  'bip122:000000000019d6689c085ae165831e93:bc1qtjxklypn7zhp05ja29c5z8ycscmq0vhhzslm99',
-])
-
-export const ethAccountIds = Object.freeze([
-  'eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1',
-  'eip155:1:0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8',
-  'eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9',
-])
 
 export const ethPubKeys = Object.freeze([
   '0x9a2d593725045d1727d525dd07a396f9ff079bb1',
@@ -184,40 +171,6 @@ export const mockCosmosAccountWithStakingData = Object.freeze({
         },
       },
     ],
-    sequence: '422',
-    accountNumber: '424242',
-  },
-})
-
-export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
-  chainSpecific: {
-    delegations: [],
-    redelegations: [],
-    rewards: [],
-    undelegations: [
-      {
-        entries: [
-          {
-            amount: '100',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650472940,
-          },
-          {
-            amount: '250',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650472941,
-          },
-        ],
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-      {},
-    ] as cosmossdk.Undelegation[],
     sequence: '422',
     accountNumber: '424242',
   },

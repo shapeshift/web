@@ -1,5 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
@@ -14,10 +15,12 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { Nullable } from 'types/common'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
 type DepositProps = {
+  accountId?: Nullable<AccountId>
   asset1: Asset
   asset2: Asset
   destAsset: Asset
@@ -68,6 +71,7 @@ export type DepositValues = {
 
 export const PairDeposit = ({
   apy,
+  accountId,
   asset1,
   asset2,
   destAsset,
@@ -173,13 +177,13 @@ export const PairDeposit = ({
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {
-    const asssetMarketData = isForAsset1 ? marketData1 : marketData2
+    const assetMarketData = isForAsset1 ? marketData1 : marketData2
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
     const cryptoAmount = bnOrZero(
       isForAsset1 ? cryptoAmountAvailable1 : cryptoAmountAvailable2,
     ).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(asssetMarketData.price)
+    const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
     setValue(fiatField, fiatAmount.toString(), {
       shouldValidate: true,
     })
@@ -212,6 +216,7 @@ export const PairDeposit = ({
       <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount1?.value}
             onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
             fiatAmount={fiatAmount1?.value}
@@ -227,6 +232,7 @@ export const PairDeposit = ({
             errors={cryptoError1 || fiatError1}
           />
           <AssetInput
+            {...(accountId ? { accountId } : {})}
             cryptoAmount={cryptoAmount2?.value}
             onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
             fiatAmount={fiatAmount2?.value}
@@ -266,6 +272,7 @@ export const PairDeposit = ({
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid}
           isLoading={isLoading}
+          data-test='defi-modal-continue-button'
           type='submit'
         >
           {translate(fieldError || 'common.continue')}

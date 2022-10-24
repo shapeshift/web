@@ -21,7 +21,7 @@ export const SubmenuHeader = ({
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
 
   return (
-    <Stack flexDir='column' mb={3} px={2}>
+    <Stack flexDir='column' px={2}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
         <IconButton
           isRound

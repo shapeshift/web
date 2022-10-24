@@ -21,6 +21,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
+import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -121,18 +122,17 @@ export const Header = () => {
             >
               <AutoCompleteSearch />
             </HStack>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
               {isWalletConnectToDappsAvailable && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <Box display={{ base: 'none', md: 'block' }}>
-                <ChainMenu />
-              </Box>
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
-              </Box>
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <FiatRamps />
             </Flex>
           </HStack>
         </HStack>

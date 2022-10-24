@@ -12,7 +12,6 @@ import {
   Wrap,
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -25,6 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
+import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
@@ -42,26 +42,29 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
+export const BackupPassphraseTest: React.FC<LocationState> = props => {
+  const { revocableWallet } = props
   const translate = useTranslate()
   const { goBack: handleBackClick, ...history } = useHistory()
-  const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [testCount, setTestCount] = useState<number>(0)
   const [revoker] = useState(new (Revocable(class {}))())
   const [, setError] = useState<string | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
+  const {
+    backupNativePassphrase: {
+      props: { preventClose },
+    },
+  } = useModal()
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
     try {
-      const mnemonic = await vault?.unwrap().get('#mnemonic')
-      const words = mnemonic.split(' ')
+      const words = revocableWallet.getWords()
+      if (!words || words.length < 12) {
+        return setError('walletProvider.shapeShift.create.error')
+      }
       let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
 
       const targetWordIndex = shuffledNumbers[testCount]
@@ -86,7 +89,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
     } catch (e) {
       setError('walletProvider.shapeShift.create.error')
     }
-  }, [setTestState, shuffledNumbers, vault, revoker, testCount])
+  }, [testCount, revocableWallet, shuffledNumbers, revoker])
 
   useEffect(() => {
     shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
@@ -95,14 +98,13 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed
     if (testCount >= TEST_COUNT_REQUIRED) {
-      vault?.seal()
       history.push(BackupPassphraseRoutes.Success)
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, revoker, vault])
+  }, [testCount, history, revoker])
 
   if (!testState) return null
 
@@ -110,7 +112,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
     if (index === testState?.correctAnswerIndex) {
       setTestCount(testCount + 1)
     } else {
-      shuffleMnemonic()
+      void shuffleMnemonic()
     }
   }
 
@@ -195,10 +197,7 @@ export const BackupPassphraseTest = ({ vault }: { vault: Vault | null }) => {
             width='full'
             size='md'
             isDisabled={!hasAlreadySaved}
-            onClick={() => {
-              vault?.seal()
-              history.push(BackupPassphraseRoutes.Success)
-            }}
+            onClick={() => history.push(BackupPassphraseRoutes.Success)}
           >
             <Text translation={'common.skip'} />
           </Button>

@@ -1,6 +1,5 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import { useState } from 'react'
+import React from 'react'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
@@ -8,6 +7,7 @@ import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseRouter } from './BackupPassphraseRouter'
 
 export const entries = [
+  BackupPassphraseRoutes.Start,
   BackupPassphraseRoutes.Password,
   BackupPassphraseRoutes.Info,
   BackupPassphraseRoutes.Test,
@@ -19,14 +19,8 @@ type BackupPassphraseModalProps = {
 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
-  const [vault, setVault] = useState<Vault | null>(null)
   const { backupNativePassphrase } = useModal()
   const { close, isOpen } = backupNativePassphrase
-
-  const handleClose = () => {
-    vault?.seal()
-    close()
-  }
 
   return (
     <Modal
@@ -34,14 +28,14 @@ export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ pr
       closeOnOverlayClick={!preventClose}
       closeOnEsc={!preventClose}
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={close}
     >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={{ base: 0, md: 4 }} pt={3} pb={6}>
         <MemoryRouter initialEntries={entries}>
           <Switch>
             <Route path='/'>
-              <BackupPassphraseRouter vault={vault} setVault={setVault} />
+              <BackupPassphraseRouter />
             </Route>
           </Switch>
         </MemoryRouter>

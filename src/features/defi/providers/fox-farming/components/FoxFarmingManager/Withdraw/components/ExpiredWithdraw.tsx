@@ -34,7 +34,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { contractAddress } = query
   const opportunity = state?.opportunity
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
-  const { setAccountId: handleAccountIdChange } = useFoxEth()
+  const { setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -135,7 +135,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
           volume: '0',
           changePercent24Hr: 0,
         }}
-        onAccountIdChange={handleAccountIdChange}
+        onAccountIdChange={handleFarmingAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}

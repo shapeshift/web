@@ -14,6 +14,7 @@ const moduleLogger = logger.child({
   namespace: ['Plugins', 'FoxPage', 'Utils'],
 })
 
+// TODO: remove this module and use wagmi provider
 let maybeEthersProvider: providers.Web3Provider | undefined
 // The provider we get from getWeb3Instance is a web3.js Provider
 // But uniswap SDK needs a Web3Provider from ethers.js

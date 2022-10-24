@@ -12,16 +12,20 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { SendInput } from '../Form'
@@ -43,11 +47,26 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { vanityAddress, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } =
-    useWatch({
-      control,
-    })
+  const {
+    accountId,
+    address,
+    asset,
+    cryptoAmount,
+    cryptoSymbol,
+    feeType,
+    fiatAmount,
+    memo,
+    vanityAddress,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
   const { fees } = useSendFees()
+  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
+
+  const showMemoRow = useMemo(
+    () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
+    [asset],
+  )
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
@@ -55,6 +74,9 @@ export const Confirm = () => {
   }, [fiatAmount, fees, feeType])
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  // We don't want this firing -- but need it for typing
+  const handleAccountChange = () => {}
 
   if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
     return null
@@ -89,6 +111,22 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
+          {isMultiAccountsEnabled && (
+            <Row alignItems='center'>
+              <Row.Label>
+                <Text translation='modals.send.confirm.sendFrom' />
+              </Row.Label>
+              <Row.Value display='flex' alignItems='center'>
+                <AccountDropdown
+                  onChange={handleAccountChange}
+                  assetId={asset.assetId}
+                  defaultAccountId={accountId}
+                  buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                  disabled
+                />
+              </Row.Value>
+            </Row>
+          )}
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
@@ -97,6 +135,18 @@ export const Confirm = () => {
               {vanityAddress ? vanityAddress : <MiddleEllipsis value={address} />}
             </Row.Value>
           </Row>
+          {showMemoRow && (
+            <Row>
+              <Row.Label>
+                <Text
+                  translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
+                />
+              </Row.Label>
+              <Row.Value>
+                <RawText>{memo}</RawText>
+              </Row.Value>
+            </Row>
+          )}
           <FormControl mt={4}>
             <Row variant='vertical'>
               <Row.Label>

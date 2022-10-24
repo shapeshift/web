@@ -23,10 +23,15 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
     () => bnOrZero(cryptoAmount).times(transfer.marketData.price).toString(),
     [cryptoAmount, transfer.marketData.price],
   )
+  const key = useMemo(
+    () => `${transfer.type}*${transfer.assetId}*${transfer.value}`,
+    [transfer.type, transfer.assetId, transfer.value],
+  )
+
   return (
     <Stack
       alignItems='center'
-      key={index}
+      key={key}
       flex={1}
       mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
       direction={index === 0 ? 'row' : 'row-reverse'}

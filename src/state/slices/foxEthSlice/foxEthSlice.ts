@@ -128,7 +128,6 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-
           const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
 
           if (!ethMarketData?.price) {
@@ -137,7 +136,6 @@ export const foxEthApi = createApi({
 
           const ethPrecision = assets.byId[ethAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-
           const ethPrice = ethMarketData.price
           const ethersProvider = getEthersProvider()
           const uniV2LPContract = getOrCreateContract(
@@ -205,11 +203,9 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency\
           const assets: AssetsState = state.assets
-
           const ethPrecision = assets.byId[ethAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-
           const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
           const lpTokenPrice = lpTokenMarketData?.price
 
@@ -268,11 +264,9 @@ export const foxEthApi = createApi({
           const { getState, dispatch } = injectedStore
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
-
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const ethPrecision = assets.byId[ethAssetId].precision
-
           const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
           const lpTokenPrice = lpTokenMarketData?.price
 
@@ -351,10 +345,8 @@ export const foxEthApi = createApi({
           const assets: AssetsState = state.assets
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
-
           const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
           const lpTokenPrice = lpTokenMarketData?.price
-
           if (!lpTokenPrice) {
             throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
           }

@@ -5,7 +5,6 @@ import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
@@ -18,10 +17,9 @@ import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
 import { ApproveIcon } from './components/ApproveIcon'
+import { AssetsTransfers } from './components/AssetsTransfers'
+import { AssetTransfer } from './components/AssetTransfer'
 import type { getTxMetadataWithAssetId } from './utils'
-
-const FALLBACK_PRECISION = 18
-const FALLBACK_SYMBOL = 'N/A'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -78,7 +76,7 @@ type TransactionGenericRowProps = {
   title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
-  displayTransfers: Transfer[]
+  transfersByType: Record<TransferType, Transfer[]>
   fee?: Fee
   txid: TxId
   txData?: ReturnType<typeof getTxMetadataWithAssetId>
@@ -91,7 +89,7 @@ type TransactionGenericRowProps = {
 export const TransactionGenericRow = ({
   type,
   title,
-  displayTransfers,
+  transfersByType,
   fee,
   txid,
   txData,
@@ -108,43 +106,16 @@ export const TransactionGenericRow = ({
   } = GetTxLayoutFormats({ parentWidth })
 
   const transfers = useMemo(() => {
-    return displayTransfers.map((transfer, index) => (
-      <Stack
-        alignItems='center'
-        key={index}
-        flex={1}
-        mt={{ base: 2, md: 0, xl: compactMode ? 2 : 0 }}
-        direction={index === 0 ? 'row' : 'row-reverse'}
-        textAlign={index === 0 ? 'left' : 'right'}
-      >
-        <AssetIcon
-          assetId={transfer.asset?.assetId}
-          boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
-        />
-        <Box flex={1}>
-          <Amount.Crypto
-            color='inherit'
-            fontWeight='medium'
-            value={fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION)}
-            symbol={transfer.asset?.symbol ?? FALLBACK_SYMBOL}
-            maximumFractionDigits={4}
-          />
-          {transfer.marketData.price && (
-            <Amount.Fiat
-              color='gray.500'
-              fontSize='sm'
-              lineHeight='1'
-              value={bnOrZero(
-                fromBaseUnit(transfer.value, transfer.asset?.precision ?? FALLBACK_PRECISION),
-              )
-                .times(transfer.marketData.price)
-                .toString()}
-            />
-          )}
-        </Box>
-      </Stack>
-    ))
-  }, [compactMode, displayTransfers])
+    return Object.values(transfersByType).map((transfersOfType, index) => {
+      const hasManyTypeTransfers = transfersOfType.length > 1
+
+      return hasManyTypeTransfers ? (
+        <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
+      ) : (
+        <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
+      )
+    })
+  }, [compactMode, transfersByType])
 
   const cryptoValue = useMemo(() => {
     if (!fee) return '0'

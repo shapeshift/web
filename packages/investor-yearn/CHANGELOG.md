@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v6.1.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.5...@shapeshiftoss/investor-yearn-v6.1.6) (2022-10-24)
+
+
+### Bug Fixes
+
+* avax asset ref and upgrade yearn sdk ([#1074](https://github.com/shapeshift/lib/issues/1074)) ([315095a](https://github.com/shapeshift/lib/commit/315095a1c21922b329126ffa643db944a4f31bce))
+
 # [@shapeshiftoss/investor-yearn-v6.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.4...@shapeshiftoss/investor-yearn-v6.1.5) (2022-10-19)
 
 # [@shapeshiftoss/investor-yearn-v6.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.3...@shapeshiftoss/investor-yearn-v6.1.4) (2022-10-13)

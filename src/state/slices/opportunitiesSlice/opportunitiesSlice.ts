@@ -75,6 +75,10 @@ export type OpportunityMetadataById = {
   [k: FarmingId | LpId]: LpOpportunity | FarmingOpportunity
 }
 
+export type OpportunityUserDataById = {
+  [k: FarmingId | LpId]: LpOpportunity | FarmingOpportunity
+}
+
 const updateOrInsertUserAccountIds = (
   opportunitiesDraft: OpportunitiesState,
   accountIds: AccountId[],
@@ -111,6 +115,18 @@ export const opportunities = createSlice({
     upsertOpportunityMetadata: (
       state,
       { payload }: { payload: { metadata: OpportunityMetadataById; type: 'lp' | 'farming' } },
+    ) => {
+      state[payload.type].byId = {
+        ...state[payload.type].byId,
+        ...payload.metadata,
+      }
+      state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
+    },
+    upsertOpportunityUserData: (
+      state,
+      {
+        payload,
+      }: { payload: { metadata: OpportunityMetadataById; type: 'userLp' | 'userFarming' } },
     ) => {
       state[payload.type].byId = {
         ...state[payload.type].byId,

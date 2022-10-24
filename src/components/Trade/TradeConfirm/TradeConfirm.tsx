@@ -83,6 +83,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     fees,
     sellAssetFiatRate,
     feeAssetFiatRate,
+    buyAssetFiatRate,
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
@@ -209,9 +210,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     bnOrZero(trade.sellAmountCryptoPrecision),
     trade.sellAsset?.precision ?? 0,
   )
+  const buyAmountCrypto = fromBaseUnit(
+    bnOrZero(trade.buyAmountCryptoPrecision),
+    trade.buyAsset?.precision ?? 0,
+  )
 
   const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))
+    .times(selectedCurrencyToUsdRate)
+
+  const buyAmountFiat = bnOrZero(buyAmountCrypto)
+    .times(bnOrZero(buyAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
@@ -296,6 +305,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
+                  fiatAmount={buyAmountFiat.toString()}
                   swapperName={swapper?.name ?? ''}
                 />
               </Stack>

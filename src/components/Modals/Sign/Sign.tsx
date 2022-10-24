@@ -16,12 +16,12 @@ import {
   ModalOverlay,
   Textarea,
 } from '@chakra-ui/react'
+import cryptoTools from 'crypto'
 import { ipcRenderer } from 'electron'
 import React, { useCallback, useEffect, useState } from 'react'
 import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getAssetUrl } from 'lib/getAssetUrl'
 
@@ -29,7 +29,6 @@ import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
 
 export const SignModal = (input: any) => {
-  const { keepkey } = useWallet()
   const [error] = useState<string | null>(null)
   const [loading] = useState(false)
   const [show, setShow] = React.useState(false)
@@ -59,6 +58,90 @@ export const SignModal = (input: any) => {
   let isSwap: boolean = false
   if (input?.unsignedTx?.invocation?.unsignedTx?.type === 'swap') isSwap = true
 
+  const HandleReject = async () => {
+    setIsApproved(false)
+    ipcRenderer.send(`@account/tx-rejected-${input.nonce}`, { nonce: input.nonce })
+    //show sign
+    ipcRenderer.send('unlockWindow', {})
+    //onCloseModal
+    ipcRenderer.send('@modal/sign-close', {})
+    close()
+  }
+
+  const handleToggle = () => setShow(!show)
+
+  const signTx = useCallback(async (unsignedTx: any, wallet: any) => {
+    try {
+      if (!wallet) throw Error('Can not not sign if a HDWwallet is not paired!')
+      if (!unsignedTx) throw Error('Invalid payload! empty')
+      if (!unsignedTx.HDwalletPayload) throw Error('Invalid payload! missing: HDwalletPayload')
+
+      //TODO validate payload
+      //TODO validate fee's
+      //TODO load EV data
+
+      let signedTx
+      let broadcastString
+      let buffer
+      let txid
+      switch (unsignedTx.network) {
+        case 'RUNE':
+          signedTx = await wallet.thorchainSignTx(unsignedTx.HDwalletPayload)
+
+          broadcastString = {
+            tx: signedTx,
+            type: 'cosmos-sdk/StdTx',
+            mode: 'sync',
+          }
+          buffer = Buffer.from(JSON.stringify(broadcastString), 'base64')
+          //TODO FIXME
+          txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+
+          signedTx.serialized = JSON.stringify(broadcastString)
+          signedTx.txid = txid
+          break
+        case 'ATOM':
+          signedTx = await wallet.cosmosSignTx(unsignedTx.HDwalletPayload)
+          txid = cryptoTools
+            .createHash('sha256')
+            .update(signedTx.serialized)
+            .digest('hex')
+            .toUpperCase()
+          signedTx.txid = txid
+          break
+        case 'OSMO':
+          signedTx = await wallet.osmosisSignTx(unsignedTx.HDwalletPayload)
+          buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
+          //TODO FIXME
+          txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+          signedTx.txid = txid
+          break
+        case 'ETH':
+          signedTx = await wallet.ethSignTx(unsignedTx.HDwalletPayload)
+          //TODO do txid hashing in HDwallet
+          //txid = keccak256(signedTx.serialized).toString('hex')
+          txid = 'broke'
+          signedTx.txid = txid
+          break
+        case 'BTC':
+        case 'BCH':
+        case 'LTC':
+        case 'DOGE':
+        case 'DASH':
+        case 'DGB':
+        case 'RDD':
+          signedTx = await wallet.btcSignTx(unsignedTx.HDwalletPayload)
+          break
+        default:
+          throw Error('network not supported! ' + unsignedTx.network)
+      }
+
+      return signedTx
+    } catch (e) {
+      console.error('failed to sign! e: ', e)
+    }
+  }, [])
+
   const HandleSubmit = useCallback(async () => {
     setIsApproved(true)
     //show sign
@@ -71,33 +154,13 @@ export const SignModal = (input: any) => {
         gasPrice,
       },
     }
-    let signedTx = await keepkey.signTx(unsignedTx)
+
+    let signedTx = await signTx(unsignedTx, {} as any)
     ipcRenderer.send(`@account/tx-signed-${input.nonce}`, { signedTx, nonce: input.nonce })
-    //onCloseModal
     ipcRenderer.send('@modal/sign-close', {})
     setIsApproved(false)
     close()
-  }, [
-    nonce,
-    gasLimit,
-    gasPrice,
-    close,
-    keepkey,
-    input?.unsignedTx?.invocation?.unsignedTx,
-    input.nonce,
-  ])
-
-  const HandleReject = async () => {
-    setIsApproved(false)
-    ipcRenderer.send(`@account/tx-rejected-${input.nonce}`, { nonce: input.nonce })
-    //show sign
-    ipcRenderer.send('unlockWindow', {})
-    //onCloseModal
-    ipcRenderer.send('@modal/sign-close', {})
-    close()
-  }
-
-  const handleToggle = () => setShow(!show)
+  }, [input, nonce, gasLimit, gasPrice, signTx, close])
 
   // @ts-ignore
   return (

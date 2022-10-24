@@ -14,7 +14,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
-  const { state, dispatch, needsReset } = useWallet()
+  const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
   const history = useHistory()
@@ -79,11 +79,6 @@ export const ConnectWallet = () => {
                   isMigrationMessageEnabled ? 'connectWalletPage.body2' : 'connectWalletPage.body'
                 }
               />
-              {needsReset && (
-                <RawText fontSize='3xl' color='red' fontWeight='bold'>
-                  ** UNPLUG & REPLUG KEEPKEY **
-                </RawText>
-              )}
             </Center>
             <Flex
               direction={'column'}

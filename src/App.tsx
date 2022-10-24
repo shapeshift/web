@@ -29,7 +29,7 @@ export const App = () => {
 
   const { needsReset } = useWallet()
 
-  const { pair, sign, hardwareError } = useModal()
+  const { pair, sign, hardwareError, updateBootloader } = useModal()
 
   useEffect(() => {
     if (needsReset) hardwareError.open({})
@@ -41,6 +41,12 @@ export const App = () => {
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
       pair.open(data)
     })
+
+    ipcRenderer.on('updateBootloader', () => {
+      console.log('now updating bootloader')
+      updateBootloader.open({})
+    })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -92,7 +92,6 @@ export class FDeveloperController extends Controller {
     public async disconnect(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
             if (!keepkey.wallet) return reject()
-
             keepkey.wallet.disconnect().then(resolve)
         })
     }

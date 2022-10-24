@@ -14,7 +14,6 @@ export interface IWalletContext {
   load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void
   onProviderChange: (localWalletType: KeyManagerWithProvider) => Promise<void>
-  keepkey: any
   needsReset: boolean
 }
 

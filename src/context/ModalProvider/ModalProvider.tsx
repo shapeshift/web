@@ -10,9 +10,11 @@ import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareErro
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
+import { RequestUpdaterMode } from 'components/Modals/RequestUpdaterMode/RequestUpdaterMode'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
 import { SignModal } from 'components/Modals/Sign/Sign'
+import { UpdateBootloader } from 'components/Modals/UpdateBootloader/UpdateBootloader'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { ModalContext } from './ModalContext'
@@ -34,6 +36,8 @@ const MODALS = {
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
+  requestUpdaterMode: RequestUpdaterMode,
+  updateBootloader: UpdateBootloader,
 }
 
 // state

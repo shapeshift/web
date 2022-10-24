@@ -124,8 +124,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
         try {
             log.info("Starting Hardware Controller")
-
-            //sub ALL events
             //state
             Controller.events.on('state', function (event) {
                 log.info("*** state change: ", event)
@@ -139,21 +137,15 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 switch (event.state) {
                     case 0:
                         log.info(tag, "No Devices connected")
-                        queueIpcEvent('closeBootloaderUpdate', {})
-                        queueIpcEvent('closeFirmwareUpdate', {})
                         queueIpcEvent('@keepkey/hardwareError', { event })
                         break;
                     case 1:
-                        queueIpcEvent('@onboard/open', event)
-                        // queueIpcEvent('@onboard/open', event)
+                        console.log('keepkey state 1')
                         break;
                     case 2:
-                        queueIpcEvent('setUpdaterMode', true)
-                        queueIpcEvent('@onboard/open', event)
+                        console.log('keepkey state 2')
                         break;
                     case 5:
-                        queueIpcEvent('closeBootloaderUpdate', {})
-                        queueIpcEvent('closeFirmwareUpdate', {})
                         //launch init seed window?
                         keepkey.device = Controller.device
                         // @ts-ignore
@@ -176,18 +168,17 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 log.info("error event: ", event)
                 queueIpcEvent('@keepkey/hardwareError', { event })
             })
-            // queueIpcEvent('@onboard/open', {})
+
             //logs
-            Controller.events.on('logs', function (event) {
+            Controller.events.on('logs', async function (event) {
                 log.info("logs event: ", event)
-                if (event.newDevice) {
-                    //push new event
-                    queueIpcEvent('@onboard/newKeepKey', event)
-                }
 
                 if (event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) {
-                    queueIpcEvent('@onboard/open', event)
-                    queueIpcEvent('@onboard/state', event)
+                    // TODO
+                    // queueIpcEvent('requestUpdaterMode', true)
+                    // do after we have updater mode
+                    queueIpcEvent('updateBootloader', true)
+
                 }
             })
             //Init MUST be AFTER listeners are made (race condition)

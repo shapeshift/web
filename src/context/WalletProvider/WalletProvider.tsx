@@ -27,7 +27,6 @@ import { logger } from 'lib/logger'
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
-import { KeepKeyService } from './KeepKey'
 import { KeepKeyConfig } from './KeepKey/config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
@@ -44,7 +43,6 @@ import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
-const keepkey = new KeepKeyService()
 
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
@@ -674,26 +672,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
     })
 
-    ipcRenderer.on('loadKeepKeyInfo', (_event, data) => {
-      keepkey.updateFeatures(data.payload)
-    })
-
-    ipcRenderer.on('setUpdaterMode', (_event, _data) => {
-      keepkey.setUpdaterMode()
-    })
-
-    ipcRenderer.on('setNeedsBootloaderUpdate', (_event, _data) => {
-      keepkey.setNeedsBootloaderUpdate(true)
-    })
-
-    ipcRenderer.on('loadKeepKeyFirmwareLatest', (_event, data) => {
-      keepkey.updateKeepKeyFirmwareLatest(data.payload)
-    })
-
-    ipcRenderer.on('onCompleteBootloaderUpload', (_event, _data) => {
-      keepkey.setNeedsBootloaderUpdate(false)
-    })
-
     //HDwallet API
     //TODO moveme into own file
     ipcRenderer.on('@hdwallet/getPublicKeys', async (_event, data) => {
@@ -829,25 +807,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     //END HDwallet API
 
-    //start keepkey
-    async function startPioneer() {
-      try {
-        await keepkey.init()
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    startPioneer()
-
-    if (!state.wallet) {
-      ipcRenderer.send('@app/start', {
-        username: keepkey.username,
-        queryKey: keepkey.queryKey,
-        spec: process.env.REACT_APP_URL_PIONEER_SPEC,
-      })
-    } else {
-      ipcRenderer.send('@wallet/connected')
-    }
+    ipcRenderer.send('@app/start', {})
   }, [state.wallet])
 
   useEffect(() => {
@@ -892,7 +852,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       load,
       setDeviceState,
       onProviderChange,
-      keepkey,
       needsReset,
     }),
     [state, connect, create, disconnect, load, setDeviceState, onProviderChange, needsReset],

@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -87,6 +87,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: Nullable<Accou
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
@@ -94,14 +98,22 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: Nullable<Accou
     try {
       if (
         state?.loading ||
-        !(state?.userAddress && rewardId && walletState.wallet && api && dispatch && bip44Params)
+        !(
+          state &&
+          accountAddress &&
+          rewardId &&
+          walletState.wallet &&
+          api &&
+          dispatch &&
+          bip44Params
+        )
       )
         return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
           tokenContractAddress: rewardId,
-          userAddress: state.userAddress,
+          userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
           amountDesired: bnOrZero(state.withdraw.cryptoAmount)
@@ -140,10 +152,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: Nullable<Accou
     dispatch,
     onNext,
     rewardId,
-    state?.loading,
-    state?.userAddress,
-    state?.withdraw.cryptoAmount,
-    state?.withdraw.withdrawType,
+    accountAddress,
+    state,
     walletState.wallet,
   ])
 

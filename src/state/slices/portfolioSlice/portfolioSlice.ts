@@ -1,15 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
-import isEmpty from 'lodash/isEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
-import type { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import type { AccountMetadataById, Portfolio } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
@@ -26,10 +25,11 @@ export const portfolio = createSlice({
     },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')
-      state.accountSpecifiers.accountMetadataById = {
-        ...state.accountSpecifiers.accountMetadataById,
+      state.accountMetadata.byId = {
+        ...state.accountMetadata.byId,
         ...payload,
       }
+      state.accountMetadata.ids = Array.from(new Set([...Object.keys(payload)]))
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.debug('upserting portfolio')
@@ -43,14 +43,12 @@ export const portfolio = createSlice({
        * state accountBalance and the payload accountBalance for each of account assets
        * and then add [or subtract] the diff to the state.assetBalances related item.
        */
-      payload.accountBalances.ids.forEach(accountSpecifier => {
+      payload.accountBalances.ids.forEach(accountId => {
         // iterate over the account assets balances and calculate the diff
-        Object.entries(payload.accountBalances.byId[accountSpecifier]).forEach(
+        Object.entries(payload.accountBalances.byId[accountId]).forEach(
           ([assetId, newAccountAssetBalance]) => {
             // in case if getting accounts for the first time
-            const currentAccountBalance = bnOrZero(
-              state.accountBalances.byId[accountSpecifier]?.[assetId],
-            )
+            const currentAccountBalance = bnOrZero(state.accountBalances.byId[accountId]?.[assetId])
             // diff could be both positive [tx type -> receive] and negative [tx type -> send]
             const differenceBetweenCurrentAndNew =
               bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
@@ -68,60 +66,44 @@ export const portfolio = createSlice({
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId,
       }
-      state.accountSpecifiers.byId = {
-        ...state.accountSpecifiers.byId,
-        ...payload.accountSpecifiers.byId,
-      }
       const assetBalanceIds = Array.from(
         new Set([...state.assetBalances.ids, ...payload.assetBalances.ids]),
       )
       const accountBalanceIds = Array.from(
         new Set([...state.accountBalances.ids, ...payload.accountBalances.ids]),
       )
-      const accountSpecifiers = Array.from(
-        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids]),
-      )
       state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
-      state.accountSpecifiers.ids = accountSpecifiers
     },
   },
 })
-
-type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
   endpoints: build => ({
-    getAccount: build.query<Portfolio, GetAccountArgs>({
-      queryFn: async ({ accountSpecifierMap }, { dispatch, getState }) => {
-        if (isEmpty(accountSpecifierMap)) return { data: cloneDeep(initialState) }
+    getAccount: build.query<Portfolio, AccountId>({
+      queryFn: async (accountId, { dispatch, getState }) => {
+        if (!accountId) return { data: cloneDeep(initialState) }
         // 0xdef1cafe: be careful with this, RTK query can't type this correctly
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapterManager()
-        const [chainId, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
-          ChainId,
-          string,
-        ]
+        const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-
-          const chainAdaptersAccount = await adapter.getAccount(accountSpecifier)
-
-          const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
+          const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
-          // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
-          // to prevent edge cases like #820
           dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
-          const status = 400
-          const data = JSON.stringify(e)
-          const error = { status, data }
-          return { error }
+          moduleLogger.error(e, `error fetching account ${accountId}`)
+          const data = cloneDeep(initialState)
+          data.accounts.ids.push(accountId)
+          data.accounts.byId[accountId] = { assetIds: [] }
+          dispatch(portfolio.actions.upsertPortfolio(data))
+          return { data }
         }
       },
     }),

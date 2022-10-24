@@ -10,4 +10,5 @@ export enum KeepKeyRoutes {
   RecoverySentenceInvalid = '/keepkey/recovery-sentence/invalid',
   RecoverySettings = '/keepkey/recovery-settings',
   RecoverySettingUp = '/keepkey/recovery-setting-up',
+  DownloadUpdater = '/keepkey/download-updater',
 }

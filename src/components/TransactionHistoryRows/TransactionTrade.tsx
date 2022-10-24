@@ -1,3 +1,5 @@
+import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 
 import { useTradeFees } from './hooks'
@@ -11,7 +13,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, parseRelevantAssetFromTx } from './utils'
+import { getTransfersByType } from './utils'
 
 export const TransactionTrade = ({
   txDetails,
@@ -21,11 +23,13 @@ export const TransactionTrade = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  let assets = []
-  if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
-  if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
+  const tradeFeeInput = useMemo(() => ({ txDetails }), [txDetails])
+  const { tradeFees } = useTradeFees({ txDetails: tradeFeeInput.txDetails })
 
-  const { tradeFees } = useTradeFees({ txDetails })
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+    [txDetails.transfers],
+  )
 
   return (
     <>
@@ -34,9 +38,8 @@ export const TransactionTrade = ({
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
-        symbol={txDetails.symbol}
-        assets={assets}
-        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
+        transfersByType={transfersByType}
+        fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
@@ -49,12 +52,12 @@ export const TransactionTrade = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          {txDetails.feeAsset && (
+          {txDetails.fee && (
             <Row title='minerFee'>
               <TransactionAmount
-                value={txDetails.tx.fee?.value ?? '0'}
-                precision={txDetails.feeAsset.precision}
-                symbol={txDetails.feeAsset.symbol}
+                value={txDetails.fee.value}
+                precision={txDetails.fee.asset.precision}
+                symbol={txDetails.fee.asset.symbol}
               />
             </Row>
           )}
@@ -68,9 +71,9 @@ export const TransactionTrade = ({
               <Text value={txDetails.tx.trade.type} />
             </Row>
           )}
-          {txDetails.tx.trade && txDetails.sellAsset && tradeFees && (
+          {tradeFees && (
             <Row title='fee'>
-              <Amount.Crypto value={tradeFees} symbol={txDetails.sellAsset.symbol} />
+              <Amount.Crypto value={tradeFees.value} symbol={tradeFees.asset.symbol} />
             </Row>
           )}
         </TxGrid>

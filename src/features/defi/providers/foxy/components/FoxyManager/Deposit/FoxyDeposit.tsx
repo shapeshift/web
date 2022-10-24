@@ -25,6 +25,7 @@ import { logger } from 'lib/logger'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -57,6 +58,8 @@ export const FoxyDeposit: React.FC<{
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
@@ -68,10 +71,19 @@ export const FoxyDeposit: React.FC<{
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && !isFoxyAprLoading && chainAdapter && api))
+        if (
+          !(
+            walletState.wallet &&
+            contractAddress &&
+            !isFoxyAprLoading &&
+            chainAdapter &&
+            api &&
+            bip44Params
+          )
+        )
           return
         const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
@@ -86,6 +98,7 @@ export const FoxyDeposit: React.FC<{
     })()
   }, [
     api,
+    bip44Params,
     chainAdapterManager,
     contractAddress,
     walletState.wallet,
@@ -108,7 +121,9 @@ export const FoxyDeposit: React.FC<{
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: ownProps => <Deposit {...ownProps} onAccountIdChange={handleAccountIdChange} />,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),

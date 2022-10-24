@@ -12,7 +12,8 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -22,7 +23,8 @@ type ReceiveSummaryProps = {
   beforeFees?: string
   protocolFee?: string
   shapeShiftFee?: string
-  minAmountAfterSlippage?: string
+  slippage: number
+  swapperName: string
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
@@ -32,7 +34,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   beforeFees,
   protocolFee,
   shapeShiftFee,
-  minAmountAfterSlippage,
+  slippage,
+  swapperName,
   isLoading,
   ...rest
 }) => {
@@ -42,6 +45,15 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
+  const greenColor = useColorModeValue('green.500', 'green.200')
+  const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
+
+  const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
+  const amountAfterSlippage = bnOrZero(amount)
+    .times(1 - slippage)
+    .toString()
+  const isAmountPositive = bnOrZero(amountAfterSlippage).gt(0)
+
   return (
     <>
       <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>
@@ -54,7 +66,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={amount} symbol={symbol} />
+              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -75,6 +87,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           px={4}
           py={2}
         >
+          <Row>
+            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+              <Row.Label>
+                <Text translation='trade.protocol' />
+              </Row.Label>
+            </HelperTooltip>
+            <Row.Value>
+              <Row.Label>
+                <RawText fontWeight='semibold' color={textColor}>
+                  {swapperName}
+                </RawText>
+              </Row.Label>
+            </Row.Value>
+          </Row>
           {beforeFees && (
             <Row>
               <Row.Label>
@@ -87,7 +113,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Value>
             </Row>
           )}
-          {protocolFee && (
+          {protocolFee && bnOrZero(protocolFee).gt(0) && (
             <Row>
               <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
                 <Row.Label>
@@ -110,26 +136,32 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </HelperTooltip>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={shapeShiftFee} symbol={symbol} />
+                  <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
                 </Skeleton>
               </Row.Value>
             </Row>
           )}
-          {minAmountAfterSlippage && (
-            <>
-              <Divider />
-              <Row>
-                <Row.Label>
-                  <Text translation={['trade.minAmountAfterSlippage', { slippage: '0.2' }]} />
-                </Row.Label>
-                <Row.Value whiteSpace='nowrap'>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto value={minAmountAfterSlippage} symbol={symbol} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            </>
-          )}
+          <>
+            <Divider />
+            <Row>
+              <Row.Label>
+                <Text
+                  translation={[
+                    'trade.minAmountAfterSlippage',
+                    { slippage: slippageAsPercentageString },
+                  ]}
+                />
+              </Row.Label>
+              <Row.Value whiteSpace='nowrap'>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Crypto
+                    value={isAmountPositive ? amountAfterSlippage : '0'}
+                    symbol={symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </>
         </Stack>
       </Collapse>
     </>

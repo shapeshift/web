@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
@@ -17,14 +17,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunitiesDataFull } from 'state/slices/selectors'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectHasActiveStakingOpportunity,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
+  accountId?: AccountId
   assetId: AssetId
 }
 
@@ -80,24 +80,17 @@ export const ValidatorName = ({
   )
 }
 
-export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const history = useHistory()
+export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const history = useHistory()
+  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  // this is returning data grouped by validator, not by account
+  const stakingOpportunitiesData = useAppSelector(s =>
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
-
-  const stakingOpportunitiesData = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
-  )
-
-  const hasActiveStaking = useAppSelector(state =>
-    selectHasActiveStakingOpportunity(state, { accountSpecifier, assetId }),
-  )
-
-  const rows = stakingOpportunitiesData
+  const hasActiveStaking = useAppSelector(state => selectHasActiveStakingOpportunity(state, filter))
 
   const handleClick = useCallback(
     (values: Row<OpportunitiesDataFull>) => {
@@ -105,6 +98,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       const provider = chainIdToLabel(chainId)
       history.push({
         search: qs.stringify({
+          defaultAccountId: accountId,
           provider,
           chainId,
           contractAddress: values.original.address,
@@ -113,7 +107,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         }),
       })
     },
-    [assetId, history],
+    [accountId, assetId, history],
   )
 
   const columns = useMemo(
@@ -228,10 +222,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         disableSortBy: true,
       },
     ],
-    // React-tables requires the use of a useMemo
-    // but we do not want it to recompute the values onClick
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [accountSpecifier],
+    [asset?.chainId, asset.precision, asset.symbol, marketData.price],
   )
 
   return (
@@ -249,7 +240,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0} px={2}>
         <ReactTable
-          data={rows}
+          data={stakingOpportunitiesData}
           columns={columns}
           displayHeaders={hasActiveStaking}
           onRowClick={handleClick}

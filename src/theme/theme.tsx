@@ -88,6 +88,11 @@ const styles = {
     '.scroll-container > div,.scroll-container:hover,.scroll-container:focus': {
       visibility: 'visible',
     },
+    '.chakra-menu__group': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    },
   }),
 }
 

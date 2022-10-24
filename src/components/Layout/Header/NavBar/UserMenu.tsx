@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -14,7 +15,6 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/address/ens'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -71,34 +71,43 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
+  const {
+    data: ensName,
+    isSuccess: isEnsNameLoaded,
+    isLoading: isEnsNameLoading,
+  } = useEnsName({
+    address: walletInfo?.meta?.address,
+    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
+    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
+  })
+
   useEffect(() => {
     ;(async () => {
       setWalletLabel('')
       setShouldShorten(true)
-      if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
-      if (walletInfo.meta.address) {
-        try {
-          const addressReverseLookup = await ensReverseLookup(walletInfo.meta.address)
-          if (!addressReverseLookup.error) {
-            setShouldShorten(false)
-            return setWalletLabel(addressReverseLookup.name)
-          }
-          return setWalletLabel(walletInfo?.meta?.address ?? '')
-        } catch (_) {
-          return setWalletLabel(walletInfo?.meta?.address ?? '')
-        }
-      }
-      if (walletInfo.meta.label) {
+      if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
+      // Wallet has a native label, we don't care about ENS name here
+      if (!walletInfo?.meta?.address && walletInfo.meta.label) {
         setShouldShorten(false)
         return setWalletLabel(walletInfo.meta.label)
       }
+
+      // ENS successfully fetched. Set ENS name as label
+      if (isEnsNameLoaded && ensName) {
+        setShouldShorten(false)
+        return setWalletLabel(ensName!)
+      }
+
+      // No label or ENS name, set regular wallet address as label
+      return setWalletLabel(walletInfo?.meta?.address ?? '')
     })()
-  }, [walletInfo])
+  }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <Button
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
+      variant='outline'
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
@@ -144,7 +153,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
   return (
-    <ButtonGroup isAttached width='full'>
+    <ButtonGroup width='full'>
       <WalletButton
         onConnect={handleConnect}
         walletInfo={walletInfo}

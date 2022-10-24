@@ -3,6 +3,7 @@ import { Box, Stack } from '@chakra-ui/layout'
 import {
   Button,
   Link,
+  Skeleton,
   SkeletonText,
   Tab,
   TabList,
@@ -13,9 +14,12 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEqual from 'lodash/isEqual'
 import qs from 'qs'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -47,20 +51,44 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId
 
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const accountId = accountIds?.[0]
 
   const {
-    state: { isConnected },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const { receive } = useModal()
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
 
-  const onGetAssetClick = () => {
+  const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
+
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+  const handleReceiveClick = useCallback(
+    () =>
+      !isDemoWallet && isConnected && walletSupportsETH
+        ? receive.open({ asset, accountId })
+        : handleWalletModalOpen(),
+    [
+      accountId,
+      asset,
+      handleWalletModalOpen,
+      isConnected,
+      isDemoWallet,
+      receive,
+      walletSupportsETH,
+    ],
+  )
+
+  const receiveButtonTranslation = useMemo(
+    () => (!isDemoWallet && walletSupportsETH ? 'plugins.foxPage.receive' : 'common.connectWallet'),
+    [isDemoWallet, walletSupportsETH],
+  )
+
+  const onGetAssetClick = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -73,7 +101,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       }),
       state: { background: location },
     })
-  }
+  }, [asset.chainId, history, location])
 
   return (
     <Card display='block' borderRadius={8}>
@@ -126,9 +154,11 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     </CText>
                   </Button>
                 )}
-                <Button onClick={handleReceiveClick} size='lg' colorScheme='gray'>
-                  <Text translation={'plugins.foxPage.receive'} />
-                </Button>
+                <Skeleton width='full' isLoaded={Boolean(wallet)}>
+                  <Button onClick={handleReceiveClick} width='full' size='lg' colorScheme='gray'>
+                    <Text translation={receiveButtonTranslation} />
+                  </Button>
+                </Skeleton>
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>

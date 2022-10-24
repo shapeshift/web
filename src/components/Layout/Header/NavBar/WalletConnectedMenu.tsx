@@ -32,7 +32,7 @@ export const WalletConnectedMenu = ({
 
   const ConnectedMenu = () => {
     return (
-      <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
+      <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
         <MenuItem
           closeOnSelect={!connectedWalletMenuRoutes}
           onClick={
@@ -58,7 +58,7 @@ export const WalletConnectedMenu = ({
             {connectedWalletMenuRoutes && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
-        <MenuDivider ml={3} />
+        <MenuDivider />
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}
         </MenuItem>

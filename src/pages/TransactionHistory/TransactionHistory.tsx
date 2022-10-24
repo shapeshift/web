@@ -1,5 +1,5 @@
 import { Flex, Heading } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
@@ -14,6 +14,7 @@ import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
 
 export const TransactionHistory = () => {
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const { searchTerm, matchingAssets, handleInputChange } = useSearch()
   const { filters, setFilters, resetFilters } = useFilters()
   const selectorFilters = useMemo(
@@ -27,6 +28,14 @@ export const TransactionHistory = () => {
   const txIds = useAppSelector(state =>
     selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters),
   )
+  const handleReset = useCallback(() => {
+    resetFilters()
+    if (inputRef?.current?.value) {
+      inputRef.current.value = ''
+      handleInputChange('')
+    }
+  }, [handleInputChange, resetFilters])
+
   return (
     <Main>
       <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
@@ -36,9 +45,9 @@ export const TransactionHistory = () => {
         <Card.Heading p={[2, 3, 6]}>
           <Flex justifyContent='space-between'>
             <Flex>
-              <TransactionHistorySearch handleInputChange={handleInputChange} />
+              <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
               <TransactionHistoryFilter
-                resetFilters={resetFilters}
+                resetFilters={handleReset}
                 setFilters={setFilters}
                 hasAppliedFilter={!!Object.values(filters).filter(Boolean).length}
               />

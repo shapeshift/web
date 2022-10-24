@@ -5,6 +5,8 @@ export default defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1920,
   defaultCommandTimeout: 60000,
+  chromeWebSecurity: false,
+  pageLoadTimeout: 2000000,
   env: {
     forceRecord: false,
     cleanMocks: false,
@@ -41,5 +43,6 @@ export default defineConfig({
     },
     baseUrl: 'http://localhost:3000/#/',
     specPattern: 'cypress/e2e/**/*.{js,jsx,ts,tsx}',
+    experimentalStudio: true,
   },
 })

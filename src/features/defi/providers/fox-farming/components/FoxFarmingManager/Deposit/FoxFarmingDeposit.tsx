@@ -1,4 +1,5 @@
 import { Center, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -11,6 +12,7 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -19,10 +21,12 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectFoxFarmingOpportunityByContractAddress,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -36,7 +40,14 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingDeposit'],
 })
 
-export const FoxFarmingDeposit = () => {
+type FoxFarmingDepositProps = {
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: Nullable<AccountId>
+}
+export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -47,24 +58,36 @@ export const FoxFarmingDeposit = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
+
+  const { farmingAccountAddress } = useFoxEth()
+
+  const filter = useMemo(
+    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
+    [farmingAccountAddress, contractAddress],
+  )
+
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(accountAddress && contractAddress && opportunity)) return
+        if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
+        dispatch({
+          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
+          payload: farmingAccountAddress,
+        })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [accountAddress, translate, toast, contractAddress, opportunity])
+  }, [farmingAccountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({
@@ -81,7 +104,9 @@ export const FoxFarmingDeposit = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -92,16 +117,16 @@ export const FoxFarmingDeposit = () => {
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [translate, asset.symbol, contractAddress])
+  }, [accountId, handleAccountIdChange, translate, asset.symbol, contractAddress])
 
-  if (loading || foxFarmingLoading || !asset || !marketData || !opportunity) {
+  if (loading || !asset || !marketData || !opportunity || !opportunity.isLoaded) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

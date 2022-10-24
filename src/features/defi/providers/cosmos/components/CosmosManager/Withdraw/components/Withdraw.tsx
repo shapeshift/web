@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -9,9 +10,10 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -19,10 +21,10 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -33,7 +35,15 @@ export type CosmosWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -63,16 +73,16 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(state, {
-      accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       validatorAddress: contractAddress,
       assetId,
     }),
+    [accountId, assetId, contractAddress],
+  )
+  const cryptoStakeBalance = useAppSelector(s =>
+    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
@@ -189,6 +199,8 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
         cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
         cryptoInputValidation={{

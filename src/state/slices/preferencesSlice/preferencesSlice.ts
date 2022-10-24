@@ -11,7 +11,6 @@ export type FeatureFlags = {
   Osmosis: boolean
   FoxLP: boolean
   FoxFarming: boolean
-  Avalanche: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -19,12 +18,11 @@ export type FeatureFlags = {
   IdleFinance: boolean
   Axelar: boolean
   Zendesk: boolean
-  MtPelerinFiatRamp: boolean
   Yat: boolean
-  RainbowCharts: boolean
   MultiAccounts: boolean
-  SwapperV2: boolean
   WalletConnectToDapps: boolean
+  MigrationMessage: boolean
+  DashboardBreakdown: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -40,6 +38,7 @@ export type Preferences = {
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
+  showWelcomeModal: boolean
 }
 
 const initialState: Preferences = {
@@ -47,7 +46,6 @@ const initialState: Preferences = {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
     FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
-    Avalanche: getConfig().REACT_APP_FEATURE_AVALANCHE,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
@@ -55,17 +53,17 @@ const initialState: Preferences = {
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
-    MtPelerinFiatRamp: getConfig().REACT_APP_FEATURE_MTPELERIN_FIAT_RAMP,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
-    RainbowCharts: getConfig().REACT_APP_FEATURE_RAINBOW_CHARTS,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
-    SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
+    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
+    DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
+  showWelcomeModal: false,
 }
 
 export const preferences = createSlice({
@@ -89,6 +87,9 @@ export const preferences = createSlice({
     },
     setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
       state.currencyFormat = payload.currencyFormat
+    },
+    setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
+      state.showWelcomeModal = payload.show
     },
   },
 })

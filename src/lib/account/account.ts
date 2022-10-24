@@ -1,11 +1,8 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import merge from 'lodash/merge'
-import type {
-  AccountMetadata,
-  AccountMetadataById,
-} from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'
@@ -22,7 +19,6 @@ export type DeriveAccountIdsAndMetadataArgs = {
   chainIds: ChainId[]
   wallet: HDWallet
 }
-export type AccountIdAndMetadata = [AccountId, AccountMetadata]
 export type DeriveAccountIdsAndMetadataReturn = Promise<AccountMetadataById>
 export type DeriveAccountIdsAndMetadata = (
   args: DeriveAccountIdsAndMetadataArgs,

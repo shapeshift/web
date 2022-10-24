@@ -10,19 +10,19 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  SimpleGrid,
   Tag,
-  Wrap,
 } from '@chakra-ui/react'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 import { mobileLogger } from '../config'
-import { addWallet, createWallet } from '../mobileMessageHandlers'
+import { createWallet } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
 import { Revocable, revocable } from '../RevocableWallet'
 import type { MobileLocationState } from '../types'
@@ -31,9 +31,14 @@ const moduleLogger = mobileLogger.child({
   namespace: ['components', 'MobileCreate'],
 })
 
-export const MobileCreate = () => {
+type MobileCreateProps = {
+  HeaderComponent?: React.ComponentType<any>
+}
+
+export const MobileCreate: React.FC<MobileCreateProps> = props => {
+  const { HeaderComponent } = props
   const history = useHistory()
-  const location = useLocation<MobileLocationState>()
+  const location = useLocation<MobileLocationState | undefined>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
@@ -65,11 +70,11 @@ export const MobileCreate = () => {
 
   useEffect(() => {
     try {
-      setVault(createWallet())
+      if (!vault) setVault(location.state?.vault ?? createWallet())
     } catch (e) {
       moduleLogger.error(e, 'Create Wallet')
     }
-  }, [setVault])
+  }, [location.state?.vault, setVault, vault])
 
   useEffect(() => {
     if (!vault) return
@@ -80,7 +85,6 @@ export const MobileCreate = () => {
           revocable(
             <Tag
               p={2}
-              flexBasis='30%'
               justifyContent='flex-start'
               fontSize='md'
               key={word}
@@ -108,6 +112,7 @@ export const MobileCreate = () => {
   return (
     <>
       <ModalHeader>
+        {HeaderComponent && <HeaderComponent />}
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
@@ -118,9 +123,9 @@ export const MobileCreate = () => {
             <AlertDescription>{location.state.error.message}</AlertDescription>
           </Alert>
         )}
-        <Wrap mt={12} mb={6}>
+        <SimpleGrid columns={3} spacing={2} mt={12} mb={6}>
           {revealed ? words : placeholders}
-        </Wrap>
+        </SimpleGrid>
         <FormControl mb={6} isInvalid={label.length > 64}>
           <Input
             value={label}
@@ -128,7 +133,7 @@ export const MobileCreate = () => {
             size='lg'
             variant='filled'
             id='name'
-            placeholder={translate('walletProvider.shapeShift.rename.walletName')}
+            placeholder={translate('modals.shapeShift.password.walletNameRequired')}
             data-test='wallet-native-set-name-input'
           />
           <FormErrorMessage>
@@ -152,11 +157,7 @@ export const MobileCreate = () => {
               try {
                 setIsSaving(true)
                 vault.label = label
-                const newWallet = await addWallet({ label, mnemonic: vault.mnemonic })
-                if (newWallet) {
-                  newWallet.mnemonic = vault.mnemonic
-                  history.push('/mobile/create-test', { vault: newWallet, isLegacyWallet: false })
-                }
+                history.push('/mobile/create-test', { vault, isLegacyWallet: false })
               } catch (e) {
                 moduleLogger.error(e, 'Error saving new wallet')
               } finally {

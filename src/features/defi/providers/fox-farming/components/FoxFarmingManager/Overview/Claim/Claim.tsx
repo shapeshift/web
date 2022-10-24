@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -7,10 +8,15 @@ import qs from 'qs'
 import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Nullable } from 'types/common'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
-export const Claim = () => {
+type ClaimProps = {
+  accountId: Nullable<AccountId>
+}
+
+export const Claim: React.FC<ClaimProps> = ({ accountId }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = () => {
@@ -26,7 +32,7 @@ export const Claim = () => {
   return (
     <SlideTransition>
       <MemoryRouter>
-        <ClaimRoutes onBack={handleBack} />
+        <ClaimRoutes accountId={accountId} onBack={handleBack} />
       </MemoryRouter>
     </SlideTransition>
   )

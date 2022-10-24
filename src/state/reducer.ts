@@ -3,9 +3,10 @@ import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
-import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
+import { foxEth, foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
@@ -19,7 +20,7 @@ export const slices = {
   validatorData,
   portfolio,
   preferences,
-  accountSpecifiers,
+  foxEth,
 }
 
 const preferencesPersistConfig = {
@@ -34,8 +35,9 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  accountSpecifiers: accountSpecifiers.reducer,
   validatorData: validatorData.reducer,
+  swapperApi: swapperApi.reducer,
+  foxEth: foxEth.reducer,
 }
 
 export const apiSlices = {
@@ -44,6 +46,8 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  fiatRampApi,
+  foxEthApi,
 }
 
 export const apiReducers = {
@@ -54,6 +58,8 @@ export const apiReducers = {
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
+  [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [foxEthApi.reducerPath]: foxEthApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

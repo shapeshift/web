@@ -37,7 +37,8 @@ import {
 
 const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
 
-const ethersProvider = getEthersProvider()
+// TODO: use wagmi provider
+const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
 function calculateSlippageMargin(amount: string | null, precision: number) {
   if (!amount) throw new Error('Amount not given for slippage')
@@ -50,7 +51,14 @@ function calculateSlippageMargin(amount: string | null, precision: number) {
     .toFixed()
 }
 
-export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
+type UseFoxEthLiquidityPoolOptions = {
+  skip?: boolean
+}
+
+export const useFoxEthLiquidityPool = (
+  accountAddress: string | null,
+  { skip }: UseFoxEthLiquidityPoolOptions = {},
+) => {
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -80,24 +88,46 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
 
   const uniswapRouterContract = useMemo(
-    () => new Contract(UNISWAP_V2_ROUTER_ADDRESS, IUniswapV2Router02ABI.abi, ethersProvider),
-    [],
+    () =>
+      skip
+        ? null
+        : new Contract(
+            UNISWAP_V2_ROUTER_ADDRESS,
+            IUniswapV2Router02ABI.abi,
+            maybeEthersProvider(skip)!,
+          ),
+    [skip],
   )
 
   const foxContract = useMemo(
-    () => new Contract(FOX_TOKEN_CONTRACT_ADDRESS, erc20abi, ethersProvider),
-    [],
+    () =>
+      skip ? null : new Contract(FOX_TOKEN_CONTRACT_ADDRESS, erc20abi, maybeEthersProvider(skip)!),
+    [skip],
   )
 
   const uniV2LPContract = useMemo(
-    () => new Contract(UNISWAP_V2_WETH_FOX_POOL_ADDRESS, IUniswapV2Pair.abi, ethersProvider),
-    [],
+    () =>
+      skip
+        ? null
+        : new Contract(
+            UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+            IUniswapV2Pair.abi,
+            maybeEthersProvider(skip)!,
+          ),
+    [skip],
   )
 
   const addLiquidity = useCallback(
     async (foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
+        if (
+          skip ||
+          !accountAddress ||
+          !isNumber(accountNumber) ||
+          !uniswapRouterContract ||
+          !wallet
+        )
+          return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const value = bnOrZero(ethAmount)
@@ -183,12 +213,13 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       }
     },
     [
-      adapter,
       accountAddress,
       accountNumber,
+      adapter,
       ethAsset.chainId,
       ethAsset.precision,
       foxAsset.precision,
+      skip,
       supportedEvmChainIds,
       uniswapRouterContract,
       wallet,
@@ -198,7 +229,14 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   const removeLiquidity = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       try {
-        if (!accountAddress || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
+        if (
+          skip ||
+          !accountAddress ||
+          !isNumber(accountNumber) ||
+          !uniswapRouterContract ||
+          !wallet
+        )
+          return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter)
@@ -290,12 +328,13 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       lpAsset.precision,
       supportedEvmChainIds,
       uniswapRouterContract,
+      skip,
       wallet,
     ],
   )
 
   const calculateHoldings = useCallback(async () => {
-    if (!uniV2LPContract || !accountAddress) return
+    if (skip || !uniV2LPContract || !accountAddress) return
     const balance = await uniV2LPContract.balanceOf(accountAddress)
     const totalSupply = await uniV2LPContract.totalSupply()
     const reserves = await uniV2LPContract.getReserves()
@@ -313,7 +352,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       foxBalance,
       lpBalance: bnOrZero(balance.toString()).toString(),
     }
-  }, [uniV2LPContract, accountAddress, ethAsset.precision, foxAsset.precision])
+  }, [uniV2LPContract, accountAddress, ethAsset.precision, foxAsset.precision, skip])
 
   const getLpTVL = useCallback(async () => {
     if (uniV2LPContract) {
@@ -329,25 +368,27 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
   }, [ethAsset.precision, ethPrice, uniV2LPContract])
 
   const getLpTokenPrice = useCallback(async () => {
-    if (uniV2LPContract) {
+    if (!skip && uniV2LPContract) {
       const tvl = await getLpTVL()
       const totalSupply = await uniV2LPContract.totalSupply()
       return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(`1e${lpAsset.precision}`))
     }
-  }, [getLpTVL, lpAsset.precision, uniV2LPContract])
+  }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
 
   const allowance = useCallback(
     async (forWithdrawal?: boolean) => {
+      if (skip) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       if (!accountAddress || !contract) return
       const _allowance = await contract.allowance(accountAddress, UNISWAP_V2_ROUTER_ADDRESS)
       return _allowance.toString()
     },
-    [accountAddress, foxContract, uniV2LPContract],
+    [skip, accountAddress, foxContract, uniV2LPContract],
   )
 
   const getApproveGasData = useCallback(
     async (forWithdrawal?: boolean) => {
+      if (skip) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       if (adapter && accountAddress && contract) {
         const data = contract.interface.encodeFunctionData('approve', [
@@ -366,12 +407,12 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
         return fees
       }
     },
-    [adapter, accountAddress, foxContract, uniV2LPContract],
+    [adapter, accountAddress, foxContract, skip, uniV2LPContract],
   )
 
   const getDepositGasData = useCallback(
     async (foxAmount: string, ethAmount: string) => {
-      if (!accountAddress || !uniswapRouterContract) return
+      if (skip || !accountAddress || !uniswapRouterContract) return
       const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
@@ -391,12 +432,12 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       })
       return estimatedFees
     },
-    [adapter, accountAddress, ethAsset.precision, foxAsset.precision, uniswapRouterContract],
+    [adapter, accountAddress, ethAsset.precision, foxAsset.precision, skip, uniswapRouterContract],
   )
 
   const getWithdrawGasData = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
-      if (!accountAddress || !uniswapRouterContract) return
+      if (skip || !accountAddress || !uniswapRouterContract) return
       const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
         bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
@@ -421,15 +462,16 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       ethAsset.precision,
       foxAsset.precision,
       lpAsset.precision,
+      skip,
       uniswapRouterContract,
     ],
   )
 
   const approve = useCallback(
     async (forWithdrawal?: boolean) => {
-      if (!wallet || !isNumber(accountNumber)) return
+      if (skip || !wallet || !isNumber(accountNumber)) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
-      const data = contract.interface.encodeFunctionData('approve', [
+      const data = contract!.interface.encodeFunctionData('approve', [
         UNISWAP_V2_ROUTER_ADDRESS,
         MAX_ALLOWANCE,
       ])
@@ -443,7 +485,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
         throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
       }
       const result = await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
-        to: contract.address,
+        to: contract!.address,
         value: '0x00',
         wallet,
         data,
@@ -477,7 +519,7 @@ export const useFoxEthLiquidityPool = (accountAddress: string | null) => {
       })()
       return broadcastTXID
     },
-    [accountNumber, adapter, foxContract, getApproveGasData, uniV2LPContract, wallet],
+    [accountNumber, adapter, foxContract, getApproveGasData, skip, uniV2LPContract, wallet],
   )
 
   return {

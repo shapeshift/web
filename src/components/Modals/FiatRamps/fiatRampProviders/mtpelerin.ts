@@ -1,11 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, avalancheChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
-import { store } from 'state/store'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 
 const moduleLogger = logger.child({
@@ -15,15 +13,10 @@ const moduleLogger = logger.child({
 type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string
-    network: string
-    decimals: number
-    address: string
-    // probably we can filter out the assets which are not stable yet?
-    isStable: boolean
   }
 }
 
-export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
+export async function getMtPelerinAssets(): Promise<AssetId[]> {
   const data = await (async () => {
     try {
       const url = getConfig().REACT_APP_MTPELERIN_ASSETS_API
@@ -36,38 +29,13 @@ export async function getMtPelerinAssets(): Promise<FiatRampAsset[]> {
 
   if (!data) return []
 
-  // TODO: this line and its usages should be removed when Avalanche flag got removed.
-  const avalancheFlag = store.getState().preferences.featureFlags.Avalanche
-
-  const mtPelerinAssets = Object.values(data)
-
-  const assets = mtPelerinAssets.reduce<FiatRampAsset[]>((acc, asset) => {
-    const { symbol } = asset
-    // MtPelerin supports multiple networks for a given asset,
-    // so if the asset is already proccessed, skip to the next one
-    if (acc.find(asset => asset.symbol === symbol)) return acc
-
-    const assetIds = adapters.mtPelerinSymbolToAssetIds(symbol)
-    if (!assetIds || !assetIds.length) return acc
-    // if an asset is supported on multiple networks, we need to add them all
-    assetIds.forEach(assetId => {
-      const { chainId } = fromAssetId(assetId)
-      // ignore avalanche assets while avalanche featureFlag is off
-      if (chainId === avalancheChainId && !avalancheFlag) return
-      const mapped = { assetId, symbol, name: '' } // name will be set in useFiatRampCurrencyList hook
-      acc.push(mapped)
-    })
-    return acc
-  }, [])
-
-  return assets
+  const mtPelerinSymbols = Object.values(data).map(({ symbol }) => symbol)
+  return Array.from(
+    new Set(mtPelerinSymbols.flatMap(symbol => adapters.mtPelerinSymbolToAssetIds(symbol))),
+  ).filter(Boolean)
 }
 
-export const createMtPelerinUrl = (
-  action: FiatRampAction,
-  assetId: AssetId,
-  address: string,
-): string => {
+export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
@@ -106,7 +74,10 @@ export const createMtPelerinUrl = (
   // List of authorized networks
   params.set('nets', network)
   params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
-  params.set('addr', address)
+  //@TODO: Figure out how to sign a message using the wallet for us to be able to do this.
+  //https://developers.mtpelerin.com/integration-guides/options
+  // params.set('addr', address)
+  // params.set('code', code)
 
   return `${baseUrl.toString()}?${params.toString()}`
 }

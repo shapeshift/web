@@ -11,19 +11,19 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
 import type { TS } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -36,29 +36,24 @@ import { selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
 
-type ApprovalParams = {
-  fiatRate: string
-}
-
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 const moduleLogger = logger.child({ namespace: ['Approval'] })
 
 export const Approval = () => {
   const history = useHistory()
-  const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { fiatRate } = location.state
   const translate = useTranslate()
 
   const {
     getValues,
     setValue,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useFormContext<TS<KnownChainIds.EthereumMainnet>>()
-  const { checkApprovalNeeded, updateTrade, approve } = useSwapper()
+    control,
+    formState: { isSubmitting },
+  } = useFormContext<TS<EvmChainId>>()
+  const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -68,7 +63,10 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
-  const [isExactAllowance] = useWatch({ name: ['isExactAllowance'] }) as [TS['isExactAllowance']]
+
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -107,13 +105,9 @@ export const Approval = () => {
         }
         approvalInterval.current && clearInterval(approvalInterval.current)
 
-        await updateTrade({
-          sellAsset: quote.sellAsset,
-          buyAsset: quote.buyAsset,
-          amount: quote.sellAmount,
-        })
-
-        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
+        const trade = await getTrade()
+        setValue('trade', trade as TS<EvmChainId>['trade'])
+        history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
       showErrorToast(e)
@@ -122,22 +116,13 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
-    fiatRate,
+    getTrade,
     history,
     isConnected,
     quote,
+    setValue,
     showErrorToast,
-    updateTrade,
   ])
-
-  useEffect(() => {
-    // TODO: (ryankk) fix errors to reflect correct attribute
-    const error = errors?.quote?.rate ?? null
-    if (error) {
-      moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
-      history.push(TradeRoutePaths.Input)
-    }
-  }, [errors, history])
 
   return (
     <SlideTransition>
@@ -262,7 +247,10 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <RawText>
                     {toFiat(
-                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toString(),
+                      bnOrZero(fee)
+                        .times(feeAssetFiatRate ?? 1)
+                        .times(selectedCurrencyToUsdRate)
+                        .toString(),
                     )}
                   </RawText>
                   <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>

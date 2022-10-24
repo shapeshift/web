@@ -8,22 +8,21 @@ import {
   Image,
   Link,
   useColorModeValue,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { Card } from 'components/Card/Card'
-import { GasInput } from 'components/DeFi/components/GasInput'
-import { RawText, Text } from 'components/Text'
-import type { FC } from 'react'
 import { useState } from 'react'
 import { FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { GasInput } from 'components/DeFi/components/GasInput'
+import { RawText, Text } from 'components/Text'
 
 import { ModalSection } from './ModalSection'
 import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
 import { WalletSummaryCard } from './WalletSummaryCard'
 
-type Props = {
+type SignMessageConfirmationProps = {
   message: string
   dapp: {
     image: string
@@ -33,7 +32,11 @@ type Props = {
   isLoading: boolean
 }
 
-export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading }) => {
+export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = ({
+  message,
+  dapp,
+  isLoading,
+}) => {
   const translate = useTranslate()
   const [gasInputValue, setGasInputValue] = useState<FeeDataKey>()
   return (

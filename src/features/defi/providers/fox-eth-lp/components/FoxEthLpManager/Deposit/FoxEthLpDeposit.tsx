@@ -1,4 +1,6 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
+import { fromAccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -10,17 +12,19 @@ import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import {
   selectAssetById,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
@@ -31,14 +35,34 @@ import { FoxEthLpDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-export const FoxEthLpDeposit = () => {
+type FoxEthLpDepositProps = {
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: Nullable<AccountId>
+}
+
+export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity.assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, opportunity.assetId))
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+
+  const opportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
+
+  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunity?.assetId ?? ''),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 
@@ -57,7 +81,9 @@ export const FoxEthLpDeposit = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
@@ -69,13 +95,14 @@ export const FoxEthLpDeposit = () => {
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset.symbol])
+  }, [accountId, asset.symbol, handleAccountIdChange, translate])
 
   useEffect(() => {
+    if (!opportunity) return
+
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: opportunity })
   }, [opportunity])
 

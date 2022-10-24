@@ -6,7 +6,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from './constants'
 
 export const getLpTokenPrice = async (
-  ethPecision: number,
+  ethPrecision: number,
   ethPrice: string,
   lpAssetPrecision: number,
 ) => {
@@ -18,7 +18,7 @@ export const getLpTokenPrice = async (
   )
   const reserves = await uniV2LPContract.getReserves()
   // Amount of Eth in liquidity pool
-  const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethPecision}`)
+  const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethPrecision}`)
 
   // Total market cap of liquidity pool in usdc.
   // Multiplied by 2 to show equal amount of eth and fox.

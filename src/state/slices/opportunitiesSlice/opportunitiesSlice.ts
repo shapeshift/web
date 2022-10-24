@@ -43,8 +43,8 @@ type UserStakingOpportunity = {
 type StakingId = Nominal<string, 'StakingId'>
 // The AccountId of the LP contract in the form of chainId:accountAddress
 type LpId = Nominal<string, 'LpId'>
-// The unique identifier of an lp opportunity in the form of UserAccountId:StakingId
-type UserStakingId = Nominal<string, 'UserStakingId'>
+// The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
+type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {

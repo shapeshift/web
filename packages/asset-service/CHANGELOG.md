@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.3...@shapeshiftoss/asset-service-v8.1.4) (2022-10-24)
+
+
+### Bug Fixes
+
+* avax asset ref and upgrade yearn sdk ([#1074](https://github.com/shapeshift/lib/issues/1074)) ([315095a](https://github.com/shapeshift/lib/commit/315095a1c21922b329126ffa643db944a4f31bce))
+
 # [@shapeshiftoss/asset-service-v8.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.2...@shapeshiftoss/asset-service-v8.1.3) (2022-10-20)
 
 

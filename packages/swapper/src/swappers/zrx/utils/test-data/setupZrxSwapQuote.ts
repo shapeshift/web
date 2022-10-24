@@ -24,13 +24,13 @@ export const setupExecuteTrade = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
   const executeTradeInput = {
-    sellAmount: '1000000000000000000',
+    sellAmountCryptoPrecision: '1000000000000000000',
     allowanceTarget: 'allowanceTargetAddress',
     price: '1',
     to: '0x123',
     gas: '1235',
     gasPrice: '1236',
-    buyAmount: '',
+    buyAmountCryptoPrecision: '',
     buyAsset,
     sellAsset,
     sendMax: false,

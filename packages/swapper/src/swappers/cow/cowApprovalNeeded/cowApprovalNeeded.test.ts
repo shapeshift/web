@@ -1,6 +1,8 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
+import { ApprovalNeededInput } from '../../../api'
 import { BTC, ETH } from '../../utils/test-data/assets'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -48,10 +50,10 @@ describe('cowApprovalNeeded', () => {
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
     const allowanceOnChain = '50'
-    const input = {
+    const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
-        sellAmount: '10',
+        sellAmountCryptoPrecision: '10',
       },
       wallet: <HDWallet>{},
     }

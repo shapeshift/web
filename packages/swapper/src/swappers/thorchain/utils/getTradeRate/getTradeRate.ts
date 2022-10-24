@@ -45,11 +45,11 @@ const getDoubleSwapOutput = (
 export const getTradeRate = async (
   sellAsset: Asset,
   buyAssetId: AssetId,
-  sellAmount: string,
+  sellAmountCryptoPrecision: string,
   deps: ThorchainSwapperDeps,
 ): Promise<string> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
-  if (bnOrZero(sellAmount).eq(0)) {
+  if (bnOrZero(sellAmountCryptoPrecision).eq(0)) {
     return getPriceRatio(deps, {
       sellAssetId: sellAsset.assetId,
       buyAssetId,
@@ -100,11 +100,13 @@ export const getTradeRate = async (
 
   // All thorchain pool amounts are base 8 regardless of token precision
   const sellBaseAmount = bn(
-    toBaseUnit(fromBaseUnit(sellAmount, sellAsset.precision), THOR_PRECISION),
+    toBaseUnit(fromBaseUnit(sellAmountCryptoPrecision, sellAsset.precision), THOR_PRECISION),
   )
 
   const outputAmountBase8 = getDoubleSwapOutput(sellBaseAmount, sellPool, buyPool)
   const outputAmount = fromBaseUnit(outputAmountBase8, THOR_PRECISION)
 
-  return bn(outputAmount).div(fromBaseUnit(sellAmount, sellAsset.precision)).toString()
+  return bn(outputAmount)
+    .div(fromBaseUnit(sellAmountCryptoPrecision, sellAsset.precision))
+    .toString()
 }

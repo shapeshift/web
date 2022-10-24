@@ -12,7 +12,7 @@ type GetBtcThorTxInfoArgs = {
   deps: ThorchainSwapperDeps
   sellAsset: Asset
   buyAsset: Asset
-  sellAmount: string
+  sellAmountCryptoPrecision: string
   slippageTolerance: string
   destinationAddress: string
   buyAssetTradeFeeUsd: string
@@ -28,7 +28,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   deps,
   sellAsset,
   buyAsset,
-  sellAmount,
+  sellAmountCryptoPrecision,
   slippageTolerance,
   destinationAddress,
   buyAssetTradeFeeUsd,
@@ -55,7 +55,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const limit = await getLimit({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
-      sellAmount,
+      sellAmountCryptoPrecision,
       sellAsset,
       buyAsset,
       slippageTolerance,
@@ -72,7 +72,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       router,
       vault,
       isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
-      sellAmount,
+      sellAmountCryptoPrecision,
       memo,
     )
 

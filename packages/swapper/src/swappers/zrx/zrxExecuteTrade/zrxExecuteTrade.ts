@@ -12,7 +12,7 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
 
   try {
     // value is 0 for erc20s
-    const value = isNativeEvmAsset(sellAsset.assetId) ? trade.sellAmount : '0'
+    const value = isNativeEvmAsset(sellAsset.assetId) ? trade.sellAmountCryptoPrecision : '0'
 
     const buildTxResponse = await adapter.buildSendTransaction({
       value,

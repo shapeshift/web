@@ -43,7 +43,7 @@ export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
   args: ApproveAmountInput<T>,
 ) {
   try {
-    const sellAmount = args.quote.sellAmount
+    const sellAmount = args.quote.sellAmountCryptoPrecision
     // If no amount is specified we use the quotes sell amount
     const approvalAmount = args.amount ?? sellAmount
     return grantAllowanceForAmount(deps, args, approvalAmount)

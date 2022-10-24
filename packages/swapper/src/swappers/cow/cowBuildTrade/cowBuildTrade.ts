@@ -27,7 +27,7 @@ export async function cowBuildTrade(
   input: BuildTradeInput,
 ): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, bip44Params, wallet } = input
+    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, wallet } = input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -53,7 +53,7 @@ export async function cowBuildTrade(
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
-    const normalizedSellAmount = normalizeAmount(sellAmount)
+    const normalizedSellAmount = normalizeAmount(sellAmountCryptoPrecision)
 
     /**
      * /v1/quote
@@ -121,8 +121,8 @@ export async function cowBuildTrade(
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,
       },
-      sellAmount: normalizedSellAmount,
-      buyAmount: quote.buyAmount,
+      sellAmountCryptoPrecision: normalizedSellAmount,
+      buyAmountCryptoPrecision: quote.buyAmount,
       sources: DEFAULT_SOURCE,
       buyAsset,
       sellAsset,

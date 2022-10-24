@@ -26,8 +26,8 @@ describe('ZrxExecuteTrade', () => {
   const trade: ZrxTrade<KnownChainIds.EthereumMainnet> = {
     buyAsset,
     sellAsset,
-    sellAmount: '1',
-    buyAmount: '',
+    sellAmountCryptoPrecision: '1',
+    buyAmountCryptoPrecision: '',
     depositAddress: '0x123',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

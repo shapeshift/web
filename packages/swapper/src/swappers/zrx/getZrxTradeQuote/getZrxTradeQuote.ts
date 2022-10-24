@@ -22,7 +22,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
   input: GetEvmTradeQuoteInput,
 ): Promise<TradeQuote<T>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, bip44Params } = input
+    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params } = input
     if (buyAsset.chainId !== input.chainId || sellAsset.chainId !== input.chainId) {
       throw new SwapError(
         '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
@@ -39,14 +39,18 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       buyAsset.assetId,
     )
 
-    const useSellAmount = !!sellAmount
+    const useSellAmount = !!sellAmountCryptoPrecision
     const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
     const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
     const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
-    const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
+    const minQuotesellAmountCryptoPrecision = bnOrZero(minimum).times(
+      bn(10).exponentiatedBy(sellAsset.precision),
+    )
 
     const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmount : sellAmount,
+      bnOrZero(sellAmountCryptoPrecision).eq(0)
+        ? minQuotesellAmountCryptoPrecision
+        : sellAmountCryptoPrecision,
     )
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
     const zrxService = zrxServiceFactory(baseUrl)
@@ -95,7 +99,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
 
     const tradeQuote: TradeQuote<EvmSupportedChainIds> = {
       rate,
-      minimum,
+      minimumCryptoHuman: minimum,
       maximum,
       feeData: {
         chainSpecific: {
@@ -107,8 +111,8 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },
-      sellAmount: sellAmountResponse,
-      buyAmount,
+      sellAmountCryptoPrecision: sellAmountResponse,
+      buyAmountCryptoPrecision: buyAmount,
       sources: sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
       allowanceContract: allowanceTarget,
       buyAsset,

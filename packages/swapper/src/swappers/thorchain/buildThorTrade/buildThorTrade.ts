@@ -28,7 +28,7 @@ export const buildTrade = async ({
     const {
       buyAsset,
       receiveAddress: destinationAddress,
-      sellAmount,
+      sellAmountCryptoPrecision,
       sellAsset,
       bip44Params,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
@@ -56,7 +56,7 @@ export const buildTrade = async ({
         sellAsset,
         buyAsset,
         adapter: sellAdapter as unknown as ethereum.ChainAdapter,
-        sellAmount,
+        sellAmountCryptoPrecision,
         destinationAddress,
         deps,
         gasPrice:
@@ -79,7 +79,7 @@ export const buildTrade = async ({
         deps,
         sellAsset,
         buyAsset,
-        sellAmount,
+        sellAmountCryptoPrecision,
         slippageTolerance,
         destinationAddress,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
@@ -89,7 +89,7 @@ export const buildTrade = async ({
       const buildTxResponse = await (
         sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
       ).buildSendTransaction({
-        value: sellAmount,
+        value: sellAmountCryptoPrecision,
         wallet,
         to: vault,
         bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
@@ -117,7 +117,7 @@ export const buildTrade = async ({
         bip44Params,
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,
-        sellAmount,
+        sellAmountCryptoPrecision,
         sellAsset,
         slippageTolerance,
         chainId: input.chainId,

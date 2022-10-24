@@ -152,10 +152,10 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Trade<ChainId>> {
-    const { sellAsset, buyAsset, sellAmount, receiveAddress, bip44Params } = args
+    const { sellAsset, buyAsset, sellAmountCryptoPrecision, receiveAddress, bip44Params } = args
 
-    if (!sellAmount) {
-      throw new SwapError('sellAmount is required', {
+    if (!sellAmountCryptoPrecision) {
+      throw new SwapError('sellAmountCryptoPrecision is required', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
       })
     }
@@ -163,12 +163,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmount !== '0' ? sellAmount : '1',
+      sellAmountCryptoPrecision !== '0' ? sellAmountCryptoPrecision : '1',
       this.deps.osmoUrl,
     )
 
     //convert amount to base
-    const amountBaseSell = String(bnOrZero(sellAmount).dp(0))
+    const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoPrecision).dp(0))
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter
@@ -183,7 +183,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return {
-      buyAmount,
+      buyAmountCryptoPrecision: buyAmount,
       buyAsset,
       feeData: {
         networkFee: fee,
@@ -192,7 +192,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       },
       rate,
       receiveAddress,
-      sellAmount: amountBaseSell,
+      sellAmountCryptoPrecision: sellAmountCryptoBase, // TODO(gomes): wat?
       sellAsset,
       bip44Params,
       sources: [{ name: 'Osmosis', proportion: '100' }],
@@ -200,8 +200,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
-    const { bip44Params, sellAsset, buyAsset, sellAmount } = input
-    if (!sellAmount) {
+    const { bip44Params, sellAsset, buyAsset, sellAmountCryptoPrecision } = input
+    if (!sellAmountCryptoPrecision) {
       throw new SwapError('sellAmount is required', {
         code: SwapErrorTypes.RESPONSE_ERROR,
       })
@@ -209,7 +209,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmount !== '0' ? sellAmount : '1',
+      sellAmountCryptoPrecision !== '0' ? sellAmountCryptoPrecision : '1',
       this.deps.osmoUrl,
     )
 
@@ -235,19 +235,19 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         buyAssetTradeFeeUsd,
       },
       maximum,
-      minimum,
+      minimumCryptoHuman: minimum, // TODO(gomes): shorthand?
       bip44Params,
       rate,
       sellAsset,
-      sellAmount,
-      buyAmount,
+      sellAmountCryptoPrecision,
+      buyAmountCryptoPrecision: buyAmount,
       sources: DEFAULT_SOURCE,
       allowanceContract: '',
     }
   }
 
   async executeTrade({ trade, wallet }: ExecuteTradeInput<ChainId>): Promise<OsmosisTradeResult> {
-    const { sellAsset, buyAsset, sellAmount, bip44Params, receiveAddress } = trade
+    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, receiveAddress } = trade
 
     const isFromOsmo = sellAsset.assetId === osmosisAssetId
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
@@ -285,7 +285,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        amount: sellAmount,
+        amount: sellAmountCryptoPrecision,
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
@@ -336,7 +336,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
-      sellAmount: ibcSellAmount ?? sellAmount,
+      sellAmount: ibcSellAmount ?? sellAmountCryptoPrecision,
       gas,
       wallet,
     })

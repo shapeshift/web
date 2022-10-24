@@ -9,13 +9,13 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-    buyAmount: '',
-    sellAmount: '1000000000000000000',
+    buyAmountCryptoPrecision: '',
+    sellAmountCryptoPrecision: '1000000000000000000',
     sellAsset,
     buyAsset,
     allowanceContract: 'allowanceContractAddress',
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
-    minimum: '0',
+    minimumCryptoHuman: '0',
     maximum: '999999999999',
     feeData: {
       chainSpecific: {},
@@ -29,7 +29,7 @@ export const setupQuote = () => {
 
   const quoteInput: GetTradeQuoteInput = {
     chainId: KnownChainIds.EthereumMainnet,
-    sellAmount: '1000000000000000000',
+    sellAmountCryptoPrecision: '1000000000000000000',
     sellAsset,
     buyAsset,
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
@@ -44,7 +44,7 @@ export const setupBuildTrade = () => {
   const buyAsset: Asset = { ...WETH }
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,
-    sellAmount: '1000000000000000000',
+    sellAmountCryptoPrecision: '1000000000000000000',
     buyAsset,
     sendMax: false,
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

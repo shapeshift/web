@@ -135,9 +135,9 @@ describe('getZrxTradeQuote', () => {
     const minimum = '20'
     const quote = await swapper.getTradeQuote({
       ...quoteInput,
-      sellAmount: '0',
+      sellAmountCryptoPrecision: '0',
     })
-    expect(quote?.sellAmount).toBe(
+    expect(quote?.sellAmountCryptoPrecision).toBe(
       bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
     )
   })

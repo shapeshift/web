@@ -174,7 +174,7 @@ const main = async (): Promise<void> => {
       chainId: sellAsset.chainId as UtxoSupportedChainIds,
       sellAsset,
       buyAsset,
-      sellAmount: sellAmountBase,
+      sellAmountCryptoPrecision: sellAmountBase,
       sendMax: false,
       accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
       bip44Params,
@@ -191,7 +191,7 @@ const main = async (): Promise<void> => {
     return
   }
 
-  const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.precision)
+  const buyAmount = fromBaseUnit(quote.buyAmountCryptoPrecision || '0', buyAsset.precision)
 
   const answer = readline.question(
     `Swap ${sellAmount} ${sellAsset.symbol} for ${buyAmount} ${
@@ -204,7 +204,7 @@ const main = async (): Promise<void> => {
       wallet,
       buyAsset,
       sendMax: false,
-      sellAmount: sellAmountBase,
+      sellAmountCryptoPrecision: sellAmountBase,
       sellAsset,
       receiveAddress: buyAssetReceiveAddr,
       accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,

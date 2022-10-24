@@ -12,7 +12,7 @@ import { getThorTxInfo } from '../ethereum/utils/getThorTxData'
 export const makeTradeTx = async ({
   wallet,
   bip44Params,
-  sellAmount,
+  sellAmountCryptoPrecision,
   buyAsset,
   sellAsset,
   destinationAddress,
@@ -27,7 +27,7 @@ export const makeTradeTx = async ({
 }: {
   wallet: HDWallet
   bip44Params: BIP44Params
-  sellAmount: string
+  sellAmountCryptoPrecision: string
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
@@ -59,7 +59,7 @@ export const makeTradeTx = async ({
       deps,
       sellAsset,
       buyAsset,
-      sellAmount,
+      sellAmountCryptoPrecision,
       slippageTolerance,
       destinationAddress,
       buyAssetTradeFeeUsd,
@@ -78,7 +78,7 @@ export const makeTradeTx = async ({
             maxFeePerGas,
             maxPriorityFeePerGas,
           }),
-      value: isErc20Trade ? '0x0' : numberToHex(sellAmount),
+      value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoPrecision),
       data,
     })
   } catch (e) {

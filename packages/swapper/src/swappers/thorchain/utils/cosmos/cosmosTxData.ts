@@ -14,7 +14,7 @@ export const cosmosTxData = async (input: {
   bip44Params: BIP44Params
   destinationAddress: string
   deps: ThorchainSwapperDeps
-  sellAmount: string
+  sellAmountCryptoPrecision: string
   sellAsset: Asset
   buyAsset: Asset
   slippageTolerance: string
@@ -27,7 +27,7 @@ export const cosmosTxData = async (input: {
     bip44Params,
     deps,
     destinationAddress,
-    sellAmount,
+    sellAmountCryptoPrecision,
     sellAsset,
     buyAsset,
     slippageTolerance,
@@ -52,7 +52,7 @@ export const cosmosTxData = async (input: {
   const limit = await getLimit({
     buyAssetId: buyAsset.assetId,
     destinationAddress,
-    sellAmount,
+    sellAmountCryptoPrecision,
     sellAsset,
     buyAsset,
     slippageTolerance,
@@ -71,7 +71,7 @@ export const cosmosTxData = async (input: {
       sellAdapter as unknown as thorchain.ChainAdapter
     ).buildDepositTransaction({
       bip44Params,
-      value: sellAmount,
+      value: sellAmountCryptoPrecision,
       wallet,
       memo,
       gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific.estimatedGas,
@@ -91,7 +91,7 @@ export const cosmosTxData = async (input: {
     sellAdapter as unknown as cosmos.ChainAdapter
   ).buildSendTransaction({
     bip44Params,
-    value: sellAmount,
+    value: sellAmountCryptoPrecision,
     wallet,
     to: vault,
     memo,

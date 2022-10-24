@@ -2,6 +2,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
+import { ApprovalNeededInput } from '../../../api'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
@@ -60,10 +61,10 @@ describe('zrxApprovalNeeded', () => {
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
     const allowanceOnChain = '50'
     const data = { allowanceTarget: '10' }
-    const input = {
+    const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
-        sellAmount: '10',
+        sellAmountCryptoPrecision: '10',
         feeData: {
           chainSpecific: { gasPrice: '1000' },
           buyAssetTradeFeeUsd: '0',

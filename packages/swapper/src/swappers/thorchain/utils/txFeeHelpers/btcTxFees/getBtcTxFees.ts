@@ -7,7 +7,7 @@ import { bn } from '../../../../utils/bignumber'
 type GetBtcTxFeesInput = {
   opReturnData: string
   vault: string
-  sellAmount: string
+  sellAmountCryptoPrecision: string
   sellAdapter: UtxoBaseAdapter<UtxoSupportedChainIds>
   pubkey: string
   buyAssetTradeFeeUsd: string
@@ -17,7 +17,7 @@ type GetBtcTxFeesInput = {
 export const getBtcTxFees = async ({
   opReturnData,
   vault,
-  sellAmount,
+  sellAmountCryptoPrecision,
   sellAdapter,
   pubkey,
   buyAssetTradeFeeUsd,
@@ -26,7 +26,7 @@ export const getBtcTxFees = async ({
   try {
     const feeDataOptions = await sellAdapter.getFeeData({
       to: vault,
-      value: sellAmount,
+      value: sellAmountCryptoPrecision,
       chainSpecific: { pubkey, opReturnData },
       sendMax,
     })

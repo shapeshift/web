@@ -117,7 +117,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
-  minimum: '0.011624',
+  minimumCryptoHuman: '0.011624',
   maximum: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
@@ -129,8 +129,8 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
     networkFee: '0',
   },
-  sellAmount: '1000000000000000000',
-  buyAmount: '14501811818247595090576', // 14501 FOX
+  sellAmountCryptoPrecision: '1000000000000000000',
+  buyAmountCryptoPrecision: '14501811818247595090576', // 14501 FOX
   sources: [{ name: 'CowSwap', proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -140,7 +140,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
-  minimum: '229.09507445589919816724',
+  minimumCryptoHuman: '229.09507445589919816724',
   maximum: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
@@ -152,8 +152,8 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '5.3955565850972847808512',
     networkFee: '0',
   },
-  sellAmount: '1000000000000000000000',
-  buyAmount: '46868859830863283',
+  sellAmountCryptoPrecision: '1000000000000000000000',
+  buyAmountCryptoPrecision: '46868859830863283',
   sources: [{ name: 'CowSwap', proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
@@ -163,7 +163,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
-  minimum: '0.011624',
+  minimumCryptoHuman: '0.011624',
   maximum: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
@@ -175,8 +175,8 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
     sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',
     networkFee: '0',
   },
-  sellAmount: '1000000000000',
-  buyAmount: '145018118182475950905', // 14501 FOX
+  sellAmountCryptoPrecision: '1000000000000',
+  buyAmountCryptoPrecision: '145018118182475950905', // 14501 FOX
   sources: [{ name: 'CowSwap', proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -201,7 +201,7 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
       buyAsset: FOX,
-      sellAmount: '11111',
+      sellAmountCryptoPrecision: '11111',
       sendMax: true,
       bip44Params: { purpose: 44, coinType: 60, accountNumber: 1 },
       receiveAddress: '',
@@ -217,7 +217,7 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX,
-      sellAmount: '1000000000000000000',
+      sellAmountCryptoPrecision: '1000000000000000000',
       sendMax: true,
       bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',
@@ -253,7 +253,7 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX,
       buyAsset: ETH,
-      sellAmount: '1000000000000000000000',
+      sellAmountCryptoPrecision: '1000000000000000000000',
       sendMax: true,
       bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',
@@ -289,7 +289,7 @@ describe('getCowTradeQuote', () => {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX,
-      sellAmount: '1000000000000',
+      sellAmountCryptoPrecision: '1000000000000',
       sendMax: true,
       bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
       receiveAddress: '',

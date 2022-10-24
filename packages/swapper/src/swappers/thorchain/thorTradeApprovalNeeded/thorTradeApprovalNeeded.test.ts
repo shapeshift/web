@@ -1,5 +1,7 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
+import { ApprovalNeededInput } from '../../../api'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
@@ -27,10 +29,10 @@ describe('thorTradeApprovalNeeded', () => {
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
     const allowanceOnChain = '50'
-    const input = {
+    const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
-        sellAmount: '10',
+        sellAmountCryptoPrecision: '10',
         feeData: {
           chainSpecific: { gasPrice: '1000' },
           networkFee: '0',

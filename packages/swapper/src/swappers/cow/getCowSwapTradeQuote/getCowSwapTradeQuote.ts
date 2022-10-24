@@ -28,7 +28,7 @@ export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmount, bip44Params, receiveAddress } = input
+    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, receiveAddress } = input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -62,7 +62,9 @@ export async function getCowSwapTradeQuote(
 
     // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
     const normalizedSellAmount = normalizeIntegerAmount(
-      bnOrZero(sellAmount).lt(minQuoteSellAmount) ? minQuoteSellAmount : sellAmount,
+      bnOrZero(sellAmountCryptoPrecision).lt(minQuoteSellAmount)
+        ? minQuoteSellAmount
+        : sellAmountCryptoPrecision,
     )
 
     const apiInput: CowSwapSellQuoteApiInput = {
@@ -126,13 +128,13 @@ export async function getCowSwapTradeQuote(
 
     // If original sellAmount is < minQuoteSellAmount, we don't want to replace it with normalizedSellAmount
     // The purpose of this was to get a quote from CowSwap even with small amounts
-    const quoteSellAmount = bnOrZero(sellAmount).lt(minQuoteSellAmount)
-      ? sellAmount
+    const quoteSellAmount = bnOrZero(sellAmountCryptoPrecision).lt(minQuoteSellAmount)
+      ? sellAmountCryptoPrecision
       : normalizedSellAmount
 
     return {
       rate,
-      minimum,
+      minimumCryptoHuman: minimum,
       maximum,
       feeData: {
         networkFee: '0', // no miner fee for CowSwap
@@ -146,8 +148,8 @@ export async function getCowSwapTradeQuote(
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,
       },
-      sellAmount: quoteSellAmount,
-      buyAmount: quote.buyAmount,
+      sellAmountCryptoPrecision: quoteSellAmount,
+      buyAmountCryptoPrecision: quote.buyAmount,
       sources: DEFAULT_SOURCE,
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
       buyAsset,

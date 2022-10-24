@@ -10,7 +10,7 @@ import { getUsdRate } from '../getUsdRate/getUsdRate'
 export const getLimit = async ({
   sellAsset,
   buyAsset,
-  sellAmount,
+  sellAmountCryptoPrecision,
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
@@ -19,15 +19,15 @@ export const getLimit = async ({
   destinationAddress: string
   sellAsset: Asset
   buyAsset: Asset
-  sellAmount: string
+  sellAmountCryptoPrecision: string
   deps: ThorchainSwapperDeps
   slippageTolerance: string
   buyAssetTradeFeeUsd: string
 }): Promise<string> => {
-  const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmount, deps)
+  const tradeRate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmountCryptoPrecision, deps)
   const buyAssetUsdRate = await getUsdRate({ deps, input: { assetId: buyAsset.assetId } })
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
-    fromBaseUnit(bnOrZero(sellAmount).times(tradeRate), sellAsset.precision),
+    fromBaseUnit(bnOrZero(sellAmountCryptoPrecision).times(tradeRate), sellAsset.precision),
     THORCHAIN_FIXED_PRECISION,
   )
 

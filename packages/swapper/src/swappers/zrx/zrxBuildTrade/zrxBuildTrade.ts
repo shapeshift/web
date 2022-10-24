@@ -17,7 +17,8 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
   { adapter, web3 }: ZrxSwapperDeps,
   input: BuildTradeInput,
 ): Promise<ZrxTrade<T>> {
-  const { sellAsset, buyAsset, sellAmount, slippage, bip44Params, receiveAddress } = input
+  const { sellAsset, buyAsset, sellAmountCryptoPrecision, slippage, bip44Params, receiveAddress } =
+    input
   try {
     const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
       buyAsset.assetId,
@@ -71,7 +72,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         params: {
           buyToken,
           sellToken,
-          sellAmount: normalizeAmount(sellAmount),
+          sellAmount: normalizeAmount(sellAmountCryptoPrecision),
           takerAddress: receiveAddress,
           slippagePercentage,
           skipValidation: false,
@@ -117,8 +118,8 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
         sellAssetTradeFeeUsd: '0',
       },
       txData: data.data,
-      sellAmount: data.sellAmount,
-      buyAmount: data.buyAmount,
+      sellAmountCryptoPrecision: data.sellAmount,
+      buyAmountCryptoPrecision: data.buyAmount,
       sources: data.sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
     return trade as ZrxTrade<T>

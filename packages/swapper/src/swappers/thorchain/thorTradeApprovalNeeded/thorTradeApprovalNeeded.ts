@@ -64,7 +64,7 @@ export const thorTradeApprovalNeeded = async ({
         details: { feeData: quote.feeData },
       })
     return {
-      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmount)),
+      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmountCryptoPrecision)),
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

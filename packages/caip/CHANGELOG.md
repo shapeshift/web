@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.2...@shapeshiftoss/caip-v8.4.3) (2022-10-24)
+
+
+### Bug Fixes
+
+* avax asset ref and upgrade yearn sdk ([#1074](https://github.com/shapeshift/lib/issues/1074)) ([315095a](https://github.com/shapeshift/lib/commit/315095a1c21922b329126ffa643db944a4f31bce))
+
 # [@shapeshiftoss/caip-v8.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.1...@shapeshiftoss/caip-v8.4.2) (2022-10-05)
 
 

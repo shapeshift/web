@@ -1,5 +1,4 @@
 import {
-  Button,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -7,17 +6,12 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { ipcRenderer } from 'electron'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
-export const UpdateBootloader = () => {
-  const { updateBootloader } = useModal()
-  const { close, isOpen } = updateBootloader
-
-  const handleUpdateBootloader = async () => {
-    ipcRenderer.send('@keepkey/update-bootloader', {})
-  }
+export const RequestBootloaderMode = () => {
+  const { requestBootloaderMode } = useModal()
+  const { close, isOpen } = requestBootloaderMode
 
   return (
     <Modal
@@ -35,11 +29,9 @@ export const UpdateBootloader = () => {
         <ModalBody>
           <div>
             <ModalHeader>
-              <Text translation='Bootloader update required' />
+              <Text translation='Restart KeepKey in update mode' />
             </ModalHeader>
-            <Button onClick={handleUpdateBootloader}>
-              <Text translation={'Confim on device'} />
-            </Button>
+            <Text translation={'Restart device holding down button'} />
           </div>
         </ModalBody>
       </ModalContent>

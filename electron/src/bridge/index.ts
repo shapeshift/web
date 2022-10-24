@@ -144,6 +144,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         break;
                     case 2:
                         console.log('keepkey state 2')
+                        queueIpcEvent('updateFirmware', {})
                         break;
                     case 5:
                         //launch init seed window?
@@ -173,12 +174,11 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             Controller.events.on('logs', async function (event) {
                 log.info("logs event: ", event)
 
-                if (event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) {
-                    // TODO
-                    // queueIpcEvent('requestUpdaterMode', true)
-                    // do after we have updater mode
-                    queueIpcEvent('updateBootloader', true)
-
+                // needs update but not in bootloader mode
+                if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
+                    queueIpcEvent('requestBootloaderMode', {})
+                } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
+                    queueIpcEvent('updateBootloader', {})
                 }
             })
             //Init MUST be AFTER listeners are made (race condition)

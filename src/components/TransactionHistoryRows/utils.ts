@@ -12,7 +12,7 @@ export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
   if (txMetadata && 'assetId' in txMetadata) return txMetadata
 }
 
-export const getDisplayTransfers = (transfers: Transfer[], types: TransferType[]): Transfer[] => {
+export const getDisplayedTransfers = (transfers: Transfer[], types: TransferType[]): Transfer[] => {
   return types.reduce<Transfer[]>((prev, type) => {
     const transfer = transfers.find(t => t.type === type)
     if (!transfer) return prev

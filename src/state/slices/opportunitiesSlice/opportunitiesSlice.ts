@@ -67,7 +67,7 @@ type UserLpId = AccountId
 
 export type OpportunitiesState = {
   userLp: {
-    byId: { [id: UserLpId]: UserLpOpportunity[] }
+    byId: { [id: UserLpId]: UserLpOpportunity }
     ids: UserLpId[]
   }
   lp: {
@@ -82,9 +82,9 @@ export type OpportunitiesState = {
   // The user-specific farming data
   userFarming: {
     byId: {
-      [id: UserFarmingId]: UserFarmingOpportunity[]
+      [id: UserFarmingId]: UserFarmingOpportunity
     }
-    ids: UserLpId[]
+    ids: UserFarmingId[]
   }
 
   farming: {
@@ -92,7 +92,7 @@ export type OpportunitiesState = {
       [k: AccountId]: FarmingId[]
     }
     byId: {
-      [k: FarmingId]: LpOpportunity
+      [k: FarmingId]: FarmingOpportunity
     }
     ids: FarmingId[]
   }

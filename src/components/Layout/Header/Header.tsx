@@ -35,7 +35,7 @@ export const Header = () => {
     dispatch,
   } = useWallet()
 
-  const isWalletConnectToDappsAvailable = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
 
   /**
    * FOR DEVELOPERS:
@@ -126,7 +126,7 @@ export const Header = () => {
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
-              {isWalletConnectToDappsAvailable && (
+              {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>

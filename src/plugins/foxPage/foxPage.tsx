@@ -167,7 +167,6 @@ export const FoxPage = () => {
     })
   }, [assetFoxy.chainId, dispatch, history, location, wallet])
 
-
   const stackMaxWidth = useMemo(() => ({ base: 'full', lg: 'sm' }), [])
   const stackDirection: StackDirection = useMemo(() => ({ base: 'column', xl: 'row' }), [])
   const gridTemplateColumns = useMemo(() => ({ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }), [])

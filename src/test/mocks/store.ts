@@ -119,16 +119,12 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
-    farming: {
+    staking: {
       byAccountId: {},
       byId: {},
       ids: [],
     },
-    userLp: {
-      byId: {},
-      ids: [],
-    },
-    userFarming: {
+    userStaking: {
       byId: {},
       ids: [],
     },

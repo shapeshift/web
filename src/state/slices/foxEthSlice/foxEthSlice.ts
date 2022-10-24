@@ -128,9 +128,14 @@ export const foxEthApi = createApi({
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
           const marketDataState: MarketDataState = state.marketData
+
+          if (!marketDataState.crypto.byId[ethAssetId]) {
+            throw new Error(`Market data not ready for ${ethAssetId}`)
+          }
+
           const ethPrecision = assets.byId[ethAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const ethPrice = marketDataState.crypto.byId[ethAssetId]?.price ?? '0'
+          const ethPrice = marketDataState.crypto.byId[ethAssetId].price ?? '0'
           const ethersProvider = getEthersProvider()
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -198,10 +203,15 @@ export const foxEthApi = createApi({
           const state: any = getState() // ReduxState causes circular dependency\
           const assets: AssetsState = state.assets
           const marketDataState: MarketDataState = state.marketData
+
+          if (!marketDataState.crypto.byId[foxEthLpAssetId]) {
+            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+          }
+
           const ethPrecision = assets.byId[ethAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]?.price ?? '0'
+          const lpTokenPrice = marketDataState.crypto.byId[foxEthLpAssetId]
           const uniV2LPContract = getOrCreateContract(
             UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
             IUniswapV2Pair.abi,
@@ -254,6 +264,11 @@ export const foxEthApi = createApi({
           const state: any = getState() // ReduxState causes circular dependency
           const assets: AssetsState = state.assets
           const marketDataState: MarketDataState = state.marketData
+
+          if (!marketDataState.crypto.byId[foxEthLpAssetId]) {
+            throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+          }
+
           const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
           const foxPrecision = assets.byId[foxAssetId].precision
           const ethPrecision = assets.byId[ethAssetId].precision

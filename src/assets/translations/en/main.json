@@ -1428,6 +1428,18 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Signing From",
+          "requestFrom": "Request From",
+          "message": "Message",
+          "description": "You will need to confirm signing this message with your connected wallet.",
+          "confirm": "Confirm",
+          "reject": "Reject"
+        }
+      },
       "registry": {
         "availableDapps": "Available dApps",
         "getStarted": "Get Started",

@@ -67,11 +67,57 @@ export type OpportunitiesState = {
   }
 }
 
+type AccountIdsPayload = {
+  payload: AccountId[]
+}
+
+export type OpportunityMetadataById = {
+  [k: FarmingId | LpId]: LpOpportunity | FarmingOpportunity
+}
+
+const updateOrInsertUserAccountIds = (
+  opportunitiesDraft: OpportunitiesState,
+  accountIds: AccountId[],
+) => {
+  accountIds.forEach(accountId => {
+    opportunitiesDraft.lp.byAccountId[accountId] = []
+    opportunitiesDraft.farming.byAccountId[accountId] = []
+  })
+}
+
+const updateOrInsertOpportunityAccountIds = (
+  opportunitiesDraft: OpportunitiesState,
+  opportunityAccountIds: AccountId[],
+) => {
+  opportunitiesDraft.lp.ids = opportunityAccountIds
+  opportunitiesDraft.farming.ids = opportunityAccountIds
+  opportunityAccountIds.forEach(opportunityId => {
+    opportunitiesDraft.lp.byId[opportunityId] = {}
+    opportunitiesDraft.farming.byId[opportunityId] = {}
+  })
+}
+
 export const opportunities = createSlice({
   name: 'opportunitiesData',
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertUserAccountIds: (opportunitiesDraft, { payload }: AccountIdsPayload) => {
+      updateOrInsertUserAccountIds(opportunitiesDraft, payload)
+    },
+    upsertOpportunityAccountIds: (opportunitiesDraft, { payload }: AccountIdsPayload) => {
+      updateOrInsertOpportunityAccountIds(opportunitiesDraft, payload)
+    },
+    upsertOpportunityMetadata: (
+      state,
+      { payload }: { payload: { metadata: OpportunityMetadataById; type: 'lp' | 'farming' } },
+    ) => {
+      state[payload.type].byId = {
+        ...state[payload.type].byId,
+        ...payload.metadata,
+      }
+      state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
+    },
     // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:
   },
 })
@@ -80,7 +126,5 @@ export const opportunitiesApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'opportunitiesApi',
   keepUnusedDataFor: 300,
-  endpoints: _build => ({
-    // TODO
-  }),
+  endpoints: _build => ({}),
 })

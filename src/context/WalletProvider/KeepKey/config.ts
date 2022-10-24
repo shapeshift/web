@@ -7,5 +7,3 @@ export const KeepKeyConfig: Omit<SupportedWalletInfo, 'routes'> = {
   icon: KeepKeyIcon,
   name: 'KeepKey',
 }
-
-

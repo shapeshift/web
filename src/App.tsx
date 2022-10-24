@@ -44,17 +44,14 @@ export const App = () => {
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
-      console.log('now requesting bootloader mode')
       requestBootloaderMode.open({})
     })
 
     ipcRenderer.on('updateBootloader', () => {
-      console.log('now updating bootloader')
       updateBootloader.open({})
     })
 
     ipcRenderer.on('updateFirmware', () => {
-      console.log('now updating firmware')
       updateFirmware.open({})
     })
 

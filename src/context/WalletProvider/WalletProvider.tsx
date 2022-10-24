@@ -4,13 +4,10 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import * as native from '@shapeshiftoss/hdwallet-native'
 import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
-import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import debounce from 'lodash/debounce'
@@ -35,14 +32,12 @@ import {
   clearLocalWallet,
   getLocalWalletDeviceId,
   getLocalWalletType,
-  setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId,
 } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-
 
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
@@ -62,7 +57,7 @@ export type WalletInfo = {
 
 export type WalletConnectApp = {
   name: string
-  icons: Array<string>
+  icons: string[]
   description: string
   url: string
 }

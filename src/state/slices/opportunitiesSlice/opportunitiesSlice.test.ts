@@ -40,10 +40,6 @@ describe('opportunitiesSlice', () => {
     })
     describe('upsertOpportunityAccountIds', () => {
       it('insert opportunity Ids', () => {
-        const expectedById = {
-          'eip155:1/erc20:0xContractFoo': {},
-          'eip155:1/erc20:0xContractBar': {},
-        }
         const expectedIds = ['eip155:1/erc20:0xContractFoo', 'eip155:1/erc20:0xContractBar']
         store.dispatch(
           opportunities.actions.upsertOpportunityAccountIds([
@@ -51,8 +47,6 @@ describe('opportunitiesSlice', () => {
             'eip155:1/erc20:0xContractBar',
           ]),
         )
-        expect(store.getState().opportunities.lp.byId).toEqual(expectedById)
-        expect(store.getState().opportunities.farming.byId).toEqual(expectedById)
         expect(store.getState().opportunities.lp.ids).toEqual(expectedIds)
         expect(store.getState().opportunities.farming.ids).toEqual(expectedIds)
       })

@@ -76,7 +76,7 @@ export type OpportunityMetadataById = {
 }
 
 export type OpportunityUserDataById = {
-  [k: FarmingId | LpId]: LpOpportunity | FarmingOpportunity
+  [k: UserFarmingId | UserLpId]: UserFarmingOpportunity | UserLpOpportunity
 }
 
 const updateOrInsertUserAccountIds = (
@@ -95,10 +95,6 @@ const updateOrInsertOpportunityAccountIds = (
 ) => {
   opportunitiesDraft.lp.ids = opportunityAccountIds
   opportunitiesDraft.farming.ids = opportunityAccountIds
-  opportunityAccountIds.forEach(opportunityId => {
-    opportunitiesDraft.lp.byId[opportunityId] = {}
-    opportunitiesDraft.farming.byId[opportunityId] = {}
-  })
 }
 
 export const opportunities = createSlice({
@@ -126,7 +122,7 @@ export const opportunities = createSlice({
       state,
       {
         payload,
-      }: { payload: { metadata: OpportunityMetadataById; type: 'userLp' | 'userFarming' } },
+      }: { payload: { metadata: OpportunityUserDataById; type: 'userLp' | 'userFarming' } },
     ) => {
       state[payload.type].byId = {
         ...state[payload.type].byId,

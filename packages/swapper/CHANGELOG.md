@@ -1,3 +1,17 @@
+# [@shapeshiftoss/swapper-v14.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v13.0.1...@shapeshiftoss/swapper-v14.0.0) (2022-10-24)
+
+
+### Features
+
+* **swapper:** propagate usd/crypto human/precision vernacular ([#1052](https://github.com/shapeshift/lib/issues/1052)) ([6a978d9](https://github.com/shapeshift/lib/commit/6a978d97108c70387e8ea4122b2b38f6fecf3d74))
+
+
+### BREAKING CHANGES
+
+* **swapper:** removes deprecated fields from swapper API
+
+Co-authored-by: Apotheosis <97164662+0xApotheosis@users.noreply.github.com>
+
 # [@shapeshiftoss/swapper-v13.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v13.0.0...@shapeshiftoss/swapper-v13.0.1) (2022-10-23)
 
 

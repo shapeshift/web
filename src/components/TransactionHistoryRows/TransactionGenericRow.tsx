@@ -113,13 +113,11 @@ export const TransactionGenericRow = ({
       const typeTxTransfers = (txTransfers ?? []).filter(({ type }) => type === displayTransferType)
       const hasManyTypeTransfers = typeTxTransfers.length > 1
 
-      if (hasManyTypeTransfers) {
-        return (
-          <AssetsTransfers index={index} compactMode={compactMode} transfers={typeTxTransfers} />
-        )
-      }
-
-      return <AssetTransfer index={index} compactMode={compactMode} transfer={transfer} />
+      return hasManyTypeTransfers ? (
+        <AssetsTransfers index={index} compactMode={compactMode} transfers={typeTxTransfers} />
+      ) : (
+        <AssetTransfer index={index} compactMode={compactMode} transfer={transfer} />
+      )
     })
   }, [compactMode, txTransfers, displayTransfers])
 

@@ -17,7 +17,6 @@ export const WalletConnectModal: FC<WalletConnectModalProps> = ({ isOpen, onClos
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>
       <ModalOverlay />
-
       <ModalContent
         width='full'
         borderRadius={{ base: 0, md: 'xl' }}

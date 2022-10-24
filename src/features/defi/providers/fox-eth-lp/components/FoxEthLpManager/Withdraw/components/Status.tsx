@@ -17,7 +17,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
@@ -33,8 +32,8 @@ type StatusProps = { accountId: Nullable<AccountId> }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
+  const opportunity = state?.opportunity
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { foxEthLpOpportunity: opportunity } = useFoxEth()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -74,7 +73,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }
 
-  if (!state) return null
+  if (!state || !opportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {

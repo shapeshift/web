@@ -46,19 +46,22 @@ type UtxoAccountEntriesProps = {
 }
 
 const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
-  const { assetId } = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
+  const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
+  const assetId = feeAsset?.assetId
+
   return useMemo(
-    () => (
-      <>
-        {accountIds.map(accountId => (
-          <AccountEntryRow
-            key={`${assetId}-${accountId}`}
-            accountId={accountId}
-            assetId={assetId}
-          />
-        ))}
-      </>
-    ),
+    () =>
+      assetId ? (
+        <>
+          {accountIds.map(accountId => (
+            <AccountEntryRow
+              key={`${assetId}-${accountId}`}
+              accountId={accountId}
+              assetId={assetId}
+            />
+          ))}
+        </>
+      ) : null,
     [accountIds, assetId],
   )
 }
@@ -102,7 +105,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
     selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
   )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
-  const { color } = feeAsset
+  const color = feeAsset?.color ?? ''
 
   /**
    * for UTXO chains, we want to display accounts aggregated by accountNumber first,

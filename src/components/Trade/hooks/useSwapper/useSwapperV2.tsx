@@ -45,6 +45,7 @@ export const useSwapper = () => {
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -145,6 +146,20 @@ export const useSwapper = () => {
     return approvalNeeded
   }, [bestTradeSwapper, quote, wallet])
 
+  const approve = useCallback(async (): Promise<string> => {
+    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!wallet) throw new Error('no wallet available')
+    if (!quote) throw new Error('no quote available')
+    const txid = isExactAllowance
+      ? await bestTradeSwapper.approveAmount({
+          amount: quote.sellAmountCryptoPrecision,
+          quote,
+          wallet,
+        })
+      : await bestTradeSwapper.approveInfinite({ quote, wallet })
+    return txid
+  }, [bestTradeSwapper, isExactAllowance, quote, wallet])
+
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
@@ -157,7 +172,7 @@ export const useSwapper = () => {
     if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
+      sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,
@@ -247,5 +262,6 @@ export const useSwapper = () => {
     getReceiveAddressFromBuyAsset,
     getTrade,
     swapperSupportsCrossAccountTrade,
+    approve,
   }
 }

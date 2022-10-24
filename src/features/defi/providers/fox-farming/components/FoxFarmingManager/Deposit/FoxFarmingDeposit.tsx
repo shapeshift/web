@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectFoxFarmingOpportunityByContractAddress,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -57,24 +58,36 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const { accountAddress, foxFarmingOpportunities, farmingLoading: foxFarmingLoading } = useFoxEth()
-  const opportunity = foxFarmingOpportunities.find(e => e.contractAddress === contractAddress)
+
+  const { farmingAccountAddress } = useFoxEth()
+
+  const filter = useMemo(
+    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
+    [farmingAccountAddress, contractAddress],
+  )
+
+  const opportunity = useAppSelector(state =>
+    selectFoxFarmingOpportunityByContractAddress(state, filter),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(accountAddress && contractAddress && opportunity)) return
+        if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({ type: FoxFarmingDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
+        dispatch({
+          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
+          payload: farmingAccountAddress,
+        })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [accountAddress, translate, toast, contractAddress, opportunity])
+  }, [farmingAccountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {
     history.push({
@@ -113,7 +126,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     }
   }, [accountId, handleAccountIdChange, translate, asset.symbol, contractAddress])
 
-  if (loading || foxFarmingLoading || !asset || !marketData || !opportunity) {
+  if (loading || !asset || !marketData || !opportunity || !opportunity.isLoaded) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

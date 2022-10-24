@@ -1,12 +1,15 @@
-import { ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
-import { selectPortfolioAccountsGroupedByNumberByChainId } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountsGroupedByNumberByChainId,
+} from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
+export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = {}) {
   const {
     state: { wallet },
   } = useWallet()
@@ -16,7 +19,8 @@ export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
   )
 
   const userAddress = useMemo(() => {
-    const accountId = accountsByNumber[accountNumber ?? 0]?.[0] // Only one address per account for EVM chains i.e no multiple accountTypes
+    if (!accountNumber) return null
+    const accountId = accountsByNumber[accountNumber]?.[0] // Only one address per account for EVM chains i.e no multiple accountTypes
     return accountId ? fromAccountId(accountId).account : null
   }, [accountNumber, accountsByNumber])
 
@@ -24,7 +28,8 @@ export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
 
   const supportsEthereumChain = useWalletSupportsChain({ chainId: ethChainId, wallet })
 
-  const accountId = useMemo(
+  // If an account number is specified, find the accountId for it
+  const maybeAccountIdFilter = useMemo(
     () =>
       userAddress?.length
         ? toAccountId({
@@ -35,13 +40,25 @@ export function useFoxyBalances({ accountNumber }: { accountNumber: number }) {
     [userAddress],
   )
 
+  const portfolioAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, {
+      assetId: foxAssetId ?? '',
+    }),
+  )
+
+  const accountIds = maybeAccountIdFilter ? [maybeAccountIdFilter] : portfolioAccountIds
+
   const foxyBalances = useGetFoxyBalancesQuery(
     {
       foxyApr: foxyAprData?.foxyApr!,
-      accountId: accountId!,
+      accountIds,
     },
     {
-      skip: !Boolean(userAddress?.length) || !foxyAprData || !supportsEthereumChain || !accountId,
+      skip:
+        !foxyAprData ||
+        !supportsEthereumChain ||
+        !!(!maybeAccountIdFilter && accountNumber) ||
+        !!(!userAddress?.length && accountNumber),
     },
   )
 

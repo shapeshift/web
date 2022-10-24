@@ -15,7 +15,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectFirstAccountIdByChainId,
-  selectUnbondingEntriesByAccountSpecifier,
+  selectUnbondingEntriesByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -39,12 +39,11 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
     }),
     [accountId, asset.assetId, contractAddress, routeAccountId],
   )
-  const undelegationEntries = useAppSelector(s =>
-    selectUnbondingEntriesByAccountSpecifier(s, filter),
-  )
+  const undelegationEntries = useAppSelector(s => selectUnbondingEntriesByAccountId(s, filter))
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')
+  const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const undelegationNodes = useMemo(
     () =>
@@ -70,7 +69,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
             <Stack spacing={0}>
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={'yellow.200'}
+                color={pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={'common.pending'}
@@ -95,7 +94,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
           </Button>
         )
       }),
-    [asset.precision, asset.symbol, textColor, undelegationEntries],
+    [asset.precision, asset.symbol, textColor, pendingColor, undelegationEntries],
   )
 
   return (

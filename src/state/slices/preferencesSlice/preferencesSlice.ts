@@ -20,7 +20,6 @@ export type FeatureFlags = {
   Zendesk: boolean
   Yat: boolean
   MultiAccounts: boolean
-  SwapperV2: boolean
   WalletConnectToDapps: boolean
   MigrationMessage: boolean
   DashboardBreakdown: boolean
@@ -56,7 +55,6 @@ const initialState: Preferences = {
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
-    SwapperV2: getConfig().REACT_APP_FEATURE_SWAPPER_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,

@@ -18,6 +18,7 @@ import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+
 const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
@@ -97,7 +98,7 @@ export const KeepKeyConnect = () => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
          * The real deviceId of KeepKey wallet could be different from the
-         * deviceId recieved from the wallet, so we need to keep
+         * deviceId received from the wallet, so we need to keep
          * aliases[deviceId] in the local wallet storage.
          */
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))

@@ -24,17 +24,15 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
     variant: 'ghost-filled',
   })
 
-  const aggregatedFiatValue = useMemo(
-    () =>
-      transfers
-        .reduce((acc, transfer) => {
-          const precision = transfer.asset?.precision ?? FALLBACK_PRECISION
-          const cryptoValue = fromBaseUnit(transfer.value, precision)
-          return acc.plus(bnOrZero(cryptoValue).times(transfer.marketData.price))
-        }, bn(0))
-        .toString(),
-    [transfers],
-  )
+  const aggregatedFiatValue = useMemo(() => {
+    const fiatValue = transfers.reduce((acc, transfer) => {
+      const precision = transfer.asset?.precision ?? FALLBACK_PRECISION
+      const cryptoValue = fromBaseUnit(transfer.value, precision)
+      return acc.plus(bnOrZero(cryptoValue).times(transfer.marketData.price))
+    }, bn(0))
+
+    return fiatValue.toString()
+  }, [transfers])
 
   return (
     <Stack

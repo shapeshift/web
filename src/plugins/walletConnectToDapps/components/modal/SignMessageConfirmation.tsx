@@ -66,24 +66,6 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
-      <ModalSection
-        defaultOpen={false}
-        title={translate('gasInput.estGasCost')}
-        titleRightComponent={titleRightComponent}
-        icon={<FaGasPump />}
-      >
-        <GasInput value={gasInputValue} onChange={setGasInputValue} />
-      </ModalSection>
-      <ModalSection
-        defaultOpen={false}
-        title={translate(
-          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
-        )}
-        icon={<FaWrench />}
-      >
-        <SignTransactionAdvancedParameters />
-      </ModalSection>
-
       <Box>
         <Text
           fontWeight='medium'
@@ -97,7 +79,6 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
           balance={10}
         />
       </Box>
-
       <Box>
         <Text
           fontWeight='medium'
@@ -132,13 +113,28 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
           </Box>
         </Card>
       </Box>
-
+      <ModalSection
+        defaultOpen={false}
+        title={translate('gasInput.estGasCost')}
+        titleRightComponent={titleRightComponent}
+        icon={<FaGasPump />}
+      >
+        <GasInput value={gasInputValue} onChange={setGasInputValue} />
+      </ModalSection>
+      <ModalSection
+        defaultOpen={false}
+        title={translate(
+          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+        )}
+        icon={<FaWrench />}
+      >
+        <SignTransactionAdvancedParameters />
+      </ModalSection>
       <Text
         fontWeight='medium'
         color='gray.500'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
-
       <VStack spacing={4}>
         <Button
           size='lg'

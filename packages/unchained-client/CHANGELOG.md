@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.2.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.3...@shapeshiftoss/unchained-client-v10.2.4) (2022-10-25)
+
+
+### Bug Fixes
+
+* parse eth txs without yearn vaults ([#1078](https://github.com/shapeshift/lib/issues/1078)) ([8661eb5](https://github.com/shapeshift/lib/commit/8661eb5ca98810f6b63468f2b468a23546317b7b))
+
 # [@shapeshiftoss/unchained-client-v10.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.2...@shapeshiftoss/unchained-client-v10.2.3) (2022-10-24)
 
 # [@shapeshiftoss/unchained-client-v10.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.1...@shapeshiftoss/unchained-client-v10.2.2) (2022-10-24)

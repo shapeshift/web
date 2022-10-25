@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AccountId } from '@shapeshiftoss/caip'
 import type { ReduxState } from 'state/reducer'
+import { selectAccountIdParamFromFilter, selectUserStakingIdParamFromFilter } from 'state/selectors'
 
 import type { LpId, StakingId, UserStakingId, UserStakingOpportunity } from './opportunitiesSlice'
 
@@ -19,21 +19,21 @@ export const selectUserStakingOpportunitiesByStakingId = (state: ReduxState) =>
 // "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
 export const selectLpOpportunityIdsByAccountId = createSelector(
   selectLpOpportunitiesByAccountId,
-  (_state: ReduxState, accountId: AccountId) => accountId,
+  selectAccountIdParamFromFilter,
   (lpIdsByAccountId, accountId): LpId[] => lpIdsByAccountId[accountId] ?? [],
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
 export const selectStakingOpportunityIdsByAccountId = createSelector(
   selectStakingOpportunitiesByAccountId,
-  (_state: ReduxState, accountId: AccountId) => accountId,
+  selectAccountIdParamFromFilter,
   (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],
 )
 
 // "Give me the staking value for this accountId on that specific opportunity"
 export const selectUserStakingOpportunityByStakingId = createSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (_state: ReduxState, userStakingId: UserStakingId) => userStakingId,
-  (userStakingOpportunities, userStakingId): UserStakingOpportunity | undefined =>
+  selectUserStakingIdParamFromFilter,
+  (userStakingOpportunities, userStakingId: UserStakingId): UserStakingOpportunity | undefined =>
     userStakingOpportunities[userStakingId],
 )

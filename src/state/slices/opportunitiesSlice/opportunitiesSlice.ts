@@ -67,9 +67,7 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = {
-  [k: StakingId | LpId]: OpportunityMetadata
-}
+export type OpportunityMetadataById = Record<StakingId | LpId, OpportunityMetadata>
 
 export type UserStakingOpportunityById = {
   [k: UserStakingId]: UserStakingOpportunity

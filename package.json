@@ -40,7 +40,7 @@
     "electron:fix": "./node_modules/.bin/electron-builder install-app-deps",
     "electron:compile": "cd electron && tsc && cd ..",
     "electron:watch": "cd electron && tsc -w && cd ..",
-    "electron:build": "yarn build && electron:build:bridge && yarn electron:compile && electron-builder build",
+    "electron:build": "yarn build && yarn electron:build:bridge && yarn electron:compile && electron-builder build",
     "electron:build:bridge": "yarn electron:build:routes && yarn electron:build:swagger",
     "electron:build:routes": "tsoa routes --configuration electron/tsoa.json",
     "electron:build:swagger": "tsoa swagger --configuration electron/tsoa.json"

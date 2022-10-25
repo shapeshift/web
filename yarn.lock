@@ -4361,12 +4361,12 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.2.tgz#282125c027e8cf07a892229e54b7f7177d2cb941"
   integrity sha512-1gaYbU6pg5VSLXwKuDneerSxv3g2VyKIghvcIxuOiONDvhsjdDRgwuQyWLKfwkNKU/y2q2TZVn5FzYy1+YMroQ==
 
-"@shapeshiftoss/unchained-client@^10.2.1":
-  version "10.2.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.2.1.tgz#3dc842d9afabb805d1d97c6ca4d878af3b4703ba"
-  integrity sha512-sDuRWf2S0xkD5UVJIZqZiUu4tbs0K1mUP7SvEwvh/UMwZ0feeKOH+On0ef00q2MlylW7MCO5b6VR1FHNB0pH9w==
+"@shapeshiftoss/unchained-client@^10.2.4":
+  version "10.2.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.2.4.tgz#473e29ffe48f621dad124231d4f3d0e6b1377999"
+  integrity sha512-QGml6eqmFm4Ked/sW0ABp3E7Sc8OfsjDj2F9vNyJdH5P4pRnZXvGRVh06dOIdHr9qm/NIvCItfV7n8djH1cBXg==
   dependencies:
-    "@yfi/sdk" "^1.0.30"
+    "@yfi/sdk" "^1.2.0"
     bignumber.js "^9.0.2"
     ethers "^5.5.3"
     isomorphic-ws "^4.0.1"
@@ -7238,7 +7238,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.30":
+"@yfi/sdk@^1.0.30", "@yfi/sdk@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.2.0.tgz#b0635ced261cab41c57272ebb00ea7041702d74b"
   integrity sha512-o0GE+enTlUDwuP+W7TD7/5r5s2xuMTj93vPpUmDYePOunx3B85jwEl2FLUugTOdsku8eKhLLhLJTx6fJmSJLAw==

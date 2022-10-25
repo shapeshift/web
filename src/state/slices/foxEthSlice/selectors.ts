@@ -7,23 +7,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
+} from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-
-type ParamFilter = {
-  accountAddress: string
-  contractAddress: string
-}
-type OptionalParamFilter = {
-  accountAddress?: string
-  contractAddress?: string
-}
-
-type ParamFilterKey = keyof ParamFilter
-type OptionalParamFilterKey = keyof OptionalParamFilter
 
 const farmingOpportunitiesReducer = (
   acc: Record<string, FoxFarmingEarnOpportunityType>,
@@ -47,19 +39,6 @@ const farmingOpportunitiesReducer = (
 
   return acc
 }
-
-const selectParamFromFilter =
-  <T extends ParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
-    filter?.[param] ?? ''
-
-const selectParamFromFilterOptional =
-  <T extends OptionalParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
-    filter?.[param] ?? ''
-
-const selectAccountAddressParamFromFilterOptional = selectParamFromFilterOptional('accountAddress')
-const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 
 const selectContractAddressParamFromFilter = (
   _state: ReduxState,

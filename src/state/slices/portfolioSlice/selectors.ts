@@ -32,6 +32,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectAccountIdParamFromFilter,
+  selectAccountIdParamFromFilterOptional,
+  selectAccountNumberParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
+  selectChainIdParamFromFilter,
+  selectValidatorAddressParamFromFilter,
+} from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
   selectFarmContractsFiatBalance,
@@ -65,38 +74,6 @@ import type {
   StakingDataByValidatorId,
 } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
-
-type ParamFilter = {
-  assetId: AssetId
-  accountId: AccountId
-  accountNumber: number
-  chainId: ChainId
-  validatorAddress: PubKey
-}
-type OptionalParamFilter = {
-  assetId?: AssetId
-  accountId?: AccountId
-  validatorAddress?: PubKey
-}
-type ParamFilterKey = keyof ParamFilter
-type OptionalParamFilterKey = keyof OptionalParamFilter
-
-const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
-  createCachedSelector(
-    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
-      filter?.[param] ?? '',
-    param => param,
-  )((_state: ReduxState, filter: Pick<ParamFilter, T>) => filter?.[param] ?? param)
-const selectParamFromFilterOptional = <T extends OptionalParamFilterKey>(param: T) =>
-  createCachedSelector(
-    (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
-      filter?.[param] ?? '',
-    param => param,
-  )(
-    (_state: ReduxState, filter: Pick<OptionalParamFilter, T>) =>
-      `${param}-${filter?.[param]}` ?? param,
-  )
-
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = [
   ethAssetId,
@@ -109,15 +86,6 @@ const FEE_ASSET_IDS = [
   ltcAssetId,
   avalancheAssetId,
 ]
-
-const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
-export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
-const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
-const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
-const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
-
-const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
-const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 
 export const selectPortfolioAccounts = createSelector(
   (state: ReduxState) => state.portfolio.accounts.byId,

@@ -43,6 +43,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = (
     <VStack p={6} spacing={6} alignItems='stretch'>
       <GasInput value={gasInputValue} onChange={setGasInputValue} />
       <ModalSection
+        defaultOpen={false}
         title={translate(
           'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
         )}

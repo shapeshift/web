@@ -28,7 +28,7 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         justifyContent='flex-start'
         leftIcon={!!icon ? <Box color='gray.500'>{icon}</Box> : undefined}
         rightIcon={
-          isOpen ? <ChevronDownIcon color='gray.500' /> : <ChevronUpIcon color='gray.500' />
+          isOpen ? <ChevronUpIcon color='gray.500' /> : <ChevronDownIcon color='gray.500' />
         }
         mb={4}
         fontWeight='medium'

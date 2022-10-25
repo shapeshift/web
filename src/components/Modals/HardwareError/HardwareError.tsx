@@ -13,11 +13,13 @@ import { useHistory } from 'react-router'
 import KeepKeyConnect from 'assets/connect-keepkey.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { getAssetUrl } from '../../../lib/getAssetUrl'
 
 export const HardwareErrorModal = (error: any) => {
   const { hardwareError } = useModal()
+  const { isUpdatingKeepkey } = useWallet()
   const { close, isOpen } = hardwareError
 
   const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
@@ -44,7 +46,7 @@ export const HardwareErrorModal = (error: any) => {
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={isOpen && !isUpdatingKeepkey}
       onClose={() => {
         close()
       }}

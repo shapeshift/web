@@ -27,7 +27,7 @@ export const App = () => {
     mobileWelcomeModal: { isOpen: isWelcomeModalOpen, open: openWelcomeModal },
   } = useModal()
 
-  const { needsReset } = useWallet()
+  const { needsReset, setNeedsReset, setIsUpdatingKeepkey } = useWallet()
 
   const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
     useModal()
@@ -44,14 +44,23 @@ export const App = () => {
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
+      setNeedsReset(false)
+      setIsUpdatingKeepkey(true)
       requestBootloaderMode.open({})
     })
 
     ipcRenderer.on('updateBootloader', () => {
+      setNeedsReset(false)
+      setIsUpdatingKeepkey(true)
+      requestBootloaderMode.close()
       updateBootloader.open({})
     })
 
     ipcRenderer.on('updateFirmware', () => {
+      setNeedsReset(false)
+      setIsUpdatingKeepkey(true)
+      requestBootloaderMode.close()
+      updateBootloader.close()
       updateFirmware.open({})
     })
 

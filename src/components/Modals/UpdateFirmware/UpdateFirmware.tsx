@@ -8,6 +8,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
+import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
@@ -18,6 +19,12 @@ export const UpdateFirmware = () => {
   const handleUpdateFirmware = async () => {
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      handleUpdateFirmware()
+    }
+  }, [isOpen])
 
   return (
     <Modal
@@ -36,10 +43,8 @@ export const UpdateFirmware = () => {
           <div>
             <ModalHeader>
               <Text translation='Firmware update required' />
+              <Text translation='Confirm on device' />
             </ModalHeader>
-            <Button onClick={handleUpdateFirmware}>
-              <Text translation={'Confim on device'} />
-            </Button>
           </div>
         </ModalBody>
       </ModalContent>

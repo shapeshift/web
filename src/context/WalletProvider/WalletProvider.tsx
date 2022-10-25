@@ -792,7 +792,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({

@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import type { PairingProps } from 'components/Modals/Pair/Pair'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,6 +18,10 @@ import { logger } from 'lib/logger'
 import { selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
+  const {
+    state: { deviceId },
+    dispatch,
+  } = useWallet()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -41,6 +46,15 @@ export const App = () => {
   useEffect(() => {
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
       pair.open(data)
+    })
+
+    ipcRenderer.on('@keepkey/needsInitialize', _event => {
+      dispatch({
+        type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
+        payload: {
+          deviceId,
+        },
+      })
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {

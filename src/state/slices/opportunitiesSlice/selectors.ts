@@ -1,6 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { ReduxState } from 'state/reducer'
-import { selectAccountIdParamFromFilter, selectUserStakingIdParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectStakingIdParamFromFilter,
+  selectUserStakingIdParamFromFilter,
+} from 'state/selectors'
 
 import type {
   LpId,
@@ -51,7 +55,7 @@ export const deserializeStakingIdFromUserStakingId = createSelector(
 )
 
 // "Give me the staking value of this accountId for that specific opportunity"
-export const selectUserStakingOpportunityByStakingId = createSelector(
+export const selectUserStakingOpportunityByUserStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
   deserializeStakingIdFromUserStakingId,
@@ -75,25 +79,30 @@ export const selectUserStakingOpportunityByStakingId = createSelector(
 )
 
 // "Give me the staking values of all my acccounts for that specific opportunity"
-export const selectUserStakingOpportunityByStakingId = createSelector(
+export const selectUserStakingOpportunitiesByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
-  selectUserStakingIdParamFromFilter,
-  deserializeStakingIdFromUserStakingId,
+  selectStakingIdParamFromFilter,
+  selectUserStakingIds,
   selectStakingOpportunitiesById,
   (
     userStakingOpportunities,
-    userStakingId,
     stakingId,
+    userStakingOpportunityIds,
     stakingOpportunities,
-  ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    if (userStakingId === '') return // Narrowing flavoured template litteral type
+  ): (UserStakingOpportunity & OpportunityMetadata)[] => {
+    // Filter out only the user data for this specific opportunity
+    const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId => {
+      const parts = deserializeUserStakingId(userStakingId)
+      const [, deserializedStakingId] = parts
 
-    const userOpportunity = userStakingOpportunities[userStakingId]
-    const opportunityMetadata = stakingOpportunities[stakingId]
+      return deserializedStakingId === stakingId
+    })
 
-    return {
-      ...userOpportunity,
-      ...opportunityMetadata,
-    }
+    if (!userStakingOpportunityIds.length) return []
+
+    return filteredUserStakingOpportunityIds.map(userStakingOpportunityId => ({
+      ...userStakingOpportunities[userStakingOpportunityId],
+      ...stakingOpportunities[stakingId],
+    }))
   },
 )

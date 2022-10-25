@@ -17,6 +17,7 @@ type ParamFilter = {
   chainId: ChainId
   validatorAddress: PubKey
   userStakingId: UserStakingId
+  stakingId: StakingId
 }
 
 // List of all the params filter consumed with selectParamFromFilterOptional
@@ -54,6 +55,7 @@ export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 export const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
+export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 
 export const selectAccountAddressParamFromFilterOptional =
   selectParamFromFilterOptional('accountAddress')

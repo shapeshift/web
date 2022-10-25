@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { FC } from 'react'
+import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/components/modal/SignMessageConfirmation'
 import { Fragment, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -21,11 +21,11 @@ import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
 import { RawText, Text } from 'components/Text'
 
 type GasInputProps = {
-  value: FeeDataKey | undefined
-  onChange(type: FeeDataKey): void
+  value: WalletConnectFeeDataKey
+  onChange(type: WalletConnectFeeDataKey): void
 }
 
-type GasOption = {
+type BasicGasOption = {
   value: FeeDataKey
   label: string
   duration: string
@@ -33,13 +33,13 @@ type GasOption = {
   color: ThemeTypings['colorSchemes']
 }
 
-export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
+export const GasInput: React.FC<GasInputProps> = ({ value, onChange }) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
 
   const options = useMemo(
-    (): GasOption[] => [
+    (): BasicGasOption[] => [
       {
         value: FeeDataKey.Slow,
         label: translate(getFeeTranslation(FeeDataKey.Slow)),
@@ -64,10 +64,6 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
     ],
     [translate],
   )
-  const selectedOption = useMemo(
-    () => options.find(option => option.value === value),
-    [options, value],
-  )
 
   return (
     <FormControl
@@ -83,11 +79,6 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
         <HelperTooltip label={translate('gasInput.gasPrice.tooltip')}>
           <Text color='gray.500' fontWeight='medium' translation='gasInput.gasPrice.label' />
         </HelperTooltip>
-        {!!selectedOption && (
-          <RawText fontWeight='medium'>
-            {selectedOption.label} ({selectedOption.amount})
-          </RawText>
-        )}
       </HStack>
 
       <Box borderWidth={1} borderRadius='lg' borderColor={borderColor}>
@@ -118,7 +109,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
             ))}
             <Box px={4} py={2} width='full'>
               <HStack width='full'>
-                <Radio color='blue'>
+                <Radio color='blue' value={'custom'}>
                   <Text translation='gasInput.custom' />
                 </Radio>
               </HStack>
@@ -132,7 +123,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
                     <Text translation='gasInput.base.label' color='gray.500' fontWeight='medium' />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='Number...' />
+                    <NumberInputField placeholder='0 gwei' />
                   </NumberInput>
                 </Box>
                 <Box>
@@ -144,7 +135,7 @@ export const GasInput: FC<GasInputProps> = ({ value, onChange }) => {
                     />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='Number...' />
+                    <NumberInputField placeholder='0 gwei' />
                   </NumberInput>
                 </Box>
               </SimpleGrid>

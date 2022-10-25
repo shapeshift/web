@@ -286,7 +286,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color='grey.500'>
+            <Text fontWeight='medium' color='gray.500'>
               {accountLabel}
             </Text>
           </Stack>

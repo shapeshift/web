@@ -6,6 +6,7 @@ import { RawText } from 'components/Text'
 
 type ModalSectionProps = {
   title: string
+  titleRightComponent?: ReactElement
   icon?: ReactElement
   defaultOpen?: boolean
   children: ReactNode
@@ -16,14 +17,17 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
   icon,
   children,
   defaultOpen = true,
+  titleRightComponent = null,
 }) => {
   const [isOpen, setOpen] = useState(defaultOpen)
   const toggle = useCallback(() => setOpen(prev => !prev), [])
   return (
     <Box>
       <Button
+        flex={1}
         width='full'
         variant='link'
+        _hover={{ textDecoration: 'none' }}
         textAlign='left'
         justifyContent='flex-start'
         leftIcon={!!icon ? <Box color='gray.500'>{icon}</Box> : undefined}
@@ -32,7 +36,12 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         }
         mb={4}
         fontWeight='medium'
-        children={<RawText flex={1}>{title}</RawText>}
+        children={
+          <Box display={'flex'} justifyContent={'space-between'}>
+            <RawText flex={1}>{title}</RawText>
+            {titleRightComponent}
+          </Box>
+        }
         onClick={toggle}
       />
       <Collapse in={isOpen}>{children}</Collapse>

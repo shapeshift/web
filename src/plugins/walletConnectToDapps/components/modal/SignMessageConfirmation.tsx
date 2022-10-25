@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   IconButton,
   Image,
@@ -10,13 +11,19 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { useState } from 'react'
-import { FaWrench } from 'react-icons/fa'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { useMemo, useState } from 'react'
+import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { GasInput } from 'components/DeFi/components/GasInput'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { ModalSection } from './ModalSection'
 import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
@@ -32,16 +39,42 @@ type SignMessageConfirmationProps = {
   isLoading: boolean
 }
 
-export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = ({
-  message,
-  dapp,
-  isLoading,
-}) => {
+export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
+
+export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
+  const { message, dapp, isLoading } = props
   const translate = useTranslate()
-  const [gasInputValue, setGasInputValue] = useState<FeeDataKey>()
+  const [gasInputValue, setGasInputValue] = useState<WalletConnectFeeDataKey>(FeeDataKey.Average)
+  // walletconnect only supports eth mainnet
+  const ethAsset = useAppSelector(s => selectAssetById(s, ethAssetId))
+  const ethMarketData = useAppSelector(s => selectMarketDataById(s, ethAssetId))
+  console.info('gasInputValue', gasInputValue)
+  const titleRightComponent = useMemo(() => {
+    return (
+      <Flex gap={1}>
+        <Amount.Fiat value={fromBaseUnit(gasInputValue, ethAsset.precision)} />
+        <Amount.Crypto
+          prefix='≈'
+          color='gray.500'
+          symbol={ethAsset.symbol}
+          value={bnOrZero(fromBaseUnit(gasInputValue, ethAsset.precision))
+            .times(bnOrZero(ethMarketData.price))
+            .toString()}
+        />
+      </Flex>
+    )
+  }, [ethAsset, ethMarketData.price, gasInputValue])
+
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
-      <GasInput value={gasInputValue} onChange={setGasInputValue} />
+      <ModalSection
+        defaultOpen={true} // TODO(0xdef1cafe): false before merging
+        title={translate('gasInput.estGasCost')}
+        titleRightComponent={titleRightComponent}
+        icon={<FaGasPump />}
+      >
+        <GasInput value={gasInputValue} onChange={setGasInputValue} />
+      </ModalSection>
       <ModalSection
         defaultOpen={false}
         title={translate(

@@ -1482,6 +1482,7 @@
     }
   },
   "gasInput": {
+    "estGasCost": "Est. Gas Cost",
     "gasPrice": {
       "label": "Gas Price",
       "tooltip": "TODO: Gas Price Tooltip"

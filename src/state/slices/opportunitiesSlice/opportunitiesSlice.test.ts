@@ -75,8 +75,4 @@ describe('opportunitiesSlice', () => {
       })
     })
   })
-
-  describe('selectors', () => {
-    // TODO
-  })
 })

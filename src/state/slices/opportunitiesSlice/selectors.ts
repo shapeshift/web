@@ -55,7 +55,7 @@ export const deserializeStakingIdFromUserStakingId = createSelector(
   },
 )
 
-// "Give me the staking value of this accountId for that specific opportunity"
+// "How much this specific account has staked on that opportunity"
 export const selectUserStakingOpportunityByUserStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,

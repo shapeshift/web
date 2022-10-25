@@ -1,5 +1,5 @@
-import { Button } from '@chakra-ui/react'
 import { useColorMode } from '@chakra-ui/react'
+import { IconButton } from '@chakra-ui/react'
 import type { CustomTheme } from '@wherever/react-notification-feed'
 import { NotificationBell, NotificationFeed } from '@wherever/react-notification-feed'
 import { NotificationFeedProvider } from '@wherever/react-notification-feed'
@@ -41,9 +41,9 @@ export const Notifications = () => {
       disableAnalytics={disableAnalytics}
     >
       <NotificationFeed>
-        <Button colorScheme='blue' variant='ghost-filled'>
-          <NotificationBell />
-        </Button>
+        <IconButton aria-label='Open notifications'>
+          <NotificationBell size={20} />
+        </IconButton>
       </NotificationFeed>
     </NotificationFeedProvider>
   )

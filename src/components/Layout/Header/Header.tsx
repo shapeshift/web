@@ -124,18 +124,18 @@ export const Header = () => {
               <AutoCompleteSearch />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
-              <Box>
-                <Notifications />
-              </Box>
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Box>
+                <Notifications />
+              </Box>
               <FiatRamps />
             </Flex>
           </HStack>

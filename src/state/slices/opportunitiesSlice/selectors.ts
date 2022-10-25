@@ -73,3 +73,27 @@ export const selectUserStakingOpportunityByStakingId = createSelector(
     }
   },
 )
+
+// "Give me the staking values of all my acccounts for that specific opportunity"
+export const selectUserStakingOpportunityByStakingId = createSelector(
+  selectUserStakingOpportunitiesById,
+  selectUserStakingIdParamFromFilter,
+  deserializeStakingIdFromUserStakingId,
+  selectStakingOpportunitiesById,
+  (
+    userStakingOpportunities,
+    userStakingId,
+    stakingId,
+    stakingOpportunities,
+  ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+    if (userStakingId === '') return // Narrowing flavoured template litteral type
+
+    const userOpportunity = userStakingOpportunities[userStakingId]
+    const opportunityMetadata = stakingOpportunities[stakingId]
+
+    return {
+      ...userOpportunity,
+      ...opportunityMetadata,
+    }
+  },
+)

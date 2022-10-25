@@ -1,6 +1,6 @@
 {
   "name": "keepkey-desktop",
-  "version": "0.1.62",
+  "version": "0.1.63",
   "author": "Highlander <bithighlander@gmail.com>",
   "email": "bithighlander@gmail.com",
   "private": true,
@@ -307,7 +307,7 @@
     "chalk": "4.1.2",
     "circular-dependency-plugin": "^5.2.2",
     "cypress": "^10.9.0",
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.0.3",
     "electron": "16.0.7",
     "electron-builder": "^23.6.0",
     "electron-builder-notarize": "^1.5.0",

@@ -124,6 +124,7 @@
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
+      "sparkLine": "Spark Line",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"

@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { FiatRamp } from 'components/Modals/FiatRamps/config'
 import { fiatRamps, supportedFiatRamps } from 'components/Modals/FiatRamps/config'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -57,10 +58,14 @@ export const fiatRampApi = createApi({
             { byAssetId: {}, buyAssetIds: [], sellAssetIds: [] },
           )
           const allFiatAssetIds = [...data.buyAssetIds, ...data.sellAssetIds]
+          const timeframe = HistoryTimeframe.DAY
           // fetch market data for all fiat ramp asset ids
-          allFiatAssetIds.forEach(assetId =>
-            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
-          )
+          allFiatAssetIds.forEach(assetId => {
+            // spot market pricing
+            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+            // 24hr price history - needed for "spark charts" on fiat page
+            dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
+          })
           return { data }
         } catch (e) {
           const error = 'getFiatRampAssets: error fetching fiat ramp(s)'

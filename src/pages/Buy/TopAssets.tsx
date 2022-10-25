@@ -1,22 +1,27 @@
-import { useMemo } from 'react'
+import { Button, Heading } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
+import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFiatRampBuyAssetsWithMarketData } from 'state/apis/fiatRamps/selectors'
 
 import { PageContainer } from './components/PageContainer'
+import { SparkLine } from './components/Sparkline'
 
 type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketData>[0]
 type RowProps = Row<AssetWithMarketData>
 
 export const TopAssets = () => {
+  const { fiatRamps } = useModal()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
 
-  const columns: Column<any>[] = useMemo(
+  const columns: Column<AssetWithMarketData>[] = useMemo(
     () => [
       {
         Header: () => <Text translation='dashboard.portfolio.asset' />,
@@ -44,18 +49,53 @@ export const TopAssets = () => {
       {
         Header: () => <Text translation='dashboard.portfolio.marketCap' />,
         accessor: 'marketCap',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.marketCap} />,
+      },
+      {
+        Header: () => <Text translation='dashboard.portfolio.sparkLine' />,
+        accessor: 'name',
+        disableSortBy: true,
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ row }: { row: RowProps }) => (
+          <SparkLine
+            percentChange={row.original.changePercent24Hr}
+            assetId={row.original.assetId}
+          />
+        ),
+      },
+      {
+        Header: () => <></>,
+        accessor: 'maxSupply',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ row }: { row: RowProps }) => (
+          <Button data-test={`${row.original.name}-buy-button`}>
+            <Text translation='fiatRamps.buy' />
+          </Button>
+        ),
       },
     ],
     [],
   )
+
+  const handleClick = useCallback(
+    (assetId: AssetId) => {
+      // Open fiat modal
+      fiatRamps.open({ assetId })
+    },
+    [fiatRamps],
+  )
+
   return (
-    <PageContainer>
+    <PageContainer maxWidth='6xl' flexDir='column' gap={4} display='flex' py='5rem'>
+      <Heading as='h4' px={{ base: 2, xl: 4 }}>
+        Top Assets
+      </Heading>
       <ReactTable
         columns={columns}
         data={fiatRampBuyAssetsWithMarketData}
         initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
-        onRowClick={() => console.info('click')}
+        onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
       />
     </PageContainer>
   )

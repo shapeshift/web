@@ -1,23 +1,50 @@
 import { Button, Stack } from '@chakra-ui/react'
 import { Box, Flex, Heading } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
 import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
 
 export const Buy = () => {
+  const {
+    dispatch,
+    state: { isConnected, isDemoWallet },
+  } = useWallet()
   const translate = useTranslate()
+
+  const handleConnect = useCallback(() => {
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [dispatch])
+
   return (
     <Main p={0}>
       <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
         <PageContainer>
-          <Flex alignItems='center' justifyContent='space-between' width='full' gap={6}>
-            <Flex flexDir='column' gap={4}>
-              <Heading fontSize='6xl' lineHeight='shorter'>
+          <Flex
+            flexDir={{ base: 'column-reverse', xl: 'row' }}
+            alignItems='center'
+            justifyContent='space-between'
+            width='full'
+            gap={6}
+          >
+            <Flex
+              flexDir='column'
+              gap={4}
+              alignItems={{ base: 'center', xl: 'flex-start' }}
+              textAlign={{ base: 'center', xl: 'left' }}
+            >
+              <Heading
+                fontSize={{ base: '4xl', xl: '6xl' }}
+                lineHeight='1em'
+                letterSpacing='-0.05em'
+              >
                 {translate('buyPage.title.first')}{' '}
                 <Text
                   as='span'
@@ -34,20 +61,37 @@ export const Buy = () => {
             </Box>
           </Flex>
         </PageContainer>
-        <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
-          <PageContainer display='flex' py={0}>
-            <Stack spacing={4} py='6rem' flex={1} alignItems='flex-start'>
-              <Heading fontSize='xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
-                {translate('buyPage.cta.title.first')}{' '}
-                <Text as='span' color='white' translation='buyPage.cta.title.second' />
-              </Heading>
-              <Button size='lg' variant='solid' colorScheme='blue'>
-                Connect Wallet
-              </Button>
-            </Stack>
-            <Box width='300px' bgImage={FoxPane} backgroundSize='cover' />
-          </PageContainer>
-        </Flex>
+        {(!isConnected || isDemoWallet) && (
+          <Flex backgroundImage='linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), linear-gradient(180deg, rgba(55, 97, 249, 0) -67.75%, #3761F9 100%)'>
+            <PageContainer
+              display='flex'
+              py={0}
+              flexDir={{ base: 'column', xl: 'row' }}
+              textAlign={{ base: 'center', xl: 'left' }}
+            >
+              <Stack
+                spacing={4}
+                py='6rem'
+                flex={1}
+                alignItems={{ base: 'center', xl: 'flex-start' }}
+              >
+                <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
+                  {translate('buyPage.cta.title.first')}{' '}
+                  <Text as='span' color='white' translation='buyPage.cta.title.second' />
+                </Heading>
+                <Button size='lg' variant='solid' colorScheme='blue' onClick={handleConnect}>
+                  Connect Wallet
+                </Button>
+              </Stack>
+              <Box
+                width='300px'
+                bgImage={FoxPane}
+                backgroundSize='cover'
+                display={{ base: 'none', xl: 'block' }}
+              />
+            </PageContainer>
+          </Flex>
+        )}
       </Box>
       <TopAssets />
     </Main>

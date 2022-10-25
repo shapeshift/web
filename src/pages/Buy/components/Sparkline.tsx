@@ -1,0 +1,68 @@
+import { Box, useToken } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { curveLinear } from '@visx/curve'
+import { LineSeries, XYChart } from '@visx/xychart'
+import { useMemo } from 'react'
+import { makeBalanceChartData } from 'hooks/useBalanceChartData/utils'
+import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
+import {
+  selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoryByAssetTimeframe,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+type SparkLineProps = {
+  assetId: AssetId
+  percentChange: number
+}
+
+export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) => {
+  const assetIds = useMemo(() => [assetId], [assetId])
+  const timeframe = HistoryTimeframe.DAY
+  // fetch price history for this asset
+  useFetchPriceHistories({ assetIds, timeframe })
+
+  const priceData = useAppSelector(state =>
+    selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
+  )
+
+  const loading = useAppSelector(state =>
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
+  )
+
+  const data = useMemo(() => makeBalanceChartData(priceData), [priceData])
+
+  const accessors = {
+    xAccessor: (d: HistoryData) => d.date,
+    yAccessor: (d: HistoryData) => d.price,
+  }
+
+  const color = percentChange > 0 ? 'green.500' : 'red.500'
+  const [chartColor] = useToken('colors', [color])
+
+  return (
+    <Box>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <XYChart
+          margin={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          width={100}
+          height={50}
+          xScale={{ type: 'utc' }}
+          yScale={{ type: 'log', range: [10, 50] }}
+        >
+          <LineSeries
+            dataKey={`${assetId}-series`}
+            data={data.total}
+            stroke={chartColor}
+            curve={curveLinear}
+            {...accessors}
+          />
+        </XYChart>
+      )}
+    </Box>
+  )
+}

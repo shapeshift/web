@@ -6,6 +6,7 @@ on:
       - ci-test
       - release-candidate
       - master
+      - develop
   workflow_dispatch:
 
 jobs:

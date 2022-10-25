@@ -44,7 +44,7 @@ export const selectStakingOpportunityIdsByAccountId = createSelector(
   (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],
 )
 
-// I'm not a selector buddy, don't prepend me with `select`
+// I'm a selector which doesn't actually selects state, don't prepend me with `select`
 export const deserializeStakingIdFromUserStakingId = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {

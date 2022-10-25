@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
   selectStakingIdParamFromFilter,
@@ -56,7 +57,7 @@ export const deserializeStakingIdFromUserStakingId = createSelector(
 )
 
 // "How much this specific account has staked on that opportunity"
-export const selectUserStakingOpportunityByUserStakingId = createSelector(
+export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
   deserializeStakingIdFromUserStakingId,
@@ -80,7 +81,7 @@ export const selectUserStakingOpportunityByUserStakingId = createSelector(
 )
 
 // "Give me the staking values of all my acccounts for that specific opportunity"
-export const selectUserStakingOpportunitiesByStakingId = createSelector(
+export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
   selectUserStakingIds,
@@ -108,7 +109,7 @@ export const selectUserStakingOpportunitiesByStakingId = createSelector(
   },
 )
 
-export const selectAggregatedUserStakingOpportunityByStakingId = createSelector(
+export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunities): UserStakingOpportunity => {
     return userStakingOpportunities.reduce((acc, userStakingOpportunity) => {

@@ -31,14 +31,14 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
 // "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
-export const selectLpOpportunityIdsByAccountId = createSelector(
+export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
   (lpIdsByAccountId, accountId): LpId[] => lpIdsByAccountId[accountId] ?? [],
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
-export const selectStakingOpportunityIdsByAccountId = createSelector(
+export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
   (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],

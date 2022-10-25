@@ -48,7 +48,6 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
   // walletconnect only supports eth mainnet
   const ethAsset = useAppSelector(s => selectAssetById(s, ethAssetId))
   const ethMarketData = useAppSelector(s => selectMarketDataById(s, ethAssetId))
-  console.info('gasInputValue', gasInputValue)
   const titleRightComponent = useMemo(() => {
     return (
       <Flex gap={1}>
@@ -68,7 +67,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
       <ModalSection
-        defaultOpen={true} // TODO(0xdef1cafe): false before merging
+        defaultOpen={false}
         title={translate('gasInput.estGasCost')}
         titleRightComponent={titleRightComponent}
         icon={<FaGasPump />}

@@ -81,6 +81,14 @@
       "sentry-symbols.js",
       "package.json"
     ],
+    "protocols": [
+      {
+        "name": "Keepkey Desktop",
+        "schemes": [
+          "keepkey"
+        ]
+      }
+    ],
     "asar": true,
     "extends": null,
     "mac": {
@@ -92,14 +100,6 @@
       "target": [
         "dmg",
         "zip"
-      ],
-      "protocols": [
-        {
-          "name": "Keepkey Desktop",
-          "schemes": [
-            "keepkey"
-          ]
-        }
       ]
     },
     "win": {

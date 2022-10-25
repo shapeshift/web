@@ -69,6 +69,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { supportedChains } = usePlugins()
   const {
     state: { wallet },
+    setNeedsReset,
   } = useWallet()
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -105,6 +106,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')
     if (switched || disconnected) {
+      setNeedsReset(true)
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())
       dispatch(txHistory.actions.clear())

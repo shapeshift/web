@@ -10,7 +10,6 @@ import {
   fromAssetId,
   fromChainId,
   osmosisAssetId,
-  toAccountId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
@@ -21,18 +20,21 @@ import {
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import type { GetSelectedReceiveAddress } from 'components/Trade/types'
+import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
-  type GetFirstReceiveAddress,
   type GetFormFeesArgs,
   type SupportedSwappingChain,
 } from 'components/Trade/types'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+
+const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Type guards
 export const isSupportedUtxoSwappingChain = (
@@ -49,45 +51,14 @@ export const isSupportedNonUtxoSwappingChain = (
     chainId === KnownChainIds.EthereumMainnet ||
     chainId === KnownChainIds.AvalancheMainnet ||
     chainId === KnownChainIds.OsmosisMainnet ||
-    chainId === KnownChainIds.CosmosMainnet
+    chainId === KnownChainIds.CosmosMainnet ||
+    chainId === KnownChainIds.ThorchainMainnet
   )
 }
 
 // Pure functions
-export const getFirstReceiveAddress: GetFirstReceiveAddress = async ({
-  accountSpecifiersList,
-  buyAsset,
-  chainAdapter,
-  wallet,
-}) => {
-  const receiveAddressAccountSpecifiers = accountSpecifiersList.find(
-    specifiers => specifiers[buyAsset.chainId],
-  )
-
-  if (!receiveAddressAccountSpecifiers) throw new Error('no receiveAddressAccountSpecifiers')
-  const account = receiveAddressAccountSpecifiers[buyAsset.chainId]
-  if (!account) throw new Error(`no account for ${buyAsset.chainId}`)
-
-  const { chainId } = buyAsset
-  const accountId = toAccountId({ chainId, account })
-
-  // TODO accountType and accountNumber need to come from account metadata
-  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
-  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
-}
-
-export const getSelectedReceiveAddress: GetSelectedReceiveAddress = async ({
-  chainAdapter,
-  wallet,
-  buyAssetAccountId: accountId,
-}) => {
-  // TODO accountType and accountNumber need to come from account metadata
-  const { accountType, utxoParams } = accountIdToUtxoParams(accountId, 0)
-  return await chainAdapter.getAddress({ wallet, accountType, ...utxoParams })
-}
-
 export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account specifier')
+  if (!sellAssetAccountId) throw new Error('No UTXO account id')
   return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
@@ -104,44 +75,45 @@ export const getSendMaxAmount = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.fee)
+  const feeEstimate = bnOrZero(quote?.feeData?.networkFee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
-  return fromBaseUnit(
-    bnOrZero(sellAssetBalance)
-      .minus(isFeeAsset ? feeEstimate : 0)
-      .toString(),
-    sellAsset.precision,
-  )
+  return positiveOrZero(
+    fromBaseUnit(
+      bnOrZero(sellAssetBalance)
+        .minus(isFeeAsset ? feeEstimate : 0)
+        .toString(),
+      sellAsset.precision,
+    ),
+  ).toString()
 }
 
 const getEvmFees = <T extends EvmChainId>(
   trade: Trade<T> | TradeQuote<T>,
   feeAsset: Asset,
   tradeFeeSource: string,
-): DisplayFeeData<T> => {
-  // The "gas" fee paid to the network for the transaction
-  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
-  const fee = feeBN.toString()
+): DisplayFeeData<EvmChainId> => {
+  const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee ?? 0, feeAsset.precision)
+
   const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
     .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
     .toString()
-  const totalFee = feeBN.plus(approvalFee).toString()
+  const totalFee = bnOrZero(networkFeeCryptoHuman).plus(approvalFee).toString()
   const gasPrice = bnOrZero(trade.feeData.chainSpecific.gasPrice).toString()
   const estimatedGas = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
 
   return {
-    fee,
     chainSpecific: {
       approvalFee,
       gasPrice,
       estimatedGas,
       totalFee,
     },
-    // The fee paid to the protocol for the transaction
-    tradeFee: trade.feeData.tradeFee,
     tradeFeeSource,
-  } as DisplayFeeData<T>
+    buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
+    sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
+    networkFeeCryptoHuman,
+  }
 }
 
 export const getFormFees = ({
@@ -150,8 +122,8 @@ export const getFormFees = ({
   tradeFeeSource,
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
-  const feeBN = bnOrZero(trade?.feeData?.fee).dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
-  const fee = feeBN.toString()
+  const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee, feeAsset.precision)
+
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
@@ -162,18 +134,20 @@ export const getFormFees = ({
       )
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
-        fee,
-        tradeFee: trade.feeData.tradeFee,
-        tradeFeeSource: trade.sources[0].name,
+        networkFeeCryptoHuman,
+        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
+        tradeFeeSource,
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
-        fee,
+        networkFeeCryptoHuman,
         chainSpecific: utxoTrade.feeData.chainSpecific,
-        tradeFee: utxoTrade.feeData.tradeFee,
+        buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
+        sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
       }
     }
     default:
@@ -221,5 +195,21 @@ export const getDefaultAssetIdPairByChainId = (
     case KnownChainIds.EthereumMainnet:
     default:
       return ethFoxPair
+  }
+}
+
+export const getReceiveAddress = async ({
+  asset,
+  wallet,
+  bip44Params,
+  accountType,
+}: GetReceiveAddressArgs): Promise<string | undefined> => {
+  const { chainId } = fromAssetId(asset.assetId)
+  const chainAdapter = getChainAdapterManager().get(chainId)
+  if (!(chainAdapter && wallet)) return
+  try {
+    return await chainAdapter.getAddress({ wallet, bip44Params, accountType })
+  } catch (e) {
+    moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
   }
 }

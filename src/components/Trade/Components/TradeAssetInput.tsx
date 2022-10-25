@@ -1,16 +1,16 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import {
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const AssetInputLoading = () => {
+const AssetInputAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
   return (
     <Stack bgColor={bgColor} py={2} px={4} borderRadius='xl' spacing={0}>
@@ -30,13 +30,18 @@ const AssetInputLoading = () => {
 
 type AssetInputLoadedProps = AssetInputProps & { assetId: AssetId }
 
-const AssetInputLoaded: React.FC<AssetInputLoadedProps> = props => {
-  const { assetId } = props
+const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
+  const { assetId, accountId } = props
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId }),
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
+      assetId,
+    }),
+    [accountId, assetId],
   )
+  const balance = useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter))
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
   return <AssetInput balance={balance} fiatBalance={fiatBalance} {...props} />
@@ -48,11 +53,12 @@ export type TradeAssetInputProps = {
 
 export const TradeAssetInput: React.FC<TradeAssetInputProps> = ({
   assetId,
+  accountId,
   ...restAssetInputProps
 }) => {
   return assetId ? (
-    <AssetInputLoaded assetId={assetId} {...restAssetInputProps} />
+    <AssetInputWithAsset assetId={assetId} accountId={accountId} {...restAssetInputProps} />
   ) : (
-    <AssetInputLoading />
+    <AssetInputAwaitingAsset />
   )
 }

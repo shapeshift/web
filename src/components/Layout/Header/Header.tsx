@@ -10,11 +10,13 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -33,6 +35,8 @@ export const Header = () => {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
+
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
 
   /**
    * FOR DEVELOPERS:
@@ -119,19 +123,20 @@ export const Header = () => {
             >
               <AutoCompleteSearch />
             </HStack>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
-              <Box display={{ base: 'none', md: 'block' }}>
-                <FiatRamps />
-              </Box>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               <Box>
                 <Notifications />
               </Box>
               <Box display={{ base: 'none', md: 'block' }}>
-                <ChainMenu />
-              </Box>
-              <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
+              {isWalletConnectToDappsEnabled && (
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <WalletConnectToDappsHeaderButton />
+                </Box>
+              )}
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <FiatRamps />
             </Flex>
           </HStack>
         </HStack>

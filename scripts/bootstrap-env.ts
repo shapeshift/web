@@ -35,9 +35,9 @@ const getSpecifiedEnvironment = (): Environment => {
   return specifiedEnvironment
 }
 
-const exportDotEnvFile = (serialiazedEnvVars: string) => {
-  console.log(serialiazedEnvVars)
-  writeFileSync('.env', serialiazedEnvVars) // write out new .env
+const exportDotEnvFile = (serializedEnvVars: string) => {
+  console.log(serializedEnvVars)
+  writeFileSync('.env', serializedEnvVars) // write out new .env
 }
 
 const main = flow([getSpecifiedEnvironment, getSerializedEnvVars, exportDotEnvFile])

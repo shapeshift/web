@@ -1,6 +1,13 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  ethAssetId,
+  foxAssetId,
+  fromAccountId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -14,27 +21,39 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFoxEthLpOpportunityByAccountAddress,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-export const Status = () => {
+type StatusProps = { accountId: Nullable<AccountId> }
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const { accountAddress, foxEthLpOpportunity } = useFoxEth()
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectFoxEthLpOpportunityByAccountAddress(state, {
+      accountAddress: accountAddress ?? '',
+    }),
+  )
 
   const feeAssetId = toAssetId({
     chainId,
@@ -46,14 +65,10 @@ export const Status = () => {
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, chainId),
-  )
-
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountAddress)) return ''
-    return serializeTxIndex(accountSpecifier, state.txid, accountAddress)
-  }, [state?.txid, accountAddress, accountSpecifier])
+    if (!(state?.txid && accountAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, accountAddress)
+  }, [state?.txid, accountAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -116,7 +131,7 @@ export const Status = () => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
-      pairIcons={foxEthLpOpportunity.icons}
+      pairIcons={foxEthLpOpportunity?.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>

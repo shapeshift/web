@@ -1,31 +1,28 @@
 import type { ListProps } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import type { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
+import type { FiatRampAction } from '../../FiatRampsCommon'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: FiatRampAsset) => void
-  assets: FiatRampAsset[]
-  type: FiatRampAction
+  handleClick: (assetId: AssetId) => void
+  assetIds: AssetId[]
+  action: FiatRampAction
 } & ListProps
 
-export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
-  if (!assets.length) return <Text translation='common.noResultsFound' />
+export const AssetList: React.FC<AssetListProps> = props => {
+  if (!props.assetIds.length) return <Text translation='common.noResultsFound' />
 
   return (
     <FixedSizeList
       itemSize={60}
       height={250}
       width='100%'
-      itemData={{
-        items: assets,
-        type,
-        handleClick,
-      }}
-      itemCount={assets.length}
-      className='token-list scroll-container'
+      itemData={props}
+      itemCount={props.assetIds.length}
+      className='token-list'
       overscanCount={6}
     >
       {AssetRow}

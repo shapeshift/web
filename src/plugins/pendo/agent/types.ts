@@ -72,7 +72,8 @@ export interface Pendo {
   identify(): void
   updateOptions(): void
   pageLoad(): void
-  track(): void
+  // https://developers.pendo.io/docs/?bash#track-events
+  track(trackType: string, metadata?: Record<string, unknown>): void
 }
 
 export interface Window {

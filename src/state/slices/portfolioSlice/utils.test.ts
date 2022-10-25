@@ -1,16 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { avalancheAssetId, ethAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import {
   accountIdToFeeAssetId,
   accountIdToLabel,
-  accountIdToSpecifier,
   findAccountsByAssetId,
-  makeBalancesByChainBucketsFlattened,
-  makeSortedAccountBalances,
   trimWithEndEllipsis,
 } from './utils'
 
@@ -28,22 +22,6 @@ describe('accountIdToFeeAssetId', () => {
     const accountId = 'eip155:43114:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(avalancheAssetId)
-  })
-})
-
-describe('accountIdToSpecifier', () => {
-  it('can get eth address from accountId', () => {
-    const address = '0xdef1cafe'
-    const accountId = 'eip155:1:0xdef1cafe'
-    const result = accountIdToSpecifier(accountId)
-    expect(result).toEqual(address)
-  })
-
-  it('can get xpub form accountId', () => {
-    const xpub = 'xpubfoobarbaz'
-    const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
-    const result = accountIdToSpecifier(accountId)
-    expect(result).toEqual(xpub)
   })
 })
 
@@ -118,77 +96,6 @@ describe('findAccountsByAssetId', () => {
 
     const result2 = findAccountsByAssetId(portfolioAccounts, btcAssetId)
     expect(result2).toEqual([btcAccountId])
-  })
-})
-
-describe('makeSortedAccountBalances', () => {
-  it('makes sorted account balances - mixed assets', () => {
-    const accountBalances = {
-      'bip122:000000000019d6689c085ae165831e93:someXpub': '8',
-      'bip122:000000000019d6689c085ae165831e93:someZpub': '7',
-      'eip155:1:someEthAccount': '0.00',
-      'bip122:someYpub': '3',
-      'cosmos:cosmoshub-4:someCosmosAccount': '10',
-    }
-
-    const result = makeSortedAccountBalances(accountBalances)
-    expect(result).toEqual([
-      'cosmos:cosmoshub-4:someCosmosAccount',
-      'bip122:000000000019d6689c085ae165831e93:someXpub',
-      'bip122:000000000019d6689c085ae165831e93:someZpub',
-      'bip122:someYpub',
-      'eip155:1:someEthAccount',
-    ])
-  })
-})
-
-describe('makeBalancesByChainBucketsFlattened', () => {
-  const assets = {
-    'cosmos:cosmoshub-4/slip44:118': {
-      chainId: KnownChainIds.CosmosMainnet,
-    },
-    'bip122:000000000019d6689c085ae165831e93/slip44:0': {
-      chainId: KnownChainIds.BitcoinMainnet,
-    },
-    'bip122:000000000933ea01ad0ee984209779ba/slip44:0': {
-      chainId: KnownChainIds.BitcoinMainnet,
-    },
-    'eip155:1/slip44:60': {
-      chainId: KnownChainIds.EthereumMainnet,
-    },
-  } as unknown as { [k: AssetId]: Asset }
-
-  it('makes flattened balances by chain buckets - mixed assets', () => {
-    const accountBalances = [
-      'bip122:000000000019d6689c085ae165831e93:someXpub',
-      'eip155:1:someEthAccount',
-      'cosmos:cosmoshub-4:someCosmosAccount',
-      'bip122:000000000019d6689c085ae165831e93:someZpub',
-      'bip122:000000000019d6689c085ae165831e93:someYpub',
-    ]
-
-    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
-    expect(result).toEqual([
-      'bip122:000000000019d6689c085ae165831e93:someXpub',
-      'bip122:000000000019d6689c085ae165831e93:someZpub',
-      'bip122:000000000019d6689c085ae165831e93:someYpub',
-      'eip155:1:someEthAccount',
-      'cosmos:cosmoshub-4:someCosmosAccount',
-    ])
-  })
-  it('makes flattened balances by chain buckets - Bitcoin assets only', () => {
-    const accountBalances = [
-      'bip122:000000000019d6689c085ae165831e93:someXpub',
-      'bip122:000000000019d6689c085ae165831e93:someZpub',
-      'bip122:000000000019d6689c085ae165831e93:someYpub',
-    ]
-
-    const result = makeBalancesByChainBucketsFlattened(accountBalances, assets)
-    expect(result).toEqual([
-      'bip122:000000000019d6689c085ae165831e93:someXpub',
-      'bip122:000000000019d6689c085ae165831e93:someZpub',
-      'bip122:000000000019d6689c085ae165831e93:someYpub',
-    ])
   })
 })
 

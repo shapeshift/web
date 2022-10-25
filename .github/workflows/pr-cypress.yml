@@ -3,16 +3,10 @@ name: Cypress Tests
 on:
   workflow_call:
 
-env:
-  ESLINT_NO_DEV_ERRORS: true
-  TSC_COMPILE_ON_ERROR: true
-  IMAGE_INLINE_SIZE_LIMIT: 0
-  INLINE_RUNTIME_CHUNK: false
-
 jobs:
   test-chrome:
-    name: Run Cypress
-    runs-on: ubuntu-latest
+    name: Cypress
+    runs-on: size-bertha
     strategy:
       # When one test fails, do not cancel the other
       # containers, because this will kill Cypress processes,
@@ -32,27 +26,17 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache Cypress binary
+      - name: Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
-
-      - name: Download Build Folder
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
 
       - name: Add environment variables
         run: yarn env app

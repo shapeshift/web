@@ -1,21 +1,16 @@
-name: Bootstrap
+name: CI
 
 on:
   pull_request:
     branches:
       - main
       - develop
-      - releases/**
-
-env:
-  ESLINT_NO_DEV_ERRORS: true
-  TSC_COMPILE_ON_ERROR: true
-  IMAGE_INLINE_SIZE_LIMIT: 0
-  INLINE_RUNTIME_CHUNK: false
+      - release
 
 jobs:
   install-and-cache:
-    runs-on: ubuntu-latest
+    name: Install and Cache
+    runs-on: size-bertha
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,55 +21,23 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Cache Cypress binary
+      - name: Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Regenerate yarn cache
+      - name: Yarn Install
         run: yarn install --frozen-lockfile
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
-
-      - name: Add environment variables
-        run: yarn env app
-
-      - name: Install Cypress & Build Project
-        uses: cypress-io/github-action@v4
-        with:
-          # Disable running of tests within install job
-          runTests: false
-          build: yarn build
-
-      - name: Verify Cypress
-        env:
-          # Make sure every Cypress install prints minimal information
-          CI: 1
-        run: |
-          npx cypress cache path
-          npx cypress cache list
-          npx cypress verify
-          npx cypress info
-
-      - name: Save Build Folder
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
   call-pr-workflow:
+    name: Call
     uses: ./.github/workflows/pr.yml
     needs: [install-and-cache]
   call-pr-cypress-workflow:
+    name: Call
     uses: ./.github/workflows/pr-cypress.yml
     needs: [install-and-cache]

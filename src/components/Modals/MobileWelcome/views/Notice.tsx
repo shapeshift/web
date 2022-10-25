@@ -1,10 +1,13 @@
 import { ArrowForwardIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Button, ModalBody, ModalFooter, Stack, useColorModeValue } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { store } from 'state/store'
 
 export const Notice = () => {
   const translate = useTranslate()
@@ -14,10 +17,17 @@ export const Notice = () => {
     backupNativePassphrase: { open },
   } = useModal()
 
-  const handleRecoveryClick = () => {
+  const handleRecoveryClick = useCallback(() => {
     handleClose()
     open({ preventClose: true })
-  }
+    store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
+  }, [handleClose, open])
+
+  const handleDismissClick = useCallback(() => {
+    handleClose()
+    store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
+  }, [handleClose])
+
   return (
     <SlideTransition>
       <ModalBody>
@@ -47,7 +57,7 @@ export const Notice = () => {
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>
-        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleClose}>
+        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleDismissClick}>
           {translate('modals.mobileWelcome.notice.secondaryCta')}
         </Button>
       </ModalFooter>

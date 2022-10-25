@@ -1,4 +1,5 @@
 import { getConfig } from 'config'
+import { isMobile as isMobileApp } from 'lib/globals'
 import { logger } from 'lib/logger'
 
 import type { PendoConfig, PendoEnv, PendoInitializeParams } from './agent'
@@ -21,6 +22,8 @@ const makeBasePendoInitializeParams = (pendoEnv: PendoEnv) => ({
   events: {
     ready: () => {
       pendoEventsLogger.trace('ready')
+      pendoEnv.pendo.track('visit', { mobile_app: isMobileApp })
+      pendoEventsLogger.trace('trackedVisit')
     },
     deliverablesLoaded: () => {
       pendoEventsLogger.trace('deliverablesLoaded')

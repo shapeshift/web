@@ -1,18 +1,6 @@
 import { adapters } from '@shapeshiftoss/caip'
 
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
-
-export const getBanxaAssets = () => {
-  const banxaAssets = adapters.getSupportedBanxaAssets()
-  const assets: FiatRampAsset[] = banxaAssets.map(asset => ({
-    assetId: asset.assetId,
-    symbol: asset.ticker,
-    // name will be set in useFiatRampCurrencyList hook
-    name: '',
-  }))
-  return assets
-}
 
 export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
   const BANXA_BASE_URL = new URL('https://shapeshift.banxa.com/')

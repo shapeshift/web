@@ -1,15 +1,14 @@
 import { Box } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 type BalanceChartArgs = {
   assetIds: AssetId[]
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void

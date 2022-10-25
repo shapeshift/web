@@ -1,22 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import type {
-  AccountSpecifier,
-  AccountSpecifierMap,
-} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
 
@@ -51,7 +46,7 @@ export type TxIdByAssetId = {
 }
 
 export type TxIdByAccountId = {
-  [k: AccountSpecifier]: TxId[]
+  [k: AccountId]: TxId[]
 }
 
 // status is loading until all tx history is fetched
@@ -67,7 +62,7 @@ type RebaseByAssetId = {
 }
 
 type RebaseByAccountId = {
-  [k: AccountSpecifier]: RebaseId[]
+  [k: AccountId]: RebaseId[]
 }
 
 export type TxsState = {
@@ -90,9 +85,9 @@ export type TxHistory = {
   rebases: RebasesState
 }
 
-export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
+export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
 export type TxsMessage = {
-  payload: { txs: Transaction[]; accountSpecifier: string }
+  payload: { txs: Transaction[]; accountId: AccountId }
 }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
@@ -118,9 +113,9 @@ const initialState: TxHistory = {
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 
-const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
   const { txs } = txHistory
-  const txIndex = serializeTxIndex(accountSpecifier, tx.txid, tx.address)
+  const txIndex = serializeTxIndex(accountId, tx.txid, tx.address, tx.data)
 
   const isNew = !txs.byId[txIndex]
 
@@ -131,7 +126,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
   if (isNew) {
     const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
     const index = orderedTxs.findIndex(
-      tx => serializeTxIndex(accountSpecifier, tx.txid, tx.address) === txIndex,
+      tx => serializeTxIndex(accountId, tx.txid, tx.address, tx.data) === txIndex,
     )
     txs.ids.splice(index, 0, txIndex)
   }
@@ -142,15 +137,15 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountSpecifier: Accoun
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
       txs.byAssetId[relatedAssetId],
-      serializeTxIndex(accountSpecifier, tx.txid, tx.address),
+      serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
     )
   })
 
   // index the tx by the account that it belongs to
-  txs.byAccountId[accountSpecifier] = addToIndex(
+  txs.byAccountId[accountId] = addToIndex(
     txs.ids,
-    txs.byAccountId[accountSpecifier],
-    serializeTxIndex(accountSpecifier, tx.txid, tx.address),
+    txs.byAccountId[accountId],
+    serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
@@ -197,7 +192,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
 }
 
 type MakeRebaseIdArgs = {
-  accountId: AccountSpecifier
+  accountId: AccountId
   assetId: AssetId
   rebase: RebaseHistory
 }
@@ -210,7 +205,7 @@ const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
 type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
   payload: {
-    accountId: AccountSpecifier
+    accountId: AccountId
     assetId: AssetId
     data: RebaseHistory[]
   }
@@ -228,10 +223,11 @@ export const txHistory = createSlice({
       state.txs.status = payload
     },
     onMessage: (txState, { payload }: TxMessage) =>
-      updateOrInsertTx(txState, payload.message, payload.accountSpecifier),
+      updateOrInsertTx(txState, payload.message, payload.accountId),
     upsertTxs: (txState, { payload }: TxsMessage) => {
+      // TODO(0xdef1cafe): bulk upsert to avoid thousands of renders 🤦‍♂️
       for (const tx of payload.txs) {
-        updateOrInsertTx(txState, tx, payload.accountSpecifier)
+        updateOrInsertTx(txState, tx, payload.accountId)
       }
     },
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
@@ -239,10 +235,8 @@ export const txHistory = createSlice({
   },
 })
 
-type AllTxHistoryArgs = { accountSpecifiersList: AccountSpecifierMap[] }
-
 type RebaseTxHistoryArgs = {
-  accountSpecifierMap: AccountSpecifierMap
+  accountId: AccountId
   portfolioAssetIds: AssetId[]
 }
 
@@ -251,7 +245,10 @@ export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {
+      queryFn: async ({ accountId, portfolioAssetIds }, { dispatch }) => {
+        const { chainId, account: userAddress } = fromAccountId(accountId)
+        // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
+        if (chainId !== ethChainId) return { data: [] }
         // foxy contract address, note not assetIds
         const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
           (acc, { foxy }) => {
@@ -265,25 +262,6 @@ export const txHistoryApi = createApi({
         // don't do anything below if we don't hold a version of foxy
         if (!foxyTokenContractAddressWithBalances.length) return { data: [] }
 
-        // we load rebase history on app load, but pass in all the specifiers
-        // foxy is only on eth mainnet
-        const chainId = ethChainId
-        const entries = Object.entries(accountSpecifierMap)[0]
-        const [accountChainId, userAddress] = entries
-
-        const accountSpecifier = toAccountId({ chainId, account: userAddress })
-        // [] is a valid return type and won't upsert anything
-        if (chainId !== accountChainId) return { data: [] }
-
-        // setup chain adapters
-        const adapters = getChainAdapterManager()
-        if (![...adapters.keys()].includes(KnownChainIds.EthereumMainnet)) {
-          const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${KnownChainIds.EthereumMainnet}`
-          const status = 400
-          const error = { data, status }
-          return { error }
-        }
-
         // setup foxy api
         const foxyApi = getFoxyApi()
 
@@ -294,7 +272,7 @@ export const txHistoryApi = createApi({
             const assetReference = tokenContractAddress
             const assetNamespace = 'erc20'
             const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-            const upsertPayload = { accountId: accountSpecifier, assetId, data }
+            const upsertPayload = { accountId, assetId, data }
             if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
           }),
         )
@@ -305,80 +283,64 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<Transaction[], AllTxHistoryArgs>({
-      queryFn: async ({ accountSpecifiersList }, { dispatch }) => {
-        if (!accountSpecifiersList.length) {
-          return { error: { data: 'getAllTxHistory: no account specifiers provided', status: 400 } }
+    getAllTxHistory: build.query<Transaction[], AccountId[]>({
+      queryFn: async (accountIds, { dispatch }) => {
+        if (!accountIds.length) {
+          return { error: { data: 'getAllTxHistory: no account ids provided', status: 400 } }
         }
 
-        for (const accountSpecifierMap of accountSpecifiersList) {
-          if (isEmpty(accountSpecifierMap)) {
-            moduleLogger.warn(
-              { fn: 'getAllTxHistory', accountSpecifierMap },
-              'no account specifiers provided',
-            )
-            continue
-          }
-
-          const txHistories = await Promise.allSettled(
-            Object.entries(accountSpecifierMap).map(async ([chainId, pubkey]) => {
-              const accountSpecifier = toAccountId({ chainId, account: pubkey })
-              const adapter = getChainAdapterManager().get(chainId)
-              if (!adapter)
-                return {
-                  error: {
-                    data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
-                    status: 400,
-                  },
-                }
-
-              const pageSize = (() => {
-                switch (chainId) {
-                  case KnownChainIds.AvalancheMainnet:
-                  case KnownChainIds.EthereumMainnet:
-                    /**
-                     * 2022-09-15 0xdef1cafe - adding EthereumMainnet due to temporarily degraded performance
-                     */
-                    /**
-                     * as of writing, the data source upstream from unchained can choke and timeout
-                     * on a page size of 100 for avalanche tx history.
-                     *
-                     * using a larger number of smaller requests is a stopgap to prevent timeouts
-                     * until we can address the root cause upstream.
-                     */
-                    return 10
-                  default:
-                    return 100
-                }
-              })()
-
-              let currentCursor: string = ''
-              try {
-                do {
-                  const { cursor, transactions } = await adapter.getTxHistory({
-                    cursor: currentCursor,
-                    pubkey,
-                    pageSize,
-                  })
-
-                  currentCursor = cursor
-
-                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountSpecifier }))
-                } while (currentCursor)
-              } catch (err) {
-                throw new Error(
-                  `failed to fetch tx history for account: ${accountSpecifier}: ${err}`,
-                )
+        const txHistories = await Promise.allSettled(
+          accountIds.map(async accountId => {
+            const { chainId, account: pubkey } = fromAccountId(accountId)
+            const adapter = getChainAdapterManager().get(chainId)
+            if (!adapter)
+              return {
+                error: {
+                  data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+                  status: 400,
+                },
               }
-            }),
-          )
 
-          txHistories.forEach(promise => {
-            if (promise.status === 'rejected') {
-              moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+            const pageSize = (() => {
+              switch (chainId) {
+                case KnownChainIds.AvalancheMainnet:
+                  /**
+                   * as of writing, the data source upstream from unchained can choke and timeout
+                   * on a page size of 100 for avalanche tx history.
+                   *
+                   * using a larger number of smaller requests is a stopgap to prevent timeouts
+                   * until we can address the root cause upstream.
+                   */
+                  return 10
+                default:
+                  return 100
+              }
+            })()
+
+            let currentCursor: string = ''
+            try {
+              do {
+                const { cursor, transactions } = await adapter.getTxHistory({
+                  cursor: currentCursor,
+                  pubkey,
+                  pageSize,
+                })
+
+                currentCursor = cursor
+
+                dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
+              } while (currentCursor)
+            } catch (err) {
+              throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)
             }
-          })
-        }
+          }),
+        )
+
+        txHistories.forEach(promise => {
+          if (promise.status === 'rejected') {
+            moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+          }
+        })
 
         dispatch(txHistory.actions.setStatus('loaded'))
 

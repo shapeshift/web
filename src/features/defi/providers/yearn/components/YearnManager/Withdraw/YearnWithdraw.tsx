@@ -11,7 +11,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -24,6 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -67,6 +68,8 @@ export const YearnWithdraw: React.FC<{
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
@@ -77,9 +80,9 @@ export const YearnWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && vaultAddress && api && chainAdapter)) return
+        if (!(walletState.wallet && vaultAddress && api && chainAdapter && bip44Params)) return
         const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.findByOpportunityId(
             toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
           ),
@@ -99,9 +102,9 @@ export const YearnWithdraw: React.FC<{
         moduleLogger.error(error, 'YearnWithdraw error')
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -109,7 +112,7 @@ export const YearnWithdraw: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, location, query])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -118,7 +121,9 @@ export const YearnWithdraw: React.FC<{
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: ownProps => <Withdraw {...ownProps} onAccountIdChange={handleAccountIdChange} />,
+        component: ownProps => (
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
@@ -126,7 +131,7 @@ export const YearnWithdraw: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])

@@ -5,7 +5,7 @@ import { mode, transparentize } from '@chakra-ui/theme-tools'
 export const ButtonStyle: ComponentStyleConfig = {
   // style object for base or default style
   baseStyle: {
-    borderRadius: 'lg',
+    borderRadius: 'xl',
     _focusVisible: {
       boxShadow: 'outline-inset',
     },

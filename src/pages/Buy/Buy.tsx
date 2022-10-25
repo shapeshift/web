@@ -24,7 +24,7 @@ export const Buy = () => {
   }, [dispatch])
 
   return (
-    <Main p={0}>
+    <Main p={0} paddingInline={{ base: 0, md: 0 }}>
       <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
         <PageContainer>
           <Flex
@@ -79,8 +79,14 @@ export const Buy = () => {
                   {translate('buyPage.cta.title.first')}{' '}
                   <Text as='span' color='white' translation='buyPage.cta.title.second' />
                 </Heading>
-                <Button size='lg' variant='solid' colorScheme='blue' onClick={handleConnect}>
-                  Connect Wallet
+                <Button
+                  size='lg'
+                  data-test='buy-page-connect-wallet-button'
+                  variant='solid'
+                  colorScheme='blue'
+                  onClick={handleConnect}
+                >
+                  {translate('common.connectWallet')}
                 </Button>
               </Stack>
               <Box

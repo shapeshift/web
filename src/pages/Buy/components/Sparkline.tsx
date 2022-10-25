@@ -5,8 +5,6 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { curveLinear } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
-import { makeBalanceChartData } from 'hooks/useBalanceChartData/utils'
-import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
@@ -21,8 +19,6 @@ type SparkLineProps = {
 export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) => {
   const assetIds = useMemo(() => [assetId], [assetId])
   const timeframe = HistoryTimeframe.DAY
-  // fetch price history for this asset
-  useFetchPriceHistories({ assetIds, timeframe })
 
   const priceData = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
@@ -32,12 +28,12 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
 
-  const data = useMemo(() => makeBalanceChartData(priceData), [priceData])
-
-  const accessors = {
-    xAccessor: (d: HistoryData) => d.date,
-    yAccessor: (d: HistoryData) => d.price,
-  }
+  const accessors = useMemo(() => {
+    return {
+      xAccessor: (d: HistoryData) => d.date,
+      yAccessor: (d: HistoryData) => d.price,
+    }
+  }, [])
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
   const [chartColor] = useToken('colors', [color])
@@ -56,7 +52,7 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
         >
           <LineSeries
             dataKey={`${assetId}-series`}
-            data={data.total}
+            data={priceData}
             stroke={chartColor}
             curve={curveLinear}
             {...accessors}

@@ -1,6 +1,7 @@
-import { Button, Heading } from '@chakra-ui/react'
+import { Box, Button, Heading } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -19,6 +20,7 @@ type RowProps = Row<AssetWithMarketData>
 
 export const TopAssets = () => {
   const { fiatRamps } = useModal()
+  const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
 
   const columns: Column<AssetWithMarketData>[] = useMemo(
@@ -87,16 +89,18 @@ export const TopAssets = () => {
   )
 
   return (
-    <PageContainer maxWidth='6xl' flexDir='column' gap={4} display='flex' py='5rem'>
-      <Heading as='h4' px={{ base: 2, xl: 4 }}>
-        Top Assets
-      </Heading>
-      <ReactTable
-        columns={columns}
-        data={fiatRampBuyAssetsWithMarketData}
-        initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
-        onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
-      />
-    </PageContainer>
+    <Box>
+      <PageContainer maxWidth='6xl' flexDir='column' gap={4} display='flex' py='5rem'>
+        <Heading as='h4' px={{ base: 2, xl: 4 }}>
+          {translate('buyPage.topAssets')}
+        </Heading>
+        <ReactTable
+          columns={columns}
+          data={fiatRampBuyAssetsWithMarketData}
+          initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
+          onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
+        />
+      </PageContainer>
+    </Box>
   )
 }

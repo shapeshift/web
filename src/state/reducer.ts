@@ -8,6 +8,7 @@ import { foxyApi } from './apis/foxy/foxyApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { foxEth, foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
+import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -38,6 +39,7 @@ export const sliceReducers = {
   validatorData: validatorData.reducer,
   swapperApi: swapperApi.reducer,
   foxEth: foxEth.reducer,
+  opportunities: opportunities.reducer,
 }
 
 export const apiSlices = {
@@ -48,6 +50,7 @@ export const apiSlices = {
   validatorDataApi,
   fiatRampApi,
   foxEthApi,
+  opportunitiesApi,
 }
 
 export const apiReducers = {
@@ -60,6 +63,7 @@ export const apiReducers = {
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [foxEthApi.reducerPath]: foxEthApi.reducer,
+  [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

@@ -7314,10 +7314,10 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
-"@wherever/react-notification-feed@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.5.tgz#69e307d06bc11867be468e1e60c01b8832b6ca93"
-  integrity sha512-MrrNJuJZfGKyCNsJmbuD5kgC82H4UEDADVYmetp7O0x26NYYbb4T40xOYA28nH+m+nbzwhmWTqL4sqMleWec6g==
+"@wherever/react-notification-feed@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.7.tgz#ee866f6ce03ae7b14976224bb5e8289e8449cdf3"
+  integrity sha512-KeBrGI4ZStJZjj+yyLxpVE7utnRpsn4uKvpeXOqPlcnuXH/Os3ASMFQMI5doEENseoMZtD18aC+cda6qLjws0w==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@emotion-icons/octicons" "^3.27.0"

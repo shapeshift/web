@@ -339,35 +339,21 @@ function playSound(type: any) {
   }
 }
 
-const getInitialState = () => {
-  const localWalletType = getLocalWalletType()
-  const localWalletDeviceId = getLocalWalletDeviceId()
-  //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
-  if (
-    (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
-    (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
-  )
-    return initialState
-  if (localWalletType && localWalletDeviceId) {
-    /**
-     * set isLoadingLocalWallet->true to bypass splash screen
-     */
-    return {
-      ...initialState,
-      isLoadingLocalWallet: true,
-    }
-  }
-  return initialState
-}
-
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // External, exposed state to be consumed with useWallet()
-  const [state, dispatch] = useReducer(reducer, getInitialState())
+  const [state, dispatch] = useReducer(reducer, initialState)
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   // Keepkey is in a fucked state and needs to be unplugged/replugged
   const [needsReset, setNeedsReset] = useState(false)
+  // to know we are in the process of updating bootloader or firmware
+  // so we dont unintentionally show the keepkey error modal while updating
+  const [isUpdatingKeepkey, setIsUpdatingKeepkey] = useState(false)
+
+  const setNeedsResetIfNotUpdating = useCallback(() => {
+    if (!isUpdatingKeepkey) setNeedsReset(true)
+  }, [isUpdatingKeepkey])
 
   const disconnect = useCallback(() => {
     /**
@@ -430,34 +416,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   disconnect()
                 }
               } catch (e) {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.WalletConnect:
-              const localWalletConnectWallet = await state.adapters
-                .get(KeyManager.WalletConnect)
-                ?.pairDevice()
-              if (localWalletConnectWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnect]
-                try {
-                  await localWalletConnectWallet.initialize()
-                  const deviceId = await localWalletConnectWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localWalletConnectWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -609,7 +567,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           }
         } catch (e) {
           moduleLogger.error(e, 'Error initializing HDWallet adapters')
-          setNeedsReset(true)
+          setNeedsResetIfNotUpdating()
         }
       }
     }, 2000),
@@ -637,7 +595,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('hardware', (_event, data) => {
       //event
       console.log('hardware event: ', data)
-
       switch (data.event.event) {
         case 'connect':
           playSound('success')
@@ -656,7 +613,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('@keepkey/hardwareError', (_event, _data) => {
-      setNeedsReset(true)
+      setNeedsResetIfNotUpdating()
     })
 
     ipcRenderer.on('@keepkey/state', (_event, data) => {
@@ -795,7 +752,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('@keepkey/connected', async (_event, data) => {
+    ipcRenderer.on('@keepkey/connected', async (_event, _data) => {
       setNeedsReset(false)
       pairAndConnect.current()
     })
@@ -803,7 +760,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     //END HDwallet API
 
     ipcRenderer.send('@app/start', {})
-  }, [state.wallet])
+  }, [setNeedsResetIfNotUpdating, state.wallet])
 
   useEffect(() => {
     disconnect()
@@ -848,6 +805,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setDeviceState,
       onProviderChange,
       needsReset,
+      setNeedsReset,
+      isUpdatingKeepkey,
+      setIsUpdatingKeepkey,
     }),
     [
       state,
@@ -859,6 +819,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       onProviderChange,
       needsReset,
       setNeedsReset,
+      setIsUpdatingKeepkey,
+      isUpdatingKeepkey,
     ],
   )
 

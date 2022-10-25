@@ -32,7 +32,7 @@ type OpportunityMetadata = {
 }
 
 // User-specific values for this opportunity
-type UserStakingOpportunity = {
+export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
@@ -40,11 +40,11 @@ type UserStakingOpportunity = {
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-type StakingId = Nominal<string, 'StakingId'>
+export type StakingId = Nominal<string, 'StakingId'>
 // The AccountId of the LP contract in the form of chainId:accountAddress
-type LpId = Nominal<string, 'LpId'>
+export type LpId = Nominal<string, 'LpId'>
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
-type UserStakingId = `${AccountId}*${StakingId}`
+export type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {

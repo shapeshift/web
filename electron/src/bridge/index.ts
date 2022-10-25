@@ -146,6 +146,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         console.log('keepkey state 2')
                         break;
                     case 5:
+                        queueIpcEvent('@keepkey/needsInitialize', {})
                         //launch init seed window?
                         keepkey.device = Controller.device
                         // @ts-ignore

@@ -14,7 +14,7 @@ import {
   Stack,
   Text as ChakraText,
 } from '@chakra-ui/react'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 // import { SessionTypes } from '@walletconnect/types'
 import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
@@ -46,7 +46,7 @@ export const PairModal = (input: PairingProps) => {
   const [loading] = useState(false)
   const { pair } = useModal()
   const { close, isOpen } = pair
-  const [accounts, setAccounts] = useState<Array<string>>([])
+  const [accounts, setAccounts] = useState<string[]>([])
 
   const { state, dispatch } = useWallet()
 

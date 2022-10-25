@@ -43,7 +43,6 @@ import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
-
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
@@ -62,7 +61,7 @@ export type WalletInfo = {
 
 export type WalletConnectApp = {
   name: string
-  icons: Array<string>
+  icons: string[]
   description: string
   url: string
 }
@@ -840,7 +839,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -854,7 +853,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       onProviderChange,
       needsReset,
     }),
-    [state, connect, create, disconnect, load, setDeviceState, onProviderChange, needsReset],
+    [
+      state,
+      connect,
+      create,
+      disconnect,
+      load,
+      setDeviceState,
+      onProviderChange,
+      needsReset,
+      setNeedsReset,
+    ],
   )
 
   return (

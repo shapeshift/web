@@ -19,6 +19,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
+  setNeedsReset: (needsReset: boolean) => void,
 ) => {
   const {
     keyring,
@@ -45,7 +46,6 @@ export const useKeepKeyEventHandler = (
           isDeviceLoading: false,
         })
       }
-
       switch (message_enum) {
         case MessageType.SUCCESS:
           fnLogger.trace(message.message)
@@ -54,13 +54,23 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              if (modal)
+                dispatch({
+                  type: WalletActions.SET_WALLET_MODAL,
+                  payload: false,
+                })
+              handleDisconnect(deviceId)
+              setNeedsReset(true)
               break
             case 'Device recovered':
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              if (modal)
+                dispatch({
+                  type: WalletActions.SET_WALLET_MODAL,
+                  payload: false,
+                })
               toast({
                 title: translate('common.success'),
                 description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
@@ -90,11 +100,17 @@ export const useKeepKeyEventHandler = (
             'isRecoverySeedBackupRequest',
           )
           if (isRecoverySeedBackupRequest) {
-            dispatch({ type: WalletActions.OPEN_KEEPKEY_RECOVERY, payload: { deviceId } })
+            dispatch({
+              type: WalletActions.OPEN_KEEPKEY_RECOVERY,
+              payload: { deviceId },
+            })
           }
           break
         case MessageType.PASSPHRASEREQUEST:
-          dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
+          dispatch({
+            type: WalletActions.OPEN_KEEPKEY_PASSPHRASE,
+            payload: { deviceId },
+          })
           break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PASSPHRASEACK:
@@ -176,14 +192,9 @@ export const useKeepKeyEventHandler = (
                 if (walletFeatures?.passphraseProtection) {
                   fnLogger.warn('Passphrase canceled')
                   setDeviceState({ awaitingDeviceInteraction: false })
-                  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-                } else {
-                  fnLogger.warn('Device not initialized')
                   dispatch({
-                    type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
-                    payload: {
-                      deviceId,
-                    },
+                    type: WalletActions.SET_WALLET_MODAL,
+                    payload: true,
                   })
                 }
               })()
@@ -288,5 +299,6 @@ export const useKeepKeyEventHandler = (
     disposition,
     toast,
     translate,
+    setNeedsReset,
   ])
 }

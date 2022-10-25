@@ -7,7 +7,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectParamFromFilter, selectParamFromFilterOptional } from 'state/selectors'
+import {
+  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
+} from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
@@ -36,9 +39,6 @@ const farmingOpportunitiesReducer = (
 
   return acc
 }
-
-const selectAccountAddressParamFromFilterOptional = selectParamFromFilterOptional('accountAddress')
-const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 
 const selectContractAddressParamFromFilter = (
   _state: ReduxState,

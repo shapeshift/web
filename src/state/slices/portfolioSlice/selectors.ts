@@ -32,8 +32,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectParamFromFilterOptional } from 'state/selectors'
-import { selectParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectAccountIdParamFromFilterOptional,
+  selectAccountNumberParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
+  selectChainIdParamFromFilter,
+  selectValidatorAddressParamFromFilter,
+} from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
   selectFarmContractsFiatBalance,
@@ -79,15 +86,6 @@ const FEE_ASSET_IDS = [
   ltcAssetId,
   avalancheAssetId,
 ]
-
-const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
-export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
-const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
-const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
-const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
-
-const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
-const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')
 
 export const selectPortfolioAccounts = createSelector(
   (state: ReduxState) => state.portfolio.accounts.byId,

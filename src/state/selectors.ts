@@ -44,3 +44,15 @@ export const selectParamFromFilterOptional = <T extends OptionalParamFilterKey>(
     (_state: ReduxState, filter: Pick<OptionalParamFilter, T>) =>
       `${param}-${filter?.[param]}` ?? param,
   )
+
+export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
+export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
+export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
+export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
+export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
+export const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
+
+export const selectAccountAddressParamFromFilterOptional =
+  selectParamFromFilterOptional('accountAddress')
+export const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
+export const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')

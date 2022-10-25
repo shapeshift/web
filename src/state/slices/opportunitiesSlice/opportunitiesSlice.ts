@@ -67,11 +67,38 @@ export type OpportunitiesState = {
   }
 }
 
+export type OpportunityMetadataById = {
+  [k: StakingId | LpId]: OpportunityMetadata
+}
+
+export type UserStakingOpportunityById = {
+  [k: UserStakingId]: UserStakingOpportunity
+}
+
 export const opportunities = createSlice({
   name: 'opportunitiesData',
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertOpportunityMetadata: (
+      state,
+      { payload }: { payload: { metadata: OpportunityMetadataById; type: 'lp' | 'staking' } },
+    ) => {
+      state[payload.type].byId = {
+        ...state[payload.type].byId,
+        ...payload.metadata,
+      }
+      state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
+    },
+    upsertUserStakingOpportunity: (state, { payload }: { payload: UserStakingOpportunityById }) => {
+      // const [deserializedUserAccountId, deserializedOpportuityAccountId] = ['', '']
+      state.staking.byId = {
+        ...state.staking.byId,
+        ...payload,
+      }
+      state.staking.ids = Array.from(new Set([...Object.keys(payload)]))
+    },
+
     // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:
   },
 })

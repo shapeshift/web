@@ -222,7 +222,9 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 })
 
 
-app.setAsDefaultProtocolClient('keepkey')
+if (process.defaultApp) {
+    app.setAsDefaultProtocolClient('keepkey')
+}
 // Export so you can access it from the renderer thread
 
 if (!isWin) {

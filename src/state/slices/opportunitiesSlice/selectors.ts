@@ -2,7 +2,13 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { ReduxState } from 'state/reducer'
 import { selectAccountIdParamFromFilter, selectUserStakingIdParamFromFilter } from 'state/selectors'
 
-import type { LpId, StakingId, UserStakingId, UserStakingOpportunity } from './opportunitiesSlice'
+import type {
+  LpId,
+  OpportunityMetadata,
+  StakingId,
+  UserStakingOpportunity,
+} from './opportunitiesSlice'
+import { deserializeUserStakingId } from './utils'
 
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
@@ -15,6 +21,8 @@ export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
 export const selectUserStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.userStaking.byId
+export const selectStakingOpportunitiesById = (state: ReduxState) =>
+  state.opportunities.staking.byId
 
 // "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
 export const selectLpOpportunityIdsByAccountId = createSelector(
@@ -30,10 +38,38 @@ export const selectStakingOpportunityIdsByAccountId = createSelector(
   (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],
 )
 
+// I'm not a selector buddy, don't prepend me with `select`
+export const deserializeStakingIdFromUserStakingId = createSelector(
+  selectUserStakingIdParamFromFilter,
+  (userStakingId): StakingId => {
+    if (userStakingId === '') return '*' // Narrowing flavoured template litteral type
+
+    const parts = deserializeUserStakingId(userStakingId)
+    const [, stakingId] = parts
+    return stakingId
+  },
+)
+
 // "Give me the staking value of this accountId for that specific opportunity"
 export const selectUserStakingOpportunityByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
-  (userStakingOpportunities, userStakingId: UserStakingId): UserStakingOpportunity | undefined =>
-    userStakingOpportunities[userStakingId],
+  deserializeStakingIdFromUserStakingId,
+  selectStakingOpportunitiesById,
+  (
+    userStakingOpportunities,
+    userStakingId,
+    stakingId,
+    stakingOpportunities,
+  ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+    if (userStakingId === '') return // Narrowing flavoured template litteral type
+
+    const userOpportunity = userStakingOpportunities[userStakingId]
+    const opportunityMetadata = stakingOpportunities[stakingId]
+
+    return {
+      ...userOpportunity,
+      ...opportunityMetadata,
+    }
+  },
 )

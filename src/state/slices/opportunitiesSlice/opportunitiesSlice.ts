@@ -22,7 +22,7 @@ export const initialState: OpportunitiesState = {
   },
 }
 
-type OpportunityMetadata = {
+export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
   provider: string

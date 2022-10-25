@@ -4,8 +4,10 @@ import type { StakingId, UserStakingId } from './opportunitiesSlice'
 
 type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
-export const deserializeUserStakingId = (userStakingId: UserStakingId) => {
-  const [accountId, stakingId]: UserStakingIdParts = userStakingId.split('*')
+export const deserializeUserStakingId = (userStakingId: UserStakingId): UserStakingIdParts => {
+  const parts = userStakingId.split('*')
+
+  const [accountId, stakingId] = parts
 
   if (!(accountId && stakingId)) throw new Error('Error deserializing UserStakingId')
 

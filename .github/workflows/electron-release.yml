@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - ci-test
+      - release-canidate
   workflow_dispatch:
 
 jobs:

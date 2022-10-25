@@ -1482,6 +1482,11 @@
     }
   },
   "gasInput": {
+    "duration": {
+      "slow": "~ 10 mins",
+      "average": "~ 3 mins",
+      "fast": "~ 3 secs"
+    },
     "estGasCost": "Est. Gas Cost",
     "gasPrice": {
       "label": "Gas Price",

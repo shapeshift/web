@@ -34,7 +34,8 @@ export const App = () => {
 
   const { needsReset } = useWallet()
 
-  const { pair, sign, hardwareError, updateBootloader } = useModal()
+  const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
+    useModal()
 
   useEffect(() => {
     if (needsReset) hardwareError.open({})
@@ -56,9 +57,16 @@ export const App = () => {
       })
     })
 
+    ipcRenderer.on('requestBootloaderMode', () => {
+      requestBootloaderMode.open({})
+    })
+
     ipcRenderer.on('updateBootloader', () => {
-      console.log('now updating bootloader')
       updateBootloader.open({})
+    })
+
+    ipcRenderer.on('updateFirmware', () => {
+      updateFirmware.open({})
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

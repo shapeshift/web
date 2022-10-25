@@ -24,6 +24,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getAssetUrl } from 'lib/getAssetUrl'
+import { logger } from 'lib/logger'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
@@ -43,6 +44,10 @@ export const SignModal = (input: any) => {
   const [gasLimit, setGasLimit] = useState('')
 
   const [holdAndRelease, setHoldAndRelease] = useState(KeepKey)
+
+  const moduleLogger = logger.child({
+    namespace: ['Sign'],
+  })
 
   useEffect(() => {
     getAssetUrl(KeepKey).then(setHoldAndRelease)
@@ -70,77 +75,80 @@ export const SignModal = (input: any) => {
 
   const handleToggle = () => setShow(!show)
 
-  const signTx = useCallback(async (unsignedTx: any, wallet: any) => {
-    try {
-      if (!wallet) throw Error('Can not not sign if a HDWwallet is not paired!')
-      if (!unsignedTx) throw Error('Invalid payload! empty')
-      if (!unsignedTx.HDwalletPayload) throw Error('Invalid payload! missing: HDwalletPayload')
+  const signTx = useCallback(
+    async (unsignedTx: any, wallet: any) => {
+      try {
+        if (!wallet) throw Error('Can not not sign if a HDWwallet is not paired!')
+        if (!unsignedTx) throw Error('Invalid payload! empty')
+        if (!unsignedTx.HDwalletPayload) throw Error('Invalid payload! missing: HDwalletPayload')
 
-      //TODO validate payload
-      //TODO validate fee's
-      //TODO load EV data
+        //TODO validate payload
+        //TODO validate fee's
+        //TODO load EV data
 
-      let signedTx
-      let broadcastString
-      let buffer
-      let txid
-      switch (unsignedTx.network) {
-        case 'RUNE':
-          signedTx = await wallet.thorchainSignTx(unsignedTx.HDwalletPayload)
+        let signedTx
+        let broadcastString
+        let buffer
+        let txid
+        switch (unsignedTx.network) {
+          case 'RUNE':
+            signedTx = await wallet.thorchainSignTx(unsignedTx.HDwalletPayload)
 
-          broadcastString = {
-            tx: signedTx,
-            type: 'cosmos-sdk/StdTx',
-            mode: 'sync',
-          }
-          buffer = Buffer.from(JSON.stringify(broadcastString), 'base64')
-          //TODO FIXME
-          txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+            broadcastString = {
+              tx: signedTx,
+              type: 'cosmos-sdk/StdTx',
+              mode: 'sync',
+            }
+            buffer = Buffer.from(JSON.stringify(broadcastString), 'base64')
+            //TODO FIXME
+            txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
 
-          signedTx.serialized = JSON.stringify(broadcastString)
-          signedTx.txid = txid
-          break
-        case 'ATOM':
-          signedTx = await wallet.cosmosSignTx(unsignedTx.HDwalletPayload)
-          txid = cryptoTools
-            .createHash('sha256')
-            .update(signedTx.serialized)
-            .digest('hex')
-            .toUpperCase()
-          signedTx.txid = txid
-          break
-        case 'OSMO':
-          signedTx = await wallet.osmosisSignTx(unsignedTx.HDwalletPayload)
-          buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
-          //TODO FIXME
-          txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
-          signedTx.txid = txid
-          break
-        case 'ETH':
-          signedTx = await wallet.ethSignTx(unsignedTx.HDwalletPayload)
-          //TODO do txid hashing in HDwallet
-          //txid = keccak256(signedTx.serialized).toString('hex')
-          txid = 'broke'
-          signedTx.txid = txid
-          break
-        case 'BTC':
-        case 'BCH':
-        case 'LTC':
-        case 'DOGE':
-        case 'DASH':
-        case 'DGB':
-        case 'RDD':
-          signedTx = await wallet.btcSignTx(unsignedTx.HDwalletPayload)
-          break
-        default:
-          throw Error('network not supported! ' + unsignedTx.network)
+            signedTx.serialized = JSON.stringify(broadcastString)
+            signedTx.txid = txid
+            break
+          case 'ATOM':
+            signedTx = await wallet.cosmosSignTx(unsignedTx.HDwalletPayload)
+            txid = cryptoTools
+              .createHash('sha256')
+              .update(signedTx.serialized)
+              .digest('hex')
+              .toUpperCase()
+            signedTx.txid = txid
+            break
+          case 'OSMO':
+            signedTx = await wallet.osmosisSignTx(unsignedTx.HDwalletPayload)
+            buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
+            //TODO FIXME
+            txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+            signedTx.txid = txid
+            break
+          case 'ETH':
+            signedTx = await wallet.ethSignTx(unsignedTx.HDwalletPayload)
+            //TODO do txid hashing in HDwallet
+            //txid = keccak256(signedTx.serialized).toString('hex')
+            txid = 'broke'
+            signedTx.txid = txid
+            break
+          case 'BTC':
+          case 'BCH':
+          case 'LTC':
+          case 'DOGE':
+          case 'DASH':
+          case 'DGB':
+          case 'RDD':
+            signedTx = await wallet.btcSignTx(unsignedTx.HDwalletPayload)
+            break
+          default:
+            throw Error('network not supported! ' + unsignedTx.network)
+        }
+
+        return signedTx
+      } catch (e) {
+        moduleLogger.error(e, 'sign error')
       }
-
-      return signedTx
-    } catch (e) {
-      console.error('failed to sign! e: ', e)
-    }
-  }, [])
+    },
+    [moduleLogger],
+  )
 
   const HandleSubmit = useCallback(async () => {
     setIsApproved(true)

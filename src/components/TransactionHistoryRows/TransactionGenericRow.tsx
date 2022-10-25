@@ -3,6 +3,7 @@ import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import React from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
@@ -109,10 +110,14 @@ export const TransactionGenericRow = ({
     return Object.values(transfersByType).map((transfersOfType, index) => {
       const hasManyTypeTransfers = transfersOfType.length > 1
 
-      return hasManyTypeTransfers ? (
-        <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
-      ) : (
-        <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
+      return (
+        <React.Fragment key={index}>
+          {hasManyTypeTransfers ? (
+            <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
+          ) : (
+            <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
+          )}
+        </React.Fragment>
       )
     })
   }, [compactMode, transfersByType])

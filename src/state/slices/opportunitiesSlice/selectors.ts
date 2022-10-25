@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import {
   selectAccountIdParamFromFilter,
@@ -104,5 +105,24 @@ export const selectUserStakingOpportunitiesByStakingId = createSelector(
       ...userStakingOpportunities[userStakingOpportunityId],
       ...stakingOpportunities[stakingId],
     }))
+  },
+)
+
+export const selectAggregatedUserStakingOpportunityByStakingId = createSelector(
+  selectUserStakingOpportunitiesByStakingId,
+  (userStakingOpportunities): UserStakingOpportunity => {
+    return userStakingOpportunities.reduce((acc, userStakingOpportunity) => {
+      acc = {
+        ...userStakingOpportunity,
+        stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
+          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+          .toString(),
+        rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
+          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+          .toString(),
+      }
+
+      return acc
+    }, {} as UserStakingOpportunity)
   },
 )

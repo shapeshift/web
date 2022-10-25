@@ -69,8 +69,13 @@ export class Parser implements SubParser<Tx> {
     if (!abiInterface) return
 
     if (!this.yearnTokenVaultAddresses) {
-      const vaults = await this.yearnSdk?.vaults.get()
-      this.yearnTokenVaultAddresses = vaults?.map((vault) => vault.address)
+      try {
+        const vaults = await this.yearnSdk?.vaults.get()
+        this.yearnTokenVaultAddresses = vaults?.map((vault) => vault.address)
+      } catch (e) {
+        console.error('yearn tx parser unable to fetch vaults', e)
+        return
+      }
     }
 
     const decoded = abiInterface.parseTransaction({ data: tx.inputData })

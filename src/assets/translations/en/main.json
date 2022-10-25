@@ -79,6 +79,21 @@
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
   },
+  "buyPage": {
+    "title": {
+      "first": "Buy Crypto",
+      "second": "in Seconds"
+    },
+    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or hundreds of other cryptocurrencies.",
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
+    "cta": {
+      "title": {
+        "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
+        "second": "track your crypto across 8 chains"
+      }
+    },
+    "topAssets": "Top Assets"
+  },
   "updateToast": {
     "body": "A new version of the app is available",
     "cta": "Reload App",
@@ -108,6 +123,7 @@
       "value": "Value",
       "priceChange": "Price Change",
       "allocation": "Allocation",
+      "marketCap": "Market Cap",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
@@ -383,7 +399,8 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade"
+    "trade": "Trade",
+    "buyCrypto": "Buy Crypto"
   },
   "transactionRow": {
     "send": "Sent",

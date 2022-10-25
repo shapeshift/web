@@ -5,6 +5,7 @@ import { fiatRamps, supportedFiatRamps } from 'components/Modals/FiatRamps/confi
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const moduleLogger = logger.child({ namespace: ['fiatRampApi'] })
 
@@ -27,7 +28,7 @@ export const fiatRampApi = createApi({
   endpoints: build => ({
     getFiatRamps: build.query<FiatRampsByAssetId, void>({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
-      queryFn: async () => {
+      queryFn: async (_, { dispatch }) => {
         try {
           const promiseResults = await Promise.allSettled(
             Object.values(supportedFiatRamps).map(provider => provider.getBuyAndSellList()),
@@ -54,6 +55,11 @@ export const fiatRampApi = createApi({
               return acc
             },
             { byAssetId: {}, buyAssetIds: [], sellAssetIds: [] },
+          )
+          const allFiatAssetIds = [...data.buyAssetIds, ...data.sellAssetIds]
+          // fetch market data for all fiat ramp asset ids
+          allFiatAssetIds.forEach(assetId =>
+            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
           )
           return { data }
         } catch (e) {

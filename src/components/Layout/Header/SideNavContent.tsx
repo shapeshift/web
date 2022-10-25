@@ -1,11 +1,13 @@
 import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
+import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
@@ -21,6 +23,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
 
   const handleClick = (onClick?: () => void) => {
     onClose && onClose()
@@ -55,6 +58,11 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             </Flex>
             <ChainMenu />
           </Flex>
+          {isWalletConnectToDappsEnabled && (
+            <Box width='full'>
+              <WalletConnectToDappsHeaderButton />
+            </Box>
+          )}
           <Box width='full'>
             <AutoCompleteSearch />
           </Box>

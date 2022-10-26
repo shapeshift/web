@@ -49,6 +49,17 @@ const transformValidator = (validator: unchained.cosmossdk.types.Validator): Val
   apr: validator.apr,
 })
 
+const parsedTxToTransaction = (parsedTx: unchained.cosmossdk.ParsedTx): Transaction => ({
+  ...parsedTx,
+  transfers: parsedTx.transfers.map((transfer) => ({
+    assetId: transfer.assetId,
+    from: transfer.from,
+    to: transfer.to,
+    type: transfer.type,
+    value: transfer.totalValue,
+  })),
+})
+
 export const cosmosSdkChainIds = [
   KnownChainIds.CosmosMainnet,
   KnownChainIds.OsmosisMainnet,
@@ -198,28 +209,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       const txs = await Promise.all(
         data.txs.map(async (tx) => {
           const parsedTx = await this.parser.parse(tx, input.pubkey)
-
-          return {
-            address: input.pubkey,
-            blockHash: parsedTx.blockHash,
-            blockHeight: parsedTx.blockHeight,
-            blockTime: parsedTx.blockTime,
-            chainId: parsedTx.chainId,
-            chain: this.getType(),
-            confirmations: parsedTx.confirmations,
-            txid: parsedTx.txid,
-            fee: parsedTx.fee,
-            status: parsedTx.status,
-            trade: parsedTx.trade,
-            transfers: parsedTx.transfers.map((transfer) => ({
-              assetId: transfer.assetId,
-              from: transfer.from,
-              to: transfer.to,
-              type: transfer.type,
-              value: transfer.totalValue,
-            })),
-            data: parsedTx.data,
-          }
+          return parsedTxToTransaction(parsedTx)
         }),
       )
 
@@ -274,27 +264,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       subscriptionId,
       { topic: 'txs', addresses: [address] },
       async (msg) => {
-        const tx = await this.parser.parse(msg.data, msg.address)
-
-        onMessage({
-          address: tx.address,
-          blockHash: tx.blockHash,
-          blockHeight: tx.blockHeight,
-          blockTime: tx.blockTime,
-          chainId: tx.chainId,
-          confirmations: tx.confirmations,
-          fee: tx.fee,
-          status: tx.status,
-          trade: tx.trade,
-          transfers: tx.transfers.map((transfer) => ({
-            assetId: transfer.assetId,
-            from: transfer.from,
-            to: transfer.to,
-            type: transfer.type,
-            value: transfer.totalValue,
-          })),
-          txid: tx.txid,
-        })
+        const parsedTx = await this.parser.parse(msg.data, msg.address)
+        onMessage(parsedTxToTransaction(parsedTx))
       },
       (err) => onError({ message: err.message }),
     )

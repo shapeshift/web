@@ -6,6 +6,7 @@ import type { UserStakingId } from './opportunitiesSlice'
 import { initialState } from './opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
+  selectHighestBalanceUserStakingIdByStakingId,
   selectLpOpportunityIdsByAccountId,
   selectStakingOpportunityIdsByAccountId,
   selectUserStakingOpportunitiesByStakingId,
@@ -17,25 +18,53 @@ describe('opportunitiesSlice selectors', () => {
     ...mockStore,
     opportunities: initialState,
   }
-  describe('selects IDs', () => {
+  describe('selects ID/s', () => {
     const lp = {
       ...initialState.lp,
       byAccountId: {
-        'eip155:1:0xgomes': ['eip155:1:0xLpOne', 'eip155:1:0xLpTwo'],
+        'eip155:1:0xgomes': ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
+        'eip155:1:fauxmes': ['eip155:1:0xLpContractOne'],
       },
+      ids: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
     }
     const staking = {
       ...initialState.staking,
       byAccountId: {
-        'eip155:1:0xgomes': ['eip155:1:0xLpOne', 'eip155:1:0xLpTwo'],
+        'eip155:1:0xgomes': ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
+        'eip155:1:fauxmes': ['eip155:1:0xLpContractOne'],
+      },
+      ids: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
+    }
+    const userStaking = {
+      ...initialState.staking,
+      ids: [
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
+        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne',
+      ] as UserStakingId[],
+      byId: {
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
+          stakedAmountCryptoPrecision: '1337',
+          rewardsAmountCryptoPrecision: '420',
+        },
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
+          stakedAmountCryptoPrecision: '4',
+          rewardsAmountCryptoPrecision: '3',
+        },
+        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne': {
+          stakedAmountCryptoPrecision: '9000',
+          rewardsAmountCryptoPrecision: '1',
+        },
       },
     }
+
     const mockState = {
       ...baseState,
       opportunities: {
         ...initialState,
         lp,
         staking,
+        userStaking,
       },
     }
     describe('selectLpOpportunityIdsByAccountId', () => {
@@ -44,7 +73,7 @@ describe('opportunitiesSlice selectors', () => {
           accountId: 'eip155:1:0xgomes',
         })
 
-        expect(result).toEqual(['eip155:1:0xLpOne', 'eip155:1:0xLpTwo'])
+        expect(result).toEqual(['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'])
       })
     })
     describe('selectStakingOpportunityIdsByAccountId', () => {
@@ -53,7 +82,16 @@ describe('opportunitiesSlice selectors', () => {
           accountId: 'eip155:1:0xgomes',
         })
 
-        expect(result).toEqual(['eip155:1:0xLpOne', 'eip155:1:0xLpTwo'])
+        expect(result).toEqual(['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'])
+      })
+    })
+    describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
+      it('can get the highest balance UserStakingId for a given StakingId', () => {
+        const result = selectHighestBalanceUserStakingIdByStakingId(mockState, {
+          stakingId: 'eip155:1:0xLpContractOne',
+        })
+
+        expect(result).toEqual('eip155:1:0xfauxmes*eip155:1:0xLpContractOne')
       })
     })
   })
@@ -64,16 +102,16 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        'eip155:1:0xgomes*eip155:1:0xLpTwo',
-        'eip155:1:0xgomes*eip155:1:0xLpOne',
-        'eip155:1:0xfauxmes*eip155:1:0xLpOne',
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
+        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne',
       ] as UserStakingId[],
       byId: {
-        'eip155:1:0xgomes*eip155:1:0xLpTwo': {
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        'eip155:1:0xgomes*eip155:1:0xLpOne': {
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -92,7 +130,7 @@ describe('opportunitiesSlice selectors', () => {
     it('can get the staking data for a given UserStakingId', () => {
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpTwo',
+          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '1337',
@@ -100,7 +138,7 @@ describe('opportunitiesSlice selectors', () => {
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpOne',
+          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractOne',
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '4',
@@ -112,9 +150,9 @@ describe('opportunitiesSlice selectors', () => {
     const staking = {
       ...initialState.staking,
       byId: {
-        'eip155:1:0xLpTwo': {
+        'eip155:1:0xLpContractTwo': {
           apy: '1000',
-          assetId: 'eip155:1:0xLpTwo',
+          assetId: 'eip155:1:0xLpContractTwo',
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
@@ -125,20 +163,20 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        'eip155:1:0xgomes*eip155:1:0xLpTwo',
-        'eip155:1:0xcatpuccino*eip155:1:0xLpTwo',
-        'eip155:1:0xgomes*eip155:1:0xLpOne',
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
+        'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo',
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
       ] as UserStakingId[],
       byId: {
-        'eip155:1:0xgomes*eip155:1:0xLpTwo': {
+        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        'eip155:1:0xcatpuccino*eip155:1:0xLpTwo': {
+        'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo': {
           stakedAmountCryptoPrecision: '100',
           rewardsAmountCryptoPrecision: '10',
         },
-        'eip155:1:0xgomes*eip155:1:0xLpOne': {
+        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -156,30 +194,30 @@ describe('opportunitiesSlice selectors', () => {
     describe('selectUserStakingOpportunitiesByStakingId', () => {
       it('can get the staking data for a given StakingId', () => {
         const result = selectUserStakingOpportunitiesByStakingId(mockState, {
-          stakingId: 'eip155:1:0xLpTwo',
+          stakingId: 'eip155:1:0xLpContractTwo',
         })
         expect(result).toEqual([
           {
             apy: '1000',
-            assetId: 'eip155:1:0xLpTwo',
+            assetId: 'eip155:1:0xLpContractTwo',
             provider: DefiProvider.FoxEthLP,
             rewardsAmountCryptoPrecision: '420',
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpTwo',
+            userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
           },
           {
             apy: '1000',
-            assetId: 'eip155:1:0xLpTwo',
+            assetId: 'eip155:1:0xLpContractTwo',
             provider: DefiProvider.FoxEthLP,
             rewardsAmountCryptoPrecision: '10',
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xLpTwo',
+            userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo',
           },
         ])
       })
@@ -187,11 +225,11 @@ describe('opportunitiesSlice selectors', () => {
     describe('selectAggregatedUserStakingOpportunityByStakingId', () => {
       it('can get the aggregated staking opportunity for a given StakingId', () => {
         const result = selectAggregatedUserStakingOpportunityByStakingId(mockState, {
-          stakingId: 'eip155:1:0xLpTwo',
+          stakingId: 'eip155:1:0xLpContractTwo',
         })
         expect(result).toEqual({
           apy: '1000',
-          assetId: 'eip155:1:0xLpTwo',
+          assetId: 'eip155:1:0xLpContractTwo',
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,

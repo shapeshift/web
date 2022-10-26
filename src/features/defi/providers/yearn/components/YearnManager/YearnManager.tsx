@@ -23,17 +23,17 @@ export const YearnManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <YearnOverview onAccountIdChange={setAccountId} />
+          <YearnOverview accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (
         <SlideTransition key={DefiAction.Deposit}>
-          <YearnDeposit onAccountIdChange={setAccountId} accountId={accountId} />
+          <YearnDeposit accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
-          <YearnWithdraw onAccountIdChange={setAccountId} accountId={accountId} />
+          <YearnWithdraw accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

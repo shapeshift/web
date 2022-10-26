@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Radio, Spinner, Stack, useColorModeValue } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
@@ -26,7 +26,7 @@ function getFeeColor(key: FeeDataKey): string {
   }
 }
 
-function getFeeTranslation(key: FeeDataKey): string {
+export function getFeeTranslation(key: FeeDataKey): string {
   switch (key) {
     case FeeDataKey.Slow:
       return 'modals.send.sendForm.slow'
@@ -71,9 +71,9 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   }
 
   return (
-    <ButtonGroup
-      variant='ghost'
+    <Stack
       width='full'
+      direction={{ base: 'column', md: 'row' }}
       bg={bg}
       borderWidth={1}
       borderColor={borderColor}
@@ -89,9 +89,11 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
         return (
           <Button
             display='flex'
-            flexDir='column'
+            flexDir={{ base: 'row', md: 'column' }}
+            variant='ghost'
             textAlign='left'
-            alignItems='flex-start'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+            justifyContent='space-between'
             key={`fee-${key}`}
             py={2}
             width='full'
@@ -99,7 +101,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             onClick={() => field.onChange(key)}
             isActive={activeFee === key}
           >
-            <Box fontSize='sm' mb={2} display='flex' alignItems='center'>
+            <Box fontSize='sm' mb={{ base: 0, md: 2 }} display='flex' alignItems='center'>
               <Radio
                 colorScheme={color}
                 id={key}
@@ -109,22 +111,24 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               />
               <Text translation={translation} />
             </Box>
-            <Amount.Crypto
-              fontSize='sm'
-              fontWeight='normal'
-              maximumFractionDigits={6}
-              symbol={feeAsset.symbol}
-              value={current.txFee}
-            />
-            <Amount.Fiat
-              color='gray.500'
-              fontSize='sm'
-              fontWeight='normal'
-              value={current.fiatFee}
-            />
+            <Stack spacing={0} alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+              <Amount.Crypto
+                fontSize='sm'
+                fontWeight='normal'
+                maximumFractionDigits={6}
+                symbol={feeAsset.symbol}
+                value={current.txFee}
+              />
+              <Amount.Fiat
+                color='gray.500'
+                fontSize='sm'
+                fontWeight='normal'
+                value={current.fiatFee}
+              />
+            </Stack>
           </Button>
         )
       })}
-    </ButtonGroup>
+    </Stack>
   )
 }

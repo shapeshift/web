@@ -11,14 +11,19 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual } from 'react-icons/fa'
+import { useCallback, useState } from 'react'
+import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { mobileLogger } from 'context/WalletProvider/MobileWallet/config'
+import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 import {
   selectCurrencyFormat,
   selectSelectedCurrency,
@@ -36,9 +41,11 @@ type SettingsListProps = {
 } & RouteComponentProps
 
 export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) => {
+  const { disconnect } = useWallet()
   const translate = useTranslate()
   const { settings } = useModal()
   const { toggleColorMode } = useColorMode()
+  const [clickCount, setClickCount] = useState<number>(0)
   const isLightMode = useColorModeValue(true, false)
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -46,14 +53,42 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
 
+  /**
+   * tapping 5 times on the settings header will close this modal and take you to the flags page
+   * useful for QA team and unlikely to be triggered by a regular user
+   */
+  const handleHeaderClick = useCallback(() => {
+    if (clickCount === 4) {
+      setClickCount(0)
+      settings.close()
+      appHistory.push('/flags')
+    } else {
+      setClickCount(clickCount + 1)
+    }
+  }, [appHistory, clickCount, setClickCount, settings])
+
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
     appHistory.push(linkHref)
   }
 
+  const handleDeleteAccountsClick = async () => {
+    if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
+      try {
+        await deleteWallet('*')
+        settings.close()
+        disconnect()
+      } catch (e) {
+        mobileLogger.error(e, 'Error deleting wallets')
+      }
+    }
+  }
+
   return (
     <SlideTransition>
-      <ModalHeader textAlign='center'>{translate('modals.settings.settings')}</ModalHeader>
+      <ModalHeader textAlign='center' userSelect='none' onClick={handleHeaderClick}>
+        {translate('modals.settings.settings')}
+      </ModalHeader>
       <ModalCloseButton />
       <ModalBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
         <Stack width='full' p={0}>
@@ -126,6 +161,17 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             onClick={() => closeModalAndNavigateTo('/legal/privacy-policy')}
             icon={<Icon as={IoDocumentTextOutline} color='gray.500' />}
           />
+          {isMobileApp && (
+            <>
+              <Divider my={1} />
+              <SettingsListItem
+                color='red.500'
+                label='modals.settings.clearWalletAccountData'
+                onClick={handleDeleteAccountsClick}
+                icon={<FaTrash />}
+              />
+            </>
+          )}
         </Stack>
       </ModalBody>
     </SlideTransition>

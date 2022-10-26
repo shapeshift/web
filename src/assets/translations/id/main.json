@@ -436,13 +436,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "Rendah",
-        "medium": "Medium",
-        "high": "Tinggi"
-      }
-    },
     "send": {
       "getBalanceError": "Kesalahan mendapatkan saldo dompet",
       "broadcastingTransaction": "Transaksi Penyiaran",

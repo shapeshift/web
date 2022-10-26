@@ -13,7 +13,12 @@ type SelectAssetViewProps = {
 } & SelectAssetLocation &
   RouteComponentProps
 
-export const SelectAssetView = ({ onClick, onBack, toRoute, assetId }: SelectAssetViewProps) => {
+export const SelectAssetView = ({
+  onClick,
+  onBack: handleBack,
+  toRoute,
+  assetId,
+}: SelectAssetViewProps) => {
   const location = useLocation<SelectAssetLocation>()
   const history = useHistory()
 
@@ -29,7 +34,7 @@ export const SelectAssetView = ({ onClick, onBack, toRoute, assetId }: SelectAss
       <Route
         path={SelectAssetRoutes.Search}
         component={(props: RouteComponentProps) => (
-          <SelectAssets onBack={onBack} onClick={onClick} {...props} />
+          <SelectAssets onBack={handleBack} onClick={onClick} {...props} />
         )}
       />
       <Redirect from='/' to={SelectAssetRoutes.Search} />

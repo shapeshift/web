@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -10,6 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -77,6 +78,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
   )
 
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
@@ -85,7 +90,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       !(
         dispatch &&
         bip44Params &&
-        state?.userAddress &&
+        accountAddress &&
         assetReference &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
@@ -101,7 +106,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareWithdrawal({
-        address: state.userAddress,
+        address: accountAddress,
         amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
       const txid = await yearnOpportunity.signAndBroadcast({
@@ -126,21 +131,30 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     onNext,
     opportunity,
     state?.opportunity,
-    state?.userAddress,
+    accountAddress,
     state?.withdraw.cryptoAmount,
     walletState.wallet,
     yearnInvestor,
   ])
 
-  if (!state || !dispatch) return null
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
-  }
+  }, [onNext])
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
     .gte(0)
+
+  const notEnoughGasTranslation = useMemo(
+    () =>
+      ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }] as [
+        string,
+        InterpolationOptions,
+      ],
+    [feeAsset.symbol],
+  )
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm
@@ -192,7 +206,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={notEnoughGasTranslation} />
           </Alert>
         )}
       </Summary>

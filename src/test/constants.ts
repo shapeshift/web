@@ -101,7 +101,8 @@ export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> 
     gasPrice: '361000000000',
     totalFee: '0.1532445',
   },
-  tradeFee: '0',
   tradeFeeSource: '0x',
-  fee: '0.1532445',
+  networkFeeCryptoHuman: '0.1532445',
+  buyAssetTradeFeeUsd: '0',
+  sellAssetTradeFeeUsd: '0',
 }

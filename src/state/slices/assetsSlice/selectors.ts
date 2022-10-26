@@ -105,10 +105,11 @@ const chainIdFeeAssetReferenceMap = (
   })()
 }
 
-export const selectFeeAssetByChainId = createSelector(
+export const selectFeeAssetByChainId = createCachedSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
-  (assetsById, chainId): Asset => {
+  (assetsById, chainId): Asset | undefined => {
+    if (!chainId) return undefined
     const { chainNamespace, chainReference } = fromChainId(chainId)
     const feeAssetId = toAssetId({
       chainId,
@@ -117,9 +118,9 @@ export const selectFeeAssetByChainId = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_state: ReduxState, chainId) => chainId ?? 'chainId')
 
-export const selectFeeAssetById = createSelector(
+export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
@@ -132,4 +133,4 @@ export const selectFeeAssetById = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')

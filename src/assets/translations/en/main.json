@@ -16,7 +16,7 @@
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
-    "insufficientAmountForGas": "Not enough ETH to cover gas",
+    "insufficientAmountForGas": "Not enough %{assetSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
@@ -41,7 +41,12 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
+    "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "degradedState": "The App is in a degraded state",
+    "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "retry": "Retry",
+    "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
@@ -69,7 +74,25 @@
     "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
     "txId": "Tx ID",
-    "selectAsset": "Select an Asset"
+    "selectAsset": "Select an Asset",
+    "switchNetwork": "Switch Network",
+    "unsupportedNetwork": "Unsupported Network",
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
+  },
+  "buyPage": {
+    "title": {
+      "first": "Buy Crypto",
+      "second": "in Seconds"
+    },
+    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or hundreds of other cryptocurrencies.",
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
+    "cta": {
+      "title": {
+        "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
+        "second": "track your crypto across 8 chains"
+      }
+    },
+    "topAssets": "Top Assets"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -92,7 +115,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰 Total",
       "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
+      "yourAssets": "Wallet Assets",
       "asset": "Asset",
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
@@ -100,6 +123,8 @@
       "value": "Value",
       "priceChange": "Price Change",
       "allocation": "Allocation",
+      "marketCap": "Market Cap",
+      "sparkLine": "Sparkline",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
@@ -114,17 +139,20 @@
     "routeTitle": "Buy or Sell",
     "routeTitleForGem": "Gem on Ramp",
     "title": "Buy or Sell Crypto",
-    "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
+    "titleMessage": "You can %{action} %{asset} using:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
-    "assetToBuy": "Asset to Buy",
+    "asset": "Asset",
+    "assetToBuy": "Select Asset to Buy",
     "selectAnAssetToBuy": "Select an asset to buy",
-    "assetToSell": "Asset to Sell",
+    "selectBody": "Choose from a growing list of cryptocurrencies.",
+    "assetToSell": "Select Asset to Sell",
     "selectAnAssetToSell": "Select an asset to sell",
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
@@ -132,13 +160,18 @@
     "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
     "usOnly": "US-Only",
     "noKYC": "NO KYC",
-    "nonUS": "NON-US"
+    "nonUS": "NON-US",
+    "availableProviders": "Available Providers",
+    "noProvidersAvailable": "No Providers Available",
+    "noProvidersBody": "Looks like we don't have any providers for that asset yet."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -361,11 +394,14 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Opportunities",
+    "dApps": "dApps",
     "featureFlags": "Feature Flags",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
-    "explore": "Explore"
+    "explore": "Explore",
+    "trade": "Trade",
+    "buyCrypto": "Buy Crypto"
   },
   "transactionRow": {
     "send": "Sent",
@@ -389,6 +425,7 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "revoke": "Revoke",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -419,6 +456,25 @@
         "approve": "Approve",
         "revoke": "Revoke",
         "infinite": "Infinite ∞"
+      },
+      "staking": {
+        "delegate": "Delegate",
+        "begin_unbonding": "Undelegate",
+        "begin_redelegate": "Redelegate",
+        "withdraw_delegator_reward": "Claim Reward"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Refund",
+        "outbound": "Outbound"
+      },
+      "ibc": {
+        "transfer": "Sent",
+        "recv_packet": "Received"
+      },
+      "lp": {
+        "deposit": "Add Liquidity"
       }
     },
     "unknown": "Transaction"
@@ -444,11 +500,13 @@
     "trade": "Trade",
     "allowance": "Allowance",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
-    "searchingRate": "Searching for best rate...",
+    "searchingRate": "Fetching rate...",
+    "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
+    "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
@@ -465,10 +523,18 @@
     "exact": "Exact",
     "expectedAmount": "Expected Amount",
     "beforeFees": "Before Fees",
-    "minAmountAfterSlippage": "Min. expected amount after slippage (%{slippage}%)",
+    "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
+    "free": "Free",
+    "slowSwapTitle": "%{protocol} trade",
+    "slowSwapBody": "This swap may take a few minutes to complete.",
+    "updatingQuote": "Updating quote...",
+    "intoRUNETitle": "Trading into RUNE",
+    "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
+      "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
@@ -507,13 +573,17 @@
       "unsupportedPair": "This trading pair is not currently supported.",
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
+      "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
+      "noReceiveAddress": "No receive address for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       },
       "generalError": "A trade error has occurred",
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
-    }
+    },
+    "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
+    "recentTrades": "Recent Trades"
   },
   "modals": {
     "keepKey": {
@@ -570,12 +640,18 @@
         "header": "Invalid Recovery Phrase",
         "body": "The Recovery Phrase you have entered is invalid.",
         "button": "Try Again"
+      },
+      "downloadUpdater": {
+        "header": "Download KeepKey Updater",
+        "button": "Download %{filename}",
+        "wrongPlatform": "Not using %{platform}? Click here"
       }
     },
     "shapeShift": {
       "password": {
         "header": "Enter Your Password",
         "walletName": "Wallet nickname (optional)",
+        "walletNameRequired": "Wallet nickname (required)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",
@@ -583,6 +659,7 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
+          "walletNameRequired": "Wallet nickname is required",
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
@@ -616,13 +693,6 @@
         }
       }
     },
-    "stake": {
-      "txFees": {
-        "low": "Low",
-        "medium": "Medium",
-        "high": "High"
-      }
-    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
@@ -643,6 +713,7 @@
         "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
+        "sendFrom": "Send From",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",
@@ -722,6 +793,7 @@
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
+      "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withdrawalFee": "Withdrawal Fee",
       "status": {
@@ -800,6 +872,8 @@
     "settings": {
       "settings": "Settings",
       "currency": "Currency",
+      "clearWalletAccountData": "Delete all accounts & wallet data",
+      "deleteAccountsConfirm": "Are you sure?\n\nThis will remove all personal data including wallets, accounts, balances.\n\nVerify that you have backed up your wallets before continuing.",
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
@@ -843,11 +917,12 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet"
+      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
+        "updateAlert": "Firmware 6.1.0 or later is required to use your Keepkey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"
@@ -856,7 +931,8 @@
         "header": "Pair Your KeepKey",
         "body": "Connect a KeepKey device and click Pair.",
         "button": "Pair",
-        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
+        "downloadUpdaterApp": "Download updater app"
       },
       "pin": {
         "header": "Enter Your PIN",
@@ -1292,9 +1368,10 @@
       "outputAddress": "Output address"
     },
     "transactionTypes": {
-      "send": "Send",
-      "receive": "Receive",
-      "trade": "Trade"
+      "Send": "Send",
+      "Receive": "Receive",
+      "Trade": "Trade",
+      "Refund": "Refund"
     },
     "assets": "Assets",
     "txid": "TX ID",
@@ -1349,7 +1426,12 @@
       "seeAllProposals": "See All Proposals",
       "availableToTradeOn": "Available to Trade On",
       "dex": "DEX",
-      "centralized": "Centralized"
+      "centralized": "Centralized",
+      "dappBack": {
+        "title": "✨ Get FOX rewards + more! ✨",
+        "body": "Earn FOX rewards by completing tasks on DappBack",
+        "cta": "Launch DappBack"
+      }
     },
     "analytics": {
       "optInModal": {
@@ -1401,6 +1483,21 @@
             }
           }
         }
+      },
+      "registry": {
+        "availableDapps": "Available dApps",
+        "getStarted": "Get Started",
+        "learnMore": "Learn More",
+        "banner": {
+          "title": "Connect to over 300+ dApps",
+          "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
+        },
+        "emptyStateDescription": "Try adjusting your search query and try again.",
+        "pageInput": {
+          "label": "%{current} of %{total}",
+          "nextPage": "Next Page",
+          "prevPage": "Previous Page"
+        }
       }
     }
   },
@@ -1411,5 +1508,26 @@
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 mins",
+      "average": "~ 3 mins",
+      "fast": "~ 3 secs"
+    },
+    "estGasCost": "Est. Gas Cost",
+    "gasPrice": {
+      "label": "Gas Price",
+      "tooltip": "TODO: Gas Price Tooltip"
+    },
+    "base": {
+      "label": "Base fee",
+      "tooltip": "The base fee is set by the network and changes every 13-14 seconds depending on demand. Set the maximum price (not including priority fee) in gwei that you're willing to pay for each unit of gas."
+    },
+    "priority": {
+      "label": "Priority fee",
+      "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
+    },
+    "custom": "Custom"
   }
 }

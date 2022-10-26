@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import {
   type ChainAdapter,
   type EvmBaseAdapter,
@@ -41,6 +42,14 @@ export const useFormSend = () => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
+        // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
+        if (
+          fromChainId(data.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
+          !wallet.supportsOfflineSigning()
+        ) {
+          throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
+        }
+
         const adapter = chainAdapterManager.get(data.asset.chainId) as ChainAdapter<KnownChainIds>
         if (!adapter) throw new Error(`useFormSend: no adapter available for ${data.asset.chainId}`)
 
@@ -109,6 +118,19 @@ export const useFormSend = () => {
                 satoshiPerByte: fees.chainSpecific.satoshiPerByte,
                 accountType,
               },
+              sendMax: data.sendMax,
+            })
+          }
+
+          if (fromChainId(data.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
+            const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
+            return adapter.buildSendTransaction({
+              to,
+              memo: (data as SendInput<CosmosSdkChainId>).memo,
+              value,
+              wallet,
+              bip44Params,
+              chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
               sendMax: data.sendMax,
             })
           }

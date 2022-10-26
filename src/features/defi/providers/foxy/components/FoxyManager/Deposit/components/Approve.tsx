@@ -1,16 +1,17 @@
-import { Alert, AlertDescription, useColorModeValue, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -32,10 +33,9 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
-export const Approve: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
-  accountId,
-  onNext,
-}) => {
+type ApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
+
+export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
@@ -43,7 +43,6 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   const toast = useToast()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const alertText = useColorModeValue('blue.800', 'white')
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
@@ -59,9 +58,16 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   // user info
   const { state: walletState } = useWallet()
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues) => {
-      if (!state?.userAddress || !assetReference || !api) return
+      if (!accountAddress || !assetReference || !api) return
       try {
         const [gasLimit, gasPrice] = await Promise.all([
           api.estimateDepositGas({
@@ -70,7 +76,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
             amountDesired: bnOrZero(deposit.cryptoAmount)
               .times(`1e+${asset.precision}`)
               .decimalPlaces(0),
-            userAddress: state.userAddress,
+            userAddress: accountAddress,
           }),
           api.getGasPrice(),
         ])
@@ -88,21 +94,19 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
         })
       }
     },
-    [api, asset.precision, assetReference, contractAddress, state?.userAddress, toast, translate],
+    [api, asset.precision, assetReference, contractAddress, accountAddress, toast, translate],
   )
-
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleApprove = useCallback(async () => {
     if (
       !(
         assetReference &&
-        state?.userAddress &&
+        accountAddress &&
         walletState.wallet &&
         api &&
         dispatch &&
-        bip44Params
+        bip44Params &&
+        state
       )
     )
       return
@@ -111,9 +115,9 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       await api.approve({
         tokenContractAddress: assetReference,
         contractAddress,
-        userAddress: state.userAddress,
+        userAddress: accountAddress,
         wallet: walletState.wallet,
-        amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        amount: bnOrZero(state?.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
         bip44Params,
       })
       await poll({
@@ -121,17 +125,17 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
           api.allowance({
             tokenContractAddress: assetReference,
             contractAddress,
-            userAddress: state.userAddress!,
+            userAddress: accountAddress,
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state?.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 60,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
+      const estimatedGasCrypto = await getDepositGasEstimate(state?.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
@@ -151,6 +155,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
+    accountAddress,
     api,
     asset.precision,
     assetReference,
@@ -159,12 +164,27 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     dispatch,
     getDepositGasEstimate,
     onNext,
-    state?.deposit,
-    state?.userAddress,
+    state,
     toast,
     translate,
     walletState.wallet,
   ])
+
+  const hasEnoughBalanceForGas = useMemo(
+    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        action={DefiAction.Deposit}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+      />
+    ),
+    [feeAsset, state?.approve.estimatedGasCrypto],
+  )
 
   if (!state || !dispatch) return null
 
@@ -175,7 +195,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
+      disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
@@ -183,14 +203,7 @@ export const Approve: React.FC<StepComponentProps & { accountId: Nullable<Accoun
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      preFooter={
-        <Alert status='info' borderRadius='lg' color='blue.500'>
-          <FaGasPump />
-          <AlertDescription textAlign='left' ml={3} color={alertText}>
-            {translate('modals.approve.depositFee')}
-          </AlertDescription>
-        </Alert>
-      }
+      preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}

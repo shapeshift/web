@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -10,6 +11,7 @@ import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
@@ -19,8 +21,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -33,7 +40,14 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosWithdraw'],
 })
 
-export const CosmosWithdraw = () => {
+type CosmosWithdrawProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
+  onAccountIdChange: handleAccountIdChange,
+  accountId,
+}) => {
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -67,7 +81,7 @@ export const CosmosWithdraw = () => {
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const opportunities = useCosmosSdkStakingBalances({ assetId })
+  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(
@@ -76,11 +90,15 @@ export const CosmosWithdraw = () => {
     [opportunities, contractAddress],
   ) as unknown as MergedActiveStakingOpportunity // TODO: remove casting
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   useEffect(() => {
+    if (!bip44Params) return
     ;(async () => {
       try {
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        const address = await chainAdapter.getAddress({ bip44Params, wallet: walletState.wallet })
 
         dispatch({
           type: CosmosWithdrawActionType.SET_USER_ADDRESS,
@@ -95,7 +113,7 @@ export const CosmosWithdraw = () => {
         moduleLogger.error(error, 'CosmosWithdraw error')
       }
     })()
-  }, [cosmosOpportunity, chainAdapter, contractAddress, walletState.wallet])
+  }, [bip44Params, cosmosOpportunity, chainAdapter, contractAddress, walletState.wallet])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -104,18 +122,20 @@ export const CosmosWithdraw = () => {
         description: translate('defi.steps.withdraw.info.yieldyDescription', {
           asset: underlyingAsset?.symbol ?? '',
         }),
-        component: Withdraw,
+        component: ownProps => (
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
         component: Status,
       },
     }
-  }, [translate, underlyingAsset?.symbol])
+  }, [accountId, handleAccountIdChange, translate, underlyingAsset?.symbol])
 
   const handleBack = () => {
     history.push({

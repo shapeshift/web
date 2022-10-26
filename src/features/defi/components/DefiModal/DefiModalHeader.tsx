@@ -22,7 +22,7 @@ export const DefiModalHeader: React.FC<DefiModalHeaderProps> = ({ title, onBack 
         />
       )}
 
-      <RawText>{title}</RawText>
+      <RawText fontSize='md'>{title}</RawText>
       <ModalCloseButton position='static' />
     </ModalHeader>
   )

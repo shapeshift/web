@@ -100,7 +100,7 @@ export const useKeepKeyEventHandler = (
         case MessageType.PASSPHRASEACK:
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-          // KeepKey doesn't send a successfull response on passphrase sent request
+          // KeepKey doesn't send a successful response on passphrase sent request
           // So, we need to poll to keep the DeviceState synced
           poll({
             fn: async () => {
@@ -242,7 +242,6 @@ export const useKeepKeyEventHandler = (
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
-          dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
       } catch (e) {

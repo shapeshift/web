@@ -1,15 +1,10 @@
-import { Box } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
-import {
-  supportsBTC,
-  supportsCosmos,
-  supportsETH,
-  supportsEthSwitchChain,
-} from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -23,14 +18,16 @@ import {
 import { SlideTransition } from 'components/SlideTransition'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ensReverseLookup } from 'lib/address/ens'
+import type { ParseAddressInputReturn } from 'lib/address/address'
+import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
-import type { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import {
+  selectPortfolioAccountIds,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/portfolioSlice/selectors'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import type { Nullable } from 'types/common'
 
-import type { FiatRamp } from '../config'
-import type { FiatRampAsset } from '../FiatRampsCommon'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
 import { Overview } from './Overview'
@@ -54,191 +51,171 @@ const entries = [
   FiatRampManagerRoutes.SellSelect,
 ]
 
-type ManagerRouterProps = {
-  fiatRampProvider: FiatRamp
-}
-
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
 })
 
-const ManagerRouter: React.FC<ManagerRouterProps> = ({ fiatRampProvider }) => {
+export type AddressesByAccountId = Record<AccountId, Partial<ParseAddressInputReturn>>
+
+const ManagerRouter: React.FC<RouteComponentProps> = () => {
   const history = useHistory()
   const location = useLocation<RouterLocationState>()
 
-  const [selectedAsset, setSelectedAsset] = useState<FiatRampAsset | null>(null)
-  // TODO: once MultiAccounts feature flag was removed, we can get rid of this
-  // whole addresses, since AccountDropdown will manage this part
-  // We keep addresses in manager so we don't have to on every <Overview /> mount
-  const [btcAddress, setBtcAddress] = useState<string>('')
-  const [bchAddress, setBchAddress] = useState<string>('')
-  const [dogeAddress, setDogeAddress] = useState<string>('')
-  const [ltcAddress, setLtcAddress] = useState<string>('')
-  const [ethAddress, setEthAddress] = useState<string>('')
-  const [avalancheAddress, setAvalancheAddress] = useState<string>('')
-  const [cosmosAddress, setCosmosAddress] = useState<string>('')
-  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState<boolean>(false)
-  const [ensName, setEnsName] = useState<string>('')
-
-  const chainAdapterManager = getChainAdapterManager()
-  const ethereumChainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-  const avalancheChainAdapter = chainAdapterManager.get(KnownChainIds.AvalancheMainnet)
-  const bitcoinChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinMainnet)
-  const bitcoinCashChainAdapter = chainAdapterManager.get(KnownChainIds.BitcoinCashMainnet)
-  const dogecoinChainAdapter = chainAdapterManager.get(KnownChainIds.DogecoinMainnet)
-  const litecoinChainAdapter = chainAdapterManager.get(KnownChainIds.LitecoinMainnet)
-  const cosmosChainAdapter = chainAdapterManager.get(KnownChainIds.CosmosMainnet)
-
-  const [chainId, setChainId] = useState<ChainIdType>(ethChainId)
+  const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
+  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
 
   const {
     state: { wallet },
   } = useWallet()
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
 
+  /**
+   * preload all addresses, and reverse resolved vanity addresses for all account ids
+   */
   useEffect(() => {
+    if (!wallet) return
     ;(async () => {
+      const plainAddressResults = await Promise.allSettled(
+        portfolioAccountIds.map(accountId => {
+          const accountMetadata = portfolioAccountMetadata[accountId]
+          const { accountType, bip44Params } = accountMetadata
+          moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
+          const payload = { accountType, bip44Params, wallet }
+          const { chainId } = fromAccountId(accountId)
+          const maybeAdapter = getChainAdapterManager().get(chainId)
+          if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)
+          return maybeAdapter.getAddress(payload)
+        }),
+      )
+      const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
+        if (result.status === 'rejected') {
+          moduleLogger.error(result.reason, 'failed to get address')
+          acc.push(undefined) // keep same length of accumulator
+          return acc
+        }
+        acc.push(result.value)
+        return acc
+      }, [])
+
+      const parsedAddressResults = await Promise.allSettled(
+        plainAddresses.map((value, idx) => {
+          if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
+          const { chainId } = fromAccountId(portfolioAccountIds[idx])
+          return parseAddressInput({ chainId, value })
+        }),
+      )
+
+      const addressesByAccountId = parsedAddressResults.reduce<AddressesByAccountId>(
+        (acc, parsedAddressResult, idx) => {
+          if (parsedAddressResult.status === 'rejected') return acc
+          const accountId = portfolioAccountIds[idx]
+          const { value } = parsedAddressResult
+          acc[accountId] = value
+          return acc
+        },
+        {},
+      )
+
+      setAddressByAccountId(addressesByAccountId)
+    })()
+  }, [portfolioAccountIds, portfolioAccountMetadata, wallet])
+
+  const match = useMemo(
+    () =>
+      matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
+        path: '/:fiatRampAction',
+      }),
+    [location.pathname],
+  )
+
+  const handleFiatRampActionClick = useCallback(
+    (fiatRampAction: FiatRampAction) => {
+      const route =
+        fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.Buy
+          : FiatRampManagerRoutes.Sell
+      history.push(route)
+    },
+    [history],
+  )
+
+  const handleAssetSelect = useCallback(
+    (assetId: AssetId) => {
+      const route =
+        match?.params.fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.Buy
+          : FiatRampManagerRoutes.Sell
+      setSelectedAssetId(assetId)
+      history.push(route)
+    },
+    [history, match?.params.fiatRampAction],
+  )
+
+  const handleIsSelectingAsset = useCallback(
+    (assetId: AssetId | undefined, selectAssetTranslation: string) => {
       if (!wallet) return
-      moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-      const payload = { wallet }
-      try {
-        if (supportsETH(wallet) && ethereumChainAdapter) {
-          setEthAddress(await ethereumChainAdapter.getAddress(payload))
-        }
-        if (supportsEthSwitchChain(wallet) && avalancheChainAdapter) {
-          setAvalancheAddress(await avalancheChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && bitcoinChainAdapter) {
-          setBtcAddress(await bitcoinChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && bitcoinCashChainAdapter) {
-          setBchAddress(await bitcoinCashChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && dogecoinChainAdapter) {
-          setDogeAddress(await dogecoinChainAdapter.getAddress(payload))
-        }
-        if (supportsBTC(wallet) && litecoinChainAdapter) {
-          setLtcAddress(await litecoinChainAdapter.getAddress(payload))
-        }
-        if (supportsCosmos(wallet) && cosmosChainAdapter) {
-          setCosmosAddress(await cosmosChainAdapter.getAddress(payload))
-        }
-      } catch (e) {
-        moduleLogger.error(e, { fn: 'getAddress' }, 'GetAddress Failed')
-      }
-    })()
-  }, [
-    wallet,
-    bitcoinChainAdapter,
-    bitcoinCashChainAdapter,
-    dogecoinChainAdapter,
-    litecoinChainAdapter,
-    ethereumChainAdapter,
-    avalancheChainAdapter,
-    cosmosChainAdapter,
-  ])
+      const walletSupportsAsset = isAssetSupportedByWallet(assetId ?? '', wallet)
+      const route =
+        match?.params.fiatRampAction === FiatRampAction.Buy
+          ? FiatRampManagerRoutes.BuySelect
+          : FiatRampManagerRoutes.SellSelect
+      history.push(route, { walletSupportsAsset, selectAssetTranslation })
+    },
+    [history, match?.params.fiatRampAction, wallet],
+  )
 
-  useEffect(() => {
-    ;(async () => {
-      moduleLogger.trace({ fn: 'ensReverseLookup' }, 'ENS Reverse Lookup...')
-      try {
-        !ensName && setEnsName((await ensReverseLookup(ethAddress)).name ?? '')
-      } catch (e) {
-        moduleLogger.error(e, { fn: 'ensReverseLookup' }, 'ENS Reverse Lookup Failed')
-      }
-    })()
-  }, [ensName, ethAddress])
+  const assetSelectProps = useMemo(
+    () => ({
+      selectAssetTranslation: location.state?.selectAssetTranslation,
+      handleAssetSelect,
+    }),
+    [location.state, handleAssetSelect],
+  )
 
-  const match = matchPath<{ fiatRampAction: FiatRampAction }>(location.pathname, {
-    path: '/:fiatRampAction',
-  })
-
-  const handleFiatRampActionClick = (fiatRampAction: FiatRampAction) => {
-    const route =
-      fiatRampAction === FiatRampAction.Buy ? FiatRampManagerRoutes.Buy : FiatRampManagerRoutes.Sell
-    setSelectedAsset(null)
-    history.push(route)
-  }
-
-  const onAssetSelect = (asset: FiatRampAsset | null) => {
-    if (!wallet) return
-    const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy
-        ? FiatRampManagerRoutes.Buy
-        : FiatRampManagerRoutes.Sell
-    setSelectedAsset(asset)
-    history.push(route)
-  }
-
-  const handleIsSelectingAsset = (asset: FiatRampAsset | null, selectAssetTranslation: string) => {
-    if (!wallet) return
-    const walletSupportsAsset = isAssetSupportedByWallet(asset?.assetId ?? '', wallet)
-    const route =
-      match?.params.fiatRampAction === FiatRampAction.Buy
-        ? FiatRampManagerRoutes.BuySelect
-        : FiatRampManagerRoutes.SellSelect
-    history.push(route, { walletSupportsAsset, selectAssetTranslation })
-  }
-
-  const { selectAssetTranslation } = location.state ?? {}
-
-  const assetSelectProps = {
-    selectAssetTranslation,
-    onAssetSelect,
-    fiatRampProvider,
-  }
+  const { address, vanityAddress } = useMemo(() => {
+    const empty = { address: '', vanityAddress: '' }
+    if (isEmpty(addressByAccountId)) return empty
+    if (!accountId) return empty
+    const address = addressByAccountId[accountId]?.address ?? ''
+    const vanityAddress = addressByAccountId[accountId]?.vanityAddress ?? ''
+    return { address, vanityAddress }
+  }, [addressByAccountId, accountId])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
         <Route exact path='/:fiatRampAction'>
           <Overview
-            selectedAsset={selectedAsset}
-            onIsSelectingAsset={handleIsSelectingAsset}
+            assetId={selectedAssetId}
+            handleIsSelectingAsset={handleIsSelectingAsset}
             onFiatRampActionClick={handleFiatRampActionClick}
-            btcAddress={btcAddress}
-            bchAddress={bchAddress}
-            dogeAddress={dogeAddress}
-            ltcAddress={ltcAddress}
-            cosmosAddress={cosmosAddress}
-            ethAddress={ethAddress}
-            avalancheAddress={avalancheAddress}
-            supportsAddressVerifying={supportsAddressVerifying}
-            setSupportsAddressVerifying={setSupportsAddressVerifying}
-            chainAdapterManager={chainAdapterManager}
-            chainId={chainId}
-            setChainId={setChainId}
-            fiatRampProvider={fiatRampProvider}
-            ensName={ensName}
+            address={address}
+            vanityAddress={vanityAddress}
             handleAccountIdChange={setAccountId}
             accountId={accountId}
           />
         </Route>
-        {fiatRampProvider && (
-          <Route exact path='/:fiatRampAction/select'>
-            <AssetSelect {...assetSelectProps} />
-          </Route>
-        )}
+        <Route exact path='/:fiatRampAction/select'>
+          <AssetSelect {...assetSelectProps} />
+        </Route>
         <Redirect from='/' to={FiatRampManagerRoutes.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const Manager = ({ fiatRampProvider }: { fiatRampProvider: FiatRamp }) => {
+export const Manager = () => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
-        <Box p={4}>
-          <Switch>
-            <Route
-              path='/'
-              component={(props: RouteComponentProps) => (
-                <ManagerRouter fiatRampProvider={fiatRampProvider} {...props} />
-              )}
-            />
-          </Switch>
-        </Box>
+        <Switch>
+          <Route
+            path='/'
+            component={(props: RouteComponentProps) => <ManagerRouter {...props} />}
+          />
+        </Switch>
       </MemoryRouter>
     </SlideTransition>
   )

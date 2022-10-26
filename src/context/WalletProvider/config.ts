@@ -7,19 +7,19 @@ import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
-import { KeepKeyFactoryState } from 'context/WalletProvider/KeepKey/components/FactoryState'
-import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
-import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
-import { KeepKeyRecoverySentenceEntry } from 'context/WalletProvider/KeepKey/components/RecoverySentenceEntry'
-import { KeepKeyRecoverySentenceInvalid } from 'context/WalletProvider/KeepKey/components/RecoverySentenceInvalid'
-import { KeepKeyRecoverySettings } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
-import { RecoverySettingUp } from 'context/WalletProvider/KeepKey/components/RecoverySettingUp'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
+import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
+import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
+import { KeepKeyLabel } from './KeepKey/components/Label'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPinModal } from './KeepKey/components/PinModal'
+import { KeepKeyRecoverySentence } from './KeepKey/components/RecoverySentence'
+import { KeepKeyRecoverySentenceEntry } from './KeepKey/components/RecoverySentenceEntry'
+import { KeepKeyRecoverySentenceInvalid } from './KeepKey/components/RecoverySentenceInvalid'
+import { KeepKeyRecoverySettings } from './KeepKey/components/RecoverySettings'
+import { RecoverySettingUp } from './KeepKey/components/RecoverySettingUp'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConnect } from './Keplr/components/Connect'
@@ -30,18 +30,21 @@ import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskConfig } from './MetaMask/config'
 import { MobileCreate } from './MobileWallet/components/MobileCreate'
+import { MobileCreateTest } from './MobileWallet/components/MobileCreateTest'
 import { MobileImport } from './MobileWallet/components/MobileImport'
+import { MobileLegacyCreate } from './MobileWallet/components/MobileLegacyCreate'
+import { MobileLegacyLogin } from './MobileWallet/components/MobileLegacyLogin'
+import { MobileLegacySuccess } from './MobileWallet/components/MobileLegacySuccess'
 import { MobileLoad } from './MobileWallet/components/MobileLoad'
 import { MobileRename } from './MobileWallet/components/MobileRename'
 import { MobileStart } from './MobileWallet/components/MobileStart'
 import { MobileSuccess } from './MobileWallet/components/MobileSuccess'
-import { MobileTestPhrase } from './MobileWallet/components/MobileTestPhrase'
 import { MobileConfig } from './MobileWallet/config'
 import { EnterPassword } from './NativeWallet/components/EnterPassword'
-import { LegacyLogin } from './NativeWallet/components/LegacyLogin'
-import { LegacyLoginSuccess } from './NativeWallet/components/LegacyLoginSuccess'
 import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
+import { NativeLegacyLogin } from './NativeWallet/components/NativeLegacyLogin'
+import { NativeLegacySuccess } from './NativeWallet/components/NativeLegacySuccess'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
 import { NativePassword } from './NativeWallet/components/NativePassword'
 import { NativeRename } from './NativeWallet/components/NativeRename'
@@ -52,6 +55,7 @@ import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisConfig } from './Portis/config'
+import { KeepKeyRoutes } from './routes'
 import { TallyHoConnect } from './TallyHo/components/Connect'
 import { TallyHoFailure } from './TallyHo/components/Failure'
 import { TallyHoConfig } from './TallyHo/config'
@@ -81,10 +85,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/mobile/rename', component: MobileRename },
       { path: '/mobile/import', component: MobileImport },
       { path: '/mobile/create', component: MobileCreate },
-      { path: '/mobile/create-test', component: MobileTestPhrase },
+      { path: '/mobile/create-test', component: MobileCreateTest },
       { path: '/mobile/success', component: MobileSuccess },
+      { path: '/mobile/legacy/login', component: MobileLegacyLogin },
+      { path: '/mobile/legacy/login/success', component: MobileLegacySuccess },
+      // WalletProvider.create looks for the first path that ends in "create"
+      { path: '/mobile/legacy/create', component: MobileLegacyCreate },
     ],
-    // @TODO: Update
     connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
   },
@@ -100,8 +107,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess },
       { path: '/native/enter-password', component: EnterPassword },
-      { path: '/native/legacy/login', component: LegacyLogin },
-      { path: '/native/legacy/login/success', component: LegacyLoginSuccess },
+      { path: '/native/legacy/login', component: NativeLegacyLogin },
+      { path: '/native/legacy/login/success', component: NativeLegacySuccess },
     ],
     connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
@@ -120,6 +127,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.RecoverySettings, component: KeepKeyRecoverySettings },
       { path: KeepKeyRoutes.RecoverySettingUp, component: RecoverySettingUp },
       { path: KeepKeyRoutes.RecoverySentenceInvalid, component: KeepKeyRecoverySentenceInvalid },
+      { path: KeepKeyRoutes.DownloadUpdater, component: KeepKeyDownloadUpdaterApp },
     ],
     connectedWalletMenuRoutes: [
       { path: WalletConnectedRoutes.KeepKey, component: KeepKeyMenu },

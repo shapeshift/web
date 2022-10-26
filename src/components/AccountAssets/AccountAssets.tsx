@@ -1,7 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -10,7 +9,7 @@ import { AccountAssetsList } from './AccountAssetsList'
 
 type AccountAssetsProps = {
   assetId: AssetId
-  accountId: AccountSpecifier
+  accountId: AccountId
 }
 
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {

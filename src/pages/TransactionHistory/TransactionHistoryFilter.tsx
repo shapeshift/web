@@ -117,7 +117,6 @@ export const TransactionHistoryFilter = ({
               <Text translation='transactionHistory.filter' />
             </Button>
             <IconButton
-              isDisabled={!hasAppliedFilter}
               variant='ghost-filled'
               colorScheme='blue'
               aria-label={translate('transactionHistory.filters.resetFilters')}

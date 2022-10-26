@@ -8,6 +8,7 @@ import { logger } from 'lib/logger'
 
 import type { BridgeAsset, BridgeChain, BridgeState } from '../types'
 import { AxelarChainNames, BridgeRoutePaths } from '../types'
+
 const moduleLogger = logger.child({ namespace: ['useBridgeRoutes'] })
 
 export const useBridgeRoutes = (): {
@@ -40,8 +41,10 @@ export const useBridgeRoutes = (): {
       const chainId = fromAssetId(asset.assetId).chainId
       const chainAdapter = chainAdapterManager.get(chainId)
       if (!(wallet && chainAdapter)) return
+      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       const accountAddress = await chainAdapter.getAddress({
         wallet,
+        bip44Params,
       })
 
       const fromChainLabel = getAxelarChainNameFromBridgeAsset(asset)

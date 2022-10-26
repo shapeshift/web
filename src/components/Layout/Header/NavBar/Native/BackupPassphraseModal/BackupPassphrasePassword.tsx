@@ -26,15 +26,20 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
+import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
 const moduleLogger = logger.child({ namespace: ['BackupPassphrasePassword'] })
 
-export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault) => void }) => {
+/**
+ * This component only works for NATIVE wallets encrypted using hdwallet Vault
+ */
+export const BackupPassphrasePassword: React.FC<LocationState> = props => {
+  const { revocableWallet } = props
   const translate = useTranslate()
+  const history = useHistory()
   const { state } = useWallet()
   const { walletInfo } = state
-  const history = useHistory()
   const {
     backupNativePassphrase: {
       props: { preventClose },
@@ -54,7 +59,8 @@ export const BackupPassphrasePassword = ({ setVault }: { setVault: (vault: Vault
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.open(walletInfo?.deviceId, values.password, false)
-      setVault(vault)
+      revocableWallet.mnemonic = await vault.unwrap().get('#mnemonic')
+      vault.seal()
       history.push(BackupPassphraseRoutes.Info)
     } catch (e) {
       moduleLogger.error(e, { fn: 'BackupPassphrasePassword:onSubmit' }, 'Invalid password')

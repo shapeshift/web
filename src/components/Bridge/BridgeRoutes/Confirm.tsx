@@ -27,10 +27,10 @@ import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectFirstAccountSpecifierByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EditableAddress } from '../components/EditableAddress'
@@ -86,9 +86,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
   )
   const { assetReference } = fromAssetId(bridgeAsset?.assetId ?? '')
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset?.chainId))
 
   const sourceChainName = fromChain?.name ? chainNameToEvmChain(fromChain.name) : undefined
   const destinationChainName = toChain?.name ? chainNameToEvmChain(toChain.name) : undefined
@@ -143,7 +141,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         asset,
         address: depositAddress,
         sendMax: false,
-        accountId: accountSpecifier,
+        accountId: accountId ?? '',
         contractAddress: assetReference,
       }
 
@@ -154,7 +152,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
         asset,
         address: depositAddress,
         sendMax: false,
-        accountId: accountSpecifier,
+        accountId: accountId ?? '',
         amountFieldError: '',
         cryptoSymbol: bridgeAsset?.symbol ?? '',
         estimatedFees,

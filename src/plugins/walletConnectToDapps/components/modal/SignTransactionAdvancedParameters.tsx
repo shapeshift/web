@@ -8,15 +8,12 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 
-type Props = {}
-
-export const SignTransactionAdvancedParameters: FC<Props> = ({}) => {
+export const SignTransactionAdvancedParameters = () => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   return (

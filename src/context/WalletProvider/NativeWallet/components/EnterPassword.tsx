@@ -64,7 +64,6 @@ export const EnterPassword = () => {
           meta: { label: vault.meta.get('name') as string },
         },
       })
-      dispatch({ type: WalletActions.SET_IS_DEMO_WALLET, payload: false })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

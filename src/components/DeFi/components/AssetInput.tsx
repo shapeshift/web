@@ -1,17 +1,18 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { InputProps } from '@chakra-ui/react'
+import type { FormControlProps, InputProps } from '@chakra-ui/react'
 import {
   Button,
   FormControl,
   FormErrorMessage,
   Input,
+  Skeleton,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -25,6 +26,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
+import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
 import { MaxButtonGroup } from './MaxButtonGroup'
@@ -34,18 +36,20 @@ const CryptoInput = (props: InputProps) => (
     size='lg'
     fontSize='xl'
     borderRadius={0}
-    py={1}
+    py={0}
     height='auto'
     type='number'
     textAlign='right'
     variant='inline'
     placeholder='Enter amount'
     style={{ caretColor: colors.blue[200] }}
+    autoComplete='off'
     {...props}
   />
 )
 
 export type AssetInputProps = {
+  accountId?: Nullable<AccountId>
   assetId?: AssetId
   assetSymbol: string
   assetIcon: string
@@ -63,9 +67,14 @@ export type AssetInputProps = {
   percentOptions: number[]
   icons?: string[]
   onAccountIdChange?: AccountDropdownProps['onChange']
+  showInputSkeleton?: boolean
+  showFiatSkeleton?: boolean
+  formControlProps?: FormControlProps
+  accountSelectionDisabled?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
+  accountId,
   assetId,
   assetSymbol,
   assetIcon,
@@ -84,6 +93,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   icons,
   children,
   onAccountIdChange: handleAccountIdChange,
+  showInputSkeleton,
+  showFiatSkeleton,
+  formControlProps,
+  accountSelectionDisabled,
 }) => {
   const {
     number: { localeParts },
@@ -96,6 +109,13 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const bgColor = useColorModeValue('white', 'gray.850')
   const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
+
+  // Lower the decimal places when the integer is greater than 8 significant digits for better UI
+  const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
+  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+    ? cryptoAmount
+    : bnOrZero(cryptoAmount).toFixed(3)
+
   return (
     <FormControl
       borderWidth={1}
@@ -104,7 +124,9 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? bgColor : focusBg }}
       isInvalid={!!errors}
-      py={2}
+      pt={3}
+      pb={2}
+      {...formControlProps}
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
@@ -123,47 +145,52 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           {assetSymbol}
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
-          <NumberFormat
-            customInput={CryptoInput}
-            isNumericString={true}
-            disabled={isReadOnly}
-            suffix={isFiat ? localeParts.postfix : ''}
-            prefix={isFiat ? localeParts.prefix : ''}
-            decimalSeparator={localeParts.decimal}
-            inputMode='decimal'
-            thousandSeparator={localeParts.group}
-            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : cryptoAmount}
-            onValueChange={values => {
-              // This fires anytime value changes including setting it on max click
-              // Store the value in a ref to send when we actually want the onChange to fire
-              amountRef.current = values.value
-            }}
-            onChange={() => {
-              // onChange will send us the formatted value
-              // To get around this we need to get the value from the onChange using a ref
-              // Now when the max buttons are clicked the onChange will not fire
-              onChange(amountRef.current ?? '', isFiat)
-            }}
-            onBlur={() => setIsFocused(false)}
-            onFocus={() => setIsFocused(true)}
-          />
+          <Skeleton isLoaded={!showInputSkeleton}>
+            <NumberFormat
+              customInput={CryptoInput}
+              isNumericString={true}
+              disabled={isReadOnly}
+              suffix={isFiat ? localeParts.postfix : ''}
+              prefix={isFiat ? localeParts.prefix : ''}
+              decimalSeparator={localeParts.decimal}
+              inputMode='decimal'
+              thousandSeparator={localeParts.group}
+              value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
+              onValueChange={values => {
+                // This fires anytime value changes including setting it on max click
+                // Store the value in a ref to send when we actually want the onChange to fire
+                amountRef.current = values.value
+              }}
+              onChange={() => {
+                // onChange will send us the formatted value
+                // To get around this we need to get the value from the onChange using a ref
+                // Now when the max buttons are clicked the onChange will not fire
+                onChange(amountRef.current ?? '', isFiat)
+              }}
+              onBlur={() => setIsFocused(false)}
+              onFocus={() => setIsFocused(true)}
+            />
+          </Skeleton>
         </Stack>
       </Stack>
 
       {showFiatAmount && (
-        <Stack width='full' alignItems='flex-end' px={4} pb={2}>
+        <Stack width='full' alignItems='flex-end' px={4} pb={2} mt={1}>
           <Button
             onClick={toggleIsFiat}
             size='xs'
+            disabled={showFiatSkeleton}
             fontWeight='medium'
             variant='link'
             color='gray.500'
           >
-            {isFiat ? (
-              <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-            ) : (
-              <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-            )}
+            <Skeleton isLoaded={!showFiatSkeleton}>
+              {isFiat ? (
+                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+              ) : (
+                <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+              )}
+            </Skeleton>
           </Button>
         </Stack>
       )}
@@ -188,13 +215,14 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Stack>
       )}
       {handleAccountIdChange && assetId && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          <AccountDropdown
-            assetId={assetId}
-            onChange={handleAccountIdChange}
-            buttonProps={{ variant: 'ghost', width: 'full', padding: 0 }}
-          />
-        </Stack>
+        <AccountDropdown
+          {...(accountId ? { defaultAccountId: accountId } : {})}
+          assetId={assetId}
+          onChange={handleAccountIdChange}
+          buttonProps={{ variant: 'ghost', width: 'full', paddingX: 2, paddingY: 0 }}
+          disabled={accountSelectionDisabled}
+          autoSelectHighestBalance
+        />
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (

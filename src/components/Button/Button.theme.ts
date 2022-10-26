@@ -5,13 +5,31 @@ import { mode, transparentize } from '@chakra-ui/theme-tools'
 export const ButtonStyle: ComponentStyleConfig = {
   // style object for base or default style
   baseStyle: {
-    borderRadius: 'lg',
+    borderRadius: 'xl',
     _focusVisible: {
       boxShadow: 'outline-inset',
     },
   },
   // styles for different sizes ("sm", "md", "lg")
-  sizes: {},
+  sizes: {
+    sm: {
+      svg: {
+        width: '1rem',
+        height: '1rem',
+      },
+    },
+    lg: (props: StyleFunctionProps) => {
+      const { variant: v } = props
+      return {
+        svg: {
+          width: '1.5rem',
+          height: '1.5rem',
+        },
+        fontSize: v === 'nav-link' ? 'md' : 'lg',
+        px: v === 'nav-link' ? 4 : 6,
+      }
+    },
+  },
   // styles for different visual variants ("outline", "solid")
   variants: {
     solid: (props: StyleFunctionProps) => {
@@ -181,10 +199,6 @@ export const ButtonStyle: ComponentStyleConfig = {
         return {
           color: 'gray.500',
           height: '48px',
-          svg: {
-            width: '1.5rem',
-            height: '1.5rem',
-          },
           _hover: {
             color: mode('inherit', 'whiteAlpha.800')(props),
             bg: mode('gray.100', 'gray.750')(props),
@@ -204,10 +218,6 @@ export const ButtonStyle: ComponentStyleConfig = {
       return {
         color: mode(`${c}.500`, `${c}.200`)(props),
         height: '48px',
-        svg: {
-          width: '1.5rem',
-          height: '1.5rem',
-        },
         _hover: {
           bg: mode(`${c}.50`, darkHoverBg)(props),
           color: mode(`${c}.500`, `${c}.200`)(props),

@@ -1,11 +1,14 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Nullable } from 'types/common'
 
 import { CosmosClaim } from './Claim/CosmosClaim'
 import { CosmosDeposit } from './Deposit/CosmosDeposit'
@@ -16,6 +19,8 @@ import { CosmosWithdraw } from './Withdraw/CosmosWithdraw'
 export const CosmosManager = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+
   const handleCancel = () => {
     browserHistory.goBack()
   }
@@ -30,22 +35,22 @@ export const CosmosManager = () => {
 
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <CosmosOverview />
+          <CosmosOverview accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (
         <SlideTransition key={DefiAction.Deposit}>
-          <CosmosDeposit />
+          <CosmosDeposit onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
-          <CosmosWithdraw />
+          <CosmosWithdraw onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Claim && (
         <SlideTransition key={DefiAction.Claim}>
-          <CosmosClaim />
+          <CosmosClaim accountId={accountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

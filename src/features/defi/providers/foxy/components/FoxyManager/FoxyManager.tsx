@@ -24,7 +24,7 @@ export const FoxyManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <FoxyOverview onAccountIdChange={setAccountId} />
+          <FoxyOverview onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (

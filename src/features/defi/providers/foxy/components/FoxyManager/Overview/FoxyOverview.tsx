@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -19,16 +20,33 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectMarketDataById, selectSelectedLocale } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['onChange'] }> = ({
+type FoxyOverviewProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
+  accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
+    accountNumber: bip44Params?.accountNumber ?? 0,
+  })
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference, rewardId } = query
@@ -36,7 +54,16 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
     () => (foxyBalancesData?.opportunities || []).find(e => e.contractAddress === contractAddress),
     [foxyBalancesData?.opportunities, contractAddress],
   )
-  const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
+
+  const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+
+  const withdrawInfo = accountId
+    ? // Look up the withdrawInfo for the current account, if we have one
+      opportunity?.withdrawInfo[accountId]
+    : // Else, get the withdrawInfo for the first account
+      opportunity?.withdrawInfo[firstAccountId ?? '']
+  const rewardBalance = bnOrZero(withdrawInfo?.amount)
+  const releaseTime = withdrawInfo?.releaseTime
   const foxyBalance = bnOrZero(opportunity?.balance)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
@@ -54,15 +81,15 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailable = bnOrZero(foxyBalance).div(`1e${stakingAsset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
-  const claimAvailable = dayjs().isAfter(dayjs(opportunity?.withdrawInfo.releaseTime))
-  const hasClaim = bnOrZero(opportunity?.withdrawInfo.amount).gt(0)
+  const claimAvailable = dayjs().isAfter(dayjs(releaseTime))
+  const hasClaim = rewardBalance.gt(0)
   const claimDisabled = !claimAvailable || !hasClaim
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   const apy = opportunity?.apy
-  if (isFoxyBalancesLoading || !opportunity) {
+  if (isFoxyBalancesLoading || !opportunity || !withdrawInfo) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -92,6 +119,7 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
 
   return (
     <Overview
+      accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={rewardAsset}
       name='FOX Yieldy'
@@ -133,7 +161,7 @@ export const FoxyOverview: React.FC<{ onAccountIdChange: AccountDropdownProps['o
       tvl={bnOrZero(opportunity?.tvl).toFixed(2)}
       apy={opportunity.apy?.toString()}
     >
-      <WithdrawCard asset={stakingAsset} {...opportunity.withdrawInfo} />
+      <WithdrawCard asset={stakingAsset} {...withdrawInfo} />
     </Overview>
   )
 }

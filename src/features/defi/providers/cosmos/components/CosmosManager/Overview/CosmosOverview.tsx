@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
-import { cosmosChainId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -13,15 +13,15 @@ import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectSelectedLocale,
   selectTotalBondingsBalanceByAssetId,
@@ -29,14 +29,28 @@ import {
 } from 'state/slices/selectors'
 import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
-export const CosmosOverview = () => {
+type CosmosOverviewProps = {
+  accountId: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
+  accountId: defaultAccountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { defaultAccountId: queryAccountId, chainId, contractAddress, assetReference } = query
+
+  const accountId = useMemo(
+    () => defaultAccountId ?? queryAccountId,
+    [defaultAccountId, queryAccountId],
+  )
 
   const assetNamespace = 'slip44'
   const stakingAssetId = toAssetId({
@@ -45,20 +59,9 @@ export const CosmosOverview = () => {
     assetReference,
   })
 
-  const {
-    state: { wallet },
-  } = useWallet()
-
-  const supportsCosmosSdk = useMemo(() => {
-    if (!wallet) return
-
-    if (chainId === cosmosChainId) return supportsCosmos(wallet)
-    if (chainId === osmosisChainId) return supportsOsmosis(wallet)
-  }, [chainId, wallet])
-
   const opportunities = useCosmosSdkStakingBalances({
+    accountId,
     assetId: stakingAssetId,
-    supportsCosmosSdk,
   })
 
   const opportunity = useMemo(
@@ -73,17 +76,20 @@ export const CosmosOverview = () => {
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, stakingAsset?.chainId),
+  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
+  const firstAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId),
   )
 
-  const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, {
-      accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? firstAccountId,
       validatorAddress: contractAddress,
       assetId: stakingAsset.assetId,
     }),
+    [accountId, contractAddress, firstAccountId, stakingAsset.assetId],
   )
+  const totalBondings = useAppSelector(s => selectTotalBondingsBalanceByAssetId(s, filter))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailable = bnOrZero(totalBondings).div(`1e${stakingAsset.precision}`)
@@ -146,6 +152,8 @@ export const CosmosOverview = () => {
 
   return (
     <Overview
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
       name={opportunity.moniker}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
@@ -186,7 +194,7 @@ export const CosmosOverview = () => {
       tvl={bnOrZero(opportunity.tvl).toFixed(2)}
       apy={apr?.toString()}
     >
-      <WithdrawCard asset={stakingAsset} />
+      <WithdrawCard accountId={accountId} asset={stakingAsset} />
     </Overview>
   )
 }

@@ -5,23 +5,6 @@ import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerP
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
-export const initialState: OpportunitiesState = {
-  lp: {
-    byAccountId: {},
-    byId: {},
-    ids: [],
-  },
-  staking: {
-    byAccountId: {},
-    byId: {},
-    ids: [],
-  },
-  userStaking: {
-    byId: {},
-    ids: [],
-  },
-}
-
 export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
@@ -67,10 +50,23 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = Record<StakingId | LpId, OpportunityMetadata>
+export type OpportunityMetadataById = OpportunitiesState['lp' | 'staking']['byId']
 
-export type UserStakingOpportunityById = {
-  [k: UserStakingId]: UserStakingOpportunity
+export const initialState: OpportunitiesState = {
+  lp: {
+    byAccountId: {},
+    byId: {},
+    ids: [],
+  },
+  staking: {
+    byAccountId: {},
+    byId: {},
+    ids: [],
+  },
+  userStaking: {
+    byId: {},
+    ids: [],
+  },
 }
 
 export const opportunities = createSlice({
@@ -88,7 +84,10 @@ export const opportunities = createSlice({
       }
       state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
     },
-    upsertUserStakingOpportunity: (state, { payload }: { payload: UserStakingOpportunityById }) => {
+    upsertUserStakingOpportunity: (
+      state,
+      { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
+    ) => {
       // const [deserializedUserAccountId, deserializedOpportuityAccountId] = ['', '']
       state.staking.byId = {
         ...state.staking.byId,

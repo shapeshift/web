@@ -92,7 +92,7 @@ export const opportunities = createSlice({
         ...state.staking.byId,
         ...payload,
       }
-      state.userStaking.ids = Array.from(new Set([...Object.keys(payload)]))
+      state.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
     },
 
     // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:

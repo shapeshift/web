@@ -5,6 +5,8 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { ContractABIProvider } from 'plugins/walletConnectToDapps/ContractABIContext'
+import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/WalletConnectBridgeProvider'
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
@@ -47,17 +49,21 @@ export function AppProviders({ children }: ProvidersProps) {
                 <BrowserRouterProvider>
                   <I18nProvider>
                     <WalletProvider>
-                      <KeepKeyProvider>
-                        <ModalProvider>
-                          <TransactionsProvider>
-                            <AppProvider>
-                              <FoxEthProvider>
-                                <DefiManagerProvider>{children}</DefiManagerProvider>
-                              </FoxEthProvider>
-                            </AppProvider>
-                          </TransactionsProvider>
-                        </ModalProvider>
-                      </KeepKeyProvider>
+                      <ContractABIProvider>
+                        <WalletConnectBridgeProvider>
+                          <KeepKeyProvider>
+                            <ModalProvider>
+                              <TransactionsProvider>
+                                <AppProvider>
+                                  <FoxEthProvider>
+                                    <DefiManagerProvider>{children}</DefiManagerProvider>
+                                  </FoxEthProvider>
+                                </AppProvider>
+                              </TransactionsProvider>
+                            </ModalProvider>
+                          </KeepKeyProvider>
+                        </WalletConnectBridgeProvider>
+                      </ContractABIProvider>
                     </WalletProvider>
                   </I18nProvider>
                 </BrowserRouterProvider>

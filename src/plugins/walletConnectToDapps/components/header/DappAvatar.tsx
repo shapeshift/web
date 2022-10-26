@@ -1,8 +1,7 @@
 import { Box, Image, useColorModeValue } from '@chakra-ui/react'
-import type { FC } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 
-type Props = {
+type DappAvatarProps = {
   image: string
   name: string
   connected: boolean
@@ -11,7 +10,7 @@ type Props = {
   borderWidth?: number
 }
 
-export const DappAvatar: FC<Props> = ({
+export const DappAvatar: React.FC<DappAvatarProps> = ({
   image,
   name,
   connected,

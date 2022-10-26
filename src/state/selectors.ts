@@ -4,7 +4,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import createCachedSelector from 're-reselect'
 
 import type { ReduxState } from './reducer'
-import type { StakingId, UserStakingId } from './slices/opportunitiesSlice/opportunitiesSlice'
+import type { LpId, StakingId, UserStakingId } from './slices/opportunitiesSlice/opportunitiesSlice'
 import type { PubKey } from './slices/validatorDataSlice/validatorDataSlice'
 
 // List of all the params filter consumed with selectParamFromFilter
@@ -18,6 +18,7 @@ type ParamFilter = {
   validatorAddress: PubKey
   userStakingId: UserStakingId
   stakingId: StakingId
+  lpId: LpId
 }
 
 // List of all the params filter consumed with selectParamFromFilterOptional
@@ -56,6 +57,7 @@ export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 export const selectValidatorAddressParamFromFilter = selectParamFromFilter('validatorAddress')
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
+export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
 
 export const selectAccountAddressParamFromFilterOptional =
   selectParamFromFilterOptional('accountAddress')

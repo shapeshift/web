@@ -1,13 +1,16 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
+  selectLpIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
+import { selectPortfolioAccountBalances } from '../portfolioSlice/selectors'
 import type {
   LpId,
   OpportunityMetadata,
@@ -150,6 +153,32 @@ export const selectHighestBalanceAccountIdIdByStakingId = createSelector(
       )[0]
 
     const [foundAccountId] = deserializeUserStakingId(foundUserStakingId)
+
+    return foundAccountId
+  },
+)
+
+// Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
+export const selectHighestBalanceAccountIdIdByLpId = createSelector(
+  selectPortfolioAccountBalances,
+  selectLpIdParamFromFilter,
+  (portfolioAccountBalances, lpId): AccountId => {
+    if (lpId === '') return '*' // Narrowing flavoured type
+
+    const foundEntries = Object.entries(portfolioAccountBalances)
+      .filter(([, byAccountId]) => byAccountId.hasOwnProperty(lpId))
+      .sort(([, a], [, b]) =>
+        // In the case of EVM chain LPing, the LpId actually is an AssetId
+        // Note that this may not hold true for the concept of "LPing" on other chains, hence the type assertion
+        // In case we get an LpId that's not an AssetId, we'll have to implement custom logic for it
+        // This is NOT a full LP abstraction, and for all intent and purposes is assuming the LP as token i.e an AssetId in portfolio, not an IOU
+        bn(b[lpId as AssetId])
+          .minus(a[lpId as AssetId])
+          .toNumber(),
+      )[0]
+
+    // Chainable methods that produce an iterable screw the narrowed type back to string
+    const foundAccountId: AccountId = foundEntries[0]
 
     return foundAccountId
   },

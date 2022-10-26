@@ -6,6 +6,7 @@ import type { UserStakingId } from './opportunitiesSlice'
 import { initialState } from './opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
+  selectHighestBalanceAccountIdIdByLpId,
   selectHighestBalanceAccountIdIdByStakingId,
   selectLpOpportunityIdsByAccountId,
   selectStakingOpportunityIdsByAccountId,
@@ -19,6 +20,17 @@ describe('opportunitiesSlice selectors', () => {
     opportunities: initialState,
   }
   describe('selects ID/s', () => {
+    const accountBalances = {
+      byId: {
+        'eip155:1:0xgomes': {
+          'eip155:1:0xLpContractOne': '1337',
+        },
+        'eip155:1:0xfauxmes': {
+          'eip155:1:0xLpContractOne': '424242',
+        },
+      },
+      ids: ['eip155:1:0xgomes', 'eip155:1:fauxmes'],
+    }
     const lp = {
       ...initialState.lp,
       byAccountId: {
@@ -60,6 +72,10 @@ describe('opportunitiesSlice selectors', () => {
 
     const mockState = {
       ...baseState,
+      portfolio: {
+        ...baseState.portfolio,
+        accountBalances,
+      },
       opportunities: {
         ...initialState,
         lp,
@@ -86,9 +102,18 @@ describe('opportunitiesSlice selectors', () => {
       })
     })
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
-      it('can get the highest balance UserStakingId for a given StakingId', () => {
+      it('can get the highest balance AccuontId for a given StakingId', () => {
         const result = selectHighestBalanceAccountIdIdByStakingId(mockState, {
           stakingId: 'eip155:1:0xLpContractOne',
+        })
+
+        expect(result).toEqual('eip155:1:0xfauxmes')
+      })
+    })
+    describe('selectHighestBalanceAccountIdIdByLpId', () => {
+      it('can get the highest balance AccountId for a given LpId', () => {
+        const result = selectHighestBalanceAccountIdIdByLpId(mockState, {
+          lpId: 'eip155:1:0xLpContractOne',
         })
 
         expect(result).toEqual('eip155:1:0xfauxmes')

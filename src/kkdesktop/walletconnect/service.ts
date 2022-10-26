@@ -17,7 +17,7 @@ type WCServiceOptions = {
 }
 
 export class WCService {
-  private logger = new Logger({ name: 'HDWalletWCBridge', level: 'debug' })
+  private logger = new Logger({ name: 'WCService', level: 'debug' })
 
   constructor(
     private readonly wallet: core.ETHWallet,

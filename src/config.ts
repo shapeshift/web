@@ -68,7 +68,7 @@ const validators = {
   REACT_APP_FEATURE_MIGRATION_MESSAGE: bool({ default: false }),
   REACT_APP_FEATURE_SWAPPER_V2: bool({ default: false }),
   REACT_APP_DASHBOARD_BREAKDOWN: bool({ default: false }),
-  REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: true }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
@@ -108,6 +108,7 @@ const validators = {
   REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
+  REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

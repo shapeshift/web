@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.1.2...@shapeshiftoss/chain-adapters-v10.1.3) (2022-10-26)
+
+
+### Bug Fixes
+
+* pass back metadata to onmessage handler ([#1079](https://github.com/shapeshift/lib/issues/1079)) ([4843b93](https://github.com/shapeshift/lib/commit/4843b93eeb13b4952d4da086865428cabda0f43a))
+
 # [@shapeshiftoss/chain-adapters-v10.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.1.1...@shapeshiftoss/chain-adapters-v10.1.2) (2022-10-24)
 
 

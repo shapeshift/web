@@ -2,7 +2,6 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -12,19 +11,21 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 
 import { DappAvatar } from './DappAvatar'
 
-type Props = {
-  dapp: {
-    name: string
-    link: string
-    image: string
-    chainId: number
-    connected: boolean
-    created: Date
-    address: string
-  }
+type Dapp = {
+  name: string
+  link: string
+  image: string
+  chainId: number
+  connected: boolean
+  created: Date
+  address: string
 }
 
-export const DappHeaderMenuSummary: FC<Props> = ({ dapp }) => {
+type DappHeaderMenuSummaryProps = {
+  dapp: Dapp
+}
+
+export const DappHeaderMenuSummary: React.FC<DappHeaderMenuSummaryProps> = ({ dapp }) => {
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
 

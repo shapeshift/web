@@ -3,10 +3,9 @@ import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { clearState, store } from 'state/store'
 
+import { foxEthLpAssetId } from './constants'
 import { initialState, opportunities } from './opportunitiesSlice'
 import { serializeUserStakingId } from './utils'
-
-const FoxEthLPAssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 
 describe('opportunitiesSlice', () => {
   beforeEach(() => {
@@ -30,7 +29,7 @@ describe('opportunitiesSlice', () => {
           metadata: {
             'eip155:1:0xMyContract': {
               // The LP token AssetId
-              assetId: FoxEthLPAssetId,
+              assetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
@@ -43,21 +42,18 @@ describe('opportunitiesSlice', () => {
         const expected = {
           'eip155:1:0xMyContract': {
             apy: '0.42',
-            assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+            assetId: foxEthLpAssetId,
             provider: DefiProvider.FoxEthLP,
             tvl: '424242',
             type: DefiType.LiquidityPool,
-            underlyingAssetIds: [
-              'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-              'eip155:1/slip44:60',
-            ],
+            underlyingAssetIds: [foxAssetId, ethAssetId],
           },
         }
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
         expect(store.getState().opportunities.lp.byId).toEqual(expected)
       })
     })
-    describe('upsertUserStakingOpportunity', () => {
+    describe('upsertUserStakingOpportunities', () => {
       it('insert user data', () => {
         const payload = {
           [serializeUserStakingId('eip155:1/erc20:0xgomes', 'eip155:1:0xMyContract')]: {
@@ -65,8 +61,9 @@ describe('opportunitiesSlice', () => {
             rewardsAmountCryptoPrecision: '42',
           },
         }
-        store.dispatch(opportunities.actions.upsertUserStakingOpportunity(payload))
-        expect(store.getState().opportunities.staking.byId).toEqual(payload)
+        store.dispatch(opportunities.actions.upsertUserStakingOpportunities(payload))
+        expect(store.getState().opportunities.userStaking.byId).toEqual(payload)
+        expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload))
       })
     })
   })

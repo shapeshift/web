@@ -146,6 +146,10 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         console.log('keepkey state 2')
                         queueIpcEvent('updateFirmware', {})
                         break;
+                    case 3:
+                        console.log('keepkey state 3')
+                        queueIpcEvent('requestBootloaderMode', {})
+                        break;
                     case 5:
                         queueIpcEvent('@keepkey/needsInitialize', {})
                         //launch init seed window?

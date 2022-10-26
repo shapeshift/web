@@ -12,6 +12,7 @@ import type {
   LpId,
   OpportunityMetadata,
   StakingId,
+  UserStakingId,
   UserStakingOpportunity,
 } from './opportunitiesSlice'
 import { deserializeUserStakingId } from './utils'
@@ -91,7 +92,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     stakingId,
     userStakingOpportunityIds,
     stakingOpportunities,
-  ): (UserStakingOpportunity & OpportunityMetadata)[] => {
+  ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId => {
       const parts = deserializeUserStakingId(userStakingId)
@@ -102,19 +103,23 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 
     if (!userStakingOpportunityIds.length) return []
 
-    return filteredUserStakingOpportunityIds.map(userStakingOpportunityId => ({
-      ...userStakingOpportunities[userStakingOpportunityId],
+    return filteredUserStakingOpportunityIds.map(userStakingId => ({
+      ...userStakingOpportunities[userStakingId],
       ...stakingOpportunities[stakingId],
+      userStakingId,
     }))
   },
 )
 
+// "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunities): UserStakingOpportunity => {
     return userStakingOpportunities.reduce((acc, userStakingOpportunity) => {
+      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
+        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
       acc = {
-        ...userStakingOpportunity,
+        ...userStakingOpportunityWithoutUserStakingId,
         stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
           .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
           .toString(),

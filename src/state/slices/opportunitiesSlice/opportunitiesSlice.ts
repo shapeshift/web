@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
@@ -25,7 +25,7 @@ export const initialState: OpportunitiesState = {
 export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
-  provider: string
+  provider: DefiProvider
   tvl: string
   type: DefiType
   underlyingAssetIds: [AssetId, AssetId]

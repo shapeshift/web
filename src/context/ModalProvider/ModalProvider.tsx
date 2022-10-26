@@ -3,11 +3,9 @@ import noop from 'lodash/noop'
 import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
-import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
-import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { RequestBootloaderMode } from 'components/Modals/RequestBootloaderMode/RequestBootloaderMode'
@@ -33,8 +31,6 @@ const MODALS = {
   settings: SettingsModal,
   keepKeyWipe: WipeModal,
   consentOptin: OptInModal,
-  backupNativePassphrase: BackupPassphraseModal,
-  mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   requestBootloaderMode: RequestBootloaderMode,

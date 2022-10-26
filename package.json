@@ -79,7 +79,6 @@
     "@chakra-ui/tag": "^2.0.2",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
-    "@ensdomains/ensjs": "^2.1.0",
     "@formatjs/intl-getcanonicallocales": "^2.0.2",
     "@formatjs/intl-locale": "^3.0.2",
     "@formatjs/intl-numberformat": "^8.0.2",

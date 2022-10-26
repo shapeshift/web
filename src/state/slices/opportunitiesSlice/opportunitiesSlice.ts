@@ -88,7 +88,6 @@ export const opportunities = createSlice({
       state,
       { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
     ) => {
-      // const [deserializedUserAccountId, deserializedOpportuityAccountId] = ['', '']
       state.staking.byId = {
         ...state.staking.byId,
         ...payload,

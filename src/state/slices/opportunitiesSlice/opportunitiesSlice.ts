@@ -28,7 +28,7 @@ export type OpportunityMetadata = {
   provider: DefiProvider
   tvl: string
   type: DefiType
-  underlyingAssetIds: [AssetId, AssetId]
+  underlyingAssetIds: readonly [AssetId, AssetId]
 }
 
 // User-specific values for this opportunity

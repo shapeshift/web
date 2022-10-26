@@ -1,7 +1,7 @@
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { mockStore } from 'test/mocks/store'
 
+import { foxEthPair } from './constants'
 import type { UserStakingId } from './opportunitiesSlice'
 import { initialState } from './opportunitiesSlice'
 import {
@@ -118,7 +118,7 @@ describe('opportunitiesSlice selectors', () => {
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
-          underlyingAssetIds: [foxAssetId, ethAssetId] as const,
+          underlyingAssetIds: foxEthPair,
         },
       },
     }
@@ -167,10 +167,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
-            underlyingAssetIds: [
-              'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-              'eip155:1/slip44:60',
-            ],
+            underlyingAssetIds: foxEthPair,
             userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpTwo',
           },
           {
@@ -181,10 +178,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
-            underlyingAssetIds: [
-              'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-              'eip155:1/slip44:60',
-            ],
+            underlyingAssetIds: foxEthPair,
             userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xLpTwo',
           },
         ])
@@ -201,7 +195,7 @@ describe('opportunitiesSlice selectors', () => {
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
-          underlyingAssetIds: [foxAssetId, ethAssetId] as const,
+          underlyingAssetIds: foxEthPair,
           rewardsAmountCryptoPrecision: '430',
           stakedAmountCryptoPrecision: '1437',
         })

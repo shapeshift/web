@@ -13,3 +13,13 @@ export const deserializeUserStakingId = (userStakingId: UserStakingId): UserStak
 
   return [accountId, stakingId]
 }
+
+export const filterUserStakingIdByStakingId = (
+  userStakingId: UserStakingId,
+  stakingId: StakingId,
+) => {
+  const parts = deserializeUserStakingId(userStakingId)
+  const [, deserializedStakingId] = parts
+
+  return deserializedStakingId === stakingId
+}

@@ -15,7 +15,7 @@ import type {
   UserStakingId,
   UserStakingOpportunity,
 } from './opportunitiesSlice'
-import { deserializeUserStakingId } from './utils'
+import { deserializeUserStakingId, filterUserStakingIdByStakingId } from './utils'
 
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
@@ -94,12 +94,9 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
     // Filter out only the user data for this specific opportunity
-    const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId => {
-      const parts = deserializeUserStakingId(userStakingId)
-      const [, deserializedStakingId] = parts
-
-      return deserializedStakingId === stakingId
-    })
+    const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
+      filterUserStakingIdByStakingId(userStakingId, stakingId),
+    )
 
     if (!userStakingOpportunityIds.length) return []
 
@@ -130,5 +127,26 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 
       return acc
     }, {} as UserStakingOpportunity)
+  },
+)
+
+// Useful when multiple accounts are staked on the same opportunity, so we can detect the highest UserStakingId one
+export const selectHighestBalanceLpUserStakingIdByStakingId = createSelector(
+  selectUserStakingOpportunitiesById,
+  selectStakingIdParamFromFilter,
+  (userStakingOpportunities, stakingId) => {
+    if (stakingId === '') return '*' // Narrowing flavoured type
+
+    const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
+      UserStakingId,
+      UserStakingOpportunity,
+    ][]
+    return userStakingOpportunitiesEntries
+      .filter(([userStakingId]) => filterUserStakingIdByStakingId(userStakingId, stakingId))
+      .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
+        bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
+          .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)
+          .toNumber(),
+      )[0]
   },
 )

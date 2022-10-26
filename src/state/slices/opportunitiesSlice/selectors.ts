@@ -18,7 +18,7 @@ import type {
   UserStakingId,
   UserStakingOpportunity,
 } from './opportunitiesSlice'
-import { deserializeUserStakingId, filterUserStakingIdByStakingId } from './utils'
+import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
 
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
@@ -98,7 +98,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
   ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
-      filterUserStakingIdByStakingId(userStakingId, stakingId),
+      filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
     )
 
     if (!userStakingOpportunityIds.length) return []
@@ -145,7 +145,9 @@ export const selectHighestBalanceAccountIdIdByStakingId = createSelector(
       UserStakingOpportunity,
     ][]
     const [foundUserStakingId] = userStakingOpportunitiesEntries
-      .filter(([userStakingId]) => filterUserStakingIdByStakingId(userStakingId, stakingId))
+      .filter(([userStakingId]) =>
+        filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
+      )
       .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
         bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
           .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)

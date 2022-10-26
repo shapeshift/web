@@ -18,7 +18,7 @@ export const serializeUserStakingId = (
   ...[accountId, stakingId]: UserStakingIdParts
 ): UserStakingId => `${accountId}*${stakingId}`
 
-export const filterUserStakingIdByStakingId = (
+export const filterUserStakingIdByStakingIdCompareFn = (
   userStakingId: UserStakingId,
   stakingId: StakingId,
 ) => {

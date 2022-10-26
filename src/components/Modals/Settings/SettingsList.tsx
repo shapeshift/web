@@ -19,10 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { mobileLogger } from 'context/WalletProvider/MobileWallet/config'
-import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 import {
   selectCurrencyFormat,
@@ -41,7 +38,6 @@ type SettingsListProps = {
 } & RouteComponentProps
 
 export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) => {
-  const { disconnect } = useWallet()
   const translate = useTranslate()
   const { settings } = useModal()
   const { toggleColorMode } = useColorMode()
@@ -72,17 +68,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     appHistory.push(linkHref)
   }
 
-  const handleDeleteAccountsClick = async () => {
-    if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
-      try {
-        await deleteWallet('*')
-        settings.close()
-        disconnect()
-      } catch (e) {
-        mobileLogger.error(e, 'Error deleting wallets')
-      }
-    }
-  }
+  const handleDeleteAccountsClick = async () => {}
 
   return (
     <SlideTransition>

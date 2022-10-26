@@ -1,20 +1,15 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
-import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import { getConfig } from 'config'
+import type WalletConnectProvider from '@walletconnect/web3-provider'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import debounce from 'lodash/debounce'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
@@ -34,7 +29,6 @@ import {
   getLocalWalletType,
   setLocalWalletTypeAndDeviceId,
 } from './local-wallet'
-import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
@@ -90,13 +84,6 @@ const initialDeviceState: DeviceState = {
 }
 export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
 
-// A subset of wallets which have an EIP-1193-like provider
-export type KeyManagerWithProvider =
-  | KeyManager.TallyHo
-  | KeyManager.XDefi
-  | KeyManager.MetaMask
-  | KeyManager.WalletConnect
-
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
@@ -137,18 +124,7 @@ const initialState: InitialState = {
   disconnectOnCloseModal: false,
 }
 
-export const isKeyManagerWithProvider = (
-  keyManager: KeyManager | null,
-): keyManager is KeyManagerWithProvider =>
-  Boolean(
-    keyManager &&
-      [
-        KeyManager.TallyHo,
-        KeyManager.XDefi,
-        KeyManager.MetaMask,
-        KeyManager.WalletConnect,
-      ].includes(keyManager),
-  )
+export const isKeyManagerWithProvider = (keyManager: KeyManager | null) => Boolean(keyManager)
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -165,7 +141,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId: action?.payload?.deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+            address: '',
           },
         },
       }
@@ -219,15 +195,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         newState.keepKeyPinRequestType = null
       }
       return newState
-    case WalletActions.NATIVE_PASSWORD_OPEN:
-      return {
-        ...state,
-        modal: action.payload.modal,
-        type: KeyManager.Native,
-        showBackButton: !state.isLoadingLocalWallet,
-        deviceId: action.payload.deviceId,
-        initialRoute: '/native/enter-password',
-      }
     case WalletActions.OPEN_KEEPKEY_PIN: {
       const { showBackButton, deviceId, pinRequestType } = action.payload
       return {
@@ -342,8 +309,6 @@ function playSound(type: any) {
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
-  // Internal state, for memoization purposes only
-  const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
   // Keepkey is in a fucked state and needs to be unplugged/replugged
   const [needsReset, setNeedsReset] = useState(false)
@@ -433,105 +398,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
-
-  const handleAccountsOrChainChanged = useCallback(async () => {
-    if (!walletType || !state.adapters) return
-
-    const localWallet = await state.adapters.get(walletType)?.pairDevice()
-
-    if (!localWallet) return
-
-    await localWallet.initialize()
-    const deviceId = await localWallet?.getDeviceID()
-
-    if (!deviceId) return
-
-    const { icon, name } = SUPPORTED_WALLETS[walletType]
-
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        wallet: localWallet,
-        name,
-        icon,
-        deviceId,
-      },
-    })
-  }, [state, walletType])
-
-  const setProviderEvents = useCallback(
-    async (maybeProvider: InitialState['provider']) => {
-      if (!(maybeProvider && walletType)) return
-
-      maybeProvider?.on?.('accountsChanged', handleAccountsOrChainChanged)
-      maybeProvider?.on?.('chainChanged', handleAccountsOrChainChanged)
-
-      const wallet = await state.adapters?.get(walletType)?.pairDevice()
-      if (wallet) {
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          maybeProvider?.removeListener?.('accountsChanged', handleAccountsOrChainChanged)
-          maybeProvider?.removeListener?.('chainChanged', handleAccountsOrChainChanged)
-          return oldDisconnect()
-        }
-      }
-    },
-    [state.adapters, walletType, handleAccountsOrChainChanged],
-  )
-
-  // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
-  const onProviderChange = useCallback(
-    async (localWalletType: KeyManagerWithProvider | null) => {
-      if (!localWalletType) return
-      setWalletType(localWalletType)
-      if (!walletType) return
-      try {
-        const maybeProvider = await (async (): Promise<InitialState['provider']> => {
-          if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(walletType)) {
-            return (await detectEthereumProvider()) as MetaMaskLikeProvider
-          }
-          if (walletType === KeyManager.XDefi) {
-            try {
-              return globalThis?.xfi?.ethereum as unknown as MetaMaskLikeProvider
-            } catch (error) {
-              throw new Error('walletProvider.xdefi.errors.connectFailure')
-            }
-          }
-          if (walletType === KeyManager.WalletConnect) {
-            const config: WalletConnectProviderConfig = {
-              /** List of RPC URLs indexed by chain ID */
-              rpc: {
-                1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-              },
-            }
-            return new WalletConnectProvider(config)
-          }
-
-          return null
-        })()
-
-        if (maybeProvider) {
-          await setProviderEvents(maybeProvider)
-          dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
-        }
-      } catch (e) {
-        if (!isMobile) moduleLogger.error(e, 'onProviderChange error')
-      }
-    },
-    // Only a change of wallet type should invalidate the reference
-    // Else, this will add many duplicate event listeners
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [walletType],
-  )
-
-  useEffect(() => {
-    ;(async () => {
-      const localWalletType = getLocalWalletType()
-      if (!isKeyManagerWithProvider(localWalletType)) return
-
-      await onProviderChange(localWalletType)
-    })()
-  }, [state.wallet, onProviderChange])
 
   const pairAndConnect = useRef(
     debounce(async () => {
@@ -791,7 +657,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useNativeEventHandler(state, dispatch)
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
@@ -803,7 +668,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      onProviderChange,
       needsReset,
       setNeedsReset,
       isUpdatingKeepkey,
@@ -816,7 +680,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      onProviderChange,
       needsReset,
       setNeedsReset,
       setIsUpdatingKeepkey,

@@ -6,7 +6,6 @@ import { ipcRenderer } from 'electron'
 import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import type { PairingProps } from 'components/Modals/Pair/Pair'
@@ -15,7 +14,6 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
   const {
@@ -27,11 +25,6 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const showWelcomeModal = useSelector(selectShowWelcomeModal)
-  const {
-    mobileWelcomeModal: { isOpen: isWelcomeModalOpen, open: openWelcomeModal },
-  } = useModal()
-
   const { needsReset, setNeedsReset, setIsUpdatingKeepkey } = useWallet()
 
   const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
@@ -124,12 +117,5 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
-
-  useEffect(() => {
-    if (showWelcomeModal && !isWelcomeModalOpen) {
-      openWelcomeModal({})
-    }
-  }, [isWelcomeModalOpen, openWelcomeModal, showWelcomeModal])
-
   return <Routes />
 }

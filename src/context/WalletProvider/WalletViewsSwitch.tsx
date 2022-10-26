@@ -20,7 +20,6 @@ import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
 import { clearLocalWallet } from './local-wallet'
-import { SelectModal } from './SelectModal'
 const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
 export const WalletViewsSwitch = () => {
@@ -130,7 +129,6 @@ export const WalletViewsSwitch = () => {
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {walletRoutesList}
-                <Route path={'/select'} children={() => <SelectModal />} />
                 <Route path={'/'} children={() => <OptInModalBody onContinue={onContinue} />} />
               </Switch>
             </SlideTransition>

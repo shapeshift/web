@@ -48,7 +48,7 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
           width={100}
           height={50}
           xScale={{ type: 'utc' }}
-          yScale={{ type: 'log', range: [10, 50] }}
+          yScale={{ type: 'log' }}
         >
           <LineSeries
             dataKey={`${assetId}-series`}

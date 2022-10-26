@@ -271,7 +271,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   return (
     <Box px={2} my={2} {...boxProps}>
-      <Menu closeOnSelect={true} matchWidth>
+      <Menu closeOnSelect={true} matchWidth autoSelect={false}>
         <MenuButton
           iconSpacing={0}
           as={Button}

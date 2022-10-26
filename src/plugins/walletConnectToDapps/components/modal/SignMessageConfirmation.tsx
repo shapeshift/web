@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   IconButton,
   Image,
@@ -10,14 +11,25 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { FC } from 'react'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { useMemo, useState } from 'react'
+import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
+import { GasInput } from 'components/DeFi/components/GasInput'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
+import { ModalSection } from './ModalSection'
+import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
 import { WalletSummaryCard } from './WalletSummaryCard'
 
-type Props = {
+type SignMessageConfirmationProps = {
   message: string
   dapp: {
     image: string
@@ -27,8 +39,31 @@ type Props = {
   isLoading: boolean
 }
 
-export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading }) => {
+export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
+
+export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
+  const { message, dapp, isLoading } = props
   const translate = useTranslate()
+  const [gasInputValue, setGasInputValue] = useState<WalletConnectFeeDataKey>(FeeDataKey.Average)
+  // walletconnect only supports eth mainnet
+  const ethAsset = useAppSelector(s => selectAssetById(s, ethAssetId))
+  const ethMarketData = useAppSelector(s => selectMarketDataById(s, ethAssetId))
+  const titleRightComponent = useMemo(() => {
+    return (
+      <Flex gap={1}>
+        <Amount.Fiat value={fromBaseUnit(gasInputValue, ethAsset.precision)} />
+        <Amount.Crypto
+          prefix='≈'
+          color='gray.500'
+          symbol={ethAsset.symbol}
+          value={bnOrZero(fromBaseUnit(gasInputValue, ethAsset.precision))
+            .times(bnOrZero(ethMarketData.price))
+            .toString()}
+        />
+      </Flex>
+    )
+  }, [ethAsset, ethMarketData.price, gasInputValue])
+
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
       <Box>
@@ -44,7 +79,6 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
           balance={10}
         />
       </Box>
-
       <Box>
         <Text
           fontWeight='medium'
@@ -79,13 +113,28 @@ export const SignMessageConfirmation: FC<Props> = ({ message, dapp, isLoading })
           </Box>
         </Card>
       </Box>
-
+      <ModalSection
+        defaultOpen={false}
+        title={translate('gasInput.estGasCost')}
+        titleRightComponent={titleRightComponent}
+        icon={<FaGasPump />}
+      >
+        <GasInput value={gasInputValue} onChange={setGasInputValue} />
+      </ModalSection>
+      <ModalSection
+        defaultOpen={false}
+        title={translate(
+          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+        )}
+        icon={<FaWrench />}
+      >
+        <SignTransactionAdvancedParameters />
+      </ModalSection>
       <Text
         fontWeight='medium'
         color='gray.500'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
-
       <VStack spacing={4}>
         <Button
           size='lg'

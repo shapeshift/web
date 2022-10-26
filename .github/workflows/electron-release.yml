@@ -37,6 +37,8 @@ jobs:
         run: echo "${{ secrets.DOTENV_VARS }}" >> .env
       - name: Save sentry properties
         run: echo "${{ secrets.SENTRY_PROPERTIES }}" >> sentry.properties
+      - name: Generate env
+        run: yarn env dev # TODO: change this later
       - name: Build UI
         run: yarn build
       - name: Compile electron typescript

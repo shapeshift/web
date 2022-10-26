@@ -13,6 +13,7 @@ import {
   selectUserStakingOpportunitiesByStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from './selectors'
+import { serializeUserStakingId } from './utils'
 
 describe('opportunitiesSlice selectors', () => {
   const baseState = {
@@ -50,20 +51,20 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
-        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne',
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
+        serializeUserStakingId('eip155:1:0xfauxmes', 'eip155:1:0xLpContractOne'),
       ] as UserStakingId[],
       byId: {
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne')]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
-        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne': {
+        [serializeUserStakingId('eip155:1:0xfauxmes', 'eip155:1:0xLpContractOne')]: {
           stakedAmountCryptoPrecision: '9000',
           rewardsAmountCryptoPrecision: '1',
         },
@@ -127,16 +128,16 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
-        'eip155:1:0xfauxmes*eip155:1:0xLpContractOne',
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
+        serializeUserStakingId('eip155:1:0xfauxmes', 'eip155:1:0xLpContractOne'),
       ] as UserStakingId[],
       byId: {
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne')]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -155,7 +156,7 @@ describe('opportunitiesSlice selectors', () => {
     it('can get the staking data for a given UserStakingId', () => {
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
+          userStakingId: serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '1337',
@@ -163,7 +164,7 @@ describe('opportunitiesSlice selectors', () => {
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractOne',
+          userStakingId: serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '4',
@@ -188,20 +189,20 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
-        'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo',
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne',
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
+        serializeUserStakingId('eip155:1:0xcatpuccino', 'eip155:1:0xLpContractTwo'),
+        serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
       ] as UserStakingId[],
       byId: {
-        'eip155:1:0xgomes*eip155:1:0xLpContractTwo': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo': {
+        [serializeUserStakingId('eip155:1:0xcatpuccino', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '100',
           rewardsAmountCryptoPrecision: '10',
         },
-        'eip155:1:0xgomes*eip155:1:0xLpContractOne': {
+        [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne')]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -231,7 +232,7 @@ describe('opportunitiesSlice selectors', () => {
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: 'eip155:1:0xgomes*eip155:1:0xLpContractTwo',
+            userStakingId: serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
           },
           {
             apy: '1000',
@@ -242,7 +243,10 @@ describe('opportunitiesSlice selectors', () => {
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xLpContractTwo',
+            userStakingId: serializeUserStakingId(
+              'eip155:1:0xcatpuccino',
+              'eip155:1:0xLpContractTwo',
+            ),
           },
         ])
       })

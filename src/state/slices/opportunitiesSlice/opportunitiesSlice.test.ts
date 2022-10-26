@@ -5,7 +5,7 @@ import { clearState, store } from 'state/store'
 
 import { initialState, opportunities } from './opportunitiesSlice'
 
-const foxEthLpAssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
+const FoxEthLPAssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 
 describe('opportunitiesSlice', () => {
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('opportunitiesSlice', () => {
           metadata: {
             'eip155:1:0xMyContract': {
               // The LP token AssetId
-              assetId: foxEthLpAssetId,
+              assetId: FoxEthLPAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
@@ -43,9 +43,9 @@ describe('opportunitiesSlice', () => {
           'eip155:1:0xMyContract': {
             apy: '0.42',
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
-            provider: 'UNI V2',
+            provider: DefiProvider.FoxEthLP,
             tvl: '424242',
-            type: 'liquidity_pool',
+            type: DefiType.LiquidityPool,
             underlyingAssetIds: [
               'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
               'eip155:1/slip44:60',

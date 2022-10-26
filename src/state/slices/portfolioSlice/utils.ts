@@ -53,7 +53,7 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 }
 
 export const firstFourLastFour = (address: string): string =>
-  `${address.slice(0, 6)}...${address.slice(-4)}`
+  address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ''
 
 export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
   if (!content) return ''

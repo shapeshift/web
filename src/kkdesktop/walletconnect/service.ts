@@ -1,8 +1,12 @@
+import { ethereum } from '@shapeshiftoss/chain-adapters'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
+import Web3 from 'web3'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 import type {
   WalletConnectCallRequest,
@@ -99,12 +103,13 @@ export class WCService {
     approveData: Partial<
       WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
     >,
-    adapter: any,
   ) {
-    console.log('APPROVE REQUEST approve data', approveData)
-    console.log('APPROVE REQUEST request', request)
-    console.log('APPROVE REQUEST adapter', adapter)
-    console.log('APPROVE REQUEST wallet', this.wallet)
+    const adapterManager = getChainAdapterManager()
+    // TODO work for any chain (avalanche etc)
+    const adapter = adapterManager.get(
+      KnownChainIds.EthereumMainnet,
+    ) as unknown as ethereum.ChainAdapter
+
     let result: any
     switch (request.method) {
       case 'eth_sign': {
@@ -125,29 +130,27 @@ export class WCService {
       case 'eth_sendTransaction': {
         const tx = request.params[0]
 
-        // test values. todo pass through correct values
+        const gasFeeData = await adapter.getGasFeeData()
+
+        const account = await adapter.getAccount(`${tx.from}`)
+        const nonce = Web3.utils.toHex(account.chainSpecific.nonce)
+
+        const gasPrice = Web3.utils.toHex((gasFeeData as any)[(approveData as any).speed].gasPrice)
+
         const sendData = {
           addressNList,
           chainId: 1,
           data: tx.data,
-          gasLimit: '0x3D090',
+          gasLimit: (approveData as any).gasLimit ?? tx.gas,
           to: tx.to,
           value: tx.value,
-          nonce: '0x2', //tx.nonce,
-          gasPrice: '0x5A817C800',
+          nonce,
+          gasPrice: (approveData as any).gasPrice ?? tx.gasPrice ?? gasPrice,
         }
-
-        console.log('sendData', sendData)
 
         const signedData = await this.wallet.ethSignTx?.(sendData)
 
-        console.log('signedData', signedData)
-
-        const txid = await adapter.broadcastTransaction(signedData?.serialized)
-
-        console.log('txid is', txid)
-        result = txid //response?.hash;
-
+        result = await adapter.broadcastTransaction(signedData?.serialized ?? '')
         break
       }
       case 'eth_signTransaction':

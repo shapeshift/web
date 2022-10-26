@@ -30,10 +30,12 @@ export interface WalletConnectEthSendTransactionCallRequest {
   params: {
     chainId: number
     data: string
-    gasLimit: string
+    gas: string
+    gasPrice: string
     nonce: string
     to: string
     value: string
+    from: string
   }[]
 }
 
@@ -44,9 +46,11 @@ export interface WalletConnectEthSignTransactionCallRequest {
     chainId: number
     data: string
     gas: string
+    gasPrice: string
     nonce: string
     to: string
     value: string
+    from: string
   }[]
 }
 

@@ -14,6 +14,10 @@ export const deserializeUserStakingId = (userStakingId: UserStakingId): UserStak
   return [accountId, stakingId]
 }
 
+export const serializeUserStakingId = (
+  ...[accountId, stakingId]: UserStakingIdParts
+): UserStakingId => `${accountId}*${stakingId}`
+
 export const filterUserStakingIdByStakingId = (
   userStakingId: UserStakingId,
   stakingId: StakingId,

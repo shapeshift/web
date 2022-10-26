@@ -1450,8 +1450,7 @@
           "nextPage": "Next Page",
           "prevPage": "Previous Page"
         }
-      }
-    },
+      },
       "header": {
         "connectDapp": "Connect dApp",
         "connectedDapp": "Connected dApp",
@@ -1506,6 +1505,7 @@
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect"
         }
+      }
     }
   },
   "features": {
@@ -1515,5 +1515,20 @@
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
+  },
+  "gasInput": {
+    "gasPrice": {
+      "label": "Gas Price",
+      "tooltip": "TODO: Gas Price Tooltip"
+    },
+    "base": {
+      "label": "Base fee",
+      "tooltip": "The base fee is set by the network and changes every 13-14 seconds depending on demand. Set the maximum price (not including priority fee) in gwei that you’re willing to pay for each unit of gas."
+    },
+    "priority": {
+      "label": "Priority fee",
+      "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you’d like to pay for each unit of gas."
+    },
+    "custom": "Custom"
   }
 }

@@ -4,6 +4,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { clearState, store } from 'state/store'
 
 import { initialState, opportunities } from './opportunitiesSlice'
+import { serializeUserStakingId } from './utils'
 
 const FoxEthLPAssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 
@@ -59,19 +60,13 @@ describe('opportunitiesSlice', () => {
     describe('upsertUserStakingOpportunity', () => {
       it('insert user data', () => {
         const payload = {
-          'eip155:1/erc20:0xgomes::eip155:1:0xMyContract': {
+          [serializeUserStakingId('eip155:1/erc20:0xgomes', 'eip155:1:0xMyContract')]: {
             stakedAmountCryptoPrecision: '42000',
             rewardsAmountCryptoPrecision: '42',
-          },
-        }
-        const expected = {
-          'eip155:1/erc20:0xgomes::eip155:1:0xMyContract': {
-            rewardsAmountCryptoPrecision: '42',
-            stakedAmountCryptoPrecision: '42000',
           },
         }
         store.dispatch(opportunities.actions.upsertUserStakingOpportunity(payload))
-        expect(store.getState().opportunities.staking.byId).toEqual(expected)
+        expect(store.getState().opportunities.staking.byId).toEqual(payload)
       })
     })
   })

@@ -11,7 +11,6 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,7 +42,6 @@ type UseSendDetailsReturnType = {
   toggleCurrency(): void
   cryptoHumanBalance: BigNumber
   fiatBalance: BigNumber
-  estimateFees: (input: EstimateFeesInput) => Promise<FeeDataEstimate<ChainId>>
 }
 
 const moduleLogger = logger.child({
@@ -385,6 +383,5 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleInputChange,
     loading,
     toggleCurrency,
-    estimateFees,
   }
 }

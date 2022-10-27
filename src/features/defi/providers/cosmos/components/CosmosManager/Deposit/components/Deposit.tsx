@@ -155,7 +155,6 @@ export const Deposit: React.FC<DepositProps> = ({
       marketData={marketData}
       onCancel={handleCancel}
       onContinue={handleContinue}
-      onMaxClick={handleMaxClick}
       percentOptions={[0.25, 0.5, 0.75, 1]}
       enableSlippage={false}
     />

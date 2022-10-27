@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "revoke": "Revogar",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
@@ -437,6 +438,25 @@
         "approve": "Aprovar",
         "revoke": "Revogar",
         "infinite": "Infinito ∞"
+      },
+      "staking": {
+        "delegate": "Delegar",
+        "begin_unbonding": "Retirar delegação.",
+        "begin_redelegate": "Redelegar",
+        "withdraw_delegator_reward": "Resgatar Recompensa"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Reembolso",
+        "outbound": "Retirada"
+      },
+      "ibc": {
+        "transfer": "Enviado",
+        "recv_packet": "Recebido"
+      },
+      "lp": {
+        "deposit": "Adicionar Liquidez"
       }
     },
     "unknown": "Transação"
@@ -536,6 +556,7 @@
       "unsupportedChain": "Esta rede não é suportada atualmente.",
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
       "assetNotSupportedByWallet": "%{assetSymbol} incompatível com a carteira",
+      "noReceiveAddress": "Nenhum endereço recebido para %{assetSymbol}",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
@@ -1331,9 +1352,10 @@
       "outputAddress": "Endereço de saída"
     },
     "transactionTypes": {
-      "send": "Mandar",
-      "receive": "Receber",
-      "trade": "Troca"
+      "Send": "Enviar",
+      "Receive": "Recebido",
+      "Trade": "Negociar",
+      "Refund": "Reembolso"
     },
     "assets": "Bens",
     "txid": "ID TX",

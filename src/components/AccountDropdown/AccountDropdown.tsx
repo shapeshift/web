@@ -271,7 +271,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   return (
     <Box px={2} my={2} {...boxProps}>
-      <Menu closeOnSelect={true} matchWidth>
+      <Menu closeOnSelect={true} matchWidth autoSelect={false}>
         <MenuButton
           iconSpacing={0}
           as={Button}
@@ -286,7 +286,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color='grey.500'>
+            <Text fontWeight='medium' color='gray.500'>
               {accountLabel}
             </Text>
           </Stack>

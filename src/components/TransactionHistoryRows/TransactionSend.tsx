@@ -10,7 +10,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { getDisplayTransfers } from './utils'
+import { getTransfersByType } from './utils'
 
 export const TransactionSend = ({
   txDetails,
@@ -20,8 +20,8 @@ export const TransactionSend = ({
   toggleOpen,
   parentWidth,
 }: TransactionRowProps) => {
-  const displayTransfers = useMemo(
-    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send]),
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Send]),
     [txDetails.transfers],
   )
 
@@ -32,7 +32,7 @@ export const TransactionSend = ({
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={displayTransfers}
+        transfersByType={transfersByType}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

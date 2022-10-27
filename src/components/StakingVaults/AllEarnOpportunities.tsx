@@ -77,6 +77,7 @@ export const AllEarnOpportunities = () => {
           chainId,
           contractAddress,
           assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',
         }),

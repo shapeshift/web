@@ -2,6 +2,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { mockStore } from 'test/mocks/store'
 
 import { foxEthPair } from './constants'
+import { catpuccinoAccountId, fauxmesAccountId, gomesAccountId } from './mocks'
 import { initialState } from './opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
@@ -14,12 +15,8 @@ import {
 } from './selectors'
 import { serializeUserStakingId } from './utils'
 
-const gomesAccountId = 'eip155:1:0xgomes'
-const fauxmesAccountId = 'eip155:1:0xfauxmes'
-const catpuccinoAccountId = 'eip155:1:0xcatpuccino'
-
 describe('opportunitiesSlice selectors', () => {
-  const baseState = {
+  const mockBaseState = {
     ...mockStore,
     opportunities: initialState,
   }
@@ -33,13 +30,13 @@ describe('opportunitiesSlice selectors', () => {
           'eip155:1:0xLpContractOne': '424242',
         },
       },
-      ids: [gomesAccountId, 'eip155:1:fauxmes'],
+      ids: [gomesAccountId, fauxmesAccountId],
     }
     const lp = {
       ...initialState.lp,
       byAccountId: {
         [gomesAccountId]: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
-        'eip155:1:fauxmes': ['eip155:1:0xLpContractOne'],
+        [fauxmesAccountId]: ['eip155:1:0xLpContractOne'],
       },
       ids: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
     }
@@ -47,7 +44,7 @@ describe('opportunitiesSlice selectors', () => {
       ...initialState.staking,
       byAccountId: {
         [gomesAccountId]: ['eip155:1:0xStakingContractOne', 'eip155:1:0xStakingContractTwo'],
-        'eip155:1:fauxmes': ['eip155:1:0xStakingContractOne'],
+        [fauxmesAccountId]: ['eip155:1:0xStakingContractOne'],
       },
       ids: ['eip155:1:0xStakingContractOne', 'eip155:1:0xStakingContractTwo'],
     }
@@ -75,9 +72,9 @@ describe('opportunitiesSlice selectors', () => {
     }
 
     const mockState = {
-      ...baseState,
+      ...mockBaseState,
       portfolio: {
-        ...baseState.portfolio,
+        ...mockBaseState.portfolio,
         accountBalances,
       },
       opportunities: {
@@ -148,7 +145,7 @@ describe('opportunitiesSlice selectors', () => {
     }
 
     const mockState = {
-      ...baseState,
+      ...mockBaseState,
       opportunities: {
         ...initialState,
         staking,
@@ -213,7 +210,7 @@ describe('opportunitiesSlice selectors', () => {
     }
 
     const mockState = {
-      ...baseState,
+      ...mockBaseState,
       opportunities: {
         ...initialState,
         staking,

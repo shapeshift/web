@@ -4,6 +4,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { clearState, store } from 'state/store'
 
 import { foxEthLpAssetId } from './constants'
+import { gomesAccountId } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
 import { serializeUserStakingId } from './utils'
 
@@ -56,7 +57,7 @@ describe('opportunitiesSlice', () => {
     describe('upsertUserStakingOpportunities', () => {
       it('insert user data', () => {
         const payload = {
-          [serializeUserStakingId('eip155:1/0xgomes', 'eip155:1:0xMyStakingContract')]: {
+          [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
             stakedAmountCryptoPrecision: '42000',
             rewardsAmountCryptoPrecision: '42',
           },

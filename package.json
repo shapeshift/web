@@ -121,7 +121,7 @@
     "@visx/xychart": "^2.12.2",
     "@wagmi/core": "^0.5.5",
     "@walletconnect/web3-provider": "^1.7.8",
-    "@wherever/react-notification-feed": "^0.0.8",
+    "@wherever/react-notification-feed": "^0.0.11",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",

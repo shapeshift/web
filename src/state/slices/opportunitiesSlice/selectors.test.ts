@@ -54,7 +54,7 @@ describe('opportunitiesSlice selectors', () => {
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
         serializeUserStakingId('eip155:1:0xfauxmes', 'eip155:1:0xLpContractOne'),
-      ] as UserStakingId[],
+      ],
       byId: {
         [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',
@@ -131,7 +131,7 @@ describe('opportunitiesSlice selectors', () => {
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
         serializeUserStakingId('eip155:1:0xfauxmes', 'eip155:1:0xLpContractOne'),
-      ] as UserStakingId[],
+      ],
       byId: {
         [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',
@@ -192,7 +192,7 @@ describe('opportunitiesSlice selectors', () => {
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo'),
         serializeUserStakingId('eip155:1:0xcatpuccino', 'eip155:1:0xLpContractTwo'),
         serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractOne'),
-      ] as UserStakingId[],
+      ],
       byId: {
         [serializeUserStakingId('eip155:1:0xgomes', 'eip155:1:0xLpContractTwo')]: {
           stakedAmountCryptoPrecision: '1337',

@@ -19,7 +19,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const approveRequest = useCallback(
     async (request: WalletConnectCallRequest, approveData: unknown) => {
       // TODO pass adapter 3rd arg here
-      await bridge?.approveRequest(request, approveData as any, '')
+      await bridge?.approveRequest(request, approveData as any)
       setCallRequests(prev => prev.filter(req => req.id !== request.id))
     },
     [bridge],

@@ -4,7 +4,7 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalOverlay,
+  ModalOverlay, Table, Tbody, Td, Th, Thead, Tr,
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
@@ -42,6 +42,26 @@ export const UpdateFirmware = () => {
           <div>
             <ModalHeader>
               <Text translation='Firmware update required' />
+              <Table size='sm'>
+                <Thead>
+                  <Tr>
+                    <Th>Firmware Version</Th>
+                    <Th></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>Current</Td>
+                    <Td>Recomended</Td>
+                  </Tr>
+                </Tbody>
+                <Tbody>
+                  <Tr>
+                    <Td>1.0.1</Td>
+                    <Td>1.0.1</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
               <Text translation='Confirm on device' />
             </ModalHeader>
           </div>

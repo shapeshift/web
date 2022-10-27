@@ -5,6 +5,12 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
@@ -18,7 +24,6 @@ export const UpdateBootloader = () => {
   const handleUpdateBootloader = async () => {
     ipcRenderer.send('@keepkey/update-bootloader', {})
   }
-
   useEffect(() => {
     if (isOpen) {
       handleUpdateBootloader()
@@ -42,6 +47,27 @@ export const UpdateBootloader = () => {
           <div>
             <ModalHeader>
               <Text translation='Bootloader update required' />
+              <Table size='sm'>
+                <Thead>
+                  <Tr>
+                    <Th>Bootloader Version</Th>
+                    <Th></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>Current</Td>
+                    <Td>Recomended</Td>
+                  </Tr>
+                </Tbody>
+                <Tbody>
+                  <Tr>
+                    <Td>1.0.1</Td>
+                    <Td>1.0.1</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+              <br/>
               <Text translation='Click on device' />
             </ModalHeader>
           </div>

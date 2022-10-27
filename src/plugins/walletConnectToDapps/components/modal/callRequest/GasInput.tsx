@@ -43,12 +43,17 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
   const bgColor = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
 
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
   const options = useMemo(
     (): GasOption[] => [
       {
         value: FeeDataKey.Slow,
         label: translate(getFeeTranslation(FeeDataKey.Slow)),
         duration: '~ 10 mins',
+        // @ts-ignore
         amount: fees.slow.txFee,
         color: 'green.200',
       },
@@ -56,6 +61,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
         value: FeeDataKey.Average,
         label: translate(getFeeTranslation(FeeDataKey.Average)),
         duration: '~ 3 mins',
+        // @ts-ignore
         amount: fees.average.txFee,
         color: 'blue.200',
       },
@@ -63,6 +69,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
         value: FeeDataKey.Fast,
         label: translate(getFeeTranslation(FeeDataKey.Fast)),
         duration: '~ 3 seconds',
+        // @ts-ignore
         amount: fees.fast.txFee,
         color: 'red.400',
       },

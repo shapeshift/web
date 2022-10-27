@@ -113,21 +113,27 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): UserStakingOpportunity =>
-    userStakingOpportunities.reduce<UserStakingOpportunity>((acc, userStakingOpportunity) => {
-      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+  (userStakingOpportunities): UserStakingOpportunity & OpportunityMetadata => {
+    const initial = {} as UserStakingOpportunity & OpportunityMetadata
 
-      return {
-        ...userStakingOpportunityWithoutUserStakingId,
-        stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
-          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
-          .toString(),
-        rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
-          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-          .toString(),
-      }
-    }, {}),
+    return userStakingOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
+      (acc, userStakingOpportunity) => {
+        const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
+          userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+
+        return {
+          ...userStakingOpportunityWithoutUserStakingId,
+          stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
+            .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+            .toString(),
+          rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
+            .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+            .toString(),
+        }
+      },
+      initial,
+    )
+  },
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one

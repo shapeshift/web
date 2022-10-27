@@ -122,7 +122,7 @@
     "routeTitle": "Kaufen oder Verkaufen",
     "routeTitleForGem": "Gem Einzahlung",
     "title": "Krypto kaufen oder verkaufen",
-    "titleMessage": "ShapeShift hat sich mit mehreren Fiat-zu-Krypto Anbietern für den Kauf und Verkauf von Kryptowährungen zusammengetan.",
+    "titleMessage": "Sie können %{action} %{asset} verwenden, für:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -243,7 +243,7 @@
         "rewardAmount": "Belohnungsbetrag",
         "claimingRewards": "Belohnungen Einfordern",
         "claimAmount": "Forderungsbetrag",
-        "claimToAddress": "Forderungsbetrag an Adresse",
+        "claimToAddress": "Anfordern an Adresse",
         "confirmClaim": "Forderung bestätigen",
         "claimNow": "jetzt Einfordern",
         "claimYour": "Fordern Sie Ihre %{opportunity} an"
@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Einzahlung",
         "approve": "Genehmigen",
+        "revoke": "Widerrufen",
         "withdraw": "Abheben",
         "receive": "Erhalten"
       },
@@ -437,6 +438,25 @@
         "approve": "Genehmigen",
         "revoke": "Widerrufen",
         "infinite": "Unendlich ∞"
+      },
+      "staking": {
+        "delegate": "Delegieren",
+        "begin_unbonding": "Undelegieren",
+        "begin_redelegate": "Wieder Delegieren",
+        "withdraw_delegator_reward": "Belohnung einfordern"
+      },
+      "swap": {
+        "deposit": "Tausch",
+        "out": "Tausch",
+        "refund": "Erstattung",
+        "outbound": "Ausgehend"
+      },
+      "ibc": {
+        "transfer": "Gesendet",
+        "recv_packet": "Erhalten"
+      },
+      "lp": {
+        "deposit": "Liquidität hinzufügen"
       }
     },
     "unknown": "Transaktion"
@@ -503,8 +523,8 @@
     "errors": {
       "title": "Etwas ist schief gelaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
-      "amountTooSmall": "Betrag zu klein. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Betrag zu klein. Der Verkaufsbetrag für dieses Paar ist niedriger als die Gebühr.",
+      "amountTooSmall": "Minimum: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
       "negativeMax": "Nicht genügend Kapital für die Miner-Gebühr für diese Transaktion. Geschätzte Minergebühr %{estimatedMinerFee}",
       "invalidMax": "Ungültige Menge. Der maximale Handelsbetrag für dieses Paar beträgt %{maxLimit}.",
       "insufficientFunds": "Unzureichende Mittel für Miner-Gebühr und -Betrag",
@@ -536,6 +556,7 @@
       "unsupportedChain": "Diese Blockchain wird derzeit nicht unterstützt.",
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
       "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
+      "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -658,8 +679,8 @@
       "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
-      "tokenAddress": "Token Adresse",
-      "addressInput": "Token Addresse, ENS oder Yat",
+      "tokenAddress": "An Adresse",
+      "addressInput": "an Addresse, ENS oder Yat",
       "scanQrCode": "QR-Code scannen",
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
@@ -838,7 +859,7 @@
       "currencyFormat": "Währungsformat",
       "language": "Sprache",
       "balanceThreshold": "Kontostand Schwellwert",
-      "balanceThresholdTooltip": "Salden unter diesem Wert ausblenden",
+      "balanceThresholdTooltip": "Blenden Sie auf Dashboards und Diagrammen Salden unterhalb dieses Werts aus",
       "currencies": {
         "CNY": "Chinesische Yuan",
         "USD": "US-Dollar (Standard)",
@@ -902,12 +923,12 @@
       },
       "newPin": {
         "header": "Geben Sie Ihren neuen PIN ein",
-        "body": "Verwenden Sie das auf Ihrem Gerät angezeigte PIN-Layout, um die Stelle zu finden, an der Sie auf dem PIN-Pad drücken müssen.",
+        "body": "Erstellen Sie mithilfe des Layout-Displays auf Ihrem KeepKey eine neue PIN (bis zu 9 Ziffern).",
         "button": "Bestätigen"
       },
       "newPinConfirm": {
         "header": "Bestätigen Sie Ihren neuen PIN",
-        "body": "Verwenden Sie das auf Ihrem Gerät angezeigte PIN-Layout, um die Stelle zu finden, an der Sie auf dem PIN-Pad drücken müssen.",
+        "body": "Geben Sie Ihre PIN erneut ein, indem Sie das auf Ihrem KeepKey angezeigte Layout verwenden.",
         "button": "PIN speichern"
       },
       "settings": {
@@ -1112,7 +1133,7 @@
       },
       "password": {
         "header": "Erstelle ein neues Passwort",
-        "body": "Geben Sie ein sicheres Passwort ein, um Ihre importierte Wallet zu verschlüsseln. Damit greifen Sie später auf Ihre Wallet zu.",
+        "body": "Geben Sie ein starkes Passwort ein, um Ihre importierte Wallet zu verschlüsseln. Damit greifen Sie später auf Ihre Wallet zu.",
         "warning": "Hinweis: Wenn Sie Ihr Passwort vergessen, kann ShapeShift Ihnen nicht helfen, es wiederherzustellen.",
         "button": "Weiter",
         "connect": "Verbinden Sie sich mit einem anderen Wallet"
@@ -1165,7 +1186,7 @@
         "23th": "23.",
         "24th": "24.",
         "body2": "Wort",
-        "body3": "in Ihrer geheimen Phrase.",
+        "body3": "in Ihrer Geheimphrase?",
         "button": "Weiter"
       },
       "rename": {
@@ -1329,9 +1350,10 @@
       "outputAddress": "Ausgangsadresse"
     },
     "transactionTypes": {
-      "send": "Senden",
-      "receive": "Empfangen",
-      "trade": "Handeln"
+      "Send": "Senden",
+      "Receive": "Erhalten",
+      "Trade": "Handeln",
+      "Refund": "Erstatten"
     },
     "assets": "Vermögenswerte",
     "txid": "TX ID",

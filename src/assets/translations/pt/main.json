@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "revoke": "Revogar",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
@@ -439,12 +440,18 @@
         "infinite": "Infinito ∞"
       },
       "staking": {
+        "delegate": "Delegar",
+        "begin_redelegate": "Redelegar",
+        "withdraw_delegator_reward": "Resgatar Recompensa"
       },
       "swap": {
+        "deposit": "Swap"
       },
       "ibc": {
+        "recv_packet": "Recebido"
       },
       "lp": {
+        "deposit": "Adicionar Liquidez"
       }
     },
     "unknown": "Transação"

@@ -1,6 +1,6 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, RepeatIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Flex } from '@chakra-ui/react'
+import { Flex, Link } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,6 +30,7 @@ export const WalletConnectedMenu = ({
     [type],
   )
 
+
   const ConnectedMenu = () => {
     return (
       <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
@@ -38,10 +39,10 @@ export const WalletConnectedMenu = ({
           onClick={
             connectedWalletMenuRoutes
               ? () =>
-                  navigateToRoute(
-                    (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
-                      WalletConnectedRoutes.Connected,
-                  )
+                navigateToRoute(
+                  (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
+                  WalletConnectedRoutes.Connected,
+                )
               : undefined
           }
           icon={<WalletImage walletInfo={walletInfo} />}
@@ -59,6 +60,14 @@ export const WalletConnectedMenu = ({
           </Flex>
         </MenuItem>
         <MenuDivider />
+        <MenuItem
+          icon={<ExternalLinkIcon />}
+          as={Link}
+          isExternal
+          _hover={{ textDecoration: 'none', outline: 'none' }}
+          href='http://localhost:1646/docs'>
+          {translate('connectWallet.menu.openDev')}
+        </MenuItem>
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}
         </MenuItem>

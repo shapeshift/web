@@ -174,7 +174,7 @@ export const TradeInput = () => {
     }
   }, [getValues, setValue])
 
-  const handleSendMax: TradeAssetInputProps['onMaxClick'] = useCallback(async () => {
+  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
     const maxSendAmount = getSendMaxAmount(
       sellTradeAsset.asset,
@@ -392,7 +392,7 @@ export const TradeInput = () => {
             isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
-            onMaxClick={handleSendMax}
+            onPercentOptionClick={handleSendMax}
             onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
             onAccountIdChange={handleSellAccountIdChange}
             showFiatSkeleton={isUsdRatesPending}

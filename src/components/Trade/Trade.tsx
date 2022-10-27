@@ -72,6 +72,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     hasSetDefaultValues,
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
+    defaultAssetIdPair,
   ])
 
   if (!methods) return null

@@ -2,7 +2,15 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { mockStore } from 'test/mocks/store'
 
 import { foxEthPair } from './constants'
-import { catpuccinoAccountId, fauxmesAccountId, gomesAccountId } from './mocks'
+import {
+  catpuccinoAccountId,
+  fauxmesAccountId,
+  gomesAccountId,
+  mockLpContractOne,
+  mockLpContractTwo,
+  mockStakingContractOne,
+  mockStakingContractTwo,
+} from './mocks'
 import { initialState } from './opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
@@ -24,10 +32,10 @@ describe('opportunitiesSlice selectors', () => {
     const accountBalances = {
       byId: {
         [gomesAccountId]: {
-          'eip155:1:0xLpContractOne': '1337',
+          [mockLpContractOne]: '1337',
         },
         [fauxmesAccountId]: {
-          'eip155:1:0xLpContractOne': '424242',
+          [mockLpContractOne]: '424242',
         },
       },
       ids: [gomesAccountId, fauxmesAccountId],
@@ -35,36 +43,36 @@ describe('opportunitiesSlice selectors', () => {
     const lp = {
       ...initialState.lp,
       byAccountId: {
-        [gomesAccountId]: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
-        [fauxmesAccountId]: ['eip155:1:0xLpContractOne'],
+        [gomesAccountId]: [mockLpContractOne, mockLpContractTwo],
+        [fauxmesAccountId]: [mockLpContractOne],
       },
-      ids: ['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'],
+      ids: [mockLpContractOne, mockLpContractTwo],
     }
     const staking = {
       ...initialState.staking,
       byAccountId: {
-        [gomesAccountId]: ['eip155:1:0xStakingContractOne', 'eip155:1:0xStakingContractTwo'],
-        [fauxmesAccountId]: ['eip155:1:0xStakingContractOne'],
+        [gomesAccountId]: [mockStakingContractOne, mockStakingContractTwo],
+        [fauxmesAccountId]: [mockStakingContractOne],
       },
-      ids: ['eip155:1:0xStakingContractOne', 'eip155:1:0xStakingContractTwo'],
+      ids: [mockStakingContractOne, mockStakingContractTwo],
     }
     const userStaking = {
       ...initialState.staking,
       ids: [
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo'),
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne'),
-        serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xStakingContractOne'),
+        serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
+        serializeUserStakingId(gomesAccountId, mockStakingContractOne),
+        serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
       ],
       byId: {
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
-        [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xStakingContractOne')]: {
+        [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoPrecision: '9000',
           rewardsAmountCryptoPrecision: '1',
         },
@@ -90,7 +98,7 @@ describe('opportunitiesSlice selectors', () => {
           accountId: gomesAccountId,
         })
 
-        expect(result).toEqual(['eip155:1:0xLpContractOne', 'eip155:1:0xLpContractTwo'])
+        expect(result).toEqual([mockLpContractOne, mockLpContractTwo])
       })
     })
     describe('selectStakingOpportunityIdsByAccountId', () => {
@@ -99,13 +107,13 @@ describe('opportunitiesSlice selectors', () => {
           accountId: gomesAccountId,
         })
 
-        expect(result).toEqual(['eip155:1:0xStakingContractOne', 'eip155:1:0xStakingContractTwo'])
+        expect(result).toEqual([mockStakingContractOne, mockStakingContractTwo])
       })
     })
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
       it('can get the highest balance AccuontId for a given StakingId', () => {
         const result = selectHighestBalanceAccountIdIdByStakingId(mockState, {
-          stakingId: 'eip155:1:0xStakingContractOne',
+          stakingId: mockStakingContractOne,
         })
 
         expect(result).toEqual(fauxmesAccountId)
@@ -114,7 +122,7 @@ describe('opportunitiesSlice selectors', () => {
     describe('selectHighestBalanceAccountIdIdByLpId', () => {
       it('can get the highest balance AccountId for a given LpId', () => {
         const result = selectHighestBalanceAccountIdIdByLpId(mockState, {
-          lpId: 'eip155:1:0xLpContractOne',
+          lpId: mockLpContractOne,
         })
 
         expect(result).toEqual(fauxmesAccountId)
@@ -128,16 +136,16 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo'),
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne'),
-        serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xStakingContractOne'),
+        serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
+        serializeUserStakingId(gomesAccountId, mockStakingContractOne),
+        serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
       ],
       byId: {
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -156,7 +164,7 @@ describe('opportunitiesSlice selectors', () => {
     it('can get the staking data for a given UserStakingId', () => {
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo'),
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '1337',
@@ -164,7 +172,7 @@ describe('opportunitiesSlice selectors', () => {
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
-          userStakingId: serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne'),
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
         }),
       ).toEqual({
         stakedAmountCryptoPrecision: '4',
@@ -176,9 +184,9 @@ describe('opportunitiesSlice selectors', () => {
     const staking = {
       ...initialState.staking,
       byId: {
-        'eip155:1:0xStakingContractTwo': {
+        [mockStakingContractTwo]: {
           apy: '1000',
-          assetId: 'eip155:1:0xStakingContractTwo',
+          assetId: mockStakingContractTwo,
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
@@ -189,20 +197,20 @@ describe('opportunitiesSlice selectors', () => {
     const userStaking = {
       ...initialState.staking,
       ids: [
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo'),
-        serializeUserStakingId(catpuccinoAccountId, 'eip155:1:0xStakingContractTwo'),
-        serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne'),
+        serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
+        serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
+        serializeUserStakingId(gomesAccountId, mockStakingContractOne),
       ],
       byId: {
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           stakedAmountCryptoPrecision: '1337',
           rewardsAmountCryptoPrecision: '420',
         },
-        [serializeUserStakingId(catpuccinoAccountId, 'eip155:1:0xStakingContractTwo')]: {
+        [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
           stakedAmountCryptoPrecision: '100',
           rewardsAmountCryptoPrecision: '10',
         },
-        [serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractOne')]: {
+        [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoPrecision: '4',
           rewardsAmountCryptoPrecision: '3',
         },
@@ -220,33 +228,30 @@ describe('opportunitiesSlice selectors', () => {
     describe('selectUserStakingOpportunitiesByStakingId', () => {
       it('can get the staking data for a given StakingId', () => {
         const result = selectUserStakingOpportunitiesByStakingId(mockState, {
-          stakingId: 'eip155:1:0xStakingContractTwo',
+          stakingId: mockStakingContractTwo,
         })
         expect(result).toEqual([
           {
             apy: '1000',
-            assetId: 'eip155:1:0xStakingContractTwo',
+            assetId: mockStakingContractTwo,
             provider: DefiProvider.FoxEthLP,
             rewardsAmountCryptoPrecision: '420',
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: serializeUserStakingId(gomesAccountId, 'eip155:1:0xStakingContractTwo'),
+            userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           },
           {
             apy: '1000',
-            assetId: 'eip155:1:0xStakingContractTwo',
+            assetId: mockStakingContractTwo,
             provider: DefiProvider.FoxEthLP,
             rewardsAmountCryptoPrecision: '10',
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            userStakingId: serializeUserStakingId(
-              catpuccinoAccountId,
-              'eip155:1:0xStakingContractTwo',
-            ),
+            userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
           },
         ])
       })
@@ -254,11 +259,11 @@ describe('opportunitiesSlice selectors', () => {
     describe('selectAggregatedUserStakingOpportunityByStakingId', () => {
       it('can get the aggregated staking opportunity for a given StakingId', () => {
         const result = selectAggregatedUserStakingOpportunityByStakingId(mockState, {
-          stakingId: 'eip155:1:0xStakingContractTwo',
+          stakingId: mockStakingContractTwo,
         })
         expect(result).toEqual({
           apy: '1000',
-          assetId: 'eip155:1:0xStakingContractTwo',
+          assetId: mockStakingContractTwo,
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,

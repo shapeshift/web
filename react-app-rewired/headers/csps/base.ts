@@ -4,7 +4,7 @@ export const csp: Csp = {
   'default-src': ["'self'"],
   'child-src': ["'self'", 'blob:'],
   'connect-src': ["'self'", 'data:'],
-  'img-src': ['*'],
+  'img-src': ['*', "'self'", 'data:', 'blob:', 'filesystem:'],
   'script-src': [
     "'self'",
     'blob:',

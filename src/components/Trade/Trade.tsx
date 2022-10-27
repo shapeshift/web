@@ -46,7 +46,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const defaultAssetsAreChainDefaults =
         sellAsset.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset.assetId === defaultAssetIdPair?.buyAssetId
-      if (!defaultAssetsAreChainDefaults) {
+      if (!defaultAssetsAreChainDefaults && defaultAssetIdPair) {
         // If the default assets are the chain defaults then keep this useEffect active as we might not have stabilized
         // Else, we know the default values have been set, so don't run this again unless the route changes
         setHasSetDefaultValues(true)

@@ -437,6 +437,14 @@
         "approve": "Aprovar",
         "revoke": "Revogar",
         "infinite": "Infinito ∞"
+      },
+      "staking": {
+      },
+      "swap": {
+      },
+      "ibc": {
+      },
+      "lp": {
       }
     },
     "unknown": "Transação"
@@ -1331,9 +1339,6 @@
       "outputAddress": "Endereço de saída"
     },
     "transactionTypes": {
-      "send": "Mandar",
-      "receive": "Receber",
-      "trade": "Troca"
     },
     "assets": "Bens",
     "txid": "ID TX",

@@ -84,7 +84,7 @@ export const Deposit: React.FC<DepositProps> = ({
       })
       const amountAvailableCryptoPrecision = toBaseUnit(cryptoAmountAvailable, asset.precision)
       const cryptoAmountHuman = bnOrZero(amountAvailableCryptoPrecision)
-        .minus(estimatedFees.fast.txFee)
+        .minus(estimatedFees.average.txFee)
         .div(bn(10).pow(asset.precision))
         .toString()
       const fiatAmount = bnOrZero(cryptoAmountHuman).times(marketData.price)

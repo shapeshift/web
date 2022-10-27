@@ -41,6 +41,13 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
+Dev Electron
+```
+tab1: yarn clean && yarn && yarn dev
+tab2: yarn electron:watch
+tab3: yarn electron .
+```
+
 If you are using Linux and MacOS it works out of the box following the steps.<br/>
 ⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
 

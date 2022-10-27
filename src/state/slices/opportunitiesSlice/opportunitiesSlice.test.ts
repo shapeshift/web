@@ -56,7 +56,7 @@ describe('opportunitiesSlice', () => {
     describe('upsertUserStakingOpportunities', () => {
       it('insert user data', () => {
         const payload = {
-          [serializeUserStakingId('eip155:1/erc20:0xgomes', 'eip155:1:0xMyContract')]: {
+          [serializeUserStakingId('eip155:1/0xgomes', 'eip155:1:0xMyStakingContract')]: {
             stakedAmountCryptoPrecision: '42000',
             rewardsAmountCryptoPrecision: '42',
           },

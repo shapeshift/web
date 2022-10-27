@@ -10,6 +10,7 @@ export const openSignTxWindow = async (signArgs: any) => {
         if (!await createWindow()) return
     } else {
         windows.mainWindow.focus()
+        windows.mainWindow.setAlwaysOnTop(true)
         windowWasPreviouslyOpen = true
         const contentSize = windows.mainWindow.getContentSize()
         prevContentSize = { width: contentSize[0], height: contentSize[1] }
@@ -22,6 +23,7 @@ export const openSignTxWindow = async (signArgs: any) => {
 
     ipcMain.once('@modal/sign-close', () => {
         if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
+        windows.mainWindow.setAlwaysOnTop(false)
         if (windowWasPreviouslyOpen && windows.mainWindow.minimizable) {
             console.log('prevContentSize', prevContentSize)
             windows.mainWindow.setContentSize(prevContentSize.width, prevContentSize.height)

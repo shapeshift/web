@@ -113,11 +113,12 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): UserStakingOpportunity => {
-    return userStakingOpportunities.reduce<UserStakingOpportunity>((acc, userStakingOpportunity) => {
+  (userStakingOpportunities): UserStakingOpportunity =>
+    userStakingOpportunities.reduce<UserStakingOpportunity>((acc, userStakingOpportunity) => {
       const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
         userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
-      acc = {
+
+      return {
         ...userStakingOpportunityWithoutUserStakingId,
         stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
           .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
@@ -126,10 +127,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
           .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
           .toString(),
       }
-
-      return acc
-    }, {})
-  },
+    }, {}),
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one

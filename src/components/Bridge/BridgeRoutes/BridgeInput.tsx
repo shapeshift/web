@@ -157,7 +157,7 @@ export const BridgeInput = () => {
           assetIcon={asset.value?.icon ?? ''}
           onAssetClick={() => history.push(BridgeRoutePaths.SelectAsset)}
           percentOptions={[0.25, 0.5, 0.75, 1]}
-          onMaxClick={handlePercentClick}
+          onPercentOptionClick={handlePercentClick}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
         />
         <List bg='gray.850' variant='rounded' borderColor='gray.750' borderWidth={1}>

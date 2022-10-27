@@ -9,3 +9,5 @@ describe('Default assets', () => {
     cy.getBySel('asset-input-selection-button').last().should('have.text', 'DOGE')
   })
 })
+
+export {}

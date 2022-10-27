@@ -114,7 +114,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunities): UserStakingOpportunity => {
-    return userStakingOpportunities.reduce((acc, userStakingOpportunity) => {
+    return userStakingOpportunities.reduce<UserStakingOpportunity>((acc, userStakingOpportunity) => {
       const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
         userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
       acc = {
@@ -128,7 +128,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
       }
 
       return acc
-    }, {} as UserStakingOpportunity)
+    }, {})
   },
 )
 

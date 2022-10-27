@@ -48,8 +48,7 @@ export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelec
   (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],
 )
 
-// I'm a selector which doesn't actually selects state, don't prepend me with `select`
-export const deserializeStakingIdFromUserStakingId = createSelector(
+export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {
     if (userStakingId === '') return '*' // Narrowing flavoured template litteral type
@@ -64,7 +63,7 @@ export const deserializeStakingIdFromUserStakingId = createSelector(
 export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectUserStakingIdParamFromFilter,
-  deserializeStakingIdFromUserStakingId,
+  selectDeserializedStakingIdFromUserStakingIdParam,
   selectStakingOpportunitiesById,
   (
     userStakingOpportunities,

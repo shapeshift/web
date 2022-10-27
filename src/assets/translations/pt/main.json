@@ -441,13 +441,18 @@
       },
       "staking": {
         "delegate": "Delegar",
+        "begin_unbonding": "Retirar delegação.",
         "begin_redelegate": "Redelegar",
         "withdraw_delegator_reward": "Resgatar Recompensa"
       },
       "swap": {
-        "deposit": "Swap"
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Reembolso",
+        "outbound": "Retirada"
       },
       "ibc": {
+        "transfer": "Enviado",
         "recv_packet": "Recebido"
       },
       "lp": {
@@ -551,6 +556,7 @@
       "unsupportedChain": "Esta rede não é suportada atualmente.",
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
       "assetNotSupportedByWallet": "%{assetSymbol} incompatível com a carteira",
+      "noReceiveAddress": "Nenhum endereço recebido para %{assetSymbol}",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
@@ -1346,6 +1352,10 @@
       "outputAddress": "Endereço de saída"
     },
     "transactionTypes": {
+      "Send": "Enviar",
+      "Receive": "Recebido",
+      "Trade": "Negociar",
+      "Refund": "Reembolso"
     },
     "assets": "Bens",
     "txid": "ID TX",

@@ -111,7 +111,7 @@ describe('opportunitiesSlice selectors', () => {
       })
     })
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
-      it('can get the highest balance AccuontId for a given StakingId', () => {
+      it('can get the highest balance AccountId for a given StakingId', () => {
         const result = selectHighestBalanceAccountIdIdByStakingId(mockState, {
           stakingId: mockStakingContractOne,
         })

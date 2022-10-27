@@ -1,14 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { FormControlProps, InputProps } from '@chakra-ui/react'
-import {
-  Button,
-  FormControl,
-  FormErrorMessage,
-  Input,
-  Skeleton,
-  Stack,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Button, FormControl, FormErrorMessage, Input, Skeleton, Stack, useColorModeValue, } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
@@ -16,10 +8,7 @@ import React, { useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import {
-  type AccountDropdownProps,
-  AccountDropdown,
-} from 'components/AccountDropdown/AccountDropdown'
+import { AccountDropdown, type AccountDropdownProps, } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -130,6 +119,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
+          data-test='asset-input-selection-button'
           onClick={onAssetClick}
           size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}

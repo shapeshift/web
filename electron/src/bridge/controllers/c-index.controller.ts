@@ -2,11 +2,11 @@ import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
 import { db } from '../../db';
 import { createWindow, windows } from '../../main';
-import {shared, userType} from '../../shared';
+import { shared, userType } from '../../shared';
 
-import {Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse, Security} from 'tsoa';
+import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse, Security } from 'tsoa';
 import { keepkey } from '../';
-import {GenericResponse, PairBody, PairResponse, Status} from '../types';
+import { GenericResponse, PairBody, PairResponse, Status } from '../types';
 
 
 export class ApiError extends Error {
@@ -80,7 +80,10 @@ export class CIndexController extends Controller {
                 nonce
             })
 
-            if (windows.mainWindow.focusable) windows.mainWindow.focus()
+            if (windows.mainWindow.focusable) {
+                windows.mainWindow.focus()
+                windows.mainWindow.setAlwaysOnTop(true)
+            }
 
             ipcMain.once(`@bridge/approve-service-${nonce}`, (event, data) => {
                 if (data.nonce = nonce) {
@@ -93,6 +96,7 @@ export class CIndexController extends Controller {
                         serviceKey
                     })
 
+                    if (windows.mainWindow) windows.mainWindow.setAlwaysOnTop(false)
                     resolve({ success: true, reason: '' })
                 }
             })
@@ -101,6 +105,7 @@ export class CIndexController extends Controller {
                 if (data.nonce = nonce) {
                     ipcMain.removeAllListeners(`@bridge/reject-service-${nonce}`)
                     this.setStatus(401)
+                    if (windows.mainWindow) windows.mainWindow.setAlwaysOnTop(false)
                     resolve({ success: false, reason: 'Pairing was rejected by user' })
                 }
             })

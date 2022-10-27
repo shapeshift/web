@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react'
 import { RawText } from 'components/Text'
 
 type ModalSectionProps = {
-  title: string
+  title: ReactElement
   titleRightComponent?: ReactElement
   icon?: ReactElement
   defaultOpen?: boolean

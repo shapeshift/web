@@ -44,29 +44,32 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
   const translate = useTranslate()
 
   const options = useMemo(
-    (): GasOption[] => [
-      {
-        value: FeeDataKey.Slow,
-        label: translate(getFeeTranslation(FeeDataKey.Slow)),
-        duration: '~ 10 mins',
-        amount: fees.slow.txFee,
-        color: 'green.200',
-      },
-      {
-        value: FeeDataKey.Average,
-        label: translate(getFeeTranslation(FeeDataKey.Average)),
-        duration: '~ 3 mins',
-        amount: fees.average.txFee,
-        color: 'blue.200',
-      },
-      {
-        value: FeeDataKey.Fast,
-        label: translate(getFeeTranslation(FeeDataKey.Fast)),
-        duration: '~ 3 seconds',
-        amount: fees.fast.txFee,
-        color: 'red.400',
-      },
-    ],
+    (): GasOption[] =>
+      fees
+        ? [
+            {
+              value: FeeDataKey.Slow,
+              label: translate(getFeeTranslation(FeeDataKey.Slow)),
+              duration: '~ 10 mins',
+              amount: fees.slow.txFee,
+              color: 'green.200',
+            },
+            {
+              value: FeeDataKey.Average,
+              label: translate(getFeeTranslation(FeeDataKey.Average)),
+              duration: '~ 3 mins',
+              amount: fees.average.txFee,
+              color: 'blue.200',
+            },
+            {
+              value: FeeDataKey.Fast,
+              label: translate(getFeeTranslation(FeeDataKey.Fast)),
+              duration: '~ 3 seconds',
+              amount: fees.fast.txFee,
+              color: 'red.400',
+            },
+          ]
+        : [],
     [translate, fees],
   )
   const selectedOption = useMemo(

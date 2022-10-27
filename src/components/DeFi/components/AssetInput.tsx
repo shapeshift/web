@@ -29,7 +29,7 @@ import { colors } from 'theme/colors'
 import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
-import { MaxButtonGroup } from './MaxButtonGroup'
+import { PercentOptionsButtonGroup } from './PercentOptionsButtonGroup'
 
 const CryptoInput = (props: InputProps) => (
   <Input
@@ -206,7 +206,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             />
           )}
           {onMaxClick && (
-            <MaxButtonGroup
+            <PercentOptionsButtonGroup
               options={percentOptions}
               isDisabled={isReadOnly || isSendMaxDisabled}
               onClick={onMaxClick}

@@ -13,36 +13,33 @@ import {
 } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo, useState } from 'react'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { GasInput } from 'components/DeFi/components/GasInput'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AddressSummaryCard } from './AddressSummaryCard'
 import { ModalSection } from './ModalSection'
-import { SignTransactionAdvancedParameters } from './SignTransactionAdvancedParameters'
-import { WalletSummaryCard } from './WalletSummaryCard'
+import { TransactionAdvancedParameters } from './TransactionAdvancedParameters'
 
 type SignMessageConfirmationProps = {
   message: string
-  dapp: {
-    image: string
-    name: string
-    url: string
-  }
-  isLoading: boolean
+  onConfirm(): void
+  onReject(): void
 }
-
 export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
 
 export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
-  const { message, dapp, isLoading } = props
+  const { message, onConfirm, onReject } = props
   const translate = useTranslate()
   const [gasInputValue, setGasInputValue] = useState<WalletConnectFeeDataKey>(FeeDataKey.Average)
   // walletconnect only supports eth mainnet
@@ -63,6 +60,11 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
       </Flex>
     )
   }, [ethAsset, ethMarketData.price, gasInputValue])
+  const cardBg = useColorModeValue('white', 'gray.850')
+
+  const walletConnect = useWalletConnect()
+  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  const address = walletConnect.bridge?.connector.accounts[0]
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
@@ -72,11 +74,10 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
           translation='plugins.walletConnectToDapps.modal.signMessage.signingFrom'
           mb={4}
         />
-        <WalletSummaryCard
-          address='0x03ed759b696b62774D02156a189F6E176C15b3a3'
-          name='My Wallet'
-          url='https://etherscan.com/address/0x03ed759b696b62774D02156a189F6E176C15b3a3'
-          balance={10}
+        <AddressSummaryCard
+          address={address}
+          name='My Wallet' // TODO: what string do we put here?
+          icon={<FoxIcon color='gray.500' w='full' h='full' />}
         />
       </Box>
       <Box>
@@ -85,17 +86,17 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
           translation='plugins.walletConnectToDapps.modal.signMessage.requestFrom'
           mb={4}
         />
-        <Card bg={useColorModeValue('white', 'gray.850')} borderRadius='md'>
+        <Card bg={cardBg} borderRadius='md'>
           <HStack align='center' pl={4}>
-            <Image borderRadius='full' boxSize='24px' src={dapp.image} />
+            <Image borderRadius='full' boxSize='24px' src={walletConnect.dapp.icons[0]} />
             <RawText fontWeight='semibold' flex={1}>
-              {dapp.name}
+              {walletConnect.dapp.name}
             </RawText>
-            <Link href={dapp.url} isExternal>
+            <Link href={walletConnect.dapp.url.replace(/^https?:\/\//, '')} isExternal>
               <IconButton
                 icon={<ExternalLinkIcon />}
                 variant='ghost'
-                aria-label={dapp.name}
+                aria-label={walletConnect.dapp.name}
                 colorScheme='gray'
               />
             </Link>
@@ -128,7 +129,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
         )}
         icon={<FaWrench />}
       >
-        <SignTransactionAdvancedParameters />
+        <TransactionAdvancedParameters />
       </ModalSection>
       <Text
         fontWeight='medium'
@@ -136,17 +137,10 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button
-          size='lg'
-          width='full'
-          colorScheme='blue'
-          isLoading={isLoading}
-          disabled={isLoading}
-          type='submit'
-        >
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
-        <Button size='lg' width='full' isLoading={isLoading} disabled={isLoading}>
+        <Button size='lg' width='full' onClick={onReject}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
         </Button>
       </VStack>

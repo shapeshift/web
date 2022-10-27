@@ -34,7 +34,6 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         rightIcon={
           isOpen ? <ChevronUpIcon color='gray.500' /> : <ChevronDownIcon color='gray.500' />
         }
-        mb={4}
         fontWeight='medium'
         children={
           <Box display={'flex'} justifyContent={'space-between'}>
@@ -44,7 +43,9 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         }
         onClick={toggle}
       />
-      <Collapse in={isOpen}>{children}</Collapse>
+      <Collapse in={isOpen}>
+        <Box mb={4}>{children}</Box>
+      </Collapse>
     </Box>
   )
 }

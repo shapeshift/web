@@ -1453,7 +1453,8 @@
           "disconnect": "Disconnect",
           "address": "Address",
           "connected": "Connected",
-          "network": "Network"
+          "network": "Network",
+          "unsupportedNetwork": "Unsupported Network"
         }
       },
       "modal": {
@@ -1467,7 +1468,15 @@
           "confirm": "Confirm",
           "reject": "Reject"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Sending From",
+          "interactingWith": "Interacting With",
+          "contractInteraction": {
+            "title": "Contract Interaction",
+            "sendingEth": "Sending ETH",
+            "amount": "Amount",
+            "data": "Raw Data (hex encoded)"
+          },
           "advancedParameters": {
             "title": "Advanced Parameters",
             "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
@@ -1481,7 +1490,15 @@
               "placeholder": "Gas Limit...",
               "tooltip": "explain gas limit here"
             }
-          }
+          },
+          "estGasCost": "Est. Gas Cost",
+          "description": "You're about to create a transaction and will have to confirm it with your currently connected wallet."
+        },
+        "connect": {
+          "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
+          "howTo": "How to connect to a dApp?",
+          "linkPlaceholder": "QR code or connection link",
+          "connect": "Connect"
         }
       },
       "registry": {

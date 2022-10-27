@@ -2,6 +2,7 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import dayjs from 'dayjs'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -11,33 +12,24 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 
 import { DappAvatar } from './DappAvatar'
 
-type Dapp = {
-  name: string
-  link: string
-  image: string
-  chainId: number
-  connected: boolean
-  created: Date
-  address: string
-}
-
-type DappHeaderMenuSummaryProps = {
-  dapp: Dapp
-}
-
-export const DappHeaderMenuSummary: React.FC<DappHeaderMenuSummaryProps> = ({ dapp }) => {
-  const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+export const DappHeaderMenuSummary = () => {
+  const { supportedEvmChainIds } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
   const translate = useTranslate()
 
+  const walletConnect = useWalletConnect()
+  const connectedChainId = walletConnect.bridge?.connector.chainId
   const chainName = useMemo(() => {
     const name = chainAdapterManager
-      .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
+      .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedChainId}`) ?? '')
       ?.getDisplayName()
 
-    return name ?? 'Unsupported Network'
-  }, [chainAdapterManager, connectedEvmChainId, supportedEvmChainIds])
+    return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
+  }, [chainAdapterManager, connectedChainId, supportedEvmChainIds, translate])
+  const handleDisconnect = walletConnect.disconnect
+
+  if (!walletConnect.bridge || !walletConnect.dapp) return null
 
   return (
     <>
@@ -47,11 +39,15 @@ export const DappHeaderMenuSummary: React.FC<DappHeaderMenuSummaryProps> = ({ da
         color='gray.500'
       >
         <HStack spacing={4} px={3} py={1}>
-          <DappAvatar name={dapp.name} image={dapp.image} connected={dapp.connected} />
+          <DappAvatar
+            name={walletConnect.dapp.name}
+            image={walletConnect.dapp.icons[0]}
+            connected={walletConnect.bridge.connector.connected}
+          />
           <Box fontWeight='medium'>
-            <RawText>{dapp.name}</RawText>
+            <RawText>{walletConnect.dapp.name}</RawText>
             <RawText fontSize='sm' color='gray.500'>
-              {dapp.link}
+              {walletConnect.dapp.url.replace(/^https?:\/\//, '')}
             </RawText>
           </Box>
         </HStack>
@@ -61,25 +57,26 @@ export const DappHeaderMenuSummary: React.FC<DappHeaderMenuSummaryProps> = ({ da
       <VStack px={3} py={1} fontWeight='medium' spacing={1} alignItems='stretch'>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.connected' color='gray.500' />
-          <RawText>{dayjs(dapp.created).format('MMM DD, YYYY, HH:mm A')}</RawText>
+          <RawText>
+            {dayjs(walletConnect.bridge.connector.handshakeId / 1000).format(
+              'MMM DD, YYYY, HH:mm A',
+            )}
+          </RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
-          <MiddleEllipsis value={dapp.address} color='blue.200' />
+          <MiddleEllipsis value={walletConnect.bridge.connector.accounts[0]} color='blue.200' />
         </HStack>
-        <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
-          <RawText>{chainName}</RawText>
-        </HStack>
+        {!!connectedChainId && (
+          <HStack justifyContent='space-between' spacing={4}>
+            <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
+            <RawText>{chainName}</RawText>
+          </HStack>
+        )}
       </VStack>
 
       <MenuDivider />
-      <MenuItem
-        fontWeight='medium'
-        icon={<CloseIcon />}
-        onClick={() => alert('disconnect')}
-        color='red.500'
-      >
+      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={handleDisconnect} color='red.500'>
         {translate('plugins.walletConnectToDapps.header.menu.disconnect')}
       </MenuItem>
     </>

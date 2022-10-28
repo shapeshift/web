@@ -1,25 +1,19 @@
 import { HStack } from '@chakra-ui/react'
-import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
 import type { FC } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { RawText } from 'components/Text'
 
-import type { ConfirmData } from './SendTransactionConfirmation'
-import { useCallRequestFees } from './useCallRequestFees'
+export const GasFeeEstimateLabel: FC = () => {
+  const { control } = useFormContext<any>()
+  const currentFeeAmount = useWatch({ control, name: 'currentFeeAmount' })
 
-type Props = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
-}
+  // TODO figure out how to convert rates
+  const currentFiatFee = '$4.20'
 
-export const GasFeeEstimateLabel: FC<Props> = ({ request }) => {
-  const fees = useCallRequestFees(request)
-  const { control } = useFormContext<ConfirmData>()
-  const speed = useWatch({ control, name: 'speed' })
-  if (!fees) return null
   return (
     <HStack spacing={1}>
-      <RawText fontWeight='medium'>{`$${fees[speed].fiatFee}`}</RawText>
-      <RawText color='gray.500'>≈ {fees[speed].txFee} ETH</RawText>
+      <RawText fontWeight='medium'>{currentFiatFee}</RawText>
+      <RawText color='gray.500'>≈ {currentFeeAmount} ETH</RawText>
     </HStack>
   )
 }

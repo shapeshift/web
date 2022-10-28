@@ -20,9 +20,9 @@ import { RawText, Text } from 'components/Text'
 import { AddressSummaryCard } from './AddressSummaryCard'
 
 type Props = {
-  message: string
-  onConfirm(): void
-  onReject(): void
+  message: any
+  onConfirm: any
+  onReject: any
 }
 
 export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onReject }) => {

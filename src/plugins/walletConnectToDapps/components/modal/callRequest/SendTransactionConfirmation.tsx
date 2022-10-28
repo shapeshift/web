@@ -1,14 +1,23 @@
 import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import Web3 from 'web3'
 import { Card } from 'components/Card/Card'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
 import { ContractInteractionBreakdown } from './ContractInteractionBreakdown'
@@ -18,15 +27,19 @@ import { ModalSection } from './ModalSection'
 import { TransactionAdvancedParameters } from './TransactionAdvancedParameters'
 
 type CallRequest = WalletConnectEthSendTransactionCallRequest
-export type ConfirmData = {
-  nonce?: string
-  gasLimit?: string
-  speed: FeeDataKey
+export type TxData = {
+  nonce: string
+  gasLimit: string
+  maxPriorityFeePerGas: string
+  maxFeePerGas: string
+  data: string
+  to: string
+  value: string
 }
 
 type Props = {
   request: CallRequest['params'][number]
-  onConfirm(data: ConfirmData): void
+  onConfirm(txData: TxData): void
   onReject(): void
 }
 
@@ -34,14 +47,116 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
-  const form = useForm<ConfirmData>({
+  const { state: walletState } = useWallet()
+  const adapterManager = useMemo(() => getChainAdapterManager(), [])
+
+  const form = useForm<any>({
     defaultValues: {
-      nonce: request.nonce,
-      gasLimit: request.gas,
-      speed: FeeDataKey.Average,
+      nonce: '',
+      gasLimit: '',
+      maxPriorityFeePerGas: '',
+      maxFeePerGas: '',
+      currentFeeAmount: '',
     },
   })
 
+  const [gasFeeData, setGasFeeData] = useState(undefined as any)
+
+  // determine which gasLimit to use: user input > from the request > or estimate
+  const requestGas = parseInt(request.gas ?? '0x0', 16).toString(10)
+  const inputGas = useWatch({ control: form.control, name: 'gasLimit' })
+  const estimatedGas = '250000' // TODO a better estimation
+
+  const txInputGas = Web3.utils.toHex(
+    !!inputGas ? inputGas : !!requestGas ? requestGas : estimatedGas,
+  )
+  useEffect(() => {
+    const adapterManager = getChainAdapterManager()
+
+    const adapter = adapterManager.get(
+      KnownChainIds.EthereumMainnet,
+    ) as unknown as ethereum.ChainAdapter
+    adapter.getGasFeeData().then(feeData => {
+      setGasFeeData(feeData)
+      const fastData = gasFeeData[FeeDataKey.Fast]
+      const fastAmount = fromBaseUnit(
+        bnOrZero(fastData?.maxFeePerGas).times(txInputGas),
+        18,
+      ).toString()
+      form.setValue('currentFeeAmount', fastAmount)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txInputGas])
+
+  // determine which gas fees to use: user input > from the request > Fast
+  const requestMaxPriorityFeePerGas = request.maxPriorityFeePerGas
+  const requestMaxFeePerGas = request.maxFeePerGas
+
+  const inputMaxPriorityFeePerGas = useWatch({
+    control: form.control,
+    name: 'maxPriorityFeePerGas',
+  })
+
+  const inputMaxFeePerGas = useWatch({
+    control: form.control,
+    name: 'maxFeePerGas',
+  })
+
+  const fastMaxPriorityFeePerGas = gasFeeData?.fast?.maxPriorityFeePerGas
+  const fastMaxFeePerGas = gasFeeData?.fast?.maxFeePerGas
+
+  const txMaxFeePerGas = Web3.utils.toHex(
+    !!inputMaxFeePerGas
+      ? inputMaxFeePerGas
+      : !!requestMaxFeePerGas
+      ? requestMaxFeePerGas
+      : fastMaxFeePerGas,
+  )
+  const txMaxPriorityFeePerGas = Web3.utils.toHex(
+    !!inputMaxPriorityFeePerGas
+      ? inputMaxPriorityFeePerGas
+      : !!requestMaxPriorityFeePerGas
+      ? requestMaxPriorityFeePerGas
+      : fastMaxPriorityFeePerGas,
+  )
+
+  // Recalculate estimated fee amount if txMaxFeePerGas changes
+  useEffect(() => {
+    const currentAmount = fromBaseUnit(bnOrZero(txMaxFeePerGas).times(txInputGas), 18)
+    form.setValue('currentFeeAmount', currentAmount)
+  }, [form, inputMaxFeePerGas, txInputGas, txMaxFeePerGas])
+
+  // determine which nonce to use: user input > from the request > true nonce
+  const requestNonce = request.nonce
+  const inputNonce = useWatch({ control: form.control, name: 'nonce' })
+  const [trueNonce, setTrueNonce] = useState('0')
+  useEffect(() => {
+    ;(async () => {
+      const adapter = adapterManager.get(
+        KnownChainIds.EthereumMainnet,
+      ) as unknown as ethereum.ChainAdapter
+
+      if (!walletState.wallet) return
+      const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+      const address = await adapter.getAddress({ wallet: walletState.wallet, bip44Params })
+      const account = await adapter.getAccount(address)
+
+      setTrueNonce(`${account.chainSpecific.nonce}`)
+    })()
+  }, [adapterManager, walletState.wallet])
+  const txInputNonce = Web3.utils.toHex(
+    !!inputNonce ? inputNonce : !!requestNonce ? requestNonce : trueNonce,
+  )
+
+  const txInput: TxData = {
+    nonce: txInputNonce,
+    gasLimit: txInputGas,
+    data: request.data,
+    to: request.to,
+    value: request.value,
+    maxFeePerGas: txMaxFeePerGas,
+    maxPriorityFeePerGas: txMaxPriorityFeePerGas,
+  }
   const walletConnect = useWalletConnect()
   if (!walletConnect.bridge || !walletConnect.dapp) return null
   const address = walletConnect.bridge?.connector.accounts[0]
@@ -96,14 +211,20 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
           title={
             <HStack justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-              <GasFeeEstimateLabel request={request} />
+              <GasFeeEstimateLabel />
             </HStack>
           }
           icon={<FaGasPump />}
           defaultOpen={false}
         >
           <Box pt={2}>
-            <GasInput request={request} />
+            <GasInput
+              gasLimit={txInputGas}
+              recommendedGasPriceData={{
+                maxPriorityFeePerGas: request.maxPriorityFeePerGas,
+                maxFeePerGas: request.maxFeePerGas,
+              }}
+            />
           </Box>
         </ModalSection>
 
@@ -129,7 +250,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             width='full'
             colorScheme='blue'
             type='submit'
-            onClick={form.handleSubmit(onConfirm)}
+            onClick={() => onConfirm(txInput)}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

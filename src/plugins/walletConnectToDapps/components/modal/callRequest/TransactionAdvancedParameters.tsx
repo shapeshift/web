@@ -15,13 +15,13 @@ import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 
-import type { ConfirmData } from './SendTransactionConfirmation'
+import type { TxData } from './SendTransactionConfirmation'
 
 export const TransactionAdvancedParameters: FC = () => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { register } = useFormContext<ConfirmData>()
+  const { register } = useFormContext<TxData>()
   return (
     <Card bg={useColorModeValue('white', 'gray.850')} p={4} borderRadius='md'>
       <VStack alignItems='stretch'>

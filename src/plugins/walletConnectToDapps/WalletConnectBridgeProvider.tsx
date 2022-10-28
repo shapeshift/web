@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
+import type { TxData } from './components/modal/callRequest/SendTransactionConfirmation'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -17,9 +18,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [],
   )
   const approveRequest = useCallback(
-    async (request: WalletConnectCallRequest, approveData: unknown) => {
-      // TODO pass adapter 3rd arg here
-      await bridge?.approveRequest(request, approveData as any)
+    async (request: WalletConnectCallRequest, txData: TxData) => {
+      await bridge?.approveRequest(request, txData)
       setCallRequests(prev => prev.filter(req => req.id !== request.id))
     },
     [bridge],

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 
+import type { TxData } from './SendTransactionConfirmation';
 import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
@@ -19,7 +20,9 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
   const { approveRequest, rejectRequest } = useWalletConnect()
 
   const approve = useCallback(
-    (data?: unknown) => !!callRequest && approveRequest(callRequest, data),
+    (txData: TxData) => {
+      !!callRequest && approveRequest(callRequest, txData)
+    },
     [approveRequest, callRequest],
   )
   const reject = useCallback(

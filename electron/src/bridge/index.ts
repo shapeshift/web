@@ -183,7 +183,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
                     queueIpcEvent('requestBootloaderMode', {})
                 } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
-                    queueIpcEvent('updateBootloader', {})
+                    queueIpcEvent('updateBootloader', {event})
                 }
             })
             //Init MUST be AFTER listeners are made (race condition)

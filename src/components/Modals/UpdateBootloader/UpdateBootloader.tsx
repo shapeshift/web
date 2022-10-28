@@ -6,18 +6,18 @@ import {
   ModalHeader,
   ModalOverlay,
   Table,
+  Tbody,
+  Td,
+  Th,
   Thead,
   Tr,
-  Th,
-  Tbody,
-  Td
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
-export const UpdateBootloader = () => {
+export const UpdateBootloader = (params: any) => {
   const { updateBootloader } = useModal()
   const { close, isOpen } = updateBootloader
 
@@ -62,12 +62,12 @@ export const UpdateBootloader = () => {
                 </Tbody>
                 <Tbody>
                   <Tr>
-                    <Td>1.0.1</Td>
-                    <Td>1.0.1</Td>
+                    <Td>{`${params?.event?.bootloader}`}</Td>
+                    <Td>{`${params?.event?.recommendedBootloader}`}</Td>
                   </Tr>
                 </Tbody>
               </Table>
-              <br/>
+              <br />
               <Text translation='Click on device' />
             </ModalHeader>
           </div>

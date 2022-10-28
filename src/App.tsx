@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/button'
 import type { ToastId } from '@chakra-ui/toast'
 import { useToast } from '@chakra-ui/toast'
 import { ipcRenderer } from 'electron'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
@@ -56,11 +56,11 @@ export const App = () => {
       requestBootloaderMode.open({})
     })
 
-    ipcRenderer.on('updateBootloader', () => {
+    ipcRenderer.on('updateBootloader', (_event, data) => {
       setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.close()
-      updateBootloader.open({})
+      updateBootloader.open(data)
     })
 
     ipcRenderer.on('updateFirmware', () => {

@@ -147,7 +147,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, type, isLocked } = state
+  const { isConnected, isDemoWallet, walletInfo, isLocked } = state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -178,16 +178,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
-          {hasWallet ? (
-            <WalletConnected
-              walletInfo={walletInfo}
-              onDisconnect={disconnect}
-              onSwitchProvider={handleConnect}
-              type={type}
-            />
-          ) : (
-            <NoWallet onClick={handleConnect} />
-          )}
+          {hasWallet ? <WalletConnected /> : <NoWallet onClick={handleConnect} />}
         </MenuList>
       </Menu>
     </ButtonGroup>

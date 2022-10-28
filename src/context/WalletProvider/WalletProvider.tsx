@@ -108,7 +108,7 @@ const initialState: InitialState = {
   keyring: new Keyring(),
   adapters: null,
   wallet: null,
-  type: null,
+  type: KeyManager.KeepKey,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,

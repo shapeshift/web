@@ -137,7 +137,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
-export const selectHighestBalanceAccountIdIdByStakingId = createSelector(
+export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
   (userStakingOpportunities, stakingId): AccountId => {
@@ -164,7 +164,7 @@ export const selectHighestBalanceAccountIdIdByStakingId = createSelector(
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
-export const selectHighestBalanceAccountIdIdByLpId = createSelector(
+export const selectHighestBalanceAccountIdByLpId = createSelector(
   selectPortfolioAccountBalances,
   selectLpIdParamFromFilter,
   (portfolioAccountBalances, lpId): AccountId => {

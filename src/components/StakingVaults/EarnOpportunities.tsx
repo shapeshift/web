@@ -93,6 +93,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         chainId,
         contractAddress,
         assetReference,
+        highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
         rewardId: rewardAddress,
         provider,
         modal: 'overview',

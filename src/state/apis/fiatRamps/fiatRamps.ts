@@ -1,10 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { FiatRamp } from 'components/Modals/FiatRamps/config'
 import { fiatRamps, supportedFiatRamps } from 'components/Modals/FiatRamps/config'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 
 const moduleLogger = logger.child({ namespace: ['fiatRampApi'] })
 
@@ -27,7 +29,7 @@ export const fiatRampApi = createApi({
   endpoints: build => ({
     getFiatRamps: build.query<FiatRampsByAssetId, void>({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
-      queryFn: async () => {
+      queryFn: async (_, { dispatch }) => {
         try {
           const promiseResults = await Promise.allSettled(
             Object.values(supportedFiatRamps).map(provider => provider.getBuyAndSellList()),
@@ -55,6 +57,15 @@ export const fiatRampApi = createApi({
             },
             { byAssetId: {}, buyAssetIds: [], sellAssetIds: [] },
           )
+          const allFiatAssetIds = [...data.buyAssetIds, ...data.sellAssetIds]
+          const timeframe = HistoryTimeframe.DAY
+          // fetch market data for all fiat ramp asset ids
+          allFiatAssetIds.forEach(assetId => {
+            // spot market pricing
+            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+            // 24hr price history - needed for "spark charts" on fiat page
+            dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
+          })
           return { data }
         } catch (e) {
           const error = 'getFiatRampAssets: error fetching fiat ramp(s)'

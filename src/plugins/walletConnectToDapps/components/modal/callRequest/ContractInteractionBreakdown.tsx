@@ -20,7 +20,7 @@ type Props = {
 export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   const translate = useTranslate()
 
-  const { contract } = useContract(request.to, request.chainId)
+  const { contract } = useContract(request.to)
   const transaction = useMemo(
     () => contract?.parseTransaction({ data: request.data, value: request.value }),
     [contract, request.data, request.value],

@@ -32,6 +32,8 @@ export interface WalletConnectEthSendTransactionCallRequest {
     data: string
     gas: string
     gasPrice: string
+    maxPriorityFeePerGas: string
+    maxFeePerGas: string
     nonce: string
     to: string
     value: string

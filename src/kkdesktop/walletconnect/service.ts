@@ -1,18 +1,14 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
-import Web3 from 'web3'
+import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
-import type {
-  WalletConnectCallRequest,
-  WalletConnectCallRequestResponseMap,
-  WalletConnectSessionRequestPayload,
-} from './types'
+import type { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from './types'
 
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0")
 
@@ -98,12 +94,7 @@ export class WCService {
     this.options?.onCallRequest(payload)
   }
 
-  public async approveRequest(
-    request: WalletConnectCallRequest,
-    approveData: Partial<
-      WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
-    >,
-  ) {
+  public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
     const adapterManager = getChainAdapterManager()
     // TODO work for any chain (avalanche etc)
     const adapter = adapterManager.get(
@@ -112,15 +103,18 @@ export class WCService {
 
     let result: any
     switch (request.method) {
+      // TODO
       case 'eth_sign': {
         break
       }
+      // TODO
       case 'eth_signTypedData': {
         break
       }
+      // TODO further testing that this works correctly
       case 'personal_sign': {
         const response = await this.wallet.ethSignMessage({
-          ...approveData,
+          ...txData,
           addressNList,
           message: this.convertHexToUtf8IfPossible(request.params[0]),
         })
@@ -128,43 +122,33 @@ export class WCService {
         break
       }
       case 'eth_sendTransaction': {
-        const tx = request.params[0]
-
-        const gasFeeData = await adapter.getGasFeeData()
-
-        const account = await adapter.getAccount(`${tx.from}`)
-        const nonce = Web3.utils.toHex(account.chainSpecific.nonce)
-
-        const gasPrice = Web3.utils.toHex((gasFeeData as any)[(approveData as any).speed].gasPrice)
-
         const sendData = {
           addressNList,
-          chainId: 1,
-          data: tx.data,
-          gasLimit: (approveData as any).gasLimit ?? tx.gas,
-          to: tx.to,
-          value: tx.value,
-          nonce,
-          gasPrice: (approveData as any).gasPrice ?? tx.gasPrice ?? gasPrice,
+          chainId: 1, // TODO non eth chains
+          data: txData.data,
+          gasLimit: txData.gasLimit,
+          to: txData.to,
+          value: txData.value,
+          nonce: txData.nonce,
+          maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
+          maxFeePerGas: txData.maxFeePerGas,
         }
 
         const signedData = await this.wallet.ethSignTx?.(sendData)
-
         result = await adapter.broadcastTransaction(signedData?.serialized ?? '')
         break
       }
+      // TODO further testing that this works correctly
       case 'eth_signTransaction':
         {
-          const tx = request.params[0]
           const response = await this.wallet.ethSignTx({
             addressNList,
-            chainId: tx.chainId,
-            data: tx.data,
-            gasLimit: tx.gas,
-            nonce: tx.nonce,
-            to: tx.to,
-            value: tx.value,
-            ...approveData,
+            chainId: 1, // TODO non eth chains
+            data: txData.data,
+            gasLimit: txData.gasLimit,
+            nonce: txData.nonce,
+            to: txData.to,
+            value: txData.value,
           })
           result = response?.serialized
         }

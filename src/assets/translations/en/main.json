@@ -1480,7 +1480,7 @@
             "title": "Contract Interaction",
             "sendingEth": "Sending ETH",
             "amount": "Amount",
-            "data": "Raw Data (hex encoded)"
+            "data": "Data"
           },
           "advancedParameters": {
             "title": "Advanced Parameters",

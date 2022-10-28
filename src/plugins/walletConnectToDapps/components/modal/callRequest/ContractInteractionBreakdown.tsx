@@ -46,32 +46,8 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
           {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
           {CurrencyAmount.ether(request.value).toFixed()}
         </RawText>
+
         <Divider my={4} />
-        {!!transaction &&
-          transaction.functionFragment.inputs.map((input, index) => (
-            <Fragment key={index}>
-              <RawText color='gray.500' fontWeight='medium'>
-                {_.startCase(input.name)} ({input.type})
-              </RawText>
-              {input.type === 'bytes[]' ? (
-                <HStack>
-                  <MiddleEllipsis fontWeight='medium' value={transaction.args[index].toString()} />
-                  <IconButton
-                    size='small'
-                    variant='ghost'
-                    aria-label='Copy'
-                    icon={<CopyIcon />}
-                    onClick={() =>
-                      navigator.clipboard.writeText(transaction.args[index].toString())
-                    }
-                  />
-                </HStack>
-              ) : (
-                <RawText fontWeight='normal'>{transaction.args[index].toString()}</RawText>
-              )}
-              <Divider my={4} />
-            </Fragment>
-          ))}
 
         <Text
           color='gray.500'
@@ -88,6 +64,40 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
             onClick={() => navigator.clipboard.writeText(request.data)}
           />
         </HStack>
+
+        <Divider my={4} />
+        {!!transaction &&
+          transaction.functionFragment.inputs.map((input: any, index: any) => {
+            return (
+              <Fragment key={index}>
+                <RawText ml={5} color='gray.500' fontWeight='medium'>
+                  {input.name} ({input.type})
+                </RawText>
+                {input.type === 'bytes[]' ? (
+                  <HStack ml={5}>
+                    <MiddleEllipsis
+                      fontWeight='medium'
+                      value={transaction.args[index].toString()}
+                    />
+                    <IconButton
+                      size='small'
+                      variant='ghost'
+                      aria-label='Copy'
+                      icon={<CopyIcon />}
+                      onClick={() =>
+                        navigator.clipboard.writeText(transaction.args[index].toString())
+                      }
+                    />
+                  </HStack>
+                ) : (
+                  <RawText ml={5} fontWeight='normal'>
+                    {transaction.args[index].toString()}
+                  </RawText>
+                )}
+                <Divider my={4} />
+              </Fragment>
+            )
+          })}
       </Box>
     </ModalSection>
   )

@@ -8,7 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
+// import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -37,7 +37,7 @@ export type WalletConnectedProps = {
   onSwitchProvider: () => void
 } & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
-export const WalletConnected = (props: WalletConnectedProps) => {
+export const WalletConnected = () => {
   return (
     <MemoryRouter initialEntries={entries}>
       <Switch>
@@ -180,7 +180,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
         >
           {hasWallet ? (
             <WalletConnected
-              isConnected={isConnected || isDemoWallet}
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}

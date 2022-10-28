@@ -137,6 +137,7 @@
   },
   "dependencies": {
     "@axelar-network/axelarjs-sdk": "^0.6.18",
+    "@bithighlander/hdwallet-keepkey-nodehid": "^2.14.3",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
     "@chakra-ui/system": "^2.1.3",
@@ -148,7 +149,6 @@
     "@formatjs/intl-locale": "^3.0.2",
     "@formatjs/intl-numberformat": "^8.0.2",
     "@formatjs/intl-pluralrules": "^5.0.2",
-    "@keepkey/keepkey-hardware-controller": "0.1.20",
     "@metamask/detect-provider": "^1.2.0",
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.8.2",
@@ -256,6 +256,7 @@
     "stream-http": "^3.2.0",
     "swagger-ui-express": "^4.5.0",
     "tsoa": "^4.1.3",
+    "usb": "2.1.3",
     "wagmi": "^0.6.5",
     "wait-promise": "^0.4.1",
     "web-vitals": "^2.1.4"

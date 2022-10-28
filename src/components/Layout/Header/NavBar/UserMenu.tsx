@@ -1,11 +1,11 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
+import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+// import { useTranslate } from 'react-polyglot'
+// import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 // import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
@@ -16,45 +16,45 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeepKeyMenu } from './KeepKey/KeepKeyMenu'
+// import { KeepKeyMenu } from './KeepKey/KeepKeyMenu'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
-const NoWallet = ({ onClick }: { onClick: () => void }) => {
-  const translate = useTranslate()
-  return (
-    <MenuGroup title={translate('common.noWallet')} ml={3} color='gray.500'>
-      <MenuItem onClick={onClick} alignItems='center' justifyContent='space-between'>
-        {translate('common.connectWallet')}
-        <ChevronDownIcon />
-      </MenuItem>
-    </MenuGroup>
-  )
-}
+// const NoWallet = ({ onClick }: { onClick: () => void }) => {
+//   const translate = useTranslate()
+//   return (
+//     <MenuGroup title={translate('common.noWallet')} ml={3} color='gray.500'>
+//       <MenuItem onClick={onClick} alignItems='center' justifyContent='space-between'>
+//         {translate('common.connectWallet')}
+//         <ChevronDownIcon />
+//       </MenuItem>
+//     </MenuGroup>
+//   )
+// }
 
 export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
 } & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
-export const WalletConnected = () => {
-  return (
-    <MemoryRouter initialEntries={entries}>
-      <Switch>
-        <Route path='/'>
-          {/* <WalletConnectedMenu
-            isConnected={props.isConnected}
-            walletInfo={props.walletInfo}
-            onDisconnect={props.onDisconnect}
-            onSwitchProvider={props.onSwitchProvider}
-            type={props.type}
-          /> */}
-          <KeepKeyMenu />
-        </Route>
-      </Switch>
-    </MemoryRouter>
-  )
-}
+// export const WalletConnected = () => {
+//   return (
+//     <MemoryRouter initialEntries={entries}>
+//       <Switch>
+//         <Route path='/'>
+//           {/* <WalletConnectedMenu
+//             isConnected={props.isConnected}
+//             walletInfo={props.walletInfo}
+//             onDisconnect={props.onDisconnect}
+//             onSwitchProvider={props.onSwitchProvider}
+//             type={props.type}
+//           /> */}
+//           <KeepKeyMenu />
+//         </Route>
+//       </Switch>
+//     </MemoryRouter>
+//   )
+// }
 
 type WalletButtonProps = {
   isConnected: boolean
@@ -155,6 +155,8 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
+  // @ts-ignore
+  // @ts-ignore
   return (
     <ButtonGroup width='full'>
       <WalletButton
@@ -178,16 +180,16 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
-          {hasWallet ? (
-            <WalletConnected
-              walletInfo={walletInfo}
-              onDisconnect={disconnect}
-              onSwitchProvider={handleConnect}
-              type={type}
-            />
-          ) : (
-            <NoWallet onClick={handleConnect} />
-          )}
+          {/*{hasWallet ? (*/}
+          {/*  <WalletConnected*/}
+          {/*    // walletInfo={walletInfo}*/}
+          {/*    // onDisconnect={disconnect}*/}
+          {/*    // onSwitchProvider={handleConnect}*/}
+          {/*    type={type}*/}
+          {/*  />*/}
+          {/*) : (*/}
+          {/*  <NoWallet onClick={handleConnect} />*/}
+          {/*)}*/}
         </MenuList>
       </Menu>
     </ButtonGroup>

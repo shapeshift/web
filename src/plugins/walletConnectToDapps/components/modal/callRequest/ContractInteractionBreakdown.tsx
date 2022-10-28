@@ -3,7 +3,6 @@ import { Box, Divider, HStack, IconButton } from '@chakra-ui/react'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
 import { CurrencyAmount } from '@uniswap/sdk'
 import _ from 'lodash'
-import { useContract } from 'plugins/walletConnectToDapps/ContractABIContext'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
@@ -11,6 +10,8 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 
+import { selectContractByAddress } from '../../../../../state/apis/abi/selectors'
+import { useAppSelector } from '../../../../../state/store'
 import { ModalSection } from './ModalSection'
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
 export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   const translate = useTranslate()
 
-  const { contract } = useContract(request.to)
+  const { contract } = useAppSelector(s => selectContractByAddress(s, request.to))
   const transaction = useMemo(
     () => contract?.parseTransaction({ data: request.data, value: request.value }),
     [contract, request.data, request.value],

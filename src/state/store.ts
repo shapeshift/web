@@ -6,6 +6,7 @@ import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import type { ReduxState } from './reducer'
@@ -36,6 +37,7 @@ const apiMiddleware = [
   swapperApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
+  abiApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

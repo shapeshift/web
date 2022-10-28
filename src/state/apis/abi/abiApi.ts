@@ -12,7 +12,7 @@ type Abi = any // json
 
 export const abiApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'fiatRampApi',
+  reducerPath: 'abiApi',
   endpoints: build => ({
     getContractAbi: build.query<Abi, ContractAddress>({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
@@ -21,12 +21,11 @@ export const abiApi = createApi({
           const apiKey = getConfig().REACT_APP_ETHERSCAN_API_KEY
           const url = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${apiKey}`
           const res = await fetch(url).then(res => res.json())
-          if (res.status !== '1' || isEmpty(res)) throw new Error(res.result)
-
+          if (res.status !== '1' || isEmpty(res.result)) throw new Error(res.result)
           const abi = JSON.parse(res.result)
           return { data: abi }
         } catch (e) {
-          const data = `unable to fetch contract ${contractAddress}`
+          const data = `unable to fetch abi for ${contractAddress}`
           moduleLogger.error(e, { contractAddress }, data)
           const status = 400
           const error = { data, status }

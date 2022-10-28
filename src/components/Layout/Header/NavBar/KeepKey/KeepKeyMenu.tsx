@@ -1,6 +1,6 @@
-import { CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Box, Collapse, Flex, Link, useDisclosure } from '@chakra-ui/react'
+import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -33,7 +33,7 @@ export const KeepKeyMenu = () => {
 
   // Reset ephemeral device state properties when opening the KeepKey menu
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setDeviceState({
         lastDeviceInteractionStatus: undefined,
         awaitingDeviceInteraction: false,
@@ -159,15 +159,6 @@ export const KeepKeyMenu = () => {
                 valueDisposition={features?.passphraseProtection ? 'positive' : 'neutral'}
                 hasSubmenu={true}
               />
-              <MenuItem
-                icon={<ExternalLinkIcon />}
-                as={Link}
-                isExternal
-                _hover={{ textDecoration: 'none', outline: 'none' }}
-                href='http://localhost:1646/docs'
-              >
-                {translate('connectWallet.menu.openDev')}
-              </MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>
                 {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}

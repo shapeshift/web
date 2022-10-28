@@ -1,5 +1,6 @@
 import type { LinkProps } from '@chakra-ui/react'
 import { Flex, Link, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { getConfig } from 'config'
 import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'
@@ -18,7 +19,7 @@ export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
   return (
     <Tooltip label={translate('features.yat.banner.title')} isDisabled={isBig} placement='right'>
       <Link
-        href='https://y.at'
+        href={getConfig().REACT_APP_YAT_REFERRAL_URL}
         isExternal
         display='block'
         aria-label={translate('features.yat.banner.title')}

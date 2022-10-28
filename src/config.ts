@@ -68,6 +68,7 @@ const validators = {
   REACT_APP_DASHBOARD_BREAKDOWN: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
+  REACT_APP_YAT_REFERRAL_URL: url(),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),

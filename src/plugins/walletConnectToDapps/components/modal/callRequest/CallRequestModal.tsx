@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 
-import type { TxData } from './SendTransactionConfirmation';
+import type { TxData } from './SendTransactionConfirmation'
 import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 

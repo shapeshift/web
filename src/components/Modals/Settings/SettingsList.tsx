@@ -16,7 +16,8 @@ import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
-import { Link, RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
@@ -68,7 +69,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     appHistory.push(linkHref)
   }
 
-  const handleDeleteAccountsClick = async () => { }
+  const handleDeleteAccountsClick = async () => {}
 
   return (
     <SlideTransition>
@@ -136,7 +137,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <BalanceThresholdInput />
           </SettingsListItem>
           <Divider my={1} />
-          <Link to={{ pathname: 'http://localhost:1646/docs' }} target="_blank">
+          <Link to={{ pathname: 'http://localhost:1646/docs' }} target='_blank'>
             <SettingsListItem
               icon={<Icon as={ExternalLinkIcon} color='gray.500' />}
               label='connectWallet.menu.openDev'

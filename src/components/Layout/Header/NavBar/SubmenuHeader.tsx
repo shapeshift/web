@@ -1,4 +1,3 @@
-
 import { Center } from '@chakra-ui/layout'
 import { Flex, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
@@ -14,9 +13,8 @@ type ExpandedMenuItemProps = {
 export const SubmenuHeader = ({
   title,
   description,
-  onBackClick: handleBackClick,
+  onBackClick,
 }: ExpandedMenuItemProps) => {
-  const { handleBackClick: handleBackClickDefault } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
 

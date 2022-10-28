@@ -1,4 +1,4 @@
-import { ChevronRightIcon, CloseIcon, ExternalLinkIcon,RepeatIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, ExternalLinkIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex, Link } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'

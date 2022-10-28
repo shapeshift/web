@@ -1,4 +1,3 @@
-
 const TAG = " | KEEPKEY_BRIDGE | "
 
 import swaggerUi from 'swagger-ui-express'
@@ -16,12 +15,11 @@ import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { appStartCalled, windows } from '../main'
-import { updateConfig } from "keepkey-config";
 import { shared } from "../shared";
-import { KeepKey } from '@keepkey/keepkey-hardware-controller'
 import { IpcQueueItem } from './types'
+import { KKController } from './kk-controller'
 
-const Controller = new KeepKey({})
+const Controller = new KKController({})
 
 const appExpress = express()
 appExpress.use(cors())

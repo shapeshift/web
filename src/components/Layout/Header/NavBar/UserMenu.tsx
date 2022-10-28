@@ -16,6 +16,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { KeepKeyMenu } from './KeepKey/KeepKeyMenu'
+
 export const entries = [WalletConnectedRoutes.Connected]
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
@@ -40,13 +42,14 @@ export const WalletConnected = (props: WalletConnectedProps) => {
     <MemoryRouter initialEntries={entries}>
       <Switch>
         <Route path='/'>
-          <WalletConnectedMenu
+          {/* <WalletConnectedMenu
             isConnected={props.isConnected}
             walletInfo={props.walletInfo}
             onDisconnect={props.onDisconnect}
             onSwitchProvider={props.onSwitchProvider}
             type={props.type}
-          />
+          /> */}
+          <KeepKeyMenu />
         </Route>
       </Switch>
     </MemoryRouter>

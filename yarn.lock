@@ -1135,7 +1135,7 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.16.7", "@babel/runtime@^7.17.2", "@babel/runtime@^7.17.8", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.13", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.3", "@babel/runtime@^7.17.2", "@babel/runtime@^7.17.8", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.19.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.19.4.tgz#a42f814502ee467d55b38dd1c256f53a7b885c78"
   integrity sha512-EXpLCrk55f+cYqmHsSR+yD/0gAIMxxA9QK9lnQWzhMCvt+YmoBN7Zx94s++Kv0+unHk39vxNO8t+CMA2WSS3wA==
@@ -1207,7 +1207,7 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@bithighlander/hdwallet-core@2.14.2", "@bithighlander/hdwallet-core@^2.14.2":
+"@bithighlander/hdwallet-core@^2.14.2":
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/@bithighlander/hdwallet-core/-/hdwallet-core-2.14.2.tgz#52d631506a4838ba9b9866cbb53ef5ac4aa53255"
   integrity sha512-WEbx71Q4CXHQ7LrVMi/7Q5wIu7luMhRtErQBERK2uc5htJaBcD8NgRSdGHtjFUFRQRu/JkeNFqd7MI9SgNCWaw==
@@ -3639,35 +3639,6 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
-"@keepkey/keepkey-hardware-controller@0.1.20":
-  version "0.1.20"
-  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.1.20.tgz#cb605b9ce7c93ab09fa2d9a7581c9ac2bcf7d8f4"
-  integrity sha512-uL+xz6YLlPfTlIHdLT1jPXL8N1DRqtsvr+VFigeeNyfcdgfUUJReLrC83BcDyKwKH3AtypKqtnq6OlmIQj9urQ==
-  dependencies:
-    "@babel/runtime" "^7.16.7"
-    "@bithighlander/hdwallet-core" "2.14.2"
-    "@bithighlander/hdwallet-keepkey-nodehid" "^2.14.3"
-    "@pioneer-platform/loggerdog" "^8.1.5"
-    "@shapeshiftoss/hdwallet-core" "^1.21.0"
-    "@shapeshiftoss/hdwallet-keepkey" "^1.21.0"
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb" "^1.21.0"
-    "@types/bytebuffer" "^5.0.42"
-    "@types/google-protobuf" "^3.7.4"
-    "@types/node" "^13.13.48"
-    add "^2.0.6"
-    bytebuffer "^5.0.1"
-    cli-table "^0.3.4"
-    dotenv "^8.2.0"
-    ethers "^5.7.1"
-    fs-extra "^9.1.0"
-    prettyjson "^1.2.1"
-    request "^2.88.2"
-    request-promise "^4.2.6"
-    ts-node "^8.10.2"
-    typescript "^3.9.7"
-    usb "^2.1.3"
-    webusb "^2.2.0"
-
 "@keplr-wallet/types@^0.10.5":
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/@keplr-wallet/types/-/types-0.10.5.tgz#6d3f7ddd60a545eaadb55d17774f7a2f65f5b0a0"
@@ -3926,7 +3897,7 @@
   resolved "https://registry.yarnpkg.com/@pedrouid/environment/-/environment-1.0.1.tgz#858f0f8a057340e0b250398b75ead77d6f4342ec"
   integrity sha512-HaW78NszGzRZd9SeoI3JD11JqY+lubnaOx7Pewj5pfjqWXOEATpeKIFb9Z4t2WBUK2iryiXX3lzWwmYWgUL0Ug==
 
-"@pioneer-platform/loggerdog@^8.0.1", "@pioneer-platform/loggerdog@^8.1.17", "@pioneer-platform/loggerdog@^8.1.5", "@pioneer-platform/loggerdog@latest":
+"@pioneer-platform/loggerdog@^8.0.1", "@pioneer-platform/loggerdog@^8.1.17", "@pioneer-platform/loggerdog@latest":
   version "8.1.17"
   resolved "https://registry.yarnpkg.com/@pioneer-platform/loggerdog/-/loggerdog-8.1.17.tgz#80ee228d60c3b686c13fa42e45094f21704db4d7"
   integrity sha512-kibcRNY6yS/EOLRYIoBBMoG6GrRUvSx41sJatewBbq1gU1cG8FCl3zASQO68oeebQDqz56K5EMD8Jngrs/qEpQ==
@@ -4345,7 +4316,7 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-core@1.37.0", "@shapeshiftoss/hdwallet-core@^1.21.0", "@shapeshiftoss/hdwallet-core@^1.33.0":
+"@shapeshiftoss/hdwallet-core@1.37.0", "@shapeshiftoss/hdwallet-core@^1.33.0":
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.37.0.tgz#7e4ce138c6caf1cdb5862554185b5e225ec2e34b"
   integrity sha512-EjbpSBdJqHF3K/UrU6MsxmhH7C7V9xRw2m+a8qQYvh92JIf9ta1lqHC2qszLD5Glv+d7xXvoSTyjh+maNeyeZA==
@@ -4365,7 +4336,7 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.21.0", "@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.35.0":
+"@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.35.0":
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-nodewebusb/-/hdwallet-keepkey-nodewebusb-1.37.0.tgz#8fad870c72febbbf685634bc69c18a2a0bb08c97"
   integrity sha512-HU7AbXGWsa4iHucCGOwrPOAUwH0hOHX7XSbmQKAxdaE1CaMc82S9dGUU28wwITKbJUAIG9FTRfZE6jZjkUfrlw==
@@ -4434,7 +4405,7 @@
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-keepkey@1.37.0", "@shapeshiftoss/hdwallet-keepkey@^1.21.0", "@shapeshiftoss/hdwallet-keepkey@^1.33.0":
+"@shapeshiftoss/hdwallet-keepkey@1.37.0", "@shapeshiftoss/hdwallet-keepkey@^1.33.0":
   version "1.37.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.37.0.tgz#0c64ab458cc1f9a28a912c06775a7fbdc8ce1ea5"
   integrity sha512-IRJjOIxnwBNdCBedbOtlmKm5IgZNaawMPbA4NR8rslcRwzGjLsux6SNnfSkXsn6Uz02OtKBq+OcasiwuvHv9wQ==
@@ -5983,14 +5954,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bytebuffer@^5.0.42":
-  version "5.0.44"
-  resolved "https://registry.yarnpkg.com/@types/bytebuffer/-/bytebuffer-5.0.44.tgz#553015fb34db1fc3eb3f7b232bff91c006c251a1"
-  integrity sha512-k1qonHga/SfQT02NF633i+7tIfKd+cfC/8pjnedcfuXJNMWooss/FkCgRMSnLf2WorLjbuH4bfgAZEbtyHBDoQ==
-  dependencies:
-    "@types/long" "^3.0.0"
-    "@types/node" "*"
-
 "@types/cacheable-request@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@types/cacheable-request/-/cacheable-request-6.0.2.tgz#c324da0197de0a98a2312156536ae262429ff6b9"
@@ -6184,11 +6147,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/google-protobuf@^3.7.4":
-  version "3.15.6"
-  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.15.6.tgz#674a69493ef2c849b95eafe69167ea59079eb504"
-  integrity sha512-pYVNNJ+winC4aek+lZp93sIKxnXt5qMkuKmaqS3WGuTq0Bw1ZDYNBgzG5kkdtwcv+GmYJGo3yEg6z2cKKAiEdw==
-
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -6320,11 +6278,6 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.182.tgz#05301a4d5e62963227eaafe0ce04dd77c54ea5c2"
   integrity sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==
 
-"@types/long@^3.0.0":
-  version "3.0.32"
-  resolved "https://registry.yarnpkg.com/@types/long/-/long-3.0.32.tgz#f4e5af31e9e9b196d8e5fca8a5e2e20aa3d60b69"
-  integrity sha512-ZXyOOm83p7X8p3s0IYM3VeueNmHpkk/yMlP8CLeOnEcu6hIwPH7YjZBvhQkR0ZFS2DqZAxKtJ/M5fcuv3OU5BA==
-
 "@types/long@^4.0.1":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.2.tgz#b74129719fc8d11c01868010082d483b7545591a"
@@ -6390,7 +6343,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
 
-"@types/node@^13.13.12", "@types/node@^13.13.48", "@types/node@^13.7.0":
+"@types/node@^13.13.12", "@types/node@^13.7.0":
   version "13.13.52"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.52.tgz#03c13be70b9031baaed79481c0c0cfb0045e53f7"
   integrity sha512-s3nugnZumCC//n4moGGe6tkNMyYEdaDBitVjwPxXmR5lnMG5dHePinH2EdxkG3Rh1ghFHHixAG4NJhpJW1rthQ==
@@ -6409,11 +6362,6 @@
   version "15.14.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-15.14.9.tgz#bc43c990c3c9be7281868bbc7b8fdd6e2b57adfa"
   integrity sha512-qjd88DrCxupx/kJD5yQgZdcYKZKSIGBVDIBE1/LTGcNm3d2Np/jxojkdePDdfnBHJc5W7vSMpbJ1aB7p/Py69A==
-
-"@types/node@^8.0.54":
-  version "8.10.66"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.66.tgz#dd035d409df322acc83dff62a602f12a5783bbb3"
-  integrity sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -6720,13 +6668,6 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.6.tgz#250a7b16c3b91f672a24552ec64678eeb1d3a08d"
   integrity sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==
 
-"@types/usb@^1.5.1":
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/@types/usb/-/usb-1.5.4.tgz#366b353373ee92d34e0abcc5138c9b1fcdd75dc4"
-  integrity sha512-NOUza/8yuswu6RoECQyPHEjA34qpDaeONQ72fm+bCnnN2DJjDePAY+NsmV17H88oIlq4JlJ2mD5Kh5d6R2MwTQ==
-  dependencies:
-    "@types/node" "*"
-
 "@types/uuid@^8.3.0", "@types/uuid@^8.3.1":
   version "8.3.4"
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
@@ -6737,7 +6678,7 @@
   resolved "https://registry.yarnpkg.com/@types/verror/-/verror-1.10.6.tgz#3e600c62d210c5826460858f84bcbb65805460bb"
   integrity sha512-NNm+gdePAX1VGvPcGZCDKQZKYSiAWigKhKaz5KF94hG6f2s8de9Ow5+7AbXoeKxL8gavZfk4UquSAygOF2duEQ==
 
-"@types/w3c-web-usb@1.0.6", "@types/w3c-web-usb@^1.0.4":
+"@types/w3c-web-usb@1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@types/w3c-web-usb/-/w3c-web-usb-1.0.6.tgz#5d8560d0d9f585ffc80865bc773db7bc975b680c"
   integrity sha512-cSjhgrr8g4KbPnnijAr/KJDNKa/bBa+ixYkywFRvrhvi9n1WEl7yYbtRyzE6jqNQiSxxJxoAW3STaOQwJHndaw==
@@ -7808,11 +7749,6 @@ acorn@^8.2.4, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.0:
   version "8.7.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.1.tgz#0197122c843d1bf6d0a5e83220a788f278f63c30"
   integrity sha512-Xx54uLJQZ19lKygFXOWsscKUbsBZW0CPykPhVQdhIeIwrbPmJzqeASDInc8nKBnp/JT6igTs82qPXz069H8I/A==
-
-add@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/add/-/add-2.0.6.tgz#248f0a9f6e5a528ef2295dbeec30532130ae2235"
-  integrity sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q==
 
 address@^1.0.1, address@^1.1.2:
   version "1.1.2"
@@ -9946,13 +9882,6 @@ cli-table3@^0.6.1, cli-table3@~0.6.1:
     string-width "^4.2.0"
   optionalDependencies:
     colors "1.4.0"
-
-cli-table@^0.3.4:
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/cli-table/-/cli-table-0.3.11.tgz#ac69cdecbe81dccdba4889b9a18b7da312a9d3ee"
-  integrity sha512-IqLQi4lO0nIB4tcdTpN4LCB9FI3uqrJZK7RC515EnhZ6qBaglkIgICb1wjeAqpdoOabm1+SuQtkXIPdYC93jhQ==
-  dependencies:
-    colors "1.0.3"
 
 cli-truncate@^2.1.0:
   version "2.1.0"
@@ -12848,7 +12777,7 @@ ethers@5.6.5:
     "@ethersproject/web" "5.6.0"
     "@ethersproject/wordlists" "5.6.0"
 
-ethers@^5.0.13, ethers@^5.4.7, ethers@^5.5.3, ethers@^5.6.5, ethers@^5.7.1:
+ethers@^5.0.13, ethers@^5.4.7, ethers@^5.5.3, ethers@^5.6.5:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -19572,14 +19501,6 @@ pretty-hrtime@^1.0.3:
   resolved "https://registry.yarnpkg.com/pretty-hrtime/-/pretty-hrtime-1.0.3.tgz#b7e3ea42435a4c9b2759d99e0f201eb195802ee1"
   integrity sha1-t+PqQkNaTJsnWdmeDyAesZWALuE=
 
-prettyjson@^1.2.1:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/prettyjson/-/prettyjson-1.2.5.tgz#ef3cfffcc70505c032abc59785884b4027031835"
-  integrity sha512-rksPWtoZb2ZpT5OVgtmy0KHVM+Dca3iVwWY9ifwhcexfjebtgjg3wmrUt9PvJ59XIYBcknQeYHD8IAnVlh9lAw==
-  dependencies:
-    colors "1.4.0"
-    minimist "^1.2.0"
-
 prismjs@^1.27.0:
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.28.0.tgz#0d8f561fa0f7cf6ebca901747828b149147044b6"
@@ -23270,7 +23191,7 @@ typescript@<4.8.0, typescript@^4.4.3, typescript@^4.7.0:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
   integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
 
-typescript@^3.9.5, typescript@^3.9.7:
+typescript@^3.9.5:
   version "3.9.10"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
@@ -23560,15 +23481,7 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-usb@^1.6.0:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/usb/-/usb-1.9.2.tgz#fb6b36f744ecc707a196c45a6ec72442cb6f2b73"
-  integrity sha512-dryNz030LWBPAf6gj8vyq0Iev3vPbCLHCT8dBw3gQRXRzVNsIdeuU+VjPp3ksmSPkeMAl1k+kQ14Ij0QHyeiAg==
-  dependencies:
-    node-addon-api "^4.2.0"
-    node-gyp-build "^4.3.0"
-
-usb@^2.1.3:
+usb@^2.5.2:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/usb/-/usb-2.5.2.tgz#081b83aff83279c6d7605608880009ad698bc2c8"
   integrity sha512-/7hWfbPL4ExGTQO2v2XfuKoBHDwNMoNPZmyKjsPpS4bnEY3BIsaanPpGsLmaI4MOq9pAWDrIz0DwRA8SqJ1pVQ==
@@ -24706,16 +24619,6 @@ websocket@^1.0.32:
     typedarray-to-buffer "^3.1.5"
     utf-8-validate "^5.0.2"
     yaeti "^0.0.6"
-
-webusb@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/webusb/-/webusb-2.2.0.tgz#2e666afb182e6a6a1e9e279cc3a343b10aad7a5e"
-  integrity sha512-EP6JOFIqR4vLoDWwtMROs94Sl/sZlmX1WApK9O8/rBMBEiYTrDlgQrfUQ4CW5o+GSxfbA+MpDRgGbEBa5q0ECw==
-  dependencies:
-    "@types/node" "^8.0.54"
-    "@types/usb" "^1.5.1"
-    "@types/w3c-web-usb" "^1.0.4"
-    usb "^1.6.0"
 
 whatwg-encoding@^1.0.5:
   version "1.0.5"

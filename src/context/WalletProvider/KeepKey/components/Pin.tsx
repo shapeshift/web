@@ -55,6 +55,7 @@ export const KeepKeyPin = ({
   )
 
   const handleSubmit = async () => {
+    console.log('handle submit pin')
     setError(null)
     setDeviceState({
       isDeviceLoading: true,
@@ -64,7 +65,9 @@ export const KeepKeyPin = ({
     if (pin && pin.length > 0) {
       try {
         // The event handler will pick up the response to the sendPin request
+        console.log('about to send pin', wallet)
         await wallet?.sendPin(pin)
+        console.log('done sending pin')
         switch (disposition) {
           case 'recovering':
             setDeviceState({ awaitingDeviceInteraction: true })

@@ -5,6 +5,7 @@ on:
     branches:
       - ci-test
       - release-candidate
+      - develop
       - master
   workflow_dispatch:
 

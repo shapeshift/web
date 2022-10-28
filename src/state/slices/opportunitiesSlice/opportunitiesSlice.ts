@@ -1,38 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
-export const initialState: OpportunitiesState = {
-  lp: {
-    byAccountId: {},
-    byId: {},
-    ids: [],
-  },
-  staking: {
-    byAccountId: {},
-    byId: {},
-    ids: [],
-  },
-  userStaking: {
-    byId: {},
-    ids: [],
-  },
-}
-
-type OpportunityMetadata = {
+export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
-  provider: string
+  provider: DefiProvider
   tvl: string
   type: DefiType
-  underlyingAssetIds: [AssetId, AssetId]
+  underlyingAssetIds: readonly [AssetId, AssetId]
 }
 
 // User-specific values for this opportunity
-type UserStakingOpportunity = {
+export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
@@ -40,11 +23,11 @@ type UserStakingOpportunity = {
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-type StakingId = Nominal<string, 'StakingId'>
+export type StakingId = Nominal<string, 'StakingId'>
 // The AccountId of the LP contract in the form of chainId:accountAddress
-type LpId = Nominal<string, 'LpId'>
+export type LpId = Nominal<string, 'LpId'>
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
-type UserStakingId = `${AccountId}*${StakingId}`
+export type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {
@@ -67,11 +50,51 @@ export type OpportunitiesState = {
   }
 }
 
+export type OpportunityMetadataById = OpportunitiesState['lp' | 'staking']['byId']
+
+export const initialState: OpportunitiesState = {
+  lp: {
+    byAccountId: {},
+    byId: {},
+    ids: [],
+  },
+  staking: {
+    byAccountId: {},
+    byId: {},
+    ids: [],
+  },
+  userStaking: {
+    byId: {},
+    ids: [],
+  },
+}
+
 export const opportunities = createSlice({
   name: 'opportunitiesData',
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertOpportunityMetadata: (
+      state,
+      { payload }: { payload: { metadata: OpportunityMetadataById; type: 'lp' | 'staking' } },
+    ) => {
+      state[payload.type].byId = {
+        ...state[payload.type].byId,
+        ...payload.metadata,
+      }
+      state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
+    },
+    upsertUserStakingOpportunities: (
+      state,
+      { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
+    ) => {
+      state.userStaking.byId = {
+        ...state.staking.byId,
+        ...payload,
+      }
+      state.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
+    },
+
     // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:
   },
 })

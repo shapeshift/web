@@ -133,7 +133,9 @@ export const Deposit = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).precision(asset.precision)
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+        .times(percent)
+        .decimalPlaces(asset.precision)
       const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,

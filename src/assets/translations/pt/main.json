@@ -441,7 +441,7 @@
       },
       "staking": {
         "delegate": "Delegar",
-        "begin_unbonding": "Retirar delegação.",
+        "begin_unbonding": "Retirar delegação",
         "begin_redelegate": "Redelegar",
         "withdraw_delegator_reward": "Resgatar Recompensa"
       },

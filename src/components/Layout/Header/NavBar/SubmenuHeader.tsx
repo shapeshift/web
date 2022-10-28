@@ -23,13 +23,6 @@ export const SubmenuHeader = ({
   return (
     <Stack flexDir='column' px={2}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
-        <IconButton
-          isRound
-          size='sm'
-          onClick={handleBackClick ?? handleBackClickDefault}
-          aria-label='Go Back'
-          icon={<ArrowBackIcon />}
-        />
         <Center fontWeight='bold' color={headerColor} fontSize='sm' flex={1} pr={7}>
           {upperFirst(title)}
         </Center>

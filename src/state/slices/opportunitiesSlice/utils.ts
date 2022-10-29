@@ -9,7 +9,6 @@ import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { calculateAPRFromToken0, getEthersProvider } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { store } from 'state/store'
 
 import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { getOrCreateContract } from '../foxEthSlice/contractManager'
@@ -18,7 +17,6 @@ import { marketData } from '../marketDataSlice/marketDataSlice'
 import { selectMarketDataById } from '../selectors'
 import { STAKING_ID_DELIMITER } from './constants'
 import type { StakingId, UserStakingId } from './opportunitiesSlice'
-import { opportunities } from './opportunitiesSlice'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -48,10 +46,10 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 
 export const DefiProviderToResolverByDeFiType: Record<DefiProvider, any> = {
   [DefiProvider.FoxFarming]: {
-    [DefiType.LiquidityPool]: async (opportunityId, opportunityType) => {
+    [DefiType.LiquidityPool]: async (opportunityId, opportunityType, { dispatch, getState }) => {
       // TODO: protocol agnostic, this is EVM specific
       const { assetReference: contractAddress } = fromAssetId(opportunityId as AccountId) // TODO: abstract me, for EVM LPs an opportunity is an AccountId, but not always true for others
-      const state: any = store.getState() // ReduxState causes circular dependency
+      const state: any = getState() // ReduxState causes circular dependency
       const assets: AssetsState = state.assets
       const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
 
@@ -96,9 +94,9 @@ export const DefiProviderToResolverByDeFiType: Record<DefiProvider, any> = {
         [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
       }
       // hacks for adding lp price and price history
-      store.dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
+      dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
       Object.values(HistoryTimeframe).forEach(timeframe => {
-        store.dispatch(
+        dispatch(
           marketData.actions.setCryptoPriceHistory({
             data: [{ price: bnOrZero(price).toNumber(), date: 0 }],
             args: { timeframe, assetId: foxEthLpAssetId },
@@ -120,7 +118,6 @@ export const DefiProviderToResolverByDeFiType: Record<DefiProvider, any> = {
         type: opportunityType,
       }
 
-      store.dispatch(opportunities.actions.upsertOpportunityMetadata(data))
       return { data }
     },
   },

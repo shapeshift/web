@@ -7,10 +7,8 @@ import cors from 'cors'
 import path from 'path'
 import log from 'electron-log'
 import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
-import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
 import { ipcMain, app } from 'electron'
-import { updateMenu } from '../tray'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
@@ -52,7 +50,6 @@ export const lastKnownKeepkeyState: {
 
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
     ipcMain.on('@app/start', async (event, data) => {
-        log.info('Checking ipcEvent queue')
         let newQueue = [...ipcQueue]
         await new Promise(() => {
             const endIdx = ipcQueue.length - 1
@@ -103,13 +100,8 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             server = appExpress.listen(API_PORT, () => {
                 queueIpcEvent('@bridge/started', {})
                 log.info(`server started at http://localhost:${API_PORT}`)
-                updateMenu(lastKnownKeepkeyState.STATE)
             })
         } catch (e) {
-            lastKnownKeepkeyState.STATE = -1
-            lastKnownKeepkeyState.STATUS = 'bridge error'
-            queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
-            updateMenu(lastKnownKeepkeyState.STATE)
             log.info('e: ', e)
         }
 
@@ -117,67 +109,35 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
         try {
             log.info("Starting Hardware Controller")
-            //state
-            Controller.events.on('state', function (event) {
-                log.info("*** state change: ", event)
-                lastKnownKeepkeyState.STATE = event.state
-                lastKnownKeepkeyState.STATUS = event.status
-                queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
-
-                if(event.status === 'device connected') {
-                    queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
-                }
-                switch (event.state) {
-                    case 2:
-                        console.log('keepkey state 2')
-                        queueIpcEvent('updateFirmware', {})
-                        break;
-                    case 3:
-                        console.log('keepkey state 3')
-                        queueIpcEvent('requestBootloaderMode', {})
-                        break;
-                    case 5:
-                        queueIpcEvent('@keepkey/needsInitialize', {})
-                    case 6:
-                        lastKnownKeepkeyState.device = Controller.device
-                        lastKnownKeepkeyState.wallet = Controller.wallet
-                        lastKnownKeepkeyState.transport = Controller.transport
-                        break;
-                    default:
-                }
-            })
 
             Controller.events.on('logs', async function (event) {
-                log.info("logs event: ", event)
-
-                if(event.error) {
-                    queueIpcEvent('@keepkey/hardwareError', { event })
-                }
-
-
-                // needs update but not in bootloader mode
                 if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
                     queueIpcEvent('requestBootloaderMode', {})
                 } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
                     queueIpcEvent('updateBootloader', {event})
+                } else if (event.firmwareUpdateNeededNotBootloader) {
+                    queueIpcEvent('updateFirmware', {})
+                } else if(event.needsInitialize) {
+                    queueIpcEvent('needsInitialize', {})
+                } else if(event.ready) {
+                    queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
+                    lastKnownKeepkeyState.device = Controller.device
+                    lastKnownKeepkeyState.wallet = Controller.wallet
+                    lastKnownKeepkeyState.transport = Controller.transport
                 }
             })
-
             Controller.events.on('error', function (event) {
-                log.info("error event: ", event)
                 queueIpcEvent('@keepkey/hardwareError', { event })
             })
 
             //Init MUST be AFTER listeners are made (race condition)
-            Controller.init()
+            await Controller.init()
 
             //
             ipcMain.on('@keepkey/update-firmware', async event => {
                 const tag = TAG + ' | onUpdateFirmware | '
                 try {
-                    log.info(tag, " checkpoint")
                     let result = await getLatestFirmwareData()
-                    log.info(tag, " result: ", result)
 
                     let firmware = await downloadFirmware(result.firmware.url)
                     if (!firmware) throw Error("Failed to load firmware from url!")
@@ -246,8 +206,6 @@ export const stop_bridge = () => new Promise<void>((resolve, reject) => {
             log.info('Closed out remaining connections')
             lastKnownKeepkeyState.STATE = 2
             lastKnownKeepkeyState.STATUS = 'device connected'
-            queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
-            updateMenu(lastKnownKeepkeyState.STATE)
         })
         bridgeRunning = false
         resolve()
@@ -259,11 +217,9 @@ export const stop_bridge = () => new Promise<void>((resolve, reject) => {
 
 export const queueIpcEvent = (eventName: string, args: any) => {
     if (!appStartCalled) {
-        log.info('ipcEventQueued: ' + eventName)
         return ipcQueue.push({ eventName, args })
     }
     else if (windows.mainWindow && !windows.mainWindow.isDestroyed()) {
-        log.info('ipcEventCalled: ' + eventName)
         return windows.mainWindow.webContents.send(eventName, args)
     }
 }

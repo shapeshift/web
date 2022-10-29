@@ -1,14 +1,10 @@
-import { app, ipcMain } from 'electron';
-import { createWindow, windows } from '../../main';
+import { ipcMain } from 'electron';
+import { windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { lastKnownKeepkeyState } from '../';
-import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
-import { shared, userType } from '../../shared';
+import { GetPublicKey } from '../types';
 import wait from 'wait-promise'
-import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
-import { uniqueId } from 'lodash';
-import { openSignTxWindow } from '../../utils';
-
+import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
 @Tags('KeepKey Wallet Endpoints')
 @Route('')
 export class DPubkeyController extends Controller {

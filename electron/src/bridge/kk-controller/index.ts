@@ -111,14 +111,22 @@ export class KKController {
 
             //if bootloader needs update
             if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
-                this.updateState(3)
+                this.events.emit('logs', {
+                    bootloaderUpdateNeeded: true
+                })
             } else if (features?.bootloaderMode) {
-                this.updateState(2)
+                this.events.emit('logs', {
+                    firmwareUpdateNeededNotBootloader: true
+                })
             } else {
                 if (features && !features.initialized) {
-                    this.updateState(5)
+                    this.events.emit('logs', {
+                        needsInitialize: true
+                    })
                 } else {
-                    this.updateState(6)
+                    this.events.emit('logs', {
+                        ready: true
+                    })
                 }
             }
         } catch (e: any) {
@@ -161,7 +169,7 @@ export class KKController {
                 this.wallet = undefined
                 this.keyring = new Keyring()
 
-                this.events.emit('logs', {
+                this.events.emit('error', {
                     error: 'no device detected',
                 })
             }
@@ -189,12 +197,13 @@ export class KKController {
 
                 log.debug(tag, "resultInit: ", resultInit)
                 if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-                    //updater mode
-                    this.updateState(2)
+                    this.events.emit('logs', {
+                        firmwareUpdateNeededNotBootloader: true
+                    })
                 }
 
                 if (resultInit && !resultInit.success && resultInit.prompt === 'No wallet in the keyring') {
-                    this.events.emit('logs', {
+                    this.events.emit('error', {
                         error: 'general error',
                     })
                 }

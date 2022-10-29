@@ -185,7 +185,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 
     windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
-        queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 

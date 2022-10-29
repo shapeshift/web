@@ -41,7 +41,7 @@ export const App = () => {
       pair.open(data)
     })
 
-    ipcRenderer.on('@keepkey/needsInitialize', _event => {
+    ipcRenderer.on('needsInitialize', _event => {
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
         payload: {

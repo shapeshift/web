@@ -145,8 +145,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
-    case WalletActions.SET_KEEPKEY_STATE:
-      return { ...state, keepkeyState: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -482,12 +480,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setNeedsResetIfNotUpdating()
     })
 
-    ipcRenderer.on('@keepkey/state', (_event, data) => {
-      console.info('@keepkey/state', data)
-
+    ipcRenderer.on('needsInitialize', (_event, data) => {
       // if needs initialize we do the normal pair process and then web detects that it needs initialize
       if (data.state === 5) pairAndConnect.current()
-      dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
     })
 
     //HDwallet API

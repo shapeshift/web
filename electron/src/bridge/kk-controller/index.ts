@@ -140,56 +140,19 @@ export class KKController {
             log.error(tag, "*** e: ", e.toString())
         }
     }
+
     updateState = async (newState: number, error?: string): Promise<boolean | Error> => {
         let tag = TAG + " | updateState | "
         try {
             log.debug(tag, "newState: ", newState)
             let prevState = this.state
-            if (error) {
+            
+            //get current state
+            if (newState !== this.state) {
+                //if state change
                 this.state = newState
-                this.status = "Error"
-                let prompt
-                let errorDescription
-                let code
-
-                if (error.indexOf("cannot open device with path")) {
-                    prompt = "please restart device"
-                    errorDescription = "Device not found"
-                    code = 11
-                } else if (error.indexOf("Pact is not defined")) {
-                    prompt = "please restart device"
-                    errorDescription = "Device not responding"
-                    code = 12
-                } else if (error.indexOf("Cannot write to hid device")) {
-                    prompt = "please restart device"
-                    errorDescription = "Device refusing communication"
-                    code = 13
-                } else if (error.indexOf("Can't close device with a pending request")) {
-                    prompt = "please restart device"
-                    errorDescription = "Device was interrupted while communication"
-                    code = 14
-                } else {
-                    prompt = "please restart device"
-                    errorDescription = "unknown error"
-                    code = 0
-                }
-
-                this.events.emit('error', {
-                    prompt,
-                    errorDescription,
-                    errorCode: code,
-                    error,
-                    state: this.state,
-                    status: this.status
-                })
-            } else {
-                //get current state
-                if (newState !== this.state) {
-                    //if state change
-                    this.state = newState
-                    this.status = STATUS_MSG[newState]
-                    //throw event
-                }
+                this.status = STATUS_MSG[newState]
+                //throw event
             }
             this.events.emit('state', {
                 prevState,
@@ -296,7 +259,10 @@ export class KKController {
                 }
 
                 if (resultInit && resultInit.error && !isDisconnect) {
-                    this.updateState(-1, resultInit.error.toString())
+                    this.events.emit('error', {
+                        error: resultInit.error
+                    })
+                    this.updateState(-1)
                 }
 
                 log.debug(tag, "resultInit: ", resultInit)
@@ -344,7 +310,10 @@ export class KKController {
             if (e.message.indexOf("Firmware 6.1.0 or later is required") >= 0) {
                 resolve({ success: false, error: "Firmware 6.1.0 or later is required" })
             } else {
-                this.updateState(-1, e.message.toString())
+                this.events.emit('error', {
+                    error: e
+                })
+                this.updateState(-1)
             }
         }
     })

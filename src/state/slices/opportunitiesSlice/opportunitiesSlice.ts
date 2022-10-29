@@ -140,7 +140,7 @@ export const opportunitiesApi = createApi({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
         const { data } = await DefiProviderToMetadataResolverByDeFiType[DefiProvider.FoxFarming][
           defiType
-        ](opportunityId, opportunityType, { dispatch, getState })
+        ]({ opportunityId, opportunityType, reduxApi: { dispatch, getState } })
 
         dispatch(opportunities.actions.upsertOpportunityMetadata(data))
 
@@ -155,7 +155,7 @@ export const opportunitiesApi = createApi({
         try {
           const resolved = await DefiProviderToDataResolverByDeFiType[DefiProvider.FoxFarming][
             defiType
-          ](opportunityId, opportunityType, accountId, { dispatch, getState })
+          ]({ opportunityId, accountId, reduxApi: { dispatch, getState } })
 
           const byAccountId = {
             [accountId]: [opportunityId],

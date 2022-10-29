@@ -41,7 +41,7 @@ import { app, BrowserWindow, nativeTheme, ipcMain, shell, protocol } from 'elect
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, keepkey, queueIpcEvent, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, lastKnownKeepkeyState, queueIpcEvent, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
@@ -185,7 +185,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 
     windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
-        queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
+        queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 

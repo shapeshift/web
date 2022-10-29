@@ -1,8 +1,4 @@
-/*
-      Keepkey Hardware Module
- */
-
-const TAG = " | keepkey-hardware-controller | ";
+const TAG = " | kk-controller | ";
 
 const log = require("@pioneer-platform/loggerdog")()
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
@@ -11,8 +7,8 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 const { HIDKeepKeyAdapter } = require('@bithighlander/hdwallet-keepkey-nodehid')
 import { usb, findByIds } from 'usb'
 import EventEmitter from 'events';
-import { AllFirmwareAndBootloaderData, ControllerConfig, BasicWallet, LatestFirmwareAndBootloaderData, WebusbWallet, GenericError } from './types';
-const request = require('request-promise')
+import { ControllerConfig, BasicWallet, WebusbWallet, GenericError } from './types';
+import { getLatestFirmwareData } from './firmwareUtils';
 
 const bootloaderHashToVersion = {
     '6397c446f6b9002a8b150bf4b9b4e0bb66800ed099b881ca49700139b0559f10': 'v1.0.0',
@@ -71,11 +67,9 @@ export class KKController {
     public status: string
     public events: EventEmitter
     public transport?: TransportDelegate
-    private FIRMWARE_BASE_URL: string;
 
     constructor(config: ControllerConfig) {
         this.status = "unknown"
-        this.FIRMWARE_BASE_URL = config.FIRMWARE_BASE_URL || "https://raw.githubusercontent.com/keepkey/keepkey-updater/master/firmware/"
         this.state = null
         this.deviceReady = false
         this.keyring = new Keyring()
@@ -119,43 +113,30 @@ export class KKController {
     startController = async (): Promise<any | Error> => {
         let tag = TAG + " | startController | "
         try {
-            log.debug(tag, "checkpoint")
+
             if (!this.deviceReady) await this.createWebUsbWallet()
-            log.debug(tag, "checkpoint2")
-            //@ts-ignore
-            log.debug(tag, "device.features.bootloaderHash: ", this.wallet?.features?.bootloaderHash)
 
-            //verify bootloader
-            //@ts-ignore
             const features = this.wallet?.features
-            log.debug(tag, "features: ", features)
-            const decodedHash = base64toHEX(this.wallet?.features?.bootloaderHash)
-            log.debug(tag, "decodedHash: ", decodedHash)
-            // @ts-ignore
-            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
-            log.debug(tag, "*bootloaderVersion: ", bootloaderVersion)
 
-            let latestFirmware = await this.getLatestFirmwareData()
-            log.debug(tag, "latestFirmware: ", latestFirmware)
-            log.debug(tag, "latestFirmware.bootloader.version: ", latestFirmware.bootloader.version)
+            const decodedHash = base64toHEX(this.wallet?.features?.bootloaderHash)
+
+            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
+
+            let latestFirmware = await getLatestFirmwareData()
 
             //if bootloader needs update
             if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
-                log.debug("Out of date bootloader!")
                 this.updateState(3)
             } else if (features?.bootloaderMode) {
                 this.updateState(2)
             } else {
-                //TODO detect init?
-                log.debug(tag, "features: ", features)
                 if (features && !features.initialized) {
                     this.updateState(5)
                 } else {
                     this.updateState(6)
                 }
             }
-        } catch (e) {
-            // @ts-ignore
+        } catch (e: any) {
             log.error(tag, "*** e: ", e.toString())
         }
     }
@@ -170,14 +151,12 @@ export class KKController {
                 let prompt
                 let errorDescription
                 let code
-                //classify error
+
                 if (error.indexOf("cannot open device with path")) {
-                    //fix, reconnect device
                     prompt = "please restart device"
                     errorDescription = "Device not found"
                     code = 11
                 } else if (error.indexOf("Pact is not defined")) {
-                    //fix, reconnect device
                     prompt = "please restart device"
                     errorDescription = "Device not responding"
                     code = 12
@@ -229,36 +208,28 @@ export class KKController {
         try {
             //primart Detect
             let allDevices = usb.getDeviceList()
-            log.debug(tag, "allDevices: ", allDevices.length)
             let deviceDetected = false
             let resultWebUsb = findByIds(11044, 2)
             if (resultWebUsb) {
-                log.debug(tag, "KeepKey connected in webusb!")
                 deviceDetected = true
                 if (!this.deviceReady) this.startController()
             }
             let resultPreWebUsb = findByIds(11044, 1)
             if (resultPreWebUsb) {
-                log.debug(tag, "update required! (resultPreWebUsb)")
                 deviceDetected = true
             }
             if (!deviceDetected) {
-                log.debug(tag, "No devices connected")
                 //reset wallets to prevent wrong data
                 this.deviceReady = false
                 this.wallet = undefined
                 this.keyring = new Keyring()
                 this.updateState(0)
-            } else {
-                log.debug(tag, "resultWebUsb: ", resultWebUsb)
-                log.debug(tag, "resultPreWebUsb: ", resultPreWebUsb)
             }
 
             //HID detect
-            let latestFirmware = await this.getLatestFirmwareData()
+            let latestFirmware = await getLatestFirmwareData()
             log.debug(tag, "latestFirmware: ", latestFirmware)
 
-            //init
             if (!isDisconnect) {
                 let resultInit: BasicWallet;
 
@@ -288,10 +259,6 @@ export class KKController {
                 }
 
                 if (resultInit && resultInit.success && resultInit.features) {
-                    log.debug(tag, "resultInit: ", resultInit)
-                    log.debug(tag, "resultInit.bootloaderVersion: ", resultInit.bootloaderVersion)
-                    log.debug(tag, "resultInit.firmwareVersion: ", resultInit.firmwareVersion)
-
                     //if new
                     if (resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0") {
                         this.updateState(1)
@@ -336,19 +303,17 @@ export class KKController {
                 log.debug(tag, "resultInit: ", resultInit)
             }
             return true
-        } catch (e) {
-            //log.error(tag,"*** e: ",e.toString())
-            // @ts-ignore
+        } catch (e: any) {
             log.debug("failed to get device: ", e.message)
         }
         return false
     }
     createWebUsbWallet = () => new Promise<WebusbWallet | GenericError>(async (resolve, reject) => {
         let tag = TAG + " | createWebUsbWallet | "
+
+        log.debug(tag, "starting")
         try {
             this.deviceReady = false
-            log.debug(tag, "checkpoint")
-            // await this.resetDevice()
             const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(this.keyring);
             this.device = await keepkeyAdapter.getDevice()
             if (!this.device) return resolve({ success: false, error: 'Unable to get device!' })
@@ -358,9 +323,6 @@ export class KKController {
             await this.transport.connect()
 
             this.wallet = await keepkeyAdapter.pairDevice(this.device.serialNumber, true) as KeepKeyHDWallet;
-            if (this.wallet) {
-                log.debug(tag, "Device found!")
-            }
 
             let features = await this.wallet.getFeatures()
             const { majorVersion, minorVersion, patchVersion, bootloaderHash } = features
@@ -378,24 +340,21 @@ export class KKController {
                 device: this.device,
                 success: true,
             })
-        } catch (e) {
-            //log.error(tag,"*** e: ",e.toString())
-            // @ts-ignore
+        } catch (e: any) {
             log.error("failed to get device: ", e.message)
-            // @ts-ignore
             if (e.message.indexOf("Firmware 6.1.0 or later is required") >= 0) {
-                //ignore
                 resolve({ success: false, error: "Firmware 6.1.0 or later is required" })
             } else {
-                // @ts-ignore
                 this.updateState(-1, e.message.toString())
             }
         }
     })
 
     createHidWallet = () => new Promise<BasicWallet>(async (resolve, reject) => {
-
         let tag = TAG + " | createHidWallet | "
+
+        log.debug(tag, "starting")
+
         try {
             //
             let hidAdapter = await HIDKeepKeyAdapter.useKeyring(this.keyring)
@@ -409,9 +368,7 @@ export class KKController {
                 }
             }
             this.wallet = wallet as KeepKeyHDWallet
-            // @ts-ignore
             if (this.wallet.features && this.wallet.features.bootloaderMode) {
-                // @ts-ignore
                 const { majorVersion, minorVersion, patchVersion, bootloaderHash } = this.wallet.features
                 // @ts-ignore
                 return resolve({
@@ -424,7 +381,7 @@ export class KKController {
                 let features = await this.wallet.getFeatures()
                 const { majorVersion, minorVersion, patchVersion, bootloaderHash } = features
                 const decodedHash = base64toHEX(bootloaderHash)
-                // @ts-ignore
+
                 let bootloaderVersion = bootloaderHashToVersion[decodedHash]
                 return resolve({
                     success: true,
@@ -435,59 +392,12 @@ export class KKController {
                 })
             }
 
-        } catch (e) {
+        } catch (e: any) {
             return {
                 success: false,
-                // @ts-ignore
                 error: e.toString(),
             }
         }
-    })
-    downloadFirmware = async (path: string) => {
-        try {
-
-            let firmware = await request({
-                url: this.FIRMWARE_BASE_URL + path,
-                headers: {
-                    accept: 'application/octet-stream',
-                },
-                encoding: null
-            })
-
-            //TODO validate
-            //     const firmwareIsValid = !!body
-            //         && body.slice(0x0000, 0x0004).toString() === 'KPKY' // check for 'magic' bytes
-            //         && body.slice(0x0004, 0x0008).readUInt32LE() === body.length - 256 // check firmware length - metadata
-            //         && body.slice(0x000B, 0x000C).readUInt8() & 0x01 // check that flag is not set to wipe device
-            //     if(!firmwareIsValid) throw Error('Fetched data is not valid firmware')
-
-            return firmware
-        } catch (e) {
-            console.error(e)
-        }
-    }
-    loadFirmware = async (firmware) => {
-        try {
-            if (!this.wallet) return
-            let resultWipe = await this.wallet.firmwareErase()
-            log.debug("resultWipe: ", resultWipe)
-
-            const uploadResult = await this.wallet.firmwareUpload(firmware)
-            return uploadResult
-        } catch (e) {
-            log.error("e: ", e)
-        }
-    }
-    getAllFirmwareData = () => new Promise<AllFirmwareAndBootloaderData>((resolve, reject) => {
-        request(`${this.FIRMWARE_BASE_URL}releases.json`, (err: any, response, body: any) => {
-            if (err) return reject(err)
-            resolve(JSON.parse(body))
-        })
-
-    })
-    getLatestFirmwareData = () => new Promise<LatestFirmwareAndBootloaderData>(async (resolve, reject) => {
-        const allFirmwareData = await this.getAllFirmwareData()
-        resolve(allFirmwareData.latest)
     })
     resetDevice = () => new Promise<void>((resolve, reject) => {
         const keepkey = findByIds(11044, 2)

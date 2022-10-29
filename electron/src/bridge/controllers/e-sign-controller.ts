@@ -2,7 +2,7 @@
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { keepkey } from '../';
+import { lastKnownKeepkeyState } from '../';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
@@ -22,9 +22,9 @@ export class ESignController extends Controller {
     public async btcSignTx(@Body() body: any): Promise<BTCSignedTx> {
         // BTCSignTxKK results in a circular import
         return new Promise<BTCSignedTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.btcSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.btcSignTx(body).then(resolve)
         })
     }
 
@@ -34,9 +34,9 @@ export class ESignController extends Controller {
     @Response(500, "Internal server error")
     public async thorchainSignTx(@Body() body: ThorchainSignTx): Promise<ThorchainTx> {
         return new Promise<ThorchainTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.thorchainSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.thorchainSignTx(body).then(resolve)
         })
     }
 
@@ -45,9 +45,9 @@ export class ESignController extends Controller {
     @Response(500, "Internal server error")
     public async cosmosSignTx(@Body() body: CosmosSignTx): Promise<CosmosSignedTx> {
         return new Promise<CosmosSignedTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.cosmosSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.cosmosSignTx(body).then(resolve)
         })
     }
 
@@ -70,9 +70,9 @@ export class ESignController extends Controller {
     @Response(500, "Internal server error")
     public async rippleSignTx(@Body() body: RippleSignTx): Promise<RippleSignedTx> {
         return new Promise<RippleSignedTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.rippleSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.rippleSignTx(body).then(resolve)
         })
     }
 
@@ -82,9 +82,9 @@ export class ESignController extends Controller {
     //TODO unknown type  Error: Unknown type: TupleType
     public async binanceSignTx(@Body() body: any): Promise<any> {
         return new Promise<BinanceSignedTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.binanceSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.binanceSignTx(body).then(resolve)
         })
     }
 
@@ -93,9 +93,9 @@ export class ESignController extends Controller {
     @Response(500, "Internal server error")
     public async ethSignTx(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<ETHSignedTx>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.ethSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.ethSignTx(body).then(resolve)
         })
     }
 
@@ -104,9 +104,9 @@ export class ESignController extends Controller {
     @Response(500, "Internal server error")
     public async eosSignTx(@Body() body: any): Promise<any> {
         return new Promise<EosTxSigned>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.eosSignTx(body).then(resolve)
+            lastKnownKeepkeyState.wallet.eosSignTx(body).then(resolve)
         })
     }
 

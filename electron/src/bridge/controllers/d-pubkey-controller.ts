@@ -1,7 +1,7 @@
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { keepkey } from '../';
+import { lastKnownKeepkeyState } from '../';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
@@ -20,10 +20,10 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async getPublicKeys(@Body() body: GetPublicKey[]): Promise<Array<PublicKey | null>> {
         return new Promise<Array<PublicKey | null>>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
             // @ts-ignore
-            keepkey.wallet.getPublicKeys(body).then(resolve)
+            lastKnownKeepkeyState.wallet.getPublicKeys(body).then(resolve)
         })
     }
 
@@ -32,9 +32,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async btcGetAddress(@Body() body: BTCGetAddress): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.btcGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.btcGetAddress(body).then(resolve)
         })
     }
 
@@ -43,9 +43,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async ethGetAddress(@Body() body: ETHGetAddress): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.ethGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.ethGetAddress(body).then(resolve)
         })
     }
 
@@ -54,9 +54,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async thorchainGetAddress(@Body() body: ThorchainGetAddress): Promise<string | null> {
         return new Promise<string | null>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.thorchainGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.thorchainGetAddress(body).then(resolve)
         })
     }
 
@@ -79,9 +79,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async binanceGetAddress(@Body() body: BinanceGetAddress): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.binanceGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.binanceGetAddress(body).then(resolve)
         })
     }
 
@@ -90,9 +90,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async cosmosGetAddress(@Body() body: CosmosGetAddress): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.cosmosGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.cosmosGetAddress(body).then(resolve)
         })
     }
 
@@ -101,9 +101,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async rippleGetAddress(@Body() body: RippleGetAddress): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.rippleGetAddress(body).then(resolve)
+            lastKnownKeepkeyState.wallet.rippleGetAddress(body).then(resolve)
         })
     }
 
@@ -112,9 +112,9 @@ export class DPubkeyController extends Controller {
     @Response(500, "Internal server error")
     public async eosGetPublicKey(@Body() body: EosGetPublicKey): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.eosGetPublicKey(body).then(resolve)
+            lastKnownKeepkeyState.wallet.eosGetPublicKey(body).then(resolve)
         })
     }
 

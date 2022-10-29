@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import { windows } from '../../main';
 import { Body, Controller, Get, Post, Route, Tags, Security, Response } from 'tsoa';
-import { keepkey } from '..';
+import { lastKnownKeepkeyState } from '..';
 import { Read, Error, WriteBody, Write } from '../types';
 import { app } from 'electron'
 
@@ -17,9 +17,9 @@ export class BDeviceController extends Controller {
     @Response(500, "Unable to communicate with device")
     public async readDevice(): Promise<Read | Error> {
         return new Promise<Read | Error>(async (resolve, reject) => {
-            if (!keepkey.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
+            if (!lastKnownKeepkeyState.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
             try{
-                let resp = await keepkey.transport.readChunk()
+                let resp = await lastKnownKeepkeyState.transport.readChunk()
                 let output = {
                     data: Buffer.from(resp).toString('hex')
                 }
@@ -42,9 +42,9 @@ export class BDeviceController extends Controller {
     public async writeDevice(@Body() body: WriteBody): Promise<Write | Error> {
         return new Promise<Write | Error>((resolve, reject) => {
             try{
-                if (!keepkey.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
+                if (!lastKnownKeepkeyState.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
                 let msg = Buffer.from(body.data, 'hex')
-                keepkey.transport.writeChunk(msg)
+                lastKnownKeepkeyState.transport.writeChunk(msg)
                 log.info('input: ', msg.toString('hex'))
                 // EVENT_LOG.push({ write: output })
                 if (windows.mainWindow) windows.mainWindow.webContents.send('dataReceive', { output: msg })

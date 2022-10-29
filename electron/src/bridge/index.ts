@@ -26,6 +26,7 @@ appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import wait from 'wait-promise'
+import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 const sleep = wait.sleep;
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
@@ -35,19 +36,17 @@ export let server: Server
 export let bridgeRunning = false
 let ipcQueue = new Array<IpcQueueItem>()
 
-export const keepkey: {
+export const lastKnownKeepkeyState: {
     STATE: number,
     STATUS: string,
     device: Device | undefined,
     transport: TransportDelegate | undefined,
-    keyring: Keyring | undefined,
     wallet: KeepKeyHDWallet | undefined
 } = {
     STATE: 0,
     STATUS: 'preInit',
     device: undefined,
     transport: undefined,
-    keyring: undefined,
     wallet: undefined
 }
 
@@ -108,13 +107,13 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 // keepkey.STATUS = 'bridge online'
                 // queueIpcEvent('setKeepKeyState', { state: keepkey.STATE })
                 // queueIpcEvent('setKeepKeyStatus', { status: keepkey.STATUS })
-                updateMenu(keepkey.STATE)
+                updateMenu(lastKnownKeepkeyState.STATE)
             })
         } catch (e) {
-            keepkey.STATE = -1
-            keepkey.STATUS = 'bridge error'
-            queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
-            updateMenu(keepkey.STATE)
+            lastKnownKeepkeyState.STATE = -1
+            lastKnownKeepkeyState.STATUS = 'bridge error'
+            queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
+            updateMenu(lastKnownKeepkeyState.STATE)
             log.info('e: ', e)
         }
 
@@ -125,12 +124,12 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             //state
             Controller.events.on('state', function (event) {
                 log.info("*** state change: ", event)
-                keepkey.STATE = event.state
-                keepkey.STATUS = event.status
-                queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
+                lastKnownKeepkeyState.STATE = event.state
+                lastKnownKeepkeyState.STATUS = event.status
+                queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
 
                 if(event.status === 'device connected') {
-                    queueIpcEvent('@keepkey/connected', { status: keepkey.STATUS })
+                    queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
                 }
                 switch (event.state) {
                     case 0:
@@ -151,16 +150,16 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                     case 5:
                         queueIpcEvent('@keepkey/needsInitialize', {})
                         //launch init seed window?
-                        keepkey.device = Controller.device
+                        lastKnownKeepkeyState.device = Controller.device
                         // @ts-ignore
-                        keepkey.wallet = Controller.wallet
-                        keepkey.transport = Controller.transport
+                        lastKnownKeepkeyState.wallet = Controller.wallet
+                        lastKnownKeepkeyState.transport = Controller.transport
                         break;
                     case 6:
-                        keepkey.device = Controller.device
+                        lastKnownKeepkeyState.device = Controller.device
                         // @ts-ignore
-                        keepkey.wallet = Controller.wallet
-                        keepkey.transport = Controller.transport
+                        lastKnownKeepkeyState.wallet = Controller.wallet
+                        lastKnownKeepkeyState.transport = Controller.transport
                         break;
                     default:
                     //unhandled
@@ -192,13 +191,13 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 const tag = TAG + ' | onUpdateFirmware | '
                 try {
                     log.info(tag, " checkpoint")
-                    let result = await Controller.getLatestFirmwareData()
+                    let result = await getLatestFirmwareData()
                     log.info(tag, " result: ", result)
 
-                    let firmware = await Controller.downloadFirmware(result.firmware.url)
+                    let firmware = await downloadFirmware(result.firmware.url)
                     if (!firmware) throw Error("Failed to load firmware from url!")
 
-                    const updateResponse = await Controller.loadFirmware(firmware)
+                    const updateResponse = await loadFirmware(Controller.wallet, firmware)
                     log.info(tag, "updateResponse: ", updateResponse)
 
                     event.sender.send('onCompleteFirmwareUpload', {
@@ -218,9 +217,9 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 const tag = TAG + ' | onUpdateBootloader | '
                 try {
                     log.info(tag, "checkpoint: ")
-                    let result = await Controller.getLatestFirmwareData()
-                    let firmware = await Controller.downloadFirmware(result.bootloader.url)
-                    const updateResponse = await Controller.loadFirmware(firmware)
+                    let result = await getLatestFirmwareData()
+                    let firmware = await downloadFirmware(result.bootloader.url)
+                    const updateResponse = await loadFirmware(Controller.wallet, firmware)
                     log.info(tag, "updateResponse: ", updateResponse)
                     event.sender.send('onCompleteBootloaderUpload', {
                         bootloader: true,
@@ -260,10 +259,10 @@ export const stop_bridge = () => new Promise<void>((resolve, reject) => {
         log.info('server: ', server)
         server.close(() => {
             log.info('Closed out remaining connections')
-            keepkey.STATE = 2
-            keepkey.STATUS = 'device connected'
-            queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
-            updateMenu(keepkey.STATE)
+            lastKnownKeepkeyState.STATE = 2
+            lastKnownKeepkeyState.STATUS = 'device connected'
+            queueIpcEvent('@keepkey/state', { state: lastKnownKeepkeyState.STATE })
+            updateMenu(lastKnownKeepkeyState.STATE)
         })
         bridgeRunning = false
         resolve()

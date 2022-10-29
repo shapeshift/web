@@ -1,7 +1,7 @@
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { keepkey } from '../';
+import { lastKnownKeepkeyState } from '../';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
@@ -21,9 +21,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async recover(@Body() body: RecoverDevice): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.recover(body).then(resolve)
+            lastKnownKeepkeyState.wallet.recover(body).then(resolve)
         })
     }
 
@@ -33,9 +33,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async changePin(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.changePin().then(resolve)
+            lastKnownKeepkeyState.wallet.changePin().then(resolve)
         })
     }
 
@@ -44,9 +44,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async sendWord(@Body() body: string): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.sendWord(body).then(resolve)
+            lastKnownKeepkeyState.wallet.sendWord(body).then(resolve)
         })
     }
 
@@ -55,9 +55,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async sendCharacter(@Body() body: string): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.sendCharacter(body).then(resolve)
+            lastKnownKeepkeyState.wallet.sendCharacter(body).then(resolve)
         })
     }
 
@@ -66,9 +66,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async sendCharacterDelete(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.sendCharacterDelete().then(resolve)
+            lastKnownKeepkeyState.wallet.sendCharacterDelete().then(resolve)
         })
     }
 
@@ -77,9 +77,9 @@ export class GRecoveryController extends Controller {
     @Response(500, "Internal server error")
     public async sendCharacterDone(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!keepkey.wallet) return reject()
+            if (!lastKnownKeepkeyState.wallet) return reject()
 
-            keepkey.wallet.sendCharacterDone().then(resolve)
+            lastKnownKeepkeyState.wallet.sendCharacterDone().then(resolve)
         })
     }
 

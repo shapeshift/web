@@ -1,13 +1,7 @@
-import { app, ipcMain } from 'electron';
-import { createWindow, windows } from '../../main';
-import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
+import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
 import { lastKnownKeepkeyState } from '../';
-import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
-import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
-import { ResetDevice, LoadDevice, BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
-import { uniqueId } from 'lodash';
-import { openSignTxWindow } from '../../utils';
+import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 
 export type policy = {
     policyName?: string,

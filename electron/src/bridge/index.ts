@@ -109,7 +109,8 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
         log.info("Starting Hardware Controller")
 
         Controller.events.on('logs', async function (event) {
-            if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
+            console.log('event is', event)
+            if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
                 queueIpcEvent('requestBootloaderMode', {})
             } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
                 queueIpcEvent('updateBootloader', {event})

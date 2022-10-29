@@ -25,8 +25,6 @@ export const UpdateFirmware = (params: any) => {
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
 
-  console.log('update firmware data is!', params)
-
   useEffect(() => {
     if (isOpen) {
       handleUpdateFirmware()

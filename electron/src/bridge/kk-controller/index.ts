@@ -128,19 +128,8 @@ export class KKController {
             return this.events.emit('error', {
                 error: resultInit?.error
             })
-        } else if (resultInit.bootloaderMode) {
-            return this.events.emit('logs', {
-                firmwareUpdateNeededNotBootloader: true,
-                bootloaderUpdateNeeded: false,
-                firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
-                bootloader: resultInit.bootloaderVersion,
-                recommendedBootloader: latestFirmware.bootloader.version,
-                recommendedFirmware: latestFirmware.firmware.version,
-                bootloaderMode: resultInit.bootloaderMode
-            })
         } else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
             return this.events.emit('logs', {
-                    prompt: "update bootloader",
                     bootloaderUpdateNeeded: true,
                     firmware: resultInit.firmwareVersion,
                     bootloader: resultInit.bootloaderVersion,
@@ -148,11 +137,10 @@ export class KKController {
                     recommendedFirmware: latestFirmware.firmware.version,
                     bootloaderMode: resultInit.bootloaderMode
                 })
-        } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
+        } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
             return this.events.emit('logs', {
-                prompt: "update firmware",
-                firmwareUpdateNeeded: true,
-                firmware: resultInit.firmwareVersion,
+                firmwareUpdateNeededNotBootloader: true,
+                firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
                 bootloader: resultInit.bootloaderVersion,
                 recommendedBootloader: latestFirmware.bootloader.version,
                 recommendedFirmware: latestFirmware.firmware.version,
@@ -201,9 +189,7 @@ export class KKController {
             if (e.message.indexOf("Firmware 6.1.0 or later is required") >= 0) {
                 return ({ success: false, error: "Firmware 6.1.0 or later is required" })
             } else {
-                this.events.emit('error', {
-                    error: e
-                })
+                throw new Error('createWebUsbWallet error')
             }
         }
     }
@@ -257,11 +243,4 @@ export class KKController {
             }
         }
     }
-    resetDevice = () => new Promise<void>((resolve, reject) => {
-        const keepkey = findByIds(11044, 2)
-        if (keepkey) {
-            keepkey.open()
-            keepkey.reset(() => { resolve() })
-        }
-    })
 }

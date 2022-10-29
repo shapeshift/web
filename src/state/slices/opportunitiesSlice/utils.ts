@@ -14,7 +14,11 @@ import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { getOrCreateContract } from '../foxEthSlice/contractManager'
 import { fetchPairData } from '../foxEthSlice/utils'
 import { marketData } from '../marketDataSlice/marketDataSlice'
-import { selectMarketDataById } from '../selectors'
+import {
+  selectMarketDataById,
+  selectPortfolioAccountBalances,
+  selectPortfolioLoadingStatusGranular,
+} from '../selectors'
 import { STAKING_ID_DELIMITER } from './constants'
 import type { StakingId, UserStakingId } from './opportunitiesSlice'
 
@@ -44,7 +48,7 @@ export const filterUserStakingIdByStakingIdCompareFn = (
   return deserializedStakingId === stakingId
 }
 
-export const DefiProviderToResolverByDeFiType: Record<DefiProvider, any> = {
+export const DefiProviderToMetadataResolverByDeFiType: Record<DefiProvider, any> = {
   [DefiProvider.FoxFarming]: {
     [DefiType.LiquidityPool]: async (opportunityId, opportunityType, { dispatch, getState }) => {
       // TODO: protocol agnostic, this is EVM specific
@@ -119,6 +123,25 @@ export const DefiProviderToResolverByDeFiType: Record<DefiProvider, any> = {
       }
 
       return { data }
+    },
+  },
+}
+
+export const DefiProviderToDataResolverByDeFiType: Record<DefiProvider, any> = {
+  [DefiProvider.FoxFarming]: {
+    [DefiType.LiquidityPool]: async (
+      opportunityId,
+      opportunityType,
+      accountId,
+      { dispatch, getState },
+    ) => {
+      const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(getState())
+      if (portfolioLoadingStatusGranular[accountId] === 'loading')
+        throw new Error('Portfolio data not loaded for ', accountId)
+
+      const balances = selectPortfolioAccountBalances(getState())
+
+      return { data: balances[accountId][opportunityId] }
     },
   },
 }

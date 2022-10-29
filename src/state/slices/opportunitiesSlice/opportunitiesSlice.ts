@@ -1,26 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import type { MarketData } from '@shapeshiftoss/types/dist/market'
-import { Fetcher, Token } from '@uniswap/sdk'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
-import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { calculateAPRFromToken0, getEthersProvider } from 'plugins/foxPage/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
-import type { AssetsState } from '../assetsSlice/assetsSlice'
-import { getOrCreateContract } from '../foxEthSlice/contractManager'
-import { fetchPairData } from '../foxEthSlice/utils'
-import { marketData } from '../marketDataSlice/marketDataSlice'
-import { selectMarketDataById } from '../selectors'
-import { DefiProviderToResolverByDeFiType } from './utils'
+import {
+  DefiProviderToDataResolverByDeFiType,
+  DefiProviderToMetadataResolverByDeFiType,
+} from './utils'
 
 export type OpportunityMetadata = {
   apy: string
@@ -68,6 +57,7 @@ export type OpportunitiesState = {
 }
 
 export type OpportunityMetadataById = OpportunitiesState['lp' | 'staking']['byId']
+export type OpportunityDataById = OpportunitiesState['lp' | 'staking']['byAccountId']
 
 export type GetOpportunityMetadataInput = {
   opportunityId: LpId | StakingId
@@ -109,6 +99,17 @@ export const opportunities = createSlice({
       }
       state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
     },
+    // TODO: testme
+    upsertOpportunityAccounts: (
+      state,
+      { payload }: { payload: { byAccountId: OpportunityDataById; type: 'lp' | 'staking' } },
+    ) => {
+      // TODO: deep properties upsertion on AccountId opportunities
+      state[payload.type].byAccountId = {
+        ...state[payload.type].byAccountId,
+        ...payload.byAccountId,
+      }
+    },
     upsertUserStakingOpportunities: (
       state,
       { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
@@ -131,15 +132,43 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const { data } = await DefiProviderToResolverByDeFiType[DefiProvider.FoxFarming][defiType](
-          opportunityId,
-          opportunityType,
-          { dispatch, getState },
-        )
+        const { data } = await DefiProviderToMetadataResolverByDeFiType[DefiProvider.FoxFarming][
+          defiType
+        ](opportunityId, opportunityType, { dispatch, getState })
 
         dispatch(opportunities.actions.upsertOpportunityMetadata(data))
 
         return { data }
+      },
+    }),
+    getOpportunityData: build.query<GetOpportunityDataOutput, GetOpportunityDataInput>({
+      queryFn: async (
+        { accountId, opportunityId, opportunityType, defiType },
+        { dispatch, getState },
+      ) => {
+        try {
+          const resolved = await DefiProviderToDataResolverByDeFiType[DefiProvider.FoxFarming][
+            defiType
+          ](opportunityId, opportunityType, accountId, { dispatch, getState })
+
+          const data = {
+            byAccountId: {
+              [accountId]: [opportunityId],
+            },
+            type: 'lp' as const, // TODO: programmatic
+          }
+
+          dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+
+          return { data: resolved.data }
+        } catch (e) {
+          return {
+            error: {
+              error: e.message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
       },
     }),
   }),

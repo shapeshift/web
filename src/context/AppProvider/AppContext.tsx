@@ -154,7 +154,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
-    const { getOpportunityMetadata } = opportunitiesApi.endpoints
+    const { getOpportunityMetadata, getOpportunityData } = opportunitiesApi.endpoints
 
     // forceRefetch is enabled here to make sure that we always have the latest state from chain
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
@@ -189,6 +189,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               defiType: DefiType.LiquidityPool,
             }),
           )
+
+          dispatch(
+            getOpportunityData.initiate({
+              accountId,
+              opportunityId: foxEthLpAssetId,
+              opportunityType: 'lp',
+              defiType: DefiType.LiquidityPool,
+            }),
+          )
+
           /**
            * fetch all rebase history for foxy
            *

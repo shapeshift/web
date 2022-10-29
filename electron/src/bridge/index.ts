@@ -136,9 +136,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         log.info(tag, "No Devices connected")
                         queueIpcEvent('@keepkey/hardwareError', { event })
                         break;
-                    case 1:
-                        console.log('keepkey state 1')
-                        break;
                     case 2:
                         console.log('keepkey state 2')
                         queueIpcEvent('updateFirmware', {})
@@ -149,30 +146,20 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         break;
                     case 5:
                         queueIpcEvent('@keepkey/needsInitialize', {})
-                        //launch init seed window?
-                        lastKnownKeepkeyState.device = Controller.device
-                        // @ts-ignore
-                        lastKnownKeepkeyState.wallet = Controller.wallet
-                        lastKnownKeepkeyState.transport = Controller.transport
-                        break;
                     case 6:
                         lastKnownKeepkeyState.device = Controller.device
-                        // @ts-ignore
                         lastKnownKeepkeyState.wallet = Controller.wallet
                         lastKnownKeepkeyState.transport = Controller.transport
                         break;
                     default:
-                    //unhandled
                 }
             })
 
-            //errors
             Controller.events.on('error', function (event) {
                 log.info("error event: ", event)
                 queueIpcEvent('@keepkey/hardwareError', { event })
             })
 
-            //logs
             Controller.events.on('logs', async function (event) {
                 log.info("logs event: ", event)
 

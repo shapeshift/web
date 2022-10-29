@@ -77,38 +77,28 @@ export class KKController {
     }
 
     init = async () => {
-        let tag = TAG + " | init_events | "
-        try {
-            log.debug(tag, "init controller")
-            this.getDeviceStatus()
+        this.getDeviceStatus()
 
-            // console.log("usb: ", usb)
+        usb.on('attach', (device) => {
+            try {
+                log.debug('attach device: ', device)
+                this.getDeviceStatus()
+                if (this.deviceReady) this.startController()
+            } catch (e) {
+                log.error(e)
+            }
+        })
 
-            usb.on('attach', (device) => {
-                try {
-                    log.debug('attach device: ', device)
-                    // @ts-ignore
-                    this.getDeviceStatus()
-                    if (this.deviceReady) this.startController()
-                } catch (e) {
-                    log.error(e)
-                }
-            })
+        usb.on('detach', (device) => {
+            try {
+                log.debug('detach device: ', device)
+                this.getDeviceStatus(true)
+            } catch (e) {
+                log.error(e)
+            }
+        })
 
-            usb.on('detach', (device) => {
-                try {
-                    log.debug('detach device: ', device)
-                    this.getDeviceStatus(true)
-                } catch (e) {
-                    log.error(e)
-                }
-            })
-
-            return true
-        } catch (e) {
-            log.error(tag, e)
-            throw e
-        }
+        return true
     }
     startController = async (): Promise<any | Error> => {
         let tag = TAG + " | startController | "
@@ -147,13 +137,8 @@ export class KKController {
             log.debug(tag, "newState: ", newState)
             let prevState = this.state
             
-            //get current state
-            if (newState !== this.state) {
-                //if state change
-                this.state = newState
-                this.status = STATUS_MSG[newState]
-                //throw event
-            }
+            this.state = newState
+            this.status = STATUS_MSG[newState]
             this.events.emit('state', {
                 prevState,
                 state: this.state,
@@ -181,7 +166,6 @@ export class KKController {
                 deviceDetected = true
             }
             if (!deviceDetected) {
-                //reset wallets to prevent wrong data
                 this.deviceReady = false
                 this.wallet = undefined
                 this.keyring = new Keyring()
@@ -223,7 +207,6 @@ export class KKController {
                 if (resultInit && resultInit.success && resultInit.features) {
                     //if new
                     if (resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0") {
-                        this.updateState(1)
                         //set new device
                         this.events.emit('logs', {
                             prompt: "New Device Detected",

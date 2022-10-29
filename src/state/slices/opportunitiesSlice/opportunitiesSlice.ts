@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import merge from 'lodash/merge'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
@@ -104,11 +105,7 @@ export const opportunities = createSlice({
       state,
       { payload }: { payload: { byAccountId: OpportunityDataById; type: 'lp' | 'staking' } },
     ) => {
-      // TODO: deep properties upsertion on AccountId opportunities
-      state[payload.type].byAccountId = {
-        ...state[payload.type].byAccountId,
-        ...payload.byAccountId,
-      }
+      state[payload.type].byAccountId = merge(state[payload.type].byAccountId, payload.byAccountId)
     },
     upsertUserStakingOpportunities: (
       state,
@@ -155,16 +152,18 @@ export const opportunitiesApi = createApi({
             byAccountId: {
               [accountId]: [opportunityId],
             },
-            type: 'lp' as const, // TODO: programmatic
+            type: opportunityType,
           }
 
           dispatch(opportunities.actions.upsertOpportunityAccounts(data))
 
           return { data: resolved.data }
         } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error getting opportunities data'
+
           return {
             error: {
-              error: e.message,
+              error: message,
               status: 'CUSTOM_ERROR',
             },
           }

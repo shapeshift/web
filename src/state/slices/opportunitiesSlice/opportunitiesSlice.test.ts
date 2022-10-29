@@ -4,7 +4,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { clearState, store } from 'state/store'
 
 import { foxEthLpAssetId } from './constants'
-import { gomesAccountId } from './mocks'
+import { fauxmesAccountId, gomesAccountId, mockLpContractOne } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
 import { serializeUserStakingId } from './utils'
 
@@ -25,7 +25,7 @@ describe('opportunitiesSlice', () => {
       it.todo('clears state back to initial state')
     })
     describe('upsertOpportunityMetadata', () => {
-      it('insert metadata', () => {
+      it('inserts metadata', () => {
         const payload = {
           metadata: {
             'eip155:1:0xMyContract': {
@@ -54,8 +54,47 @@ describe('opportunitiesSlice', () => {
         expect(store.getState().opportunities.lp.byId).toEqual(expected)
       })
     })
+    describe('upsertOpportunityAccounts', () => {
+      it('inserts an LpId for a tuple of a single AccountId - empty byAccountId', () => {
+        const payload = {
+          byAccountId: {
+            [gomesAccountId]: [mockLpContractOne],
+          },
+          type: 'lp' as const,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityAccounts(payload))
+        expect(store.getState().opportunities.lp.byAccountId).toEqual(payload.byAccountId)
+      })
+      it('inserts an LpId for a tuple of a single AccountId - merges prevState and payload byAccountId', () => {
+        const insertPayload = {
+          byAccountId: {
+            [gomesAccountId]: [mockLpContractOne],
+          },
+          type: 'lp' as const,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityAccounts(insertPayload))
+        expect(store.getState().opportunities.lp.byAccountId).toEqual(insertPayload.byAccountId)
+
+        const upsertPayload = {
+          byAccountId: {
+            [fauxmesAccountId]: [mockLpContractOne],
+          },
+          type: 'lp' as const,
+        }
+
+        const expected = {
+          [gomesAccountId]: [mockLpContractOne],
+          [fauxmesAccountId]: [mockLpContractOne],
+        }
+        store.dispatch(opportunities.actions.upsertOpportunityAccounts(upsertPayload))
+        expect(store.getState().opportunities.lp.byAccountId).toEqual(expected)
+      })
+    })
+
     describe('upsertUserStakingOpportunities', () => {
-      it('insert user data', () => {
+      it('inserts user data', () => {
         const payload = {
           [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
             stakedAmountCryptoPrecision: '42000',

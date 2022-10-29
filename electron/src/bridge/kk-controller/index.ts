@@ -7,7 +7,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 const { HIDKeepKeyAdapter } = require('@bithighlander/hdwallet-keepkey-nodehid')
 import { usb, findByIds } from 'usb'
 import EventEmitter from 'events';
-import { ControllerConfig, BasicWallet, WebusbWallet, GenericError } from './types';
+import { BasicWallet, WebusbWallet, GenericError } from './types';
 import { getLatestFirmwareData } from './firmwareUtils';
 
 const bootloaderHashToVersion = {
@@ -65,7 +65,7 @@ export class KKController {
     public events: EventEmitter
     public transport?: TransportDelegate
 
-    constructor(config: ControllerConfig) {
+    constructor() {
         this.deviceReady = false
         this.keyring = new Keyring()
         this.events = new EventEmitter();
@@ -75,173 +75,148 @@ export class KKController {
         this.getDeviceStatus()
 
         usb.on('attach', (device) => {
-            try {
-                log.debug('attach device: ', device)
-                this.getDeviceStatus()
-                if (this.deviceReady) this.startController()
-            } catch (e) {
-                log.error(e)
-            }
+            log.debug('attach device: ', device)
+            this.getDeviceStatus()
+            if (this.deviceReady) this.startController()
         })
 
         usb.on('detach', (device) => {
-            try {
-                log.debug('detach device: ', device)
-                this.getDeviceStatus(true)
-            } catch (e) {
-                log.error(e)
-            }
+            log.debug('detach device: ', device)
+            this.getDeviceStatus(true)
         })
-
-        return true
     }
     startController = async (): Promise<any | Error> => {
         let tag = TAG + " | startController | "
-        try {
+        if (!this.deviceReady) await this.createWebUsbWallet()
 
-            if (!this.deviceReady) await this.createWebUsbWallet()
+        const features = this.wallet?.features
 
-            const features = this.wallet?.features
+        const decodedHash = base64toHEX(this.wallet?.features?.bootloaderHash)
 
-            const decodedHash = base64toHEX(this.wallet?.features?.bootloaderHash)
+        let bootloaderVersion = bootloaderHashToVersion[decodedHash]
 
-            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
+        let latestFirmware = await getLatestFirmwareData()
 
-            let latestFirmware = await getLatestFirmwareData()
-
-            //if bootloader needs update
-            if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
+        //if bootloader needs update
+        if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
+            this.events.emit('logs', {
+                bootloaderUpdateNeeded: true
+            })
+        } else if (features?.bootloaderMode) {
+            this.events.emit('logs', {
+                firmwareUpdateNeededNotBootloader: true
+            })
+        } else {
+            if (features && !features.initialized) {
                 this.events.emit('logs', {
-                    bootloaderUpdateNeeded: true
-                })
-            } else if (features?.bootloaderMode) {
-                this.events.emit('logs', {
-                    firmwareUpdateNeededNotBootloader: true
+                    needsInitialize: true
                 })
             } else {
-                if (features && !features.initialized) {
-                    this.events.emit('logs', {
-                        needsInitialize: true
-                    })
-                } else {
-                    this.events.emit('logs', {
-                        ready: true
-                    })
-                }
+                this.events.emit('logs', {
+                    ready: true
+                })
             }
-        } catch (e: any) {
-            log.error(tag, "*** e: ", e.toString())
         }
     }
 
-    getDeviceStatus = async (isDisconnect?: boolean): Promise<boolean | Error> => {
+    getDeviceStatus = async (isDisconnect?: boolean) => {
         let tag = TAG + " | getDeviceStatus | "
-        try {
-            //primart Detect
-            let deviceDetected = false
-            let resultWebUsb = findByIds(11044, 2)
-            if (resultWebUsb) {
-                deviceDetected = true
-                if (!this.deviceReady) this.startController()
-            }
-            let resultPreWebUsb = findByIds(11044, 1)
-            if (resultPreWebUsb) {
-                deviceDetected = true
-            }
-            if (!deviceDetected) {
-                this.deviceReady = false
-                this.wallet = undefined
-                this.keyring = new Keyring()
+        //primart Detect
+        let deviceDetected = false
+        let resultWebUsb = findByIds(11044, 2)
+        if (resultWebUsb) {
+            deviceDetected = true
+            if (!this.deviceReady) this.startController()
+        }
+        let resultPreWebUsb = findByIds(11044, 1)
+        if (resultPreWebUsb) {
+            deviceDetected = true
+        }
+        if (!deviceDetected) {
+            this.deviceReady = false
+            this.wallet = undefined
+            this.keyring = new Keyring()
 
-                this.events.emit('error', {
-                    error: 'no device detected',
+            this.events.emit('error', {
+                error: 'no device detected',
+            })
+        }
+
+        //HID detect
+        let latestFirmware = await getLatestFirmwareData()
+
+        if (!isDisconnect) {
+            let resultInit: BasicWallet;
+
+            try {
+                let webUSBResultInit = await this.createWebUsbWallet()
+                if ('success' in webUSBResultInit && !webUSBResultInit.success) {
+                    resultInit = await this.createHidWallet()
+                } else {
+                    resultInit = {
+                        ...(webUSBResultInit as WebusbWallet),
+                        success: true
+                    }
+                }
+            } catch (e) {
+                resultInit = await this.createHidWallet()
+            }
+
+            if (resultInit && resultInit.success && resultInit.bootloaderMode) {
+                this.events.emit('logs', {
+                    firmwareUpdateNeededNotBootloader: true
                 })
             }
 
-            //HID detect
-            let latestFirmware = await getLatestFirmwareData()
-            log.debug(tag, "latestFirmware: ", latestFirmware)
-
-            if (!isDisconnect) {
-                let resultInit: BasicWallet;
-
-                try {
-                    let webUSBResultInit = await this.createWebUsbWallet()
-                    if ('success' in webUSBResultInit && !webUSBResultInit.success) {
-                        resultInit = await this.createHidWallet()
-                    } else {
-                        resultInit = {
-                            ...(webUSBResultInit as WebusbWallet),
-                            success: true
-                        }
-                    }
-                } catch (e) {
-                    resultInit = await this.createHidWallet()
-                }
-
-                log.debug(tag, "resultInit: ", resultInit)
-                if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-                    this.events.emit('logs', {
-                        firmwareUpdateNeededNotBootloader: true
-                    })
-                }
-
-                if (resultInit && !resultInit.success && resultInit.prompt === 'No wallet in the keyring') {
-                    this.events.emit('error', {
-                        error: 'general error',
-                    })
-                }
-
-                if (resultInit && resultInit.success && resultInit.features) {
-                    //if new
-                    if (resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0") {
-                        //set new device
-                        this.events.emit('logs', {
-                            prompt: "New Device Detected",
-                            newDevice: true,
-                        })
-                    }
-
-                    //if bootloader needs update
-                    if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
-                        this.events.emit('logs', {
-                            prompt: "update bootloader",
-                            bootloaderUpdateNeeded: true,
-                            firmware: resultInit.firmwareVersion,
-                            bootloader: resultInit.bootloaderVersion,
-                            recommendedBootloader: latestFirmware.bootloader.version,
-                            recommendedFirmware: latestFirmware.firmware.version,
-                            bootloaderMode: resultInit.bootloaderMode
-                        })
-                    }
-
-                    //if firmware needs update
-                    if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
-                        this.events.emit('logs', {
-                            prompt: "update firmware",
-                            firmwareUpdateNeeded: true,
-                            firmware: resultInit.firmwareVersion,
-                            bootloader: resultInit.bootloaderVersion,
-                            recommendedBootloader: latestFirmware.bootloader.version,
-                            recommendedFirmware: latestFirmware.firmware.version,
-                            bootloaderMode: resultInit.bootloaderMode
-                        })
-                    }
-                }
-
-                if (resultInit && resultInit.error && !isDisconnect) {
-                    this.events.emit('error', {
-                        error: resultInit.error
-                    })
-                }
-
-                log.debug(tag, "resultInit: ", resultInit)
+            if (resultInit && !resultInit.success && resultInit.prompt === 'No wallet in the keyring') {
+                this.events.emit('error', {
+                    error: 'general error',
+                })
             }
-            return true
-        } catch (e: any) {
-            log.debug("failed to get device: ", e.message)
+
+            if (resultInit && resultInit.success && resultInit.features) {
+                //if new
+                if (resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0") {
+                    //set new device
+                    this.events.emit('logs', {
+                        prompt: "New Device Detected",
+                        newDevice: true,
+                    })
+                }
+
+                //if bootloader needs update
+                if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
+                    this.events.emit('logs', {
+                        prompt: "update bootloader",
+                        bootloaderUpdateNeeded: true,
+                        firmware: resultInit.firmwareVersion,
+                        bootloader: resultInit.bootloaderVersion,
+                        recommendedBootloader: latestFirmware.bootloader.version,
+                        recommendedFirmware: latestFirmware.firmware.version,
+                        bootloaderMode: resultInit.bootloaderMode
+                    })
+                }
+
+                //if firmware needs update
+                if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
+                    this.events.emit('logs', {
+                        prompt: "update firmware",
+                        firmwareUpdateNeeded: true,
+                        firmware: resultInit.firmwareVersion,
+                        bootloader: resultInit.bootloaderVersion,
+                        recommendedBootloader: latestFirmware.bootloader.version,
+                        recommendedFirmware: latestFirmware.firmware.version,
+                        bootloaderMode: resultInit.bootloaderMode
+                    })
+                }
+            }
+
+            if (resultInit && resultInit.error && !isDisconnect) {
+                this.events.emit('error', {
+                    error: resultInit.error
+                })
+            }
         }
-        return false
     }
     createWebUsbWallet = () => new Promise<WebusbWallet | GenericError>(async (resolve, reject) => {
         let tag = TAG + " | createWebUsbWallet | "

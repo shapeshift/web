@@ -17,7 +17,7 @@ import { shared } from "../shared";
 import { IpcQueueItem } from './types'
 import { KKController } from './kk-controller'
 
-const Controller = new KKController({})
+const Controller = new KKController()
 
 const appExpress = express()
 appExpress.use(cors())
@@ -62,141 +62,135 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
         ipcQueue = [...newQueue]
     })
     let tag = " | start_bridge | "
+    let API_PORT = port || 1646
+
+    // send paired apps when requested
+    ipcMain.on('@bridge/paired-apps', (event) => {
+        db.find({ type: 'service' }, (err, docs) => {
+            queueIpcEvent('@bridge/paired-apps', docs)
+        })
+    })
+
+    // used only for implicitly pairing the KeepKey web app
+    ipcMain.on(`@bridge/add-service`, (event, data) => {
+        db.insert({
+            type: 'service',
+            addedOn: Date.now(),
+            ...data
+        })
+    })
+
+    // used for unpairing apps
+    ipcMain.on(`@bridge/remove-service`, (event, data) => {
+        db.remove({ ...data })
+    })
+
+    appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    //swagger.json
+    appExpress.use('/spec', express.static(path.join(__dirname, '../../api/dist')));
+
+    RegisterRoutes(appExpress);
+
+    //port
     try {
+        log.info(tag, "starting server! **** ")
+        server = appExpress.listen(API_PORT, () => {
+            queueIpcEvent('@bridge/started', {})
+            log.info(`server started at http://localhost:${API_PORT}`)
+        })
+    } catch (e) {
+        log.info('e: ', e)
+    }
 
-        let API_PORT = port || 1646
+    bridgeRunning = true
 
-        // send paired apps when requested
-        ipcMain.on('@bridge/paired-apps', (event) => {
-            db.find({ type: 'service' }, (err, docs) => {
-                queueIpcEvent('@bridge/paired-apps', docs)
-            })
+    try {
+        log.info("Starting Hardware Controller")
+
+        Controller.events.on('logs', async function (event) {
+            if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
+                queueIpcEvent('requestBootloaderMode', {})
+            } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
+                queueIpcEvent('updateBootloader', {event})
+            } else if (event.firmwareUpdateNeededNotBootloader) {
+                queueIpcEvent('updateFirmware', {})
+            } else if(event.needsInitialize) {
+                queueIpcEvent('needsInitialize', {})
+            } else if(event.ready) {
+                queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
+                lastKnownKeepkeyState.device = Controller.device
+                lastKnownKeepkeyState.wallet = Controller.wallet
+                lastKnownKeepkeyState.transport = Controller.transport
+            }
+        })
+        Controller.events.on('error', function (event) {
+            queueIpcEvent('@keepkey/hardwareError', { event })
         })
 
-        // used only for implicitly pairing the KeepKey web app
-        ipcMain.on(`@bridge/add-service`, (event, data) => {
-            db.insert({
-                type: 'service',
-                addedOn: Date.now(),
-                ...data
-            })
+        //Init MUST be AFTER listeners are made (race condition)
+        await Controller.init()
+
+        //
+        ipcMain.on('@keepkey/update-firmware', async event => {
+            const tag = TAG + ' | onUpdateFirmware | '
+            try {
+                let result = await getLatestFirmwareData()
+
+                let firmware = await downloadFirmware(result.firmware.url)
+                if (!firmware) throw Error("Failed to load firmware from url!")
+
+                const updateResponse = await loadFirmware(Controller.wallet, firmware)
+                log.info(tag, "updateResponse: ", updateResponse)
+
+                event.sender.send('onCompleteFirmwareUpload', {
+                    bootloader: true,
+                    success: true
+                })
+                app.quit();
+                app.relaunch();
+            } catch (e) {
+                log.error(tag, e)
+                app.quit();
+                app.relaunch();
+            }
         })
 
-        // used for unpairing apps
-        ipcMain.on(`@bridge/remove-service`, (event, data) => {
-            db.remove({ ...data })
+        ipcMain.on('@keepkey/update-bootloader', async event => {
+            const tag = TAG + ' | onUpdateBootloader | '
+            try {
+                log.info(tag, "checkpoint: ")
+                let result = await getLatestFirmwareData()
+                let firmware = await downloadFirmware(result.bootloader.url)
+                const updateResponse = await loadFirmware(Controller.wallet, firmware)
+                log.info(tag, "updateResponse: ", updateResponse)
+                event.sender.send('onCompleteBootloaderUpload', {
+                    bootloader: true,
+                    success: true
+                })
+            } catch (e) {
+                log.error(tag, e)
+                app.quit();
+                app.relaunch();
+            }
         })
 
-        appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-        //swagger.json
-        appExpress.use('/spec', express.static(path.join(__dirname, '../../api/dist')));
-
-        RegisterRoutes(appExpress);
-
-        //port
-        try {
-            log.info(tag, "starting server! **** ")
-            server = appExpress.listen(API_PORT, () => {
-                queueIpcEvent('@bridge/started', {})
-                log.info(`server started at http://localhost:${API_PORT}`)
-            })
-        } catch (e) {
-            log.info('e: ', e)
-        }
-
-        bridgeRunning = true
-
-        try {
-            log.info("Starting Hardware Controller")
-
-            Controller.events.on('logs', async function (event) {
-                if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
-                    queueIpcEvent('requestBootloaderMode', {})
-                } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
-                    queueIpcEvent('updateBootloader', {event})
-                } else if (event.firmwareUpdateNeededNotBootloader) {
-                    queueIpcEvent('updateFirmware', {})
-                } else if(event.needsInitialize) {
-                    queueIpcEvent('needsInitialize', {})
-                } else if(event.ready) {
-                    queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
-                    lastKnownKeepkeyState.device = Controller.device
-                    lastKnownKeepkeyState.wallet = Controller.wallet
-                    lastKnownKeepkeyState.transport = Controller.transport
-                }
-            })
-            Controller.events.on('error', function (event) {
-                queueIpcEvent('@keepkey/hardwareError', { event })
-            })
-
-            //Init MUST be AFTER listeners are made (race condition)
-            await Controller.init()
-
-            //
-            ipcMain.on('@keepkey/update-firmware', async event => {
-                const tag = TAG + ' | onUpdateFirmware | '
-                try {
-                    let result = await getLatestFirmwareData()
-
-                    let firmware = await downloadFirmware(result.firmware.url)
-                    if (!firmware) throw Error("Failed to load firmware from url!")
-
-                    const updateResponse = await loadFirmware(Controller.wallet, firmware)
-                    log.info(tag, "updateResponse: ", updateResponse)
-
-                    event.sender.send('onCompleteFirmwareUpload', {
-                        bootloader: true,
-                        success: true
-                    })
-                    app.quit();
-                    app.relaunch();
-                } catch (e) {
-                    log.error(tag, e)
-                    app.quit();
-                    app.relaunch();
-                }
-            })
-
-            ipcMain.on('@keepkey/update-bootloader', async event => {
-                const tag = TAG + ' | onUpdateBootloader | '
-                try {
-                    log.info(tag, "checkpoint: ")
-                    let result = await getLatestFirmwareData()
-                    let firmware = await downloadFirmware(result.bootloader.url)
-                    const updateResponse = await loadFirmware(Controller.wallet, firmware)
-                    log.info(tag, "updateResponse: ", updateResponse)
-                    event.sender.send('onCompleteBootloaderUpload', {
-                        bootloader: true,
-                        success: true
-                    })
-                } catch (e) {
-                    log.error(tag, e)
-                    app.quit();
-                    app.relaunch();
-                }
-            })
-
-            ipcMain.on('@keepkey/info', async (event, data) => {
-                const tag = TAG + ' | onKeepKeyInfo | '
-                try {
-                    shared.KEEPKEY_FEATURES = data
-                } catch (e) {
-                    log.error('e: ', e)
-                    log.error(tag, e)
-                }
-            })
-
-        } catch (e) {
-            log.error(e)
-        }
-
-
-        resolve()
+        ipcMain.on('@keepkey/info', async (event, data) => {
+            const tag = TAG + ' | onKeepKeyInfo | '
+            try {
+                shared.KEEPKEY_FEATURES = data
+            } catch (e) {
+                log.error('e: ', e)
+                log.error(tag, e)
+            }
+        })
 
     } catch (e) {
         log.error(e)
     }
+
+
+    resolve()
 })
 
 export const stop_bridge = () => new Promise<void>((resolve, reject) => {

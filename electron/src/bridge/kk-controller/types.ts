@@ -2,10 +2,6 @@ import { KeepKeyHDWallet, TransportDelegate } from "@shapeshiftoss/hdwallet-keep
 import { Device } from "@shapeshiftoss/hdwallet-keepkey-nodewebusb"
 import { Features } from "@keepkey/device-protocol/lib/messages_pb";
 
-export type ControllerConfig = {
-    FIRMWARE_BASE_URL?: string
-}
-
 export type GenericError = {
     prompt?: string
     success: boolean,

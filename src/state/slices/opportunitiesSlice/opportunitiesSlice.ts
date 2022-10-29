@@ -91,31 +91,34 @@ export const opportunities = createSlice({
   reducers: {
     clear: () => initialState,
     upsertOpportunityMetadata: (
-      state,
+      draftState,
       { payload }: { payload: { metadata: OpportunityMetadataById; type: 'lp' | 'staking' } },
     ) => {
-      state[payload.type].byId = {
-        ...state[payload.type].byId,
+      draftState[payload.type].byId = {
+        ...draftState[payload.type].byId,
         ...payload.metadata,
       }
-      state[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
+      draftState[payload.type].ids = Array.from(new Set([...Object.keys(payload.metadata)]))
     },
     // TODO: testme
     upsertOpportunityAccounts: (
-      state,
+      draftState,
       { payload }: { payload: { byAccountId: OpportunityDataById; type: 'lp' | 'staking' } },
     ) => {
-      state[payload.type].byAccountId = merge(state[payload.type].byAccountId, payload.byAccountId)
+      draftState[payload.type].byAccountId = merge(
+        draftState[payload.type].byAccountId,
+        payload.byAccountId,
+      )
     },
     upsertUserStakingOpportunities: (
-      state,
+      draftState,
       { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
     ) => {
-      state.userStaking.byId = {
-        ...state.staking.byId,
+      draftState.userStaking.byId = {
+        ...draftState.staking.byId,
         ...payload,
       }
-      state.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
+      draftState.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
     },
 
     // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:

@@ -207,7 +207,6 @@ export class KKController {
         let tag = TAG + " | getDeviceStatus | "
         try {
             //primart Detect
-            let allDevices = usb.getDeviceList()
             let deviceDetected = false
             let resultWebUsb = findByIds(11044, 2)
             if (resultWebUsb) {

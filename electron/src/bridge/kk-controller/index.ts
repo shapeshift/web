@@ -134,22 +134,6 @@ export class KKController {
         }
     }
 
-    updateState = async (newState: number, error?: string): Promise<boolean | Error> => {
-        let tag = TAG + " | updateState | "
-        try {
-            log.debug(tag, "newState: ", newState)
-
-            this.events.emit('state', {
-                state: newState,
-                status: STATUS_MSG[newState],
-                deviceId: this.wallet ? await this.wallet.getDeviceID() : ''
-            })
-            return true
-        } catch (e) {
-            log.error("failed to update state: ", e)
-            return false
-        }
-    }
     getDeviceStatus = async (isDisconnect?: boolean): Promise<boolean | Error> => {
         let tag = TAG + " | getDeviceStatus | "
         try {
@@ -249,7 +233,6 @@ export class KKController {
                     this.events.emit('error', {
                         error: resultInit.error
                     })
-                    this.updateState(-1)
                 }
 
                 log.debug(tag, "resultInit: ", resultInit)
@@ -300,7 +283,6 @@ export class KKController {
                 this.events.emit('error', {
                     error: e
                 })
-                this.updateState(-1)
             }
         }
     })

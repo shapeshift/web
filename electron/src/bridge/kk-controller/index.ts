@@ -57,20 +57,15 @@ export const STATUS_MSG = [
     "bridge online"
 ]
 
-
 export class KKController {
     public deviceReady: boolean
     public keyring: Keyring
     public device?: Device
     public wallet?: KeepKeyHDWallet
-    public state: number | null
-    public status: string
     public events: EventEmitter
     public transport?: TransportDelegate
 
     constructor(config: ControllerConfig) {
-        this.status = "unknown"
-        this.state = null
         this.deviceReady = false
         this.keyring = new Keyring()
         this.events = new EventEmitter();
@@ -135,14 +130,10 @@ export class KKController {
         let tag = TAG + " | updateState | "
         try {
             log.debug(tag, "newState: ", newState)
-            let prevState = this.state
-            
-            this.state = newState
-            this.status = STATUS_MSG[newState]
+
             this.events.emit('state', {
-                prevState,
-                state: this.state,
-                status: this.status,
+                state: newState,
+                status: STATUS_MSG[newState],
                 deviceId: this.wallet ? await this.wallet.getDeviceID() : ''
             })
             return true
@@ -169,7 +160,10 @@ export class KKController {
                 this.deviceReady = false
                 this.wallet = undefined
                 this.keyring = new Keyring()
-                this.updateState(0)
+
+                this.events.emit('logs', {
+                    error: 'no device detected',
+                })
             }
 
             //HID detect
@@ -200,8 +194,9 @@ export class KKController {
                 }
 
                 if (resultInit && !resultInit.success && resultInit.prompt === 'No wallet in the keyring') {
-                    //updater mode
-                    this.updateState(0)
+                    this.events.emit('logs', {
+                        error: 'general error',
+                    })
                 }
 
                 if (resultInit && resultInit.success && resultInit.features) {

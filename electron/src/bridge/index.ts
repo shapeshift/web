@@ -103,10 +103,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             server = appExpress.listen(API_PORT, () => {
                 queueIpcEvent('@bridge/started', {})
                 log.info(`server started at http://localhost:${API_PORT}`)
-                // keepkey.STATE = 3
-                // keepkey.STATUS = 'bridge online'
-                // queueIpcEvent('setKeepKeyState', { state: keepkey.STATE })
-                // queueIpcEvent('setKeepKeyStatus', { status: keepkey.STATUS })
                 updateMenu(lastKnownKeepkeyState.STATE)
             })
         } catch (e) {
@@ -132,10 +128,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                     queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
                 }
                 switch (event.state) {
-                    case 0:
-                        log.info(tag, "No Devices connected")
-                        queueIpcEvent('@keepkey/hardwareError', { event })
-                        break;
                     case 2:
                         console.log('keepkey state 2')
                         queueIpcEvent('updateFirmware', {})
@@ -155,13 +147,13 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 }
             })
 
-            Controller.events.on('error', function (event) {
-                log.info("error event: ", event)
-                queueIpcEvent('@keepkey/hardwareError', { event })
-            })
-
             Controller.events.on('logs', async function (event) {
                 log.info("logs event: ", event)
+
+                if(event.error) {
+                    queueIpcEvent('@keepkey/hardwareError', { event })
+                }
+
 
                 // needs update but not in bootloader mode
                 if((event.bootloaderUpdateNeeded || event.firmwareUpdateNeeded) && !event.bootloaderMode) {
@@ -170,6 +162,12 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                     queueIpcEvent('updateBootloader', {event})
                 }
             })
+
+            Controller.events.on('error', function (event) {
+                log.info("error event: ", event)
+                queueIpcEvent('@keepkey/hardwareError', { event })
+            })
+
             //Init MUST be AFTER listeners are made (race condition)
             Controller.init()
 

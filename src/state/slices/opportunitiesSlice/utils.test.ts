@@ -1,8 +1,9 @@
 import { gomesAccountId, mockStakingContractOne } from './mocks'
+import type { UserStakingIdParts } from './utils'
 import { deserializeUserStakingId, serializeUserStakingId } from './utils'
 
 describe('opportunitiesSlice utils', () => {
-  const mockParts = [gomesAccountId, mockStakingContractOne]
+  const mockParts: UserStakingIdParts = [gomesAccountId, mockStakingContractOne]
   describe('serializeUserStakingId', () => {
     it('serializes a UserStakingId from AccountId and StakingId parts', () => {
       const result = serializeUserStakingId(...mockParts)

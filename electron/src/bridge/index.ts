@@ -119,7 +119,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             } else if(event.needsInitialize) {
                 queueIpcEvent('needsInitialize', {})
             } else if(event.ready) {
-                queueIpcEvent('@keepkey/connected', { status: lastKnownKeepkeyState.STATUS })
+                queueIpcEvent('connected', {})
                 lastKnownKeepkeyState.device = Controller.device
                 lastKnownKeepkeyState.wallet = Controller.wallet
                 lastKnownKeepkeyState.transport = Controller.transport

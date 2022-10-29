@@ -613,7 +613,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('@keepkey/connected', async (_event, _data) => {
+    ipcRenderer.on('connected', async (_event, _data) => {
       setNeedsReset(false)
       pairAndConnect.current()
     })

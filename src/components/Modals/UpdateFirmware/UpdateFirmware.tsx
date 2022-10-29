@@ -17,13 +17,15 @@ import { useEffect } from 'react'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
-export const UpdateFirmware = () => {
+export const UpdateFirmware = (params: any) => {
   const { updateFirmware } = useModal()
   const { close, isOpen } = updateFirmware
 
   const handleUpdateFirmware = async () => {
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
+
+  console.log('update firmware data is!', params)
 
   useEffect(() => {
     if (isOpen) {
@@ -63,8 +65,8 @@ export const UpdateFirmware = () => {
                 </Tbody>
                 <Tbody>
                   <Tr>
-                    <Td>1.0.1</Td>
-                    <Td>1.0.1</Td>
+                    <Td>{`${params?.event?.firmware}`}</Td>
+                    <Td>{`${params?.event?.recommendedFirmware}`}</Td>
                   </Tr>
                 </Tbody>
               </Table>

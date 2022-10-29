@@ -72,61 +72,25 @@ export class KKController {
     }
 
     init = async () => {
-        this.getDeviceStatus()
-
-        usb.on('attach', (device) => {
-            log.debug('attach device: ', device)
-            this.getDeviceStatus()
-            if (this.deviceReady) this.startController()
+        usb.on('attach', async (device) => {
+            await this.initializeDevice()
         })
 
-        usb.on('detach', (device) => {
-            log.debug('detach device: ', device)
-            this.getDeviceStatus(true)
+        usb.on('detach', async (device) => {
+            this.deviceReady = false
+            this.wallet = undefined
+            this.keyring = new Keyring()
         })
     }
-    startController = async (): Promise<any | Error> => {
-        let tag = TAG + " | startController | "
-        if (!this.deviceReady) await this.createWebUsbWallet()
 
-        const features = this.wallet?.features
-
-        const decodedHash = base64toHEX(this.wallet?.features?.bootloaderHash)
-
-        let bootloaderVersion = bootloaderHashToVersion[decodedHash]
-
-        let latestFirmware = await getLatestFirmwareData()
-
-        //if bootloader needs update
-        if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
-            this.events.emit('logs', {
-                bootloaderUpdateNeeded: true
-            })
-        } else if (features?.bootloaderMode) {
-            this.events.emit('logs', {
-                firmwareUpdateNeededNotBootloader: true
-            })
-        } else {
-            if (features && !features.initialized) {
-                this.events.emit('logs', {
-                    needsInitialize: true
-                })
-            } else {
-                this.events.emit('logs', {
-                    ready: true
-                })
-            }
-        }
-    }
-
-    getDeviceStatus = async (isDisconnect?: boolean) => {
-        let tag = TAG + " | getDeviceStatus | "
+    initializeDevice = async () => {
+        let tag = TAG + " | initializeDevice | "
         //primart Detect
         let deviceDetected = false
         let resultWebUsb = findByIds(11044, 2)
         if (resultWebUsb) {
             deviceDetected = true
-            if (!this.deviceReady) this.startController()
+            if (!this.deviceReady) await this.createWebUsbWallet()
         }
         let resultPreWebUsb = findByIds(11044, 1)
         if (resultPreWebUsb) {
@@ -137,88 +101,75 @@ export class KKController {
             this.wallet = undefined
             this.keyring = new Keyring()
 
-            this.events.emit('error', {
+            return this.events.emit('error', {
                 error: 'no device detected',
             })
         }
 
-        //HID detect
-        let latestFirmware = await getLatestFirmwareData()
+        const latestFirmware = await getLatestFirmwareData()
 
-        if (!isDisconnect) {
-            let resultInit: BasicWallet;
+        let resultInit;
 
-            try {
-                let webUSBResultInit = await this.createWebUsbWallet()
-                if ('success' in webUSBResultInit && !webUSBResultInit.success) {
-                    resultInit = await this.createHidWallet()
-                } else {
-                    resultInit = {
-                        ...(webUSBResultInit as WebusbWallet),
-                        success: true
-                    }
-                }
-            } catch (e) {
+        try {
+            const webUSBResultInit = await this.createWebUsbWallet()
+            if (!webUSBResultInit?.success) {
                 resultInit = await this.createHidWallet()
-            }
-
-            if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-                this.events.emit('logs', {
-                    firmwareUpdateNeededNotBootloader: true
-                })
-            }
-
-            if (resultInit && !resultInit.success && resultInit.prompt === 'No wallet in the keyring') {
-                this.events.emit('error', {
-                    error: 'general error',
-                })
-            }
-
-            if (resultInit && resultInit.success && resultInit.features) {
-                //if new
-                if (resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0") {
-                    //set new device
-                    this.events.emit('logs', {
-                        prompt: "New Device Detected",
-                        newDevice: true,
-                    })
-                }
-
-                //if bootloader needs update
-                if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
-                    this.events.emit('logs', {
-                        prompt: "update bootloader",
-                        bootloaderUpdateNeeded: true,
-                        firmware: resultInit.firmwareVersion,
-                        bootloader: resultInit.bootloaderVersion,
-                        recommendedBootloader: latestFirmware.bootloader.version,
-                        recommendedFirmware: latestFirmware.firmware.version,
-                        bootloaderMode: resultInit.bootloaderMode
-                    })
-                }
-
-                //if firmware needs update
-                if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
-                    this.events.emit('logs', {
-                        prompt: "update firmware",
-                        firmwareUpdateNeeded: true,
-                        firmware: resultInit.firmwareVersion,
-                        bootloader: resultInit.bootloaderVersion,
-                        recommendedBootloader: latestFirmware.bootloader.version,
-                        recommendedFirmware: latestFirmware.firmware.version,
-                        bootloaderMode: resultInit.bootloaderMode
-                    })
+            } else {
+                resultInit = {
+                    ...(webUSBResultInit as WebusbWallet),
+                    success: true
                 }
             }
+        } catch (e) {
+            resultInit = await this.createHidWallet()
+        }
 
-            if (resultInit && resultInit.error && !isDisconnect) {
-                this.events.emit('error', {
-                    error: resultInit.error
+        if(!resultInit || !resultInit.success || resultInit.error) {
+            return this.events.emit('error', {
+                error: resultInit?.error
+            })
+        } else if (resultInit.bootloaderMode) {
+            return this.events.emit('logs', {
+                firmwareUpdateNeededNotBootloader: true,
+                bootloaderUpdateNeeded: false,
+                firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
+                bootloader: resultInit.bootloaderVersion,
+                recommendedBootloader: latestFirmware.bootloader.version,
+                recommendedFirmware: latestFirmware.firmware.version,
+                bootloaderMode: resultInit.bootloaderMode
+            })
+        } else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
+            return this.events.emit('logs', {
+                    prompt: "update bootloader",
+                    bootloaderUpdateNeeded: true,
+                    firmware: resultInit.firmwareVersion,
+                    bootloader: resultInit.bootloaderVersion,
+                    recommendedBootloader: latestFirmware.bootloader.version,
+                    recommendedFirmware: latestFirmware.firmware.version,
+                    bootloaderMode: resultInit.bootloaderMode
                 })
-            }
+        } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
+            return this.events.emit('logs', {
+                prompt: "update firmware",
+                firmwareUpdateNeeded: true,
+                firmware: resultInit.firmwareVersion,
+                bootloader: resultInit.bootloaderVersion,
+                recommendedBootloader: latestFirmware.bootloader.version,
+                recommendedFirmware: latestFirmware.firmware.version,
+                bootloaderMode: resultInit.bootloaderMode
+            })
+        } else if(!resultInit?.features?.initialized) {
+            return this.events.emit('logs', {
+                needsInitialize: true
+            })
+        } else {
+            return this.events.emit('logs', {
+                ready: true
+            })
         }
     }
-    createWebUsbWallet = () => new Promise<WebusbWallet | GenericError>(async (resolve, reject) => {
+
+    createWebUsbWallet = async () => {
         let tag = TAG + " | createWebUsbWallet | "
 
         log.debug(tag, "starting")
@@ -226,21 +177,17 @@ export class KKController {
             this.deviceReady = false
             const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(this.keyring);
             this.device = await keepkeyAdapter.getDevice()
-            if (!this.device) return resolve({ success: false, error: 'Unable to get device!' })
+            if (!this.device) return ({ success: false, error: 'Unable to get device!' })
             const transport = await keepkeyAdapter.getTransportDelegate(this.device)
-            if (!transport) return resolve({ success: false, error: 'Unable to connect transport!' })
+            if (!transport) return ({ success: false, error: 'Unable to connect transport!' })
             this.transport = transport
             await this.transport.connect()
-
             this.wallet = await keepkeyAdapter.pairDevice(this.device.serialNumber, true) as KeepKeyHDWallet;
-
             let features = await this.wallet.getFeatures()
             const { majorVersion, minorVersion, patchVersion, bootloaderHash } = features
             const versionString = `v${majorVersion}.${minorVersion}.${patchVersion}`
-
             this.deviceReady = true
-
-            resolve({
+            return ({
                 features,
                 bootloaderMode: features.bootloaderMode,
                 bootloaderVersion: features.bootloaderMode ? versionString : bootloaderHashToVersion[base64toHEX(bootloaderHash)],
@@ -251,18 +198,17 @@ export class KKController {
                 success: true,
             })
         } catch (e: any) {
-            log.error("failed to get device: ", e.message)
             if (e.message.indexOf("Firmware 6.1.0 or later is required") >= 0) {
-                resolve({ success: false, error: "Firmware 6.1.0 or later is required" })
+                return ({ success: false, error: "Firmware 6.1.0 or later is required" })
             } else {
                 this.events.emit('error', {
                     error: e
                 })
             }
         }
-    })
+    }
 
-    createHidWallet = () => new Promise<BasicWallet>(async (resolve, reject) => {
+    createHidWallet = async () => {
         let tag = TAG + " | createHidWallet | "
 
         log.debug(tag, "starting")
@@ -283,7 +229,7 @@ export class KKController {
             if (this.wallet.features && this.wallet.features.bootloaderMode) {
                 const { majorVersion, minorVersion, patchVersion, bootloaderHash } = this.wallet.features
                 // @ts-ignore
-                return resolve({
+                return ({
                     success: true,
                     bootloaderMode: true,
                     bootloaderVersion: `v${majorVersion}.${minorVersion}.${patchVersion}`,
@@ -295,7 +241,7 @@ export class KKController {
                 const decodedHash = base64toHEX(bootloaderHash)
 
                 let bootloaderVersion = bootloaderHashToVersion[decodedHash]
-                return resolve({
+                return ({
                     success: true,
                     bootloaderMode: false,
                     bootloaderVersion,
@@ -310,7 +256,7 @@ export class KKController {
                 error: e.toString(),
             }
         }
-    })
+    }
     resetDevice = () => new Promise<void>((resolve, reject) => {
         const keepkey = findByIds(11044, 2)
         if (keepkey) {

@@ -40,7 +40,7 @@ export type BasicWallet = GenericError & DeviceFeatures;
 
 export type DeviceFeatures = {
     bootloaderMode?: boolean,
-    bootloaderVersion: string,
+    bootloaderVersion: string | undefined,
     firmwareVersion: string,
     features?: Features.AsObject,
 }

@@ -114,7 +114,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
                 queueIpcEvent('updateBootloader', {event})
             } else if (event.firmwareUpdateNeededNotBootloader) {
-                queueIpcEvent('updateFirmware', {})
+                queueIpcEvent('updateFirmware', {event})
             } else if(event.needsInitialize) {
                 queueIpcEvent('needsInitialize', {})
             } else if(event.ready) {
@@ -198,8 +198,6 @@ export const stop_bridge = () => new Promise<void>((resolve, reject) => {
         log.info('server: ', server)
         server.close(() => {
             log.info('Closed out remaining connections')
-            lastKnownKeepkeyState.STATE = 2
-            lastKnownKeepkeyState.STATUS = 'device connected'
         })
         bridgeRunning = false
         resolve()

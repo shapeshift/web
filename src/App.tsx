@@ -63,12 +63,12 @@ export const App = () => {
       updateBootloader.open(data)
     })
 
-    ipcRenderer.on('updateFirmware', () => {
+    ipcRenderer.on('updateFirmware', (_event, data) => {
       setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.close()
       updateBootloader.close()
-      updateFirmware.open({})
+      updateFirmware.open(data)
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

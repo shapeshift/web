@@ -24,13 +24,14 @@ export class CIndexController extends Controller {
 
     /*
         Health endpoint
+        // TODO fix
     */
     @Get('/status')
     public async status(): Promise<Status> {
         return {
             success: true,
-            status: lastKnownKeepkeyState.STATUS,
-            state: lastKnownKeepkeyState.STATE
+            status: 'ok',
+            state: 6
         }
     }
 

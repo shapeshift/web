@@ -66,7 +66,15 @@ export type GetOpportunityMetadataInput = {
   defiType: DefiType
 }
 
+export type GetOpportunityDataInput = {
+  accountId: AccountId
+  opportunityId: LpId | StakingId
+  opportunityType: 'lp' | 'staking'
+  defiType: DefiType
+}
+
 type GetOpportunityMetadataOutput = any
+type GetOpportunityDataOutput = any
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -120,8 +128,6 @@ export const opportunities = createSlice({
       }
       draftState.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
     },
-
-    // upsertOpportunitiesData: (opportunitiesSliceDraft, { payload }: { payload: {} }) => {}, // TODO:
   },
 })
 
@@ -151,10 +157,12 @@ export const opportunitiesApi = createApi({
             defiType
           ](opportunityId, opportunityType, accountId, { dispatch, getState })
 
+          const byAccountId = {
+            [accountId]: [opportunityId],
+          } as OpportunityDataById
+
           const data = {
-            byAccountId: {
-              [accountId]: [opportunityId],
-            },
+            byAccountId,
             type: opportunityType,
           }
 

@@ -15,6 +15,7 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { getOrCreateContract } from 'state/slices/foxEthSlice/contractManager'
 import { fetchPairData } from 'state/slices/foxEthSlice/utils'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
@@ -106,13 +107,11 @@ export const foxFarmingLpMetadataResolver = async ({
 }
 export const foxFarmingLpUserDataResolver = async ({
   opportunityId,
-  // @ts-ignore, we'll need this for farming - maybe make this an object not to deal with arity?
   opportunityType: _opportunityType,
   accountId,
   reduxApi,
 }: {
   opportunityId: LpId | StakingId
-  // @ts-ignore, we'll need this for farming - maybe make this an object not to deal with arity?
   opportunityType: 'lp' | 'staking'
   accountId: AccountId
   reduxApi: ReduxApi
@@ -123,7 +122,7 @@ export const foxFarmingLpUserDataResolver = async ({
   if (portfolioLoadingStatusGranular?.[accountId] === 'loading')
     throw new Error(`Portfolio data not loaded for ${accountId}`)
 
-  const balances = selectPortfolioAccountBalances(state)
+  const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
 
   return { data: balances[accountId][opportunityId as AssetId] }
 }

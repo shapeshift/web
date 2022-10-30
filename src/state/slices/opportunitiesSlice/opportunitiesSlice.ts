@@ -164,11 +164,16 @@ export const opportunitiesApi = createApi({
             defiType,
           )
 
+          if (!resolver) {
+            throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
+          }
+
           // TODO: This commit authors LP slice population only - for Fox staking we will want to assign this to a variable and actually use the data
           // The reason for that is for EVM chains LPs, we just need to await this promise resolution - if this resolved, it means we have portfolio data
           // If this throws, the RTK query is rejected and we never insert that AccountId into state
           await resolver({
             opportunityId,
+            opportunityType,
             accountId,
             reduxApi: { dispatch, getState },
           })

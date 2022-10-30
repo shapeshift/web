@@ -2,8 +2,8 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 
 import { foxFarmingLpMetadataResolver, foxFarmingLpUserDataResolver } from './foxfarming'
 import type {
-  IDefiProviderToDataResolverByDeFiType,
   IDefiProviderToMetadataResolverByDeFiType,
+  IDefiProviderToUserDataResolverByDeFiType,
 } from './types'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
@@ -16,4 +16,4 @@ export const DefiProviderToUserDataResolverByDeFiType = {
   [DefiProvider.FoxFarming]: {
     [DefiType.LiquidityPool]: foxFarmingLpUserDataResolver,
   },
-} as IDefiProviderToDataResolverByDeFiType
+} as IDefiProviderToUserDataResolverByDeFiType

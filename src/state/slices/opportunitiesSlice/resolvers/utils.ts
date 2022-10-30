@@ -33,7 +33,6 @@ export const getDefiTypeUserDataResolvers = (
   resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
 ) => resolversByType[defiType]
 
-// TODO: create a foxfarming folder and curry me
 export const getUserDataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,

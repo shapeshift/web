@@ -32,8 +32,7 @@ export const foxFarmingLpMetadataResolver = async ({
   reduxApi: ReduxApi
 }) => {
   const { dispatch, getState } = reduxApi
-  // TODO: protocol agnostic, this is EVM specific
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId) // TODO: abstract me, for EVM LPs an opportunity is an AccountId, but not always true for others
+  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)

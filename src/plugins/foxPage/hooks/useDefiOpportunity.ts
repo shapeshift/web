@@ -2,7 +2,6 @@ import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCom
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  selectFeatureFlags,
   selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFoxFarmingAccountsOpportunitiesAggregated,
 } from 'state/slices/selectors'
@@ -19,14 +18,11 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const foxEthLpOpportunity = useAppSelector(state =>
     selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
   )
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   useEffect(() => {
     if (!opportunity.opportunityProvider) return
-    if (!featureFlags.FoxLP && !featureFlags.FoxFarming) return
     switch (opportunity.opportunityProvider) {
       case DefiProvider.FoxFarming:
-        if (!featureFlags.FoxFarming) return
         const foxFarmingOpportunity = foxFarmingOpportunities.find(
           foxFarmingOpportunity =>
             foxFarmingOpportunity.contractAddress === opportunity.opportunityContractAddress,
@@ -35,15 +31,12 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
         setDefiOpportunity(foxFarmingOpportunity)
         break
       case DefiProvider.FoxEthLP:
-        if (!featureFlags.FoxLP) return
         setDefiOpportunity(foxEthLpOpportunity)
         break
       default:
         return
     }
   }, [
-    featureFlags.FoxFarming,
-    featureFlags.FoxLP,
     foxEthLpOpportunity,
     foxFarmingOpportunities,
     opportunity.opportunityContractAddress,

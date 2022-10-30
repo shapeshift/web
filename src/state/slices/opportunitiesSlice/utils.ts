@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { STAKING_ID_DELIMITER } from './constants'
 import type { StakingId, UserStakingId } from './opportunitiesSlice'
 
-type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
+export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
 export const deserializeUserStakingId = (userStakingId: UserStakingId): UserStakingIdParts => {
   const parts = userStakingId.split(STAKING_ID_DELIMITER)

@@ -147,7 +147,7 @@ export const opportunitiesApi = createApi({
         return { data }
       },
     }),
-    getOpportunityData: build.query<GetOpportunityDataOutput, GetOpportunityDataInput>({
+    getOpportunityUserData: build.query<GetOpportunityDataOutput, GetOpportunityDataInput>({
       queryFn: async (
         { accountId, opportunityId, opportunityType, defiType },
         { dispatch, getState },

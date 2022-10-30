@@ -164,10 +164,11 @@ export const opportunitiesApi = createApi({
             DefiProvider.FoxFarming,
             defiType,
           )
-          // TODO: Do we even need this at all? Perhaps return from the query for easy access with select() ?
-          // @ts-ignore
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const resolved = await resolver({
+
+          // TODO: for Fox staking we will want to assign this to a variable and actually use the data
+          // for EVM chains LPs, we just need to await this promise resolution - if this resolved, we have data
+          // If this throws, the RTK query is rejected and we never insert that AccountId into state
+          await resolver({
             opportunityId,
             accountId,
             reduxApi: { dispatch, getState },

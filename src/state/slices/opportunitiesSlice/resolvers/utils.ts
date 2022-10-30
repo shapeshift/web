@@ -1,11 +1,11 @@
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pipe from 'lodash/flow'
 
-import { DefiProviderToDataResolverByDeFiType } from '.'
+import { DefiProviderToDataResolverByDeFiType, DefiProviderToMetadataResolverByDeFiType } from '.'
 
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderMetadataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToDataResolverByDeFiType[defiProvider]
+  DefiProviderToMetadataResolverByDeFiType[defiProvider]
 // "Give me the resolvers for a given DeFi type"
 export const getDefiTypeMetadataResolvers = (
   defiType: DefiType,

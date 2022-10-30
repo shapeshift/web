@@ -142,15 +142,15 @@ export const opportunitiesApi = createApi({
           DefiProvider.FoxFarming,
           defiType,
         )
-        const { data } = await resolver({
+        const resolved = await resolver({
           opportunityId,
           opportunityType,
           reduxApi: { dispatch, getState },
         })
 
-        dispatch(opportunities.actions.upsertOpportunityMetadata(data))
+        dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
 
-        return { data }
+        return { data: resolved.data }
       },
     }),
     getOpportunityUserData: build.query<GetOpportunityDataOutput, GetOpportunityDataInput>({
@@ -164,7 +164,11 @@ export const opportunitiesApi = createApi({
             DefiProvider.FoxFarming,
             defiType,
           )
-          const resolved = resolver({ opportunityId, accountId, reduxApi: { dispatch, getState } })
+          const resolved = await resolver({
+            opportunityId,
+            accountId,
+            reduxApi: { dispatch, getState },
+          })
 
           const byAccountId = {
             [accountId]: [opportunityId],
@@ -177,7 +181,7 @@ export const opportunitiesApi = createApi({
 
           dispatch(opportunities.actions.upsertOpportunityAccounts(data))
 
-          return { data: resolved.data }
+          return { data }
         } catch (e) {
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
 

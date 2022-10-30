@@ -133,7 +133,7 @@ export const DefiProviderToDataResolverByDeFiType = {
       const { getState } = reduxApi
       const state: ReduxState = getState() as any
       const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
-      if (portfolioLoadingStatusGranular[accountId] === 'loading')
+      if (portfolioLoadingStatusGranular?.[accountId] === 'loading')
         throw new Error(`Portfolio data not loaded for ${accountId}`)
 
       const balances = selectPortfolioAccountBalances(state)

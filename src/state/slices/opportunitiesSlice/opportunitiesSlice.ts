@@ -164,6 +164,9 @@ export const opportunitiesApi = createApi({
             DefiProvider.FoxFarming,
             defiType,
           )
+          // TODO: Do we even need this at all? Perhaps return from the query for easy access with select() ?
+          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const resolved = await resolver({
             opportunityId,
             accountId,

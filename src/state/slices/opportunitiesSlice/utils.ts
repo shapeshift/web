@@ -22,7 +22,7 @@ import {
   selectPortfolioAccountBalances,
   selectPortfolioLoadingStatusGranular,
 } from '../selectors'
-import { STAKING_ID_DELIMITER } from './constants'
+import { foxEthPair, STAKING_ID_DELIMITER } from './constants'
 import type { LpId, StakingId, UserStakingId } from './opportunitiesSlice'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
@@ -134,7 +134,7 @@ export const DefiProviderToMetadataResolverByDeFiType = {
             provider: DefiProvider.FoxEthLP,
             tvl,
             type: DefiType.LiquidityPool,
-            underlyingAssetIds: [foxAssetId, ethAssetId],
+            underlyingAssetIds: foxEthPair,
           },
         },
         type: opportunityType,

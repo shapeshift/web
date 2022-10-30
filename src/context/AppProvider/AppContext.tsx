@@ -173,6 +173,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch(getValidatorData.initiate(accountId, options))
     }
 
+    dispatch(
+      getOpportunityMetadata.initiate(
+        {
+          // TODO: abstract me, we want to fire "eveything we need to fire" not an arbitrary opportunity data
+          opportunityId: foxEthLpAssetId,
+          opportunityType: 'lp',
+          defiType: DefiType.LiquidityPool,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
+        { forceRefetch: false },
+      ),
+    )
+
     requestedAccountIds.forEach(accountId => {
       const { chainId } = fromAccountId(accountId)
       switch (chainId) {
@@ -181,23 +194,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           dispatch(getValidatorData.initiate(accountId, options))
           break
         case ethChainId:
-          // TODO; Just validating this works - abstract me better
-          // We only need it for one account, sure it's cached but might want to move it somewhere else?
           dispatch(
-            getOpportunityMetadata.initiate({
-              opportunityId: foxEthLpAssetId,
-              opportunityType: 'lp',
-              defiType: DefiType.LiquidityPool,
-            }),
-          )
-
-          dispatch(
-            getOpportunityData.initiate({
-              accountId,
-              opportunityId: foxEthLpAssetId,
-              opportunityType: 'lp',
-              defiType: DefiType.LiquidityPool,
-            }),
+            getOpportunityData.initiate(
+              {
+                accountId,
+                opportunityId: foxEthLpAssetId,
+                opportunityType: 'lp',
+                defiType: DefiType.LiquidityPool,
+              },
+              // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
+              { forceRefetch: false },
+            ),
           )
 
           /**

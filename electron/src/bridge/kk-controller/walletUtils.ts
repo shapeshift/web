@@ -2,8 +2,8 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core';
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { findByIds } from 'usb';
-const { HIDKeepKeyAdapter } = require('@bithighlander/hdwallet-keepkey-nodehid')
 import { WebusbWallet } from './types';
+const { HIDKeepKeyAdapter } = require('@bithighlander/hdwallet-keepkey-nodehid')
 
 const bootloaderHashToVersion = {
     '6397c446f6b9002a8b150bf4b9b4e0bb66800ed099b881ca49700139b0559f10': 'v1.0.0',

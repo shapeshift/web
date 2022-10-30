@@ -141,7 +141,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
+    if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
     /**
      * Initial window options
      *
@@ -419,7 +419,7 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
         try {
-            if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
+            if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }

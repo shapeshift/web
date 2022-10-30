@@ -411,9 +411,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
             const { name, icon } = KeepKeyConfig
             const deviceId = await wallet.getDeviceID()
-            // This gets the firmware version needed for some KeepKey "supportsX" functions
-            let features = await wallet.getFeatures()
-            ipcRenderer.send('@keepkey/info', features)
             // Show the label from the wallet instead of a generic name
             const label = (await wallet.getLabel()) || name
             await wallet.initialize()

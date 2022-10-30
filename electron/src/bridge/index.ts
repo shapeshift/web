@@ -1,5 +1,3 @@
-const TAG = " | KEEPKEY_BRIDGE | "
-
 import swaggerUi from 'swagger-ui-express'
 import express from 'express'
 import bodyParser from 'body-parser'
@@ -13,7 +11,6 @@ import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { appStartCalled, windows } from '../main'
-import { shared } from "../shared";
 import { IpcQueueItem } from './types'
 import { KKController } from './kk-controller'
 
@@ -23,9 +20,8 @@ const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
-import wait from 'wait-promise'
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
-const sleep = wait.sleep;
+import { shared } from '../shared'
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
@@ -48,7 +44,7 @@ export const lastKnownKeepkeyState: {
     wallet: undefined
 }
 
-export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
+export const start_bridge = (port?: number) => new Promise<void>(async (resolve) => {
     ipcMain.on('@app/start', async (event, data) => {
         let newQueue = [...ipcQueue]
         await new Promise(() => {
@@ -105,92 +101,55 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
     bridgeRunning = true
 
-    try {
-        log.info("Starting Hardware Controller")
+    log.info("Starting Hardware Controller")
 
-        Controller.events.on('logs', async function (event) {
-            console.log('event is', event)
-            if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
-                queueIpcEvent('requestBootloaderMode', {})
-            } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
-                queueIpcEvent('updateBootloader', {event})
-            } else if (event.firmwareUpdateNeededNotBootloader) {
-                queueIpcEvent('updateFirmware', {event})
-            } else if(event.needsInitialize) {
-                queueIpcEvent('needsInitialize', {})
-            } else if(event.ready) {
-                queueIpcEvent('connected', {})
-                lastKnownKeepkeyState.device = Controller.device
-                lastKnownKeepkeyState.wallet = Controller.wallet
-                lastKnownKeepkeyState.transport = Controller.transport
-            }
+    Controller.events.on('logs', async function (event) {
+        console.log('event is', event)
+        if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
+            queueIpcEvent('requestBootloaderMode', {})
+        } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
+            queueIpcEvent('updateBootloader', {event})
+        } else if (event.firmwareUpdateNeededNotBootloader) {
+            queueIpcEvent('updateFirmware', {event})
+        } else if(event.needsInitialize) {
+            queueIpcEvent('needsInitialize', {})
+        } else if(event.ready) {
+            queueIpcEvent('connected', {})
+            lastKnownKeepkeyState.device = Controller.device
+            lastKnownKeepkeyState.wallet = Controller.wallet
+            lastKnownKeepkeyState.transport = Controller.transport
+            shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
+        }
+    })
+    Controller.events.on('error', function (event) {
+        queueIpcEvent('@keepkey/hardwareError', { event })
+    })
+
+    //Init MUST be AFTER listeners are made (race condition)
+    await Controller.init()
+
+    ipcMain.on('@keepkey/update-firmware', async event => {
+            let result = await getLatestFirmwareData()
+            let firmware = await downloadFirmware(result.firmware.url)
+            if (!firmware) throw Error("Failed to load firmware from url!")
+            await loadFirmware(Controller.wallet, firmware)
+            event.sender.send('onCompleteFirmwareUpload', {
+                bootloader: true,
+                success: true
+            })
+            app.quit();
+            app.relaunch();
+    })
+
+    ipcMain.on('@keepkey/update-bootloader', async event => {
+        let result = await getLatestFirmwareData()
+        let firmware = await downloadFirmware(result.bootloader.url)
+        await loadFirmware(Controller.wallet, firmware)
+        event.sender.send('onCompleteBootloaderUpload', {
+            bootloader: true,
+            success: true
         })
-        Controller.events.on('error', function (event) {
-            queueIpcEvent('@keepkey/hardwareError', { event })
-        })
-
-        //Init MUST be AFTER listeners are made (race condition)
-        await Controller.init()
-
-        //
-        ipcMain.on('@keepkey/update-firmware', async event => {
-            const tag = TAG + ' | onUpdateFirmware | '
-            try {
-                let result = await getLatestFirmwareData()
-
-                let firmware = await downloadFirmware(result.firmware.url)
-                if (!firmware) throw Error("Failed to load firmware from url!")
-
-                const updateResponse = await loadFirmware(Controller.wallet, firmware)
-                log.info(tag, "updateResponse: ", updateResponse)
-
-                event.sender.send('onCompleteFirmwareUpload', {
-                    bootloader: true,
-                    success: true
-                })
-                app.quit();
-                app.relaunch();
-            } catch (e) {
-                log.error(tag, e)
-                app.quit();
-                app.relaunch();
-            }
-        })
-
-        ipcMain.on('@keepkey/update-bootloader', async event => {
-            const tag = TAG + ' | onUpdateBootloader | '
-            try {
-                log.info(tag, "checkpoint: ")
-                let result = await getLatestFirmwareData()
-                let firmware = await downloadFirmware(result.bootloader.url)
-                const updateResponse = await loadFirmware(Controller.wallet, firmware)
-                log.info(tag, "updateResponse: ", updateResponse)
-                event.sender.send('onCompleteBootloaderUpload', {
-                    bootloader: true,
-                    success: true
-                })
-            } catch (e) {
-                log.error(tag, e)
-                app.quit();
-                app.relaunch();
-            }
-        })
-
-        ipcMain.on('@keepkey/info', async (event, data) => {
-            const tag = TAG + ' | onKeepKeyInfo | '
-            try {
-                shared.KEEPKEY_FEATURES = data
-            } catch (e) {
-                log.error('e: ', e)
-                log.error(tag, e)
-            }
-        })
-
-    } catch (e) {
-        log.error(e)
-    }
-
-
+    })
     resolve()
 })
 

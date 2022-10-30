@@ -119,7 +119,7 @@ export class Settings {
             const address = server.address() as AddressInfo
             if (address.port !== value) {
                 await stop_bridge()
-                start_bridge(value)
+                await start_bridge(value)
             }
         }
         if (!bulk) this.syncSettingsWithDB()

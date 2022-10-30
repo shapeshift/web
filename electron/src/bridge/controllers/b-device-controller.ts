@@ -18,21 +18,14 @@ export class BDeviceController extends Controller {
     public async readDevice(): Promise<Read | Error> {
         return new Promise<Read | Error>(async (resolve, reject) => {
             if (!lastKnownKeepkeyState.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
-            try{
-                let resp = await lastKnownKeepkeyState.transport.readChunk()
-                let output = {
-                    data: Buffer.from(resp).toString('hex')
-                }
-                // log.info('output: ', output)
-                this.EVENT_LOG.push({ read: output })
-                if (windows.mainWindow) windows.mainWindow.webContents.send('dataSent', { output })
-                return resolve(output)
-            }catch(e){
-                log.error("Hardware Error read: ",e)
-                //exit app
-                app.relaunch()
-                app.exit()
+            let resp = await lastKnownKeepkeyState.transport.readChunk()
+            let output = {
+                data: Buffer.from(resp).toString('hex')
             }
+            // log.info('output: ', output)
+            this.EVENT_LOG.push({ read: output })
+            if (windows.mainWindow) windows.mainWindow.webContents.send('dataSent', { output })
+            return resolve(output)
         })
     }
 
@@ -41,7 +34,6 @@ export class BDeviceController extends Controller {
     @Response(500, "Unable to communicate with device")
     public async writeDevice(@Body() body: WriteBody): Promise<Write | Error> {
         return new Promise<Write | Error>((resolve, reject) => {
-            try{
                 if (!lastKnownKeepkeyState.transport) return reject({ success: false, reason: 'Unable to communicate with device' })
                 let msg = Buffer.from(body.data, 'hex')
                 lastKnownKeepkeyState.transport.writeChunk(msg)
@@ -49,9 +41,6 @@ export class BDeviceController extends Controller {
                 // EVENT_LOG.push({ write: output })
                 if (windows.mainWindow) windows.mainWindow.webContents.send('dataReceive', { output: msg })
                 return resolve({ output: msg.toString() })
-            }catch(e){
-                log.error("Hardware Error write: ",e)
-            }
         })
     }
 }

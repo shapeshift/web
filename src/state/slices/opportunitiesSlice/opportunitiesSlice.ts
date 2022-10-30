@@ -8,9 +8,9 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { Nominal } from 'types/common'
 
 import {
-  DefiProviderToDataResolverByDeFiType,
-  DefiProviderToMetadataResolverByDeFiType,
-} from './utils'
+  getMetadataResolversByDefiProviderAndDefiType,
+  getUserDataResolversByDefiProviderAndDefiType,
+} from './resolvers'
 
 export type OpportunityMetadata = {
   apy: string
@@ -138,9 +138,15 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const { data } = await DefiProviderToMetadataResolverByDeFiType[DefiProvider.FoxFarming][
-          defiType
-        ]({ opportunityId, opportunityType, reduxApi: { dispatch, getState } })
+        const resolver = getMetadataResolversByDefiProviderAndDefiType(
+          DefiProvider.FoxFarming,
+          defiType,
+        )
+        const { data } = await resolver({
+          opportunityId,
+          opportunityType,
+          reduxApi: { dispatch, getState },
+        })
 
         dispatch(opportunities.actions.upsertOpportunityMetadata(data))
 
@@ -153,9 +159,12 @@ export const opportunitiesApi = createApi({
         { dispatch, getState },
       ) => {
         try {
-          const resolved = await DefiProviderToDataResolverByDeFiType[DefiProvider.FoxFarming][
-            defiType
-          ]({ opportunityId, accountId, reduxApi: { dispatch, getState } })
+          // TODO: curry helpers
+          const resolver = getUserDataResolversByDefiProviderAndDefiType(
+            DefiProvider.FoxFarming,
+            defiType,
+          )
+          const resolved = resolver({ opportunityId, accountId, reduxApi: { dispatch, getState } })
 
           const byAccountId = {
             [accountId]: [opportunityId],

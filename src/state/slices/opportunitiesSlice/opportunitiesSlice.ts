@@ -10,7 +10,7 @@ import type { Nominal } from 'types/common'
 import {
   getMetadataResolversByDefiProviderAndDefiType,
   getUserDataResolversByDefiProviderAndDefiType,
-} from './resolvers'
+} from './resolvers/utils'
 
 export type OpportunityMetadata = {
   apy: string

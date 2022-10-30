@@ -1,16 +1,12 @@
-import type { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import pipe from 'lodash/flow'
-import { getEthersProvider } from 'plugins/foxPage/utils'
-import { calculateAPRFromToken0 } from 'plugins/foxPage/utils'
+import { calculateAPRFromToken0, getEthersProvider } from 'plugins/foxPage/utils'
 import type { ReduxState } from 'state/reducer'
 
 import type { AssetsState } from '../../assetsSlice/assetsSlice'
@@ -22,20 +18,15 @@ import { getOrCreateContract } from '../../foxEthSlice/contractManager'
 import { fetchPairData } from '../../foxEthSlice/utils'
 import { marketData } from '../../marketDataSlice/marketDataSlice'
 import { selectPortfolioLoadingStatusGranular } from '../../portfolioSlice/selectors'
-import { selectMarketDataById } from '../../selectors'
-import { selectPortfolioAccountBalances } from '../../selectors'
-import { foxEthPair } from '../constants'
-import { foxEthLpAssetId } from '../constants'
-import type { LpId } from '../opportunitiesSlice'
-import type { StakingId } from '../opportunitiesSlice'
+import { selectMarketDataById, selectPortfolioAccountBalances } from '../../selectors'
+import { foxEthLpAssetId, foxEthPair } from '../constants'
+import type { LpId, StakingId } from '../opportunitiesSlice'
+import type {
+  IDefiProviderToDataResolverByDeFiType,
+  IDefiProviderToMetadataResolverByDeFiType,
+  ReduxApi,
+} from './types'
 
-type ReduxApi = Pick<BaseQueryApi, 'dispatch' | 'getState'>
-
-type IDefiProviderToMetadataResolverByDeFiType = {
-  [key in DefiProvider]: {
-    [key in DefiType]: (args: any) => Promise<any>
-  }
-}
 export const DefiProviderToMetadataResolverByDeFiType = {
   [DefiProvider.FoxFarming]: {
     [DefiType.LiquidityPool]: async ({
@@ -124,30 +115,6 @@ export const DefiProviderToMetadataResolverByDeFiType = {
   },
 } as IDefiProviderToMetadataResolverByDeFiType
 
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderMetadataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToDataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeMetadataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
-) => resolversByType[defiType]
-
-export const getMetadataResolversByDefiProviderAndDefiType = (
-  defiProvider: DefiProvider,
-  defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderMetadataResolvers,
-    getDefiTypeMetadataResolvers.bind(this, defiType),
-  )(defiProvider)
-
-type IDefiProviderToDataResolverByDeFiType = {
-  [key in DefiProvider]: {
-    [key in DefiType]: (args: any) => Promise<any>
-  }
-}
-
 export const DefiProviderToDataResolverByDeFiType = {
   [DefiProvider.FoxFarming]: {
     [DefiType.LiquidityPool]: async ({
@@ -175,22 +142,3 @@ export const DefiProviderToDataResolverByDeFiType = {
     },
   },
 } as IDefiProviderToDataResolverByDeFiType
-
-// "Give me the resolvers for a given DeFi provider"
-export const getDefiProviderUserDataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToDataResolverByDeFiType[defiProvider]
-// "Give me the resolvers for a given DeFi type"
-export const getDefiTypeUserDataResolvers = (
-  defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
-) => resolversByType[defiType]
-
-// TODO: create a foxfarming folder and curry me
-export const getUserDataResolversByDefiProviderAndDefiType = (
-  defiProvider: DefiProvider,
-  defiType: DefiType,
-) =>
-  pipe(
-    getDefiProviderUserDataResolvers,
-    getDefiTypeUserDataResolvers.bind(this, defiType),
-  )(defiProvider)

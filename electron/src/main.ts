@@ -41,7 +41,7 @@ import { app, BrowserWindow, nativeTheme, ipcMain, shell, protocol } from 'elect
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, keepkey, queueIpcEvent, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, lastKnownKeepkeyState, queueIpcEvent, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
@@ -141,7 +141,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
+    if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
     /**
      * Initial window options
      *
@@ -185,7 +185,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 
     windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
-        queueIpcEvent('@keepkey/state', { state: keepkey.STATE })
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 
@@ -420,7 +419,7 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
         try {
-            if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
+            if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }

@@ -41,7 +41,7 @@ export const App = () => {
       pair.open(data)
     })
 
-    ipcRenderer.on('@keepkey/needsInitialize', _event => {
+    ipcRenderer.on('needsInitialize', _event => {
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
         payload: {
@@ -63,12 +63,12 @@ export const App = () => {
       updateBootloader.open(data)
     })
 
-    ipcRenderer.on('updateFirmware', () => {
+    ipcRenderer.on('updateFirmware', (_event, data) => {
       setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.close()
       updateBootloader.close()
-      updateFirmware.open({})
+      updateFirmware.open(data)
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

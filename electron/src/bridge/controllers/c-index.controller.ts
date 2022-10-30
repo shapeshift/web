@@ -5,7 +5,7 @@ import { createWindow, windows } from '../../main';
 import { shared, userType } from '../../shared';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse, Security } from 'tsoa';
-import { keepkey } from '../';
+import { lastKnownKeepkeyState } from '../';
 import { GenericResponse, PairBody, PairResponse, Status } from '../types';
 
 
@@ -24,13 +24,14 @@ export class CIndexController extends Controller {
 
     /*
         Health endpoint
+        // TODO fix
     */
     @Get('/status')
     public async status(): Promise<Status> {
         return {
             success: true,
-            status: keepkey.STATUS,
-            state: keepkey.STATE
+            status: 'ok',
+            state: 6
         }
     }
 

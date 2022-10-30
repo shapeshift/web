@@ -145,8 +145,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
-    case WalletActions.SET_KEEPKEY_STATE:
-      return { ...state, keepkeyState: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -413,9 +411,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
             const { name, icon } = KeepKeyConfig
             const deviceId = await wallet.getDeviceID()
-            // This gets the firmware version needed for some KeepKey "supportsX" functions
-            let features = await wallet.getFeatures()
-            ipcRenderer.send('@keepkey/info', features)
             // Show the label from the wallet instead of a generic name
             const label = (await wallet.getLabel()) || name
             await wallet.initialize()
@@ -482,12 +477,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setNeedsResetIfNotUpdating()
     })
 
-    ipcRenderer.on('@keepkey/state', (_event, data) => {
-      console.info('@keepkey/state', data)
-
+    ipcRenderer.on('needsInitialize', (_event, data) => {
       // if needs initialize we do the normal pair process and then web detects that it needs initialize
       if (data.state === 5) pairAndConnect.current()
-      dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
     })
 
     //HDwallet API
@@ -618,7 +610,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('@keepkey/connected', async (_event, _data) => {
+    ipcRenderer.on('connected', async (_event, _data) => {
       setNeedsReset(false)
       pairAndConnect.current()
     })

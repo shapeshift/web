@@ -77,7 +77,9 @@
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
     "unsupportedNetwork": "Unsupported Network",
-    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
+    "search": "Search",
+    "enterAmount": "Enter Amount"
   },
   "buyPage": {
     "title": {
@@ -133,6 +135,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
+    },
+    "tradeCard": {
+      "trade": "Trade",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -300,6 +306,7 @@
     "asset": "Asset",
     "category": "Category",
     "tvl": "TVL",
+    "type": "Type",
     "apy": "APY",
     "apr": "APR",
     "ended": "Ended",
@@ -381,6 +388,7 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "home": "Home",
     "dashboard": "Dashboard",
     "assets": "Assets",
     "assetDetails": "Asset Details",

@@ -3,19 +3,23 @@ import { Input, InputGroup, InputLeftElement, InputRightElement } from '@chakra-
 import type { Control, ControllerProps, FieldValues, Path } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
-const CryptoInput = (props: InputProps) => (
-  <Input
-    pr='4.5rem'
-    pl='7.5rem'
-    size='lg'
-    type='number'
-    variant='filled'
-    placeholder='Enter amount'
-    {...props}
-  />
-)
+const CryptoInput = (props: InputProps) => {
+  const translate = useTranslate()
+  return (
+    <Input
+      pr='4.5rem'
+      pl='7.5rem'
+      size='lg'
+      type='number'
+      variant='filled'
+      placeholder={translate('common.enterAmount')}
+      {...props}
+    />
+  )
+}
 
 type TokenRowProps<C extends FieldValues> = {
   control: Control<C>

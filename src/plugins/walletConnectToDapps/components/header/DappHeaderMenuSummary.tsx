@@ -1,6 +1,7 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
-import { Box, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo } from 'react'
@@ -9,6 +10,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -19,6 +21,7 @@ export const DappHeaderMenuSummary = () => {
   const chainAdapterManager = getChainAdapterManager()
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
+  const ethAsset = useAppSelector(s => selectAssetById(s, ethAssetId))
   const translate = useTranslate()
 
   const walletConnect = useWalletConnect()
@@ -31,6 +34,8 @@ export const DappHeaderMenuSummary = () => {
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
   }, [chainAdapterManager, connectedChainId, supportedEvmChainIds, translate])
   const handleDisconnect = walletConnect.disconnect
+
+  const connectedAccountAddress = walletConnect?.bridge?.connector.accounts[0] ?? ''
 
   if (!walletConnect.bridge || !walletConnect.dapp) return null
 
@@ -68,7 +73,9 @@ export const DappHeaderMenuSummary = () => {
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
-          <MiddleEllipsis value={walletConnect.bridge.connector.accounts[0]} color='blue.200' />
+          <Link href={`${ethAsset.explorerAddressLink}${connectedAccountAddress}`} isExternal>
+            <MiddleEllipsis value={connectedAccountAddress} color='blue.200' />
+          </Link>
         </HStack>
         {!!connectedChainId && (
           <HStack justifyContent='space-between' spacing={4}>

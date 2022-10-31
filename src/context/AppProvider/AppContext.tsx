@@ -176,12 +176,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(
       getOpportunityMetadata.initiate(
         {
-          // TODO: abstract me, we want to fire "eveything we need to fire" not an arbitrary opportunity data
+          // TODO: abstract me, we want to fire "everything we need to fire" not an arbitrary opportunity data
           opportunityId: foxEthLpAssetId,
           opportunityType: 'lp',
           defiType: DefiType.LiquidityPool,
         },
-        // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false },
       ),
     )

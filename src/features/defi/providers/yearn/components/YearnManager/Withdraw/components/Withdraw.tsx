@@ -13,12 +13,13 @@ import { FormProvider, useForm } from 'react-hook-form'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -74,8 +75,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [accountId],
   )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  // const cryptoBalancePrecision = useAppSelector(state =>
+  // selectPortfolioCryptoBalanceByFilter(state, filter),
+  // )
+
+  const cryptoBalanceHuman = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
+  )
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
@@ -119,30 +125,24 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this PR stack originally fixed
-      const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset.precision}`)
       const _value = bnOrZero(value)
       const hasValidBalance =
-        cryptoBalanceHuman.gt(0) && _value.gt(0) && cryptoBalanceHuman.gte(value)
+        bn(cryptoBalanceHuman).gt(0) && _value.gt(0) && bn(cryptoBalanceHuman).gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance],
+    [cryptoBalanceHuman],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this PR stack originally fixed
-      const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const fiatBalance = cryptoBalanceHuman.times(marketData.price)
+      const fiatBalance = bn(cryptoBalanceHuman).times(marketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiatBalance.gt(0) && _value.gt(0) && fiatBalance.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData.price],
+    [cryptoBalanceHuman, marketData.price],
   )
 
   const pricePerShare = useMemo(
@@ -157,7 +157,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () => pricePerShare.times(marketData.price),
     [pricePerShare, marketData],
   )
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+  const fiatAmountAvailable = bnOrZero(cryptoBalanceHuman).times(vaultTokenPrice)
 
   const cryptoInputValidation = useMemo(
     () => ({
@@ -197,7 +197,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={underlyingAsset}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailable={bn(cryptoBalanceHuman).toPrecision()}
         cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={fiatInputValidation}

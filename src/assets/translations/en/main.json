@@ -157,7 +157,8 @@
     "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
-    "viewADemo": "View a Demo"
+    "viewADemo": "View a Demo",
+    "buyKeepKey": "Buy a KeepKey"
   },
   "connectWallet": {
     "menu": {

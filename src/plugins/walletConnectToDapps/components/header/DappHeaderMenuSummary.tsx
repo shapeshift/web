@@ -9,12 +9,15 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { DappAvatar } from './DappAvatar'
 
 export const DappHeaderMenuSummary = () => {
   const { supportedEvmChainIds } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
 
   const translate = useTranslate()
 
@@ -58,9 +61,9 @@ export const DappHeaderMenuSummary = () => {
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.connected' color='gray.500' />
           <RawText>
-            {dayjs(walletConnect.bridge.connector.handshakeId / 1000).format(
-              'MMM DD, YYYY, HH:mm A',
-            )}
+            {dayjs(walletConnect.bridge.connector.handshakeId / 1000)
+              .locale(selectedLocale)
+              .format('ll hh:mm A')}
           </RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>

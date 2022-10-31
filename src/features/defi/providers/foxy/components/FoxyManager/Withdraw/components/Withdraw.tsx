@@ -16,7 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -51,7 +51,7 @@ export const Withdraw: React.FC<
   const toast = useToast()
 
   const methods = useForm<FoxyWithdrawValues>({ mode: 'onChange' })
-  const { setValue, watch } = methods
+  const { watch } = methods
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
@@ -80,22 +80,6 @@ export const Withdraw: React.FC<
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
-
-  const handlePercentClick = useCallback(
-    (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable)
-        .times(percent)
-        .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), {
-        shouldValidate: true,
-      })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
-        shouldValidate: true,
-      })
-    },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
-  )
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -284,13 +268,13 @@ export const Withdraw: React.FC<
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
-        handlePercentClick={handlePercentClick}
         disableInput={withdrawTypeValue === WithdrawType.INSTANT}
         percentOptions={[0.25, 0.5, 0.75, 1]}
       >
         <WithdrawTypeField
           asset={stakingAsset}
-          handlePercentClick={handlePercentClick}
+          cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+          marketData={marketData}
           feePercentage={bnOrZero(state.foxyFeePercentage).toString()}
         />
       </ReusableWithdraw>

@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import { Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -50,7 +50,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const opportunity = state?.opportunity
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { setValue } = methods
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -77,16 +76,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-
-  const handlePercentClick = useCallback(
-    (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-    },
-    [cryptoAmountAvailable, marketData.price, setValue],
-  )
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
@@ -213,7 +202,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         isLoading={state.loading}
         percentOptions={percentOptions}
         enableSlippage={false}
-        handlePercentClick={handlePercentClick}
       />
     </FormProvider>
   )

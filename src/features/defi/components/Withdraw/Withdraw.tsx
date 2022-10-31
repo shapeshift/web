@@ -15,6 +15,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { PropsWithChildren, ReactNode } from 'react'
+import { useCallback } from 'react'
 import React from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
@@ -48,6 +49,8 @@ type WithdrawProps = {
   fiatAmountAvailable: string
   // Validation rules for the fiat input
   fiatInputValidation?: ControllerProps['rules']
+  // Either passed by parent for domain-specific logic, else the base implementation in this component is used
+  onPercentOptionClick?: (arg: number) => void
   // Asset market data
   marketData: MarketData
   onAccountIdChange?: AccountDropdownProps['onChange']
@@ -58,7 +61,6 @@ type WithdrawProps = {
   disableInput?: boolean
   feePercentage?: string
   isLoading?: boolean
-  handlePercentClick: (arg: number) => void
   onContinue(values: FieldValues): void
   onCancel(): void
   onInputChange?: (value: string, isFiat?: boolean) => void
@@ -85,23 +87,23 @@ const DEFAULT_SLIPPAGE = '0.5'
 export const Withdraw: React.FC<WithdrawProps> = ({
   accountId,
   asset,
-  marketData,
+  children,
   cryptoAmountAvailable,
-  fiatAmountAvailable,
   cryptoInputValidation,
   disableInput,
   enableSlippage = false,
+  fiatAmountAvailable,
   fiatInputValidation,
-  handlePercentClick,
+  icons,
+  inputChildren,
+  inputDefaultValue,
+  isLoading,
+  marketData,
   onAccountIdChange: handleAccountIdChange,
   onContinue,
-  isLoading,
-  percentOptions,
-  children,
   onInputChange,
-  icons,
-  inputDefaultValue,
-  inputChildren,
+  onPercentOptionClick,
+  percentOptions,
 }) => {
   const translate = useTranslate()
   const {
@@ -135,22 +137,42 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const fiatError = errors?.fiatAmount?.message ?? null
   const fieldError = cryptoError || fiatError
 
-  const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (isFiat) {
-      setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+  const handlePercentOptionClick = useCallback(
+    (percent: number) => {
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = bnOrZero(percentageCryptoAmount).times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount.decimalPlaces(asset.precision)
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-    } else {
-      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, value, {
-        shouldValidate: true,
-      })
-    }
-    if (onInputChange) onInputChange(value, isFiat)
-  }
+    },
+    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+  )
+
+  const handleInputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      if (isFiat) {
+        setValue(Field.FiatAmount, value, { shouldValidate: true })
+        setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+          shouldValidate: true,
+        })
+      } else {
+        setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+          shouldValidate: true,
+        })
+        setValue(Field.CryptoAmount, value, {
+          shouldValidate: true,
+        })
+      }
+      if (onInputChange) onInputChange(value, isFiat)
+    },
+    [marketData.price, onInputChange, setValue],
+  )
 
   const handleSlippageChange = (value: string | number) => {
     setValue(Field.Slippage, String(value))
@@ -179,7 +201,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
           fiatBalance={fiatAmountAvailable}
-          onPercentOptionClick={value => handlePercentClick(value)}
+          onPercentOptionClick={value =>
+            onPercentOptionClick ? onPercentOptionClick(value) : handlePercentOptionClick(value)
+          }
           percentOptions={percentOptions}
           isReadOnly={disableInput}
           icons={icons}

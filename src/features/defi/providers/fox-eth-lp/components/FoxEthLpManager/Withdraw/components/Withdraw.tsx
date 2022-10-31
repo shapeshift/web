@@ -199,7 +199,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         isLoading={state.loading || !opportunity?.isLoaded}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
-        handlePercentClick={handlePercentClick}
+        onPercentOptionClick={handlePercentClick}
         onInputChange={handleInputChange}
       >
         <>

@@ -141,7 +141,6 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         isLoading={state.loading}
         percentOptions={[]}
         enableSlippage={false}
-        handlePercentClick={() => {}}
         inputDefaultValue={{
           cryptoAmount: cryptoAmountAvailable.toString(),
           fiatAmount: totalFiatBalance,

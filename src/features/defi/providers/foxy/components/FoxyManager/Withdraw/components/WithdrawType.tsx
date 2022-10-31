@@ -1,7 +1,9 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { MarketData } from '@shapeshiftoss/types'
 import { WithdrawType } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { Field } from 'features/defi/components/Withdraw/Withdraw'
+import { useCallback, useMemo } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -12,16 +14,18 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawTypeProps = {
   asset: Asset
-  handlePercentClick: (arg: number) => void
+  cryptoAmountAvailable: string
   feePercentage: string
+  marketData: MarketData
 }
 
 export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
-  handlePercentClick,
   asset,
+  cryptoAmountAvailable,
   feePercentage,
+  marketData,
 }) => {
-  const { control, watch } = useFormContext()
+  const { control, watch, setValue } = useFormContext()
   const translate = useTranslate()
   const { field: withdrawType } = useController({
     name: 'withdrawType',
@@ -31,10 +35,27 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
 
   const cryptoAmount = watch('cryptoAmount')
 
+  const handlePercentOptionClick = useCallback(
+    (percent: number) => {
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = bnOrZero(percentageCryptoAmount).times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount.decimalPlaces(asset.precision)
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman.toString(), {
+        shouldValidate: true,
+      })
+    },
+    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+  )
+
   const handleClick = (value: WithdrawType) => {
     if (value === WithdrawType.INSTANT) {
       withdrawType.onChange(WithdrawType.INSTANT)
-      handlePercentClick(1)
+      handlePercentOptionClick(1)
     } else {
       withdrawType.onChange(WithdrawType.DELAYED)
     }

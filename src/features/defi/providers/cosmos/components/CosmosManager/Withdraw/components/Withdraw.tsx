@@ -216,7 +216,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
-        handlePercentClick={handlePercentClick}
+        onPercentOptionClick={handlePercentClick}
         disableInput={withdrawTypeValue === WithdrawType.INSTANT}
         percentOptions={[0.25, 0.5, 0.75, 1]}
       />

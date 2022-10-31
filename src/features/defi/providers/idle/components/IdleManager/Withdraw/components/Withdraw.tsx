@@ -175,7 +175,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         isLoading={state.loading}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
-        handlePercentClick={handlePercentClick}
+        onPercentOptionClick={handlePercentClick}
       />
     </FormProvider>
   )

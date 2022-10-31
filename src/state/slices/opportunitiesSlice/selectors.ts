@@ -17,7 +17,7 @@ import type {
   StakingId,
   UserStakingId,
   UserStakingOpportunity,
-} from './opportunitiesSlice'
+} from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
 
 // IDs selectors

@@ -7,14 +7,14 @@ import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
   selectHighestBalanceAccountIdByLpId,
   selectLpOpportunitiesById,
-  selectMarketData,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -31,7 +31,6 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const marketData = useAppSelector(selectMarketData)
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 
   const accountAddress = useMemo(
@@ -53,7 +52,10 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunityId ?? ''))
   const lpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: opportunityId ?? '' }),
+    selectPortfolioCryptoHumanBalanceByFilter(state, {
+      assetId: opportunityId ?? '',
+      accountId: accountId ?? '',
+    }),
   )
 
   const underlyingAssetsWithBalances = useMemo(
@@ -77,31 +79,15 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     ],
   )
 
-  const underlyingAssetsFiatBalance = useMemo(
-    () =>
-      opportunityMetadata?.underlyingAssetIds.reduce<string>((acc, assetId, i) => {
-        const cryptoBalance = bnOrZero(lpAssetBalance)
-          .times(opportunityMetadata.underlyingAssetRatios[i])
-          .toString()
-        const fiatBalance = bn(cryptoBalance).times(marketData[assetId]?.price ?? '0')
-
-        return bn(acc).plus(fiatBalance).toString()
-      }, '0'),
-    [
-      lpAssetBalance,
-      marketData,
-      opportunityMetadata?.underlyingAssetIds,
-      opportunityMetadata.underlyingAssetRatios,
-    ],
+  const underlyingAssetsFiatBalance = useAppSelector(state =>
+    selectPortfolioFiatBalanceByFilter(state, {
+      assetId: opportunityId ?? '',
+      accountId: accountId ?? '',
+    }),
   )
 
   const underlyingAssetsIcons = useMemo(
-    () =>
-      opportunityMetadata?.underlyingAssetIds.map(assetId => {
-        const asset = assets[assetId]
-
-        return asset.icon
-      }),
+    () => opportunityMetadata?.underlyingAssetIds.map(assetId => assets[assetId].icon),
     [assets, opportunityMetadata?.underlyingAssetIds],
   )
 

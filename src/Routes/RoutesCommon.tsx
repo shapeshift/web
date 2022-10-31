@@ -1,4 +1,3 @@
-import { getConfig } from 'config'
 import { FaFlag, FaLock, FaTable, FaTractor, FaWater, FaPlug } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'

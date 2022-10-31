@@ -80,6 +80,7 @@ export const ConnectModal: FC<Props> = ({ isOpen, onClose }) => {
                 </InputRightElement>
                 <Input
                   {...register('uri')}
+                  autoComplete={'off'}
                   type='text'
                   placeholder={translate(
                     'plugins.walletConnectToDapps.modal.connect.linkPlaceholder',

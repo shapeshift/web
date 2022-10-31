@@ -15,13 +15,13 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import {
   Account,
   BuildSendTxInput,
-  ChainTxType,
   FeeDataEstimate,
   GasFeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
   SignMessageInput,
+  SignTx,
   SignTxInput,
   SubscribeError,
   SubscribeTxsInput,
@@ -117,7 +117,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{
-    txToSign: ChainTxType<T>
+    txToSign: SignTx<T>
   }> {
     try {
       const { to, wallet, bip44Params = this.defaultBIP44Params, sendMax = false } = tx
@@ -181,7 +181,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         nonce: numberToHex(account.chainSpecific.nonce),
         gasLimit: numberToHex(gasLimit),
         ...fees,
-      } as ChainTxType<T>
+      } as SignTx<T>
       return { txToSign }
     } catch (err) {
       return ErrorHandler(err)

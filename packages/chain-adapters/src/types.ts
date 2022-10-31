@@ -116,7 +116,7 @@ export type TxHistoryResponse = {
   transactions: Transaction[]
 }
 
-type ChainTxTypeInner = {
+type ChainSignTx = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
@@ -128,39 +128,7 @@ type ChainTxTypeInner = {
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
 }
 
-export type ChainTxType<T> = T extends keyof ChainTxTypeInner ? ChainTxTypeInner[T] : never
-
-export type BuildDelegateTxInput<T extends ChainId> = {
-  validator: string
-  value: string
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  memo?: string
-} & ChainSpecificBuildTxData<T>
-
-export type BuildUndelegateTxInput<T extends ChainId> = {
-  validator: string
-  value: string
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  memo?: string
-} & ChainSpecificBuildTxData<T>
-
-export type BuildRedelegateTxInput<T extends ChainId> = {
-  fromValidator: string
-  toValidator: string
-  value: string
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  memo?: string
-} & ChainSpecificBuildTxData<T>
-
-export type BuildClaimRewardsTxInput<T extends ChainId> = {
-  validator: string
-  wallet: HDWallet
-  bip44Params: BIP44Params
-  memo?: string
-} & ChainSpecificBuildTxData<T>
+export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
 
 export type BuildSendTxInput<T extends ChainId> = {
   to: string
@@ -171,7 +139,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
-type ChainSpecificBuildTxData<T> = ChainSpecific<
+export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {
     [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
@@ -185,6 +153,25 @@ type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
   }
 >
+
+type BuildValidatorTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
+  validator: string
+}
+
+export type BuildDelegateTxInput<T extends ChainId> = BuildValidatorTxInput<T>
+
+export type BuildUndelegateTxInput<T extends ChainId> = BuildValidatorTxInput<T>
+
+export type BuildClaimRewardsTxInput<T extends ChainId> = Omit<BuildValidatorTxInput<T>, 'value'>
+
+export type BuildRedelegateTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
+  fromValidator: string
+  toValidator: string
+}
+
+export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
+  memo: string
+}
 
 export type SignTxInput<TxType> = {
   txToSign: TxType

@@ -1,10 +1,11 @@
-import { ASSET_REFERENCE, AssetId, CHAIN_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
-import { supportsThorchain, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
+import { ASSET_REFERENCE, AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { supportsThorchain, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import {
+  BuildDepositTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
@@ -14,7 +15,7 @@ import {
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import { BuildDepositTxInput } from './types'
+import { Message } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
@@ -22,6 +23,13 @@ const OUTBOUND_FEE = '2000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ThorchainMainnet
+
+const calculateFee = (fee: string): string => {
+  // 0.02 RUNE is automatically charged on outbound transactions
+  // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+  return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
+}
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
@@ -32,6 +40,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   constructor(args: ChainAdapterArgs) {
     super({
+      denom: 'rune',
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
@@ -101,147 +110,58 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       const {
-        to,
-        wallet,
         bip44Params,
-        chainSpecific: { gas, fee },
-        sendMax = false,
+        chainSpecific: { fee },
+        sendMax,
+        to,
         value,
-        memo = '',
+        wallet,
       } = tx
 
-      if (!bip44Params) {
-        throw new Error('bip44Params required in buildSendTransaction input')
-      }
-
-      if (!bip44Params) throw new Error('ThorchainChainAdapter: bip44Params are required')
-      if (!to) throw new Error('ThorchainChainAdapter: to is required')
-      if (!value) throw new Error('ThorchainChainAdapter: value is required')
-
       const from = await this.getAddress({ bip44Params, wallet })
-
       const account = await this.getAccount(from)
+      const amount = this.getAmount({ account, value, fee, sendMax })
 
-      // 0.02 RUNE is automatically charged on outbound transactions
-      // extraFee is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-      const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
-      const extraFee = feeMinusAutomaticOutboundFee.gt(0)
-        ? feeMinusAutomaticOutboundFee.toString()
-        : '0'
-
-      if (sendMax) {
-        try {
-          const val = bnOrZero(account.balance).minus(fee)
-          if (!val.isFinite() || val.lte(0)) {
-            throw new Error(
-              `ThorchainChainAdapter: transaction value is invalid: ${val.toString()}`,
-            )
-          }
-          tx.value = val.toString()
-        } catch (error) {
-          return ErrorHandler(error)
-        }
-      }
-
-      const utx: ThorchainTx = {
-        fee: {
-          amount: [
-            {
-              amount: extraFee,
-              denom: 'rune',
-            },
-          ],
-          gas,
+      const msg: Message = {
+        type: 'thorchain/MsgSend',
+        value: {
+          amount: [{ amount, denom: this.denom }],
+          from_address: from,
+          to_address: to,
         },
-        msg: [
-          {
-            type: 'thorchain/MsgSend',
-            value: {
-              amount: [
-                {
-                  amount: bnOrZero(value).toString(),
-                  denom: 'rune',
-                },
-              ],
-              from_address: from,
-              to_address: to,
-            },
-          },
-        ],
-        signatures: [],
-        memo,
       }
 
-      const txToSign: ThorchainSignTx = {
-        addressNList: toAddressNList(bip44Params),
-        tx: utx,
-        chain_id: CHAIN_REFERENCE.ThorchainMainnet,
-        account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence,
-      }
-      return { txToSign }
+      tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
+
+      return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
   /* MsgDeposit is used for thorchain swap/lp operations */
-  async buildDepositTransaction(tx: BuildDepositTxInput): Promise<{ txToSign: ThorchainSignTx }> {
+  async buildDepositTransaction(
+    tx: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
+  ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
-      const { wallet, bip44Params, gas, fee, value, memo } = tx
-
       // TODO memo validation
-      if (!memo) throw new Error('ThorchainChainAdapter: memo is required')
-      if (!value) throw new Error('ThorchainChainAdapter: value is required')
+      const { wallet, bip44Params, value, memo } = tx
 
-      const addressNList = toAddressNList(bip44Params)
       const from = await this.getAddress({ bip44Params, wallet })
-
       const account = await this.getAccount(from)
 
-      // 0.02 RUNE is automatically charged on outbound transactions
-      // extraFee is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-      const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
-      const extraFee = feeMinusAutomaticOutboundFee.gt(0)
-        ? feeMinusAutomaticOutboundFee.toString()
-        : '0'
-
-      const utx: ThorchainTx = {
-        fee: {
-          amount: [
-            {
-              amount: extraFee,
-              denom: 'rune',
-            },
-          ],
-          gas,
+      const msg: Message = {
+        type: 'thorchain/MsgDeposit',
+        value: {
+          coins: [{ asset: 'rune', amount: bnOrZero(value).toString() }],
+          memo,
+          signer: from,
         },
-        msg: [
-          {
-            type: 'thorchain/MsgDeposit',
-            value: {
-              coins: [
-                {
-                  asset: 'rune',
-                  amount: bnOrZero(value).toString(),
-                },
-              ],
-              memo,
-              signer: from,
-            },
-          },
-        ],
-        signatures: [],
       }
 
-      const txToSign: ThorchainSignTx = {
-        addressNList,
-        tx: utx,
-        chain_id: CHAIN_REFERENCE.ThorchainMainnet,
-        account_number: account.chainSpecific.accountNumber,
-        sequence: account.chainSpecific.sequence,
-      }
-      return { txToSign }
+      tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
+
+      return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })
     } catch (err) {
       return ErrorHandler(err)
     }

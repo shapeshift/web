@@ -17,10 +17,10 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import {
   Account,
   BuildSendTxInput,
-  ChainTxType,
   FeeDataEstimate,
   GetBIP44ParamsInput,
   GetFeeDataInput,
+  SignTx,
   SignTxInput,
   SubscribeError,
   SubscribeTxsInput,
@@ -224,7 +224,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     bip44Params = this.defaultBIP44Params,
     chainSpecific: { satoshiPerByte, accountType, opReturnData },
     sendMax = false,
-  }: BuildSendTxInput<T>): Promise<{ txToSign: ChainTxType<T> }> {
+  }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     try {
       this.assertIsAccountTypeSupported(accountType)
 
@@ -296,7 +296,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         inputs: signTxInputs,
         outputs: signTxOutputs,
         opReturnData,
-      } as ChainTxType<T>
+      } as SignTx<T>
 
       return { txToSign }
     } catch (err) {
@@ -347,7 +347,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     } as FeeDataEstimate<T>
   }
 
-  async signTransaction({ txToSign, wallet }: SignTxInput<ChainTxType<T>>): Promise<string> {
+  async signTransaction({ txToSign, wallet }: SignTxInput<SignTx<T>>): Promise<string> {
     try {
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)

@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import { FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaFlag, FaLock, FaTable, FaTractor, FaWater, FaPlug } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -25,6 +25,7 @@ import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
+import { Pairings } from 'pages/Pairings/Pairings'
 
 export const routes: NestedRoute[] = [
   {
@@ -157,12 +158,17 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Explore,
   },
   {
+    path: '/pairings',
+    label: 'navBar.pairings',
+    icon: <FaPlug />,
+    category: RouteCategory.Explore,
+    main: Pairings,
+  },
+  {
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide:
-      window.location.hostname !== 'localhost' &&
-      window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
+    category: RouteCategory.Explore,
     main: Flags,
   },
 ]

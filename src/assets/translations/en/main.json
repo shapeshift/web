@@ -381,6 +381,7 @@
     "foxToken": "FOX Opportunities",
     "dApps": "dApps",
     "featureFlags": "Feature Flags",
+    "pairings": "Pairings",
     "demoMode": "Demo Mode",
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
@@ -442,6 +443,14 @@
       }
     },
     "unknown": "Transaction"
+  },
+  "pairedApps": {
+    "header": "Paired Apps",
+    "body": "List of all the apps that have been paired with your KeepKey",
+    "noApps": "There are currently no paired apps",
+    "cta": {
+      "unpair": "Unpair App"
+    }
   },
   "bridge": {
     "confirm": "Confirm Bridge",

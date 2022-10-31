@@ -33,7 +33,7 @@ export const KeepKeyMenu = () => {
 
   // Reset ephemeral device state properties when opening the KeepKey menu
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setDeviceState({
         lastDeviceInteractionStatus: undefined,
         awaitingDeviceInteraction: false,

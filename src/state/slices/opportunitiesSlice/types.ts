@@ -29,7 +29,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {
-    byAccountId: Record<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId  [id: AccountId]: LpId[]
+    byAccountId: Record<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
     byId: Record<LpId, OpportunityMetadata>
     ids: LpId[]
   }

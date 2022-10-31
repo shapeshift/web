@@ -11,6 +11,7 @@ import {
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
+import type { GetOpportunityMetadataOutput, GetOpportunityUserDataOutput } from './types'
 import { serializeUserStakingId } from './utils'
 
 describe('opportunitiesSlice', () => {
@@ -31,7 +32,7 @@ describe('opportunitiesSlice', () => {
     })
     describe('upsertOpportunityMetadata', () => {
       it('inserts metadata', () => {
-        const payload = {
+        const payload: GetOpportunityMetadataOutput = {
           byId: {
             'eip155:1:0xMyContract': {
               // The LP token AssetId
@@ -43,7 +44,7 @@ describe('opportunitiesSlice', () => {
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
             },
           },
-          type: 'lp' as const,
+          type: DefiType.LiquidityPool,
         }
         const expected = {
           'eip155:1:0xMyContract': {
@@ -61,22 +62,22 @@ describe('opportunitiesSlice', () => {
     })
     describe('upsertOpportunityAccounts', () => {
       it('inserts an LpId for a tuple of a single AccountId - empty byAccountId', () => {
-        const payload = {
+        const payload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [gomesAccountId]: [mockLpContractOne],
           },
-          type: 'lp' as const,
+          type: DefiType.LiquidityPool,
         }
 
         store.dispatch(opportunities.actions.upsertOpportunityAccounts(payload))
         expect(store.getState().opportunities.lp.byAccountId).toEqual(payload.byAccountId)
       })
       it('inserts a StakingId for a tuple of a single AccountId - empty byAccountId', () => {
-        const payload = {
+        const payload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [gomesAccountId]: [mockStakingContractOne],
           },
-          type: 'staking' as const,
+          type: DefiType.Staking,
         }
 
         store.dispatch(opportunities.actions.upsertOpportunityAccounts(payload))
@@ -84,21 +85,21 @@ describe('opportunitiesSlice', () => {
       })
 
       it('inserts an LpId for a tuple of a single AccountId - merges prevState and payload byAccountId', () => {
-        const insertPayload = {
+        const insertPayload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [gomesAccountId]: [mockLpContractOne],
           },
-          type: 'lp' as const,
+          type: DefiType.LiquidityPool,
         }
 
         store.dispatch(opportunities.actions.upsertOpportunityAccounts(insertPayload))
         expect(store.getState().opportunities.lp.byAccountId).toEqual(insertPayload.byAccountId)
 
-        const upsertPayload = {
+        const upsertPayload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [fauxmesAccountId]: [mockLpContractOne],
           },
-          type: 'lp' as const,
+          type: DefiType.LiquidityPool,
         }
 
         const expected = {
@@ -109,11 +110,11 @@ describe('opportunitiesSlice', () => {
         expect(store.getState().opportunities.lp.byAccountId).toEqual(expected)
       })
       it('inserts an StakingId for a tuple of a single AccountId - merges prevState and payload byAccountId', () => {
-        const insertPayload = {
+        const insertPayload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [gomesAccountId]: [mockStakingContractOne],
           },
-          type: 'staking' as const,
+          type: DefiType.Staking,
         }
 
         store.dispatch(opportunities.actions.upsertOpportunityAccounts(insertPayload))
@@ -121,11 +122,11 @@ describe('opportunitiesSlice', () => {
           insertPayload.byAccountId,
         )
 
-        const upsertPayload = {
+        const upsertPayload: GetOpportunityUserDataOutput = {
           byAccountId: {
             [fauxmesAccountId]: [mockStakingContractOne],
           },
-          type: 'staking' as const,
+          type: DefiType.Staking,
         }
 
         const expected = {

@@ -97,6 +97,10 @@ export class CIndexController extends Controller {
                         serviceKey
                     })
 
+                    db.find({ type: 'service' }, (err, docs) => {
+                        if (windows.mainWindow) windows.mainWindow.webContents.send('@bridge/paired-apps', docs)
+                    })
+
                     if (windows.mainWindow) windows.mainWindow.setAlwaysOnTop(false)
                     resolve({ success: true, reason: '' })
                 }

@@ -1,7 +1,7 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 
 export enum DefiType {
-  LiquidityPool = 'liquidity_pool',
+  LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
   Farming = 'farming',

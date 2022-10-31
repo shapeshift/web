@@ -20,7 +20,13 @@ import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlic
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
 import { foxEthPair } from '../constants'
-import type { GetOpportunityMetadataOutput, LpId, OpportunitiesState, StakingId } from '../types'
+import type {
+  GetOpportunityMetadataOutput,
+  LpId,
+  OpportunitiesState,
+  OpportunityDefiType,
+  StakingId,
+} from '../types'
 import type { ReduxApi } from './types'
 
 export const foxFarmingLpMetadataResolver = async ({
@@ -29,7 +35,7 @@ export const foxFarmingLpMetadataResolver = async ({
   reduxApi,
 }: {
   opportunityId: LpId | StakingId
-  opportunityType: 'lp' | 'staking'
+  opportunityType: OpportunityDefiType
   reduxApi: ReduxApi
 }): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { dispatch, getState } = reduxApi
@@ -99,7 +105,7 @@ export const foxFarmingLpMetadataResolver = async ({
         type: DefiType.LiquidityPool,
         underlyingAssetIds: foxEthPair,
       },
-    } as OpportunitiesState['lp']['byId'],
+    } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,
   }
 
@@ -112,7 +118,7 @@ export const foxFarmingLpUserDataResolver = async ({
   reduxApi,
 }: {
   opportunityId: LpId | StakingId
-  opportunityType: 'lp' | 'staking'
+  opportunityType: OpportunityDefiType
   accountId: AccountId
   reduxApi: ReduxApi
 }): Promise<{ data: string }> => {

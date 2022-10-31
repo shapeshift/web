@@ -66,7 +66,7 @@ export type GetOpportunityMetadataInput = {
   defiType: DefiType
 }
 
-export type GetOpportunityDataInput = {
+export type GetOpportunityUserDataInput = {
   accountId: AccountId
   opportunityId: LpId | StakingId
   opportunityType: 'lp' | 'staking'
@@ -74,7 +74,7 @@ export type GetOpportunityDataInput = {
 }
 
 type GetOpportunityMetadataOutput = any
-type GetOpportunityDataOutput = any
+type GetOpportunityUserDataOutput = any
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -153,7 +153,7 @@ export const opportunitiesApi = createApi({
         return { data: resolved.data }
       },
     }),
-    getOpportunityUserData: build.query<GetOpportunityDataOutput, GetOpportunityDataInput>({
+    getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
       queryFn: async (
         { accountId, opportunityId, opportunityType, defiType },
         { dispatch, getState },

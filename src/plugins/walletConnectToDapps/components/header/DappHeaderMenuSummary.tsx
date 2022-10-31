@@ -1,6 +1,7 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo } from 'react'
@@ -26,7 +27,11 @@ export const DappHeaderMenuSummary = () => {
   const connectedEvmChainId = walletConnect.bridge?.connector.chainId
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
-      .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedEvmChainId}`) ?? '')
+      .get(
+        supportedEvmChainIds.find(
+          chainId => chainId === `${CHAIN_NAMESPACE.Evm}:${connectedEvmChainId}`,
+        ) ?? '',
+      )
       ?.getDisplayName()
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')

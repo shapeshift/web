@@ -1,15 +1,18 @@
 import { CopyIcon } from '@chakra-ui/icons'
 import { Box, Divider, HStack, IconButton } from '@chakra-ui/react'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
-import { CurrencyAmount } from '@uniswap/sdk'
-import _ from 'lodash'
+import startCase from 'lodash/startCase'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectContractByAddress } from 'state/apis/abi/selectors'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ModalSection } from './ModalSection'
@@ -26,6 +29,17 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
     () => contract?.parseTransaction({ data: request.data, value: request.value }),
     [contract, request.data, request.value],
   )
+
+  const evmChainId = request.chainId
+  const assets = useAppSelector(selectAssets)
+  const symbol = useMemo(() => {
+    const chainId = `${CHAIN_NAMESPACE.Evm}${evmChainId}`
+    const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+    if (!feeAssetId) return '?'
+    const feeAsset = assets[feeAssetId]
+    if (!feeAsset) return '?'
+    return feeAsset.symbol
+  }, [assets, evmChainId])
 
   return (
     <ModalSection
@@ -44,15 +58,14 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
           translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
         />
         <RawText fontWeight='medium'>
-          {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
-          {CurrencyAmount.ether(request.value).toFixed()}
+          <Amount.Crypto value={request.value} symbol={symbol} />
         </RawText>
         <Divider my={4} />
         {!!transaction &&
           transaction.functionFragment.inputs.map((input, index) => (
             <Fragment key={index}>
               <RawText color='gray.500' fontWeight='medium'>
-                {_.startCase(input.name)} ({input.type})
+                {startCase(input.name)} ({input.type})
               </RawText>
               {input.type === 'bytes[]' ? (
                 <HStack>

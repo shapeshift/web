@@ -3,6 +3,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Nominal } from 'types/common'
 
+export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
+
 export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
@@ -48,27 +50,27 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = OpportunitiesState['lp' | 'staking']['byId']
-export type OpportunityDataById = OpportunitiesState['lp' | 'staking']['byAccountId']
+export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['byId']
+export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
   opportunityId: LpId | StakingId
-  opportunityType: 'lp' | 'staking'
+  opportunityType: OpportunityDefiType
   defiType: DefiType
 }
 
 export type GetOpportunityUserDataInput = {
   accountId: AccountId
   opportunityId: LpId | StakingId
-  opportunityType: 'lp' | 'staking'
+  opportunityType: OpportunityDefiType
   defiType: DefiType
 }
 
 export type GetOpportunityMetadataOutput = {
-  byId: OpportunitiesState['lp' | 'staking']['byId']
-  type: 'lp' | 'staking'
+  byId: OpportunitiesState[OpportunityDefiType]['byId']
+  type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {
-  byAccountId: OpportunitiesState['lp' | 'staking']['byAccountId']
-  type: 'lp' | 'staking'
+  byAccountId: OpportunitiesState[OpportunityDefiType]['byAccountId']
+  type: OpportunityDefiType
 }

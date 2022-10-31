@@ -79,6 +79,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   // selectPortfolioCryptoBalanceByFilter(state, filter),
   // )
 
+  // TODO: This should be cryptoBalanceHuman precision really, e.g not in base unit, but with full precision
   const cryptoBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )

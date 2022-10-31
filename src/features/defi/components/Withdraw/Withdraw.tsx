@@ -137,23 +137,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const fiatError = errors?.fiatAmount?.message ?? null
   const fieldError = cryptoError || fiatError
 
-  const handlePercentOptionClick = useCallback(
-    (percent: number) => {
-      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const percentageFiatAmount = bnOrZero(percentageCryptoAmount).times(marketData.price)
-      const percentageCryptoAmountHuman = percentageCryptoAmount.decimalPlaces(asset.precision)
-      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
-        shouldValidate: true,
-      })
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
-      setValue(Field.CryptoAmount, percentageCryptoAmountHuman.toString(), {
-        shouldValidate: true,
-      })
-    },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
-  )
-
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
@@ -172,6 +155,23 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       if (onInputChange) onInputChange(value, isFiat)
     },
     [marketData.price, onInputChange, setValue],
+  )
+
+  const handlePercentOptionClick = useCallback(
+    (percent: number) => {
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = bnOrZero(percentageCryptoAmount).times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount.decimalPlaces(asset.precision)
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman.toString(), {
+        shouldValidate: true,
+      })
+    },
+    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
   )
 
   const handleSlippageChange = (value: string | number) => {

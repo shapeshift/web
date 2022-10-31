@@ -36,6 +36,7 @@ export const ExplorationBanner: FC = () => (
           <Button
             colorScheme='blue'
             size='sm'
+            // TODO(0xdef1cafe): wire this up
             onClick={() => alert('TODO: dApp connection flow (will be done in a future PR)')}
           >
             <Text translation='plugins.walletConnectToDapps.registry.getStarted' />
@@ -44,6 +45,7 @@ export const ExplorationBanner: FC = () => (
             colorScheme='blue'
             size='sm'
             variant='ghost'
+            // TODO(0xdef1cafe): wire this up
             onClick={() => alert('TODO: open ZenDesk article')}
           >
             <Text translation='plugins.walletConnectToDapps.registry.learnMore' />

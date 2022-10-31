@@ -27,11 +27,7 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
-import {
-  selectAccountIdsByAssetId,
-  selectAssetById,
-  selectFeatureFlags,
-} from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
@@ -119,7 +115,6 @@ const FoxFarmCTA = () => {
     })()
   }, [ethAccountIds, dispatch])
 
-  const featureFlags = useAppSelector(selectFeatureFlags)
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const { icon: ethAssetIcon } = ethAsset
@@ -127,10 +122,6 @@ const FoxFarmCTA = () => {
   const hoverBg = useColorModeValue('gray.100', 'gray.750')
 
   const handleClick = useCallback(() => {
-    if (!(featureFlags.FoxLP && featureFlags.FoxFarming)) {
-      window.location.replace('https://fox.shapeshift.com/fox-farming')
-      return
-    }
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -143,7 +134,7 @@ const FoxFarmCTA = () => {
       }),
       state: { background: location },
     })
-  }, [history, location, featureFlags.FoxFarming, featureFlags.FoxLP])
+  }, [history, location])
 
   return (
     <Card variant='outline' my={1}>

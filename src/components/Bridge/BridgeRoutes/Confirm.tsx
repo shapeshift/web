@@ -19,8 +19,8 @@ import {
 import { Card } from 'components/Card/Card'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { useFormSend } from 'components/Modals/Send/hooks/useFormSend/useFormSend'
-import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -48,7 +48,6 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
-  const { estimateFees } = useSendDetails()
   const translate = useTranslate()
 
   const axelarAssetTransferSdk = getAxelarAssetTransferSdk()

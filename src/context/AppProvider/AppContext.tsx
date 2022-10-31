@@ -177,7 +177,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         {
           // TODO: abstract me, we want to fire "everything we need to fire" not an arbitrary opportunity data
           opportunityId: foxEthLpAssetId,
-          opportunityType: 'lp',
+          opportunityType: DefiType.LiquidityPool,
           defiType: DefiType.LiquidityPool,
         },
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
@@ -198,7 +198,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               {
                 accountId,
                 opportunityId: foxEthLpAssetId,
-                opportunityType: 'lp',
+                opportunityType: DefiType.LiquidityPool,
                 defiType: DefiType.LiquidityPool,
               },
               // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached

@@ -119,9 +119,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this PR stack originally fixed
+      const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset.precision}`)
       const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      const hasValidBalance =
+        cryptoBalanceHuman.gt(0) && _value.gt(0) && cryptoBalanceHuman.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
@@ -130,10 +133,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const fiat = crypto.times(marketData.price)
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this PR stack originally fixed
+      const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const fiatBalance = cryptoBalanceHuman.times(marketData.price)
       const _value = bnOrZero(value)
-      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      const hasValidBalance = fiatBalance.gt(0) && _value.gt(0) && fiatBalance.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },

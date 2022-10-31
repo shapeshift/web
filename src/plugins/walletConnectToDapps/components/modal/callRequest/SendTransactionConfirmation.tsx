@@ -57,7 +57,6 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
           />
           <AddressSummaryCard
             address={address}
-            name='My Wallet' // TODO: what string do we put here?
             icon={<FoxIcon color='gray.500' w='full' h='full' />}
           />
         </Box>

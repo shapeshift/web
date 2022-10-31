@@ -1,50 +1,57 @@
 import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, HStack, IconButton, Link, useColorModeValue } from '@chakra-ui/react'
-import type { FC, ReactNode } from 'react'
+import { useCallback } from 'react'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-type Props = {
+type AddressSummaryCardProps = {
   address: string
-  name?: string
-  icon?: ReactNode
+  icon?: React.ReactNode
 }
 
-export const AddressSummaryCard: FC<Props> = ({ address, name, icon }) => (
-  <Card bg={useColorModeValue('white', 'gray.850')} py={4} pl={4} pr={2} borderRadius='md'>
-    <HStack spacing={0}>
-      {!!icon && (
-        <Box w={10} h={6} pr={4}>
-          {icon}
-        </Box>
-      )}
-      <Box flex={1}>
-        <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
-        {!!name && (
-          <RawText color='gray.500' fontWeight='medium' mt={1}>
-            {name}
-          </RawText>
+export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({ address, icon }) => {
+  const walletName = useWallet().state.walletInfo?.name ?? ''
+  const handleCopyAddressClick = useCallback(
+    () => navigator.clipboard.writeText(address),
+    [address],
+  )
+  return (
+    <Card bg={useColorModeValue('white', 'gray.850')} py={4} pl={4} pr={2} borderRadius='md'>
+      <HStack spacing={0}>
+        {icon && (
+          <Box w={10} h={6} pr={4}>
+            {icon}
+          </Box>
         )}
-      </Box>
-      <IconButton
-        variant='ghost'
-        size='small'
-        aria-label='Copy'
-        icon={<CopyIcon />}
-        p={2}
-        onClick={() => navigator.clipboard.writeText(address)}
-      />
-      <Link href={`https://etherscan.com/address/${address}`} isExternal>
+        <Box flex={1}>
+          <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
+          {walletName && (
+            <RawText color='gray.500' fontWeight='medium' mt={1}>
+              {walletName}
+            </RawText>
+          )}
+        </Box>
         <IconButton
-          icon={<ExternalLinkIcon />}
           variant='ghost'
           size='small'
-          aria-label={address}
+          aria-label='Copy'
+          icon={<CopyIcon />}
           p={2}
-          colorScheme='gray'
+          onClick={handleCopyAddressClick}
         />
-      </Link>
-    </HStack>
-  </Card>
-)
+        <Link href={`https://etherscan.com/address/${address}`} isExternal>
+          <IconButton
+            icon={<ExternalLinkIcon />}
+            variant='ghost'
+            size='small'
+            aria-label={address}
+            p={2}
+            colorScheme='gray'
+          />
+        </Link>
+      </HStack>
+    </Card>
+  )
+}

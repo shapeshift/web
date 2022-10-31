@@ -79,7 +79,8 @@
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
-    "enterAmount": "Enter Amount"
+    "enterAmount": "Enter Amount",
+    "pageNotFound": "The page you're looking for cannot be found"
   },
   "buyPage": {
     "title": {

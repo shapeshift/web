@@ -880,6 +880,10 @@
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
+      "autoLaunch": "Automatically launch app on startup",
+      "minimizeToTray": "Minimize to tray",
+      "autoUpdate": "Automatically install updates",
+      "downloadPreRelease": "Download pre release builds",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",

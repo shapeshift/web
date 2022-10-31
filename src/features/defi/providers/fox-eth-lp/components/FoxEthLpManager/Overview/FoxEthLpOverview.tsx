@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { foxEthLpAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
   selectAssetById,
   selectHighestBalanceAccountIdByLpId,
@@ -19,8 +20,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
-
-import { foxEthLpAssetId, foxEthLpOpportunityName } from '../../../constants'
 
 type FoxEthLpOverviewProps = {
   accountId: Nullable<AccountId>

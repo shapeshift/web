@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.1.3...@shapeshiftoss/chain-adapters-v10.2.0) (2022-10-31)
+
+
+### Features
+
+* refactor cosmossdk build transaction functions ([#1081](https://github.com/shapeshift/lib/issues/1081)) ([45b1b18](https://github.com/shapeshift/lib/commit/45b1b187fa1e7447c0e6f4a02da9de5fb94498be))
+
 # [@shapeshiftoss/chain-adapters-v10.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.1.2...@shapeshiftoss/chain-adapters-v10.1.3) (2022-10-26)
 
 

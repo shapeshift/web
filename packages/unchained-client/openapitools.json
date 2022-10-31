@@ -1,12 +1,12 @@
 {
-  "$schema": "../../node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
     "version": "6.1.0",
     "storageDir": "~/.openapitools",
     "generators": {
       "avalanche": {
-        "inputSpec": "https://dev-api.avalanche.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/avalanche/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/avalanche",
         "enablePostProcessFile": true,
@@ -19,7 +19,7 @@
         }
       },
       "bitcoin": {
-        "inputSpec": "https://dev-api.bitcoin.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bitcoin/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoin",
         "enablePostProcessFile": true,
@@ -32,7 +32,7 @@
         }
       },
       "bitcoincash": {
-        "inputSpec": "https://dev-api.bitcoincash.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bitcoincash/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bitcoincash",
         "enablePostProcessFile": true,
@@ -45,7 +45,7 @@
         }
       },
       "cosmos": {
-        "inputSpec": "https://dev-api.cosmos.shapeshift.com/swagger",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/cosmos/api/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/cosmos",
         "enablePostProcessFile": true,
@@ -58,7 +58,7 @@
         }
       },
       "dogecoin": {
-        "inputSpec": "https://dev-api.dogecoin.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/dogecoin/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/dogecoin",
         "enablePostProcessFile": true,
@@ -71,7 +71,7 @@
         }
       },
       "ethereum": {
-        "inputSpec": "https://dev-api.ethereum.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/ethereum/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/ethereum",
         "enablePostProcessFile": true,
@@ -84,7 +84,7 @@
         }
       },
       "litecoin": {
-        "inputSpec": "https://dev-api.litecoin.shapeshift.com/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/litecoin/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/litecoin",
         "enablePostProcessFile": true,
@@ -97,7 +97,7 @@
         }
       },
       "osmosis": {
-        "inputSpec": "https://dev-api.osmosis.shapeshift.com/swagger",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/osmosis/api/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/osmosis",
         "enablePostProcessFile": true,
@@ -110,7 +110,7 @@
         }
       },
       "thorchain": {
-        "inputSpec": "https://dev-api.thorchain.shapeshift.com/swagger",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain/api/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/thorchain",
         "enablePostProcessFile": true,

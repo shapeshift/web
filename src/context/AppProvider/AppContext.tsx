@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -15,12 +16,14 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
 import {
   marketApi,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -151,6 +154,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
     const { getValidatorData } = validatorDataApi.endpoints
+    const { getOpportunityMetadata, getOpportunityUserData } = opportunitiesApi.endpoints
 
     // forceRefetch is enabled here to make sure that we always have the latest state from chain
     // and ensure the queryFn runs resulting in dispatches occuring to update client state
@@ -168,6 +172,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch(getValidatorData.initiate(accountId, options))
     }
 
+    dispatch(
+      getOpportunityMetadata.initiate(
+        {
+          // TODO: abstract me, we want to fire "everything we need to fire" not an arbitrary opportunity data
+          opportunityId: foxEthLpAssetId,
+          opportunityType: 'lp',
+          defiType: DefiType.LiquidityPool,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false },
+      ),
+    )
+
     requestedAccountIds.forEach(accountId => {
       const { chainId } = fromAccountId(accountId)
       switch (chainId) {
@@ -176,6 +193,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           dispatch(getValidatorData.initiate(accountId, options))
           break
         case ethChainId:
+          dispatch(
+            getOpportunityUserData.initiate(
+              {
+                accountId,
+                opportunityId: foxEthLpAssetId,
+                opportunityType: 'lp',
+                defiType: DefiType.LiquidityPool,
+              },
+              // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
+              { forceRefetch: false },
+            ),
+          )
+
           /**
            * fetch all rebase history for foxy
            *

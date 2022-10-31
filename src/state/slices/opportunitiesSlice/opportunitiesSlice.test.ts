@@ -32,7 +32,7 @@ describe('opportunitiesSlice', () => {
     describe('upsertOpportunityMetadata', () => {
       it('inserts metadata', () => {
         const payload = {
-          metadata: {
+          byId: {
             'eip155:1:0xMyContract': {
               // The LP token AssetId
               assetId: foxEthLpAssetId,

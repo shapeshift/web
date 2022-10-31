@@ -12,7 +12,7 @@ export const getDefiProviderMetadataResolvers = (defiProvider: DefiProvider) =>
 // "Give me the resolvers for a given DeFi type"
 export const getDefiTypeMetadataResolvers = (
   defiType: DefiType,
-  resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
+  resolversByType: ReturnType<typeof getDefiProviderMetadataResolvers>,
 ) => resolversByType?.[defiType]
 
 export const getMetadataResolversByDefiProviderAndDefiType = (

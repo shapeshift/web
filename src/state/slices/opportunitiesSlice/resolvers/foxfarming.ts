@@ -20,7 +20,7 @@ import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlic
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
 import { foxEthPair } from '../constants'
-import type { LpId, StakingId } from '../opportunitiesSlice'
+import type { GetOpportunityMetadataOutput, LpId, OpportunitiesState, StakingId } from '../types'
 import type { ReduxApi } from './types'
 
 export const foxFarmingLpMetadataResolver = async ({
@@ -31,7 +31,7 @@ export const foxFarmingLpMetadataResolver = async ({
   opportunityId: LpId | StakingId
   opportunityType: 'lp' | 'staking'
   reduxApi: ReduxApi
-}) => {
+}): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { dispatch, getState } = reduxApi
   const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
   const state: any = getState() // ReduxState causes circular dependency
@@ -90,7 +90,7 @@ export const foxFarmingLpMetadataResolver = async ({
   })
 
   const data = {
-    metadata: {
+    byId: {
       [opportunityId]: {
         apy,
         assetId: opportunityId,
@@ -99,7 +99,7 @@ export const foxFarmingLpMetadataResolver = async ({
         type: DefiType.LiquidityPool,
         underlyingAssetIds: foxEthPair,
       },
-    },
+    } as OpportunitiesState['lp']['byId'],
     type: opportunityType,
   }
 
@@ -115,7 +115,7 @@ export const foxFarmingLpUserDataResolver = async ({
   opportunityType: 'lp' | 'staking'
   accountId: AccountId
   reduxApi: ReduxApi
-}) => {
+}): Promise<{ data: string }> => {
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)

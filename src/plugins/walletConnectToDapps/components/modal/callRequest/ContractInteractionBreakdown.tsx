@@ -9,9 +9,9 @@ import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
+import { selectContractByAddress } from 'state/apis/abi/selectors'
+import { useAppSelector } from 'state/store'
 
-import { selectContractByAddress } from '../../../../../state/apis/abi/selectors'
-import { useAppSelector } from '../../../../../state/store'
 import { ModalSection } from './ModalSection'
 
 type Props = {

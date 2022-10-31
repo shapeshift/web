@@ -8,6 +8,7 @@ import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Flags } from 'pages/Flags/Flags'
+import { Pairings } from 'pages/Pairings/Pairings'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -30,6 +31,7 @@ export const Routes = () => {
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
+  // @ts-ignore
   const { lang } = useQuery()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
@@ -103,6 +105,11 @@ export const Routes = () => {
       <Route path='/flags'>
         <Layout>
           <Flags />
+        </Layout>
+      </Route>
+      <Route path='/pairings'>
+        <Layout>
+          <Pairings />
         </Layout>
       </Route>
       <Redirect from='/' to='/dashboard' />

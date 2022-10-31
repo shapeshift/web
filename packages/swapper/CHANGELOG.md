@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.0.0...@shapeshiftoss/swapper-v14.1.0) (2022-10-31)
+
+
+### Features
+
+* refactor cosmossdk build transaction functions ([#1081](https://github.com/shapeshift/lib/issues/1081)) ([45b1b18](https://github.com/shapeshift/lib/commit/45b1b187fa1e7447c0e6f4a02da9de5fb94498be))
+
 # [@shapeshiftoss/swapper-v14.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v13.0.1...@shapeshiftoss/swapper-v14.0.0) (2022-10-24)
 
 

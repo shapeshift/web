@@ -12,6 +12,7 @@ export type OpportunityMetadata = {
   tvl: string
   type: DefiType
   underlyingAssetIds: readonly [AssetId, AssetId]
+  underlyingAssetRatios: readonly [string, string]
 }
 
 // User-specific values for this opportunity

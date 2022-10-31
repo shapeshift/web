@@ -70,14 +70,20 @@ export const foxFarmingLpMetadataResolver = async ({
   })
   const apy = bnOrZero(calculatedApy).div(100).toString()
   const reserves = await uniV2LPContract.getReserves()
+
+  // Getting the ratio of the LP token for each asset
+  const totalSupply = (await uniV2LPContract.totalSupply()).toString()
+  const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
+  const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
+  const ethPoolRatio = ethReserves.div(totalSupply).toString()
+  const foxPoolRatio = foxReserves.div(totalSupply).toString()
   // Amount of Eth in liquidity pool
   const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethPrecision}`)
 
   // Total market cap of liquidity pool in usdc.
   // Multiplied by 2 to show equal amount of eth and fox.
-  const totalLiquidity = ethInReserve.times(ethPrice).times(2)
-  const tvl = totalLiquidity.toString()
-  const totalSupply = await uniV2LPContract.totalSupply()
+  const totalLiquidityFiat = ethInReserve.times(ethPrice).times(2)
+  const tvl = totalLiquidityFiat.toString()
   const price = bnOrZero(tvl)
     .div(bnOrZero(totalSupply.toString()).div(`1e${lpAssetPrecision}`))
     .toString()
@@ -104,6 +110,7 @@ export const foxFarmingLpMetadataResolver = async ({
         tvl,
         type: DefiType.LiquidityPool,
         underlyingAssetIds: foxEthPair,
+        underlyingAssetRatios: [foxPoolRatio.toString(), ethPoolRatio.toString()] as const,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

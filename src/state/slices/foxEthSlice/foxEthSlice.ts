@@ -227,11 +227,11 @@ export const foxEthApi = createApi({
             bnOrZero(totalSupply.toString()),
           )
           const underlyingEthAmount = userOwnershipOfPool
-            .times(bnOrZero(reserves[0].toString()))
+            .times(bnOrZero(bnOrZero(reserves[0]).toString()))
             .div(`1e${ethPrecision}`)
             .toString()
           const underlyingFoxAmount = userOwnershipOfPool
-            .times(bnOrZero(reserves[1].toString()))
+            .times(bnOrZero(bnOrZero(reserves[1]).toString()))
             .div(`1e${foxPrecision}`)
             .toString()
 

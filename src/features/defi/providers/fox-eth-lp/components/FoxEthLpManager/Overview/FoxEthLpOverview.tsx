@@ -7,17 +7,17 @@ import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
   selectHighestBalanceAccountIdByLpId,
   selectLpOpportunitiesById,
-  selectMarketDataById,
+  selectMarketData,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
 
 import { foxEthLpAssetId, foxEthLpOpportunityName } from '../../../constants'
@@ -31,6 +31,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const marketData = useAppSelector(selectMarketData)
+  const assets = useAppSelector(selectorState => selectorState.assets.byId)
+
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId ?? '').account : ''),
     [accountId],
@@ -48,45 +51,58 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [lpOpportunitiesById, opportunityId],
   )
 
+  const lpAsset = useAppSelector(state => selectAssetById(state, opportunityId ?? ''))
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: opportunityId ?? '' }),
+  )
+
   const underlyingAssetsWithBalances = useMemo(
     () =>
-      opportunityMetadata?.underlyingAssetIds.map(assetId => {
-        const state = store.getState()
-        const asset = selectAssetById(state, assetId)
-        const cryptoBalance = selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId })
+      opportunityMetadata?.underlyingAssetIds.map((assetId, i) => {
+        const asset = assets[assetId]
 
         return {
           ...asset,
-          cryptoBalance,
+          cryptoBalance: bnOrZero(lpAssetBalance)
+            .times(opportunityMetadata.underlyingAssetRatios[i])
+            .toString(),
           allocationPercentage: '0.50',
         }
       }),
-    [opportunityMetadata?.underlyingAssetIds],
+    [
+      assets,
+      lpAssetBalance,
+      opportunityMetadata?.underlyingAssetIds,
+      opportunityMetadata.underlyingAssetRatios,
+    ],
   )
 
   const underlyingAssetsFiatBalance = useMemo(
     () =>
-      opportunityMetadata?.underlyingAssetIds.reduce<string>((acc, assetId) => {
-        const state = store.getState()
-        const marketData = selectMarketDataById(state, assetId)
-        // TODO: this is wrong - balance should be gotten from the LP contract
-        const cryptoBalance = selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId })
-        const fiatBalance = bn(cryptoBalance).times(marketData.price)
+      opportunityMetadata?.underlyingAssetIds.reduce<string>((acc, assetId, i) => {
+        const cryptoBalance = bnOrZero(lpAssetBalance)
+          .times(opportunityMetadata.underlyingAssetRatios[i])
+          .toString()
+        const fiatBalance = bn(cryptoBalance).times(marketData[assetId]?.price ?? '0')
 
         return bn(acc).plus(fiatBalance).toString()
       }, '0'),
-    [opportunityMetadata?.underlyingAssetIds],
+    [
+      lpAssetBalance,
+      marketData,
+      opportunityMetadata?.underlyingAssetIds,
+      opportunityMetadata.underlyingAssetRatios,
+    ],
   )
 
   const underlyingAssetsIcons = useMemo(
     () =>
       opportunityMetadata?.underlyingAssetIds.map(assetId => {
-        const state = store.getState()
-        const asset = selectAssetById(state, assetId)
+        const asset = assets[assetId]
 
         return asset.icon
       }),
-    [opportunityMetadata?.underlyingAssetIds],
+    [assets, opportunityMetadata?.underlyingAssetIds],
   )
 
   const highestBalanceAccountAddress = useMemo(
@@ -101,8 +117,6 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highestBalanceAccountId])
-
-  const lpAsset = useAppSelector(state => selectAssetById(state, opportunityId ?? ''))
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({

@@ -15,4 +15,12 @@ export const foxEthStakingAssetIdV3: AssetId =
 export const foxEthStakingAssetIdV4: AssetId =
   'eip155:1/erc20:0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0'
 
+// Tuple of all staking contracts, to iterate over and dispatch RTK queries for
+export const foxEthStakingIds = [
+  foxEthStakingAssetIdV1,
+  foxEthStakingAssetIdV2,
+  foxEthStakingAssetIdV3,
+  foxEthStakingAssetIdV4,
+]
+
 export const STAKING_ID_DELIMITER = '*'

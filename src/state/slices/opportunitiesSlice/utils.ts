@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import type { StakingId, UserStakingId } from './opportunitiesSlice'
+import type { StakingId, UserStakingId } from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 

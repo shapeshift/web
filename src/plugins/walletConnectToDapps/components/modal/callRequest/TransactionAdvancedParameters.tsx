@@ -20,9 +20,13 @@ export const TransactionAdvancedParameters = () => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { register } = useFormContext<ConfirmData>()
+  const formContext = useFormContext<ConfirmData>()
+  const bgColor = useColorModeValue('white', 'gray.850')
+  if (!formContext) return null
+  const { register } = formContext
+
   return (
-    <Card bg={useColorModeValue('white', 'gray.850')} p={4} borderRadius='md'>
+    <Card bg={bgColor} p={4} borderRadius='md'>
       <VStack alignItems='stretch'>
         <Alert status='warning' variant='subtle' py={1} px={2} fontSize='sm'>
           <AlertIcon />

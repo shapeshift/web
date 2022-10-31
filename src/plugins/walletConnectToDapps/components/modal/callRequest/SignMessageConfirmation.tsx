@@ -125,7 +125,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
       <ModalSection
         defaultOpen={false}
         title={translate(
-          'plugins.walletConnectToDapps.modal.signTransaction.advancedParameters.title',
+          'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.title',
         )}
         icon={<FaWrench />}
       >

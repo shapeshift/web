@@ -1,6 +1,7 @@
 import { Stack, Text } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
+import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import type { Margin } from '@visx/xychart'
 import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
@@ -77,7 +78,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const yScale = useMemo(
     () => ({
       type: 'linear' as const,
-      range: [height - margin.bottom + margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      range: [height - margin.bottom + margin.top, margin.top * 2], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
       domain: [minPrice ?? 0, maxPrice ?? 0],
       nice: true,
     }),
@@ -107,9 +108,15 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
-        <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
+        <XYChart
+          margin={{ ...margin, top: 0 }}
+          height={height + margin.top}
+          width={width}
+          xScale={xScale}
+          yScale={yScale}
+        >
           <AreaStack order='ascending' curve={curveLinear}>
-            {areaLines}
+            <Group top={margin.top}>{areaLines}</Group>
           </AreaStack>
           <Axis
             key={'date'}
@@ -131,6 +138,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
               strokeDasharray: '5,2',
               pointerEvents: 'none',
             }}
+            offsetTop={0}
             renderTooltip={({ tooltipData }) => {
               const { datum, key: assetId } = tooltipData?.nearestDatum!
               const price = datum[assetId]

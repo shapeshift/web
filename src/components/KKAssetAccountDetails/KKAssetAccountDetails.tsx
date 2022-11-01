@@ -1,17 +1,23 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import { Link, Stack } from '@chakra-ui/react'
+import { RawText } from 'components/Text'
+import type { KKAsset } from 'context/WalletProvider/KeepKeyProvider'
 
 import { Main } from '../Layout/Main'
-import { RawText } from '../Text'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 type AssetDetailsProps = {
-  asset: Asset
+  asset: KKAsset
 }
 
 export const KKAssetAccountDetails = ({ asset }: AssetDetailsProps) => {
   return (
     <Main titleComponent={<AssetHeader asset={asset} />}>
-      <RawText>Unsupported asset, vote!!!</RawText>
-      <RawText>blahblah buy tokens mint nfts </RawText>
+      <Stack>
+        <RawText>RANK: {`${asset.rank}`}</RawText>
+        <RawText>MARKET CAP: {`$${asset.marketCap}`}</RawText>
+        <Link color='blue.400' isExternal href={asset.link}>
+          Visit Coingecko Page
+        </Link>
+      </Stack>
     </Main>
   )
 }

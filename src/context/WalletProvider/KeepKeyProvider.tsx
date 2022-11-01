@@ -13,6 +13,7 @@ import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import axios from 'axios'
 import React, {
   createContext,
   useCallback,
@@ -21,6 +22,7 @@ import React, {
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
@@ -92,7 +94,7 @@ export interface IKeepKeyContext {
   state: InitialState
   setHasPassphrase: (enabled: boolean) => void
   keepKeyWallet: KeepKeyHDWallet | undefined
-  getKeepkeyAssets: () => Asset[]
+  getKeepkeyAssets: () => KKAsset[]
 }
 
 export type KeepKeyActionTypes =
@@ -116,6 +118,14 @@ const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
   }
 }
 
+const overrideGeckoName = (name: string) => {
+  if (name.toUpperCase() === 'XRP') return 'Ripple'
+  if (name.toUpperCase() === 'BNB') return 'Binance'
+  else return name
+}
+
+export type KKAsset = Asset & { rank: number; marketCap: number; link: string }
+
 const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
@@ -129,25 +139,41 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const [state, dispatch] = useReducer(reducer, initialState)
   const toastRef = useRef<ToastId | undefined>()
 
-  const getKeepkeyAssets: () => Asset[] = useMemo(
-    () => () => {
-      return [
-        {
-          assetId: 'keepkey_ripple',
-          chainId: 'keepkey_ripple',
-          color: '#FF9800',
-          explorer: 'https://live.blockcypher.com',
-          explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
-          explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
-          icon: 'https://assets.coincap.io/assets/icons/256/btc.png',
-          name: 'Ripple',
-          precision: 15,
-          symbol: 'XRP',
-        },
-      ]
-    },
-    [],
-  )
+  const [keepkeyAssets, setKeepkeyAssets] = useState<KKAsset[]>([])
+
+  const loadKeepkeyAssets = useCallback(async () => {
+    const { data } = await axios.get(
+      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false',
+    )
+
+    const kkAssets = data.map((geckoAsset: any) => {
+      const symbol = geckoAsset?.symbol ?? ''
+      const kkAsset: KKAsset = {
+        assetId: `keepkey_${symbol.toUpperCase()}`,
+        chainId: `keepkey_${symbol.toUpperCase()}`,
+        color: '',
+        explorer: '',
+        explorerAddressLink: '',
+        explorerTxLink: '',
+        icon: geckoAsset.image,
+        name: overrideGeckoName(geckoAsset.name),
+        precision: 1, // This is wrong but needs to exist (find out why)
+        symbol: geckoAsset.symbol.toUpperCase(),
+        // kk specific
+        rank: geckoAsset.market_cap_rank,
+        marketCap: geckoAsset.market_cap,
+        link: `https://www.coingecko.com/en/coins/${geckoAsset.id}`,
+      }
+      return kkAsset
+    })
+    setKeepkeyAssets(kkAssets)
+  }, [setKeepkeyAssets])
+
+  useEffect(() => {
+    loadKeepkeyAssets()
+  }, [loadKeepkeyAssets])
+
+  const getKeepkeyAssets = useMemo(() => () => keepkeyAssets, [keepkeyAssets])
 
   const onClose = useCallback(() => {
     if (toastRef.current) {

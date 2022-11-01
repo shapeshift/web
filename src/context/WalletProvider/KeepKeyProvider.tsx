@@ -94,7 +94,7 @@ export interface IKeepKeyContext {
   state: InitialState
   setHasPassphrase: (enabled: boolean) => void
   keepKeyWallet: KeepKeyHDWallet | undefined
-  getKeepkeyAssets: () => Asset[]
+  getKeepkeyAssets: () => KKAsset[]
 }
 
 export type KeepKeyActionTypes =
@@ -116,6 +116,12 @@ const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
     default:
       return state
   }
+}
+
+const overrideGeckoName = (name: string) => {
+  if (name.toUpperCase() === 'XRP') return 'Ripple'
+  if (name.toUpperCase() === 'BNB') return 'Binance'
+  else return name
 }
 
 export type KKAsset = Asset & { rank: number; marketCap: number; link: string }
@@ -150,7 +156,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         explorerAddressLink: '',
         explorerTxLink: '',
         icon: geckoAsset.image,
-        name: geckoAsset.name,
+        name: overrideGeckoName(geckoAsset.name),
         precision: 1, // This is wrong but needs to exist (find out why)
         symbol: geckoAsset.symbol.toUpperCase(),
         // kk specific

@@ -21,7 +21,7 @@ type AssetSearchProps = {
   filterBy?: (asset: Asset[]) => Asset[] | undefined
 }
 
-const mergeKKAssets = (webAssets: any, kkAssets: any) => {
+export const mergeKKAssets = (webAssets: any, kkAssets: any) => {
   const webAssetSymbols: any = {}
 
   webAssets.forEach((webAsset: any) => {

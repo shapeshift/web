@@ -45,4 +45,5 @@ export default defineConfig({
     specPattern: 'cypress/e2e/**/*.{js,jsx,ts,tsx}',
     experimentalStudio: true,
   },
+  retries: 2,
 })

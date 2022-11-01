@@ -15,4 +15,6 @@ Cypress.on('uncaught:exception', err => {
   // Ignore this exception, it occurs because Cypress doesn't get a response form lcd/thorchain/pools
   if (err.message.includes('[thorchainInitialize]: initialize failed to set supportedAssetIds'))
     return false
+  // This can happen when an upstream node is down. Don't fail our CI because of it.
+  if (err.message.includes('timeout while trying to connect')) return false
 })

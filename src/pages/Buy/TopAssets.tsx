@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
@@ -18,7 +19,7 @@ import { SparkLine } from './components/Sparkline'
 type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketData>[0]
 type RowProps = Row<AssetWithMarketData>
 
-export const TopAssets = () => {
+export const TopAssets: React.FC = () => {
   const { fiatRamps } = useModal()
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
@@ -83,7 +84,7 @@ export const TopAssets = () => {
   const handleClick = useCallback(
     (assetId: AssetId) => {
       // Open fiat modal
-      fiatRamps.open({ assetId })
+      fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy })
     },
     [fiatRamps],
   )

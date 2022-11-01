@@ -18,9 +18,10 @@ const moduleLogger = logger.child({
 type AssetSearchProps = {
   onClick: (asset: any) => void
   filterBy?: (asset: Asset[]) => Asset[] | undefined
+  disableUnsupported?: boolean
 }
 
-export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
+export const AssetSearch = ({ onClick, filterBy, disableUnsupported }: AssetSearchProps) => {
   const assets = useSelector(selectAssetsByMarketCap)
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
@@ -73,7 +74,12 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
       </Box>
       {listAssets && (
         <Box flex={1}>
-          <AssetList mb='10' assets={listAssets} handleClick={onClick} />
+          <AssetList
+            mb='10'
+            assets={listAssets}
+            handleClick={onClick}
+            disableUnsupported={disableUnsupported}
+          />
         </Box>
       )}
     </>

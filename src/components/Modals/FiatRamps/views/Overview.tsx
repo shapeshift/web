@@ -9,7 +9,6 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  ModalBody,
   Spinner,
   Stack,
   Text as RawText,
@@ -18,12 +17,10 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useParams } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -51,23 +48,23 @@ type OverviewProps = {
   address: string
   vanityAddress: string
   assetId?: AssetId
-  onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  handleIsSelectingAsset: (assetId: AssetId | undefined, selectAssetTranslation: string) => void
+  defaultAction?: FiatRampAction
+  handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
   handleIsSelectingAsset,
-  onFiatRampActionClick,
+  defaultAction = FiatRampAction.Buy,
   assetId,
   handleAccountIdChange,
   accountId,
   address,
   vanityAddress,
 }) => {
+  const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
   const translate = useTranslate()
-  const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
   const {
     state: { wallet },
@@ -162,9 +159,9 @@ export const Overview: React.FC<OverviewProps> = ({
 
   return (
     <>
-      <DefiModalHeader title={translate('fiatRamps.title')} />
-      <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
-      <ModalBody display='flex' flexDir='column' gap={6} py={6}>
+      {/* <DefiModalHeader title={translate('fiatRamps.title')} /> */}
+      <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
+      <Flex display='flex' flexDir='column' gap={6} p={6}>
         <Stack spacing={4}>
           <Box>
             <Text fontWeight='medium' translation={assetTranslation} />
@@ -175,7 +172,7 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            onClick={() => handleIsSelectingAsset(assetId, selectAssetTranslation)}
+            onClick={() => handleIsSelectingAsset(fiatRampAction)}
             rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
           >
             {assetId ? (
@@ -264,7 +261,7 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Stack>
         )}
-      </ModalBody>
+      </Flex>
     </>
   )
 }

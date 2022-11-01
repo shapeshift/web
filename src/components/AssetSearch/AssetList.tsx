@@ -13,14 +13,16 @@ import { AssetRow } from './AssetRow'
 type AssetListProps = {
   handleClick: (asset: Asset) => void
   assets: Asset[]
+  disableUnsupported?: boolean
 } & ListProps
 
 type ItemData<T> = {
   items: Asset[]
   handleClick: T
+  disableUnsupported?: boolean
 }
 
-export const AssetList = ({ assets, handleClick }: AssetListProps) => {
+export const AssetList = ({ assets, handleClick, disableUnsupported = false }: AssetListProps) => {
   type HandleClick = ReturnType<typeof handleClick>
 
   const assetId = useRouteAssetId()
@@ -59,6 +61,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
             itemData={{
               items: assets,
               handleClick,
+              disableUnsupported,
             }}
             itemCount={assets.length}
             ref={setTokenListRef}

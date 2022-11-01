@@ -151,6 +151,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />
           }
           {...buttonProps}
+          onClick={isUtxoAccount ? onToggle : buttonProps.onClick}
         >
           <Stack alignItems='flex-start' spacing={0}>
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>

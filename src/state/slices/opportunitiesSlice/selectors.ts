@@ -27,6 +27,7 @@ export const selectUserStakingIds = (state: ReduxState) => state.opportunities.u
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
+export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
 export const selectUserStakingOpportunitiesById = (state: ReduxState) =>

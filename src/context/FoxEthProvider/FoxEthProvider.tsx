@@ -9,7 +9,6 @@ import isEqual from 'lodash/isEqual'
 import React, { createContext, useContext, useMemo } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
@@ -64,8 +63,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const foxLpEnabled = useFeatureFlag('FoxLP')
-  const foxFarmingEnabled = useFeatureFlag('FoxFarming')
   const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
@@ -90,11 +87,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     [foxEthLpMarketData.price, readyToFetchLpData],
   )
   const readyToFetchLpAccountData = useMemo(
-    () =>
-      Boolean(
-        readyToFetchLpData && lpAccountAddress && foxLpEnabled && foxEthLpMarketData.price !== '0',
-      ),
-    [readyToFetchLpData, lpAccountAddress, foxLpEnabled, foxEthLpMarketData.price],
+    () => Boolean(readyToFetchLpData && lpAccountAddress && foxEthLpMarketData.price !== '0'),
+    [readyToFetchLpData, lpAccountAddress, foxEthLpMarketData.price],
   )
 
   const filter = useMemo(() => ({ assetId: ethAssetId }), [])
@@ -197,7 +191,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         })
       })
     })()
-  }, [ethAccountIds, dispatch, foxFarmingEnabled, readyToFetchFarmingData])
+  }, [ethAccountIds, dispatch, readyToFetchFarmingData])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

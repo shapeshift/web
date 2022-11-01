@@ -9,8 +9,6 @@ dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
   Osmosis: boolean
-  FoxLP: boolean
-  FoxFarming: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -44,8 +42,6 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    FoxLP: getConfig().REACT_APP_FEATURE_FOX_LP,
-    FoxFarming: getConfig().REACT_APP_FEATURE_FOX_FARMING,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

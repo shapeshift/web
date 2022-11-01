@@ -133,12 +133,18 @@ export const Deposit = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).precision(asset.precision)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), {
+      // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount
+        .decimalPlaces(asset.precision)
+        .toString()
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
         shouldValidate: true,
       })
     },

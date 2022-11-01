@@ -132,6 +132,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
+          data-test='asset-input-selection-button'
           onClick={onAssetClick}
           size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}

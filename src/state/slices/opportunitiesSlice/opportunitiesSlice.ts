@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
+import uniq from 'lodash/uniq'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import {
@@ -17,6 +18,7 @@ import type {
   OpportunityDataById,
   UserStakingId,
 } from './types'
+import { serializeUserStakingId } from './utils'
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -44,11 +46,13 @@ export const opportunities = createSlice({
       draftState,
       { payload }: { payload: GetOpportunityMetadataOutput },
     ) => {
+      const payloadIds = Object.keys(payload.byId)
+
       draftState[payload.type].byId = {
         ...draftState[payload.type].byId,
         ...payload.byId,
       }
-      draftState[payload.type].ids = Array.from(new Set([...Object.keys(payload.byId)]))
+      draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])
     },
     // TODO: testme
     upsertOpportunityAccounts: (
@@ -64,11 +68,9 @@ export const opportunities = createSlice({
       draftState,
       { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
     ) => {
-      draftState.userStaking.byId = {
-        ...draftState.staking.byId,
-        ...payload,
-      }
-      draftState.userStaking.ids = Array.from(new Set([...Object.keys(payload)])) as UserStakingId[]
+      const payloadIds = Object.keys(payload) as UserStakingId[]
+      draftState.userStaking.byId = merge(draftState.userStaking.byId, payload)
+      draftState.userStaking.ids = uniq([...draftState.userStaking.ids, ...payloadIds])
     },
   },
 })
@@ -113,12 +115,19 @@ export const opportunitiesApi = createApi({
           // TODO: This commit authors LP slice population only - for Fox staking we will want to assign this to a variable and actually use the data
           // The reason for that is for EVM chains LPs, we just need to await this promise resolution - if this resolves, it means we have portfolio data
           // If this throws, the RTK query is rejected and we never insert that AccountId into state
-          await resolver({
+          const test = await resolver({
             opportunityId,
             opportunityType,
             accountId,
             reduxApi: { dispatch, getState },
           })
+
+          if (typeof test.data === 'object' && Object.keys(test)) {
+            const byId = {
+              [serializeUserStakingId(accountId, opportunityId)]: test.data,
+            }
+            dispatch(opportunities.actions.upsertUserStakingOpportunities(byId))
+          }
 
           const byAccountId = {
             [accountId]: [opportunityId],

@@ -8,6 +8,7 @@ import {
   fauxmesAccountId,
   gomesAccountId,
   mockLpContractOne,
+  mockLpContractTwo,
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
@@ -34,7 +35,7 @@ describe('opportunitiesSlice', () => {
       it('inserts metadata', () => {
         const payload: GetOpportunityMetadataOutput = {
           byId: {
-            'eip155:1:0xMyContract': {
+            [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
@@ -50,19 +51,56 @@ describe('opportunitiesSlice', () => {
           },
           type: DefiType.LiquidityPool,
         }
-        const expected = {
-          'eip155:1:0xMyContract': {
-            apy: '0.42',
-            assetId: foxEthLpAssetId,
-            provider: DefiProvider.FoxEthLP,
-            tvl: '424242',
-            type: DefiType.LiquidityPool,
-            underlyingAssetIds: [foxAssetId, ethAssetId],
-            underlyingAssetRatios: ['5000000000000000', '202200000000000000000'],
-          },
-        }
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
-        expect(store.getState().opportunities.lp.byId).toEqual(expected)
+        expect(store.getState().opportunities.lp.byId).toEqual(payload.byId)
+        expect(store.getState().opportunities.lp.ids).toEqual([mockLpContractOne])
+      })
+
+      it('merges prevState and payload', () => {
+        const insertPayloadOne: GetOpportunityMetadataOutput = {
+          byId: {
+            [mockLpContractOne]: {
+              // The LP token AssetId
+              assetId: foxEthLpAssetId,
+              provider: DefiProvider.FoxEthLP,
+              tvl: '424242',
+              apy: '0.42',
+              type: DefiType.LiquidityPool,
+              underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+            },
+          },
+          type: DefiType.LiquidityPool,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadOne))
+        expect(store.getState().opportunities.lp.byId).toEqual(insertPayloadOne.byId)
+
+        const insertPayloadTwo: GetOpportunityMetadataOutput = {
+          byId: {
+            [mockLpContractTwo]: {
+              // The LP token AssetId
+              assetId: foxEthLpAssetId,
+              provider: DefiProvider.FoxEthLP,
+              tvl: '424242',
+              apy: '0.42',
+              type: DefiType.LiquidityPool,
+              underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+            },
+          },
+          type: DefiType.LiquidityPool,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadTwo))
+        expect(store.getState().opportunities.lp.byId).toEqual({
+          ...insertPayloadOne.byId,
+          ...insertPayloadTwo.byId,
+        })
+        expect(store.getState().opportunities.lp.ids).toEqual([
+          mockLpContractOne,
+          mockLpContractTwo,
+        ])
       })
     })
     describe('upsertOpportunityAccounts', () => {
@@ -154,6 +192,34 @@ describe('opportunitiesSlice', () => {
         store.dispatch(opportunities.actions.upsertUserStakingOpportunities(payload))
         expect(store.getState().opportunities.userStaking.byId).toEqual(payload)
         expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload))
+      })
+      it('merges prevState and payload', () => {
+        const insertPayloadOne = {
+          [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            stakedAmountCryptoPrecision: '42000',
+            rewardsAmountCryptoPrecision: '42',
+          },
+        }
+        store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadOne))
+        expect(store.getState().opportunities.userStaking.byId).toEqual(insertPayloadOne)
+        expect(store.getState().opportunities.userStaking.ids).toEqual(
+          Object.keys(insertPayloadOne),
+        )
+
+        const insertPayloadTwo = {
+          [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            stakedAmountCryptoPrecision: '42000',
+            rewardsAmountCryptoPrecision: '42',
+          },
+        }
+        store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadTwo))
+        expect(store.getState().opportunities.userStaking.byId).toEqual({
+          ...insertPayloadOne,
+          ...insertPayloadTwo,
+        })
+        expect(store.getState().opportunities.userStaking.ids).toEqual(
+          Object.keys({ ...insertPayloadOne, ...insertPayloadTwo }),
+        )
       })
     })
   })

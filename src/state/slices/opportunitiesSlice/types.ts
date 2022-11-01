@@ -14,6 +14,7 @@ export type OpportunityMetadata = {
   underlyingAssetIds: readonly [AssetId, AssetId]
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]
+  opportunitySpecific?: Record<string, any> // TODO: discriminate me
 }
 
 // User-specific values for this opportunity

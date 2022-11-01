@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
+import { Seo } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
@@ -31,6 +32,7 @@ const AccountHeader = () => {
 
   return (
     <Stack direction='row' justifyContent='space-between' alignItems='center' pb={6}>
+      <Seo title={translate('accounts.accounts')} />
       <Heading>
         <Text translation='accounts.accounts' />
       </Heading>

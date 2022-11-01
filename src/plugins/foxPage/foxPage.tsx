@@ -25,6 +25,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetMarketData } from 'components/AssetHeader/AssetMarketData'
+import { Seo } from 'components/Layout/Seo'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -177,6 +178,11 @@ export const FoxPage = () => {
       description={description ?? ''}
       icon={selectedAsset.icon}
     >
+      <Seo
+        title={translate('plugins.foxPage.foxToken', {
+          assetSymbol: selectedAsset.symbol,
+        })}
+      />
       <Tabs variant='unstyled' index={selectedAssetIndex}>
         <TabList>
           <SimpleGrid

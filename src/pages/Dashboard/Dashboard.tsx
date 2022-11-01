@@ -1,12 +1,16 @@
 import { Stack } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
+import { Seo } from 'components/Layout/Seo'
 
 import { DashboardSidebar } from './DashboardSidebar'
 import { Portfolio } from './Portfolio'
 
 export const Dashboard = () => {
+  const translate = useTranslate()
   return (
     <Main>
+      <Seo title={translate('navBar.dashboard')} />
       <Stack
         alignItems='flex-start'
         spacing={4}

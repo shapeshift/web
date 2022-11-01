@@ -1,0 +1,9 @@
+https://app.shapeshift.com
+https://app.shapeshift.com/#/connect-wallet
+https://app.shapeshift.com/#/demo/fox
+https://app.shapeshift.com/#/demo/defi
+https://app.shapeshift.com/#/demo/defi/earn
+https://app.shapeshift.com/#/demo/trade
+https://app.shapeshift.com/#/demo/assets
+https://app.shapeshift.com/#/demo/assets/bip122:000000000019d6689c085ae165831e93/slip44:0
+https://app.shapeshift.com/#/demo/assets/eip155:1/slip44:60

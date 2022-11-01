@@ -13,6 +13,7 @@ import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
+import { KeepkeyAsset } from 'pages/Assets/KeepkeyAsset'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
@@ -57,6 +58,20 @@ export const routes: NestedRoute[] = [
             path: '/transactions',
             label: 'navBar.transactions',
             main: AssetTxHistory,
+          },
+        ],
+      },
+      {
+        path: '/keepkey/:chainId/:assetSubId',
+        label: 'Overview',
+        icon: <AssetsIcon />,
+        main: null,
+        hide: true,
+        routes: [
+          {
+            path: '/',
+            label: 'navBar.overview',
+            main: KeepkeyAsset,
           },
         ],
       },

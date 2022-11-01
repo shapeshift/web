@@ -68,12 +68,11 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     () =>
       opportunityMetadata?.underlyingAssetIds.map((assetId, i) => ({
         ...assets[assetId],
-        cryptoBalance: bnOrZero(lpAssetBalance).times(
-          fromBaseUnit(
-            opportunityMetadata.underlyingAssetRatios[i],
-            assets[assetId].precision,
-          ).toString(),
-        ),
+        cryptoBalance: bnOrZero(lpAssetBalance)
+          .times(
+            fromBaseUnit(opportunityMetadata.underlyingAssetRatios[i], assets[assetId].precision),
+          )
+          .toString(),
         allocationPercentage: '0.50',
       })),
     [

@@ -16,7 +16,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeepKeyMenu } from './KeepKey/KeepKeyMenu'
+import { WalletConnectedMenu } from './WalletConnectedMenu'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -34,22 +34,19 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 
 export type WalletConnectedProps = {
   onDisconnect: () => void
-  onSwitchProvider: () => void
 } & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
-export const WalletConnected = () => {
+export const WalletConnected = (props: WalletConnectedProps) => {
   return (
     <MemoryRouter initialEntries={entries}>
       <Switch>
         <Route path='/'>
-          {/* <WalletConnectedMenu
+          <WalletConnectedMenu
             isConnected={props.isConnected}
             walletInfo={props.walletInfo}
             onDisconnect={props.onDisconnect}
-            onSwitchProvider={props.onSwitchProvider}
             type={props.type}
-          /> */}
-          <KeepKeyMenu />
+          />
         </Route>
       </Switch>
     </MemoryRouter>
@@ -85,7 +82,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   })
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setWalletLabel('')
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
@@ -147,7 +144,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, isLocked } = state
+  const { isConnected, isDemoWallet, walletInfo, isLocked, type } = state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -178,7 +175,16 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
-          {hasWallet ? <WalletConnected /> : <NoWallet onClick={handleConnect} />}
+          {hasWallet ? (
+            <WalletConnected
+              isConnected={isConnected || isDemoWallet}
+              walletInfo={walletInfo}
+              onDisconnect={disconnect}
+              type={type}
+            />
+          ) : (
+            <NoWallet onClick={handleConnect} />
+          )}
         </MenuList>
       </Menu>
     </ButtonGroup>

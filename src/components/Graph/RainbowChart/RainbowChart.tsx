@@ -77,11 +77,11 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const yScale = useMemo(
     () => ({
       type: 'linear' as const,
-      range: [height - magicXAxisOffset - margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      range: [height - margin.bottom + margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
       domain: [minPrice ?? 0, maxPrice ?? 0],
       nice: true,
     }),
-    [margin.top, height, maxPrice, minPrice],
+    [margin.top, margin.bottom, height, maxPrice, minPrice],
   )
 
   const tooltipBg = useColorModeValue('white', colors.gray[700])

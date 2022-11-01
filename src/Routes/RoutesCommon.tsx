@@ -158,7 +158,7 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Explore,
   },
   {
-    path: '/buy',
+    path: '/buy-crypto',
     label: 'navBar.buyCrypto',
     icon: <FaCreditCard />,
     main: Buy,

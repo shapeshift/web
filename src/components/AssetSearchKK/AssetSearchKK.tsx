@@ -21,11 +21,25 @@ type AssetSearchProps = {
   filterBy?: (asset: Asset[]) => Asset[] | undefined
 }
 
+const mergeKKAssets = (webAssets: any, kkAssets: any) => {
+  const webAssetSymbols: any = {}
+
+  webAssets.forEach((webAsset: any) => {
+    webAssetSymbols[webAsset.symbol] = webAsset.symbol
+  })
+
+  const kkAssetsToAdd = kkAssets.filter((kkAsset: any) => {
+    return !webAssetSymbols[kkAsset.symbol]
+  })
+  return webAssets.concat(kkAssetsToAdd)
+}
+
 export const AssetSearchKK = ({ onClick, filterBy }: AssetSearchProps) => {
   const webAssets = useSelector(selectAssetsByMarketCap)
   const { getKeepkeyAssets } = useKeepKey()
   const kkAssets = getKeepkeyAssets()
-  const assets = webAssets.concat(kkAssets)
+
+  const assets = useMemo(() => mergeKKAssets(webAssets, kkAssets), [webAssets, kkAssets])
 
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])

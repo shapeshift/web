@@ -1,16 +1,27 @@
-import { Textarea } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import { Center, Link, Stack } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
+import { RawText } from 'components/Text'
+import type { KKAsset } from 'context/WalletProvider/KeepKeyProvider'
 
 import { Main } from '../Layout/Main'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 type AssetDetailsProps = {
-  asset: Asset
+  asset: KKAsset
 }
 
 export const KKAssetAccountDetails = ({ asset }: AssetDetailsProps) => {
   return (
     <Main titleComponent={<AssetHeader asset={asset} />}>
-      <Textarea placeholder={`${JSON.stringify(asset, null, 2)}`} h='400px' />
+      <Center>
+        <Stack>
+          <RawText>RANK: {`${asset.rank}`}</RawText>
+          <RawText>MARKET CAP: {`$${asset.marketCap}`}</RawText>
+          <Link color='blue.400' isExternal href={asset.link}>
+            Visit Coingecko Page
+          </Link>
+          <Button>VOTE</Button>
+        </Stack>
+      </Center>
     </Main>
   )
 }

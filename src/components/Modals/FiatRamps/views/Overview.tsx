@@ -245,7 +245,9 @@ export const Overview: React.FC<OverviewProps> = ({
                   </InputGroup>
                 </>
               ) : (
-                <Button onClick={handleWalletModalOpen}>{translate('common.connectWallet')}</Button>
+                <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>
+                  {translate('common.connectWallet')}
+                </Button>
               )}
             </Flex>
           )}

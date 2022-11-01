@@ -104,6 +104,7 @@ const validators = {
   REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
+  PUBLIC_URL: url({}),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

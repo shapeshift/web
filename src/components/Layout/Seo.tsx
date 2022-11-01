@@ -1,5 +1,6 @@
 import React from 'react'
 import { Helmet } from 'react-helmet-async'
+import Thumb from 'assets/ss-thumb.jpg'
 
 type SeoProps = {
   title?: string
@@ -14,6 +15,7 @@ export const Seo: React.FC<SeoProps> = ({
   type = 'website',
   name = 'ShapeShift',
 }) => {
+  const publicUrl = window.location.origin
   return (
     <Helmet>
       {/* Standard metadata tags */}
@@ -21,6 +23,7 @@ export const Seo: React.FC<SeoProps> = ({
       <meta name='description' content={description} />
       {/* End standard metadata tags */}
       {/* Facebook tags */}
+      <meta property='og:image' content={`${publicUrl}${Thumb}`} />
       <meta property='og:type' content={type} />
       <meta property='og:title' content={title} />
       <meta property='og:description' content={description} />

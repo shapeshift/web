@@ -191,7 +191,7 @@ describe('opportunitiesSlice selectors', () => {
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
-          underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+          underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
         },
       },
     }
@@ -241,7 +241,10 @@ describe('opportunitiesSlice selectors', () => {
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+            underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+              string,
+              string,
+            ],
             userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           },
           {
@@ -253,7 +256,10 @@ describe('opportunitiesSlice selectors', () => {
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: foxEthPair,
-            underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+            underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+              string,
+              string,
+            ],
             userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
           },
         ])
@@ -271,7 +277,7 @@ describe('opportunitiesSlice selectors', () => {
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
-          underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+          underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
           rewardsAmountCryptoPrecision: '430',
           stakedAmountCryptoPrecision: '1437',
         })

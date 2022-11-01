@@ -10,6 +10,7 @@ import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { calculateAPRFromToken0, getEthersProvider } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { getOrCreateContract } from 'state/slices/foxEthSlice/contractManager'
@@ -110,7 +111,10 @@ export const foxFarmingLpMetadataResolver = async ({
         tvl,
         type: DefiType.LiquidityPool,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [foxPoolRatio.toString(), ethPoolRatio.toString()] as const,
+        underlyingAssetRatios: [
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
+        ] as const,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

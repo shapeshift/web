@@ -8,6 +8,7 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
@@ -67,9 +68,12 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     () =>
       opportunityMetadata?.underlyingAssetIds.map((assetId, i) => ({
         ...assets[assetId],
-        cryptoBalance: bnOrZero(lpAssetBalance)
-          .times(opportunityMetadata.underlyingAssetRatios[i])
-          .toString(),
+        cryptoBalance: bnOrZero(lpAssetBalance).times(
+          fromBaseUnit(
+            opportunityMetadata.underlyingAssetRatios[i],
+            assets[assetId].precision,
+          ).toString(),
+        ),
         allocationPercentage: '0.50',
       })),
     [

@@ -42,7 +42,10 @@ describe('opportunitiesSlice', () => {
               apy: '0.42',
               type: DefiType.LiquidityPool,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
-              underlyingAssetRatios: ['0.005', '202.2'] as [string, string],
+              underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+                string,
+                string,
+              ],
             },
           },
           type: DefiType.LiquidityPool,
@@ -55,7 +58,7 @@ describe('opportunitiesSlice', () => {
             tvl: '424242',
             type: DefiType.LiquidityPool,
             underlyingAssetIds: [foxAssetId, ethAssetId],
-            underlyingAssetRatios: ['0.005', '202.2'],
+            underlyingAssetRatios: ['5000000000000000', '202200000000000000000'],
           },
         }
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))

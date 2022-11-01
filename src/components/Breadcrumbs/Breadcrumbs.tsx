@@ -3,6 +3,7 @@ import type { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
 import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,6 +29,18 @@ const GetAssetName = (props: any) => {
   return <>{asset?.name}</>
 }
 
+const GetAssetName2 = (props: any) => {
+  const { getKeepkeyAssets } = useKeepKey()
+  const {
+    match: {
+      params: { assetSubId },
+    },
+  } = props
+  const assets = getKeepkeyAssets()
+  const asset = assets.find(asset => asset.assetId === assetSubId)
+  return <>{asset?.name}</>
+}
+
 const routes: BreadcrumbsRoute[] = [
   {
     path: '/accounts/:accountId',
@@ -38,10 +51,11 @@ const routes: BreadcrumbsRoute[] = [
     ],
   },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
+  { path: '/assets/keepkey/:chainId/:assetSubId', breadcrumb: GetAssetName2 },
 ]
 
 const options = {
-  excludePaths: ['/assets/:chainId'],
+  excludePaths: ['/assets/:chainId', '/assets/keepkey/:chainId'],
 }
 
 export const Breadcrumbs = withBreadcrumbs(

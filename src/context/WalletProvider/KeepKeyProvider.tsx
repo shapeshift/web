@@ -10,6 +10,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
@@ -91,6 +92,7 @@ export interface IKeepKeyContext {
   state: InitialState
   setHasPassphrase: (enabled: boolean) => void
   keepKeyWallet: KeepKeyHDWallet | undefined
+  getKeepkeyAssets: () => Asset[]
 }
 
 export type KeepKeyActionTypes =
@@ -126,6 +128,26 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [state, dispatch] = useReducer(reducer, initialState)
   const toastRef = useRef<ToastId | undefined>()
+
+  const getKeepkeyAssets: () => Asset[] = useMemo(
+    () => () => {
+      return [
+        {
+          assetId: 'keepkey_ripple',
+          chainId: 'keepkey_ripple',
+          color: '#FF9800',
+          explorer: 'https://live.blockcypher.com',
+          explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
+          explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+          icon: 'https://assets.coincap.io/assets/icons/256/btc.png',
+          name: 'Ripple',
+          precision: 15,
+          symbol: 'XRP',
+        },
+      ]
+    },
+    [],
+  )
 
   const onClose = useCallback(() => {
     if (toastRef.current) {
@@ -223,8 +245,9 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       state,
       keepKeyWallet,
       setHasPassphrase,
+      getKeepkeyAssets,
     }),
-    [keepKeyWallet, setHasPassphrase, state],
+    [keepKeyWallet, setHasPassphrase, state, getKeepkeyAssets],
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

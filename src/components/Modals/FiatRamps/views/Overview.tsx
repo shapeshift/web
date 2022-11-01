@@ -4,6 +4,7 @@ import {
   Button,
   Center,
   Flex,
+  FormControl,
   IconButton,
   Input,
   InputGroup,
@@ -30,6 +31,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
@@ -48,7 +50,7 @@ type OverviewProps = {
   accountId: Nullable<AccountId>
   address: string
   vanityAddress: string
-  assetId?: AssetId
+  assetId: AssetId
   defaultAction?: FiatRampAction
   handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
   handleAccountIdChange: (accountId: AccountId) => void
@@ -82,6 +84,8 @@ export const Overview: React.FC<OverviewProps> = ({
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
   const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
   const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
+
+  const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -193,26 +197,36 @@ export const Overview: React.FC<OverviewProps> = ({
               <Text translation={selectAssetTranslation} color='gray.500' />
             )}
           </Button>
-          {assetId && (
-            <Flex flexDirection='column' mb='10px'>
-              <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
-              {isConnected && !isDemoWallet ? (
-                <>
-                  <AccountDropdown
-                    autoSelectHighestBalance={true}
-                    assetId={assetId}
-                    onChange={handleAccountIdChange}
-                    buttonProps={{ variant: 'solid', width: 'full' }}
-                    boxProps={{ px: 0 }}
-                  />
+          <Flex flexDirection='column' mb='10px'>
+            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
+            {isConnected && !isDemoWallet ? (
+              <>
+                <AccountDropdown
+                  autoSelectHighestBalance={true}
+                  assetId={assetId}
+                  onChange={handleAccountIdChange}
+                  buttonProps={{ variant: 'solid', width: 'full' }}
+                  boxProps={{ px: 0 }}
+                />
+                <FormControl
+                  isInvalid={isUnsupportedAsset}
+                  isDisabled={isUnsupportedAsset}
+                  isReadOnly={true}
+                >
                   <InputGroup size='md'>
                     <Input
                       pr='4.5rem'
                       value={inputValue}
                       readOnly
-                      placeholder={translate('common.loadingText')}
+                      placeholder={
+                        !address && !isUnsupportedAsset
+                          ? translate('common.loadingText')
+                          : 'Get a better wallet'
+                      }
                     />
-                    {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                    {!address && !isUnsupportedAsset && (
+                      <InputLeftElement children={<Spinner size='sm' />} />
+                    )}
                     {address && (
                       <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
                         <IconButton
@@ -243,42 +257,39 @@ export const Overview: React.FC<OverviewProps> = ({
                       </InputRightElement>
                     )}
                   </InputGroup>
-                </>
-              ) : (
-                <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>
-                  {translate('common.connectWallet')}
-                </Button>
-              )}
-            </Flex>
+                </FormControl>
+              </>
+            ) : (
+              <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>
+                {translate('common.connectWallet')}
+              </Button>
+            )}
+          </Flex>
+        </Stack>
+        <Stack spacing={4}>
+          {ramps && (
+            <Box>
+              <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+              <Text
+                color='gray.500'
+                translation={[
+                  'fiatRamps.titleMessage',
+                  {
+                    action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+                    asset: assetsById[assetId].symbol,
+                  },
+                ]}
+              />
+            </Box>
+          )}
+          {isRampsLoading ? (
+            <Center minHeight='150px'>
+              <CircularProgress />
+            </Center>
+          ) : (
+            <Stack>{renderProviders}</Stack>
           )}
         </Stack>
-        {assetId && (
-          <Stack spacing={4}>
-            {ramps && (
-              <Box>
-                <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-                <Text
-                  color='gray.500'
-                  translation={[
-                    'fiatRamps.titleMessage',
-                    {
-                      action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-                      asset: assetsById[assetId].symbol,
-                    },
-                  ]}
-                />
-              </Box>
-            )}
-
-            {isRampsLoading ? (
-              <Center minHeight='150px'>
-                <CircularProgress />
-              </Center>
-            ) : (
-              <Stack>{renderProviders}</Stack>
-            )}
-          </Stack>
-        )}
       </Flex>
     </>
   )

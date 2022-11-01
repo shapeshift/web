@@ -12,7 +12,7 @@ export const Seo: React.FC<SeoProps> = ({
   title,
   description = 'ShapeShift DAO | Your Web3 & DeFi Portal',
   type = 'website',
-  name,
+  name = 'ShapeShift',
 }) => {
   return (
     <Helmet>

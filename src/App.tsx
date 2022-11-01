@@ -71,24 +71,35 @@ export const App = () => {
       updateFirmware.open(data)
     })
 
+    ipcRenderer.on("@modal/pin", (_event, _data) => {
+      console.log("PIN MODAL REQUESTED", deviceId)
+      dispatch({
+        type: WalletActions.OPEN_KEEPKEY_PIN,
+        payload: {
+          deviceId,
+          showBackButton: false,
+        },
+      })
+    })
+
+    ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
+      let unsignedTx = data.payload.data
+      //open signTx
+      if (
+        unsignedTx &&
+        unsignedTx.invocation &&
+        unsignedTx.invocation.unsignedTx &&
+        unsignedTx.invocation.unsignedTx.HDwalletPayload
+      ) {
+        sign.open({ unsignedTx, nonce: data.nonce })
+      } else {
+        // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
+        console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
+      }
+    })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  ipcRenderer.on('@account/sign-tx', async (_event: any, data: any) => {
-    let unsignedTx = data.payload.data
-    //open signTx
-    if (
-      unsignedTx &&
-      unsignedTx.invocation &&
-      unsignedTx.invocation.unsignedTx &&
-      unsignedTx.invocation.unsignedTx.HDwalletPayload
-    ) {
-      sign.open({ unsignedTx, nonce: data.nonce })
-    } else {
-      // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
-      console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
-    }
-  })
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')

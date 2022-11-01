@@ -10,6 +10,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { ipcRenderer } from 'electron'
 const moduleLogger = logger.child({ namespace: ['Pin'] })
 
 type KeepKeyPinProps = {
@@ -89,6 +90,7 @@ export const KeepKeyPin = ({
         if (pinFieldRef?.current) {
           pinFieldRef.current.value = ''
         }
+        ipcRenderer.send("@modal/pin-close")
         setLoading(false)
       }
     }

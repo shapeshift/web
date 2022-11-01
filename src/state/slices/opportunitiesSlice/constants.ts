@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 
 // LP contracts
-export const foxEthPair = [foxAssetId, ethAssetId] as const
+export const foxEthPair = [ethAssetId, foxAssetId] as const
 export const foxEthLpAssetId: AssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 
 // Staking contracts

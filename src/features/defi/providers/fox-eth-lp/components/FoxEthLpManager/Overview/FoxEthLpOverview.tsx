@@ -40,8 +40,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
   const opportunityId = foxEthLpAssetId
 
+  const highestBalanceAccountIdFilter = useMemo(() => ({ lpId: opportunityId }), [opportunityId])
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByLpId(state, { lpId: opportunityId }),
+    selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
 
   const opportunityMetadata = useMemo(
@@ -50,11 +51,16 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   )
 
   const lpAsset = useAppSelector(state => selectAssetById(state, opportunityId ?? ''))
-  const lpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, {
+
+  const lpAssetBalanceFilter = useMemo(
+    () => ({
       assetId: opportunityId ?? '',
       accountId: accountId ?? '',
     }),
+    [accountId, opportunityId],
+  )
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, lpAssetBalanceFilter),
   )
 
   const underlyingAssetsWithBalances = useMemo(
@@ -74,11 +80,16 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     ],
   )
 
-  const underlyingAssetsFiatBalance = useAppSelector(state =>
-    selectPortfolioFiatBalanceByFilter(state, {
+  const underlyingAssetsFiatBalanceFilter = useMemo(
+    () => ({
       assetId: opportunityId ?? '',
       accountId: accountId ?? '',
     }),
+    [accountId, opportunityId],
+  )
+
+  const underlyingAssetsFiatBalance = useAppSelector(state =>
+    selectPortfolioFiatBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
   )
 
   const underlyingAssetsIcons = useMemo(

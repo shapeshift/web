@@ -166,14 +166,18 @@ export const Overview: React.FC<OverviewProps> = ({
                   {tvl && (
                     <Stat fontWeight='medium'>
                       <Amount.Fiat value={tvl} fontSize='lg' />
-                      <StatLabel>TVL</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.tvl' />
+                      </StatLabel>
                     </Stat>
                   )}
 
                   {apy && (
                     <Stat fontWeight='medium'>
                       <Amount.Percent autoColor value={apy} fontSize='lg' />
-                      <StatLabel>APY</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.apy' />
+                      </StatLabel>
                     </Stat>
                   )}
 

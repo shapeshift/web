@@ -4,6 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { FormEvent } from 'react'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 
 import type { FiatRampAction } from '../../FiatRampsCommon'
 import { filterAssetsBySearchTerm } from '../../utils'
@@ -16,6 +17,7 @@ type AssetSearchProps = {
 }
 
 export const AssetSearch: React.FC<AssetSearchProps> = ({ onClick, action, assetIds }) => {
+  const translate = useTranslate()
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
@@ -45,7 +47,7 @@ export const AssetSearch: React.FC<AssetSearchProps> = ({ onClick, action, asset
           <Input
             {...register('search')}
             type='text'
-            placeholder='Search'
+            placeholder={translate('common.search')}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
             autoComplete='off'
             pl={10}

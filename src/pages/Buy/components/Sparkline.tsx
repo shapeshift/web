@@ -5,6 +5,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { curveLinear } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
+import { Text } from 'components/Text/Text'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
@@ -41,7 +42,7 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
   return (
     <Box>
       {loading ? (
-        <p>Loading...</p>
+        <Text translation='common.loadingText' />
       ) : (
         <XYChart
           margin={{ top: 0, left: 0, right: 0, bottom: 0 }}

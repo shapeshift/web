@@ -1,6 +1,6 @@
-import { ChevronRightIcon, CloseIcon, ExternalLinkIcon, RepeatIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Flex, Link } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -17,7 +17,6 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 export const WalletConnectedMenu = ({
   onDisconnect,
-  onSwitchProvider,
   walletInfo,
   isConnected,
   type,
@@ -59,18 +58,6 @@ export const WalletConnectedMenu = ({
           </Flex>
         </MenuItem>
         <MenuDivider />
-        <MenuItem
-          icon={<ExternalLinkIcon />}
-          as={Link}
-          isExternal
-          _hover={{ textDecoration: 'none', outline: 'none' }}
-          href='http://localhost:1646/docs'
-        >
-          {translate('connectWallet.menu.openDev')}
-        </MenuItem>
-        <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
-          {translate('connectWallet.menu.switchWallet')}
-        </MenuItem>
         <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={onDisconnect} color='red.500'>
           {translate('connectWallet.menu.disconnect')}
         </MenuItem>

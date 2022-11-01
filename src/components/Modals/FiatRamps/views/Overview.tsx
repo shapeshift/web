@@ -27,6 +27,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
@@ -67,8 +68,10 @@ export const Overview: React.FC<OverviewProps> = ({
   const translate = useTranslate()
   const toast = useToast()
   const {
-    state: { wallet },
+    state: { wallet, isConnected, isDemoWallet },
+    dispatch,
   } = useWallet()
+
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   useEffect(() => setShownOnDisplay(null), [accountId])
 
@@ -87,6 +90,9 @@ export const Overview: React.FC<OverviewProps> = ({
         : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.asset', 'fiatRamps.fundsFrom'],
     [fiatRampAction],
   )
+
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   const handleCopyClick = useCallback(async () => {
     const duration = 2500
@@ -140,17 +146,18 @@ export const Overview: React.FC<OverviewProps> = ({
       )
     return rampIdsForAssetIdAndAction.map(rampId => {
       const ramp = supportedFiatRamps[rampId]
+      const passedAddress = isDemoWallet ? '' : address
       return (
         <FiatRampButton
           key={rampId}
-          onClick={() => ramp.onSubmit(fiatRampAction, assetId, address)}
+          onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
           accountFiatBalance={accountFiatBalance}
           action={fiatRampAction}
           {...ramp}
         />
       )
     })
-  }, [accountFiatBalance, address, assetId, fiatRampAction, isRampsLoading, ramps])
+  }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress
@@ -189,55 +196,61 @@ export const Overview: React.FC<OverviewProps> = ({
           {assetId && (
             <Flex flexDirection='column' mb='10px'>
               <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
-              <AccountDropdown
-                autoSelectHighestBalance={true}
-                assetId={assetId}
-                onChange={handleAccountIdChange}
-                buttonProps={{ variant: 'solid', width: 'full' }}
-                boxProps={{ px: 0 }}
-              />
-              <InputGroup size='md'>
-                <Input
-                  pr='4.5rem'
-                  value={inputValue}
-                  readOnly
-                  placeholder={translate('common.loadingText')}
-                />
-                {!address && <InputLeftElement children={<Spinner size='sm' />} />}
-                {address && (
-                  <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
-                    <IconButton
-                      icon={<CopyIcon />}
-                      aria-label='copy-icon'
-                      size='sm'
-                      isRound
-                      variant='ghost'
-                      onClick={handleCopyClick}
+              {isConnected && !isDemoWallet ? (
+                <>
+                  <AccountDropdown
+                    autoSelectHighestBalance={true}
+                    assetId={assetId}
+                    onChange={handleAccountIdChange}
+                    buttonProps={{ variant: 'solid', width: 'full' }}
+                    boxProps={{ px: 0 }}
+                  />
+                  <InputGroup size='md'>
+                    <Input
+                      pr='4.5rem'
+                      value={inputValue}
+                      readOnly
+                      placeholder={translate('common.loadingText')}
                     />
-                    {supportsAddressVerification && address && (
-                      <IconButton
-                        icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                        onClick={handleVerify}
-                        aria-label='check-icon'
-                        size='sm'
-                        color={
-                          shownOnDisplay
-                            ? 'green.500'
-                            : shownOnDisplay === false
-                            ? 'red.500'
-                            : 'gray.500'
-                        }
-                        isRound
-                        variant='ghost'
-                      />
+                    {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                    {address && (
+                      <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
+                        <IconButton
+                          icon={<CopyIcon />}
+                          aria-label='copy-icon'
+                          size='sm'
+                          isRound
+                          variant='ghost'
+                          onClick={handleCopyClick}
+                        />
+                        {supportsAddressVerification && address && (
+                          <IconButton
+                            icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                            onClick={handleVerify}
+                            aria-label='check-icon'
+                            size='sm'
+                            color={
+                              shownOnDisplay
+                                ? 'green.500'
+                                : shownOnDisplay === false
+                                ? 'red.500'
+                                : 'gray.500'
+                            }
+                            isRound
+                            variant='ghost'
+                          />
+                        )}
+                      </InputRightElement>
                     )}
-                  </InputRightElement>
-                )}
-              </InputGroup>
+                  </InputGroup>
+                </>
+              ) : (
+                <Button onClick={handleWalletModalOpen}>{translate('common.connectWallet')}</Button>
+              )}
             </Flex>
           )}
         </Stack>
-        {assetId && address && (
+        {assetId && (
           <Stack spacing={4}>
             {ramps && (
               <Box>

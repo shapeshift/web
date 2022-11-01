@@ -1473,12 +1473,12 @@
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "explain nonce here"
+              "tooltip": "The number of transactions sent from a given address. Advanced users only."
             },
             "gasLimit": {
               "title": "Gas Limit",
               "placeholder": "Gas Limit...",
-              "tooltip": "explain gas limit here"
+              "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
           }
         }
@@ -1517,7 +1517,7 @@
     "estGasCost": "Est. Gas Cost",
     "gasPrice": {
       "label": "Gas Price",
-      "tooltip": "TODO: Gas Price Tooltip"
+      "tooltip": "The amount you want to pay per unit of gas as a fee to the miner or validator"
     },
     "base": {
       "label": "Base fee",

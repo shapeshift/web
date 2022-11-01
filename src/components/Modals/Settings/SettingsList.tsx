@@ -11,9 +11,11 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
-import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
+import { useCallback, useEffect, useState } from 'react'
+import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash, FaRocket } from 'react-icons/fa'
+import { HiRefresh } from "react-icons/hi"
+import { TbRefreshAlert } from "react-icons/tb"
+import { IoDocumentTextOutline, IoLockClosed, IoFileTray } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -33,10 +35,20 @@ import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
+import { ipcRenderer } from 'electron'
 
 type SettingsListProps = {
   appHistory: RouteComponentProps['history']
 } & RouteComponentProps
+
+export type AppSettings = {
+  shouldAutoLunch: boolean
+  shouldAutoStartBridge: boolean
+  shouldMinimizeToTray: boolean
+  shouldAutoUpdate: boolean
+  allowPreRelease: boolean
+  bridgeApiPort: number
+}
 
 export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) => {
   const translate = useTranslate()
@@ -49,6 +61,18 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
+
+  const [appSettings, setAppSettings] = useState<AppSettings>({
+    shouldAutoLunch: true,
+    shouldAutoStartBridge: true,
+    shouldMinimizeToTray: true,
+    shouldAutoUpdate: true,
+    allowPreRelease: false,
+    bridgeApiPort: 1646,
+  })
+
+  const [prevAppSettings, setPrevAppSettings] = useState<AppSettings>(appSettings)
+
 
   /**
    * tapping 5 times on the settings header will close this modal and take you to the flags page
@@ -64,12 +88,33 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     }
   }, [appHistory, clickCount, setClickCount, settings])
 
+  useEffect(() => {
+    ipcRenderer.on("@app/settings", (_event, data) => {
+      console.log("APP SETTINGS RECIEVED", data)
+      setAppSettings(data)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (prevAppSettings && appSettings.shouldAutoLunch === prevAppSettings.shouldAutoLunch
+      && appSettings.shouldAutoUpdate === prevAppSettings.shouldAutoUpdate &&
+      appSettings.shouldMinimizeToTray === prevAppSettings.shouldMinimizeToTray &&
+      appSettings.allowPreRelease === prevAppSettings.allowPreRelease) return
+    setPrevAppSettings(appSettings)
+    console.log("APP SETTINGS SAVED")
+    ipcRenderer.send('@app/update-settings', appSettings)
+  }, [appSettings])
+
+  useEffect(() => {
+    if (settings.isOpen) ipcRenderer.send("@app/settings")
+  }, [settings.isOpen])
+
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
     appHistory.push(linkHref)
   }
 
-  const handleDeleteAccountsClick = async () => {}
+  const handleDeleteAccountsClick = async () => { }
 
   return (
     <SlideTransition>
@@ -86,6 +131,66 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             icon={<Icon as={isLightMode ? SunIcon : MoonIcon} color='gray.500' />}
           >
             <Switch isChecked={isLightMode} pointerEvents='none' />
+          </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label={'modals.settings.autoUpdate'}
+            onClick={() => {
+              setAppSettings(currentSettings => {
+                return {
+                  ...currentSettings,
+                  shouldAutoUpdate: !currentSettings.shouldAutoUpdate,
+                }
+              })
+            }}
+            icon={<Icon as={HiRefresh} color='gray.500' />}
+          >
+            <Switch isChecked={appSettings.shouldAutoUpdate} pointerEvents='none' />
+          </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label={'modals.settings.autoLaunch'}
+            onClick={() => {
+              setAppSettings(currentSettings => {
+                return {
+                  ...currentSettings,
+                  shouldAutoLunch: !currentSettings.shouldAutoLunch,
+                }
+              })
+            }}
+            icon={<Icon as={FaRocket} color='gray.500' />}
+          >
+            <Switch isChecked={appSettings.shouldAutoLunch} pointerEvents='none' />
+          </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label={'modals.settings.minimizeToTray'}
+            onClick={() => {
+              setAppSettings(currentSettings => {
+                return {
+                  ...currentSettings,
+                  shouldMinimizeToTray: !currentSettings.shouldMinimizeToTray,
+                }
+              })
+            }}
+            icon={<Icon as={IoFileTray} color='gray.500' />}
+          >
+            <Switch isChecked={appSettings.shouldMinimizeToTray} pointerEvents='none' />
+          </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label={'modals.settings.downloadPreRelease'}
+            onClick={() => {
+              setAppSettings(currentSettings => {
+                return {
+                  ...currentSettings,
+                  allowPreRelease: !currentSettings.allowPreRelease,
+                }
+              })
+            }}
+            icon={<Icon as={TbRefreshAlert} color='gray.500' />}
+          >
+            <Switch isChecked={appSettings.allowPreRelease} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
           <>

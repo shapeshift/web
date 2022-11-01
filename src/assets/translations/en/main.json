@@ -880,6 +880,10 @@
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
+      "autoLaunch": "Automatically launch app on startup",
+      "minimizeToTray": "Minimize to tray",
+      "autoUpdate": "Automatically install updates",
+      "downloadPreRelease": "Download pre release builds",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "United States Dollar (default)",
@@ -914,6 +918,23 @@
         "body": "If you ever lose access to your device, you need your secret recovery phrase to recover your funds.",
         "primaryCta": "Get Secret Recovery Phrase",
         "secondaryCta": "I already know my secret recovery phrase"
+      }
+    },
+    "pair": {
+      "header": "Wallet Connect",
+      "native": {
+        "header": "App pairing request",
+        "body": "%{serviceName} wants to pair with your KeepKey"
+      },
+      "walletconnect": {
+        "header": "Wallet Connect pairing request",
+        "chain": "Blockchain(s)",
+        "relay": "Relay Protocol",
+        "methods": "Methods"
+      },
+      "cta": {
+        "pair": "Pair",
+        "reject": "Reject"
       }
     }
   },

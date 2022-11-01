@@ -28,6 +28,8 @@ import { logger } from 'lib/logger'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const SignModal = (input: any) => {
   const [error] = useState<string | null>(null)
@@ -36,6 +38,9 @@ export const SignModal = (input: any) => {
   const [isApproved, setIsApproved] = React.useState(false)
   const { sign } = useModal()
   const { close, isOpen } = sign
+
+  const { state: { wallet } } = useWallet()
+
 
   const HDwalletPayload = input?.unsignedTx?.invocation?.unsignedTx?.HDwalletPayload
 
@@ -76,7 +81,7 @@ export const SignModal = (input: any) => {
   const handleToggle = () => setShow(!show)
 
   const signTx = useCallback(
-    async (unsignedTx: any, wallet: any) => {
+    async (unsignedTx: any, wallet: KeepKeyHDWallet) => {
       try {
         if (!wallet) throw Error('Can not not sign if a HDWwallet is not paired!')
         if (!unsignedTx) throw Error('Invalid payload! empty')
@@ -86,7 +91,7 @@ export const SignModal = (input: any) => {
         //TODO validate fee's
         //TODO load EV data
 
-        let signedTx
+        let signedTx: any
         let broadcastString
         let buffer
         let txid
@@ -115,13 +120,15 @@ export const SignModal = (input: any) => {
               .toUpperCase()
             signedTx.txid = txid
             break
-          case 'OSMO':
-            signedTx = await wallet.osmosisSignTx(unsignedTx.HDwalletPayload)
-            buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
-            //TODO FIXME
-            txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
-            signedTx.txid = txid
-            break
+          // method to sign osmosis txs don't exist yet
+          // case 'OSMO':
+          //   wallet.sign
+          //   signedTx = await wallet.osmosisSignTx(unsignedTx.HDwalletPayload)
+          //   buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
+          //   //TODO FIXME
+          //   txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+          //   signedTx.txid = txid
+          //   break
           case 'ETH':
             signedTx = await wallet.ethSignTx(unsignedTx.HDwalletPayload)
             //TODO do txid hashing in HDwallet
@@ -163,7 +170,7 @@ export const SignModal = (input: any) => {
       },
     }
 
-    let signedTx = await signTx(unsignedTx, {} as any)
+    let signedTx = await signTx(unsignedTx, wallet as KeepKeyHDWallet)
     ipcRenderer.send(`@account/tx-signed-${input.nonce}`, { signedTx, nonce: input.nonce })
     ipcRenderer.send('@modal/sign-close', {})
     setIsApproved(false)

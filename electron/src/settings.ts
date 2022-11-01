@@ -9,11 +9,14 @@ import { setAllowPreRelease } from "./updater";
 let instance: Settings;
 
 export class Settings {
-    public shouldAutoLunch = true
+    // don't allow user to change these two settings
     public shouldAutoStartBridge = true
+    public bridgeApiPort = 1646
+
+
+    public shouldAutoLunch = true
     public shouldMinimizeToTray = true
     public shouldAutoUpdate = true
-    public bridgeApiPort = 1646
     public allowPreRelease = true
 
     constructor() {
@@ -56,6 +59,7 @@ export class Settings {
             this.shouldAutoUpdate = doc.settings.shouldAutoUpdate
             this.bridgeApiPort = doc.settings.bridgeApiPort
             this.allowPreRelease = doc.settings.allowPreRelease
+            console.log("Saved settings: ", doc.settings)
             resolve(this)
         })
     })
@@ -139,7 +143,7 @@ export class Settings {
         bridgeApiPort?: number,
         allowPreRelease?: boolean
     }) {
-        log.info(shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, bridgeApiPort, allowPreRelease)
+        log.info(shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, shouldAutoUpdate, bridgeApiPort, allowPreRelease)
         if (shouldAutoLunch !== undefined) this.setShouldAutoLunch(shouldAutoLunch, true)
         if (shouldAutoStartBridge !== undefined) this.setShouldAutoStartBridge(shouldAutoStartBridge, true)
         if (shouldMinimizeToTray !== undefined) this.setShouldMinimizeToTray(shouldMinimizeToTray, true)

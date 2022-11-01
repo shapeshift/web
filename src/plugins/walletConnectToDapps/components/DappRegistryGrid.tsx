@@ -15,6 +15,7 @@ import {
 import type { FC } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
@@ -26,6 +27,7 @@ const registryItems: RegistryItem[] = require('../registry.json')
 const PAGE_SIZE = 20
 
 export const DappRegistryGrid: FC = () => {
+  const translate = useTranslate()
   const { register, setValue, control } = useForm<{ search: string; page: number }>({
     mode: 'onChange',
     defaultValues: { search: '', page: 0 },
@@ -60,7 +62,7 @@ export const DappRegistryGrid: FC = () => {
               {...register('search')}
               autoComplete='off'
               type='text'
-              placeholder='Search'
+              placeholder={translate('common.search')}
               pl={10}
               variant='filled'
             />

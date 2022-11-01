@@ -10,6 +10,7 @@ import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { calculateAPRFromToken0, getEthersProvider } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { getOrCreateContract } from 'state/slices/foxEthSlice/contractManager'
@@ -70,14 +71,20 @@ export const foxFarmingLpMetadataResolver = async ({
   })
   const apy = bnOrZero(calculatedApy).div(100).toString()
   const reserves = await uniV2LPContract.getReserves()
+
+  // Getting the ratio of the LP token for each asset
+  const totalSupply = (await uniV2LPContract.totalSupply()).toString()
+  const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
+  const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
+  const ethPoolRatio = ethReserves.div(totalSupply).toString()
+  const foxPoolRatio = foxReserves.div(totalSupply).toString()
   // Amount of Eth in liquidity pool
   const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethPrecision}`)
 
   // Total market cap of liquidity pool in usdc.
   // Multiplied by 2 to show equal amount of eth and fox.
-  const totalLiquidity = ethInReserve.times(ethPrice).times(2)
-  const tvl = totalLiquidity.toString()
-  const totalSupply = await uniV2LPContract.totalSupply()
+  const totalLiquidityFiat = ethInReserve.times(ethPrice).times(2)
+  const tvl = totalLiquidityFiat.toString()
   const price = bnOrZero(tvl)
     .div(bnOrZero(totalSupply.toString()).div(`1e${lpAssetPrecision}`))
     .toString()
@@ -104,6 +111,10 @@ export const foxFarmingLpMetadataResolver = async ({
         tvl,
         type: DefiType.LiquidityPool,
         underlyingAssetIds: foxEthPair,
+        underlyingAssetRatios: [
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
+        ] as const,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

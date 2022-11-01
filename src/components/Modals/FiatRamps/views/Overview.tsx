@@ -259,7 +259,10 @@ export const Overview: React.FC<OverviewProps> = ({
                   color='gray.500'
                   translation={[
                     'fiatRamps.titleMessage',
-                    { action: fiatRampAction, asset: assetsById[assetId].symbol },
+                    {
+                      action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+                      asset: assetsById[assetId].symbol,
+                    },
                   ]}
                 />
               </Box>

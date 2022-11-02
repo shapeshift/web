@@ -92,7 +92,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   // TODO: Abstract into a selector, not relying on the LP token but rather on the sum of both underlying tokens fiat value
   const underlyingAssetsFiatBalance = useMemo(() => {
-    const cryptoAmount = opportunityData?.stakedAmountCryptoPrecision ?? '0'
+    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(2)
     // TODO: add a stakingAssetId property in OpportunityMetadata ?
     const foxEthLpFiatPrice = marketData?.[foxEthLpAssetId]?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
@@ -104,6 +104,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         ...assets[assetId],
         cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
           .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
+          .toFixed(4)
           .toString(),
         icons: [underlyingAssetsIcons![i]],
         allocationPercentage: '0.50',
@@ -120,7 +121,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
-      cryptoBalance: opportunityData?.stakedAmountCryptoPrecision ?? '0',
+      cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(4),
       allocationPercentage: '1',
       icons: underlyingAssetsIcons,
     }),

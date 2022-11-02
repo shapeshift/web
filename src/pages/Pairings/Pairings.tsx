@@ -11,6 +11,7 @@ export type PairedAppProps = {
   serviceName: string
   serviceImageUrl: string
   serviceKey: string
+  isKeepKeyDesktop?: boolean
 }
 
 const PairingsHeader = () => {
@@ -32,6 +33,7 @@ export const Pairings = () => {
   }, [])
 
   const unpair = (app: PairedAppProps) => {
+    if (app.isKeepKeyDesktop) return
     ipcRenderer.send('@bridge/remove-service', app)
     ipcRenderer.send('@bridge/paired-apps')
   }
@@ -68,6 +70,7 @@ export const Pairings = () => {
                         onClick={() => {
                           unpair(app)
                         }}
+                        disabled={app.isKeepKeyDesktop}
                       >
                         <Text translation={'pairedApps.cta.unpair'} />
                       </Button>

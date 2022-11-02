@@ -30,11 +30,11 @@ export class FDeveloperController extends Controller {
     @Post('/removePin')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async removePin(@Body() body: void): Promise<ETHSignedTx> {
+    public async removePin(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!lastKnownKeepkeyState.wallet) return reject()
-
+            console.log("Removing pin")
             lastKnownKeepkeyState.wallet.removePin().then(resolve)
         })
     }

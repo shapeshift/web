@@ -71,8 +71,8 @@ export const App = () => {
       updateFirmware.open(data)
     })
 
-    ipcRenderer.on("@modal/pin", (_event, _data) => {
-      console.log("PIN MODAL REQUESTED", deviceId)
+    ipcRenderer.on('@modal/pin', (_event, _data) => {
+      console.log('PIN MODAL REQUESTED', deviceId)
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

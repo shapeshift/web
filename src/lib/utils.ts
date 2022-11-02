@@ -54,8 +54,8 @@ export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
 
 export const getPubFromAccountID = (accountId: string) => {
-  if (!accountId) return ""
-  const accIdArr = accountId.split(":")
-  if (accIdArr.length !== 3) return ""
+  if (!accountId) return ''
+  const accIdArr = accountId.split(':')
+  if (accIdArr.length !== 3) return ''
   return accIdArr[2]
 }

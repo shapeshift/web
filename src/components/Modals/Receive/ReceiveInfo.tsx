@@ -35,11 +35,11 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getPubFromAccountID } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
-import { getPubFromAccountID } from 'lib/utils'
 
 type ReceivePropsType = {
   asset: Asset
@@ -80,7 +80,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [accountId])
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (!(wallet && chainAdapter)) return
       if (!bip44Params) return
       // if (chainAdapter.isAccountTypeRequired() && !accountType) return
@@ -137,7 +137,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     const translatePayload = { symbol: symbol.toUpperCase() }
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(shouldUseXpub ? (xpub ?? "") : receiveAddress)
+      await navigator.clipboard.writeText(shouldUseXpub ? xpub ?? '' : receiveAddress)
       const title = translate('modals.receive.copied', translatePayload)
       const status = 'success'
       const description = shouldUseXpub ? xpub : receiveAddress
@@ -198,7 +198,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               />
               <HStack mt={4}>
                 <Text translation='modals.receive.toggleXpub' />
-                <Switch isChecked={shouldUseXpub} onChange={() => { setShouldUseXpub((curr) => !curr) }} />
+                <Switch
+                  isChecked={shouldUseXpub}
+                  onChange={() => {
+                    setShouldUseXpub(curr => !curr)
+                  }}
+                />
               </HStack>
             </Flex>
             <Flex justifyContent='center'>
@@ -223,7 +228,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               <Card.Body display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!(shouldUseXpub ? xpub : receiveAddress)} mb={2}>
-                    <QRCode text={shouldUseXpub ? xpub : receiveAddress} data-test='receive-qr-code' />
+                    <QRCode
+                      text={shouldUseXpub ? xpub : receiveAddress}
+                      data-test='receive-qr-code'
+                    />
                   </Skeleton>
                   <Skeleton isLoaded={!!(shouldUseXpub ? xpub : receiveAddress)}>
                     <Flex
@@ -282,8 +290,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
                   <Text
-                    translation={`modals.receive.${verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                      }`}
+                    translation={`modals.receive.${
+                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                    }`}
                   />
                 </Button>
               ) : undefined}

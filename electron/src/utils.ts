@@ -39,15 +39,19 @@ export const openSignTxWindow = async (signArgs: any) => {
 
 
 export const checkKeepKeyUnlocked = () => new Promise<void>(async (resolve, reject) => {
-    console.log("CHECKING KEEPKEY LOCKED")
+    console.log("CHECKING KEEPKEY LOCKED", 1)
     if (!lastKnownKeepkeyState.wallet) return resolve()
-
+    console.log("CHECKING KEEPKEY LOCKED", 2)
     if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
+        console.log("CHECKING KEEPKEY LOCKED", 3)
         if (!await createWindow()) return reject()
     } else {
+        console.log("CHECKING KEEPKEY LOCKED", 4)
         const isLocked = await lastKnownKeepkeyState.wallet.isLocked()
+        console.log("CHECKING KEEPKEY LOCKED", 5)
         console.log("KEEPKEY LOCKED: ", isLocked)
         if (isLocked) {
+            console.log("CHECKING KEEPKEY LOCKED", 6)
             windows.mainWindow.focus()
             windows.mainWindow.webContents.send('@modal/pin');
         } else {
@@ -56,6 +60,7 @@ export const checkKeepKeyUnlocked = () => new Promise<void>(async (resolve, reje
     }
 
     ipcMain.once("@modal/pin-close", () => {
+        console.log("CHECKING KEEPKEY LOCKED", 7)
         return resolve()
     })
 })

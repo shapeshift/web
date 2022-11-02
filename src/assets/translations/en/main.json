@@ -982,6 +982,7 @@
           "deviceTimeout": "Device Timeout",
           "passphrase": "Passphrase",
           "wipeDevice": "Wipe Device",
+          "removePin": "Remove Pin",
           "label": "Label"
         },
         "status": {

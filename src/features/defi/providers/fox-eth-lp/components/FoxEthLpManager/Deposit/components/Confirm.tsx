@@ -35,9 +35,9 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> }
+type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-export const Confirm: React.FC<ConfirmProps & StepComponentProps> = ({ accountId, onNext }) => {
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()

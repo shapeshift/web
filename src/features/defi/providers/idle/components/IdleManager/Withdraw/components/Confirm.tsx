@@ -39,7 +39,7 @@ const moduleLogger = logger.child({
 
 type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

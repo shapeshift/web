@@ -32,9 +32,9 @@ import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> }
+type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-export const Confirm = ({ accountId, onNext }: ConfirmProps & StepComponentProps) => {
+export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const translate = useTranslate()

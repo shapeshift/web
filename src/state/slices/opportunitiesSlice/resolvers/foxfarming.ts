@@ -158,7 +158,7 @@ export const foxFarmingStakingMetadataResolver = async ({
 
   const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
 
-  if (!lpTokenPrice) {
+  if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
@@ -215,9 +215,7 @@ export const foxFarmingStakingMetadataResolver = async ({
         type: DefiType.Farming,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [foxPoolRatio.toString(), ethPoolRatio.toString()] as const,
-        opportunitySpecific: {
-          expired,
-        },
+        expired,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,
@@ -236,16 +234,26 @@ export const foxFarmingLpUserDataResolver = async ({
   opportunityType: OpportunityDefiType
   accountId: AccountId
   reduxApi: ReduxApi
-}): Promise<{ data: string }> => {
+}): Promise<void> => {
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
+
+  // Reject RTK query if account portfolio data is granularily loading
   if (portfolioLoadingStatusGranular?.[accountId] === 'loading')
     throw new Error(`Portfolio data not loaded for ${accountId}`)
 
   const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
 
-  return { data: balances[accountId][opportunityId as AssetId] }
+  const hasPortfolioData = Boolean(balances[accountId][opportunityId as AssetId])
+
+  // Reject RTK query if there's no account portfolio data for this LP token
+  if (!hasPortfolioData) {
+    throw new Error('no portfolio data')
+  }
+
+  // All checks passed, resolve the promise so we continue the RTK query execution and populate LP/Account IDs
+  return
 }
 
 export const foxFarmingStakingUserDataResolver = async ({
@@ -270,7 +278,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
   const { account: accountAddress } = fromAccountId(accountId)
 
-  if (!lpTokenPrice) {
+  if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 

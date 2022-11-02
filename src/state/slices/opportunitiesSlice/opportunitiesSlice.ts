@@ -121,7 +121,7 @@ export const opportunitiesApi = createApi({
             reduxApi: { dispatch, getState },
           })
 
-          if (typeof resolved.data === 'object' && Object.keys(resolved.data)) {
+          if (resolved?.data) {
             // If we get an object back, this is userStakingData - LP just returns an `amount` string
             const byId = {
               [serializeUserStakingId(accountId, opportunityId as StakingId)]: resolved.data,

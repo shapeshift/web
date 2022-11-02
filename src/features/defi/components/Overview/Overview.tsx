@@ -1,13 +1,6 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
-  Box,
-  Button,
   Divider,
   Flex,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   ModalCloseButton,
   ModalHeader,
   Stack,
@@ -31,6 +24,7 @@ import type { Nullable } from 'types/common'
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
+import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
 
 export type AssetWithBalance = {
   cryptoBalance: string
@@ -95,46 +89,13 @@ export const Overview: React.FC<OverviewProps> = ({
   )
 
   const renderUnderlyingAssetsMenu = useMemo(
-    () =>
-      underlyingAsset ? (
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
-              {underlyingAsset.icons ? (
-                <PairIcons icons={underlyingAsset.icons} iconSize='2xs' bg='transparent' />
-              ) : (
-                <AssetIcon src={underlyingAsset.icon} size='2xs' />
-              )}
-              <Amount.Crypto
-                fontSize='sm'
-                value={underlyingAsset.cryptoBalance}
-                symbol={underlyingAsset.symbol}
-              />
-              {underlyingAsset.allocationPercentage && (
-                <Amount.Percent color='gray.500' value={underlyingAsset.allocationPercentage} />
-              )}
-            </Tag>
-          </MenuButton>
-          <MenuList>
-            {underlyingAssets.map(asset => (
-              <MenuItem width='full'>
-                <Box key={asset.symbol}>
-                  {asset.icons ? (
-                    <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
-                  ) : (
-                    <AssetIcon src={asset.icon} size='2xs' />
-                  )}
-                  <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
-                  {asset.allocationPercentage && (
-                    <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-                  )}
-                </Box>
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      ) : null,
-    [asset.symbol, underlyingAsset, underlyingAssets],
+    () => (
+      <UnderlyingAssetsMenu
+        underlyingAsset={underlyingAsset!}
+        underlyingAssets={underlyingAssets}
+      />
+    ),
+    [underlyingAsset, underlyingAssets],
   )
 
   const renderRewardAssets = useMemo(() => {
@@ -194,7 +155,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {underlyingAssets ? renderUnderlyingAssetsMenu : renderUnderlyingAssetTags}
+                {underlyingAsset ? renderUnderlyingAssetsMenu : renderUnderlyingAssetTags}
               </Flex>
             </Stack>
             {rewardAssets && (

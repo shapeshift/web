@@ -1,11 +1,10 @@
-import { Box, useToken } from '@chakra-ui/react'
+import { Box, Center, Spinner, useToken } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { curveLinear } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
-import { Text } from 'components/Text/Text'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
@@ -42,7 +41,9 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
   return (
     <Box>
       {loading ? (
-        <Text translation='common.loadingText' />
+        <Center width={100} height={50}>
+          <Spinner size='xs' />
+        </Center>
       ) : (
         <XYChart
           margin={{ top: 0, left: 0, right: 0, bottom: 0 }}

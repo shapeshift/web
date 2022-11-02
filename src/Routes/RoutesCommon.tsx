@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import { FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaCreditCard, FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -14,6 +14,7 @@ import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
+import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
@@ -156,13 +157,13 @@ export const routes: NestedRoute[] = [
     main: Trade,
     category: RouteCategory.Explore,
   },
-  // {
-  //   path: '/buy',
-  //   label: 'navBar.buyCrypto',
-  //   icon: <FaCreditCard />,
-  //   main: Buy,
-  //   category: RouteCategory.Wallet,
-  // },
+  {
+    path: '/buy-crypto',
+    label: 'navBar.buyCrypto',
+    icon: <FaCreditCard />,
+    main: Buy,
+    category: RouteCategory.Wallet,
+  },
   {
     path: '/flags',
     label: 'navBar.featureFlags',

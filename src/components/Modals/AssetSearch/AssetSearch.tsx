@@ -18,9 +18,14 @@ import { breakpoints } from 'theme/theme'
 type AssetSearchModalProps = {
   onClick: (asset: Asset) => void
   filterBy?: (assets: Asset[]) => Asset[] | undefined
+  disableUnsupported?: boolean
 }
 
-export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) => {
+export const AssetSearchModal = ({
+  onClick,
+  filterBy,
+  disableUnsupported,
+}: AssetSearchModalProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
@@ -44,7 +49,11 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
         <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody p={2} display='flex' flexDir='column'>
-          <AssetSearch onClick={handleClick} filterBy={filterBy} />
+          <AssetSearch
+            onClick={handleClick}
+            filterBy={filterBy}
+            disableUnsupported={disableUnsupported}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>

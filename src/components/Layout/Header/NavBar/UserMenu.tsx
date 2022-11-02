@@ -82,7 +82,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   })
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       setWalletLabel('')
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')

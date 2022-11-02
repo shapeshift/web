@@ -1,10 +1,10 @@
-import { Box, Button, Heading, HStack, Stack, StackDivider, Image } from '@chakra-ui/react'
+import { Box, Button, Heading, HStack, Image, Stack, StackDivider } from '@chakra-ui/react'
+import dayjs from 'dayjs'
+import { ipcRenderer } from 'electron'
 import { useCallback, useEffect, useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { ipcRenderer } from 'electron'
-import dayjs from 'dayjs'
 
 export type PairedAppProps = {
   addedOn: number
@@ -40,7 +40,6 @@ export const Pairings = () => {
     if (!apps) return
     apps.forEach(unpair)
   }, [apps])
-
 
   return (
     <Main titleComponent={<PairingsHeader />}>
@@ -78,11 +77,13 @@ export const Pairings = () => {
               {(!apps || apps.length === 0) && <Text translation={'pairedApps.noApps'} />}
             </Stack>
           </Card.Body>
-          {(apps && apps.length !== 0) && <Card.Footer>
-            <HStack my={4} width='full'>
-              <Button onClick={unpairAll}>Unpair all apps</Button>
-            </HStack>
-          </Card.Footer>}
+          {apps && apps.length !== 0 && (
+            <Card.Footer>
+              <HStack my={4} width='full'>
+                <Button onClick={unpairAll}>Unpair all apps</Button>
+              </HStack>
+            </Card.Footer>
+          )}
         </Card>
       </Stack>
     </Main>

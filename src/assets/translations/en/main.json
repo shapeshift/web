@@ -171,7 +171,7 @@
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
-    "notSupported": "%{asset} not supported by %{wallet}"
+    "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

@@ -124,7 +124,7 @@ const overrideGeckoName = (name: string) => {
   else return name
 }
 
-export type KKAsset = Asset & { rank: number; marketCap: number; link: string }
+export type KKAsset = Asset & { rank: number; marketCap: number; link: string; geckoId: string }
 
 const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
@@ -162,6 +162,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         // kk specific
         rank: geckoAsset.market_cap_rank,
         marketCap: geckoAsset.market_cap,
+        geckoId: geckoAsset.id,
         link: `https://www.coingecko.com/en/coins/${geckoAsset.id}`,
       }
       return kkAsset

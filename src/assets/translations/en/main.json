@@ -87,15 +87,15 @@
       "first": "Buy Crypto",
       "second": "in Seconds"
     },
-    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or hundreds of other cryptocurrencies.",
-    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
+    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.", 
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
         "second": "track your crypto across 8 chains"
       }
     },
-    "topAssets": "Top Assets"
+    "availableAssets": "Available Assets"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -170,7 +170,8 @@
     "nonUS": "NON-US",
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
-    "noProvidersBody": "Looks like we don't have any providers for that asset yet."
+    "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
+    "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -410,7 +411,7 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "trade": "Trade",
-    "buyCrypto": "Buy Crypto"
+    "buyCrypto": "Buy/Sell Crypto"
   },
   "transactionRow": {
     "send": "Sent",

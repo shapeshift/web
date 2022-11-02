@@ -18,12 +18,8 @@ export const UnderlyingAssetsMenu = ({
   <Box>
     <Popover matchWidth>
       <PopoverTrigger>
-        <Box>
-          <UnderlyingAssetsTags
-            underlyingAssets={[underlyingAsset]}
-            showPercentage={false}
-            cursor='pointer'
-          >
+        <Box cursor='pointer'>
+          <UnderlyingAssetsTags underlyingAssets={[underlyingAsset]} showPercentage={false}>
             <ChevronDownIcon />
           </UnderlyingAssetsTags>
         </Box>

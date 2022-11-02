@@ -132,7 +132,6 @@ export const Overview: React.FC<OverviewProps> = ({
                   <UnderlyingAssetsMenu
                     underlyingAsset={underlyingAsset!}
                     underlyingAssets={underlyingAssets}
-                    cursor='pointer'
                   />
                 ) : (
                   <UnderlyingAssetsTags underlyingAssets={underlyingAssets} />

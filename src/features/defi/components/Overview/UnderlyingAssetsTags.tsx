@@ -1,5 +1,5 @@
-import type { TagProps } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/react'
+import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
@@ -9,22 +9,17 @@ import type { AssetWithBalance } from './Overview'
 type UnderlyingAssetsTagProps = {
   asset: AssetWithBalance
   showPercentage?: boolean
-  children?: any
+  children?: React.ReactNode
 }
 
 type UnderlyingAssetsTagsProps = {
   underlyingAssets: AssetWithBalance[]
   showPercentage?: boolean
-  children?: any
+  children?: React.ReactNode
 }
 
-const UnderlyingAssetTag = ({
-  asset,
-  children,
-  showPercentage,
-  ...styleProps
-}: UnderlyingAssetsTagProps & TagProps) => (
-  <Tag variant='xs-subtle' columnGap={2} key={asset.symbol} {...styleProps}>
+const UnderlyingAssetTag = ({ asset, children, showPercentage }: UnderlyingAssetsTagProps) => (
+  <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
     {asset.icons ? (
       <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
     ) : (
@@ -41,16 +36,10 @@ export const UnderlyingAssetsTags = ({
   underlyingAssets,
   showPercentage = true,
   children,
-  ...styleProps
-}: UnderlyingAssetsTagsProps & TagProps) => (
+}: UnderlyingAssetsTagsProps) => (
   <>
     {underlyingAssets.map(asset => (
-      <UnderlyingAssetTag
-        asset={asset}
-        children={children}
-        showPercentage={showPercentage}
-        {...styleProps}
-      />
+      <UnderlyingAssetTag asset={asset} children={children} showPercentage={showPercentage} />
     ))}
   </>
 )

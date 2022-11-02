@@ -148,7 +148,7 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
       UserStakingId,
       UserStakingOpportunity,
     ][]
-    const [foundUserStakingId] = userStakingOpportunitiesEntries
+    const foundEntry = (userStakingOpportunitiesEntries ?? [])
       .filter(([userStakingId]) =>
         filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
       )
@@ -156,7 +156,11 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
         bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
           .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)
           .toNumber(),
-      )[0]
+      )?.[0]
+
+    const foundUserStakingId = foundEntry?.[0]
+
+    if (!foundUserStakingId) return null
 
     const [foundAccountId] = deserializeUserStakingId(foundUserStakingId)
 

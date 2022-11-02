@@ -973,6 +973,11 @@
         "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
         "button": "Save PIN"
       },
+      "remove": {
+        "header": "Confirm Your PIN",
+        "body": "Please confirm your PIN to remove the PIN from your KeepKey",
+        "button": "Confirm"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Bootloader",

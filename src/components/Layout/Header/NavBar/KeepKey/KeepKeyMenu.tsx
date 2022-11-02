@@ -16,6 +16,8 @@ import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeep
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 
 export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
@@ -27,7 +29,8 @@ export const KeepKeyMenu = () => {
   const { versions, updaterUrl } = useKeepKeyVersions()
   const {
     setDeviceState,
-    state: { isConnected, walletInfo, keepkeySdk },
+    dispatch,
+    state: { isConnected, walletInfo, keepkeySdk, deviceId },
   } = useWallet()
   const { keepKeyWipe } = useModal()
 
@@ -61,6 +64,13 @@ export const KeepKeyMenu = () => {
     console.log('KEEPKEY SDK', keepkeySdk)
     if (!keepkeySdk) return
     keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp.data))
+    dispatch({
+      type: WalletActions.OPEN_KEEPKEY_PIN,
+      payload: {
+        deviceId,
+        pinRequestType: PinMatrixRequestType.REMOVE,
+      },
+    })
   }, [keepkeySdk])
 
   const deviceTimeoutTranslation: string =

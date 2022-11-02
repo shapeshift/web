@@ -17,6 +17,8 @@ export const KeepKeyPinModal = () => {
         return 'newPin'
       case PinMatrixRequestType.NEWSECOND:
         return 'newPinConfirm'
+      case PinMatrixRequestType.REMOVE:
+        return 'remove'
       default:
         return 'pin'
     }

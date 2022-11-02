@@ -34,7 +34,6 @@ export class FDeveloperController extends Controller {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!lastKnownKeepkeyState.wallet) return reject()
-            console.log("Removing pin")
             lastKnownKeepkeyState.wallet.removePin().then(resolve)
         })
     }

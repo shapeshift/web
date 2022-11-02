@@ -2,7 +2,7 @@ import { Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { lastKnownKeepkeyState } from '../';
 import wait from 'wait-promise'
 import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from 'src/utils';
+import { checkKeepKeyUnlocked } from '../../utils';
 
 @Tags('Device Info Endpoints')
 @Route('')

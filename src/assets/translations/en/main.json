@@ -750,7 +750,8 @@
       "verify": "Verify",
       "verified": "Verified",
       "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "toggleXpub": "XPub"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",

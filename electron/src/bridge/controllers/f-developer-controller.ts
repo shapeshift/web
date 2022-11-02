@@ -2,7 +2,7 @@ import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
 import { lastKnownKeepkeyState } from '../';
 import wait from 'wait-promise'
 import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from 'src/utils';
+import { checkKeepKeyUnlocked } from '../../utils';
 
 export type policy = {
     policyName?: string,

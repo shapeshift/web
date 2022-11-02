@@ -5,7 +5,7 @@ import { lastKnownKeepkeyState } from '../';
 import { GetPublicKey } from '../types';
 import wait from 'wait-promise'
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from 'src/utils';
+import { checkKeepKeyUnlocked } from '../../utils';
 @Tags('KeepKey Wallet Endpoints')
 @Route('')
 export class DPubkeyController extends Controller {

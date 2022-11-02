@@ -14,6 +14,7 @@ import {
   ModalHeader,
   Skeleton,
   SkeletonText,
+  Switch,
   Tag,
   useColorModeValue,
   useToast,
@@ -38,6 +39,7 @@ import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
+import { getPubFromAccountID } from 'lib/utils'
 
 type ReceivePropsType = {
   asset: Asset
@@ -47,6 +49,8 @@ type ReceivePropsType = {
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
+  const [xpub, setXpub] = useState<string>()
+  const [shouldUseXpub, setShouldUseXpub] = useState(false)
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
@@ -71,7 +75,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   })
 
   useEffect(() => {
-    ;(async () => {
+    if (!accountId) return
+    setXpub(getPubFromAccountID(accountId))
+  }, [accountId])
+
+  useEffect(() => {
+    ; (async () => {
       if (!(wallet && chainAdapter)) return
       if (!bip44Params) return
       // if (chainAdapter.isAccountTypeRequired() && !accountType) return
@@ -121,16 +130,17 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const bg = useColorModeValue('gray.100', 'gray.700')
 
   const handleCopyClick = useCallback(async () => {
+    if (shouldUseXpub && !xpub) return
     if (!receiveAddress) return
     const duration = 2500
     const isClosable = true
     const translatePayload = { symbol: symbol.toUpperCase() }
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(receiveAddress)
+      await navigator.clipboard.writeText(shouldUseXpub ? (xpub ?? "") : receiveAddress)
       const title = translate('modals.receive.copied', translatePayload)
       const status = 'success'
-      const description = receiveAddress
+      const description = shouldUseXpub ? xpub : receiveAddress
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('modals.receive.copyFailed', translatePayload)
@@ -138,7 +148,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       const description = translate('modals.receive.copyFailedDescription')
       toast({ description, title, status })
     }
-  }, [receiveAddress, symbol, toast, translate])
+  }, [receiveAddress, symbol, toast, translate, xpub, shouldUseXpub])
 
   return (
     <>
@@ -167,7 +177,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 display='flex'
                 flexDir='column'
                 alignItems='center'
-                isLoaded={!!receiveAddress}
+                isLoaded={!!(shouldUseXpub ? xpub : receiveAddress)}
               >
                 <Text
                   translation={[
@@ -179,12 +189,18 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
-            <AccountDropdown
-              assetId={asset.assetId}
-              defaultAccountId={selectedAccountId || undefined}
-              onChange={setSelectedAccountId}
-              buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
-            />
+            <Flex justifyContent='center' alignItems='center' direction='row' gap={2}>
+              <AccountDropdown
+                assetId={asset.assetId}
+                defaultAccountId={selectedAccountId || undefined}
+                onChange={setSelectedAccountId}
+                buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
+              />
+              <HStack mt={4}>
+                <Text translation='modals.receive.toggleXpub' />
+                <Switch isChecked={shouldUseXpub} onChange={() => { setShouldUseXpub((curr) => !curr) }} />
+              </HStack>
+            </Flex>
             <Flex justifyContent='center'>
               {ensReceiveAddress && (
                 <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
@@ -206,10 +222,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             >
               <Card.Body display='inline-block' textAlign='center' p={6}>
                 <LightMode>
-                  <Skeleton isLoaded={!!receiveAddress} mb={2}>
-                    <QRCode text={receiveAddress} data-test='receive-qr-code' />
+                  <Skeleton isLoaded={!!(shouldUseXpub ? xpub : receiveAddress)} mb={2}>
+                    <QRCode text={shouldUseXpub ? xpub : receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
-                  <Skeleton isLoaded={!!receiveAddress}>
+                  <Skeleton isLoaded={!!(shouldUseXpub ? xpub : receiveAddress)}>
                     <Flex
                       color='gray.500'
                       alignItems='center'
@@ -221,7 +237,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       cursor='pointer'
                     >
                       <MiddleEllipsis
-                        value={receiveAddress ?? ''}
+                        value={(shouldUseXpub ? xpub : receiveAddress) ?? ''}
                         data-test='receive-address-label'
                       />
                     </Flex>
@@ -238,7 +254,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 color='gray.500'
                 flexDir='column'
                 role='group'
-                isDisabled={!receiveAddress}
+                isDisabled={!(shouldUseXpub ? xpub : receiveAddress)}
                 variant='link'
                 _hover={{ textDecoration: 'none', color: hoverColor }}
               >
@@ -253,7 +269,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                   flexDir='column'
                   role='group'
                   variant='link'
-                  isDisabled={!receiveAddress}
+                  isDisabled={!(shouldUseXpub ? xpub : receiveAddress)}
                   _hover={{ textDecoration: 'none', color: hoverColor }}
                   onClick={handleVerify}
                 >
@@ -266,9 +282,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
                   <Text
-                    translation={`modals.receive.${
-                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                    }`}
+                    translation={`modals.receive.${verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                      }`}
                   />
                 </Button>
               ) : undefined}

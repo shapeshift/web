@@ -42,9 +42,7 @@ export const ReactTable = <T extends {}>({
           onClick={() => onRowClick?.(row)}
           {...(rowDataTestKey
             ? {
-                'data-test': `${rowDataTestPrefix}-${(
-                  row.original?.[rowDataTestKey]?.toString() ?? ''
-                )
+                'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
                   .split(' ')
                   .join('-')
                   .toLowerCase()}`,

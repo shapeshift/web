@@ -111,6 +111,10 @@ export const SignModal = (input: any) => {
             signedTx.serialized = JSON.stringify(broadcastString)
             signedTx.txid = txid
             break
+          case 'XRP':
+            signedTx = await wallet.rippleSignTx(unsignedTx.HDwalletPayload)
+            signedTx.txid = "unset"
+            break
           case 'ATOM':
             signedTx = await wallet.cosmosSignTx(unsignedTx.HDwalletPayload)
             txid = cryptoTools

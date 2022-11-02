@@ -94,7 +94,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetsFiatBalance = useMemo(() => {
     const cryptoAmount = opportunityData?.stakedAmountCryptoPrecision ?? '0'
     // TODO: add a stakingAssetId property in OpportunityMetadata ?
-    const foxEthLpFiatPrice = marketData?.[foxEthLpAssetId].price ?? '0'
+    const foxEthLpFiatPrice = marketData?.[foxEthLpAssetId]?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [marketData, opportunityData?.stakedAmountCryptoPrecision])
 
@@ -105,7 +105,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
           .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
           .toString(),
-        icons: underlyingAssetsIcons,
+        icons: [underlyingAssetsIcons[i]],
         allocationPercentage: '0.50',
       })),
     [
@@ -116,8 +116,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       underlyingAssetsIcons,
     ],
   )
-
-  console.log({ underlyingAssetsWithBalancesAndIcons })
 
   const filter = useMemo(
     () => ({

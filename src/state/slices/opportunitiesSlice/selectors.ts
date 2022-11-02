@@ -141,7 +141,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
-  (userStakingOpportunities, stakingId): AccountId => {
+  (userStakingOpportunities, stakingId): AccountId | null => {
     if (stakingId === '') return '*' // Narrowing flavoured type
 
     const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [

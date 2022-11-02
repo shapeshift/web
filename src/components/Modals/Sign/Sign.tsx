@@ -91,7 +91,8 @@ export const SignModal = (input: any) => {
         //TODO validate payload
         //TODO validate fee's
         //TODO load EV data
-
+        console.log("unsignedTx: ",unsignedTx)
+        console.log("unsignedTx.network: ",unsignedTx.network)
         let signedTx: any
         let broadcastString
         let buffer

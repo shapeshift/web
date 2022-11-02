@@ -183,10 +183,18 @@ export const foxFarmingStakingMetadataResolver = async ({
   )
 
   // Getting the ratio of the LP token for each asset
-  const foxReserves = bnOrZero(bnOrZero(pair.reserve1.toFixed()).toString())
-  const ethReserves = bnOrZero(bnOrZero(pair.reserve0.toFixed()).toString())
-  const ethPoolRatio = ethReserves.div(totalSupply.toString()).toString()
-  const foxPoolRatio = foxReserves.div(totalSupply.toString()).toString()
+  // fetchPairData().reserve0 and reserve1 somehow return crypto human amounts as opposed to getReserves() using full precision notation
+  const foxReserves = toBaseUnit(
+    bnOrZero(bnOrZero(pair.reserve1.toFixed()).toString()).toString(),
+    pair.token1.decimals,
+  )
+
+  const ethReserves = toBaseUnit(
+    bnOrZero(bnOrZero(pair.reserve0.toFixed()).toString()).toString(),
+    pair.token0.decimals,
+  )
+  const ethPoolRatio = bnOrZero(ethReserves).div(totalSupply.toString()).toString()
+  const foxPoolRatio = bnOrZero(foxReserves).div(totalSupply.toString()).toString()
 
   const totalSupplyV2 = await uniV2LPContract.totalSupply()
 
@@ -215,7 +223,10 @@ export const foxFarmingStakingMetadataResolver = async ({
         tvl,
         type: DefiType.Farming,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [foxPoolRatio.toString(), ethPoolRatio.toString()] as const,
+        underlyingAssetRatios: [
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
+        ] as const,
         expired,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],

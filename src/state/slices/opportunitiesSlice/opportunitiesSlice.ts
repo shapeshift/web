@@ -54,7 +54,6 @@ export const opportunities = createSlice({
       }
       draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])
     },
-    // TODO: testme
     upsertOpportunityAccounts: (
       draftState,
       { payload }: { payload: GetOpportunityUserDataOutput },

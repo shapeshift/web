@@ -67,7 +67,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
-    [feeAsset?.assetId],
+    [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),

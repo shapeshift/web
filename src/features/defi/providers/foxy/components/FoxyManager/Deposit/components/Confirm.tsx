@@ -74,7 +74,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
-    [feeAsset?.assetId],
+    [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),

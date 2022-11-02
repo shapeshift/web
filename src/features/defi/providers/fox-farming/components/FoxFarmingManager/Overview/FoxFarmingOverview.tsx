@@ -47,6 +47,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
+  const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
@@ -105,7 +106,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
           .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
           .toString(),
-        icons: [underlyingAssetsIcons[i]],
+        icons: [underlyingAssetsIcons![i]],
         allocationPercentage: '0.50',
       })),
     [
@@ -115,6 +116,16 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       opportunityData?.underlyingAssetRatios,
       underlyingAssetsIcons,
     ],
+  )
+
+  const underlyingAssetWithBalancesAndIcons = useMemo(
+    () => ({
+      ...lpAsset,
+      cryptoBalance: opportunityData?.stakedAmountCryptoPrecision ?? '0',
+      allocationPercentage: '1',
+      icons: underlyingAssetsIcons,
+    }),
+    [lpAsset, opportunityData?.stakedAmountCryptoPrecision, underlyingAssetsIcons],
   )
 
   const filter = useMemo(
@@ -191,6 +202,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       name={opportunity.opportunityName ?? ''}
       icons={underlyingAssetsIcons}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
+      underlyingAsset={underlyingAssetWithBalancesAndIcons}
       underlyingAssets={underlyingAssetsWithBalancesAndIcons}
       provider='ShapeShift'
       menu={

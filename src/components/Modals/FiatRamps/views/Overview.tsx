@@ -235,7 +235,7 @@ export const Overview: React.FC<OverviewProps> = ({
                         pr='4.5rem'
                         value={inputValue}
                         readOnly
-                        placeholder={!address && translate('common.loadingText')}
+                        placeholder={!address ? translate('common.loadingText') : ''}
                       />
                       {!address && <InputLeftElement children={<Spinner size='sm' />} />}
                       {address && (

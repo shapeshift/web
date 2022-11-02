@@ -411,7 +411,7 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "trade": "Trade",
-    "buyCrypto": "Buy Crypto"
+    "buyCrypto": "Buy/Sell Crypto"
   },
   "transactionRow": {
     "send": "Sent",

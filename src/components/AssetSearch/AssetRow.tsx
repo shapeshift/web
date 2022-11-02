@@ -16,7 +16,9 @@ import { useAppSelector } from 'state/store'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
-  const wallet = useWallet().state.wallet
+  const {
+    state: { isConnected, isDemoWallet, wallet },
+  } = useWallet()
   const asset: Asset = data.items[index]
   const assetId = asset.assetId
   const filter = useMemo(() => ({ assetId }), [assetId])
@@ -50,15 +52,17 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
           </Text>
         </Box>
       </Flex>
-      <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-        <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={fiatBalance} />
-        <Amount.Crypto
-          fontSize='sm'
-          fontWeight='normal'
-          value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
-          symbol={asset.symbol}
-        />
-      </Flex>
+      {isConnected && !isDemoWallet && (
+        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={fiatBalance} />
+          <Amount.Crypto
+            fontSize='sm'
+            fontWeight='normal'
+            value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+            symbol={asset.symbol}
+          />
+        </Flex>
+      )}
     </Button>
   )
 }

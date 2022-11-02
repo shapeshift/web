@@ -1,10 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { AnimatePresence } from 'framer-motion'
-import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import {
   matchPath,
@@ -16,21 +15,12 @@ import {
   useLocation,
 } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
-import { parseAddressInput } from 'lib/address/address'
-import { logger } from 'lib/logger'
-import {
-  selectPortfolioAccountIds,
-  selectPortfolioAccountMetadata,
-} from 'state/slices/portfolioSlice/selectors'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import type { Nullable } from 'types/common'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { AssetSelect } from './AssetSelect'
-import { Overview } from './Overview'
+import { FiatForm } from './FiatForm'
 
 enum FiatRampManagerRoutes {
   Buy = '/buy',
@@ -51,76 +41,26 @@ const entries = [
   FiatRampManagerRoutes.SellSelect,
 ]
 
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
-})
-
 export type AddressesByAccountId = Record<AccountId, Partial<ParseAddressInputReturn>>
 
-const ManagerRouter: React.FC<RouteComponentProps> = () => {
+type ManagerRouterProps = {
+  defaultAssetId?: AssetId
+  defaultFiatRampAction?: FiatRampAction
+}
+
+const ManagerRouter: React.FC<ManagerRouterProps & RouteComponentProps> = ({
+  defaultFiatRampAction = FiatRampAction.Buy,
+  defaultAssetId = ethAssetId,
+}) => {
   const history = useHistory()
+  const translate = useTranslate()
   const location = useLocation<RouterLocationState>()
 
-  const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
-  const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
-  const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(defaultAssetId)
 
   const {
     state: { wallet },
   } = useWallet()
-
-  /**
-   * preload all addresses, and reverse resolved vanity addresses for all account ids
-   */
-  useEffect(() => {
-    if (!wallet) return
-    ;(async () => {
-      const plainAddressResults = await Promise.allSettled(
-        portfolioAccountIds.map(accountId => {
-          const accountMetadata = portfolioAccountMetadata[accountId]
-          const { accountType, bip44Params } = accountMetadata
-          moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-          const payload = { accountType, bip44Params, wallet }
-          const { chainId } = fromAccountId(accountId)
-          const maybeAdapter = getChainAdapterManager().get(chainId)
-          if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)
-          return maybeAdapter.getAddress(payload)
-        }),
-      )
-      const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
-        if (result.status === 'rejected') {
-          moduleLogger.error(result.reason, 'failed to get address')
-          acc.push(undefined) // keep same length of accumulator
-          return acc
-        }
-        acc.push(result.value)
-        return acc
-      }, [])
-
-      const parsedAddressResults = await Promise.allSettled(
-        plainAddresses.map((value, idx) => {
-          if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
-          const { chainId } = fromAccountId(portfolioAccountIds[idx])
-          return parseAddressInput({ chainId, value })
-        }),
-      )
-
-      const addressesByAccountId = parsedAddressResults.reduce<AddressesByAccountId>(
-        (acc, parsedAddressResult, idx) => {
-          if (parsedAddressResult.status === 'rejected') return acc
-          const accountId = portfolioAccountIds[idx]
-          const { value } = parsedAddressResult
-          acc[accountId] = value
-          return acc
-        },
-        {},
-      )
-
-      setAddressByAccountId(addressesByAccountId)
-    })()
-  }, [portfolioAccountIds, portfolioAccountMetadata, wallet])
 
   const match = useMemo(
     () =>
@@ -128,17 +68,6 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
         path: '/:fiatRampAction',
       }),
     [location.pathname],
-  )
-
-  const handleFiatRampActionClick = useCallback(
-    (fiatRampAction: FiatRampAction) => {
-      const route =
-        fiatRampAction === FiatRampAction.Buy
-          ? FiatRampManagerRoutes.Buy
-          : FiatRampManagerRoutes.Sell
-      history.push(route)
-    },
-    [history],
   )
 
   const handleAssetSelect = useCallback(
@@ -154,16 +83,15 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
   )
 
   const handleIsSelectingAsset = useCallback(
-    (assetId: AssetId | undefined, selectAssetTranslation: string) => {
+    (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
-      const walletSupportsAsset = isAssetSupportedByWallet(assetId ?? '', wallet)
       const route =
-        match?.params.fiatRampAction === FiatRampAction.Buy
+        fiatRampAction === FiatRampAction.Buy
           ? FiatRampManagerRoutes.BuySelect
           : FiatRampManagerRoutes.SellSelect
-      history.push(route, { walletSupportsAsset, selectAssetTranslation })
+      history.push(route)
     },
-    [history, match?.params.fiatRampAction, wallet],
+    [history, wallet],
   )
 
   const assetSelectProps = useMemo(
@@ -174,46 +102,60 @@ const ManagerRouter: React.FC<RouteComponentProps> = () => {
     [location.state, handleAssetSelect],
   )
 
-  const { address, vanityAddress } = useMemo(() => {
-    const empty = { address: '', vanityAddress: '' }
-    if (isEmpty(addressByAccountId)) return empty
-    if (!accountId) return empty
-    const address = addressByAccountId[accountId]?.address ?? ''
-    const vanityAddress = addressByAccountId[accountId]?.vanityAddress ?? ''
-    return { address, vanityAddress }
-  }, [addressByAccountId, accountId])
+  useEffect(() => {
+    if (defaultFiatRampAction) {
+      history.push(defaultFiatRampAction)
+    }
+  }, [defaultFiatRampAction, history])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
-        <Route exact path='/:fiatRampAction'>
-          <Overview
-            assetId={selectedAssetId}
+        <Route exact path='/buy'>
+          <DefiModalHeader title={translate('fiatRamps.title')} />
+          <FiatForm
             handleIsSelectingAsset={handleIsSelectingAsset}
-            onFiatRampActionClick={handleFiatRampActionClick}
-            address={address}
-            vanityAddress={vanityAddress}
-            handleAccountIdChange={setAccountId}
-            accountId={accountId}
+            assetId={selectedAssetId}
+            fiatRampAction={FiatRampAction.Buy}
           />
         </Route>
-        <Route exact path='/:fiatRampAction/select'>
-          <AssetSelect {...assetSelectProps} />
+        <Route exact path='/sell'>
+          <DefiModalHeader title={translate('fiatRamps.title')} />
+          <FiatForm
+            handleIsSelectingAsset={handleIsSelectingAsset}
+            assetId={selectedAssetId}
+            fiatRampAction={FiatRampAction.Sell}
+          />
         </Route>
-        <Redirect from='/' to={FiatRampManagerRoutes.Buy} />
+        <Route exact path='/buy/select'>
+          <AssetSelect {...assetSelectProps} fiatRampAction={FiatRampAction.Buy} />
+        </Route>
+        <Route exact path='/sell/select'>
+          <AssetSelect {...assetSelectProps} fiatRampAction={FiatRampAction.Sell} />
+        </Route>
+        <Redirect path='/' to={FiatRampAction.Buy} />
       </Switch>
     </AnimatePresence>
   )
 }
 
-export const Manager = () => {
+export const FiatManager: React.FC<ManagerRouterProps> = ({
+  defaultFiatRampAction,
+  defaultAssetId,
+}) => {
   return (
     <SlideTransition>
       <MemoryRouter initialEntries={entries}>
         <Switch>
           <Route
             path='/'
-            component={(props: RouteComponentProps) => <ManagerRouter {...props} />}
+            component={(props: RouteComponentProps) => (
+              <ManagerRouter
+                defaultFiatRampAction={defaultFiatRampAction}
+                defaultAssetId={defaultAssetId}
+                {...props}
+              />
+            )}
           />
         </Switch>
       </MemoryRouter>

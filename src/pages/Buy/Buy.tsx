@@ -1,21 +1,36 @@
 import { Button, Stack } from '@chakra-ui/react'
 import { Box, Flex, Heading } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
+import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { selectAssets } from 'state/slices/selectors'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
 
 export const Buy = () => {
+  const { assetSearch } = useModal()
+  const assets = useSelector(selectAssets)
+  const { data: ramps } = useGetFiatRampsQuery()
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
   const {
     dispatch,
-    state: { isConnected, isDemoWallet },
+    state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const translate = useTranslate()
 
@@ -23,12 +38,33 @@ export const Buy = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
+  const handleIsSelectingAsset = useCallback(
+    (fiatrampAction: FiatRampAction) => {
+      if (!wallet) return
+      const assetIds =
+        fiatrampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds
+      const listOfAssets = assetIds?.reduce<Asset[]>((acc, assetId) => {
+        const asset = assets[assetId]
+        if (!asset) return acc
+        acc.push(asset)
+        return acc
+      }, [])
+      assetSearch.open({
+        onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
+        filterBy: () => listOfAssets,
+        disableUnsupported: true,
+      })
+    },
+    [assetSearch, assets, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
+  )
+
   return (
-    <Main p={0} paddingInline={{ base: 0, md: 0 }}>
+    <Main p={0} style={{ paddingInlineStart: 0, paddingInlineEnd: 0 }}>
+      <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
       <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
-        <PageContainer>
+        <PageContainer pt={{ base: 8, md: '7.5rem' }} pb={{ base: 0, md: '7.5rem' }}>
           <Flex
-            flexDir={{ base: 'column-reverse', xl: 'row' }}
+            flexDir={{ base: 'column', xl: 'row' }}
             alignItems='center'
             justifyContent='space-between'
             width='full'
@@ -36,6 +72,7 @@ export const Buy = () => {
           >
             <Flex
               flexDir='column'
+              flex={1}
               gap={4}
               alignItems={{ base: 'center', xl: 'flex-start' }}
               textAlign={{ base: 'center', xl: 'left' }}
@@ -56,8 +93,14 @@ export const Buy = () => {
               <Text fontSize='lg' translation='buyPage.body' />
               <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
             </Flex>
-            <Box>
-              <Box bg='gray.700' width='350px' height='444px'></Box>
+            <Box flexBasis='400px'>
+              <Card mx={{ base: -4, md: 0 }}>
+                <FiatForm
+                  assetId={selectedAssetId}
+                  handleIsSelectingAsset={handleIsSelectingAsset}
+                  fiatRampAction={FiatRampAction.Buy}
+                />
+              </Card>
             </Box>
           </Flex>
         </PageContainer>

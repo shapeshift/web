@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
+import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -34,38 +35,40 @@ const manager = createLocalStorageManager('ss-theme')
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   return (
-    <ReduxProvider store={store}>
-      <WagmiProvider>
-        <PluginProvider>
-          <ColorModeScript storageKey='ss-theme' />
-          <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-            <ToastContainer />
-            <Zendesk />
-            <PersistGate loading={<SplashScreen />} persistor={persistor}>
-              <HashRouter basename='/'>
-                <ScrollToTop />
-                <BrowserRouterProvider>
-                  <I18nProvider>
-                    <WalletProvider>
-                      <KeepKeyProvider>
-                        <ModalProvider>
-                          <TransactionsProvider>
-                            <AppProvider>
-                              <FoxEthProvider>
-                                <DefiManagerProvider>{children}</DefiManagerProvider>
-                              </FoxEthProvider>
-                            </AppProvider>
-                          </TransactionsProvider>
-                        </ModalProvider>
-                      </KeepKeyProvider>
-                    </WalletProvider>
-                  </I18nProvider>
-                </BrowserRouterProvider>
-              </HashRouter>
-            </PersistGate>
-          </ChakraProvider>
-        </PluginProvider>
-      </WagmiProvider>
-    </ReduxProvider>
+    <HelmetProvider>
+      <ReduxProvider store={store}>
+        <WagmiProvider>
+          <PluginProvider>
+            <ColorModeScript storageKey='ss-theme' />
+            <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+              <ToastContainer />
+              <Zendesk />
+              <PersistGate loading={<SplashScreen />} persistor={persistor}>
+                <HashRouter basename='/'>
+                  <ScrollToTop />
+                  <BrowserRouterProvider>
+                    <I18nProvider>
+                      <WalletProvider>
+                        <KeepKeyProvider>
+                          <ModalProvider>
+                            <TransactionsProvider>
+                              <AppProvider>
+                                <FoxEthProvider>
+                                  <DefiManagerProvider>{children}</DefiManagerProvider>
+                                </FoxEthProvider>
+                              </AppProvider>
+                            </TransactionsProvider>
+                          </ModalProvider>
+                        </KeepKeyProvider>
+                      </WalletProvider>
+                    </I18nProvider>
+                  </BrowserRouterProvider>
+                </HashRouter>
+              </PersistGate>
+            </ChakraProvider>
+          </PluginProvider>
+        </WagmiProvider>
+      </ReduxProvider>
+    </HelmetProvider>
   )
 }

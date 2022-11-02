@@ -6,9 +6,10 @@ import { AssetIcon } from './AssetIcon'
 
 type AssetHeaderProps = {
   asset: Asset
+  onVoteClick: any
 }
 
-export const AssetHeader: React.FC<AssetHeaderProps> = ({ asset }) => {
+export const KKAssetHeader: React.FC<AssetHeaderProps> = ({ asset, onVoteClick }) => {
   const chainId = asset.chainId
   const { name, symbol } = asset || {}
 
@@ -25,7 +26,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ asset }) => {
             </Heading>
           </Box>
         </Flex>
-        <Button>VOTE</Button>
+        <Button onClick={onVoteClick}>VOTE</Button>
       </Flex>
     </Flex>
   )

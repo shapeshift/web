@@ -6,6 +6,7 @@ import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
+import { KKVote } from 'components/Modals/kkVote/KKVote'
 import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { RequestBootloaderMode } from 'components/Modals/RequestBootloaderMode/RequestBootloaderMode'
@@ -36,6 +37,7 @@ const MODALS = {
   requestBootloaderMode: RequestBootloaderMode,
   updateBootloader: UpdateBootloader,
   updateFirmware: UpdateFirmware,
+  kkVote: KKVote,
 }
 
 // state

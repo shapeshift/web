@@ -97,7 +97,6 @@ export const portfolioApi = createApi({
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
-          dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           moduleLogger.error(e, `error fetching account ${accountId}`)

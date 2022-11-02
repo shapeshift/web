@@ -5,6 +5,8 @@ import type { Nominal } from 'types/common'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
 
+type OpportunitySpecific = { expired: true }
+
 export type OpportunityMetadata = {
   apy: string
   assetId: AssetId
@@ -14,7 +16,7 @@ export type OpportunityMetadata = {
   underlyingAssetIds: readonly [AssetId, AssetId]
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]
-  opportunitySpecific?: Record<string, any> // TODO: discriminate me
+  opportunitySpecific?: OpportunitySpecific
 }
 
 // User-specific values for this opportunity
@@ -77,3 +79,5 @@ export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[OpportunityDefiType]['byAccountId']
   type: OpportunityDefiType
 }
+
+export type GetOpportunityUserStakingDataOutput = OpportunitiesState['userStaking']['byId']

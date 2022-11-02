@@ -99,7 +99,8 @@ export const fetchAllLpOpportunitiesUserdata = async (accountId: AccountId) => {
   )
 }
 
-export const fetchAllOpportunitiesUserData = async (accountId: AccountId) => {
-  await fetchAllLpOpportunitiesUserdata(accountId)
-  await fetchAllStakingOpportunitiesUserData(accountId)
-}
+export const fetchAllOpportunitiesUserData = async (accountId: AccountId) =>
+  await Promise.allSettled([
+    fetchAllLpOpportunitiesUserdata(accountId),
+    fetchAllStakingOpportunitiesUserData(accountId),
+  ])

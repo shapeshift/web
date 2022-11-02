@@ -14,8 +14,10 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataInput,
   GetOpportunityUserDataOutput,
+  GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
   OpportunityDataById,
+  StakingId,
   UserStakingId,
 } from './types'
 import { serializeUserStakingId } from './utils'
@@ -66,7 +68,7 @@ export const opportunities = createSlice({
     },
     upsertUserStakingOpportunities: (
       draftState,
-      { payload }: { payload: OpportunitiesState['userStaking']['byId'] },
+      { payload }: { payload: GetOpportunityUserStakingDataOutput },
     ) => {
       const payloadIds = Object.keys(payload) as UserStakingId[]
       draftState.userStaking.byId = merge(draftState.userStaking.byId, payload)
@@ -112,19 +114,17 @@ export const opportunitiesApi = createApi({
             throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
           }
 
-          // TODO: This commit authors LP slice population only - for Fox staking we will want to assign this to a variable and actually use the data
-          // The reason for that is for EVM chains LPs, we just need to await this promise resolution - if this resolves, it means we have portfolio data
-          // If this throws, the RTK query is rejected and we never insert that AccountId into state
-          const test = await resolver({
+          const resolved = await resolver({
             opportunityId,
             opportunityType,
             accountId,
             reduxApi: { dispatch, getState },
           })
 
-          if (typeof test.data === 'object' && Object.keys(test)) {
+          if (typeof resolved.data === 'object' && Object.keys(resolved.data)) {
+            // If we get an object back, this is userStakingData - LP just returns an `amount` string
             const byId = {
-              [serializeUserStakingId(accountId, opportunityId)]: test.data,
+              [serializeUserStakingId(accountId, opportunityId as StakingId)]: resolved.data,
             }
             dispatch(opportunities.actions.upsertUserStakingOpportunities(byId))
           }

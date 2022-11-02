@@ -39,6 +39,7 @@ import type {
   OpportunitiesState,
   OpportunityDefiType,
   StakingId,
+  UserStakingOpportunity,
 } from '../types'
 import type { ReduxApi } from './types'
 
@@ -47,7 +48,7 @@ export const foxFarmingLpMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: {
-  opportunityId: LpId
+  opportunityId: LpId | StakingId
   opportunityType: OpportunityDefiType
   reduxApi: ReduxApi
 }): Promise<{ data: GetOpportunityMetadataOutput }> => {
@@ -102,7 +103,6 @@ export const foxFarmingLpMetadataResolver = async ({
     .div(bnOrZero(totalSupply.toString()).div(`1e${lpAssetPrecision}`))
     .toString()
 
-  // TODO(gomes): Copied from previous implementation, but price looks wrong here?
   const lpMarketData = {
     [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
   }
@@ -143,7 +143,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: {
-  opportunityId: StakingId
+  opportunityId: LpId | StakingId
   opportunityType: OpportunityDefiType
   reduxApi: ReduxApi
 }): Promise<{ data: GetOpportunityMetadataOutput }> => {
@@ -232,7 +232,7 @@ export const foxFarmingLpUserDataResolver = async ({
   accountId,
   reduxApi,
 }: {
-  opportunityId: LpId
+  opportunityId: LpId | StakingId
   opportunityType: OpportunityDefiType
   accountId: AccountId
   reduxApi: ReduxApi
@@ -254,11 +254,11 @@ export const foxFarmingStakingUserDataResolver = async ({
   accountId,
   reduxApi,
 }: {
-  opportunityId: StakingId
+  opportunityId: LpId | StakingId
   opportunityType: OpportunityDefiType
   accountId: AccountId
   reduxApi: ReduxApi
-}): Promise<{ data: string }> => {
+}): Promise<{ data: UserStakingOpportunity }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets

@@ -25,6 +25,7 @@ import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
 import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
+import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
 export type AssetWithBalance = {
   cryptoBalance: string
@@ -70,34 +71,6 @@ export const Overview: React.FC<OverviewProps> = ({
   children,
   expired,
 }) => {
-  const renderUnderlyingAssetTags = useMemo(
-    () =>
-      underlyingAssets.map(asset => (
-        <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
-          {asset.icons ? (
-            <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
-          ) : (
-            <AssetIcon src={asset.icon} size='2xs' />
-          )}
-          <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
-          {asset.allocationPercentage && (
-            <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-          )}
-        </Tag>
-      )),
-    [underlyingAssets],
-  )
-
-  const renderUnderlyingAssetsMenu = useMemo(
-    () => (
-      <UnderlyingAssetsMenu
-        underlyingAsset={underlyingAsset!}
-        underlyingAssets={underlyingAssets}
-      />
-    ),
-    [underlyingAsset, underlyingAssets],
-  )
-
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
     return rewardAssets.map((asset, index) => (
@@ -155,7 +128,15 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {underlyingAsset ? renderUnderlyingAssetsMenu : renderUnderlyingAssetTags}
+                {underlyingAsset ? (
+                  <UnderlyingAssetsMenu
+                    underlyingAsset={underlyingAsset!}
+                    underlyingAssets={underlyingAssets}
+                    cursor='pointer'
+                  />
+                ) : (
+                  <UnderlyingAssetsTags underlyingAssets={underlyingAssets} />
+                )}
               </Flex>
             </Stack>
             {rewardAssets && (

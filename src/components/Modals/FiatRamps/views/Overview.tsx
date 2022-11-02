@@ -147,19 +147,22 @@ export const Overview: React.FC<OverviewProps> = ({
           <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
         </Center>
       )
-    return rampIdsForAssetIdAndAction.map(rampId => {
-      const ramp = supportedFiatRamps[rampId]
-      const passedAddress = isDemoWallet ? '' : address
-      return (
-        <FiatRampButton
-          key={rampId}
-          onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
-          accountFiatBalance={accountFiatBalance}
-          action={fiatRampAction}
-          {...ramp}
-        />
-      )
-    })
+    const listOfRamps = [...rampIdsForAssetIdAndAction]
+    return listOfRamps
+      .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
+      .map(rampId => {
+        const ramp = supportedFiatRamps[rampId]
+        const passedAddress = isDemoWallet ? '' : address
+        return (
+          <FiatRampButton
+            key={rampId}
+            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
+            accountFiatBalance={accountFiatBalance}
+            action={fiatRampAction}
+            {...ramp}
+          />
+        )
+      })
   }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
 
   const inputValue = useMemo(() => {

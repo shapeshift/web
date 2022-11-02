@@ -1,5 +1,7 @@
 import { DarkMode } from '@chakra-ui/color-mode'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Center, Circle, Flex, Link } from '@chakra-ui/layout'
+import { Button } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
@@ -11,8 +13,6 @@ import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { Button } from '@chakra-ui/react'
-import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
@@ -35,9 +35,9 @@ export const ConnectWallet = () => {
     )
     const path = match
       ? generatePath('/accounts/:accountId/:assetId', {
-        accountId: match?.params?.accountId ?? '',
-        assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
-      })
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
       : query?.returnUrl
     hasWallet && history.push(path ?? '/dashboard')
   }, [history, hasWallet, query, state, dispatch])
@@ -84,9 +84,10 @@ export const ConnectWallet = () => {
               <Button
                 as={Link}
                 isExternal
-                href="https://keepkey.myshopify.com/"
+                href='https://keepkey.myshopify.com/'
                 rightIcon={<ExternalLinkIcon />}
-                colorScheme="blue">
+                colorScheme='blue'
+              >
                 {translate('connectWalletPage.buyKeepKey')}
               </Button>
             </Center>

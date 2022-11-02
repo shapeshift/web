@@ -1,5 +1,5 @@
 import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN } from 'constants/Config'

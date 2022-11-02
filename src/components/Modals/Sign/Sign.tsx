@@ -16,20 +16,20 @@ import {
   ModalOverlay,
   Textarea,
 } from '@chakra-ui/react'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import cryptoTools from 'crypto'
 import { ipcRenderer } from 'electron'
 import React, { useCallback, useEffect, useState } from 'react'
 import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getAssetUrl } from 'lib/getAssetUrl'
 import { logger } from 'lib/logger'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const SignModal = (input: any) => {
   const [error] = useState<string | null>(null)
@@ -39,8 +39,9 @@ export const SignModal = (input: any) => {
   const { sign } = useModal()
   const { close, isOpen } = sign
 
-  const { state: { wallet } } = useWallet()
-
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const HDwalletPayload = input?.unsignedTx?.invocation?.unsignedTx?.HDwalletPayload
 
@@ -90,7 +91,8 @@ export const SignModal = (input: any) => {
         //TODO validate payload
         //TODO validate fee's
         //TODO load EV data
-
+        console.log("unsignedTx: ",unsignedTx)
+        console.log("unsignedTx.network: ",unsignedTx.network)
         let signedTx: any
         let broadcastString
         let buffer
@@ -110,6 +112,10 @@ export const SignModal = (input: any) => {
 
             signedTx.serialized = JSON.stringify(broadcastString)
             signedTx.txid = txid
+            break
+          case 'XRP':
+            signedTx = await wallet.rippleSignTx(unsignedTx.HDwalletPayload)
+            signedTx.txid = 'unset'
             break
           case 'ATOM':
             signedTx = await wallet.cosmosSignTx(unsignedTx.HDwalletPayload)

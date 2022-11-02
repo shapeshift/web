@@ -11,12 +11,13 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { ipcRenderer } from 'electron'
 import { useCallback, useEffect, useState } from 'react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash, FaRocket } from 'react-icons/fa'
-import { HiRefresh } from "react-icons/hi"
-import { TbRefreshAlert } from "react-icons/tb"
-import { IoDocumentTextOutline, IoLockClosed, IoFileTray } from 'react-icons/io5'
+import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaRocket, FaTrash } from 'react-icons/fa'
+import { HiRefresh } from 'react-icons/hi'
+import { IoDocumentTextOutline, IoFileTray, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
+import { TbRefreshAlert } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -35,7 +36,6 @@ import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
-import { ipcRenderer } from 'electron'
 
 type SettingsListProps = {
   appHistory: RouteComponentProps['history']
@@ -73,7 +73,6 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
 
   const [prevAppSettings, setPrevAppSettings] = useState<AppSettings>(appSettings)
 
-
   /**
    * tapping 5 times on the settings header will close this modal and take you to the flags page
    * useful for QA team and unlikely to be triggered by a regular user
@@ -89,24 +88,28 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   }, [appHistory, clickCount, setClickCount, settings])
 
   useEffect(() => {
-    ipcRenderer.on("@app/settings", (_event, data) => {
-      console.log("APP SETTINGS RECIEVED", data)
+    ipcRenderer.on('@app/settings', (_event, data) => {
+      console.log('APP SETTINGS RECIEVED', data)
       setAppSettings(data)
     })
   }, [])
 
   useEffect(() => {
-    if (prevAppSettings && appSettings.shouldAutoLunch === prevAppSettings.shouldAutoLunch
-      && appSettings.shouldAutoUpdate === prevAppSettings.shouldAutoUpdate &&
+    if (
+      prevAppSettings &&
+      appSettings.shouldAutoLunch === prevAppSettings.shouldAutoLunch &&
+      appSettings.shouldAutoUpdate === prevAppSettings.shouldAutoUpdate &&
       appSettings.shouldMinimizeToTray === prevAppSettings.shouldMinimizeToTray &&
-      appSettings.allowPreRelease === prevAppSettings.allowPreRelease) return
+      appSettings.allowPreRelease === prevAppSettings.allowPreRelease
+    )
+      return
     setPrevAppSettings(appSettings)
-    console.log("APP SETTINGS SAVED")
+    console.log('APP SETTINGS SAVED')
     ipcRenderer.send('@app/update-settings', appSettings)
   }, [appSettings])
 
   useEffect(() => {
-    if (settings.isOpen) ipcRenderer.send("@app/settings")
+    if (settings.isOpen) ipcRenderer.send('@app/settings')
   }, [settings.isOpen])
 
   const closeModalAndNavigateTo = (linkHref: string) => {
@@ -114,7 +117,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     appHistory.push(linkHref)
   }
 
-  const handleDeleteAccountsClick = async () => { }
+  const handleDeleteAccountsClick = async () => {}
 
   return (
     <SlideTransition>

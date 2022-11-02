@@ -1,4 +1,4 @@
-import { FaFlag, FaLock, FaPlug,FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaFlag, FaLock, FaPlug, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -21,6 +21,7 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
+
 import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'

@@ -67,7 +67,7 @@ export class WCService {
   async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
     this.log('Session Request', { error, payload })
 
-    const address = await this.wallet.ethGetAddress({ addressNList })
+    const address = await this.wallet.ethGetAddress({ addressNList, showDisplay: false })
     if (address) {
       this.connector.approveSession({
         chainId: payload.params[0].chainId ?? 4,

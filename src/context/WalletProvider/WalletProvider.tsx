@@ -106,6 +106,7 @@ export interface InitialState {
   deviceState: DeviceState
   disconnectOnCloseModal: boolean
   keepkeySdk: KeepKeySDK | null
+  browserUrl: string | null
 }
 
 const initialState: InitialState = {
@@ -127,6 +128,7 @@ const initialState: InitialState = {
   deviceState: initialDeviceState,
   disconnectOnCloseModal: false,
   keepkeySdk: null,
+  browserUrl: null
 }
 
 export const isKeyManagerWithProvider = (keyManager: KeyManager | null) => Boolean(keyManager)
@@ -150,6 +152,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
+    case WalletActions.SET_BROWSER_URL:
+      return { ...state, browserUrl: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:

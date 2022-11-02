@@ -121,7 +121,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       let chainIds = Array.from(supportedChains).filter(chainId =>
         walletSupportsChain({ chainId, wallet }),
       )
+      const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+        // only some wallets support muli account
+        if (accountNumber > 0 && !isMultiAccountWallet) break
         const input = { accountNumber, chainIds, wallet }
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
@@ -130,6 +133,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         )
 
         const results = await Promise.allSettled(promises)
+        /**
+         * because UTXO chains can have multiple accounts per number, we need to aggregate
+         * balance by chain id to see if we fetch the next by accountNumber
+         */
         const balanceByChainId = results.reduce<Record<ChainId, BN>>((acc, res, idx) => {
           if (res.status === 'rejected') return acc
           const { data: account } = res.value
@@ -150,6 +157,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           return acc
         }, {})
 
+        /**
+         * if the balance for all accounts for the current chainId and accountNumber
+         * is zero, we've exhausted that chain, don't fetch more of them
+         */
         Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
           if (balance.eq(0)) pull(chainIds, chainId) // pull mutates chainIds, but we want to
         })

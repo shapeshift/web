@@ -119,6 +119,7 @@ export const AddAccountModal = () => {
         wallet,
       })
 
+      // TODO(0xdef1cafe): fetch and upsert account
       dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]

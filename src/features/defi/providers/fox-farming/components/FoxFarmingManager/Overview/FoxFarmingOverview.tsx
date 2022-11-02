@@ -24,7 +24,6 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectFoxFarmingOpportunityByContractAddress,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
   selectSelectedLocale,
@@ -128,18 +127,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     [lpAsset, opportunityData?.stakedAmountCryptoPrecision, underlyingAssetsIcons],
   )
 
-  const filter = useMemo(
-    () => ({
-      accountAddress,
-      contractAddress,
-    }),
-    [accountAddress, contractAddress],
-  )
-
-  const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, filter),
-  )
-
   // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
   useEffect(() => {
     if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
@@ -165,7 +152,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  if (!opportunity || !opportunityData || !underlyingAssetsWithBalancesAndIcons) {
+  if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -178,9 +165,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   if (!opportunityData.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity?.icons! }, rewardAsset]}
+        assets={[{ icons: underlyingAssetsIcons }, rewardAsset]}
         apy={opportunityData.apy.toString() ?? ''}
-        opportunityName={opportunity.opportunityName || ''}
+        opportunityName={opportunityData.name ?? ''}
         onClick={() =>
           history.push({
             pathname: location.pathname,
@@ -199,7 +186,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
-      name={opportunity.opportunityName ?? ''}
+      name={opportunityData.name ?? ''}
       icons={underlyingAssetsIcons}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       underlyingAsset={underlyingAssetWithBalancesAndIcons}

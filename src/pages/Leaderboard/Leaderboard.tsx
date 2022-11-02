@@ -1,21 +1,39 @@
-import { Box, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Box, Heading } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
+
+import { LeaderboardTable } from './helpers/LeaderboardTable'
+
+const LeaderboardHeader = () => {
+  const translate = useTranslate()
+  return (
+    <Box>
+      <Heading>{translate('Leaderboard')}</Heading>
+    </Box>
+  )
+}
 
 export const Leaderboard = () => {
   return (
-    <Main>
-      <Stack>
-        <RawText>Leaderboard</RawText>
-        <SimpleGrid columns={2} spacing={10}>
-          <Box bg='blue.400' height='80px'>Blah1</Box>
-          <Box bg='blue.400' height='80px'>Blah2</Box>
-          <Box bg='blue.400' height='80px'>Blah3</Box>
-          <Box bg='blue.400' height='80px'>Blah4</Box>
-          <Box bg='blue.400' height='80px'>Blah5</Box>
-          <Box bg='blue.400' height='80px'>Blah6</Box>
-        </SimpleGrid>
-      </Stack>
+    <Main titleComponent={<LeaderboardHeader />}>
+      <Card variant='outline' my={0}>
+        <Card.Header flexDir='row' display='flex'>
+          <Box>
+            <Card.Heading>
+              <Text translation='Top Chain' />
+            </Card.Heading>
+            <Text
+              color='gray.500'
+              translation='Keepkey support will be prioritized for the leading blockchain'
+            />
+          </Box>
+        </Card.Header>
+        <Card.Body pt={0} px={2}>
+          <LeaderboardTable />
+        </Card.Body>
+      </Card>
     </Main>
   )
 }

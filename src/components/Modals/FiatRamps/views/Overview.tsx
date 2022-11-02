@@ -4,7 +4,6 @@ import {
   Button,
   Center,
   Flex,
-  FormControl,
   IconButton,
   Input,
   InputGroup,
@@ -170,7 +169,6 @@ export const Overview: React.FC<OverviewProps> = ({
 
   return (
     <>
-      {/* <DefiModalHeader title={translate('fiatRamps.title')} /> */}
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
       <Flex display='flex' flexDir='column' gap={6} p={6}>
         <Stack spacing={4}>
@@ -201,63 +199,64 @@ export const Overview: React.FC<OverviewProps> = ({
             <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
             {isConnected && !isDemoWallet ? (
               <>
-                <AccountDropdown
-                  autoSelectHighestBalance={true}
-                  assetId={assetId}
-                  onChange={handleAccountIdChange}
-                  buttonProps={{ variant: 'solid', width: 'full' }}
-                  boxProps={{ px: 0 }}
-                />
-                <FormControl
-                  isInvalid={isUnsupportedAsset}
-                  isDisabled={isUnsupportedAsset}
-                  isReadOnly={true}
-                >
-                  <InputGroup size='md'>
-                    <Input
-                      pr='4.5rem'
-                      value={inputValue}
-                      readOnly
-                      placeholder={
-                        !address && !isUnsupportedAsset
-                          ? translate('common.loadingText')
-                          : 'Get a better wallet'
-                      }
+                {isUnsupportedAsset ? (
+                  <Button
+                    data-test='fiatramp-connect-wallet-button'
+                    onClick={handleWalletModalOpen}
+                  >
+                    {translate('connectWallet.menu.switchWallet')}
+                  </Button>
+                ) : (
+                  <>
+                    <AccountDropdown
+                      autoSelectHighestBalance={true}
+                      assetId={assetId}
+                      onChange={handleAccountIdChange}
+                      buttonProps={{ variant: 'solid', width: 'full' }}
+                      boxProps={{ px: 0 }}
                     />
-                    {!address && !isUnsupportedAsset && (
-                      <InputLeftElement children={<Spinner size='sm' />} />
-                    )}
-                    {address && (
-                      <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
-                        <IconButton
-                          icon={<CopyIcon />}
-                          aria-label='copy-icon'
-                          size='sm'
-                          isRound
-                          variant='ghost'
-                          onClick={handleCopyClick}
-                        />
-                        {supportsAddressVerification && address && (
+                    <InputGroup size='md'>
+                      <Input
+                        pr='4.5rem'
+                        value={inputValue}
+                        readOnly
+                        placeholder={!address && translate('common.loadingText')}
+                      />
+                      {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                      {address && (
+                        <InputRightElement
+                          width={supportsAddressVerification ? '4.5rem' : undefined}
+                        >
                           <IconButton
-                            icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                            onClick={handleVerify}
-                            aria-label='check-icon'
+                            icon={<CopyIcon />}
+                            aria-label='copy-icon'
                             size='sm'
-                            color={
-                              shownOnDisplay
-                                ? 'green.500'
-                                : shownOnDisplay === false
-                                ? 'red.500'
-                                : 'gray.500'
-                            }
                             isRound
                             variant='ghost'
+                            onClick={handleCopyClick}
                           />
-                        )}
-                      </InputRightElement>
-                    )}
-                  </InputGroup>
-                </FormControl>
+                          {supportsAddressVerification && address && (
+                            <IconButton
+                              icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                              onClick={handleVerify}
+                              aria-label='check-icon'
+                              size='sm'
+                              color={
+                                shownOnDisplay
+                                  ? 'green.500'
+                                  : shownOnDisplay === false
+                                  ? 'red.500'
+                                  : 'gray.500'
+                              }
+                              isRound
+                              variant='ghost'
+                            />
+                          )}
+                        </InputRightElement>
+                      )}
+                    </InputGroup>
+                  </>
+                )}
               </>
             ) : (
               <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>

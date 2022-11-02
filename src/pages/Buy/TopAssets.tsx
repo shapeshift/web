@@ -9,9 +9,7 @@ import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFiatRampBuyAssetsWithMarketData } from 'state/apis/fiatRamps/selectors'
 
@@ -23,10 +21,6 @@ type RowProps = Row<AssetWithMarketData>
 
 export const TopAssets: React.FC = () => {
   const { fiatRamps } = useModal()
-  const {
-    state: { isConnected, isDemoWallet },
-    dispatch,
-  } = useWallet()
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
 
@@ -89,14 +83,10 @@ export const TopAssets: React.FC = () => {
 
   const handleClick = useCallback(
     (assetId: AssetId) => {
-      // Open fiat modal or show connect wallet modal
-      if (isConnected && !isDemoWallet) {
-        fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy })
-      } else {
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      }
+      // Open fiat modal
+      fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy })
     },
-    [dispatch, fiatRamps, isConnected, isDemoWallet],
+    [fiatRamps],
   )
 
   return (

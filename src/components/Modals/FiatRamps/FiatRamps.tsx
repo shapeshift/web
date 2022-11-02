@@ -19,7 +19,13 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = () => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} variant='fluid'>
+    <Modal
+      isOpen={isOpen}
+      onClose={close}
+      isCentered={isLargerThanMd}
+      variant='fluid'
+      trapFocus={false}
+    >
       <ModalOverlay />
 
       <ModalContent

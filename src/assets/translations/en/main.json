@@ -386,7 +386,8 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade"
+    "trade": "Trade",
+    "browser": "Browser"
   },
   "transactionRow": {
     "send": "Sent",

@@ -30,6 +30,7 @@ export enum WalletActions {
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
   SET_WALLET_CONNECT_APP = 'SET_WALLET_CONNECT_APP',
   SET_KEEPKEY_SDK = 'SET_KEEPKEY_SDK',
+  SET_BROWSER_URL = 'SET_BROWSER_URL'
 }
 
 export type ActionTypes =
@@ -98,3 +99,4 @@ export type ActionTypes =
     }
   | { type: WalletActions.SET_WALLET_CONNECT_APP; payload: WalletConnectApp | null }
   | { type: WalletActions.SET_KEEPKEY_SDK; payload: KeepKeySDK | null }
+  | { type: WalletActions.SET_BROWSER_URL; payload: string | null }

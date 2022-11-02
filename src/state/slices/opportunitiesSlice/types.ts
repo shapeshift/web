@@ -78,4 +78,6 @@ export type GetOpportunityUserDataOutput = {
   type: OpportunityDefiType
 }
 
-export type GetOpportunityUserStakingDataOutput = OpportunitiesState['userStaking']['byId']
+export type GetOpportunityUserStakingDataOutput = {
+  byId: OpportunitiesState['userStaking']['byId']
+}

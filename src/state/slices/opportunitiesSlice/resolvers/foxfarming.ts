@@ -35,12 +35,13 @@ import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slic
 import { foxEthPair } from '../constants'
 import type {
   GetOpportunityMetadataOutput,
+  GetOpportunityUserStakingDataOutput,
   LpId,
   OpportunitiesState,
   OpportunityDefiType,
   StakingId,
-  UserStakingOpportunity,
 } from '../types'
+import { serializeUserStakingId } from '../utils'
 import type { ReduxApi } from './types'
 
 export const foxFarmingLpMetadataResolver = async ({
@@ -266,7 +267,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   opportunityType: OpportunityDefiType
   accountId: AccountId
   reduxApi: ReduxApi
-}): Promise<{ data: UserStakingOpportunity }> => {
+}): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -294,8 +295,12 @@ export const foxFarmingStakingUserDataResolver = async ({
     .toString()
 
   const data = {
-    stakedAmountCryptoPrecision,
-    rewardsAmountCryptoPrecision,
+    byId: {
+      [serializeUserStakingId(accountId, opportunityId as StakingId)]: {
+        stakedAmountCryptoPrecision,
+        rewardsAmountCryptoPrecision,
+      },
+    },
   }
 
   return { data }

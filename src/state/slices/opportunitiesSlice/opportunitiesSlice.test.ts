@@ -184,41 +184,47 @@ describe('opportunitiesSlice', () => {
     describe('upsertUserStakingOpportunities', () => {
       it('inserts user data', () => {
         const payload = {
-          [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
-            stakedAmountCryptoPrecision: '42000',
-            rewardsAmountCryptoPrecision: '42',
+          byId: {
+            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountCryptoPrecision: '42',
+            },
           },
         }
         store.dispatch(opportunities.actions.upsertUserStakingOpportunities(payload))
-        expect(store.getState().opportunities.userStaking.byId).toEqual(payload)
-        expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload))
+        expect(store.getState().opportunities.userStaking.byId).toEqual(payload.byId)
+        expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload.byId))
       })
       it('merges prevState and payload', () => {
         const insertPayloadOne = {
-          [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
-            stakedAmountCryptoPrecision: '42000',
-            rewardsAmountCryptoPrecision: '42',
+          byId: {
+            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountCryptoPrecision: '42',
+            },
           },
         }
         store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadOne))
-        expect(store.getState().opportunities.userStaking.byId).toEqual(insertPayloadOne)
+        expect(store.getState().opportunities.userStaking.byId).toEqual(insertPayloadOne.byId)
         expect(store.getState().opportunities.userStaking.ids).toEqual(
-          Object.keys(insertPayloadOne),
+          Object.keys(insertPayloadOne.byId),
         )
 
         const insertPayloadTwo = {
-          [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
-            stakedAmountCryptoPrecision: '42000',
-            rewardsAmountCryptoPrecision: '42',
+          byId: {
+            [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountCryptoPrecision: '42',
+            },
           },
         }
         store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadTwo))
         expect(store.getState().opportunities.userStaking.byId).toEqual({
-          ...insertPayloadOne,
-          ...insertPayloadTwo,
+          ...insertPayloadOne.byId,
+          ...insertPayloadTwo.byId,
         })
         expect(store.getState().opportunities.userStaking.ids).toEqual(
-          Object.keys({ ...insertPayloadOne, ...insertPayloadTwo }),
+          Object.keys({ ...insertPayloadOne.byId, ...insertPayloadTwo.byId }),
         )
       })
     })

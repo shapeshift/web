@@ -17,10 +17,8 @@ import type {
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
   OpportunityDataById,
-  StakingId,
   UserStakingId,
 } from './types'
-import { serializeUserStakingId } from './utils'
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -70,8 +68,8 @@ export const opportunities = createSlice({
       draftState,
       { payload }: { payload: GetOpportunityUserStakingDataOutput },
     ) => {
-      const payloadIds = Object.keys(payload) as UserStakingId[]
-      draftState.userStaking.byId = merge(draftState.userStaking.byId, payload)
+      const payloadIds = Object.keys(payload.byId) as UserStakingId[]
+      draftState.userStaking.byId = merge(draftState.userStaking.byId, payload.byId)
       draftState.userStaking.ids = uniq([...draftState.userStaking.ids, ...payloadIds])
     },
   },
@@ -123,10 +121,7 @@ export const opportunitiesApi = createApi({
 
           if (resolved?.data) {
             // If we get an object back, this is userStakingData - LP just returns an `amount` string
-            const byId = {
-              [serializeUserStakingId(accountId, opportunityId as StakingId)]: resolved.data,
-            }
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(byId))
+            dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
           }
 
           const byAccountId = {

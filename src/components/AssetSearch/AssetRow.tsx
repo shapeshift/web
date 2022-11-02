@@ -46,7 +46,15 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       <Flex gap={4} alignItems='center'>
         <AssetIcon assetId={asset.assetId} size='sm' />
         <Box textAlign='left'>
-          <Text lineHeight={1}>{asset.name}</Text>
+          <Text
+            lineHeight={1}
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            maxWidth='200px'
+            overflow='hidden'
+          >
+            {asset.name}
+          </Text>
           <Text fontWeight='normal' fontSize='sm' color={color}>
             {asset.symbol}
           </Text>

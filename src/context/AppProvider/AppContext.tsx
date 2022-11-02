@@ -123,14 +123,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       )
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        // only some wallets support muli account
+        // only some wallets support multi account
         if (accountNumber > 0 && !isMultiAccountWallet) break
         const input = { accountNumber, chainIds, wallet }
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
-        const promises = accountIds.map(async accountId =>
-          dispatch(portfolioApi.endpoints.getAccount.initiate(accountId)),
-        )
+        const { getAccount } = portfolioApi.endpoints
+        const opts = { forceRefetch: true }
+        const promises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
 
         const results = await Promise.allSettled(promises)
         /**

@@ -76,6 +76,7 @@ export enum PinMatrixRequestType {
   CURRENT = 1,
   NEWFIRST = 2,
   NEWSECOND = 3,
+  REMOVE = 4,
 }
 
 export enum Message {

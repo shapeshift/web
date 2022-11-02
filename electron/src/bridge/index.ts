@@ -71,6 +71,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
     ipcMain.on(`@bridge/add-service`, (event, data) => {
         db.insert({
             type: 'service',
+            isKeepKeyDesktop: true,
             addedOn: Date.now(),
             ...data
         })

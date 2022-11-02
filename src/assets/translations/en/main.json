@@ -750,7 +750,8 @@
       "verify": "Verify",
       "verified": "Verified",
       "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "toggleXpub": "XPub"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",
@@ -972,6 +973,11 @@
         "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
         "button": "Save PIN"
       },
+      "remove": {
+        "header": "Confirm Your PIN",
+        "body": "Please confirm your PIN to remove the PIN from your KeepKey",
+        "button": "Confirm"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Bootloader",
@@ -981,6 +987,7 @@
           "deviceTimeout": "Device Timeout",
           "passphrase": "Passphrase",
           "wipeDevice": "Wipe Device",
+          "removePin": "Remove Pin",
           "label": "Label"
         },
         "status": {

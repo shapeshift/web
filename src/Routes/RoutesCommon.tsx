@@ -21,7 +21,6 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
-
 import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'

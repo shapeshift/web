@@ -1,3 +1,4 @@
+import type { KeepKeySDK } from '@keepkey/keepkey-sdk'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
@@ -28,6 +29,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
   SET_WALLET_CONNECT_APP = 'SET_WALLET_CONNECT_APP',
+  SET_KEEPKEY_SDK = 'SET_KEEPKEY_SDK',
 }
 
 export type ActionTypes =
@@ -95,3 +97,4 @@ export type ActionTypes =
       }
     }
   | { type: WalletActions.SET_WALLET_CONNECT_APP; payload: WalletConnectApp | null }
+  | { type: WalletActions.SET_KEEPKEY_SDK; payload: KeepKeySDK | null }

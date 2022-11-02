@@ -1,7 +1,7 @@
-import { CloseIcon } from '@chakra-ui/icons'
+import { CloseIcon, LockIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import {
@@ -16,6 +16,8 @@ import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeep
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 
 export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
@@ -27,7 +29,8 @@ export const KeepKeyMenu = () => {
   const { versions, updaterUrl } = useKeepKeyVersions()
   const {
     setDeviceState,
-    state: { isConnected, walletInfo },
+    dispatch,
+    state: { isConnected, walletInfo, keepkeySdk, deviceId },
   } = useWallet()
   const { keepKeyWipe } = useModal()
 
@@ -56,6 +59,19 @@ export const KeepKeyMenu = () => {
   const handleWipeClick = () => {
     keepKeyWipe.open({})
   }
+
+  const handleRemovePinClick = useCallback(() => {
+    console.log('KEEPKEY SDK', keepkeySdk)
+    if (!keepkeySdk) return
+    keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp.data))
+    dispatch({
+      type: WalletActions.OPEN_KEEPKEY_PIN,
+      payload: {
+        deviceId,
+        pinRequestType: PinMatrixRequestType.REMOVE,
+      },
+    })
+  }, [keepkeySdk])
 
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'
@@ -160,6 +176,9 @@ export const KeepKeyMenu = () => {
                 hasSubmenu={true}
               />
               <MenuDivider />
+              <MenuItem onClick={handleRemovePinClick} color='red.500' icon={<LockIcon />}>
+                {translate('walletProvider.keepKey.settings.menuLabels.removePin')}
+              </MenuItem>
               <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>
                 {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
               </MenuItem>

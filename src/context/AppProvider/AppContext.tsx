@@ -1,18 +1,22 @@
 import { AlertDescription, Button, Flex, useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
+import pull from 'lodash/pull'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import type { BN } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -44,7 +48,7 @@ import {
   EMPTY_OSMOSIS_ADDRESS,
 } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
@@ -61,7 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const accountErrorToastId = 'accountError'
   const translate = useTranslate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const {
     state: { wallet },
@@ -114,30 +118,44 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      try {
-        const accountNumber = 0
-        const chainIds = supportedChains
-        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
-          accountNumber,
-          chainIds,
-          wallet,
-        })
+      let chainIds = Array.from(supportedChains).filter(chainId =>
+        walletSupportsChain({ chainId, wallet }),
+      )
+      for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+        const input = { accountNumber, chainIds, wallet }
+        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
+        const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
+        const promises = accountIds.map(async accountId =>
+          dispatch(portfolioApi.endpoints.getAccount.initiate(accountId)),
+        )
 
-        dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
-      } catch (e) {
-        moduleLogger.error(e, 'AppContext:deriveAccountIdsAndMetadata')
+        const results = await Promise.allSettled(promises)
+        const balanceByChainId = results.reduce<Record<ChainId, BN>>((acc, res, idx) => {
+          if (res.status === 'rejected') return acc
+          const { data: account } = res.value
+          if (!account) return acc
+          const accountId = accountIds[idx]
+          const { chainId } = fromAccountId(accountId)
+          const accountBalance = Object.values(account.assetBalances.byId).reduce(
+            (acc, balance) => acc.plus(bnOrZero(balance)),
+            bnOrZero(0),
+          )
+          acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
+          // don't upsert empty accounts past account 0
+          if (accountNumber > 0 && accountBalance.eq(0)) return acc
+          const accountMetadata = accountMetadataByAccountId[accountId]
+          const payload = { [accountId]: accountMetadata }
+          dispatch(portfolio.actions.upsertAccountMetadata(payload))
+          dispatch(portfolio.actions.upsertPortfolio(account))
+          return acc
+        }, {})
+
+        Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
+          if (balance.eq(0)) pull(chainIds, chainId) // pull mutates chainIds, but we want to
+        })
       }
     })()
   }, [dispatch, wallet, supportedChains])
-
-  // once account ids are set after wallet connect, fetch all account data to build out portfolio
-  useEffect(() => {
-    const { getAccount } = portfolioApi.endpoints
-
-    requestedAccountIds.forEach(accountId => {
-      dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
-    })
-  }, [dispatch, requestedAccountIds])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

@@ -3,7 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -54,7 +54,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
-      <Seo title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
+      <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
       <Flex alignItems='center' mr='auto'>
         <AssetIcon assetId={asset.assetId} boxSize='40px' />
         <Box ml={3} textAlign='left'>

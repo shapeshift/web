@@ -8,7 +8,7 @@ import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -44,7 +44,7 @@ export const ConnectWallet = () => {
   }, [history, hasWallet, query, state, dispatch])
   return (
     <Page>
-      <Seo title={translate('common.connectWallet')} />
+      <SEO title={translate('common.connectWallet')} />
       <DarkMode>
         <Flex
           backgroundImage={AuroraBg}

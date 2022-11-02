@@ -2,7 +2,7 @@ import { Box, Center, Container, Heading, Stack, useColorModeValue } from '@chak
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
@@ -11,7 +11,7 @@ const TradeHeader = () => {
   const translate = useTranslate()
   return (
     <Box pb={6}>
-      <Seo title={translate('trade.trade')} />
+      <SEO title={translate('trade.trade')} />
       <Heading>{translate('trade.trade')}</Heading>
     </Box>
   )

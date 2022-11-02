@@ -1,7 +1,7 @@
 import { Box, Divider, Heading, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -13,7 +13,7 @@ const DefiHeader = () => {
   const translate = useTranslate()
   return (
     <Box>
-      <Seo title={translate('defi.defi')} />
+      <SEO title={translate('defi.defi')} />
       <Heading>{translate('defi.defi')}</Heading>
     </Box>
   )

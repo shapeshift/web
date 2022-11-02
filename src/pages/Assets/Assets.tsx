@@ -3,7 +3,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Main } from 'components/Layout/Main'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 
 export const Assets = () => {
   const history = useHistory()
@@ -16,7 +16,7 @@ export const Assets = () => {
   }
   return (
     <Main display='flex' flexDir='column' height='calc(100vh - 72px)'>
-      <Seo title={translate('navBar.assets')} />
+      <SEO title={translate('navBar.assets')} />
       <AssetSearch onClick={onClick} />
     </Main>
   )

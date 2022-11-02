@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
-import { Seo } from 'components/Layout/Seo'
+import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
@@ -41,7 +41,7 @@ export const TransactionHistory = () => {
 
   return (
     <Main>
-      <Seo title={translate('transactionHistory.transactionHistory')} />
+      <SEO title={translate('transactionHistory.transactionHistory')} />
       <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
         <Text translation='transactionHistory.transactionHistory' />
       </Heading>

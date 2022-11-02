@@ -91,15 +91,24 @@ export const TopAssets: React.FC = () => {
 
   return (
     <Box>
-      <PageContainer maxWidth='6xl' flexDir='column' gap={4} display='flex' py='5rem'>
+      <PageContainer
+        maxWidth='6xl'
+        flexDir='column'
+        gap={4}
+        display='flex'
+        py='5rem'
+        pt={{ base: 8, md: '5rem' }}
+      >
         <Heading as='h4' px={{ base: 2, xl: 4 }}>
-          {translate('buyPage.topAssets')}
+          {translate('buyPage.availableAssets')}
         </Heading>
         <ReactTable
           columns={columns}
           data={fiatRampBuyAssetsWithMarketData}
           initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
           onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
+          rowDataTestKey='name'
+          rowDataTestPrefix='fiat-ramp'
         />
       </PageContainer>
     </Box>

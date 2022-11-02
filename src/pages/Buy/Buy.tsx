@@ -10,6 +10,7 @@ import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
@@ -58,11 +59,12 @@ export const Buy = () => {
   )
 
   return (
-    <Main p={0} paddingInline={{ base: 0, md: 0 }}>
+    <Main p={0} style={{ paddingInlineStart: 0, paddingInlineEnd: 0 }}>
+      <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
       <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
-        <PageContainer>
+        <PageContainer pt={{ base: 8, md: '7.5rem' }} pb={{ base: 0, md: '7.5rem' }}>
           <Flex
-            flexDir={{ base: 'column-reverse', xl: 'row' }}
+            flexDir={{ base: 'column', xl: 'row' }}
             alignItems='center'
             justifyContent='space-between'
             width='full'
@@ -92,7 +94,7 @@ export const Buy = () => {
               <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
-              <Card>
+              <Card mx={{ base: -4, md: 0 }}>
                 <FiatForm
                   assetId={selectedAssetId}
                   handleIsSelectingAsset={handleIsSelectingAsset}

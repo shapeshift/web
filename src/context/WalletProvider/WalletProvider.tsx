@@ -342,7 +342,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const localWalletDeviceId = getLocalWalletDeviceId()
     fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
-      ;(async () => {
+      ; (async () => {
         if (state.adapters?.has(localWalletType)) {
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -627,10 +627,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.send('@app/start', {})
   }, [setNeedsResetIfNotUpdating, state.wallet])
 
-  useEffect(() => {
-    disconnect()
-    doStartBridge()
-
+  const setupKeepKeySDK = () => {
     let serviceKey = window.localStorage.getItem('@app/serviceKey')
     let config = {
       serviceName: 'KeepKey Desktop',
@@ -649,7 +646,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       .catch(e => {
         console.log('GET KEEPKEYSDK ERROR', e)
       })
+  }
 
+  useEffect(() => {
+    disconnect()
+    doStartBridge()
+    setupKeepKeySDK()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

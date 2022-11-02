@@ -119,7 +119,7 @@ export const opportunitiesApi = createApi({
           })
 
           if (resolved?.data) {
-            // If we get an object back, this is userStakingData - LP just returns an `amount` string
+            // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
             dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
           }
 

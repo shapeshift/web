@@ -13,7 +13,7 @@ export const Assets = () => {
     // AssetId has a `/` separator so the router will have to parse 2 variables
     // e.g., /assets/:chainId/:assetSubId
     const url = !isKeepkeyAsset ? `/assets/${routeAssetId}` : `/assets/keepkey/${routeAssetId}`
-    history.push({ pathname: url, state: { asset } })
+    history.push({ pathname: url })
   }
   return (
     <Main display='flex' flexDir='column' height='calc(100vh - 72px)'>

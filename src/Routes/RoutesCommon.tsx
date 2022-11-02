@@ -1,4 +1,4 @@
-import { FaFlag, FaLock, FaTable, FaTractor, FaWater, FaPlug } from 'react-icons/fa'
+import { FaFlag, FaLock, FaPlug, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -20,12 +20,12 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
-import { Pairings } from 'pages/Pairings/Pairings'
 
 export const routes: NestedRoute[] = [
   {

@@ -29,7 +29,9 @@ export const portfolio = createSlice({
         ...state.accountMetadata.byId,
         ...payload,
       }
-      state.accountMetadata.ids = Array.from(new Set([...Object.keys(payload)]))
+      state.accountMetadata.ids = Array.from(
+        new Set([...Object.keys(payload), ...state.accountMetadata.ids]),
+      )
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.debug('upserting portfolio')

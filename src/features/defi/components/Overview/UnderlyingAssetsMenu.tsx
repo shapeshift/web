@@ -5,7 +5,7 @@ import { AssetIcon } from 'components/AssetIcon'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 import type { AssetWithBalance } from './Overview'
-import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
+import { UnderlyingAssetTag } from './UnderlyingAssetsTags'
 
 type UnderlyingAssetsMenuProps = {
   underlyingAsset: AssetWithBalance
@@ -19,9 +19,9 @@ export const UnderlyingAssetsMenu = ({
     <Popover matchWidth>
       <PopoverTrigger>
         <Box cursor='pointer'>
-          <UnderlyingAssetsTags underlyingAssets={[underlyingAsset]} showPercentage={false}>
+          <UnderlyingAssetTag asset={underlyingAsset} showPercentage={false}>
             <ChevronDownIcon />
-          </UnderlyingAssetsTags>
+          </UnderlyingAssetTag>
         </Box>
       </PopoverTrigger>
       <PopoverContent minWidth='200px'>

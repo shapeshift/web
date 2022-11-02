@@ -18,7 +18,11 @@ type UnderlyingAssetsTagsProps = {
   children?: React.ReactNode
 }
 
-const UnderlyingAssetTag = ({ asset, children, showPercentage }: UnderlyingAssetsTagProps) => (
+export const UnderlyingAssetTag = ({
+  asset,
+  children,
+  showPercentage,
+}: UnderlyingAssetsTagProps) => (
   <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
     {asset.icons ? (
       <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />

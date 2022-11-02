@@ -196,7 +196,19 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Button>
           <Flex flexDirection='column' mb='10px'>
-            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
+            <Text
+              translation={
+                isUnsupportedAsset
+                  ? [
+                      'fiatRamps.notSupported',
+                      { asset: assetsById[assetId].symbol, wallet: wallet?.getVendor() },
+                    ]
+                  : fundsTranslation
+              }
+              color='gray.500'
+              mt='15px'
+              mb='8px'
+            />
             {isConnected && !isDemoWallet ? (
               <>
                 {isUnsupportedAsset ? (

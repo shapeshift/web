@@ -20,6 +20,8 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
+
 import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
@@ -34,6 +36,13 @@ export const routes: NestedRoute[] = [
     icon: <DashboardIcon />,
     main: Dashboard,
     category: RouteCategory.Wallet,
+  },
+  {
+    path: '/leaderboard',
+    label: 'Leaderboard',
+    icon: <IoSwapVertical />,
+    main: Leaderboard,
+    category: RouteCategory.Explore,
   },
   {
     path: '/assets',

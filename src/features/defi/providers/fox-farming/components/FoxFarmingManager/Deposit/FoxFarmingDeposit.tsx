@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -81,7 +81,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
         dispatch({
           type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
-          payload: farmingAccountId,
+          payload: fromAccountId(farmingAccountId).account,
         })
         dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {

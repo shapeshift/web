@@ -13,11 +13,9 @@ import {
 } from './constants'
 
 export type UserEarnOpportunityType = {
+  stakedAmountCryptoPrecision?: string
   rewardsAmountCryptoPrecision?: string
   isVisible?: boolean
-  // TODO: remove
-  underlyingFoxAmount?: string
-  underlyingEthAmount?: string
   // TODO: AccountId
   accountAddress?: string
 } & EarnOpportunityType

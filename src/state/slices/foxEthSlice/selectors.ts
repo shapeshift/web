@@ -4,14 +4,12 @@ import { CHAIN_NAMESPACE, ethAssetId, fromAccountId, fromAssetId } from '@shapes
 import keys from 'lodash/keys'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountAddressParamFromFilter,
   selectAccountAddressParamFromFilterOptional,
 } from 'state/selectors'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
@@ -77,47 +75,6 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCac
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   foxEthAccountOpportunities => foxEthAccountOpportunities[0],
-)
-
-// Aggregated multi-account opportunities, and slaps the highest balance accountAddress in
-export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
-  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  (state: ReduxState) => state,
-  (
-    wrappedEthLpOpportunities,
-    state,
-  ): UserEarnOpportunityType & { highestBalanceAccountAddress: string } => {
-    const aggregatedOpportunity = wrappedEthLpOpportunities
-      .filter(Boolean)
-      .reduce((acc, currentOpportunity) => {
-        acc = {
-          ...currentOpportunity,
-          underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
-            .plus(currentOpportunity.underlyingFoxAmount ?? '')
-            .toString(),
-          underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
-            .plus(currentOpportunity.underlyingEthAmount ?? '')
-            .toString(),
-          cryptoAmount: bnOrZero(acc.cryptoAmount)
-            .plus(currentOpportunity.cryptoAmount ?? '')
-            .toString(),
-          fiatAmount: bnOrZero(acc.fiatAmount)
-            .plus(currentOpportunity.fiatAmount ?? '')
-            .toString(),
-        }
-        return acc
-      }, {} as UserEarnOpportunityType)
-
-    const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
-      state,
-      {},
-    )
-
-    return {
-      ...aggregatedOpportunity,
-      highestBalanceAccountAddress,
-    }
-  },
 )
 
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
@@ -237,20 +194,6 @@ export const selectFarmContractsAccountsBalanceAggregated = createSelector(
         bnOrZero(0),
       )
     return foxFarmingTotalCryptoAmount.toString()
-  },
-)
-
-export const selectLpPlusFarmContractsBaseUnitBalance = createSelector(
-  selectAssets,
-  selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectFarmContractsAccountsBalanceAggregated,
-  (assetsById, lpOpportunity, farmContractsBalance) => {
-    const lpAsset = assetsById[foxEthLpAssetId]
-    return toBaseUnit(
-      bnOrZero(lpOpportunity?.cryptoAmount).plus(bnOrZero(farmContractsBalance)),
-      // src/state/reselect-tools.test.ts fails saying lpAsset is undefined
-      lpAsset?.precision ?? 0,
-    )
   },
 )
 

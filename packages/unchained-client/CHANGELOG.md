@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.5...@shapeshiftoss/unchained-client-v10.3.0) (2022-11-03)
+
+
+### Features
+
+* **swapper:** use refund fee in limit calculation & use `outbound_fee` ([#1080](https://github.com/shapeshift/lib/issues/1080)) ([a4d6d6f](https://github.com/shapeshift/lib/commit/a4d6d6f36e1ad803a5328c0536701f142e2f97f2))
+
 # [@shapeshiftoss/unchained-client-v10.2.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.4...@shapeshiftoss/unchained-client-v10.2.5) (2022-10-31)
 
 # [@shapeshiftoss/unchained-client-v10.2.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.2.3...@shapeshiftoss/unchained-client-v10.2.4) (2022-10-25)

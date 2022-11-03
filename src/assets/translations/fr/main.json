@@ -79,6 +79,21 @@
     "unsupportedNetwork": "Réseau non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}."
   },
+  "buyPage": {
+    "title": {
+      "first": "Acheter des cryptos",
+      "second": "en quelques secondes"
+    },
+    "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez des Bitcoin, Ethereum, USDT, USDC ou des centaines d'autres cryptomonnaies.",
+    "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
+    "cta": {
+      "title": {
+        "first": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et",
+        "second": "suivre vos cryptos sur 8 chaînes"
+      }
+    },
+    "topAssets": "Principaux actifs"
+  },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
     "cta": "Rafraîchir l'app",
@@ -108,6 +123,8 @@
       "value": "Valeur",
       "priceChange": "Changement de prix",
       "allocation": "Répartition",
+      "marketCap": "Capitalisation du marché",
+      "sparkLine": "Sparkline",
       "empty": {
         "title": "Bruits de grillons...",
         "cta": "Envoyez-vous un peu de crypto !"
@@ -289,7 +306,7 @@
     "balance": "Solde",
     "defi": "DeFi",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
-    "netWorth": "Valeur nette",
+    "netWorth": "Patrimoine net",
     "walletBalance": "Solde du porte-monnaie",
     "earnBalance": "Solde des gains",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
@@ -383,7 +400,8 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
-    "trade": "Échanger"
+    "trade": "Échanger",
+    "buyCrypto": "Acheter des cryptos"
   },
   "transactionRow": {
     "send": "Envoi",
@@ -1428,6 +1446,32 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Signature depuis",
+          "requestFrom": "Requête depuis",
+          "message": "Message",
+          "description": "Vous devrez confirmer la signature de ce message avec votre porte-monnaie connecté.",
+          "confirm": "Confirmer",
+          "reject": "Rejeter"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Paramètres avancés",
+            "alert": "Pour utilisation avancée uniquement. La modification de ces paramètres peut provoquer un blocage de transactions.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce..."
+            },
+            "gasLimit": {
+              "title": "Limite de carburant",
+              "placeholder": "Limite de carburant..."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps disponibles",
         "getStarted": "Commencer",
@@ -1452,5 +1496,25 @@
         "description": "Votre Yat est votre nom d'utilisateur emoji universel, l'URL de votre site Web, votre adresse de paiement, etc."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 min.",
+      "average": "~ 3 min.",
+      "fast": "~ 3 sec."
+    },
+    "estGasCost": "Est. coût du carburant",
+    "gasPrice": {
+      "label": "Prix du carburant"
+    },
+    "base": {
+      "label": "Frais de base",
+      "tooltip": "Les frais de base sont fixés par le réseau et changent toutes les 13-14 secondes en fonction de la demande. Définissez le prix maximum (hors frais de priorité) en gwei que vous souhaitez payer pour chaque unité de carburant."
+    },
+    "priority": {
+      "label": "Frais de priorité",
+      "tooltip": "Les frais de priorité sont un pourboire facultatif pour inciter les producteurs de blocs à donner la priorité à votre transaction. Définissez les frais de priorité en gwei que vous souhaitez payer pour chaque unité de carburant."
+    },
+    "custom": "Personnalisé"
   }
 }

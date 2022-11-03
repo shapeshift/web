@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -24,9 +25,10 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -34,7 +36,9 @@ import { ClaimableAsset } from './ClaimableAsset'
 
 const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+
+export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
   const { idleInvestor } = useIdle()
@@ -58,8 +62,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   useEffect(() => {

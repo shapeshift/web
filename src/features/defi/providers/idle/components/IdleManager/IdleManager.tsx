@@ -1,11 +1,14 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Nullable } from 'types/common'
 
 import { IdleClaim } from './Claim/IdleClaim'
 import { IdleDeposit } from './Deposit/IdleDeposit'
@@ -13,6 +16,7 @@ import { IdleOverview } from './Overview/IdleOverview'
 import { IdleWithdraw } from './Withdraw/IdleWithdraw'
 
 export const IdleManager = () => {
+  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
 
@@ -20,22 +24,22 @@ export const IdleManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <IdleOverview />
+          <IdleOverview onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (
         <SlideTransition key={DefiAction.Deposit}>
-          <IdleDeposit />
+          <IdleDeposit onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
-          <IdleWithdraw />
+          <IdleWithdraw onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Claim && (
         <SlideTransition key={DefiAction.Claim}>
-          <IdleClaim />
+          <IdleClaim accountId={accountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

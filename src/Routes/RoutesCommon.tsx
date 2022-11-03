@@ -163,6 +163,13 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
+    routes: [
+      {
+        label: 'Buy Asset',
+        path: '/:chainId/:assetSubId',
+        main: Buy,
+      },
+    ],
   },
   {
     path: '/flags',

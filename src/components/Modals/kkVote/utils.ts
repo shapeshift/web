@@ -6,6 +6,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 
 // slightly over-estimated gas limits
 const APPROVAL_GAS = '0x15F90' // 90k
@@ -113,13 +114,37 @@ export const doVoteTx = async (
 // TODO support EIP 1559 prices (base fee & priority fee)
 export const getFees = async (kkWeb3: Web3) => {
   const gasPrice = await kkWeb3.eth.getGasPrice()
-  const gasLimit = VOTE_GAS
-  const eth = bnOrZero(gasLimit).times(gasPrice).toString()
-
+  const voteEth = bnOrZero(VOTE_GAS).times(gasPrice).toString()
+  const approvalEth = bnOrZero(APPROVAL_GAS).times(gasPrice).toString()
   return {
-    eth,
+    voteEth: fromBaseUnit(voteEth, 18),
+    approvalEth: fromBaseUnit(approvalEth, 18),
     voteGas: VOTE_GAS,
     approvalGas: APPROVAL_GAS,
     gasPrice: Web3.utils.toHex(gasPrice),
+  }
+}
+
+// Gets eth && kktoken user balances
+export const getApprovedAndBalances = async (
+  kkWeb3: Web3,
+  wallet: KeepKeyHDWallet,
+  kkErc20Contract: any,
+  kkNftContract: any,
+) => {
+  const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
+  const address = await wallet.ethGetAddress({
+    addressNList,
+    showDisplay: false,
+  })
+  const ethBalance = await kkWeb3.eth.getBalance(address)
+  const approved = await kkErc20Contract?.methods
+    .allowance(address, kkNftContract?.options?.address)
+    .call()
+  const kkBalance = await kkErc20Contract?.methods.balanceOf(address).call()
+  return {
+    approved: fromBaseUnit(approved, 18),
+    ethBalance: fromBaseUnit(ethBalance, 18),
+    kkBalance: fromBaseUnit(kkBalance, 18),
   }
 }

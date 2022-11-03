@@ -11,12 +11,15 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 const APPROVAL_GAS = '0x15F90' // 90k
 const VOTE_GAS = '0x3D090' // 250k
 
+// 1 = mainNet, 5 = goerli
+const evmChainId = 5
+
 export const doApproveTx = async (
   kkErc20Contract: any,
   kkNftContract: any,
-  kkWeb3: any,
-  wallet: any,
-  setApproveConfirmed: any,
+  kkWeb3: Web3,
+  wallet: HDWallet,
+  setApproveConfirmed: (arg0: boolean) => any,
 ) => {
   const approveData = kkErc20Contract.methods
     .approve(kkNftContract.options.address, '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
@@ -26,7 +29,6 @@ export const doApproveTx = async (
   const adapter = chainAdapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as ChainAdapter<KnownChainIds>
-
   const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
 
   const gasPrice = await kkWeb3.eth.getGasPrice()
@@ -43,7 +45,7 @@ export const doApproveTx = async (
     nonce: Web3.utils.toHex(nonce),
     data: approveData,
     value: '0x0',
-    chainId: 5,
+    chainId: evmChainId,
     addressNList,
     gasLimit: APPROVAL_GAS,
     gasPrice: Web3.utils.toHex(gasPrice),
@@ -58,15 +60,15 @@ export const doApproveTx = async (
   kkWeb3.eth.sendSignedTransaction(signedTx).then(() => {
     setApproveConfirmed(true)
   })
-  const txHash = await kkWeb3.utils.sha3(signedTx)
+  const txHash = (await kkWeb3.utils.sha3(signedTx)) ?? ''
   return txHash
 }
 
 export const doVoteTx = async (
   kkNftContract: any,
-  kkWeb3: any,
-  wallet: HDWallet | null,
-  setVoteConfirmed: (arg0: any) => any,
+  kkWeb3: Web3,
+  wallet: KeepKeyHDWallet,
+  setVoteConfirmed: (arg0: boolean) => any,
   burnAmount: string,
   geckoId: string,
 ) => {
@@ -89,7 +91,7 @@ export const doVoteTx = async (
     nonce: Web3.utils.toHex(nonce),
     data: voteData,
     value: '0x0',
-    chainId: 5,
+    chainId: evmChainId,
     addressNList,
     gasLimit: VOTE_GAS,
     gasPrice: Web3.utils.toHex(gasPrice),
@@ -104,30 +106,20 @@ export const doVoteTx = async (
   kkWeb3.eth.sendSignedTransaction(signedTx).then(() => {
     setVoteConfirmed(true)
   })
-  const txHash = await kkWeb3.utils.sha3(signedTx)
+  const txHash = (await kkWeb3.utils.sha3(signedTx)) ?? ''
   return txHash
 }
 
 // TODO support EIP 1559 prices (base fee & priority fee)
-export const getVoteFees = async (kkWeb3: any) => {
+export const getFees = async (kkWeb3: Web3) => {
   const gasPrice = await kkWeb3.eth.getGasPrice()
   const gasLimit = VOTE_GAS
-  const eth = bnOrZero(gasLimit).times(gasPrice)
-  return {
-    eth,
-    gasLimit,
-    gasPrice: Web3.utils.toHex(gasPrice),
-  }
-}
+  const eth = bnOrZero(gasLimit).times(gasPrice).toString()
 
-// TODO support EIP 1559 prices (base fee & priority fee)
-export const getApprovalFees = async (kkWeb3: any) => {
-  const gasPrice = await kkWeb3.eth.getGasPrice()
-  const gasLimit = APPROVAL_GAS
-  const eth = bnOrZero(gasLimit).times(gasPrice)
   return {
     eth,
-    gasLimit,
+    voteGas: VOTE_GAS,
+    approvalGas: APPROVAL_GAS,
     gasPrice: Web3.utils.toHex(gasPrice),
   }
 }

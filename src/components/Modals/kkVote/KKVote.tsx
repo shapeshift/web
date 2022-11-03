@@ -25,6 +25,7 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   const {
     state: { wallet },
   } = useWallet()
+
   const projectName = useMemo(() => getKeepkeyAsset(geckoId)?.name, [geckoId, getKeepkeyAsset])
 
   const { kkVote } = useModal()
@@ -53,11 +54,12 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   }, [])
 
   const onVoteClick = useCallback(async () => {
+    if (!kkWeb3) throw new Error('No Web3')
     setVoteClicked(true)
     const txid = await doVoteTx(
       kkNftContract,
       kkWeb3,
-      wallet,
+      wallet as KeepKeyHDWallet,
       setVoteConfirmed,
       burnAmount,
       geckoId,
@@ -66,12 +68,13 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   }, [burnAmount, geckoId, kkNftContract, kkWeb3, wallet])
 
   const onApproveClick = useCallback(async () => {
+    if (!kkWeb3) throw new Error('No Web3')
     setApproveClicked(true)
     const txid = await doApproveTx(
       kkErc20Contract,
       kkNftContract,
       kkWeb3,
-      wallet,
+      wallet as KeepKeyHDWallet,
       setApproveConfirmed,
     )
     setApproveTxid(txid)

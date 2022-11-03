@@ -99,7 +99,7 @@ export interface IKeepKeyContext {
   keepKeyWallet: KeepKeyHDWallet | undefined
   getKeepkeyAssets: () => KKAsset[]
   getKeepkeyAsset: (geckoId: string) => KKAsset | undefined
-  kkWeb3: any
+  kkWeb3: Web3 | undefined
   kkNftContract: any
   kkErc20Contract: any
 }
@@ -148,7 +148,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
 
   const [keepkeyAssets, setKeepkeyAssets] = useState<KKAsset[]>([])
 
-  const [kkWeb3, setkkWeb3] = useState<any>()
+  const [kkWeb3, setkkWeb3] = useState<Web3>()
   const [kkNftContract, setkkNftContract] = useState<any>()
   const [kkErc20Contract, setkkErc20Contract] = useState<any>()
 
@@ -192,14 +192,11 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         `https://${network}.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
       ),
     )
-    const nftContract = new web3.eth.Contract(
-      nftAbi as any,
-      '0xa869a28a7185df50e4abdba376284c44497c4753',
-    )
-    const erc20Contract = new web3.eth.Contract(
-      erc20Abi as any,
-      '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3',
-    )
+
+    const erc20Address = '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3'
+    const nftAddress = '0xa869a28a7185df50e4abdba376284c44497c4753'
+    const nftContract = new web3.eth.Contract(nftAbi as any, nftAddress)
+    const erc20Contract = new web3.eth.Contract(erc20Abi as any, erc20Address)
 
     setkkWeb3(web3)
     setkkNftContract(nftContract)

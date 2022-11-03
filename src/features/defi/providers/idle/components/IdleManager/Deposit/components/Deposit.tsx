@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
@@ -12,6 +13,7 @@ import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -22,13 +24,23 @@ import {
   selectPortfolioCryptoBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Deposit'] })
 
-export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
+type DepositProps = StepComponentProps & {
+  accountId?: Nullable<AccountId>
+  onAccountIdChange: AccountDropdownProps['onChange']
+} & StepComponentProps
+
+export const Deposit: React.FC<DepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -225,6 +237,8 @@ export const Deposit: React.FC<StepComponentProps> = ({ onNext }) => {
 
   return (
     <ReusableDeposit
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={bnOrZero(opportunity?.metadata.apy?.net_apy).toString()}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}

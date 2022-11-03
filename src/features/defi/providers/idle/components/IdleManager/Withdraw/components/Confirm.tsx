@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -24,9 +25,10 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -35,7 +37,9 @@ const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -65,8 +69,12 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const handleConfirm = useCallback(async () => {

@@ -118,7 +118,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      let chainIds = Array.from(supportedChains).filter(chainId =>
+      const chainIds = Array.from(supportedChains).filter(chainId =>
         walletSupportsChain({ chainId, wallet }),
       )
       const isMultiAccountWallet = wallet.supportsBip44Accounts()

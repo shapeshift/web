@@ -101,8 +101,8 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   )
 
   const highestBalanceAccountAddress = useMemo(
-    () => (accountId ? fromAccountId(highestBalanceAccountId).account : ''),
-    [accountId, highestBalanceAccountId],
+    () => (highestBalanceAccountId ? fromAccountId(highestBalanceAccountId).account : ''),
+    [highestBalanceAccountId],
   )
 
   useEffect(() => {

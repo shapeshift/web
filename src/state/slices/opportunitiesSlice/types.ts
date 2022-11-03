@@ -14,6 +14,7 @@ export type OpportunityMetadata = {
   underlyingAssetIds: readonly [AssetId, AssetId]
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]
+  expired?: boolean
 }
 
 // User-specific values for this opportunity
@@ -75,4 +76,8 @@ export type GetOpportunityMetadataOutput = {
 export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[OpportunityDefiType]['byAccountId']
   type: OpportunityDefiType
+}
+
+export type GetOpportunityUserStakingDataOutput = {
+  byId: OpportunitiesState['userStaking']['byId']
 }

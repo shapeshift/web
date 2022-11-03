@@ -130,14 +130,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const promises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
-
-        const results = await Promise.allSettled(promises)
+        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate
          * balance by chain id to see if we fetch the next by accountNumber
          */
-        const balanceByChainId = results.reduce<Record<ChainId, BN>>((acc, res, idx) => {
+        const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
           if (res.status === 'rejected') return acc
           const { data: account } = res.value
           if (!account) return acc

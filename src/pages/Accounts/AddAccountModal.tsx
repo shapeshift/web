@@ -122,9 +122,9 @@ export const AddAccountModal = () => {
       const { getAccount } = portfolioApi.endpoints
       const opts = { forceRefetch: true }
       const accountIds = Object.keys(accountMetadataByAccountId)
-      const promises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
-      const results = await Promise.allSettled(promises)
-      results.forEach((res, idx) => {
+      const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+      const accountResults = await Promise.allSettled(accountPromises)
+      accountResults.forEach((res, idx) => {
         if (res.status === 'rejected') return
         const { data: account } = res.value
         if (!account) return

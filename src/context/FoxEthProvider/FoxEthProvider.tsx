@@ -11,15 +11,18 @@ import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
-import { farmingOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
 import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import {
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+  fetchAllStakingOpportunitiesMetadata,
+  fetchAllStakingOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-  selectPortfolioLoading,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -63,9 +66,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -78,18 +79,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [farmingAccountAddress, setFarmingAccountAddress] = useState<string>('')
   const [farmingAccountId, setFarmingAccountId] = useState<Nullable<AccountId>>(null)
   const [lpAccountId, setLpAccountId] = useState<Nullable<AccountId>>(null)
-  const readyToFetchLpData = useMemo(
-    () => !isPortfolioLoading && wallet && supportsETH(wallet),
-    [isPortfolioLoading, wallet],
-  )
-  const readyToFetchFarmingData = useMemo(
-    () => Boolean(readyToFetchLpData && foxEthLpMarketData.price !== '0'),
-    [foxEthLpMarketData.price, readyToFetchLpData],
-  )
-  const readyToFetchLpAccountData = useMemo(
-    () => Boolean(readyToFetchLpData && lpAccountAddress && foxEthLpMarketData.price !== '0'),
-    [readyToFetchLpData, lpAccountAddress, foxEthLpMarketData.price],
-  )
 
   const filter = useMemo(() => ({ assetId: ethAssetId }), [])
 
@@ -98,41 +87,22 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
-    if (!ethAccountIds?.length || !readyToFetchLpAccountData) return
-
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
     await Promise.all(
-      ethAccountAddresses.map(async accountAddress => {
-        await dispatch(
-          foxEthApi.endpoints.getFoxEthLpAccountData.initiate(
-            { accountAddress },
-            { forceRefetch: true },
-          ),
-        )
-      }),
+      ethAccountIds.map(async accountId => fetchAllOpportunitiesUserData(accountId)),
     )
-  }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
+  }, [ethAccountIds])
 
   useEffect(() => {
     ;(async () => {
-      if (!readyToFetchLpData || !ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      ethAccountAddresses.forEach(accountAddress => {
-        dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
-      })
+      await fetchAllOpportunitiesMetadata().catch(e => moduleLogger.error(e))
     })()
-  }, [ethAccountIds, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
+  }, [ethAccountIds, dispatch, refetchFoxEthLpAccountData])
 
   useEffect(() => {
     ;(async () => {
-      if (!readyToFetchLpData) return
-
       await refetchFoxEthLpAccountData()
     })()
-  }, [refetchFoxEthLpAccountData, readyToFetchLpData])
+  }, [refetchFoxEthLpAccountData])
 
   const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId ?? '' }), [lpAccountId])
   // Use the account number of the consumer if we have it, else use account 0
@@ -166,32 +136,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   // this hook handles the data we need from the farming opportunities
   useEffect(() => {
-    if (!readyToFetchFarmingData) return
     // getting fox-eth lp token data
-    const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
     ;(async () => {
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
       // getting fox-eth lp token balances
-      farmingOpportunities.forEach(opportunity => {
-        const { contractAddress } = opportunity
-        // getting fox farm contract data
-        ethAccountAddresses.forEach(accountAddress => {
-          dispatch(
-            getFoxFarmingContractMetrics.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-          dispatch(
-            getFoxFarmingContractAccountData.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-        })
-      })
+      await fetchAllStakingOpportunitiesMetadata()
+      // getting fox farm contract data
+      await ethAccountIds.map(
+        async accountId => await fetchAllStakingOpportunitiesUserData(accountId),
+      )
     })()
-  }, [ethAccountIds, dispatch, readyToFetchFarmingData])
+  }, [ethAccountIds, dispatch])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
@@ -228,8 +182,15 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         refetchFoxEthLpAccountData()
         if (ongoingTxContractAddress)
           dispatch(
-            foxEthApi.endpoints.getFoxFarmingContractAccountData.initiate(
-              { accountAddress: farmingAccountAddress, contractAddress: ongoingTxContractAddress },
+            getOpportunityUserData.initiate(
+              {
+                accountId,
+                opportunityId: ongoingTxContractAddress as LpId,
+                opportunityType: DefiType.Staking,
+                defiType: DefiType.Staking,
+              },
+              // Any previous query without portfolio loaded will be rejected
+              // The first successful one will be cached unless forceRefetch is overriden with queryOptions
               { forceRefetch: true },
             ),
           )

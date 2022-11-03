@@ -1,3 +1,4 @@
+import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { store } from 'state/store'
@@ -6,7 +7,9 @@ import { foxEthLpAssetIds, foxEthStakingIds } from '../opportunitiesSlice/consta
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 import type { LpId } from '../opportunitiesSlice/types'
 
-export const fetchAllLpOpportunitiesMetadata = async () => {
+export const fetchAllLpOpportunitiesMetadata = async (
+  queryOptions?: StartQueryActionCreatorOptions,
+) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
   await Promise.all(
@@ -19,15 +22,18 @@ export const fetchAllLpOpportunitiesMetadata = async () => {
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
             },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false },
+            // Any previous query without portfolio loaded will be rejected
+            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
+            { forceRefetch: false, ...queryOptions },
           ),
         ),
     ),
   )
 }
 
-export const fetchAllStakingOpportunitiesMetadata = async () => {
+export const fetchAllStakingOpportunitiesMetadata = async (
+  queryOptions?: StartQueryActionCreatorOptions,
+) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
   await Promise.all(
@@ -40,22 +46,28 @@ export const fetchAllStakingOpportunitiesMetadata = async () => {
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
             },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false },
+            // Any previous query without portfolio loaded will be rejected
+            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
+            { forceRefetch: false, ...queryOptions },
           ),
         ),
     ),
   )
 }
 
-export const fetchAllOpportunitiesMetadata = async () => {
+export const fetchAllOpportunitiesMetadata = async (
+  queryOptions?: StartQueryActionCreatorOptions,
+) => {
   // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
   // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming
-  await fetchAllLpOpportunitiesMetadata()
-  await fetchAllStakingOpportunitiesMetadata()
+  await fetchAllLpOpportunitiesMetadata(queryOptions)
+  await fetchAllStakingOpportunitiesMetadata(queryOptions)
 }
 
-export const fetchAllStakingOpportunitiesUserData = async (accountId: AccountId) => {
+export const fetchAllStakingOpportunitiesUserData = async (
+  accountId: AccountId,
+  queryOptions?: StartQueryActionCreatorOptions,
+) => {
   const { getOpportunityUserData } = opportunitiesApi.endpoints
 
   await Promise.all(
@@ -69,15 +81,19 @@ export const fetchAllStakingOpportunitiesUserData = async (accountId: AccountId)
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
             },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false },
+            // Any previous query without portfolio loaded will be rejected
+            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
+            { forceRefetch: false, ...queryOptions },
           ),
         ),
     ),
   )
 }
 
-export const fetchAllLpOpportunitiesUserdata = async (accountId: AccountId) => {
+export const fetchAllLpOpportunitiesUserdata = async (
+  accountId: AccountId,
+  queryOptions?: StartQueryActionCreatorOptions,
+) => {
   const { getOpportunityUserData } = opportunitiesApi.endpoints
 
   await Promise.all(
@@ -91,16 +107,20 @@ export const fetchAllLpOpportunitiesUserdata = async (accountId: AccountId) => {
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
             },
-            // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
-            { forceRefetch: false },
+            // Any previous query without portfolio loaded will be rejected
+            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
+            { forceRefetch: false, ...queryOptions },
           ),
         ),
     ),
   )
 }
 
-export const fetchAllOpportunitiesUserData = async (accountId: AccountId) =>
+export const fetchAllOpportunitiesUserData = async (
+  accountId: AccountId,
+  queryOptions?: StartQueryActionCreatorOptions,
+) =>
   Promise.allSettled([
-    fetchAllLpOpportunitiesUserdata(accountId),
-    fetchAllStakingOpportunitiesUserData(accountId),
+    fetchAllLpOpportunitiesUserdata(accountId, queryOptions),
+    fetchAllStakingOpportunitiesUserData(accountId, queryOptions),
   ])

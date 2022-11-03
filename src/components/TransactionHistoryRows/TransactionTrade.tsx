@@ -13,7 +13,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
-import { getDisplayTransfers } from './utils'
+import { getTransfersByType } from './utils'
 
 export const TransactionTrade = ({
   txDetails,
@@ -26,8 +26,8 @@ export const TransactionTrade = ({
   const tradeFeeInput = useMemo(() => ({ txDetails }), [txDetails])
   const { tradeFees } = useTradeFees({ txDetails: tradeFeeInput.txDetails })
 
-  const displayTransfers = useMemo(
-    () => getDisplayTransfers(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
 
@@ -38,7 +38,7 @@ export const TransactionTrade = ({
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
-        displayTransfers={displayTransfers}
+        transfersByType={transfersByType}
         fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

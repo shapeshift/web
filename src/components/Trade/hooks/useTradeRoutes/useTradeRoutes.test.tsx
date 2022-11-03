@@ -37,7 +37,6 @@ jest.mock('state/slices/selectors', () => ({
   }),
   selectBIP44ParamsByAccountId: () => ({ purpose: 44, coinType: 60, accountNumber: 0 }),
 
-  selectAccountSpecifiers: () => ({}),
   selectFiatToUsdRate: () => ({}),
   selectPortfolioAccountMetadataByAccountId: () => ({
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

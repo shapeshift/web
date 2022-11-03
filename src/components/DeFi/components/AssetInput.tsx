@@ -29,24 +29,27 @@ import { colors } from 'theme/colors'
 import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
-import { MaxButtonGroup } from './MaxButtonGroup'
+import { PercentOptionsButtonGroup } from './PercentOptionsButtonGroup'
 
-const CryptoInput = (props: InputProps) => (
-  <Input
-    size='lg'
-    fontSize='xl'
-    borderRadius={0}
-    py={0}
-    height='auto'
-    type='number'
-    textAlign='right'
-    variant='inline'
-    placeholder='Enter amount'
-    style={{ caretColor: colors.blue[200] }}
-    autoComplete='off'
-    {...props}
-  />
-)
+const CryptoInput = (props: InputProps) => {
+  const translate = useTranslate()
+  return (
+    <Input
+      size='lg'
+      fontSize='xl'
+      borderRadius={0}
+      py={0}
+      height='auto'
+      type='number'
+      textAlign='right'
+      variant='inline'
+      placeholder={translate('common.enterAmount')}
+      style={{ caretColor: colors.blue[200] }}
+      autoComplete='off'
+      {...props}
+    />
+  )
+}
 
 export type AssetInputProps = {
   accountId?: Nullable<AccountId>
@@ -55,7 +58,8 @@ export type AssetInputProps = {
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
-  onMaxClick?: (args: number) => void
+  onMaxClick?: () => Promise<void>
+  onPercentOptionClick?: (args: number) => void
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
   cryptoAmount?: string
@@ -81,6 +85,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onChange = () => {},
   onAssetClick,
   onMaxClick,
+  onPercentOptionClick,
   cryptoAmount,
   isReadOnly,
   isSendMaxDisabled,
@@ -130,6 +135,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
+          data-test='asset-input-selection-button'
           onClick={onAssetClick}
           size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}
@@ -194,7 +200,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           </Button>
         </Stack>
       )}
-      {(onMaxClick || balance) && (
+      {(onPercentOptionClick || balance) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
           {balance && (
             <Balance
@@ -205,11 +211,12 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               label={translate('common.balance')}
             />
           )}
-          {onMaxClick && (
-            <MaxButtonGroup
+          {onPercentOptionClick && (
+            <PercentOptionsButtonGroup
               options={percentOptions}
               isDisabled={isReadOnly || isSendMaxDisabled}
-              onClick={onMaxClick}
+              onMaxClick={onMaxClick}
+              onClick={onPercentOptionClick}
             />
           )}
         </Stack>

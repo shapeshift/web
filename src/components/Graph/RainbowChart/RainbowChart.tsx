@@ -4,9 +4,6 @@ import { curveLinear } from '@visx/curve'
 import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import type { Margin } from '@visx/xychart'
-import { AnimatedAxis } from '@visx/xychart'
-import { AnimatedAreaStack } from '@visx/xychart'
-import { AnimatedAreaSeries } from '@visx/xychart'
 import { AreaSeries, AreaStack, Axis, Tooltip, XYChart } from '@visx/xychart'
 import type { Numeric } from 'd3-array'
 import { extent } from 'd3-array'
@@ -78,15 +75,14 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const minPrice = Math.min(...totals)
   const maxPrice = Math.max(...totals)
 
-  const yMax = Math.max(height - margin.top - margin.bottom, 0)
   const yScale = useMemo(
     () => ({
       type: 'linear' as const,
-      range: [yMax + margin.top, margin.top], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      range: [height - margin.bottom + margin.top, margin.top * 2], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
       domain: [minPrice ?? 0, maxPrice ?? 0],
       nice: true,
     }),
-    [margin.top, maxPrice, minPrice, yMax],
+    [margin.top, margin.bottom, height, maxPrice, minPrice],
   )
 
   const tooltipBg = useColorModeValue('white', colors.gray[700])
@@ -96,7 +92,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
-        <AnimatedAreaSeries
+        <AreaSeries
           key={assetId}
           data={data}
           dataKey={assetId}
@@ -112,11 +108,17 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   return (
     <div style={{ position: 'relative' }}>
       <ScaleSVG width={width} height={height}>
-        <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-          <AnimatedAreaStack order='ascending' curve={curveLinear}>
-            {areaLines}
-          </AnimatedAreaStack>
-          <AnimatedAxis
+        <XYChart
+          margin={{ ...margin, top: 0 }}
+          height={height + margin.top}
+          width={width}
+          xScale={xScale}
+          yScale={yScale}
+        >
+          <AreaStack order='ascending' curve={curveLinear}>
+            <Group top={margin.top}>{areaLines}</Group>
+          </AreaStack>
+          <Axis
             key={'date'}
             orientation={'bottom'}
             top={height - magicXAxisOffset}
@@ -136,6 +138,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
               strokeDasharray: '5,2',
               pointerEvents: 'none',
             }}
+            offsetTop={0}
             renderTooltip={({ tooltipData }) => {
               const { datum, key: assetId } = tooltipData?.nearestDatum!
               const price = datum[assetId]

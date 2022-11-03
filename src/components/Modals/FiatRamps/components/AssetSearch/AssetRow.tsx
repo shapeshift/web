@@ -1,24 +1,58 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import type { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAssets,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import type { FiatRampAsset } from '../../FiatRampsCommon'
-import { FiatRampAction } from '../../FiatRampsCommon'
+import type { FiatRampAction } from '../../FiatRampsCommon'
 
-export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const asset: FiatRampAsset = data.items[index]
+type FiatRampRow = {
+  assetIds: AssetId[]
+  action: FiatRampAction
+  handleClick: (assetId: AssetId) => void
+}
 
-  const { type, handleClick } = data
+export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
+  data,
+  index,
+  style,
+}) => {
+  const {
+    state: { wallet, isConnected, isDemoWallet },
+  } = useWallet()
+  const assetId = data.assetIds[index]
+  const assets = useSelector(selectAssets)
+  const asset = useMemo(() => assets[assetId], [assets, assetId])
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByAssetId(s, filter),
+  )
+  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter))
+  const disabled = useMemo(
+    () => !Boolean(wallet && isAssetSupportedByWallet(assetId, wallet)),
+    [assetId, wallet],
+  )
+
+  const { handleClick } = data
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
 
   if (!asset) return null
 
   return (
     <Button
-      disabled={asset.disabled}
+      disabled={disabled}
       variant='ghost'
-      onClick={() => handleClick(asset)}
+      onClick={() => handleClick(assetId)}
       justifyContent='space-between'
       alignItems='center'
       style={style}
@@ -35,10 +69,10 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
           </Text>
         </Box>
       </Box>
-      {type === FiatRampAction.Sell && asset.cryptoBalance && asset.fiatBalance && (
+      {isConnected && !isDemoWallet && (
         <Box textAlign='right'>
-          <Amount.Crypto symbol={asset.symbol} value={asset.cryptoBalance.toPrecision()} />
-          <Amount.Fiat value={asset.fiatBalance.toPrecision()} />
+          <Amount.Crypto symbol={asset.symbol} value={cryptoHumanBalance} />
+          <Amount.Fiat value={fiatBalance} />
         </Box>
       )}
     </Button>

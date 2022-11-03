@@ -16,7 +16,7 @@
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
-    "insufficientAmountForGas": "Not enough ETH to cover gas",
+    "insufficientAmountForGas": "Not enough %{assetSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
@@ -77,7 +77,25 @@
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
     "unsupportedNetwork": "Unsupported Network",
-    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}."
+    "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
+    "search": "Search",
+    "enterAmount": "Enter Amount",
+    "pageNotFound": "The page you're looking for cannot be found"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Buy Crypto",
+      "second": "in Seconds"
+    },
+    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.", 
+    "cta": {
+      "title": {
+        "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
+        "second": "track your crypto across 8 chains"
+      }
+    },
+    "availableAssets": "Available Assets"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -108,6 +126,8 @@
       "value": "Value",
       "priceChange": "Price Change",
       "allocation": "Allocation",
+      "marketCap": "Market Cap",
+      "sparkLine": "Sparkline",
       "empty": {
         "title": "Cricket noises...",
         "cta": "Send yourself some crypto!"
@@ -116,6 +136,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
+    },
+    "tradeCard": {
+      "trade": "Trade",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -146,7 +170,8 @@
     "nonUS": "NON-US",
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
-    "noProvidersBody": "Looks like we don't have any providers for that asset yet."
+    "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
+    "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -283,6 +308,7 @@
     "asset": "Asset",
     "category": "Category",
     "tvl": "TVL",
+    "type": "Type",
     "apy": "APY",
     "apr": "APR",
     "ended": "Ended",
@@ -364,6 +390,7 @@
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
+    "home": "Home",
     "dashboard": "Dashboard",
     "assets": "Assets",
     "assetDetails": "Asset Details",
@@ -383,7 +410,8 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade"
+    "trade": "Trade",
+    "buyCrypto": "Buy/Sell Crypto"
   },
   "transactionRow": {
     "send": "Sent",
@@ -556,6 +584,7 @@
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
+      "noReceiveAddress": "No receive address for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -1427,6 +1456,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Signing From",
+          "requestFrom": "Request From",
+          "message": "Message",
+          "description": "You will need to confirm signing this message with your connected wallet.",
+          "confirm": "Confirm",
+          "reject": "Reject"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Advanced Parameters",
+            "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "The number of transactions sent from a given address. Advanced users only."
+            },
+            "gasLimit": {
+              "title": "Gas Limit",
+              "placeholder": "Gas Limit...",
+              "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "Available dApps",
         "getStarted": "Get Started",
@@ -1451,5 +1508,26 @@
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 mins",
+      "average": "~ 3 mins",
+      "fast": "~ 3 secs"
+    },
+    "estGasCost": "Est. Gas Cost",
+    "gasPrice": {
+      "label": "Gas Price",
+      "tooltip": "The amount you want to pay per unit of gas as a fee to the miner or validator"
+    },
+    "base": {
+      "label": "Base fee",
+      "tooltip": "The base fee is set by the network and changes every 13-14 seconds depending on demand. Set the maximum price (not including priority fee) in gwei that you're willing to pay for each unit of gas."
+    },
+    "priority": {
+      "label": "Priority fee",
+      "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
+    },
+    "custom": "Custom"
   }
 }

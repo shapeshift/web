@@ -12,14 +12,16 @@ export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
   if (txMetadata && 'assetId' in txMetadata) return txMetadata
 }
 
-export const getDisplayTransfers = (transfers: Transfer[], types: TransferType[]): Transfer[] => {
-  return types.reduce<Transfer[]>((prev, type) => {
-    const transfer = transfers.find(t => t.type === type)
-    if (!transfer) return prev
-    prev.push(transfer)
+export const getTransfersByType = (
+  transfers: Transfer[],
+  types: TransferType[],
+): Record<TransferType, Transfer[]> =>
+  types.reduce((prev, type) => {
+    const transfersByType = transfers.filter(t => t.type === type)
+    if (!transfersByType.length) return prev
+    prev[type] = transfersByType
     return prev
-  }, [])
-}
+  }, {} as Record<TransferType, Transfer[]>)
 
 type GetTradeFeesInput = {
   buy: Transfer

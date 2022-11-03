@@ -1,11 +1,13 @@
 import { Box, Flex, Heading } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
+import { SEO } from 'components/Layout/Seo'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -17,11 +19,15 @@ import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
   const chainId = asset.chainId
   const accountIdsFilter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
   const accountIds = useAppSelector(
@@ -42,10 +48,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     selectPortfolioCryptoHumanBalanceByFilter(state, filter),
   )
 
+  const formattedPrice = toFiat(marketData.price)
+
   if (!chainId) return null
 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
+      <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
       <Flex alignItems='center' mr='auto'>
         <AssetIcon assetId={asset.assetId} boxSize='40px' />
         <Box ml={3} textAlign='left'>

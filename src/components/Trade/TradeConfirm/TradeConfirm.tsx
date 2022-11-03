@@ -19,7 +19,7 @@ import type { Swapper } from '@shapeshiftoss/swapper'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { type RouterProps } from 'react-router-dom'
@@ -29,9 +29,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -59,13 +58,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
-  const [executedTradeAmountConstants, setExecutedTradeAmountConstants] =
-    useState<ReturnType<typeof getTradeAmountConstants>>()
-  const [executedTrade, setExecutedTrade] = useState<TS['trade']>()
   const {
     handleSubmit,
     setValue,
-    control,
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
@@ -73,30 +68,27 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
   const flags = useSelector(selectFeatureFlags)
 
-  const formTrade = useWatch({ control, name: 'trade' })
-  const fees = useWatch({ control, name: 'fees' })
-  const sellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
-  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
-  const slippage = useWatch({ control, name: 'slippage' })
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-
-  const tradeAmountConstants = useGetTradeAmounts()
   const {
     number: { toFiat },
   } = useLocaleFormatter()
+
   const {
     state: { isConnected, wallet },
     dispatch,
   } = useWallet()
 
-  // If an executed value exists we want to ignore any subsequent updates and use the executed value
-  const trade = useMemo(() => executedTrade ?? formTrade, [executedTrade, formTrade])
-  const tradeAmounts = useMemo(
-    () => executedTradeAmountConstants ?? tradeAmountConstants,
-    [executedTradeAmountConstants, tradeAmountConstants],
-  )
+  const {
+    tradeAmounts,
+    trade,
+    fees,
+    sellAssetFiatRate,
+    feeAssetFiatRate,
+    buyAssetFiatRate,
+    slippage,
+    buyAssetAccountId,
+    sellAssetAccountId,
+    buyTradeAsset,
+  } = useFrozenTradeValues()
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
@@ -181,8 +173,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setExecutedTradeAmountConstants(tradeAmountConstants)
-      setExecutedTrade(formTrade)
       setSellTxid(result.tradeId)
 
       // Poll until we have a "buy" txid
@@ -216,10 +206,21 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     history.push(TradeRoutePaths.Input)
   }
 
-  const sellAmountCrypto = fromBaseUnit(bnOrZero(trade.sellAmount), trade.sellAsset?.precision ?? 0)
+  const sellAmountCrypto = fromBaseUnit(
+    bnOrZero(trade.sellAmountCryptoPrecision),
+    trade.sellAsset?.precision ?? 0,
+  )
+  const buyAmountCrypto = fromBaseUnit(
+    bnOrZero(trade.buyAmountCryptoPrecision),
+    trade.buyAsset?.precision ?? 0,
+  )
 
   const sellAmountFiat = bnOrZero(sellAmountCrypto)
     .times(bnOrZero(sellAssetFiatRate))
+    .times(selectedCurrencyToUsdRate)
+
+  const buyAmountFiat = bnOrZero(buyAmountCrypto)
+    .times(bnOrZero(buyAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
@@ -304,6 +305,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
+                  fiatAmount={buyAmountFiat.toString()}
                   swapperName={swapper?.name ?? ''}
                 />
               </Stack>
@@ -343,9 +345,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                   </HelperTooltip>
                   <Row.Value>
                     {defaultFeeAsset &&
-                      `${bnOrZero(fees?.fee).toNumber()} ${defaultFeeAsset.symbol} ≃ ${toFiat(
-                        networkFeeFiat.toNumber(),
-                      )}`}
+                      `${bnOrZero(fees?.networkFeeCryptoHuman).toNumber()} ${
+                        defaultFeeAsset.symbol
+                      } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

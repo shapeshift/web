@@ -16,7 +16,7 @@
     "insufficientFunds": "Fonds insuffisants",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
-    "insufficientAmountForGas": "Solde ETH insuffisant pour couvrir le carburant",
+    "insufficientAmountForGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
     "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
@@ -26,8 +26,8 @@
     "withdrawAndClaim": "Retirer et réclamer",
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
-    "connectWallet": "Connecter Porte-monnaie",
-    "connectedWallet": "Porte-monnaie Connecté",
+    "connectWallet": "Connecter un porte-monnaie",
+    "connectedWallet": "Porte-monnaie connecté",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
     "seeAll": "Tout voir",
@@ -100,7 +100,7 @@
       "rainbowChart": "🌈 Arc-en-ciel",
       "totalChart": "💰 Total",
       "addAsset": "Ajouter un actif",
-      "yourAssets": "Vos actifs",
+      "yourAssets": "Actifs du porte-monnaie",
       "asset": "Actif",
       "portfolioBalance": "Solde du Portefeuille",
       "balance": "Solde",
@@ -122,7 +122,7 @@
     "routeTitle": "Acheter ou Vendre",
     "routeTitleForGem": "Rampe de paiement Gem",
     "title": "Acheter ou Vendre des cryptos",
-    "titleMessage": "ShapeShift s'est associé à plusieurs fournisseurs de rampes de paiement pour l'achat et la vente de cryptomonnaies.",
+    "titleMessage": "Vous pouvez %{action} des %{asset} en utilisant :",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -150,10 +150,10 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explorer l'",
-    "defiUniverse": "Univers DeFi",
-    "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
-    "body2": "Bienvenue sur le nouveau ShapeShift. 100% gratuit. Open-source. Appartenant à la communauté. Non-dépositaire. Privé.",
+    "exploreThe": "Explorez",
+    "defiUniverse": "l'Univers DeFi",
+    "body": "100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
+    "body2": "Bienvenue sur le nouveau ShapeShift. 100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
     "betaSunset": "La version Beta est terminée. En apprendre davantage",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
@@ -162,7 +162,7 @@
   "connectWallet": {
     "menu": {
       "triggerButton": "Connecter un porte-monnaie",
-      "switchWallet": "Changer de fournisseur de porte-monnaie",
+      "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)"
     }
@@ -243,7 +243,7 @@
         "rewardAmount": "Montant de la récompense",
         "claimingRewards": "Réclamer des récompenses",
         "claimAmount": "Réclamer le montant",
-        "claimToAddress": "Réclamer vers l'adresse",
+        "claimToAddress": "Réclamer vers",
         "confirmClaim": "Confirmer la réclamation",
         "claimNow": "Réclamer maintenant",
         "claimYour": "Réclamer vos %{opportunity}"
@@ -386,7 +386,7 @@
     "trade": "Échanger"
   },
   "transactionRow": {
-    "send": "Envoyé",
+    "send": "Envoi",
     "receive": "Reçu",
     "moreDetails": "Plus de détails",
     "date": "Date",
@@ -405,38 +405,58 @@
     "for": "pour",
     "parser": {
       "weth": {
-        "deposit": "Déposer",
-        "approve": "Autoriser",
-        "withdraw": "Retirer",
-        "receive": "Recevoir"
+        "deposit": "Dépôt",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
+        "withdraw": "Retrait",
+        "receive": "Réception"
       },
       "yearn": {
-        "deposit": "Déposer",
-        "approve": "Autoriser",
-        "revoke": "Révoquer",
+        "deposit": "Dépôt",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
         "infinite": "Infini ∞",
-        "withdraw": "Retirer",
-        "receive": "Recevoir"
+        "withdraw": "Retrait",
+        "receive": "Réception"
       },
       "uniV2": {
-        "addLiquidityETH": "Ajouter des liquidités",
-        "stake": "Miser",
-        "exit": "Démiser",
-        "removeLiquidityETH": "Retirer des liquidités"
+        "addLiquidityETH": "Ajout de liquidités",
+        "stake": "Mise",
+        "exit": "Démise",
+        "removeLiquidityETH": "Retrait de liquidités"
       },
       "thor": {
-        "transferOut": "Transfert vers l'extérieur"
+        "transferOut": "Transfert sortant"
       },
       "foxy": {
-        "stake": "Miser",
-        "unstake": "Démiser",
-        "instantUnstake": "Démiser instantanément",
-        "claimWithdraw": "Réclamer un retrait"
+        "stake": "Mise",
+        "unstake": "Démise",
+        "instantUnstake": "Démise instantanée",
+        "claimWithdraw": "Réclamation de retrait"
       },
       "erc20": {
-        "approve": "Autoriser",
-        "revoke": "Révoquer",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
         "infinite": "Infini ∞"
+      },
+      "staking": {
+        "delegate": "Déléguation",
+        "begin_unbonding": "Annulation de délégation",
+        "begin_redelegate": "Redéléguation",
+        "withdraw_delegator_reward": "Réclamation de récompense"
+      },
+      "swap": {
+        "deposit": "Échange",
+        "out": "Échange",
+        "refund": "Remboursement",
+        "outbound": "Sortant"
+      },
+      "ibc": {
+        "transfer": "Envoi",
+        "recv_packet": "Réception"
+      },
+      "lp": {
+        "deposit": "Ajout de liquidités"
       }
     },
     "unknown": "Transaction"
@@ -475,7 +495,7 @@
     "confirmAndTrade": "Confirmer et échanger",
     "complete": "Échange terminé",
     "approveAsset": "Autoriser l'interaction avec %{symbol}",
-    "needPermission": "Nous avons besoin de votre permission pour utiliser vos %{symbol}",
+    "needPermission": "a besoin de votre permission pour utiliser vos %{symbol}",
     "whyNeedThis": "Pourquoi dois-je faire cela ?",
     "estimatedGasFee": "Frais de carburant estimés",
     "receiveInclFee": "Recevoir (frais inclus)",
@@ -485,7 +505,7 @@
     "exact": "Exacte",
     "expectedAmount": "Montant attendu",
     "beforeFees": "Avant frais",
-    "minAmountAfterSlippage": "Montant minimum attendu après glissement/slippage (%{slippage}%)",
+    "minAmountAfterSlippage": "Min. attendu après glissement/slippage (%{slippage}%)",
     "free": "Gratuit",
     "slowSwapTitle": "Échange %{protocol}",
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
@@ -532,10 +552,11 @@
       "grantAllowanceFailed": "Une erreur s'est produite lors de l'octroi de l'allocation.",
       "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
       "executeTradeFailed": "Une erreur s'est produite lors de l'exécution de votre échange.",
-      "unsupportedPair": "Cette paire d'échange n'est pas prise en charge actuellement.",
-      "unsupportedChain": "Cette chaîne n'est pas prise en charge actuellement.",
+      "unsupportedPair": "Paire d'échange non supportée actuellement.",
+      "unsupportedChain": "Chaîne non supportée actuellement.",
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
-      "assetNotSupportedByWallet": "%{assetSymbol} n'est pas pris en charge par le porte-monaie",
+      "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
+      "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -601,6 +622,11 @@
         "header": "La phrase de récupération est invalide",
         "body": "La phrase de récupération que vous avez saisie est invalide.",
         "button": "Réessayer"
+      },
+      "downloadUpdater": {
+        "header": "Télécharger le programme de mise à jour KeepKey",
+        "button": "Télécharger %{filename}",
+        "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
       }
     },
     "shapeShift": {
@@ -653,7 +679,7 @@
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
-      "tokenAddress": "Adresse du jeton",
+      "tokenAddress": "Adresse de destination",
       "addressInput": "Adresse de destination, ENS ou Yat",
       "scanQrCode": "Scanner code QR",
       "permissionsButton": "Réessayer",
@@ -828,12 +854,12 @@
     "settings": {
       "settings": "Paramètres",
       "currency": "Devise",
-      "clearWalletAccountData": "Supprimer tous les comptes et données de porte-monnaie",
+      "clearWalletAccountData": "Supprimer comptes et données de porte-monnaie",
       "deleteAccountsConfirm": "Êtes-vous sûr?\n\nCela supprimera toutes les données personnelles, y compris les porte-monnaie, les comptes et soldes.\n\nVérifiez que vous avez sauvegardé vos porte-monnaie avant de continuer.",
       "currencyFormat": "Format de devise",
       "language": "Langue",
       "balanceThreshold": "Seuil de solde",
-      "balanceThresholdTooltip": "Masquer les soldes en dessous de cette valeur",
+      "balanceThresholdTooltip": "Sur le tableau de bord et les graphiques, masquer les soldes en dessous de cette valeur",
       "currencies": {
         "CNY": "Yuan chinois",
         "USD": "Dollar américain (par défaut)",
@@ -873,11 +899,12 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie"
+      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey."
     },
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
+        "updateAlert": "Le firmware 6.1.0 ou ultérieur est requis pour utiliser votre Keepkey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du NIP a été annulée",
         "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"
@@ -886,7 +913,8 @@
         "header": "Appairer votre KeepKey",
         "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
-        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
+        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
+        "downloadUpdaterApp": "Télécharger l'app de mise à jour"
       },
       "pin": {
         "header": "Entrer votre NIP",
@@ -895,12 +923,12 @@
       },
       "newPin": {
         "header": "Saisissez votre nouveau NIP",
-        "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
+        "body": "Créez un nouveau NIP (jusqu'à 9 chiffres) en utilisant la disposition affichée sur votre KeepKey.",
         "button": "Confirmer"
       },
       "newPinConfirm": {
         "header": "Confirmer votre nouveau NIP",
-        "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
+        "body": "Entrez à nouveau votre NIP en utilisant la disposition affichée sur votre KeepKey.",
         "button": "Enregistrer le NIP"
       },
       "settings": {
@@ -1158,7 +1186,7 @@
         "23th": "23ème",
         "24th": "24ème",
         "body2": " mot",
-        "body3": "dans votre phrase secrète.",
+        "body3": "dans votre phrase secrète ?",
         "button": "Suivant"
       },
       "rename": {
@@ -1299,9 +1327,9 @@
       "10days": "10 jours",
       "30days": "30 jours",
       "90days": "90 jours",
-      "send": "Envoyer",
+      "send": "Envoi",
       "trade": "Échange",
-      "receive": "Recevoir",
+      "receive": "Réception",
       "custom": "Personnalisé",
       "apply": "Appliquer"
     },
@@ -1322,9 +1350,10 @@
       "outputAddress": "Adresse de sortie"
     },
     "transactionTypes": {
-      "send": "Envoyer",
-      "receive": "Recevoir",
-      "trade": "Échanger"
+      "Send": "Envoi",
+      "Receive": "Réception",
+      "Trade": "Échange",
+      "Refund": "Remboursement"
     },
     "assets": "Actifs",
     "txid": "ID TX",
@@ -1379,7 +1408,12 @@
       "seeAllProposals": "Voir toutes les propositions",
       "availableToTradeOn": "Disponible pour les échanges sur",
       "dex": "DEX",
-      "centralized": "Centralisé"
+      "centralized": "Centralisé",
+      "dappBack": {
+        "title": "✨ Récompenses en FOX et plus encore ! ✨",
+        "body": "Gagnez des récompenses en FOX en accomplissant des tâches sur DappBack",
+        "cta": "Lancer DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

@@ -1,10 +1,9 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -21,7 +20,7 @@ import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   route?: Route
 }
 

@@ -227,7 +227,7 @@ export const PairDeposit = ({
             balance={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
-            onMaxClick={value => handlePercentClick(value, true)}
+            onPercentOptionClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
             errors={cryptoError1 || fiatError1}
           />
@@ -243,7 +243,7 @@ export const PairDeposit = ({
             balance={cryptoAmountAvailable2}
             fiatBalance={fiatAmountAvailable2}
             onAccountIdChange={handleAccountIdChange}
-            onMaxClick={value => handlePercentClick(value, false)}
+            onPercentOptionClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}
             errors={cryptoError2 || fiatError2}
           />

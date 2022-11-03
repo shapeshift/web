@@ -23,24 +23,22 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedFiat,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ChainOptionProps = {
   chainId: ChainId
@@ -67,7 +65,7 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
 export const AddAccountModal = () => {
   const translate = useTranslate()
   const toast = useToast()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const {
     state: { wallet },
@@ -121,13 +119,21 @@ export const AddAccountModal = () => {
         wallet,
       })
 
-      // TODO(0xdef1cafe): temporary transform for backwards compatibility until we kill accountSpecifiersSlice
-      const accountSpecifiersPayload = Object.keys(accountMetadataByAccountId).map(accountId => {
-        const { chainId, account } = fromAccountId(accountId)
-        return { [chainId]: account }
+      const { getAccount } = portfolioApi.endpoints
+      const opts = { forceRefetch: true }
+      const accountIds = Object.keys(accountMetadataByAccountId)
+      const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+      const accountResults = await Promise.allSettled(accountPromises)
+      accountResults.forEach((res, idx) => {
+        if (res.status === 'rejected') return
+        const { data: account } = res.value
+        if (!account) return
+        const accountId = accountIds[idx]
+        const accountMetadata = accountMetadataByAccountId[accountId]
+        const payload = { [accountId]: accountMetadata }
+        dispatch(portfolio.actions.upsertAccountMetadata(payload))
+        dispatch(portfolio.actions.upsertPortfolio(account))
       })
-      dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
-      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]
       toast({

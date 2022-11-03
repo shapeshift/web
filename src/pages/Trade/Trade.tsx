@@ -1,7 +1,7 @@
-import { Box, Center, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
@@ -10,6 +10,7 @@ const TradeHeader = () => {
   const translate = useTranslate()
   return (
     <Box pb={6}>
+      <SEO title={translate('trade.trade')} />
       <Heading>{translate('trade.trade')}</Heading>
     </Box>
   )
@@ -30,12 +31,13 @@ export const Trade = () => {
         minHeight={0}
         spacing={0}
       >
-        <Center
+        <Box
           height={{ base: 'auto', lg: '100%' }}
           width='full'
           flex={{ base: 'auto', lg: '1 1 0%' }}
           overflow='hidden'
           position='relative'
+          pt={12}
           mx={0}
           _before={{
             bg: 'radial-gradient(50% 50% at 50% 50%, rgba(56, 111, 249, 0.045) 0px, rgba(255, 255, 255, 0) 100%)',
@@ -62,7 +64,7 @@ export const Trade = () => {
           >
             <TradeCard />
           </Container>
-        </Center>
+        </Box>
         <Stack
           flexGrow={1}
           maxWidth={{ base: 'auto', lg: '380px' }}
@@ -73,9 +75,7 @@ export const Trade = () => {
           minHeight={0}
           overflowY='auto'
         >
-          <Card variant='unstyled' width='full'>
-            <RecentTransactions />
-          </Card>
+          <RecentTransactions variant='unstyled' />
         </Stack>
       </Stack>
     </Main>

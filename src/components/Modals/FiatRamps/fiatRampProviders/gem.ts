@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -7,7 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
 import { logger } from 'lib/logger'
 
-import type { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { FiatRampAction } from '../FiatRampsCommon'
 
 enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',
@@ -79,29 +80,20 @@ export const isBuyAsset = (currency: SupportedCurrency) =>
 export const isSellAsset = (currency: SupportedCurrency) =>
   currency.transaction_direction === TransactionDirection.BlockchainToBank
 
-export const parseGemSellAssets = memoize((assets: SupportedCurrency[]): FiatRampAsset[] =>
+export const parseGemSellAssets = memoize((assets: SupportedCurrency[]): AssetId[] =>
   parseGemAssets(assets.filter(isSellAsset).map(asset => asset['source'].currencies)),
 )
 
-export const parseGemBuyAssets = memoize((assets: SupportedCurrency[]): FiatRampAsset[] =>
+export const parseGemBuyAssets = memoize((assets: SupportedCurrency[]): AssetId[] =>
   parseGemAssets(assets.filter(isBuyAsset).map(asset => asset['destination'].currencies)),
 )
 
-const parseGemAssets = (filteredList: GemCurrency[][]): FiatRampAsset[] => {
+const parseGemAssets = (filteredList: GemCurrency[][]): AssetId[] => {
   const results = uniqBy(flatten(filteredList), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemTickerToAssetId(asset.gem_asset_id)))
-    .map(asset => {
-      const assetId = adapters.gemTickerToAssetId(asset.gem_asset_id) || ''
-      const { ticker, name } = asset
-      return {
-        symbol: ticker,
-        name,
-        assetId,
-        imageUrl: getGemAssetLogoUrl(asset),
-      }
-    })
+    .map(({ gem_asset_id }) => adapters.gemTickerToAssetId(gem_asset_id))
+    .filter((assetId): assetId is AssetId => Boolean(assetId))
 
-  moduleLogger.trace({ fn: 'parseGemAssets', filteredList, results }, 'Gem Assets Transformed')
   return results
 }
 
@@ -114,6 +106,7 @@ export const makeGemPartnerUrl = memoize(
     const GEM_URL = 'https://onramp.gem.co'
     const partnerName = 'ShapeShift'
     const environment = getConfig().REACT_APP_GEM_ENV
+    // TODO(0xdef1cafe): this doesn't resolve to anything
     const partnerIconUrl =
       'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png'
     const apiKey = getConfig().REACT_APP_GEM_API_KEY
@@ -135,9 +128,3 @@ export const makeGemPartnerUrl = memoize(
   },
   memoizeAllArgsResolver,
 )
-
-const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
-
-const getGemAssetLogoUrl = (asset: GemCurrency) => {
-  return ASSET_LOGO_BASE_URI + asset.ticker.toLowerCase() + '.svg'
-}

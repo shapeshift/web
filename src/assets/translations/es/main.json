@@ -16,7 +16,7 @@
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
-    "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
+    "insufficientAmountForGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
     "invalidAddressOrYat": "Dirección no válida o Yat",
     "deposit": "Depositar",
@@ -122,7 +122,7 @@
     "routeTitle": "Comprar o Vender",
     "routeTitleForGem": "Rampa de entrada Gem",
     "title": "Compra o Vende criptomonedas",
-    "titleMessage": "ShapeShift se ha asociado con varios proveedores de rampas fiduciarias para comprar y vender criptomonedas.",
+    "titleMessage": "Puede %{action} %{asset} usando:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -376,7 +376,7 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Opportunities",
+    "foxToken": "Oportunidades FOX",
     "dApps": "dApps",
     "featureFlags": "Indicadores de Funciones",
     "demoMode": "Modo Demo",
@@ -407,6 +407,7 @@
       "weth": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "revoke": "Revocar",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -437,6 +438,25 @@
         "approve": "Aprobar",
         "revoke": "Revocar",
         "infinite": "Infinito ∞"
+      },
+      "staking": {
+        "delegate": "Delegar",
+        "begin_unbonding": "Retirar Delegación",
+        "begin_redelegate": "Redelegar",
+        "withdraw_delegator_reward": "Reclamar Recompensa"
+      },
+      "swap": {
+        "deposit": "Intercambiar",
+        "out": "Intercambiar",
+        "refund": "Reembolso",
+        "outbound": "Saliente"
+      },
+      "ibc": {
+        "transfer": "Enviado",
+        "recv_packet": "Recibido"
+      },
+      "lp": {
+        "deposit": "Añadir Liquidez"
       }
     },
     "unknown": "Transacción"
@@ -503,8 +523,8 @@
     "errors": {
       "title": "Algo salió mal",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
-      "amountTooSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Cantidad demasiado pequeña. El monto de venta para este par es más bajo que la tarifa.",
+      "amountTooSmall": "Mínimo: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
@@ -534,8 +554,9 @@
       "executeTradeFailed": "Ocurrió un error al ejecutar su operación.",
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
       "unsupportedChain": "Esta cadena no es compatible actualmente.",
-      "rateError": "Se produjo un error al obtener las tasas comerciales",
+      "rateError": "No podemos obtener una cotización para este par.",
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
+      "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -603,6 +624,11 @@
         "header": "Frase de Recuperación no válida",
         "body": "La Frase de Recuperación que ingresó no es válida.",
         "button": "Intentar otra vez"
+      },
+      "downloadUpdater": {
+        "header": "Descargar KeepKey Updater",
+        "button": "Descargar %{filename}",
+        "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
       }
     },
     "shapeShift": {
@@ -655,7 +681,7 @@
       "getBalanceError": "Error al obtener saldos de billetera",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
-      "tokenAddress": "Dirección de token",
+      "tokenAddress": "A Dirección",
       "addressInput": "A dirección, ENS o Yat",
       "scanQrCode": "Escanear código QR",
       "permissionsButton": "Intentar nuevamente",
@@ -757,7 +783,7 @@
       "status": {
         "pending": "Su transacción ha sido transmitida y está pendiente de confirmación.",
         "success": "Se ha retirado con éxito de %{opportunity}.",
-        "failed": "Hubo un problema con su depósito."
+        "failed": "Hubo un problema con tu retiro."
       },
       "info": {
         "delayed": "El retiro diferido tiene dos transacciones:",
@@ -875,11 +901,12 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "No se puede comunicar con su billetera"
+      "walletNotFound": "No se puede comunicar con su billetera. Si el problema persiste, comuníquese con el soporte de Keepkey."
     },
     "keepKey": {
       "errors": {
         "unknown": "Se produjo un error inesperado al comunicarse con su KeepKey",
+        "updateAlert": "Se requiere el firmware 6.1.0 o posterior para usar su Keepkey con este cliente. Actualice su dispositivo.",
         "pinCancelled": "Se canceló la entrada del PIN",
         "pinInvalid": "El PIN que ingresó no es válido",
         "pinMismatch": "Los dos PIN que ingresó no coinciden"
@@ -888,7 +915,8 @@
         "header": "Empareje su KeepKey",
         "body": "Conecte un dispositivo KeepKey y haga clic en Emparejar.",
         "button": "Emparejar",
-        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey."
+        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey.",
+        "downloadUpdaterApp": "Descarga la aplicación de actualización"
       },
       "pin": {
         "header": "Introduce tu PIN",
@@ -897,12 +925,12 @@
       },
       "newPin": {
         "header": "Ingrese su nuevo PIN",
-        "body": "Use el diseño de PIN que se muestra en su dispositivo para encontrar la ubicación en el teclado de PIN.",
+        "body": "Cree un nuevo PIN (hasta 9 dígitos) usando la pantalla de diseño en su KeepKey.",
         "button": "Confirmar"
       },
       "newPinConfirm": {
         "header": "Confirme Su Nuevo PIN",
-        "body": "Use el diseño de PIN que se muestra en su dispositivo para encontrar la ubicación en el teclado de PIN.",
+        "body": "Vuelva a ingresar su PIN usando el diseño que se muestra en su KeepKey.",
         "button": "Guardar PIN"
       },
       "settings": {
@@ -1109,8 +1137,8 @@
         "secretRecoveryPhraseTooShort": "La Frase de Recuperación Secreta es demasiado corta"
       },
       "password": {
-        "header": "Ingresa tu contraseña",
-        "body": "Ingrese una contraseña para encriptar su billetera. Así es como accederá a su billetera. No olvides esta contraseña.",
+        "header": "Crear una nueva contraseña",
+        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así es como accederá a su billetera.",
         "warning": "Nota: si olvida su contraseña, ShapeShift no puede ayudarlo a recuperarla.",
         "button": "Siguiente",
         "connect": "Conectarse a otra billetera"
@@ -1163,7 +1191,7 @@
         "23th": "23mo",
         "24th": "24mo",
         "body2": " palabra",
-        "body3": "en tu frase secreta.",
+        "body3": "en tu frase secreta?",
         "button": "Siguiente"
       },
       "rename": {
@@ -1327,9 +1355,10 @@
       "outputAddress": "Dirección de salida"
     },
     "transactionTypes": {
-      "send": "Enviar",
-      "receive": "Recibir",
-      "trade": "Intercambiar"
+      "Send": "Enviar",
+      "Receive": "Recibir",
+      "Trade": "Intercambiar",
+      "Refund": "Reembolso"
     },
     "assets": "Activos",
     "txid": "ID de TX",
@@ -1351,7 +1380,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Compre %{assetSymbol} en Coinbase",
+      "buyAssetOnCoinbase": "Comprar %{assetSymbol} en Coinbase",
       "totalFoxValue": "Valor total de Fox",
       "foxToken": "Token ShapeShift %{assetSymbol} ",
       "foxDescription": "Desde 2019, nuestro token FOX que cambia de forma ha estado ofreciendo a los usuarios un mundo de utilidades y ventajas en constante expansión. Hoy, nuestro token de gobierno ERC-20 no solo le permite influir en el futuro de ShapeShift a través de su voto, sino que también tiene un universo en constante expansión de oportunidades de inversión. Invierta, rastree y administre sus tenencias de FOX aquí.",
@@ -1384,7 +1413,12 @@
       "seeAllProposals": "Ver todas las Propuestas",
       "availableToTradeOn": "Disponible para Intercambiar",
       "dex": "DEX",
-      "centralized": "Centralizado"
+      "centralized": "Centralizado",
+      "dappBack": {
+        "title": "✨ ¡Obtén recompensas FOX y más! ✨",
+        "body": "Gana recompensas FOX completando tareas en DappBack",
+        "cta": "Iniciar DappBack"
+      }
     },
     "analytics": {
       "optInModal": {

@@ -1,5 +1,5 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import type { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
 import { useEffect, useMemo, useState } from 'react'
@@ -9,13 +9,12 @@ import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { logger } from 'lib/logger'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UnderlyingTokenProps = {
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
 }
 
 const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })

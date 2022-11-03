@@ -6,7 +6,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
   selectFarmContractsFiatBalance,
-  selectFeatureFlags,
   selectFoxEthLpAccountsOpportunitiesAggregated,
   selectFoxEthLpFiatBalance,
   selectVisibleFoxFarmingAccountOpportunitiesAggregated,
@@ -52,7 +51,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     selectFarmContractsFiatBalance(state, emptyFilter),
   )
   const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
-  const featureFlags = useAppSelector(selectFeatureFlags)
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
@@ -60,8 +58,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),
-    foxEthLpOpportunity: featureFlags.FoxLP ? foxEthLpOpportunity : undefined,
-    foxFarmingOpportunities: featureFlags.FoxFarming ? visibleFoxFarmingOpportunities : undefined,
+    foxEthLpOpportunity,
+    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)

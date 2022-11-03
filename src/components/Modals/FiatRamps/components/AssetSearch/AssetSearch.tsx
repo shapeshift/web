@@ -1,23 +1,23 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Box, Center, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { FormEvent } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useTranslate } from 'react-polyglot'
 
-import type { FiatRampAction, FiatRampAsset } from '../../FiatRampsCommon'
+import type { FiatRampAction } from '../../FiatRampsCommon'
 import { filterAssetsBySearchTerm } from '../../utils'
 import { AssetList } from './AssetList'
 
 type AssetSearchProps = {
-  onClick: (asset: FiatRampAsset) => void
-  type: FiatRampAction
-  assets: FiatRampAsset[]
-  loading: boolean
+  onClick: (assetId: AssetId) => void
+  action: FiatRampAction
+  assetIds: AssetId[]
 }
 
-export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps) => {
-  const [filteredAssets, setFilteredAssets] = useState<FiatRampAsset[]>([])
+export const AssetSearch: React.FC<AssetSearchProps> = ({ onClick, action, assetIds }) => {
+  const translate = useTranslate()
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
@@ -25,12 +25,11 @@ export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps
     },
   })
 
-  const searchString = watch('search')
-  const searching = useMemo(() => searchString.length > 0, [searchString])
+  const search = watch('search')
 
-  useEffect(
-    () => setFilteredAssets(filterAssetsBySearchTerm(searchString, assets)),
-    [assets, searching, searchString],
+  const filteredAssetIds = useMemo(
+    () => filterAssetsBySearchTerm(search, assetIds),
+    [assetIds, search],
   )
 
   return (
@@ -48,26 +47,16 @@ export const AssetSearch = ({ onClick, type, assets, loading }: AssetSearchProps
           <Input
             {...register('search')}
             type='text'
-            placeholder='Search'
+            placeholder={translate('common.search')}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+            autoComplete='off'
             pl={10}
             variant='filled'
           />
         </InputGroup>
       </Box>
       <Box flex={1} justifyContent='center'>
-        {loading ? (
-          <Center minH='200px' w='full'>
-            <CircularProgress isIndeterminate />
-          </Center>
-        ) : (
-          <AssetList
-            mb='10'
-            type={type}
-            assets={searching ? filteredAssets : assets}
-            handleClick={onClick}
-          />
-        )}
+        <AssetList mb='10' action={action} assetIds={filteredAssetIds} handleClick={onClick} />
       </Box>
     </>
   )

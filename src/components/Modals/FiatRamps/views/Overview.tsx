@@ -9,28 +9,30 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  ModalBody,
   Spinner,
   Stack,
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router'
+import { useSelector } from 'react-redux'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
@@ -39,50 +41,50 @@ import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { FiatRampAsset } from '../FiatRampsCommon'
+import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
-import { useFiatRampByAssetId } from '../hooks/useFiatRampByAssetId'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
   accountId: Nullable<AccountId>
   address: string
   vanityAddress: string
-  selectedAsset: FiatRampAsset | null
-  onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
+  assetId: AssetId
+  defaultAction?: FiatRampAction
+  handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
-  onIsSelectingAsset,
-  onFiatRampActionClick,
-  selectedAsset,
+  handleIsSelectingAsset,
+  defaultAction = FiatRampAction.Buy,
+  assetId,
   handleAccountIdChange,
   accountId,
   address,
   vanityAddress,
 }) => {
+  const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
+  const assetsById = useSelector(selectAssets)
   const translate = useTranslate()
-  const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
   const {
-    state: { wallet },
+    state: { wallet, isConnected, isDemoWallet },
+    dispatch,
   } = useWallet()
+
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   useEffect(() => setShownOnDisplay(null), [accountId])
 
-  const assetId = useMemo(() => selectedAsset?.assetId, [selectedAsset])
   const filter = useMemo(
     () => ({ assetId: assetId ?? '', accountId: accountId ?? '' }),
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
   const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
-  const { providers, loading: providersLoading } = useFiatRampByAssetId({
-    assetId,
-    action: fiatRampAction,
-  })
+  const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
+
+  const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -91,6 +93,9 @@ export const Overview: React.FC<OverviewProps> = ({
         : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.asset', 'fiatRamps.fundsFrom'],
     [fiatRampAction],
   )
+
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
   const handleCopyClick = useCallback(async () => {
     const duration = 2500
@@ -128,27 +133,37 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [accountId, accountMetadata, address, wallet])
 
   const renderProviders = useMemo(() => {
-    if (!selectedAsset) return null
-    const { assetId } = selectedAsset
-    return providers.length ? (
-      providers.map(provider => (
-        <FiatRampButton
-          onClick={() => provider.onSubmit(fiatRampAction, assetId, address)}
-          accountFiatBalance={accountFiatBalance}
-          action={fiatRampAction}
-          {...provider}
-        />
-      ))
-    ) : (
-      <Center display='flex' flexDir='column' minHeight='150px'>
-        <IconCircle mb={4}>
-          <FaCreditCard />
-        </IconCircle>
-        <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
-        <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
-      </Center>
-    )
-  }, [address, accountFiatBalance, fiatRampAction, providers, selectedAsset])
+    if (!assetId) return null
+    if (isRampsLoading) return null
+    if (!ramps) return null
+    const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
+    if (!rampIdsForAssetIdAndAction.length)
+      return (
+        <Center display='flex' flexDir='column' minHeight='150px'>
+          <IconCircle mb={4}>
+            <FaCreditCard />
+          </IconCircle>
+          <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
+          <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+        </Center>
+      )
+    const listOfRamps = [...rampIdsForAssetIdAndAction]
+    return listOfRamps
+      .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
+      .map(rampId => {
+        const ramp = supportedFiatRamps[rampId]
+        const passedAddress = isDemoWallet ? '' : address
+        return (
+          <FiatRampButton
+            key={rampId}
+            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
+            accountFiatBalance={accountFiatBalance}
+            action={fiatRampAction}
+            {...ramp}
+          />
+        )
+      })
+  }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress
@@ -157,9 +172,8 @@ export const Overview: React.FC<OverviewProps> = ({
 
   return (
     <>
-      <DefiModalHeader title={translate('fiatRamps.title')} />
-      <FiatRampActionButtons action={fiatRampAction} setAction={onFiatRampActionClick} />
-      <ModalBody display='flex' flexDir='column' gap={6} py={6}>
+      <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
+      <Flex display='flex' flexDir='column' gap={6} p={6}>
         <Stack spacing={4}>
           <Box>
             <Text fontWeight='medium' translation={assetTranslation} />
@@ -170,96 +184,127 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
-            onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
+            onClick={() => handleIsSelectingAsset(fiatRampAction)}
             rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
           >
-            {selectedAsset ? (
+            {assetId ? (
               <Flex alignItems='center'>
-                <AssetIcon size='sm' assetId={selectedAsset.assetId} mr={4} />
+                <AssetIcon size='sm' assetId={assetId} mr={4} />
                 <Box textAlign='left'>
-                  <RawText lineHeight={1}>{selectedAsset.name}</RawText>
+                  <RawText lineHeight={1}>{assetsById[assetId].name}</RawText>
                 </Box>
               </Flex>
             ) : (
               <Text translation={selectAssetTranslation} color='gray.500' />
             )}
           </Button>
-          {selectedAsset && (
-            <Flex flexDirection='column' mb='10px'>
-              <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px' />
-              <AccountDropdown
-                autoSelectHighestBalance={true}
-                assetId={selectedAsset.assetId}
-                onChange={handleAccountIdChange}
-                buttonProps={{ variant: 'solid', width: 'full' }}
-                boxProps={{ px: 0 }}
-              />
-              <InputGroup size='md'>
-                <Input
-                  pr='4.5rem'
-                  value={inputValue}
-                  readOnly
-                  placeholder={translate('common.loadingText')}
-                />
-                {!address && <InputLeftElement children={<Spinner size='sm' />} />}
-                {address && (
-                  <InputRightElement width={supportsAddressVerification ? '4.5rem' : undefined}>
-                    <IconButton
-                      icon={<CopyIcon />}
-                      aria-label='copy-icon'
-                      size='sm'
-                      isRound
-                      variant='ghost'
-                      onClick={handleCopyClick}
+          <Flex flexDirection='column' mb='10px'>
+            <Text
+              translation={
+                isUnsupportedAsset
+                  ? [
+                      'fiatRamps.notSupported',
+                      { asset: assetsById[assetId].symbol, wallet: wallet?.getVendor() },
+                    ]
+                  : fundsTranslation
+              }
+              color='gray.500'
+              mt='15px'
+              mb='8px'
+            />
+            {isConnected && !isDemoWallet ? (
+              <>
+                {isUnsupportedAsset ? (
+                  <Button
+                    data-test='fiatramp-connect-wallet-button'
+                    onClick={handleWalletModalOpen}
+                  >
+                    {translate('connectWallet.menu.switchWallet')}
+                  </Button>
+                ) : (
+                  <>
+                    <AccountDropdown
+                      autoSelectHighestBalance={true}
+                      assetId={assetId}
+                      onChange={handleAccountIdChange}
+                      buttonProps={{ variant: 'solid', width: 'full' }}
+                      boxProps={{ px: 0 }}
                     />
-                    {supportsAddressVerification && address && (
-                      <IconButton
-                        icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                        onClick={handleVerify}
-                        aria-label='check-icon'
-                        size='sm'
-                        color={
-                          shownOnDisplay
-                            ? 'green.500'
-                            : shownOnDisplay === false
-                            ? 'red.500'
-                            : 'gray.500'
-                        }
-                        isRound
-                        variant='ghost'
+                    <InputGroup size='md'>
+                      <Input
+                        pr='4.5rem'
+                        value={inputValue}
+                        readOnly
+                        placeholder={!address ? translate('common.loadingText') : ''}
                       />
-                    )}
-                  </InputRightElement>
+                      {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                      {address && (
+                        <InputRightElement
+                          width={supportsAddressVerification ? '4.5rem' : undefined}
+                        >
+                          <IconButton
+                            icon={<CopyIcon />}
+                            aria-label='copy-icon'
+                            size='sm'
+                            isRound
+                            variant='ghost'
+                            onClick={handleCopyClick}
+                          />
+                          {supportsAddressVerification && address && (
+                            <IconButton
+                              icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                              onClick={handleVerify}
+                              aria-label='check-icon'
+                              size='sm'
+                              color={
+                                shownOnDisplay
+                                  ? 'green.500'
+                                  : shownOnDisplay === false
+                                  ? 'red.500'
+                                  : 'gray.500'
+                              }
+                              isRound
+                              variant='ghost'
+                            />
+                          )}
+                        </InputRightElement>
+                      )}
+                    </InputGroup>
+                  </>
                 )}
-              </InputGroup>
-            </Flex>
+              </>
+            ) : (
+              <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>
+                {translate('common.connectWallet')}
+              </Button>
+            )}
+          </Flex>
+        </Stack>
+        <Stack spacing={4}>
+          {ramps && (
+            <Box>
+              <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+              <Text
+                color='gray.500'
+                translation={[
+                  'fiatRamps.titleMessage',
+                  {
+                    action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+                    asset: assetsById[assetId].symbol,
+                  },
+                ]}
+              />
+            </Box>
+          )}
+          {isRampsLoading ? (
+            <Center minHeight='150px'>
+              <CircularProgress />
+            </Center>
+          ) : (
+            <Stack>{renderProviders}</Stack>
           )}
         </Stack>
-        {selectedAsset && address && (
-          <Stack spacing={4}>
-            {providers.length && (
-              <Box>
-                <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
-                <Text
-                  color='gray.500'
-                  translation={[
-                    'fiatRamps.titleMessage',
-                    { action: fiatRampAction, asset: selectedAsset.symbol },
-                  ]}
-                />
-              </Box>
-            )}
-
-            {providersLoading ? (
-              <Center minHeight='150px'>
-                <CircularProgress />
-              </Center>
-            ) : (
-              <Stack>{renderProviders}</Stack>
-            )}
-          </Stack>
-        )}
-      </ModalBody>
+      </Flex>
     </>
   )
 }

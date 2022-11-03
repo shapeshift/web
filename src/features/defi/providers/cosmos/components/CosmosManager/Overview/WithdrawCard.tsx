@@ -15,7 +15,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectFirstAccountIdByChainId,
-  selectUnbondingEntriesByAccountSpecifier,
+  selectUnbondingEntriesByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -39,9 +39,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
     }),
     [accountId, asset.assetId, contractAddress, routeAccountId],
   )
-  const undelegationEntries = useAppSelector(s =>
-    selectUnbondingEntriesByAccountSpecifier(s, filter),
-  )
+  const undelegationEntries = useAppSelector(s => selectUnbondingEntriesByAccountId(s, filter))
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')

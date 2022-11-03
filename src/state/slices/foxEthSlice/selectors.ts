@@ -7,24 +7,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectAccountAddressParamFromFilter,
+  selectAccountAddressParamFromFilterOptional,
+} from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
-import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-
-type ParamFilter = {
-  accountAddress: string
-  contractAddress: string
-}
-type OptionalParamFilter = {
-  accountAddress?: string
-  contractAddress?: string
-}
-
-type ParamFilterKey = keyof ParamFilter
-type OptionalParamFilterKey = keyof OptionalParamFilter
 
 const farmingOpportunitiesReducer = (
   acc: Record<string, FoxFarmingEarnOpportunityType>,
@@ -49,19 +40,6 @@ const farmingOpportunitiesReducer = (
   return acc
 }
 
-const selectParamFromFilter =
-  <T extends ParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
-    filter?.[param] ?? ''
-
-const selectParamFromFilterOptional =
-  <T extends OptionalParamFilterKey>(param: T) =>
-  (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
-    filter?.[param] ?? ''
-
-const selectAccountAddressParamFromFilterOptional = selectParamFromFilterOptional('accountAddress')
-const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
-
 const selectContractAddressParamFromFilter = (
   _state: ReduxState,
   filter: { accountAddress?: string; contractAddress?: string },
@@ -69,7 +47,7 @@ const selectContractAddressParamFromFilter = (
 
 // Copied over from portfolioSlice because circular deps, do not export me
 const selectPortfolioAccountIds = createDeepEqualOutputSelector(
-  (state: ReduxState): AccountSpecifier[] => state.portfolio.accounts.ids,
+  (state: ReduxState): AccountId[] => state.portfolio.accounts.ids,
   (accountIds): AccountId[] => accountIds,
 )
 // Copied over from portfolioSlice because circular deps, do not export me
@@ -81,18 +59,18 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
   },
 )((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
 
-export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress =
-  createDeepEqualOutputSelector(
-    (state: ReduxState) => state.foxEth,
-    selectAccountAddressParamFromFilterOptional,
-    selectEthAccountIdsByAssetId,
-    (foxEthState, accountAddress, ethAccountIds) => {
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-      return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-        accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-      )
-    },
-  )
+export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCachedSelector(
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
+  (state: ReduxState) => state.foxEth,
+  selectAccountAddressParamFromFilterOptional,
+  selectEthAccountIdsByAssetId,
+  (foxEthState, accountAddress, ethAccountIds) => {
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
+      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
+    )
+  },
+)((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 
 export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
@@ -138,6 +116,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
 )
 
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
@@ -276,6 +255,7 @@ const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.
 export const selectFoxEthLpFiatBalance = createSelector(
   selectMarketData,
   selectPortfolioAccounts,
+  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
   (marketData, portfolioAccounts, foxEthState) => {
     // Cannot use selectAccountIdsByAssetId because of a. circular deps and b. it applying balance threshold

@@ -5,13 +5,10 @@ import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectChainIdParamFromFilter } from 'state/selectors'
 
-import type { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
-import {
-  selectChainIdParamFromFilter,
-  selectPortfolioAccountMetadata,
-} from '../portfolioSlice/selectors'
+import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
@@ -126,7 +123,7 @@ export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byA
 
 type TxHistoryFilter = {
   assetIds: AssetId[]
-  accountIds?: AccountSpecifier[]
+  accountIds?: AccountId[]
 }
 
 const selectAssetIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>

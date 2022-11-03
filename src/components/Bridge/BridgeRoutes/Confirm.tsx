@@ -19,18 +19,18 @@ import {
 import { Card } from 'components/Card/Card'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { useFormSend } from 'components/Modals/Send/hooks/useFormSend/useFormSend'
-import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectFirstAccountIdByChainId } from 'state/slices/accountSpecifiersSlice/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EditableAddress } from '../components/EditableAddress'
@@ -48,7 +48,6 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
-  const { estimateFees } = useSendDetails()
   const translate = useTranslate()
 
   const axelarAssetTransferSdk = getAxelarAssetTransferSdk()

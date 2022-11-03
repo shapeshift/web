@@ -55,7 +55,7 @@ export const selectMarketDataById = createCachedSelector(
   (cryptoMarketData, assetId): MarketData => {
     return cryptoMarketData[assetId] ?? defaultMarketData
   },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+)((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 // assets we have loaded market data for
 export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids

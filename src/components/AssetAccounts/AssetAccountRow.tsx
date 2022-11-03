@@ -8,7 +8,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -16,7 +16,6 @@ import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -32,7 +31,7 @@ import { breakpoints } from 'theme/theme'
 // Link url should be the account page /Accounts/[account] or whatever the route is
 
 type AssetAccountRowProps = {
-  accountId: AccountSpecifier
+  accountId: AccountId
   assetId?: AssetId
   showAllocation?: boolean
   isCompact?: boolean

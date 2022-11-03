@@ -1,4 +1,5 @@
 import { Center, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -21,6 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -32,7 +34,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleClaim'],
 })
 
-export const IdleClaim = () => {
+type IdleClaimProps = { accountId: Nullable<AccountId> }
+
+export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
   const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
@@ -120,7 +124,7 @@ export const IdleClaim = () => {
         description: translate('defi.steps.claim.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
@@ -128,7 +132,7 @@ export const IdleClaim = () => {
       },
     }
     // We only need this to update on symbol change
-  }, [translate, underlyingAsset.symbol])
+  }, [accountId, translate, underlyingAsset.symbol])
 
   if (!asset || !marketData || !state.userAddress || !state.claimableTokens)
     return (

@@ -176,7 +176,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const { chainId, assetId, pubkey } = account
         const accountId = toAccountId({ chainId, account: pubkey })
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountSpecifiers.ids.push(accountId)
 
         portfolio.accounts.byId[accountId] = { assetIds: [] }
         portfolio.accounts.byId[accountId].assetIds.push(assetId)
@@ -225,7 +224,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.assetBalances.ids.push(assetId)
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountSpecifiers.ids.push(accountId)
 
         // initialize this
         portfolio.accountBalances.byId[accountId] = {}
@@ -259,7 +257,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const { chainId, assetId } = account
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountSpecifiers.ids.push(accountId)
 
         portfolio.accounts.byId[accountId] = {
           assetIds: [],

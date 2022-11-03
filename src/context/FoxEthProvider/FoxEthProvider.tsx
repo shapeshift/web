@@ -34,7 +34,7 @@ import type { Nullable } from 'types/common'
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 export type FoxFarmingEarnOpportunityType = {
-  unclaimedRewards: string
+  rewardsAmountCryptoPrecision: string
   isVisible?: boolean
 } & EarnOpportunityType
 

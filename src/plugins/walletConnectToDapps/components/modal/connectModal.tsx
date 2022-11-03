@@ -7,7 +7,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   ModalCloseButton,
   VStack,
 } from '@chakra-ui/react'
@@ -67,12 +66,10 @@ export const ConnectModal: FC<Props> = ({ isOpen, onClose }) => {
             <Heading flex={1} fontSize='xl'>
               <Text translation='plugins.walletConnectToDapps.modal.connect.title' />
             </Heading>
-            <Link href='#' target='_blank'>
-              <Button colorScheme='blue' variant='link'>
-                {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
-              </Button>
-            </Link>
-
+            {/* TODO: Make youtube video and link it here
+            <Button colorScheme='blue' as={Link} variant='link' href="" isExternal>
+              {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
+            </Button> */}
             <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
               <InputGroup size='lg'>
                 <InputRightElement pointerEvents='none'>

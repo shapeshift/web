@@ -1,6 +1,5 @@
 /*
     Wallet Connect
-
     ref:https://github.com/WalletConnect/web-examples/blob/main/wallets/react-wallet-v2/src/utils/WalletConnectUtil.ts
  */
 
@@ -48,9 +47,7 @@ export async function approveWalletConnect(proposal: any, accounts: Array<string
 }
 
 /*
-
 session_request
-
 {
    "type":"walletconnect",
    "data":{
@@ -76,7 +73,6 @@ session_request
    },
    "nonce":"1"
 }
-
  */
 
 export async function pairWalletConnect(uri?: string, session?: any) {
@@ -126,9 +122,7 @@ export async function pairWalletConnect(uri?: string, session?: any) {
         });
 
         /*
-
         sample event
-
         {
            id: 1647363828590105,
            jsonrpc: '2.0',
@@ -142,14 +136,11 @@ export async function pairWalletConnect(uri?: string, session?: any) {
              }
            ]
          }
-
-
          //method eth_signTypedData_v4
          params [
            '0x33b35c665496bA8E71B22373843376740401F106',
            '{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"domain":{"name":"USD Coin","version":"2","verifyingContract":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","chainId":1},"primaryType":"Permit","message":{"owner":"0x33b35c665496bA8E71B22373843376740401F106","spender":"0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45","value":"5056513","nonce":0,"deadline":1647408940}}'
          ]
-
          */
 
         walletConnectClient.on("call_request", async (error, payload) => {

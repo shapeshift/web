@@ -95,6 +95,7 @@ export interface IKeepKeyContext {
   setHasPassphrase: (enabled: boolean) => void
   keepKeyWallet: KeepKeyHDWallet | undefined
   getKeepkeyAssets: () => KKAsset[]
+  getKeepkeyAsset: (geckoId: string) => KKAsset | undefined
 }
 
 export type KeepKeyActionTypes =
@@ -124,7 +125,7 @@ const overrideGeckoName = (name: string) => {
   else return name
 }
 
-export type KKAsset = Asset & { rank: number; marketCap: number; link: string }
+export type KKAsset = Asset & { rank: number; marketCap: number; link: string; geckoId: string }
 
 const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
@@ -162,6 +163,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
         // kk specific
         rank: geckoAsset.market_cap_rank,
         marketCap: geckoAsset.market_cap,
+        geckoId: geckoAsset.id,
         link: `https://www.coingecko.com/en/coins/${geckoAsset.id}`,
       }
       return kkAsset
@@ -174,6 +176,13 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   }, [loadKeepkeyAssets])
 
   const getKeepkeyAssets = useMemo(() => () => keepkeyAssets, [keepkeyAssets])
+
+  const getKeepkeyAsset = useCallback(
+    (geckoId: string) => {
+      return keepkeyAssets.find(kkAsset => kkAsset.geckoId === geckoId)
+    },
+    [keepkeyAssets],
+  )
 
   const onClose = useCallback(() => {
     if (toastRef.current) {
@@ -264,6 +273,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     versions,
     onClose,
     updaterUrl,
+    getKeepkeyAsset,
   ])
 
   const value: IKeepKeyContext = useMemo(
@@ -272,8 +282,9 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       keepKeyWallet,
       setHasPassphrase,
       getKeepkeyAssets,
+      getKeepkeyAsset,
     }),
-    [keepKeyWallet, setHasPassphrase, state, getKeepkeyAssets],
+    [keepKeyWallet, setHasPassphrase, state, getKeepkeyAssets, getKeepkeyAsset],
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

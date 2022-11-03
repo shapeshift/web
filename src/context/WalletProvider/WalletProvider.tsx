@@ -1,9 +1,12 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import type { KeepKeySDK } from '@keepkey/keepkey-sdk'
+import { getKeepKeySDK } from '@keepkey/keepkey-sdk'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import type WalletConnectProvider from '@walletconnect/web3-provider'
+import { randomUUID } from 'crypto'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import debounce from 'lodash/debounce'
@@ -102,6 +105,8 @@ export interface InitialState {
   keepKeyPinRequestType: PinMatrixRequestType | null
   deviceState: DeviceState
   disconnectOnCloseModal: boolean
+  keepkeySdk: KeepKeySDK | null
+  browserUrl: string | null
 }
 
 const initialState: InitialState = {
@@ -122,6 +127,8 @@ const initialState: InitialState = {
   keepKeyPinRequestType: null,
   deviceState: initialDeviceState,
   disconnectOnCloseModal: false,
+  keepkeySdk: null,
+  browserUrl: null
 }
 
 export const isKeyManagerWithProvider = (keyManager: KeyManager | null) => Boolean(keyManager)
@@ -145,6 +152,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           },
         },
       }
+    case WalletActions.SET_BROWSER_URL:
+      return { ...state, browserUrl: action.payload }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
@@ -157,6 +166,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_PIN_REQUEST_TYPE:
       return { ...state, keepKeyPinRequestType: action.payload }
+    case WalletActions.SET_KEEPKEY_SDK:
+      return { ...state, keepkeySdk: action.payload }
     case WalletActions.SET_DEVICE_STATE: {
       const { deviceState } = state
       const {
@@ -335,7 +346,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const localWalletDeviceId = getLocalWalletDeviceId()
     fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
-      ;(async () => {
+      ; (async () => {
         if (state.adapters?.has(localWalletType)) {
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -620,9 +631,31 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.send('@app/start', {})
   }, [setNeedsResetIfNotUpdating, state.wallet])
 
+  const setupKeepKeySDK = () => {
+    let serviceKey = window.localStorage.getItem('@app/serviceKey')
+    let config = {
+      serviceName: 'KeepKey Desktop',
+      serviceImageUrl:
+        'https://github.com/BitHighlander/keepkey-desktop/raw/master/electron/icon.png',
+      serviceKey: serviceKey ? serviceKey : randomUUID(),
+    }
+    if (!serviceKey) {
+      window.localStorage.setItem('@app/serviceKey', config.serviceKey)
+      ipcRenderer.send('@bridge/add-service', config)
+    }
+    getKeepKeySDK(config)
+      .then(sdk => {
+        dispatch({ type: WalletActions.SET_KEEPKEY_SDK, payload: sdk })
+      })
+      .catch(e => {
+        console.log('GET KEEPKEYSDK ERROR', e)
+      })
+  }
+
   useEffect(() => {
     disconnect()
     doStartBridge()
+    setupKeepKeySDK()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

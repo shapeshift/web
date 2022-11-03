@@ -1,6 +1,7 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
   Heading,
   Image,
   Input,
@@ -20,6 +21,9 @@ import { Text } from 'components/Text'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
+import { useHistory } from 'react-router'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { WalletActions } from 'context/WalletProvider/actions'
 
 const registryItems: RegistryItem[] = require('../registry.json')
 
@@ -34,6 +38,8 @@ export const DappRegistryGrid: FC = () => {
   const search = useWatch({ control, name: 'search' })
   const page = useWatch({ control, name: 'page' })
   useEffect(() => setValue('page', 0), [search, setValue])
+  const history = useHistory()
+  const { dispatch } = useWallet()
 
   const filteredListings = useMemo(
     () =>
@@ -44,6 +50,11 @@ export const DappRegistryGrid: FC = () => {
   )
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
+
+  const openDapp = (app: RegistryItem) => {
+    dispatch({ type: WalletActions.SET_BROWSER_URL, payload: app.homepage })
+    history.push("/browser")
+  }
 
   return (
     <Box>
@@ -71,7 +82,7 @@ export const DappRegistryGrid: FC = () => {
       {!!filteredListings.length ? (
         <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
           {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
-            <Link key={listing.id} href={listing.homepage} isExternal>
+            <Link key={listing.id} onClick={() => openDapp(listing)}>
               <Box
                 borderRadius='lg'
                 p={2}

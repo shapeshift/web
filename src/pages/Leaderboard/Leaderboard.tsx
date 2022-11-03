@@ -31,7 +31,7 @@ export const Leaderboard = () => {
           </Box>
         </Card.Header>
         <Card.Body pt={0} px={2}>
-          <LeaderboardTable />
+          <LeaderboardTable/>
         </Card.Body>
       </Card>
     </Main>

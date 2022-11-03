@@ -3,9 +3,10 @@ import { Box, Flex, Heading } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useParams } from 'react-router'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
 import { Card } from 'components/Card/Card'
@@ -23,7 +24,13 @@ import { selectAssets } from 'state/slices/selectors'
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
 
+type MatchParams = {
+  chainId?: string
+  assetSubId?: string
+}
+
 export const Buy = () => {
+  const { chainId, assetSubId } = useParams<MatchParams>()
   const { assetSearch } = useModal()
   const assets = useSelector(selectAssets)
   const { data: ramps } = useGetFiatRampsQuery()
@@ -57,6 +64,14 @@ export const Buy = () => {
     },
     [assetSearch, assets, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
   )
+
+  useEffect(() => {
+    // Auto select asset when passed in via params
+    if (chainId && assetSubId) {
+      const assetId = `${chainId}/${assetSubId}`
+      setSelectedAssetId(assetId)
+    }
+  }, [assetSubId, chainId])
 
   return (
     <Main p={0} style={{ paddingInlineStart: 0, paddingInlineEnd: 0 }}>

@@ -68,13 +68,14 @@ export const getOpportunityData = async ({
 
   // balances
   const stakedBalance = await foxFarmingContract.balanceOf(address)
-  const unclaimedRewards = await foxFarmingContract.earned(address)
+  const rewardsAmountCryptoPrecision = await foxFarmingContract.earned(address)
   const stakedAmount = bnOrZero(stakedBalance.toString()).div(`1e${lpAssetPrecision}`)
   const stakeFiatBalance = stakedAmount.times(lpTokenPrice)
-  const unclaimedRewardsCryptoAmount = bnOrZero(unclaimedRewards.toString()).div(
-    `1e${foxAssetPrecision}`,
-  )
-  const unclaimedRewardsFiatBalance = unclaimedRewardsCryptoAmount.times(foxPrice)
+  const rewardsAmountCryptoPrecisionCryptoAmount = bnOrZero(
+    rewardsAmountCryptoPrecision.toString(),
+  ).div(`1e${foxAssetPrecision}`)
+  const rewardsAmountCryptoPrecisionFiatBalance =
+    rewardsAmountCryptoPrecisionCryptoAmount.times(foxPrice)
 
   // expired
   let expired
@@ -90,8 +91,8 @@ export const getOpportunityData = async ({
     apr,
     balances: {
       cryptoBalance: stakedAmount.toString(),
-      fiatBalance: stakeFiatBalance.plus(unclaimedRewardsFiatBalance).toFixed(2),
-      unclaimedRewards: unclaimedRewardsCryptoAmount.toString(),
+      fiatBalance: stakeFiatBalance.plus(rewardsAmountCryptoPrecisionFiatBalance).toFixed(2),
+      rewardsAmountCryptoPrecision: rewardsAmountCryptoPrecisionCryptoAmount.toString(),
     },
   }
 }

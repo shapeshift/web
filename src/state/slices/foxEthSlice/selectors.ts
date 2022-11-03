@@ -15,11 +15,11 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
-import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import type { UserEarnOpportunityType } from './foxEthCommon'
 
 const farmingOpportunitiesReducer = (
-  acc: Record<string, FoxFarmingEarnOpportunityType>,
-  opportunity: FoxFarmingEarnOpportunityType,
+  acc: Record<string, UserEarnOpportunityType>,
+  opportunity: UserEarnOpportunityType,
 ) => {
   if (!acc[opportunity.contractAddress]) {
     acc[opportunity.contractAddress] = opportunity
@@ -32,8 +32,10 @@ const farmingOpportunitiesReducer = (
     fiatAmount: bnOrZero(acc[opportunity.contractAddress]?.fiatAmount)
       .plus(bnOrZero(opportunity.fiatAmount))
       .toString(),
-    unclaimedRewards: bnOrZero(acc[opportunity.contractAddress]?.unclaimedRewards)
-      .plus(bnOrZero(opportunity.unclaimedRewards))
+    rewardsAmountCryptoPrecision: bnOrZero(
+      acc[opportunity.contractAddress]?.rewardsAmountCryptoPrecision,
+    )
+      .plus(bnOrZero(opportunity.rewardsAmountCryptoPrecision))
       .toString(),
   }
 
@@ -81,7 +83,10 @@ export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
 export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   (state: ReduxState) => state,
-  (wrappedEthLpOpportunities, state) => {
+  (
+    wrappedEthLpOpportunities,
+    state,
+  ): UserEarnOpportunityType & { highestBalanceAccountAddress: string } => {
     const aggregatedOpportunity = wrappedEthLpOpportunities
       .filter(Boolean)
       .reduce((acc, currentOpportunity) => {
@@ -101,7 +106,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
             .toString(),
         }
         return acc
-      }, {} as FoxEthLpEarnOpportunityType)
+      }, {} as UserEarnOpportunityType)
 
     const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
       state,
@@ -133,7 +138,7 @@ export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOu
   foxFarmingOpportunities => {
     const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
       .flatMap(opportunity => opportunity)
-      .reduce(farmingOpportunitiesReducer, {} as Record<string, FoxFarmingEarnOpportunityType>)
+      .reduce(farmingOpportunitiesReducer, {} as Record<string, UserEarnOpportunityType>)
 
     return Object.values(aggregatedOpportunitiesByContractAddress)
   },
@@ -165,7 +170,7 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepE
         opportunity =>
           !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
       )
-      .reduce(farmingOpportunitiesReducer, {} as Record<string, FoxFarmingEarnOpportunityType>)
+      .reduce(farmingOpportunitiesReducer, {} as Record<string, UserEarnOpportunityType>)
 
     return Object.values(aggregatedOpportunitiesByContractAddress).map(opportunity => {
       const highestBalanceAccountAddress = selectHighestBalanceFoxFarmingOpportunityAccountAddress(

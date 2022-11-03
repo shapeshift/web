@@ -12,15 +12,13 @@ import {
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from './constants'
 
-export type FoxFarmingEarnOpportunityType = {
-  unclaimedRewards: string
+export type UserEarnOpportunityType = {
+  rewardsAmountCryptoPrecision?: string
   isVisible?: boolean
-  accountAddress?: string
-} & EarnOpportunityType
-
-export type FoxEthLpEarnOpportunityType = {
+  // TODO: remove
   underlyingFoxAmount?: string
   underlyingEthAmount?: string
+  // TODO: AccountId
   accountAddress?: string
 } & EarnOpportunityType
 
@@ -50,32 +48,32 @@ export const baseFarmingOpportunity = {
   assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
-  unclaimedRewards: '',
+  rewardsAmountCryptoPrecision: '',
   chainId: ethChainId,
   isLoaded: false,
   type: DefiType.Farming,
   icons,
 }
 
-const v4FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+const v4FarmingOpportunity: UserEarnOpportunityType = {
   ...baseFarmingOpportunity,
   contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
   opportunityName: 'Fox Farming V4',
 }
 
-const v3FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+const v3FarmingOpportunity: UserEarnOpportunityType = {
   ...baseFarmingOpportunity,
   contractAddress: FOX_FARMING_V3_CONTRACT_ADDRESS,
   opportunityName: 'Fox Farming V3',
 }
 
-const v2FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+const v2FarmingOpportunity: UserEarnOpportunityType = {
   ...baseFarmingOpportunity,
   contractAddress: FOX_FARMING_V2_CONTRACT_ADDRESS,
   opportunityName: 'Fox Farming V2',
 }
 
-const v1FarmingOpportunity: FoxFarmingEarnOpportunityType = {
+const v1FarmingOpportunity: UserEarnOpportunityType = {
   ...baseFarmingOpportunity,
   contractAddress: FOX_FARMING_V1_CONTRACT_ADDRESS,
   opportunityName: 'Fox Farming V1',

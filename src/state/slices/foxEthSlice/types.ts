@@ -26,7 +26,7 @@ export type GetFoxFarmingContractMetricsArgs = {
 export type GetFoxFarmingContractAccountDataReturn = {
   cryptoAmount: string
   fiatAmount: string
-  unclaimedRewards: string
+  rewardsAmountCryptoPrecision: string
 }
 
 export type GetFoxFarmingContractAccountDataArgs = {

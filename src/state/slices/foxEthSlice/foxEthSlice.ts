@@ -28,7 +28,7 @@ import type { AssetsState } from '../assetsSlice/assetsSlice'
 import { selectMarketDataById } from '../selectors'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
-import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import type { UserEarnOpportunityType } from './foxEthCommon'
 import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
 import type {
   GetFoxEthLpAccountDataArgs,
@@ -43,8 +43,8 @@ import type {
 import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
-  farmingOpportunities: FoxFarmingEarnOpportunityType[]
-  lpOpportunity: FoxEthLpEarnOpportunityType
+  farmingOpportunities: UserEarnOpportunityType[]
+  lpOpportunity: UserEarnOpportunityType
 }
 
 type FoxEthState = Record<
@@ -61,10 +61,7 @@ export const foxEth = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertLpOpportunity: (
-      draftState,
-      action: PayloadAction<Partial<FoxEthLpEarnOpportunityType>>,
-    ) => {
+    upsertLpOpportunity: (draftState, action: PayloadAction<Partial<UserEarnOpportunityType>>) => {
       if (action.payload.accountAddress && !draftState[action.payload.accountAddress]) {
         draftState[action.payload.accountAddress] = {} as FoxEthOpportunities
       }
@@ -76,7 +73,7 @@ export const foxEth = createSlice({
     },
     upsertFarmingOpportunity: (
       draftState,
-      action: PayloadAction<Partial<FoxFarmingEarnOpportunityType>>,
+      action: PayloadAction<Partial<UserEarnOpportunityType>>,
     ) => {
       // TODO: This is absolute immer madness 🤮 clean me before opening the PR
       const stateFarmingOpportunities =
@@ -354,18 +351,18 @@ export const foxEthApi = createApi({
           const foxFarmingContract = getOrCreateContract(contractAddress, farmAbi)
 
           const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
-          const unclaimedRewards = await foxFarmingContract.earned(accountAddress)
+          const rewardsAmountCryptoPrecision = await foxFarmingContract.earned(accountAddress)
           const balance = bnOrZero(stakedBalance.toString())
             .div(bn(10).pow(lpAssetPrecision))
             .toString()
-          const rewards = bnOrZero(unclaimedRewards.toString())
+          const rewards = bnOrZero(rewardsAmountCryptoPrecision.toString())
             .div(bn(10).pow(foxPrecision))
             .toString()
 
           const data = {
             cryptoAmount: balance,
             fiatAmount: bnOrZero(balance).times(lpTokenPrice).toString(),
-            unclaimedRewards: rewards,
+            rewardsAmountCryptoPrecision: rewards,
             contractAddress,
             accountAddress,
           }

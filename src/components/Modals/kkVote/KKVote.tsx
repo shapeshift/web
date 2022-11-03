@@ -48,11 +48,7 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   // burn amount input field
   const [burnAmount, setBurnAmount] = useState('0')
 
-  console.log('approvedAmount', approvedAmount)
-  console.log('burnAmount', burnAmount)
-
   const onBurnInputChange = useCallback((input: any) => {
-    console.log('onBurnInputChange')
     setBurnAmount(input.target.value)
   }, [])
 
@@ -80,7 +76,6 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
     )
     setApproveTxid(txid)
   }, [kkErc20Contract, kkNftContract, kkWeb3, wallet])
-
 
   const loadApprovedAmount = useCallback(async () => {
     const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")

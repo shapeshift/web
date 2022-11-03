@@ -85,7 +85,7 @@ export const doVoteTx = async (
   const nonce = await kkWeb3.eth.getTransactionCount(address)
 
   const txToSign: ETHSignTx = {
-    to: kkNftContract.options.Address,
+    to: kkNftContract.options.address,
     nonce: Web3.utils.toHex(nonce),
     data: voteData,
     value: '0x0',

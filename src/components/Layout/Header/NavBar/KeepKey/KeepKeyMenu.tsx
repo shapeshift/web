@@ -63,7 +63,7 @@ export const KeepKeyMenu = () => {
   const handleRemovePinClick = useCallback(() => {
     console.log('KEEPKEY SDK', keepkeySdk)
     if (!keepkeySdk) return
-    keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp.data))
+    keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp))
     dispatch({
       type: WalletActions.OPEN_KEEPKEY_PIN,
       payload: {

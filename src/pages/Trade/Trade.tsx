@@ -1,6 +1,5 @@
 import { Box, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { useWallet } from 'hooks/useWallet/useWallet'

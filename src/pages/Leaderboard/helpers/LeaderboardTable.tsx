@@ -9,10 +9,23 @@ import { nftAbi } from './nftAbi'
 import Web3 from 'web3'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useHistory } from 'react-router-dom'
 type RowProps = Row<any>
+
 
 export const LeaderboardTable = () => {
 
+  const history = useHistory()
+
+  const handleClick = useCallback( (input: any) => {
+    const asset = getKeepkeyAsset(input.geckoId)
+    if(!asset) throw new Error('dont have asset')
+    const routeAssetId = `${asset.chainId}/${asset.assetId}`
+    const url = `/assets/keepkey/${routeAssetId}`
+    history.push({ pathname: url })
+  }, [])
+
+  
   const { getKeepkeyAsset } = useKeepKey()
   const [data, setData] = useState([] as any)
 
@@ -80,5 +93,10 @@ export const LeaderboardTable = () => {
     ]
   }, [])
 
-  return <ReactTable data={data} columns={columns} />
+  const handleRowClick = useCallback(
+    (row: Row<any>) => handleClick(row.original),
+    [handleClick],
+  )
+
+  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
 }

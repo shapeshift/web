@@ -9,16 +9,15 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { doApproveTx, doVoteTx } from './utils'
+import { doApproveTx, doVoteTx, getApprovedAndBalances, getFees } from './utils'
 
 export const KKVote = ({ geckoId }: { geckoId: any }) => {
   const { getKeepkeyAsset, kkErc20Contract, kkNftContract, kkWeb3 } = useKeepKey()
@@ -43,15 +42,64 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   const [voteConfirmed, setVoteConfirmed] = useState(false)
   const [approveConfirmed, setApproveConfirmed] = useState(false)
 
-  // amount user has approved for burning (should be 0 or huge)
-  const [approvedAmount, setApprovedAmount] = useState('0')
-
   // burn amount input field
   const [burnAmount, setBurnAmount] = useState('0')
 
-  const onBurnInputChange = useCallback((input: any) => {
-    setBurnAmount(input.target.value)
-  }, [])
+  // fee data (limit, price, & eth) for vote and approve
+  const [feeData, setFeeData] = useState({
+    voteEth: '0',
+    approvalEth: '0',
+    voteGas: '0',
+    approvalGas: '0',
+    gasPrice: '0',
+  })
+
+  // users approved amount, keepkey token balance, and eth balance
+  const [approvedAndBalances, setApprovedAndBalances] = useState({
+    ethBalance: '0',
+    kkBalance: '0',
+    approved: '0', // 0 or huge
+  })
+
+  // user needs to approve
+  const needsApproval = !approveConfirmed && bnOrZero(approvedAndBalances?.approved).eq(0)
+
+  // user has enough eth for approval transaction
+  const hasEthForApproval = bnOrZero(approvedAndBalances.ethBalance).gte(
+    bnOrZero(feeData?.approvalEth),
+  )
+
+  // user has enough eth to vote
+  const hasEthForVote = bnOrZero(approvedAndBalances.ethBalance).gte(bnOrZero(feeData?.voteEth))
+
+  // user has some tokens to vote with
+  const hasTokenForVote = bnOrZero(approvedAndBalances?.kkBalance).gt(bnOrZero(burnAmount))
+
+  // vote button is clickable
+  const voteValidationPassed =
+    !needsApproval && hasEthForVote && hasTokenForVote && burnAmount?.length > 0
+
+  // approve button is clickable
+  const approvalValidationPassed = hasEthForApproval
+
+  const errorMessage = !hasEthForApproval
+    ? 'Not enough eth for approval transaction'
+    : !hasEthForVote
+    ? 'Not enough eth for vote transaction'
+    : !hasTokenForVote
+    ? 'Not enough tokens'
+    : ''
+
+  useEffect(() => {
+    if (kkWeb3) getFees(kkWeb3).then((fees: any) => setFeeData(fees))
+    if (kkWeb3 && wallet)
+      getApprovedAndBalances(
+        kkWeb3,
+        wallet as KeepKeyHDWallet,
+        kkErc20Contract,
+        kkNftContract,
+      ).then((result: any) => setApprovedAndBalances(result))
+  }, [geckoId, kkErc20Contract, kkNftContract, kkWeb3, wallet])
 
   const onVoteClick = useCallback(async () => {
     if (!kkWeb3) throw new Error('No Web3')
@@ -80,22 +128,6 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
     setApproveTxid(txid)
   }, [kkErc20Contract, kkNftContract, kkWeb3, wallet])
 
-  const loadApprovedAmount = useCallback(async () => {
-    const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
-    const address = await (wallet as KeepKeyHDWallet).ethGetAddress({
-      addressNList,
-      showDisplay: false,
-    })
-    const approved = await kkErc20Contract?.methods
-      .allowance(address, kkNftContract?.options?.address)
-      .call()
-    setApprovedAmount(approved)
-  }, [kkErc20Contract?.methods, kkNftContract?.options?.address, wallet])
-
-  useEffect(() => {
-    loadApprovedAmount()
-  }, [loadApprovedAmount, geckoId])
-
   return (
     <Modal
       isOpen={isOpen}
@@ -116,29 +148,73 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
             </ModalHeader>
           </div>
           <div>
-            <Input placeholder='Burn amount' onChange={onBurnInputChange} />
+            <RawText color='gray.500'>Token Balance {`${approvedAndBalances?.kkBalance}`}</RawText>
           </div>
           <div>
-            {!approveConfirmed && bnOrZero(approvedAmount).eq(0) && (
-              <Button isLoading={approveClicked} onClick={onApproveClick}>
+            <RawText color='gray.500'>Eth Balance {`${approvedAndBalances?.ethBalance}`}</RawText>
+          </div>
+          <div>
+            {needsApproval && (
+              <RawText color='gray.500'>Eth Fee {`${feeData?.approvalEth}`}</RawText>
+            )}
+          </div>
+          <div>
+            <RawText color='gray.500'>Eth Fee {`${feeData?.voteEth}`}</RawText>
+          </div>
+          <div>
+            {needsApproval && (
+              <Button
+                isDisabled={!approvalValidationPassed}
+                isLoading={approveClicked}
+                onClick={onApproveClick}
+              >
                 Approve
               </Button>
             )}
-            <Link
-              color='blue.400'
-              isExternal
-              href={`https://goerli.etherscan.io/tx/${approveTxid}`}
-            >{`${approveTxid}`}</Link>
+          </div>
+          <div>
+            {!!approveTxid && (
+              <Link
+                color='blue.400'
+                isExternal
+                href={`https://goerli.etherscan.io/tx/${approveTxid}`}
+              >
+                View approval on etherscan
+              </Link>
+            )}
+          </div>
+          <div>
+            {!voteClicked && (
+              <Input
+                my='10px'
+                isDisabled={needsApproval}
+                placeholder='Token Amount'
+                onChange={(input: any) => setBurnAmount(input.target.value)}
+              />
+            )}
+          </div>
+          <div>
             {!voteConfirmed && (
-              <Button isLoading={voteClicked} onClick={onVoteClick}>
+              <Button
+                isDisabled={!voteValidationPassed}
+                isLoading={voteClicked}
+                onClick={onVoteClick}
+              >
                 Vote
               </Button>
             )}
-            <Link
-              color='blue.400'
-              isExternal
-              href={`https://goerli.etherscan.io/tx/${voteTxid}`}
-            >{`${voteTxid}`}</Link>
+          </div>
+          <div>
+            {voteTxid && (
+              <Link
+                color='blue.400'
+                isExternal
+                href={`https://goerli.etherscan.io/tx/${voteTxid}`}
+              >{`View vote on etherscan`}</Link>
+            )}
+          </div>
+          <div>
+            <RawText color='red.500'>{errorMessage}</RawText>
           </div>
         </ModalBody>
       </ModalContent>

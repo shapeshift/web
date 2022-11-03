@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.1.0...@shapeshiftoss/swapper-v14.2.0) (2022-11-03)
+
+
+### Features
+
+* **swapper:** use refund fee in limit calculation & use `outbound_fee` ([#1080](https://github.com/shapeshift/lib/issues/1080)) ([a4d6d6f](https://github.com/shapeshift/lib/commit/a4d6d6f36e1ad803a5328c0536701f142e2f97f2))
+
 # [@shapeshiftoss/swapper-v14.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.0.0...@shapeshiftoss/swapper-v14.1.0) (2022-10-31)
 
 

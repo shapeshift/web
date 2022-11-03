@@ -179,7 +179,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
           fiatBalance={fiatAmountAvailable}
-          onMaxClick={value => handlePercentClick(value)}
+          onPercentOptionClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}
           isReadOnly={disableInput}
           icons={icons}

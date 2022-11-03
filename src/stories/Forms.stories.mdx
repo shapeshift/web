@@ -68,7 +68,7 @@ export const ExampleDeposit = () => {
       rewardAmount.onChange(value)
     }
   }
-  const handleMax = (value: number) => {
+  const handlePercentOptionClick = (value: number) => {
     const amount = bnOrZero(balance).times(value)
     fiatAmount.onChange(amount.times(price).toString())
     cryptoAmount.onChange(amount.toString())
@@ -94,7 +94,7 @@ export const ExampleDeposit = () => {
               balance='1000'
               onChange={(value, isFiat) => handleOnChange(value, isFiat)}
               assetName='FOX'
-              onMaxClick={value => handleMax(value)}
+              onPercentOptionClick={value => handlePercentOptionClick(value)}
               assetIcon='https://assets.coincap.io/assets/icons/256/fox.png'
             />
           </FormField>

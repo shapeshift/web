@@ -28,7 +28,7 @@ export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
   style,
 }) => {
   const {
-    state: { wallet },
+    state: { wallet, isConnected, isDemoWallet },
   } = useWallet()
   const assetId = data.assetIds[index]
   const assets = useSelector(selectAssets)
@@ -69,10 +69,12 @@ export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
           </Text>
         </Box>
       </Box>
-      <Box textAlign='right'>
-        <Amount.Crypto symbol={asset.symbol} value={cryptoHumanBalance} />
-        <Amount.Fiat value={fiatBalance} />
-      </Box>
+      {isConnected && !isDemoWallet && (
+        <Box textAlign='right'>
+          <Amount.Crypto symbol={asset.symbol} value={cryptoHumanBalance} />
+          <Amount.Fiat value={fiatBalance} />
+        </Box>
+      )}
     </Button>
   )
 }

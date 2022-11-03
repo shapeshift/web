@@ -1,19 +1,30 @@
 import { Button, ButtonGroup } from '@chakra-ui/react'
+import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 
 type MaxButtonGroupProps = {
+  isDisabled?: boolean
+  onClick: (args: number) => void
+  onMaxClick?: () => Promise<void>
   options: number[]
   value?: number | null
-  onClick: (args: number) => void
-  isDisabled?: boolean
 }
 
-export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
+export const PercentOptionsButtonGroup: React.FC<MaxButtonGroupProps> = ({
+  isDisabled,
+  onClick,
+  onMaxClick,
   options,
   value,
-  onClick,
-  isDisabled,
 }) => {
+  const translate = useTranslate()
+  const handleClick = useCallback(
+    async (option: number) => {
+      onMaxClick && option === 1 ? await onMaxClick() : onClick(option)
+    },
+    [onClick, onMaxClick],
+  )
   return (
     <ButtonGroup justifyContent='flex-end' size='xs'>
       {options.map(option => (
@@ -21,10 +32,10 @@ export const MaxButtonGroup: React.FC<MaxButtonGroupProps> = ({
           isDisabled={isDisabled}
           isActive={option === value}
           key={option}
-          onClick={() => onClick(option)}
+          onClick={() => handleClick(option)}
         >
           {option === 1 ? (
-            'Max'
+            translate('modals.send.sendForm.max')
           ) : (
             <Amount.Percent
               value={option}

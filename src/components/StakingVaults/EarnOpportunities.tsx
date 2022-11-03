@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { foxyAssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
@@ -76,7 +77,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
       // show FOX_ETH LP token on FOX and ETH pages
-      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)),
+      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)) ||
+      // show foxy opportunity in the foxy asset page
+      (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
@@ -93,6 +96,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         chainId,
         contractAddress,
         assetReference,
+        highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
         rewardId: rewardAddress,
         provider,
         modal: 'overview',

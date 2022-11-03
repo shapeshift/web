@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Input, useColorModeValue } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
 
 export const CUSTOM = 'Custom'
 export const SLIPPAGE_RATES = ['0.1', '0.5', '1', '3', CUSTOM]
@@ -9,6 +10,7 @@ type SlippageProps = {
 }
 
 export const Slippage = ({ onChange, value }: SlippageProps) => {
+  const translate = useTranslate()
   return (
     <ButtonGroup
       bg={useColorModeValue('gray.50', 'gray.850')}
@@ -23,7 +25,7 @@ export const Slippage = ({ onChange, value }: SlippageProps) => {
         rate === CUSTOM ? (
           <Input
             key={idx}
-            placeholder='Custom'
+            placeholder={translate('gasInput.custom')}
             colorScheme='blue'
             variant='filled'
             flex={2}

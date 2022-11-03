@@ -137,6 +137,7 @@ export const Header = () => {
                 <Notifications />
               </Box>
               <FiatRamps />
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
             </Flex>
           </HStack>
         </HStack>

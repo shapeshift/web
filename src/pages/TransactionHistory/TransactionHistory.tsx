@@ -1,7 +1,9 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
@@ -14,6 +16,7 @@ import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
 
 export const TransactionHistory = () => {
+  const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement | null>(null)
   const { searchTerm, matchingAssets, handleInputChange } = useSearch()
   const { filters, setFilters, resetFilters } = useFilters()
@@ -38,6 +41,7 @@ export const TransactionHistory = () => {
 
   return (
     <Main>
+      <SEO title={translate('transactionHistory.transactionHistory')} />
       <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
         <Text translation='transactionHistory.transactionHistory' />
       </Heading>

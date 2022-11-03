@@ -17,11 +17,16 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectLpOpportunitiesById,
+  selectMarketData,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -41,6 +46,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  const assets = useAppSelector(selectorState => selectorState.assets.byId)
+  const marketData = useAppSelector(selectMarketData)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
@@ -49,12 +56,43 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [accountId],
   )
 
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+  const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
+  const opportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    [lpOpportunitiesById],
   )
-  const { underlyingFoxAmount, underlyingEthAmount } = opportunity!
+
+  const underlyingAssetsIcons = useMemo(
+    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    [assets, opportunityData?.underlyingAssetIds],
+  )
+
+  const lpAssetBalanceFilter = useMemo(
+    () => ({
+      assetId: foxEthLpAssetId ?? '',
+      accountId: accountId ?? '',
+    }),
+    [accountId],
+  )
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, lpAssetBalanceFilter),
+  )
+
+  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
+    () =>
+      opportunityData?.underlyingAssetIds.map((assetId, i) =>
+        bnOrZero(lpAssetBalance)
+          .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
+          .toFixed(6)
+          .toString(),
+      ),
+    [
+      assets,
+      lpAssetBalance,
+      opportunityData?.underlyingAssetIds,
+      opportunityData.underlyingAssetRatios,
+    ],
+  )
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
     useFoxEthLiquidityPool(accountAddress)
@@ -64,19 +102,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, opportunityData?.assetId ?? ''))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
-  const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount).toString()
+  const fiatAmountAvailable = bnOrZero(lpAssetBalance)
+    .times(marketData?.[foxEthLpAssetId]?.price ?? '0')
+    .toString()
 
   // user info
   const filter = useMemo(
-    () => ({ assetId: opportunity?.assetId ?? '', accountId: accountId ?? '' }),
-    [opportunity?.assetId, accountId],
+    () => ({ assetId: opportunityData?.assetId ?? '', accountId: accountId ?? '' }),
+    [opportunityData?.assetId, accountId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -96,7 +136,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handleContinue = async (formValues: WithdrawValues) => {
-    if (!opportunity) return
+    if (!opportunityData) return
     // set withdraw state for future use
     dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
@@ -181,7 +221,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <ReusableWithdraw
         accountId={accountId}
         asset={asset}
-        icons={opportunity?.icons}
+        icons={underlyingAssetsIcons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,
@@ -196,7 +236,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
-        isLoading={state.loading || !opportunity?.isLoaded}
+        isLoading={state.loading || !opportunityData}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}

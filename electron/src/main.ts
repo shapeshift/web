@@ -155,6 +155,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         backgroundColor: 'white',
         autoHideMenuBar: true,
         webPreferences: {
+            webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
             // offscreen: true,

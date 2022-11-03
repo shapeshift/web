@@ -4297,10 +4297,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^14.1.0":
-  version "14.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.1.0.tgz#9c62768123bf600c719e30ea7519df041db0e76c"
-  integrity sha512-rtgiyZX+ier/aKvlfLBTg0+C+n2ZYPMB2iKqPshkSZerNPJYWbg+OlPZwZQQYmyTe1aoGE9bQcgiwSDnSJ2wXA==
+"@shapeshiftoss/swapper@^14.2.0":
+  version "14.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.2.0.tgz#581012369dc5a6f32ad2ab06bc32229c6ca45296"
+  integrity sha512-KN+AULje87sxAzMPHIpz2aQrXc+YXypHnV091/FoaJl9rA8U2WFlLwODdTpWXlzynhekefWIMEpkHPrrS9Yykg==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4318,10 +4318,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.2.tgz#282125c027e8cf07a892229e54b7f7177d2cb941"
   integrity sha512-1gaYbU6pg5VSLXwKuDneerSxv3g2VyKIghvcIxuOiONDvhsjdDRgwuQyWLKfwkNKU/y2q2TZVn5FzYy1+YMroQ==
 
-"@shapeshiftoss/unchained-client@^10.2.4":
-  version "10.2.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.2.4.tgz#473e29ffe48f621dad124231d4f3d0e6b1377999"
-  integrity sha512-QGml6eqmFm4Ked/sW0ABp3E7Sc8OfsjDj2F9vNyJdH5P4pRnZXvGRVh06dOIdHr9qm/NIvCItfV7n8djH1cBXg==
+"@shapeshiftoss/unchained-client@^10.3.0":
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.3.0.tgz#61ec2ab718387266c128de12468e3da21856b519"
+  integrity sha512-f2CxPtsGW39sQ2u6n/fJ4ebRNFhPPgTyP5xojQoh8pe+asCORr0lRt3jLgUuMP8c3tPrb9mOf8qJXBSjtdBUJg==
   dependencies:
     "@yfi/sdk" "^1.2.0"
     bignumber.js "^9.0.2"

@@ -38,8 +38,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const translate = useTranslate()
-  const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()
-  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
+  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountId)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))

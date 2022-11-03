@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   ethereum,
@@ -43,23 +43,12 @@ type UseFoxFarmingOptions = {
  * @param contractAddress farming contract address, since there could be multiple contracts
  */
 export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOptions = {}) => {
-  const { farmingAccountAddress } = useFoxEth()
+  const { farmingAccountId } = useFoxEth()
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
-  const accountId = useMemo(
-    () =>
-      farmingAccountAddress
-        ? toAccountId({
-            chainId: ethChainId,
-            account: farmingAccountAddress,
-          })
-        : '',
-    [farmingAccountAddress],
-  )
-
-  const filter = useMemo(() => ({ accountId }), [accountId])
+  const filter = useMemo(() => ({ accountId: farmingAccountId ?? '' }), [farmingAccountId])
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 
@@ -100,13 +89,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
-        if (
-          skip ||
-          !farmingAccountAddress ||
-          !isNumber(accountNumber) ||
-          !foxFarmingContract ||
-          !wallet
-        )
+        if (skip || !farmingAccountId || !isNumber(accountNumber) || !foxFarmingContract || !wallet)
           return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
@@ -119,7 +102,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
           value: '0',
           chainSpecific: {
             contractData: data,
-            from: farmingAccountAddress,
+            from: fromAccountId(farmingAccountId).account,
           },
         })
         const result = await (async () => {
@@ -185,7 +168,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
     },
     [
       adapter,
-      farmingAccountAddress,
+      farmingAccountId,
       accountNumber,
       contractAddress,
       ethAsset.chainId,
@@ -200,13 +183,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
       try {
-        if (
-          skip ||
-          !farmingAccountAddress ||
-          !isNumber(accountNumber) ||
-          !foxFarmingContract ||
-          !wallet
-        )
+        if (skip || !farmingAccountId || !isNumber(accountNumber) || !foxFarmingContract || !wallet)
           return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
@@ -223,7 +200,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
           value: '0',
           chainSpecific: {
             contractData: data,
-            from: farmingAccountAddress,
+            from: fromAccountId(farmingAccountId).account,
           },
         })
         const result = await (async () => {
@@ -288,7 +265,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       }
     },
     [
-      farmingAccountAddress,
+      farmingAccountId,
       accountNumber,
       contractAddress,
       ethAsset.chainId,
@@ -301,13 +278,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   )
 
   const allowance = useCallback(async () => {
-    if (skip || !farmingAccountAddress || !uniV2LPContract) return
-    const _allowance = await uniV2LPContract.allowance(farmingAccountAddress, contractAddress)
+    if (skip || !farmingAccountId || !uniV2LPContract) return
+    const _allowance = await uniV2LPContract.allowance(farmingAccountId, contractAddress)
     return _allowance.toString()
-  }, [farmingAccountAddress, contractAddress, uniV2LPContract, skip])
+  }, [farmingAccountId, contractAddress, uniV2LPContract, skip])
 
   const getApproveGasData = useCallback(async () => {
-    if (adapter && farmingAccountAddress && uniV2LPContract) {
+    if (adapter && farmingAccountId && uniV2LPContract) {
       const data = uniV2LPContract.interface.encodeFunctionData('approve', [
         contractAddress,
         MAX_ALLOWANCE,
@@ -317,17 +294,17 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountAddress,
+          from: farmingAccountId,
           contractAddress: uniV2LPContract.address,
         },
       })
       return fees
     }
-  }, [adapter, farmingAccountAddress, contractAddress, uniV2LPContract])
+  }, [adapter, farmingAccountId, contractAddress, uniV2LPContract])
 
   const getStakeGasData = useCallback(
     async (lpAmount: string) => {
-      if (skip || !farmingAccountAddress || !uniswapRouterContract) return
+      if (skip || !farmingAccountId || !uniswapRouterContract) return
       const data = foxFarmingContract!.interface.encodeFunctionData('stake', [
         bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
       ])
@@ -336,14 +313,14 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountAddress,
+          from: farmingAccountId,
         },
       })
       return estimatedFees
     },
     [
       adapter,
-      farmingAccountAddress,
+      farmingAccountId,
       contractAddress,
       foxFarmingContract,
       lpAsset.precision,
@@ -354,7 +331,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
 
   const getUnstakeGasData = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
-      if (skip || !farmingAccountAddress || !uniswapRouterContract) return
+      if (skip || !farmingAccountId || !uniswapRouterContract) return
       const data = isExiting
         ? foxFarmingContract!.interface.encodeFunctionData('exit')
         : foxFarmingContract!.interface.encodeFunctionData('withdraw', [
@@ -365,14 +342,14 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountAddress,
+          from: farmingAccountId,
         },
       })
       return estimatedFees
     },
     [
       adapter,
-      farmingAccountAddress,
+      farmingAccountId,
       contractAddress,
       foxFarmingContract,
       lpAsset.precision,
@@ -450,13 +427,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   )
 
   const claimRewards = useCallback(async () => {
-    if (
-      skip ||
-      !wallet ||
-      !isNumber(accountNumber) ||
-      !foxFarmingContract ||
-      !farmingAccountAddress
-    )
+    if (skip || !wallet || !isNumber(accountNumber) || !foxFarmingContract || !farmingAccountId)
       return
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
     const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
@@ -464,7 +435,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       value: '0',
       chainSpecific: {
         contractData: data,
-        from: farmingAccountAddress,
+        from: farmingAccountId,
       },
     })
     const fees = estimatedFees.average as FeeData<EvmChainId>
@@ -508,15 +479,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       }
     })()
     return broadcastTXID
-  }, [
-    accountNumber,
-    adapter,
-    farmingAccountAddress,
-    contractAddress,
-    foxFarmingContract,
-    skip,
-    wallet,
-  ])
+  }, [accountNumber, adapter, farmingAccountId, contractAddress, foxFarmingContract, skip, wallet])
 
   return {
     allowance,

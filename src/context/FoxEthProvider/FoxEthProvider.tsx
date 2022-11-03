@@ -1,9 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import isEqual from 'lodash/isEqual'
 import React, { createContext, useContext, useMemo } from 'react'
@@ -11,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
@@ -45,8 +47,6 @@ type IFoxEthContext = {
   setFarmingAccountId: (accountId: AccountId) => void
   lpAccountId: Nullable<AccountId>
   setLpAccountId: (accountId: AccountId) => void
-  lpAccountAddress: string
-  farmingAccountAddress: string
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
   onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
 }
@@ -56,8 +56,6 @@ const FoxEthContext = createContext<IFoxEthContext>({
   farmingAccountId: null,
   setLpAccountId: _accountId => {},
   setFarmingAccountId: _accountId => {},
-  lpAccountAddress: '',
-  farmingAccountAddress: '',
   onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
   onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
 })
@@ -75,8 +73,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
-  const [lpAccountAddress, setLpAccountAddress] = useState<string>('')
-  const [farmingAccountAddress, setFarmingAccountAddress] = useState<string>('')
   const [farmingAccountId, setFarmingAccountId] = useState<Nullable<AccountId>>(null)
   const [lpAccountId, setLpAccountId] = useState<Nullable<AccountId>>(null)
 
@@ -117,24 +113,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet, bip44Params: lpBip44Params })
         // eth.getAddress and similar return a checksummed address, but state opportunities aren't
-        setLpAccountAddress(address.toLowerCase())
+        setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))
       })()
     }
   }, [adapter, wallet, lpBip44Params])
 
-  useEffect(() => {
-    if (!lpAccountId) return
-    const lpAccountAddress = fromAccountId(lpAccountId).account
-    setLpAccountAddress(lpAccountAddress)
-  }, [lpAccountId])
-
-  useEffect(() => {
-    if (!farmingAccountId) return
-    const farmingAccountAddress = fromAccountId(farmingAccountId).account
-    setFarmingAccountAddress(farmingAccountAddress)
-  }, [farmingAccountId])
-
-  // this hook handles the data we need from the farming opportunities
   useEffect(() => {
     // getting fox-eth lp token data
     ;(async () => {
@@ -152,39 +135,41 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const handleOngoingTxIdChange = useCallback(
     async (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
-      const accountAddress = type === 'farming' ? farmingAccountAddress : lpAccountAddress
+      const accountAddress = fromAccountId(
+        type === 'farming' ? farmingAccountId ?? '' : lpAccountId ?? '',
+      ).account
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
-    [lpAccountId, lpAccountAddress, farmingAccountId, farmingAccountAddress],
+    [lpAccountId, farmingAccountId],
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
     async (txid: string, contractAddress?: string) => {
-      if (!farmingAccountAddress) return
+      if (!farmingAccountId) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
-    [farmingAccountAddress, handleOngoingTxIdChange],
+    [farmingAccountId, handleOngoingTxIdChange],
   )
 
   const handleOngoingLpTxIdChange = useCallback(
     async (txid: string, contractAddress?: string) => {
-      if (!lpAccountAddress) return
+      if (!lpAccountId) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },
-    [lpAccountAddress, handleOngoingTxIdChange],
+    [handleOngoingTxIdChange, lpAccountId],
   )
 
   useEffect(() => {
-    if (farmingAccountAddress && transaction && transaction.status !== TxStatus.Pending) {
+    if (farmingAccountId && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         moduleLogger.info('Refetching fox lp/farming opportunities')
         refetchFoxEthLpAccountData()
         if (ongoingTxContractAddress)
           dispatch(
-            getOpportunityUserData.initiate(
+            opportunitiesApi.endpoints.getOpportunityUserData.initiate(
               {
-                accountId,
+                accountId: farmingAccountId ?? '',
                 opportunityId: ongoingTxContractAddress as LpId,
                 opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
@@ -200,7 +185,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     }
   }, [
     dispatch,
-    farmingAccountAddress,
+    farmingAccountId,
     ongoingTxContractAddress,
     refetchFoxEthLpAccountData,
     transaction,
@@ -208,24 +193,18 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const value = useMemo(
     () => ({
-      farmingAccountAddress,
       farmingAccountId,
-      lpAccountAddress,
       lpAccountId,
       onOngoingLpTxIdChange: handleOngoingLpTxIdChange,
       onOngoingFarmingTxIdChange: handleOngoingFarmingTxIdChange,
       setFarmingAccountId,
       setLpAccountId,
-      setLpAccountAddress,
     }),
     [
-      farmingAccountAddress,
       farmingAccountId,
       handleOngoingFarmingTxIdChange,
       handleOngoingLpTxIdChange,
-      lpAccountAddress,
       lpAccountId,
-      setLpAccountAddress,
       setLpAccountId,
     ],
   )

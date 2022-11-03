@@ -39,7 +39,7 @@ export const ConnectWallet = () => {
           assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
         })
       : query?.returnUrl
-    hasWallet && history.push(path ?? '/dashboard')
+    hasWallet && history.push(path ?? '/dapps')
   }, [history, hasWallet, query, state, dispatch])
   return (
     <Page>

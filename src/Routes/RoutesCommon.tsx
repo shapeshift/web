@@ -14,6 +14,7 @@ import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { KeepkeyAsset } from 'pages/Assets/KeepkeyAsset'
+import { Browser } from 'pages/Browser/Browser'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
@@ -27,7 +28,6 @@ import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
-import { Browser } from 'pages/Browser/Browser'
 
 export const routes: NestedRoute[] = [
   {

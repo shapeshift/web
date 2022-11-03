@@ -72,7 +72,7 @@ export const App = () => {
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {
-      console.log('PIN MODAL REQUESTED', deviceId)
+      // console.log('PIN MODAL REQUESTED', deviceId)
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

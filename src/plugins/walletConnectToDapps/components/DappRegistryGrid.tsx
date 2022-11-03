@@ -1,7 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Heading,
   Image,
   Input,
@@ -16,14 +15,14 @@ import {
 import type { FC } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
-import { useHistory } from 'react-router'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { WalletActions } from 'context/WalletProvider/actions'
 
 const registryItems: RegistryItem[] = require('../registry.json')
 
@@ -53,7 +52,7 @@ export const DappRegistryGrid: FC = () => {
 
   const openDapp = (app: RegistryItem) => {
     dispatch({ type: WalletActions.SET_BROWSER_URL, payload: app.homepage })
-    history.push("/browser")
+    history.push('/browser')
   }
 
   return (

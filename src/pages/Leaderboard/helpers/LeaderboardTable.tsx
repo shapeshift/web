@@ -67,11 +67,11 @@ export const LeaderboardTable = () => {
       .sort((a, b) => bnOrZero(b.burned).minus(bnOrZero(a.burned)).toNumber())
 
     setData(formattedTotals2)
-  }, [])
+  }, [getKeepkeyAsset])
 
   useEffect(() => {
     loadBurnEvents()
-  }, [])
+  }, [loadBurnEvents])
 
   const columns: Column<any>[] = useMemo(() => {
     return [

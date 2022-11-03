@@ -159,15 +159,16 @@ export function createModalProvider<M>({
 
     // @ts-ignore
     return (
-        // @ts-ignore
+      // @ts-ignore
       <InstanceModalContext.Provider value={value}>
         {children}
         {
           // @ts-ignore
           Object.values(value).map((Modal, key) => (
-          // @ts-ignore
-          <Modal.Component key={key} {...Modal.props} />
-        ))}
+            // @ts-ignore
+            <Modal.Component key={key} {...Modal.props} />
+          ))
+        }
       </InstanceModalContext.Provider>
     )
   }

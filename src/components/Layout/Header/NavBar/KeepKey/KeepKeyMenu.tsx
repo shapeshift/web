@@ -12,12 +12,12 @@ import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContain
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
+import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 
 export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()
@@ -61,9 +61,9 @@ export const KeepKeyMenu = () => {
   }
 
   const handleRemovePinClick = useCallback(() => {
-    console.log('KEEPKEY SDK', keepkeySdk)
+    // console.log('KEEPKEY SDK', keepkeySdk)
     if (!keepkeySdk) return
-    keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp))
+    keepkeySdk.developer.removePin({ body: {} })
     dispatch({
       type: WalletActions.OPEN_KEEPKEY_PIN,
       payload: {
@@ -71,7 +71,7 @@ export const KeepKeyMenu = () => {
         pinRequestType: PinMatrixRequestType.REMOVE,
       },
     })
-  }, [keepkeySdk])
+  }, [keepkeySdk,dispatch,deviceId])
 
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'

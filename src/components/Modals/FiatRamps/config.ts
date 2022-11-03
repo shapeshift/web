@@ -30,6 +30,7 @@ export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 export interface SupportedFiatRampConfig {
+  id: FiatRamp
   // key of translation jsons, will be used to show the provider name in the list
   label: string
   // key of translation jsons, will be used to show the provider info in the list
@@ -45,12 +46,13 @@ export interface SupportedFiatRampConfig {
   minimumSellThreshold?: number
 }
 
-export const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
+const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
 export type FiatRamp = typeof fiatRamps[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
+    id: 'Gem',
     label: 'fiatRamps.gem',
     logo: gemLogo,
     order: 1,
@@ -71,10 +73,11 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
     },
-    isActive: () => true,
+    isActive: () => false,
     minimumSellThreshold: 5,
   },
   OnRamper: {
+    id: 'OnRamper',
     label: 'fiatRamps.onRamper',
     tags: ['Aggregator'],
     logo: OnRamperLogo,
@@ -100,6 +103,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
   },
   Banxa: {
+    id: 'Banxa',
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
     isActive: () => true,
@@ -122,6 +126,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
   },
   JunoPay: {
+    id: 'JunoPay',
     label: 'fiatRamps.junoPay',
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
@@ -144,6 +149,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
   },
   MtPelerin: {
+    id: 'MtPelerin',
     label: 'fiatRamps.mtPelerin',
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,

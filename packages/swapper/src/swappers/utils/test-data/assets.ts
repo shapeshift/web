@@ -1,5 +1,13 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { avalancheAssetId, avalancheChainId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  avalancheChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 
 export const BTC: Asset = {
   assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
@@ -28,7 +36,7 @@ export const WETH: Asset = {
 }
 
 export const FOX: Asset = {
-  assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  assetId: foxAssetId,
   chainId: ethChainId,
   name: 'FOX',
   precision: 18,
@@ -103,4 +111,17 @@ export const AVAX: Asset = {
   explorer: 'https://snowtrace.io',
   explorerAddressLink: 'https://snowtrace.io/address/',
   explorerTxLink: 'https://snowtrace.io/tx/',
+}
+
+export const RUNE: Asset = {
+  assetId: thorchainAssetId,
+  chainId: thorchainChainId,
+  name: 'THORChain',
+  symbol: 'RUNE',
+  precision: 8,
+  color: '#33FF99',
+  icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
+  explorer: 'https://v2.viewblock.io/thorchain',
+  explorerAddressLink: 'https://v2.viewblock.io/thorchain/address/',
+  explorerTxLink: 'https://v2.viewblock.io/thorchain/tx/',
 }

@@ -55,13 +55,19 @@ export type MidgardActionsResponse = {
   actions: MidgardAction[]
 }
 
-export type InboundResponse = {
+export type InboundAddressResponse = {
   chain: string
   pub_key: string
   address: string
   halted: boolean
   gas_rate: string
+  gas_rate_units: string
   router?: string
+  global_trading_paused: boolean
+  chain_trading_paused: boolean
+  chain_lp_actions_paused: boolean
+  outbound_tx_size: string
+  outbound_fee: string
 }
 
 export type ThorchainSwapperDeps = {

@@ -11,7 +11,7 @@ import { cosmos, EvmBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-ad
 import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import {
+import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveInfiniteInput,
@@ -20,17 +20,14 @@ import {
   EvmSupportedChainIds,
   ExecuteTradeInput,
   GetTradeQuoteInput,
-  SwapError,
-  SwapErrorTypes,
   Swapper,
-  SwapperName,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
   UtxoSupportedChainIds,
 } from '../../api'
+import { SwapError, SwapErrorTypes, SwapperName, SwapperType } from '../../api'
 import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
@@ -78,13 +75,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   async initialize() {
     try {
-      const { data } = await thorService.get<ThornodePoolResponse[]>(
+      const { data: allPools } = await thorService.get<ThornodePoolResponse[]>(
         `${this.deps.daemonUrl}/lcd/thorchain/pools`,
       )
 
-      const pools = data.filter((pool) => pool.status === 'Available')
+      const availablePools = allPools.filter((pool) => pool.status === 'Available')
 
-      this.supportedSellAssetIds = pools.reduce<AssetId[]>((acc, pool) => {
+      this.supportedSellAssetIds = availablePools.reduce<AssetId[]>((acc, pool) => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId || !this.sellSupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)
@@ -92,7 +89,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       }, [])
       this.supportedSellAssetIds.push(thorchainAssetId)
 
-      this.supportedBuyAssetIds = pools.reduce<AssetId[]>((acc, pool) => {
+      this.supportedBuyAssetIds = availablePools.reduce<AssetId[]>((acc, pool) => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId || !this.buySupportedChainIds[fromAssetId(assetId).chainId]) return acc
         acc.push(assetId)

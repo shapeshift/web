@@ -1,7 +1,7 @@
 import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 
 import { Fee, TransferType, TxStatus } from '../../../../types'
-import { ParsedTx } from '../../../parser/types'
+import { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import standard from './mockData/standard'
 

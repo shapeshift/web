@@ -14,7 +14,7 @@ import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { ThorchainSwapperDeps, ThorTrade } from '../types'
 import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
-import { cosmosTxData } from '../utils/cosmos/cosmosTxData'
+import { getCosmosTxData } from '../utils/cosmos/getCosmosTxData'
 import { makeTradeTx } from '../utils/ethereum/makeTradeTx'
 
 export const buildTrade = async ({
@@ -113,7 +113,7 @@ export const buildTrade = async ({
         throw new Error('bip44Params required as input')
       }
 
-      const txData = await cosmosTxData({
+      const txData = await getCosmosTxData({
         bip44Params,
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,

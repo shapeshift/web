@@ -1,5 +1,6 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, FeeDataKey, GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { ThorchainSwapperDeps } from '../../types'
@@ -16,7 +17,7 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
 
   const adapterManager = new Map([
     [
-      'eip155:1',
+      KnownChainIds.EthereumMainnet,
       {
         buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
         getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),

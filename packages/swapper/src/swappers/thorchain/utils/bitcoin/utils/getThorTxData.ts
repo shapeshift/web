@@ -1,10 +1,10 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 
 import { SwapError, SwapErrorTypes } from '../../../../../api'
-import { InboundResponse, ThorchainSwapperDeps } from '../../../types'
+import type { ThorchainSwapperDeps } from '../../../types'
+import { getInboundAddressDataForChain } from '../../getInboundAddressDataForChain'
 import { getLimit } from '../../getLimit/getLimit'
 import { makeSwapMemo } from '../../makeSwapMemo/makeSwapMemo'
-import { thorService } from '../../thorService'
 
 type GetBtcThorTxInfoArgs = {
   deps: ThorchainSwapperDeps
@@ -34,28 +34,19 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   buyAssetTradeFeeUsd,
 }) => {
   try {
-    const { data: inboundAddresses } = await thorService.get<InboundResponse[]>(
-      `${deps.daemonUrl}/lcd/thorchain/inbound_addresses`,
-    )
-
-    const sellAssetInboundAddresses = inboundAddresses.find(
-      (inbound) => inbound.chain === sellAsset.symbol.toUpperCase(),
-    )
-
-    const vault = sellAssetInboundAddresses?.address
+    const inboundAddress = await getInboundAddressDataForChain(deps.daemonUrl, sellAsset.assetId)
+    const vault = inboundAddress?.address
 
     if (!vault)
       throw new SwapError(`[getThorTxInfo]: vault not found for asset`, {
         code: SwapErrorTypes.RESPONSE_ERROR,
-        details: { inboundAddresses, sellAsset },
+        details: { inboundAddress, sellAsset },
       })
 
     const limit = await getLimit({
       buyAssetId: buyAsset.assetId,
-      destinationAddress,
       sellAmountCryptoPrecision,
       sellAsset,
-      buyAsset,
       slippageTolerance,
       deps,
       buyAssetTradeFeeUsd,

@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -12,16 +12,15 @@ import {
 } from '../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
-import {
-  MINIMUM_USD_TRADE_AMOUNT,
-  MINIMUM_USD_TRADE_AMOUNT_ETHEREUM_NETWORK,
-  RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN,
-} from '../constants'
+import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../constants'
 import { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
-import { MAX_THORCHAIN_TRADE, THOR_MINIMUM_PADDING } from '../utils/constants'
-import { estimateBuyAssetTradeFeeCrypto } from '../utils/estimateBuyAssetTradeFeeCrypto/estimateBuyAssetTradeFeeCrypto'
-import { getThorTxInfo as getEthThorTxInfo } from '../utils/ethereum/utils/getThorTxData'
+import {
+  MAX_THORCHAIN_TRADE,
+  THOR_MINIMUM_PADDING,
+  THORCHAIN_FIXED_PRECISION,
+} from '../utils/constants'
+import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
 import { getTradeRate } from '../utils/getTradeRate/getTradeRate'
 import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { isRune } from '../utils/isRune/isRune'
@@ -56,13 +55,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
   try {
     const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
+    const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
     const sellAdapter = deps.adapterManager.get(chainId)
-    if (!sellAdapter)
-      throw new SwapError(`[getThorTradeQuote] - No chain adapter found for ${chainId}.`, {
-        code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-        details: { chainId },
-      })
+    const buyAdapter = deps.adapterManager.get(buyAssetChainId)
+    if (!sellAdapter || !buyAdapter)
+      throw new SwapError(
+        `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
+        {
+          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          details: { sellAssetChainId: chainId, buyAssetChainId },
+        },
+      )
 
     const rate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmountCryptoPrecision, deps)
 
@@ -71,41 +75,36 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       buyAsset.precision,
     )
 
-    const estimatedBuyAssetTradeFeeCryptoHuman = await estimateBuyAssetTradeFeeCrypto(
-      deps,
-      buyAsset,
+    const buyAssetAddressData = await getInboundAddressDataForChain(
+      deps.daemonUrl,
+      buyAsset.assetId,
     )
 
-    const buyAssetUsdRate = await getUsdRate({ deps, input: { assetId: buyAsset.assetId } })
+    const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
+      ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
+      : fromBaseUnit(bnOrZero(buyAssetAddressData?.outbound_fee), THORCHAIN_FIXED_PRECISION)
+
+    const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
+
     const sellAssetUsdRate = await getUsdRate({ deps, input: { assetId: sellAsset.assetId } })
-    const estimatedBuyAssetTradeFeeUsd = bn(buyAssetUsdRate)
-      .times(estimatedBuyAssetTradeFeeCryptoHuman)
+    const buyFeeAssetUsdRate = await getUsdRate({
+      deps,
+      input: { assetId: buyAssetChainFeeAssetId },
+    })
+
+    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
+      .times(estimatedBuyAssetTradeFeeFeeAssetCryptoHuman)
       .toString()
 
-    const minimumUsdAmount =
-      buyAsset.chainId === KnownChainIds.EthereumMainnet
-        ? MINIMUM_USD_TRADE_AMOUNT_ETHEREUM_NETWORK
-        : MINIMUM_USD_TRADE_AMOUNT
+    const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
+      ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
+      : 0 // We don't have a valid rate for the sell asset, there is no sane minimum
 
-    const buyAssetTradeFeeUsdOrMinimum = minimumUsdAmount.gt(estimatedBuyAssetTradeFeeUsd)
-      ? minimumUsdAmount.toString()
-      : estimatedBuyAssetTradeFeeUsd
-
-    const minimumSellAssetAmountCryptoHuman = (() => {
-      // The 1$ minimum doesn't apply for swaps to RUNE, use OutboundTransactionFee in human value instead
-      if (isRune(buyAsset?.assetId)) return RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN
-
-      return bnOrZero(buyAssetTradeFeeUsdOrMinimum).div(sellAssetUsdRate)
-    })()
     // minimum is tradeFee padded by an amount to be sure they get something back
     // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
     const minimumSellAssetAmountPaddedCryptoHuman = bnOrZero(minimumSellAssetAmountCryptoHuman)
       .times(THOR_MINIMUM_PADDING)
       .toString()
-
-    const buyAssetTradeFeeUsdOrDefault = isRune(buyAsset?.assetId)
-      ? bn(buyAssetUsdRate).times(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN).toString()
-      : estimatedBuyAssetTradeFeeUsd
 
     const commonQuoteFields: CommonQuoteFields = {
       rate,
@@ -123,19 +122,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
         return (async (): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> => {
-          const { router } = await getEthThorTxInfo({
-            deps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoPrecision,
-            slippageTolerance: DEFAULT_SLIPPAGE,
-            destinationAddress: receiveAddress,
-            buyAssetTradeFeeUsd: estimatedBuyAssetTradeFeeUsd,
-          })
+          const ethAddressData = await getInboundAddressDataForChain(deps.daemonUrl, ethAssetId)
+          const router = ethAddressData?.router
+          if (!router) throw new SwapError('[getThorTradeQuote] No router address found for ETH')
+
           const feeData = await getEthTxFees({
             adapterManager: deps.adapterManager,
             sellAssetReference,
-            buyAssetTradeFeeUsd: estimatedBuyAssetTradeFeeUsd,
+            buyAssetTradeFeeUsd,
           })
 
           return {
@@ -155,7 +149,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             slippageTolerance: DEFAULT_SLIPPAGE,
             destinationAddress: receiveAddress,
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
-            buyAssetTradeFeeUsd: estimatedBuyAssetTradeFeeUsd,
+            buyAssetTradeFeeUsd,
           })
 
           const feeData = await getBtcTxFees({
@@ -164,7 +158,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             opReturnData,
             pubkey,
             sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>,
-            buyAssetTradeFeeUsd: estimatedBuyAssetTradeFeeUsd,
+            buyAssetTradeFeeUsd,
             sendMax,
           })
 
@@ -185,7 +179,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             allowanceContract: '0x0', // not applicable to cosmos
             feeData: {
               networkFee: feeData.fast.txFee,
-              buyAssetTradeFeeUsd: buyAssetTradeFeeUsdOrDefault,
+              buyAssetTradeFeeUsd,
               sellAssetTradeFeeUsd: '0',
               chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },
             },

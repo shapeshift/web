@@ -1,43 +1,33 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { TradeQuote } from '../../../api'
+import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { ThorchainSwapperDeps } from '../types'
-import { ethMidgardPool, ethThornodePool, foxThornodePool } from '../utils/test-data/responses'
+import type { ThorchainSwapperDeps } from '../types'
+import {
+  ethMidgardPool,
+  ethThornodePool,
+  foxThornodePool,
+  mockInboundAddresses,
+} from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../utils/thorService')
-jest.mock('web3')
-
-// @ts-ignore
-Web3.mockImplementation(() => ({
-  eth: {
-    Contract: jest.fn(() => ({
-      methods: {
-        deposit: jest.fn(() => ({
-          encodeABI: jest.fn(() => '0x1234'),
-        })),
-      },
-    })),
-  },
-}))
 
 const mockedAxios = jest.mocked(thorService, true)
 
 const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.025669531348051326924',
+  minimumCryptoHuman: '0.00576',
   maximum: '100000000000000000000000000',
   sellAmountCryptoPrecision: '10000000000000000000', // 1000 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountCryptoPrecision: '784000000000000',
   feeData: {
     chainSpecific: { estimatedGas: '100000', approvalFee: '700000', gasPrice: '7' },
-    buyAssetTradeFeeUsd: '0.471220133939775024',
+    buyAssetTradeFeeUsd: '7.656',
     sellAssetTradeFeeUsd: '0',
     networkFee: '700000',
   },
@@ -51,34 +41,14 @@ const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
 describe('getTradeQuote', () => {
   const { quoteInput } = setupQuote()
   const { adapterManager } = setupThorswapDeps()
-  const deps = {
+  const deps: ThorchainSwapperDeps = {
     midgardUrl: '',
     daemonUrl: '',
     adapterManager,
-  } as unknown as ThorchainSwapperDeps
+    web3: <Web3>{},
+  }
 
-  const wallet = {
-    supportsOfflineSigning: jest.fn(() => true),
-  } as unknown as HDWallet
-
-  it('should get a thorchain quote for a thorchain trade', async () => {
-    const addressData = [
-      {
-        router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-        address: '0x084b1c3C81545d370f3634392De611CaaBFf8148',
-        chain: 'ETH',
-        gas_rate: '1',
-      },
-    ]
-    const input = {
-      ...quoteInput,
-      sellAmountCryptoPrecision: '10000000000000000000', // 100 FOX
-      buyAsset: ETH,
-      sellAsset: FOX,
-      rate: '1',
-      wallet,
-    }
-
+  beforeEach(() => {
     mockedAxios.get.mockImplementation((url) => {
       const isMidgardPoolResponse = url.includes('/pool/')
       const isThornodePoolsResponse = url.includes('lcd/thorchain/pools')
@@ -90,11 +60,20 @@ describe('getTradeQuote', () => {
           case isThornodePoolsResponse:
             return [ethThornodePool, foxThornodePool]
           default:
-            return addressData
+            return mockInboundAddresses
         }
       })()
       return Promise.resolve({ data })
     })
+  })
+
+  it('should get a thorchain quote for a thorchain trade', async () => {
+    const input: GetTradeQuoteInput = {
+      ...quoteInput,
+      sellAmountCryptoPrecision: '10000000000000000000', // 100 FOX
+      buyAsset: ETH,
+      sellAsset: FOX,
+    }
 
     const tradeQuote = await getThorTradeQuote({ deps, input })
     expect(tradeQuote).toEqual(quoteResponse)

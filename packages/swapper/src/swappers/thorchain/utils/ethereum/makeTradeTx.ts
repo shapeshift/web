@@ -6,25 +6,10 @@ import { BIP44Params } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
-import { ThorchainSwapperDeps } from '../../types'
-import { getThorTxInfo } from '../ethereum/utils/getThorTxData'
+import type { ThorchainSwapperDeps } from '../../types'
+import { getThorTxInfo } from './utils/getThorTxData'
 
-export const makeTradeTx = async ({
-  wallet,
-  bip44Params,
-  sellAmountCryptoPrecision,
-  buyAsset,
-  sellAsset,
-  destinationAddress,
-  adapter,
-  maxFeePerGas,
-  maxPriorityFeePerGas,
-  gasPrice,
-  slippageTolerance,
-  deps,
-  gasLimit,
-  buyAssetTradeFeeUsd,
-}: {
+type MakeTradeTxArgs = {
   wallet: HDWallet
   bip44Params: BIP44Params
   sellAmountCryptoPrecision: string
@@ -47,12 +32,28 @@ export const makeTradeTx = async ({
       maxFeePerGas: string
       maxPriorityFeePerGas: string
     }
-)): Promise<{
+)
+
+export const makeTradeTx = async ({
+  wallet,
+  bip44Params,
+  sellAmountCryptoPrecision,
+  buyAsset,
+  sellAsset,
+  destinationAddress,
+  adapter,
+  maxFeePerGas,
+  maxPriorityFeePerGas,
+  gasPrice,
+  slippageTolerance,
+  deps,
+  gasLimit,
+  buyAssetTradeFeeUsd,
+}: MakeTradeTxArgs): Promise<{
   txToSign: ETHSignTx
 }> => {
   try {
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
-
     const isErc20Trade = assetNamespace === 'erc20'
 
     const { data, router } = await getThorTxInfo({
@@ -70,14 +71,7 @@ export const makeTradeTx = async ({
       bip44Params,
       to: router,
       gasLimit,
-      ...(gasPrice !== undefined
-        ? {
-            gasPrice,
-          }
-        : {
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          }),
+      ...(gasPrice !== undefined ? { gasPrice } : { maxFeePerGas, maxPriorityFeePerGas }),
       value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoPrecision),
       data,
     })

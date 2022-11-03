@@ -3,14 +3,19 @@ import {
   type AssetId,
   type ChainId,
   avalancheAssetId,
+  bchAssetId,
   CHAIN_NAMESPACE,
   cosmosAssetId,
+  dogeAssetId,
   ethAssetId,
   foxAssetId,
   fromAssetId,
   fromChainId,
+  ltcAssetId,
   osmosisAssetId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   type Swapper,
@@ -192,6 +197,31 @@ export const getDefaultAssetIdPairByChainId = (
       return osmosisEnabled
         ? { sellAssetId: osmosisAssetId, buyAssetId: cosmosAssetId }
         : ethFoxPair
+    case KnownChainIds.BitcoinMainnet:
+      return {
+        sellAssetId: ethAssetId,
+        buyAssetId: btcAssetId,
+      }
+    case KnownChainIds.BitcoinCashMainnet:
+      return {
+        sellAssetId: ethAssetId,
+        buyAssetId: bchAssetId,
+      }
+    case KnownChainIds.DogecoinMainnet:
+      return {
+        sellAssetId: ethAssetId,
+        buyAssetId: dogeAssetId,
+      }
+    case KnownChainIds.LitecoinMainnet:
+      return {
+        sellAssetId: ethAssetId,
+        buyAssetId: ltcAssetId,
+      }
+    case KnownChainIds.ThorchainMainnet:
+      return {
+        sellAssetId: ethAssetId,
+        buyAssetId: thorchainAssetId,
+      }
     case KnownChainIds.EthereumMainnet:
     default:
       return ethFoxPair

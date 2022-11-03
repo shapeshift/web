@@ -1,7 +1,7 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 
 export enum DefiType {
-  LiquidityPool = 'liquidity_pool',
+  LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
   Farming = 'farming',
@@ -13,7 +13,6 @@ export enum DefiProvider {
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
   FoxEthLP = 'UNI V2',
-  // just to make sure ShapeShift provider (for foxy) is not used
   FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',

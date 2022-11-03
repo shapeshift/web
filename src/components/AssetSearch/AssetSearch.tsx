@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { logger } from 'lib/logger'
 import { selectAssetsByMarketCap } from 'state/slices/selectors'
@@ -18,9 +19,11 @@ const moduleLogger = logger.child({
 type AssetSearchProps = {
   onClick: (asset: any) => void
   filterBy?: (asset: Asset[]) => Asset[] | undefined
+  disableUnsupported?: boolean
 }
 
-export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
+export const AssetSearch = ({ onClick, filterBy, disableUnsupported }: AssetSearchProps) => {
+  const translate = useTranslate()
   const assets = useSelector(selectAssetsByMarketCap)
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
@@ -63,7 +66,7 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
           <Input
             {...register('search')}
             type='text'
-            placeholder='Search'
+            placeholder={translate('common.search')}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
             pl={10}
             variant='filled'
@@ -73,7 +76,12 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
       </Box>
       {listAssets && (
         <Box flex={1}>
-          <AssetList mb='10' assets={listAssets} handleClick={onClick} />
+          <AssetList
+            mb='10'
+            assets={listAssets}
+            handleClick={onClick}
+            disableUnsupported={disableUnsupported}
+          />
         </Box>
       )}
     </>

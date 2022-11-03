@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 
 // LP contracts
-export const foxEthPair = [foxAssetId, ethAssetId] as const
+export const foxEthPair = [ethAssetId, foxAssetId] as const
 export const foxEthLpAssetId: AssetId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 
 // Staking contracts
@@ -14,5 +14,13 @@ export const foxEthStakingAssetIdV3: AssetId =
   'eip155:1/erc20:0x212ebf9fd3c10f371557b08e993eaab385c3932b'
 export const foxEthStakingAssetIdV4: AssetId =
   'eip155:1/erc20:0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0'
+
+// Tuple of all staking contracts, to iterate over and dispatch RTK queries for
+export const foxEthStakingIds = [
+  foxEthStakingAssetIdV1,
+  foxEthStakingAssetIdV2,
+  foxEthStakingAssetIdV3,
+  foxEthStakingAssetIdV4,
+]
 
 export const STAKING_ID_DELIMITER = '*'

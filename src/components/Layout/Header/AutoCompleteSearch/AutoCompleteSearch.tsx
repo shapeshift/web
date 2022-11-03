@@ -5,6 +5,7 @@ import { debounce } from 'lodash'
 import type { FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { AssetList } from 'components/AssetSearch/AssetList'
@@ -19,6 +20,7 @@ type AssetSearchProps = {
 export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   const [isFocused, setIsFocused] = useState(false)
   const history = useHistory()
+  const translate = useTranslate()
   const assets = useSelector(selectAssetsByMarketCap)
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
@@ -65,7 +67,7 @@ export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
           <Input
             {...register('search')}
             type='text'
-            placeholder='Search'
+            placeholder={translate('common.search')}
             variant='filled'
             onFocus={() => setIsFocused(true)}
             onBlur={debounceBlur}

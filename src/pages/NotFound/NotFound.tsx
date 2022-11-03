@@ -1,5 +1,6 @@
-import { Box, Flex, Heading, Text } from '@chakra-ui/layout'
+import { Box, Flex, Heading } from '@chakra-ui/layout'
 import { Page } from 'components/Layout/Page'
+import { Text } from 'components/Text/Text'
 
 export const NotFound = () => {
   return (
@@ -7,7 +8,7 @@ export const NotFound = () => {
       <Flex minHeight='100vh' alignItems='center' justifyContent='center'>
         <Box maxWidth='300px' textAlign='center'>
           <Heading as='h1'>404</Heading>
-          <Text>The page you're looking for cannot be found</Text>
+          <Text translation='common.pageNotFound' />
         </Box>
       </Flex>
     </Page>

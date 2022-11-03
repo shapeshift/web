@@ -405,7 +405,7 @@
   },
   "transactionRow": {
     "send": "Envoi",
-    "receive": "Reçu",
+    "receive": "Réception",
     "moreDetails": "Plus de détails",
     "date": "Date",
     "txid": "ID de transaction",
@@ -1503,7 +1503,7 @@
       "average": "~ 3 min.",
       "fast": "~ 3 sec."
     },
-    "estGasCost": "Est. coût du carburant",
+    "estGasCost": "Coût du carburant estimé",
     "gasPrice": {
       "label": "Prix du carburant"
     },

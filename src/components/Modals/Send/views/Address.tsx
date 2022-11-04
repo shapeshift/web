@@ -10,7 +10,7 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
+// import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -41,7 +41,7 @@ export const Address = () => {
 
   if (!asset) return null
   const { chainId } = asset
-  const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
+  // const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
   const handleNext = () => history.push(SendRoutes.Details)
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
@@ -89,11 +89,11 @@ export const Address = () => {
                   // set returned values
                   setValue(SendFormFields.Address, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  const invalidMessage =
-                    isYatFeatureEnabled && isYatSupportedChain
-                      ? 'common.invalidAddressOrYat'
-                      : 'common.invalidAddress'
-                  return address ? true : invalidMessage
+                  // const invalidMessage =
+                  //   isYatFeatureEnabled && isYatSupportedChain
+                  //     ? 'common.invalidAddressOrYat'
+                  //     : 'common.invalidAddress'
+                  return address ? true : false
                 },
               },
             }}
@@ -101,8 +101,8 @@ export const Address = () => {
         </FormControl>
         {/* {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />} */}
       </ModalBody>
-      <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
-        <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
+      <ModalFooter>
+        <Stack flex={1}>
           <Button
             width='full'
             isDisabled={!address || !input || addressError}

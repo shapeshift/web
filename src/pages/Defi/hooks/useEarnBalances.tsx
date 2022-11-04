@@ -93,7 +93,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     () => ({
       ...baseEarnOpportunity,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
-      chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
+      chainId: fromAssetId(foxEthLpAssetId).chainId,
       underlyingFoxAmount,
       underlyingEthAmount,
       cryptoAmount: aggregatedLpAssetBalance,

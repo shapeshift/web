@@ -29,8 +29,8 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const foxFarmingOpportunities = useMemo(
     () =>
       foxFarmingOpportunitiesAggregated.map(opportunity => ({
-        ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
-        chainId: fromAssetId(opportunity.assetId).chainId,
+        ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
+        chainId: fromAssetId(foxEthLpAssetId).chainId,
         ...opportunity,
       })),
     [foxFarmingOpportunitiesAggregated],

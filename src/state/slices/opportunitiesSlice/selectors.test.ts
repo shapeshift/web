@@ -29,6 +29,10 @@ describe('opportunitiesSlice selectors', () => {
     opportunities: initialState,
   }
   describe('selects ID/s', () => {
+    const accountMetadata = {
+      byId: {},
+      ids: [gomesAccountId, fauxmesAccountId],
+    }
     const accountBalances = {
       byId: {
         [gomesAccountId]: {
@@ -84,6 +88,7 @@ describe('opportunitiesSlice selectors', () => {
       portfolio: {
         ...mockBaseState.portfolio,
         accountBalances,
+        accountMetadata,
       },
       opportunities: {
         ...initialState,

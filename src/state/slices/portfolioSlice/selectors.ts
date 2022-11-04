@@ -43,10 +43,7 @@ import {
   selectValidatorAddressParamFromFilter,
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import {
-  selectFarmContractsFiatBalance,
-  selectLpPlusFarmContractsBaseUnitBalance,
-} from 'state/slices/foxEthSlice/selectors'
+import { selectFarmContractsFiatBalance } from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import {
   accountIdToFeeAssetId,
@@ -55,6 +52,7 @@ import {
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetId } from '../foxEthSlice/constants'
+import { selectAggregatedUserStakingOpportunity } from '../selectors'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -450,7 +448,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectMarketData,
     selectBalanceThreshold,
     selectPortfolioAccounts,
-    selectLpPlusFarmContractsBaseUnitBalance,
+    selectAggregatedUserStakingOpportunity,
     (_state: ReduxState, filter: { accountId?: string }) => filter?.accountId ?? '', // TODO(gomes): selector
     (
       assetsById,
@@ -459,7 +457,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       marketData,
       balanceThreshold,
       portfolioAccounts,
-      lpPlusFarmContractsBaseUnitBalance,
+      aggregatedUserStakingOpportunity,
       accountId,
     ): AssetBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
@@ -482,8 +480,10 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         })
         return acc
       }, cloneDeep(rawBalances))
-      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] =
-        lpPlusFarmContractsBaseUnitBalance
+      // TODO: add LP portfolio amount to this
+      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] = bnOrZero(
+        aggregatedUserStakingOpportunity.stakedAmountCryptoPrecision,
+      ).toString()
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {

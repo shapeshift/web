@@ -148,6 +148,28 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
     ),
 )
 
+// "Give me the total values over all my accounts aggregated into one for each opportunity, and then aggregated these into one final value"
+// TODO: testme
+export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelector(
+  selectAggregatedUserStakingOpportunities,
+  (aggregatedOpportunities): UserStakingOpportunity & OpportunityMetadata =>
+    aggregatedOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
+      (acc, currentOpportunity) => {
+        return {
+          ...acc,
+          ...currentOpportunity,
+          stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
+            .plus(acc.stakedAmountCryptoPrecision)
+            .toString(),
+          rewardsAmountCryptoPrecision: bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision)
+            .plus(acc.rewardsAmountCryptoPrecision)
+            .toString(),
+        }
+      },
+      {} as UserStakingOpportunity & OpportunityMetadata,
+    ),
+)
+
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
 export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,

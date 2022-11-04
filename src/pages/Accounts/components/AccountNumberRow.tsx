@@ -187,7 +187,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
                   icon={<RiWindow2Line />}
                   onClick={buttonProps.onClick && buttonProps.onClick}
                 >
-                  View account
+                  {translate('accounts.viewAccount')}
                 </MenuItem>
                 <MenuItem onClick={onToggle} icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}>
                   {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}

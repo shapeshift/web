@@ -16,11 +16,9 @@ import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { YatBanner } from 'components/Banners/YatBanner'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInput } from 'lib/address/address'
 
@@ -40,7 +38,6 @@ export const Address = () => {
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   if (!asset) return null
   const { chainId } = asset
@@ -102,7 +99,7 @@ export const Address = () => {
             }}
           />
         </FormControl>
-        {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}
+        {/* {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />} */}
       </ModalBody>
       <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>

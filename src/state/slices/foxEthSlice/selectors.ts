@@ -143,16 +143,3 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
         return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
       })[0]?.accountAddress ?? '',
 )
-
-export const selectFarmContractsAccountsBalanceAggregated = createSelector(
-  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  (farmingOpportunities): string => {
-    const foxFarmingTotalCryptoAmount = (farmingOpportunities ?? [])
-      .flatMap(opportunity => opportunity)
-      .reduce(
-        (totalBalance, opportunity) => totalBalance.plus(bnOrZero(opportunity.cryptoAmount)),
-        bnOrZero(0),
-      )
-    return foxFarmingTotalCryptoAmount.toString()
-  },
-)

@@ -51,7 +51,7 @@ import {
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetId } from '../foxEthSlice/constants'
-import { selectAggregatedUserStakingOpportunity } from '../selectors'
+import { selectAggregatedUserStakingOpportunity } from 'state/slices/opportunitiesSlice/selectors'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,

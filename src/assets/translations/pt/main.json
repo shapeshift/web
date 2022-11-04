@@ -79,6 +79,21 @@
     "unsupportedNetwork": "Rede não suportada",
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}."
   },
+  "buyPage": {
+    "title": {
+      "first": "Compre Cripto",
+      "second": "Em segundos"
+    },
+    "body": "Use cartão de crédito, débito ou conta bancária. Compre Bitcoin, Ethereum, USDT USDC ou outras centenas de criptomoedas. ",
+    "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
+    "cta": {
+      "title": {
+        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negocial, ganhar recompensas e",
+        "second": "monitorar suas criptos em 8 redes diferentes."
+      }
+    },
+    "topAssets": "Maiores Ativos"
+  },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
     "cta": "Recarregar Aplicativo",
@@ -108,6 +123,8 @@
       "value": "Valor",
       "priceChange": "Variação de Preço",
       "allocation": "Alocação",
+      "marketCap": "Capitalização de Mercado",
+      "sparkLine": "Brilho",
       "empty": {
         "title": "Cri.. Cri.. Eu ouvi um grilo?",
         "cta": "Envie cripto para seu endereço"
@@ -383,7 +400,8 @@
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
     "explore": "Explorar",
-    "trade": "Negocie"
+    "trade": "Negocie",
+    "buyCrypto": "Compre Cripto"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -1430,6 +1448,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Assinatura de",
+          "requestFrom": "Requisitado por",
+          "message": "Mensagem",
+          "description": "Você precisa confirmar a assinatura da mensagem com a sua wallet conectada.",
+          "confirm": "Confirmar",
+          "reject": "Rejeitar"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Parâmetros Avançados",
+            "alert": "Somente para usuários avançados.\nModificar estas configurações pode resultar em transações não executadas.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "Nonce explicado aqui"
+            },
+            "gasLimit": {
+              "title": "Limite de Gas",
+              "placeholder": "Limite de Gas...",
+              "tooltip": "Explicação sobre o limite do gas aqui"
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps disponíveis.",
         "getStarted": "Começando",
@@ -1454,5 +1500,26 @@
         "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 minutos",
+      "average": "~ 3 minutos",
+      "fast": "~ 3 segundos"
+    },
+    "estGasCost": "Custo Estimado do Gas",
+    "gasPrice": {
+      "label": "Preço do Gas",
+      "tooltip": "TODO: Preço do Gas Tooltip"
+    },
+    "base": {
+      "label": "Taxa base",
+      "tooltip": "A taxa base é definida pela rede e muda a cada 13-14 segundos dependendo da demanda. Coloque o preço máximo (sem incluir a taxa de prioridade) em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "priority": {
+      "label": "Taxa de Prioridade",
+      "tooltip": "A taxa de prioridade é uma gorjeta opcional para incentivar os produtores de blocos a priorizar sua transação. Determine a taxa de prioridade em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "custom": "Customizar"
   }
 }

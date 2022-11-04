@@ -9,9 +9,10 @@ import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
 import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedUserStakingOpportunity,
   selectAssets,
-  selectFarmContractsFiatBalance,
   selectLpOpportunitiesById,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId,
   selectVisibleFoxFarmingAccountOpportunitiesAggregated,
@@ -96,8 +97,17 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     }),
     [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
   )
-  const farmContractsFiatBalance = useAppSelector(state =>
-    selectFarmContractsFiatBalance(state, emptyFilter),
+
+  const farmContractsAggregatedOpportunity = useAppSelector(selectAggregatedUserStakingOpportunity)
+
+  const lpAssetMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+
+  const farmContractsFiatBalance = useMemo(
+    () =>
+      bnOrZero(farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision)
+        .times(lpAssetMarketData.price)
+        .toString(),
+    [farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision, lpAssetMarketData.price],
   )
 
   const lpAssetBalanceFilter = useMemo(

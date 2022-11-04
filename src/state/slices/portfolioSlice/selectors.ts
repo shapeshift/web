@@ -43,7 +43,6 @@ import {
   selectValidatorAddressParamFromFilter,
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectFarmContractsFiatBalance } from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 import {
   accountIdToFeeAssetId,
@@ -327,17 +326,23 @@ export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
   selectTotalStakingUndelegationFiat,
-  selectFarmContractsFiatBalance,
+  selectAggregatedUserStakingOpportunity,
+  selectMarketData,
   (
     portfolioFiatBalance,
     delegationFiatBalance,
     undelegationFiatBalance,
-    foxFarmingFiatBalance,
+    farmContractsAggregatedOpportunity,
+    marketData,
   ): string => {
     return bnOrZero(portfolioFiatBalance)
       .plus(delegationFiatBalance)
       .plus(undelegationFiatBalance)
-      .plus(foxFarmingFiatBalance)
+      .plus(
+        bnOrZero(farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision).times(
+          marketData?.[farmContractsAggregatedOpportunity.assetId]?.price ?? '0',
+        ),
+      )
       .toString()
   },
 )

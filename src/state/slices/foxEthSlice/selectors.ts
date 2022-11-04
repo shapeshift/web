@@ -9,9 +9,7 @@ import {
   selectAccountAddressParamFromFilter,
   selectAccountAddressParamFromFilterOptional,
 } from 'state/selectors'
-import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
-import { foxEthLpAssetId } from './constants'
 import type { UserEarnOpportunityType } from './foxEthCommon'
 
 const farmingOpportunitiesReducer = (
@@ -156,14 +154,5 @@ export const selectFarmContractsAccountsBalanceAggregated = createSelector(
         bnOrZero(0),
       )
     return foxFarmingTotalCryptoAmount.toString()
-  },
-)
-
-export const selectFarmContractsFiatBalance = createSelector(
-  selectMarketData,
-  selectFarmContractsAccountsBalanceAggregated,
-  (marketData, foxFarmingTotalCryptoAmount) => {
-    const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
-    return bnOrZero(foxFarmingTotalCryptoAmount).times(lpTokenPrice).toFixed(2)
   },
 )

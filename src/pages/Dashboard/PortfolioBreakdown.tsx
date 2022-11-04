@@ -62,7 +62,6 @@ export const PortfolioBreakdown = () => {
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  const emptyFilter = useMemo(() => ({}), [])
   //FOX/ETH LP Balance
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
@@ -98,9 +97,7 @@ export const PortfolioBreakdown = () => {
   // TODO: This seems wrong?
   const lpBalance = underlyingFoxAmount ?? 0
   // Portfolio including Staking
-  const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, emptyFilter),
-  )
+  const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state))
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null

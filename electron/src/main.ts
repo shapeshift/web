@@ -37,17 +37,15 @@
 import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
-import { app, BrowserWindow, nativeTheme, ipcMain, shell, protocol } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, lastKnownKeepkeyState, queueIpcEvent, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
-import { getWalletconnectSession, pairWalletConnect, walletConnectClient } from './connect'
 import { Settings } from './settings'
-import { getWallectConnectUri } from './utils'
 import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
 import fs from 'fs'
 
@@ -56,37 +54,17 @@ dotenvConfig()
 log.transports.file.level = "debug";
 setupAutoUpdater()
 
-let {
-    getConfig,
-    innitConfig,
-    getWallets,
-} = require("keepkey-config")
-
-// eslint-disable-next-line react-hooks/rules-of-hooks
-
 Sentry.init({ dsn: process.env.SENTRY_DSN });
-Sentry.init({ dsn: process.env.SENTRY_DSN });
-//Modules
-
 
 export const settings = new Settings()
 
 // dont allow muliple windows to open
-const instanceLock = app.requestSingleInstanceLock();
-
+if(!app.requestSingleInstanceLock()) app.quit()
 
 const TAG = ' | MAIN | '
 
-
-
-let CONFIG
-let WALLETS
-let CONTEXT
-let isQuitting = false
 let APPROVED_ORIGINS: string[] = []
 
-let USER_APPROVED_PAIR: boolean
-let USER_REJECT_PAIR: boolean
 export let appStartCalled = false
 export let shouldShowWindow = false;
 
@@ -103,9 +81,6 @@ export const kkAutoLauncher = new AutoLaunch({
     name: 'KeepKey Desktop'
 })
 
-/*
-    Electron Settings
- */
 
 try {
     if (isWin && nativeTheme.shouldUseDarkColors === true) {
@@ -114,13 +89,9 @@ try {
     }
 } catch (_) { }
 
-// /**
-//  * Set `__statics` path to static files in production;
-//  * The reason we are setting it here is that the path needs to be evaluated at runtime
-//  */
-// if (process.env.PROD) {
-//     global.__statics = __dirname
-// }
+if (process.defaultApp) {
+    app.setAsDefaultProtocolClient('keepkey')
+}
 
 export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     log.info('Creating window!')
@@ -142,11 +113,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     }
 
     if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
-    /**
-     * Initial window options
-     *
-     * more options: https://www.electronjs.org/docs/api/browser-window
-     */
 
     windows.mainWindow = new BrowserWindow({
         width: isDev ? 1960 : 960,
@@ -158,12 +124,10 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
-            // offscreen: true,
             devTools: true
         }
     })
 
-    //TODO remove/ flag on dev
     if (isDev) windows.mainWindow.webContents.openDevTools()
 
     const startURL = isDev
@@ -175,9 +139,8 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 
     windows.mainWindow.removeAllListeners('closed')
     windows.mainWindow.removeAllListeners('ready-to-show')
-    ipcMain.removeAllListeners('@wallet/connected')
 
-    windows.mainWindow.on('closed', (event) => {
+    windows.mainWindow.on('closed', () => {
         if (windows.mainWindow) {
             windows.mainWindow.destroy()
             windows.mainWindow = undefined
@@ -188,16 +151,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         shouldShowWindow = true;
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
-
-    ipcMain.on('@wallet/connected', async (event, data) => {
-        resolve(true)
-        const walletConnectUri = getWallectConnectUri(process.argv[process.argv.length - 1])
-        if (walletConnectUri) pairWalletConnect(walletConnectUri)
-        const previousSession = await getWalletconnectSession()
-        if (!walletConnectClient && previousSession && !walletConnectUri) {
-            pairWalletConnect(undefined, previousSession)
-        }
-    })
 
     db.findOne({ type: 'user' }, (err, doc) => {
         if (doc) shared.USER = doc.user
@@ -221,39 +174,18 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     });
 })
 
-
-if (process.defaultApp) {
-    app.setAsDefaultProtocolClient('keepkey')
-}
-// Export so you can access it from the renderer thread
-
-if (!isWin) {
-    app.on('open-url', (event, url) => {
-        const walletConnectUri = getWallectConnectUri(url)
-        if (walletConnectUri) pairWalletConnect(walletConnectUri)
-    })
-}
-
-if (!instanceLock) {
-    app.quit();
-} else {
-    app.on("second-instance", async (event, argv, workingDirectory) => {
-        if (windows.mainWindow) {
-            if (windows.mainWindow.isDestroyed()) {
-                await createWindow();
-            } else if (windows.mainWindow.isMinimized()) {
-                windows.mainWindow.restore();
-            }
-            windows.mainWindow.focus();
-        } else {
+app.on("second-instance", async () => {
+    if (windows.mainWindow) {
+        if (windows.mainWindow.isDestroyed()) {
             await createWindow();
+        } else if (windows.mainWindow.isMinimized()) {
+            windows.mainWindow.restore();
         }
-        if (isWin) {
-            const walletConnectUri = getWallectConnectUri(argv[argv.length - 1])
-            if (walletConnectUri) pairWalletConnect(walletConnectUri)
-        }
-    });
-}
+        windows.mainWindow.focus();
+    } else {
+        await createWindow();
+    }
+});
 
 app.on('window-all-closed', () => {
     if (!bridgeRunning || !settings.shouldMinimizeToTray) app.quit()
@@ -263,18 +195,9 @@ app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-app.on('before-quit', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isQuitting = true
-})
-
-
-
-
 ipcMain.on('@account/info', async (event, data) => {
     const tag = TAG + ' | onAccountInfo | '
     try {
-        //console.log("data: ", data)
         if (data.length > 0 && shared.USER.accounts.length === 0) {
             shared.USER.online = true
             for (let i = 0; i < data.length; i++) {
@@ -328,52 +251,6 @@ ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
 })
 
-ipcMain.on('@app/sentry-dsn', (event, data) => {
-    event.sender.send('@app/sentry-dsn', process.env.SENTRY_DSN)
-})
-
-
-
-
-
-
-
-
-ipcMain.on('@bridge/stop', async event => {
-    const tag = TAG + ' | onStartBridge | '
-    try {
-        await stop_bridge()
-    } catch (e) {
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@bridge/start', async event => {
-    const tag = TAG + ' | onStartBridge | '
-    console.log(tag)
-    console.log(bridgeRunning)
-    try {
-        if (!bridgeRunning) {
-            await start_bridge(settings.bridgeApiPort)
-        }
-    } catch (e) {
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@bridge/running', (event, data) => {
-    event.sender.send('@bridge/running', bridgeRunning)
-})
-
-ipcMain.on('@walletconnect/pair', async (event, data) => {
-    const tag = TAG + ' | onPairWalletConnect | '
-    try {
-        pairWalletConnect(data)
-    } catch (e) {
-        log.error(tag, e)
-    }
-})
-
 ipcMain.on('@app/start', async (event, data) => {
     appStartCalled = true
     const tag = TAG + ' | onStartApp | '
@@ -396,37 +273,9 @@ ipcMain.on('@app/start', async (event, data) => {
         }
 
         try {
-            //is there config
-            let config = getConfig()
-            console.log("config: ", config)
-
-            if (!config) {
-                //if not init
-                await innitConfig()
-                config = getConfig()
-            }
-            CONFIG = config
-
-            //wallets
-            WALLETS = await getWallets()
-
-        } catch (e) {
-            log.error('Failed to create tray! e: ', e)
-        }
-
-        try {
-            // createTray(event)
-        } catch (e) {
-            log.error('Failed to create tray! e: ', e)
-        }
-        try {
             if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
-        }
-
-        if (walletConnectClient && walletConnectClient.connected && walletConnectClient.session.peerMeta) {
-            event.sender.send('@walletconnect/paired', walletConnectClient.session.peerMeta)
         }
     } catch (e) {
         log.error('e: ', e)

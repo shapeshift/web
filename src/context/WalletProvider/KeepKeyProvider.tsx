@@ -26,8 +26,11 @@ import React, {
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
+import Web3 from 'web3'
 import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { erc20Abi } from 'pages/Leaderboard/helpers/erc20Abi'
+import { nftAbi } from 'pages/Leaderboard/helpers/nftAbi'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
@@ -96,6 +99,9 @@ export interface IKeepKeyContext {
   keepKeyWallet: KeepKeyHDWallet | undefined
   getKeepkeyAssets: () => KKAsset[]
   getKeepkeyAsset: (geckoId: string) => KKAsset | undefined
+  kkWeb3: Web3 | undefined
+  kkNftContract: any
+  kkErc20Contract: any
 }
 
 export type KeepKeyActionTypes =
@@ -142,6 +148,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
 
   const [keepkeyAssets, setKeepkeyAssets] = useState<KKAsset[]>([])
 
+  const [kkWeb3, setkkWeb3] = useState<Web3>()
+  const [kkNftContract, setkkNftContract] = useState<any>()
+  const [kkErc20Contract, setkkErc20Contract] = useState<any>()
+
   const loadKeepkeyAssets = useCallback(async () => {
     const { data } = await axios.get(
       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false',
@@ -174,6 +184,28 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   useEffect(() => {
     loadKeepkeyAssets()
   }, [loadKeepkeyAssets])
+
+  const loadWeb3 = useCallback(() => {
+    const network = 'goerli'
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(
+        `https://${network}.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
+      ),
+    )
+
+    const erc20Address = '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3'
+    const nftAddress = '0xa869a28a7185df50e4abdba376284c44497c4753'
+    const nftContract = new web3.eth.Contract(nftAbi as any, nftAddress)
+    const erc20Contract = new web3.eth.Contract(erc20Abi as any, erc20Address)
+
+    setkkWeb3(web3)
+    setkkNftContract(nftContract)
+    setkkErc20Contract(erc20Contract)
+  }, [])
+
+  useEffect(() => {
+    loadWeb3()
+  }, [loadWeb3])
 
   const getKeepkeyAssets = useMemo(() => () => keepkeyAssets, [keepkeyAssets])
 
@@ -283,8 +315,20 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       setHasPassphrase,
       getKeepkeyAssets,
       getKeepkeyAsset,
+      kkWeb3,
+      kkNftContract,
+      kkErc20Contract,
     }),
-    [keepKeyWallet, setHasPassphrase, state, getKeepkeyAssets, getKeepkeyAsset],
+    [
+      state,
+      keepKeyWallet,
+      setHasPassphrase,
+      getKeepkeyAssets,
+      getKeepkeyAsset,
+      kkWeb3,
+      kkNftContract,
+      kkErc20Contract,
+    ],
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

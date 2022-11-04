@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
@@ -12,8 +13,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceFoxFarmingOpportunityAccountAddress,
-  selectHighestBalanceFoxLpOpportunityAccountAddress,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
@@ -48,9 +49,13 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     [stakingOpportunitiesById],
   )
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const highestLpBalanceAccountAddress = useAppSelector(state =>
-    selectHighestBalanceFoxLpOpportunityAccountAddress(state, emptyFilter),
+  const lpOpportunityId = foxEthLpAssetId
+  const highestBalanceLpAccountIdFilter = useMemo(
+    () => ({ lpId: lpOpportunityId }),
+    [lpOpportunityId],
+  )
+  const highestBalanceLpAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
   const otherOpportunities = useMemo(() => {
@@ -92,7 +97,9 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-              highestBalanceAccountAddress: highestLpBalanceAccountAddress,
+              highestBalanceAccountAddress: highestBalanceLpAccountId
+                ? fromAccountId(highestBalanceLpAccountId).account
+                : '',
             },
           ],
         },
@@ -135,8 +142,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     assetId,
     defaultLpOpportunityData,
     defaultStakingOpportunityData,
+    highestBalanceLpAccountId,
     highestFarmingBalanceAccountAddress,
-    highestLpBalanceAccountAddress,
   ])
 
   return otherOpportunities

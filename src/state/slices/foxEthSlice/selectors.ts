@@ -147,17 +147,6 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
       })[0]?.accountAddress ?? '',
 )
 
-// Aggregations give precisely that, an aggregation
-// When going from the context of an aggregation (e.g a DeFi card), to a specific account, we don't yet know which account has a / the highest balance
-// By selecting the account with the highest balance, we ensure that we select an account with an actual balance for a given LP opportunity
-export const selectHighestBalanceFoxLpOpportunityAccountAddress = createSelector(
-  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  opportunities =>
-    opportunities.sort((a, b) => {
-      return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
-    })[0]?.accountAddress ?? '',
-)
-
 export const selectFarmContractsAccountsBalanceAggregated = createSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
   (farmingOpportunities): string => {

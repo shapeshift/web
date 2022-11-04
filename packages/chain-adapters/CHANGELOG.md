@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.2.0...@shapeshiftoss/chain-adapters-v10.2.1) (2022-11-04)
+
+
+### Bug Fixes
+
+* use chain reference as chain id ([#1083](https://github.com/shapeshift/lib/issues/1083)) ([87e9b0b](https://github.com/shapeshift/lib/commit/87e9b0b48f1bd752704b6e7ca23321ef10a95067))
+
 # [@shapeshiftoss/chain-adapters-v10.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.1.3...@shapeshiftoss/chain-adapters-v10.2.0) (2022-10-31)
 
 

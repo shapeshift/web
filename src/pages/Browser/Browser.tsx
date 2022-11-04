@@ -39,6 +39,7 @@ export const Browser = () => {
   useEffect(() => {
     const webview: any = document.getElementById('webview')
     if (!webview) return
+    webview.autosize = 'on'
     setHasMounted(true)
     webview.addEventListener('did-start-loading', () => {
       setLoading(true)
@@ -67,8 +68,8 @@ export const Browser = () => {
   }
 
   return (
-    <Main titleComponent={<BrowserHeader />}>
-      <Stack direction={{ base: 'column', md: 'column' }} spacing={6}>
+    <Main titleComponent={<BrowserHeader />} height='full'>
+      <Stack direction={{ base: 'column', md: 'column' }} spacing={6} height='full'>
         <form onSubmit={loadUrl}>
           <HStack>
             <Input
@@ -83,6 +84,7 @@ export const Browser = () => {
         </form>
 
         <Card
+          height='full'
           flex={1}
           style={
             url === ''
@@ -92,13 +94,12 @@ export const Browser = () => {
               : {}
           }
         >
-          <Card.Body>
+          <Card.Body height='full'>
             <webview
               id='webview'
               src={url}
               style={{
-                width: '100%',
-                height: url !== '' ? '50em' : '0px',
+                minHeight: url !== '' ? '60em' : '0px',
               }}
             ></webview>
           </Card.Body>

@@ -61,6 +61,7 @@
                 relaunch: "Relaunching...",
                 launch: "Launching...",
                 skipCheck: "Skipping update checks...",
+                errorReset: "Please unplug and re-connect your KeepKey",
                 notfound: "No updates found..."
             };
             ipcRenderer.on('@update/download', () => {
@@ -79,6 +80,9 @@
             });
             ipcRenderer.on('@update/skipCheck', () => {
                 header.textContent = text.skipCheck;
+            });
+            ipcRenderer.on('@update/errorReset', () => {
+                header.textContent = text.errorReset;
             });
             ipcRenderer.on('@update/notfound', () => {
                 header.textContent = text.notfound;

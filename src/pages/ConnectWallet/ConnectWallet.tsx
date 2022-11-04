@@ -1,13 +1,12 @@
 import { DarkMode } from '@chakra-ui/color-mode'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Center, Circle, Flex, Link } from '@chakra-ui/layout'
-import { Button } from '@chakra-ui/react'
+import { Flex, Link } from '@chakra-ui/layout'
+import { Button, Image } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
-import AuroraBg from 'assets/aurorabg.jpg'
-import { AuroraBackground } from 'components/AuroraBackground'
-import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import logo from 'assets/kk-icon-gold.png'
+import heroBgImage from 'assets/splash-bg.png'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -45,30 +44,38 @@ export const ConnectWallet = () => {
     <Page>
       <DarkMode>
         <Flex
-          backgroundImage={AuroraBg}
+          backgroundImage={heroBgImage}
           backgroundSize='cover'
           backgroundPosition='bottom center'
-          width='100vw'
+          width='100%'
+          height='100%'
           alignItems='center'
-          justifyContent='center'
-        >
-          <Flex flexDir='column' zIndex={4} width='full'>
-            <Center flexDir='column' height='100vh' px={6}>
-              <Circle size='100px' mb={6}>
-                <KeepKeyIcon boxSize='100%' color='white' />
-              </Circle>
-              <Flex
-                flexDir='row'
-                textAlign='center'
-                letterSpacing='-4px'
-                fontSize={{ base: '6xl', lg: '8xl' }}
-                mb={6}
-              >
-                <RawText color='white' fontWeight='light' lineHeight='1' userSelect={'none'}>
-                  {translate('connectWalletPage.exploreThe')}{' '}
-                  <RawText color='white' fontWeight='bold' as='span'>
-                    {translate('connectWalletPage.defiUniverse')}
-                  </RawText>
+          justifyContent='center'>
+          <Flex
+            flexDir='column'
+            alignItems='center'
+            justifyContent='center'
+            zIndex={4}
+            width='100vw'
+            height='100vh'>
+            <Flex
+              flex={1}
+              flexDir='column'
+              justifyContent='center'
+              height='100vh'
+              width='60%'
+              px={6}>
+              <Image objectFit='cover' width='70px' src={logo} />
+              <Flex flexDir='row' letterSpacing='-2px' my={6}>
+                <RawText
+                  textAlign='left'
+                  color='white'
+                  width='80%'
+                  fontWeight='light'
+                  lineHeight={1}
+                  fontSize='6xl'
+                  userSelect={'none'}>
+                  {translate('connectWalletPage.nextFrontier')}
                 </RawText>
               </Flex>
               <Text
@@ -76,21 +83,19 @@ export const ConnectWallet = () => {
                 color='white'
                 fontSize='lg'
                 mb={12}
-                textAlign='center'
-                translation={
-                  isMigrationMessageEnabled ? 'connectWalletPage.body2' : 'connectWalletPage.body'
-                }
+                textAlign='left'
+                translation='connectWalletPage.protectYourCrypto'
               />
               <Button
                 as={Link}
                 isExternal
+                width='160px'
                 href='https://keepkey.myshopify.com/'
                 rightIcon={<ExternalLinkIcon />}
-                colorScheme='blue'
-              >
+                colorScheme='blue'>
                 {translate('connectWalletPage.buyKeepKey')}
               </Button>
-            </Center>
+            </Flex>
             <Flex
               direction={'column'}
               gap={4}
@@ -100,37 +105,32 @@ export const ConnectWallet = () => {
               py={3}
               px={4}
               bottom={0}
-              alignItems={'center'}
-            >
+              alignItems={'center'}>
               <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
                 <Link
                   href='/#/legal/terms-of-service'
                   color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
+                  _hover={{ color: 'white' }}>
                   <Text translation='common.terms' />
                 </Link>
                 <Link
                   href='/#/legal/privacy-policy'
                   color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
+                  _hover={{ color: 'white' }}>
                   <Text translation='common.privacy' />
                 </Link>
                 {isMigrationMessageEnabled && (
                   <Link
-                    href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
+                    href='https://github.com/shapeshift'
                     isExternal
                     color='whiteAlpha.500'
-                    _hover={{ color: 'white' }}
-                  >
-                    <Text translation='connectWalletPage.betaSunset' />
+                    _hover={{ color: 'white' }}>
+                    <Text translation='connectWalletPage.poweredBy' />
                   </Link>
                 )}
               </Flex>
             </Flex>
           </Flex>
-          <AuroraBackground />
         </Flex>
       </DarkMode>
     </Page>

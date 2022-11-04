@@ -99,7 +99,7 @@ export const Browser = () => {
               id='webview'
               src={url}
               style={{
-                minHeight: '60em',
+                minHeight: url !== '' ? '60em' : '0px',
               }}
             ></webview>
           </Card.Body>

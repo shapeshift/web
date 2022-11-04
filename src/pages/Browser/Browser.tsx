@@ -40,7 +40,6 @@ export const Browser = () => {
     const webview: any = document.getElementById('webview')
     if (!webview) return
     webview.autosize = 'on'
-    webview.minheight = '50vh'
     setHasMounted(true)
     webview.addEventListener('did-start-loading', () => {
       setLoading(true)

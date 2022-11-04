@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxyAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
@@ -17,9 +17,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import {
+  LP_EARN_OPPORTUNITIES,
+  STAKING_EARN_OPPORTUNITIES,
+} from 'state/slices/opportunitiesSlice/constants'
+import {
+  selectAggregatedUserStakingOpportunities,
   selectAssetById,
-  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  selectVisibleFoxFarmingAccountOpportunities,
+  selectLpOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,19 +47,31 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const { vaults } = useVaultBalances()
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const filter = useMemo(
+  const foxFarmingOpportunitiesAggregated = useAppSelector(selectAggregatedUserStakingOpportunities)
+  const foxFarmingOpportunities = useMemo(
+    () =>
+      foxFarmingOpportunitiesAggregated.map(opportunity => ({
+        ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
+        chainId: fromAssetId(foxEthLpAssetId).chainId,
+        ...opportunity,
+      })),
+    [foxFarmingOpportunitiesAggregated],
+  )
+
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const foxEthLpOpportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId],
+    [lpOpportunitiesById],
+  )
+
+  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[foxEthLpOpportunityData?.underlyingAssetId]
+  const foxEthLpOpportunity = useMemo(
     () => ({
-      accountAddress: accountId ? fromAccountId(accountId ?? '').account : '',
+      ...baseEarnOpportunity,
+      ...foxEthLpOpportunityData,
+      chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
     }),
-    [accountId],
-  )
-
-  const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunities(state, filter),
-  )
-
-  const foxEthLpOpportunitiesWrapped = useAppSelector(state =>
-    selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress(state, filter),
+    [baseEarnOpportunity, foxEthLpOpportunityData],
   )
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
@@ -71,8 +87,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     vaultArray: Object.values(vaults),
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity: foxEthLpOpportunitiesWrapped[0],
-    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
+    foxEthLpOpportunity,
+    foxFarmingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

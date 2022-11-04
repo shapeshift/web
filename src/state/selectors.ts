@@ -7,20 +7,6 @@ import type { ReduxState } from './reducer'
 import type { LpId, StakingId, UserStakingId } from './slices/opportunitiesSlice/types'
 import type { PubKey } from './slices/validatorDataSlice/validatorDataSlice'
 
-// List of all the params filter consumed with selectParamFromFilter
-type ParamFilter = {
-  accountAddress: string
-  contractAddress: string
-  assetId: AssetId
-  accountId: AccountId
-  accountNumber: number
-  chainId: ChainId
-  validatorAddress: PubKey
-  userStakingId: UserStakingId
-  stakingId: StakingId
-  lpId: LpId
-}
-
 // List of all the params filter consumed with selectParamFromFilterOptional
 type OptionalParamFilter = {
   accountAddress?: string
@@ -28,26 +14,32 @@ type OptionalParamFilter = {
   assetId?: AssetId
   accountId?: AccountId
   validatorAddress?: PubKey
+  accountNumber?: number
+  chainId?: ChainId
+  userStakingId?: UserStakingId
+  stakingId?: StakingId
+  lpId?: LpId
 }
 
-type ParamFilterKey = keyof ParamFilter
 type OptionalParamFilterKey = keyof OptionalParamFilter
 
-export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
-  createCachedSelector(
-    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | '' =>
-      filter?.[param] ?? '',
-    param => param,
-  )((_state: ReduxState, filter: Pick<ParamFilter, T>) => filter?.[param] ?? param)
 export const selectParamFromFilterOptional = <T extends OptionalParamFilterKey>(param: T) =>
   createCachedSelector(
-    (_state: ReduxState, filter: Pick<OptionalParamFilter, T>): OptionalParamFilter[T] | '' =>
-      filter?.[param] ?? '',
+    (
+      _state: ReduxState,
+      filter: Pick<OptionalParamFilter, T>,
+    ): OptionalParamFilter[T] | undefined => {
+      const result = filter?.[param]
+      if (!result) console.warn(`no result for param ${param}`)
+      return result
+    },
     param => param,
   )(
     (_state: ReduxState, filter: Pick<OptionalParamFilter, T>) =>
       `${param}-${filter?.[param]}` ?? param,
   )
+
+export const selectParamFromFilter = selectParamFromFilterOptional
 
 export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')

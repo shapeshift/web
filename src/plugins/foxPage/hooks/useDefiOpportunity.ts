@@ -1,12 +1,13 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { assets } from 'state/slices/assetsSlice/assetsSlice'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAssets,
   selectFoxFarmingAccountsOpportunitiesAggregated,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -16,6 +17,7 @@ import { useAppSelector } from 'state/store'
 import type { ExternalOpportunity } from '../FoxCommon'
 
 export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
+  const assets = useSelector(selectAssets)
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)
   const foxFarmingOpportunities = useAppSelector(state =>
     selectFoxFarmingAccountsOpportunitiesAggregated(state, emptyFilter),
@@ -44,6 +46,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
       ),
     [
       aggregatedLpAssetBalance,
+      assets,
       opportunityData?.underlyingAssetIds,
       opportunityData.underlyingAssetRatios,
     ],

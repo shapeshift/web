@@ -28,7 +28,7 @@ import {
   selectAssets,
   selectLpOpportunitiesById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -81,14 +81,18 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   )
   const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
 
-  const aggregatedLpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
+  // TODO: I'm a dummy and this shouldn't need to be the aggregated one
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, {
+      assetId: foxEthLpAssetId,
+      accountId: accountId ?? '',
+    }),
   )
 
   const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
     () =>
       opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
+        bnOrZero(lpAssetBalance)
           .times(
             fromBaseUnit(
               opportunityData?.underlyingAssetRatios[i] ?? '0',
@@ -99,7 +103,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
           .toString(),
       ) ?? ['0', '0'],
     [
-      aggregatedLpAssetBalance,
+      lpAssetBalance,
       assets,
       opportunityData?.underlyingAssetIds,
       opportunityData?.underlyingAssetRatios,
@@ -114,11 +118,11 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
       chainId: fromAssetId(foxEthLpAssetId).chainId,
       underlyingFoxAmount,
       underlyingEthAmount,
-      cryptoAmount: aggregatedLpAssetBalance,
+      cryptoAmount: lpAssetBalance,
       // TODO: this all goes away anyway
       fiatAmount: '42',
     }),
-    [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
+    [lpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
   )
 
   // user info

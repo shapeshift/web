@@ -1,6 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_REFERENCE,
   ethAssetId,
@@ -23,10 +24,15 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectAssets,
+  selectLpOpportunitiesById,
   selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByFilter,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -39,6 +45,7 @@ import { DepositContext } from '../DepositContext'
 type StatusProps = { accountId: Nullable<AccountId> }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
+  const assets = useAppSelector(selectAssets)
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -49,10 +56,54 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [accountId],
   )
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const opportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    [lpOpportunitiesById],
+  )
+  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
+
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, {
+      assetId: foxEthLpAssetId,
+      accountId: accountId ?? '',
     }),
+  )
+
+  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
+    () =>
+      opportunityData?.underlyingAssetIds.map((assetId, i) =>
+        bnOrZero(lpAssetBalance)
+          .times(
+            fromBaseUnit(
+              opportunityData?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
+          .toFixed(6)
+          .toString(),
+      ) ?? ['0', '0'],
+    [
+      assets,
+      lpAssetBalance,
+      opportunityData?.underlyingAssetIds,
+      opportunityData?.underlyingAssetRatios,
+    ],
+  )
+
+  // TODO: toEarnOpportunity util something something
+  const foxEthLpOpportunity = useMemo(
+    () => ({
+      ...baseEarnOpportunity,
+      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
+      chainId: fromAssetId(foxEthLpAssetId).chainId,
+      underlyingFoxAmount,
+      underlyingEthAmount,
+      cryptoAmount: lpAssetBalance,
+      // TODO: this all goes away anyway
+      fiatAmount: '42',
+    }),
+    [lpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
   )
 
   const feeAssetId = toAssetId({

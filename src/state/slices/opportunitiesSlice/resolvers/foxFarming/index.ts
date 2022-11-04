@@ -37,8 +37,7 @@ import type {
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { ReduxApi } from '../types'
-import { fetchPairData } from '../utils'
-import { getOrCreateContract } from './contractManager'
+import { fetchPairData, getOrCreateContract } from './contractManager'
 
 export const foxFarmingLpMetadataResolver = async ({
   opportunityId,

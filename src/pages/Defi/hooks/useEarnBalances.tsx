@@ -11,9 +11,9 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssets,
   selectFarmContractsFiatBalance,
-  selectFoxEthLpFiatBalance,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId,
   selectVisibleFoxFarmingAccountOpportunitiesAggregated,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -56,7 +56,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],
     [lpOpportunitiesById],
   )
-  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.underlyingAssetId]
+  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
 
   const aggregatedLpAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
@@ -99,7 +99,16 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const farmContractsFiatBalance = useAppSelector(state =>
     selectFarmContractsFiatBalance(state, emptyFilter),
   )
-  const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
+
+  const lpAssetBalanceFilter = useMemo(
+    () => ({
+      assetId: foxEthLpAssetId ?? '',
+    }),
+    [],
+  )
+  const foxEthLpFiatBalance = useAppSelector(state =>
+    selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
+  )
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,

@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import keys from 'lodash/keys'
+import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -157,34 +156,6 @@ export const selectFarmContractsAccountsBalanceAggregated = createSelector(
         bnOrZero(0),
       )
     return foxFarmingTotalCryptoAmount.toString()
-  },
-)
-
-// Redeclared here because of circular deps
-const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
-
-export const selectFoxEthLpFiatBalance = createSelector(
-  selectMarketData,
-  selectPortfolioAccounts,
-  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
-  (state: ReduxState) => state.foxEth,
-  (marketData, portfolioAccounts, foxEthState) => {
-    // Cannot use selectAccountIdsByAssetId because of a. circular deps and b. it applying balance threshold
-    const accountIds = keys(portfolioAccounts).filter(
-      accountId => fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Evm,
-    )
-    const accountAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
-    const lpOpportunities = accountAddresses
-      .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
-      .filter(Boolean)
-
-    const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
-    const lpOpportunitiesCryptoAmount = lpOpportunities.reduce((acc, currentLpOpportunity) => {
-      acc = acc.plus(currentLpOpportunity?.cryptoAmount ?? 0)
-
-      return acc
-    }, bn(0))
-    return bnOrZero(lpOpportunitiesCryptoAmount).times(lpTokenPrice).toFixed(2)
   },
 )
 

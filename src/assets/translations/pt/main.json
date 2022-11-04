@@ -79,6 +79,14 @@
     "unsupportedNetwork": "Rede não suportada",
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}."
   },
+  "buyPage": {
+    "title": {
+    },
+    "cta": {
+      "title": {
+      }
+    }
+  },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
     "cta": "Recarregar Aplicativo",
@@ -1430,6 +1438,18 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "signMessage": {
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "nonce": {
+            },
+            "gasLimit": {
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps disponíveis.",
         "getStarted": "Começando",
@@ -1453,6 +1473,16 @@
         "title": "Pegue um Yat",
         "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
       }
+    }
+  },
+  "gasInput": {
+    "duration": {
+    },
+    "gasPrice": {
+    },
+    "base": {
+    },
+    "priority": {
     }
   }
 }

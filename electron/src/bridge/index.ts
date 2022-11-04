@@ -93,10 +93,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
 
     bridgeRunning = true
 
-    log.info("Starting Hardware Controller")
-
     Controller.events.on('logs', async function (event) {
-        console.log('event is', event)
         if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
             queueIpcEvent('requestBootloaderMode', {})
         } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
@@ -117,8 +114,15 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
         queueIpcEvent('@keepkey/hardwareError', { event })
     })
 
-    //Init MUST be AFTER listeners are made (race condition)
-    await Controller.init()
+
+    try {
+        await Controller.init()
+    } catch (e) {
+        // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
+        // We need to have them unplug and fully exit the app to fix it
+        app.quit()
+        process.exit()
+    }
 
     ipcMain.on('@keepkey/update-firmware', async event => {
             let result = await getLatestFirmwareData()
@@ -129,9 +133,9 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
                 bootloader: true,
                 success: true
             })
-            app.quit();
+            app.quit()
             app.relaunch();
-    })
+        })
 
     ipcMain.on('@keepkey/update-bootloader', async event => {
         let result = await getLatestFirmwareData()

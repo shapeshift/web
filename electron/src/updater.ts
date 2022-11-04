@@ -113,12 +113,22 @@ export const skipUpdateCheck = (splash: BrowserWindow) => {
     if (skipUpdateTimeout) {
         clearTimeout(skipUpdateTimeout);
     }
+
+    let intervalCount = 0
     windowShowInterval = setInterval(() => {
+        intervalCount++
+
+        // hacky way to detect keepkey error and tell them to unplug
+        if(intervalCount >= 10) {
+            clearInterval(windowShowInterval)
+            splash.webContents.send("@update/errorReset")
+        }
+
         if (shouldShowWindow) {
-            if (windows.splash) splash.webContents.send("@update/launch");
-            clearInterval(windowShowInterval);
+            if (windows.splash) splash.webContents.send("@update/launch")
+            clearInterval(windowShowInterval)
             setTimeout(() => {
-                if (windows.splash) splash.destroy();
+                if (windows.splash) splash.destroy()
                 if (windows.mainWindow) windows.mainWindow.show();
             }, 800);
         }

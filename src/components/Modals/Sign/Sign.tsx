@@ -91,8 +91,8 @@ export const SignModal = (input: any) => {
         //TODO validate payload
         //TODO validate fee's
         //TODO load EV data
-        console.log('unsignedTx: ', unsignedTx)
-        console.log('unsignedTx.network: ', unsignedTx.network)
+        // console.log('unsignedTx: ', unsignedTx)
+        // console.log('unsignedTx.network: ', unsignedTx.network)
         let signedTx: any
         let broadcastString
         let buffer
@@ -181,7 +181,7 @@ export const SignModal = (input: any) => {
     ipcRenderer.send('@modal/sign-close', {})
     setIsApproved(false)
     close()
-  }, [input, nonce, gasLimit, gasPrice, signTx, close])
+  }, [input, nonce, gasLimit, gasPrice, signTx, close, wallet])
 
   // @ts-ignore
   return (

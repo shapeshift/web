@@ -61,9 +61,9 @@ export const KeepKeyMenu = () => {
   }
 
   const handleRemovePinClick = useCallback(() => {
-    console.log('KEEPKEY SDK', keepkeySdk)
+    // console.log('KEEPKEY SDK', keepkeySdk)
     if (!keepkeySdk) return
-    keepkeySdk.developer.removePin({ body: {} }).then(resp => console.log(resp.data))
+    keepkeySdk.developer.removePin({ body: {} })
     dispatch({
       type: WalletActions.OPEN_KEEPKEY_PIN,
       payload: {
@@ -71,7 +71,7 @@ export const KeepKeyMenu = () => {
         pinRequestType: PinMatrixRequestType.REMOVE,
       },
     })
-  }, [keepkeySdk])
+  }, [keepkeySdk,dispatch,deviceId])
 
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'

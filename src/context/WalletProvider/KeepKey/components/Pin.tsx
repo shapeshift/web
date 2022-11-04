@@ -58,17 +58,18 @@ export const KeepKeyPin = ({
   const handleSubmit = async () => {
     console.log('handle submit pin')
     setError(null)
-    if (translationType !== 'remove') setDeviceState({
-      isDeviceLoading: true,
-    })
+    if (translationType !== 'remove')
+      setDeviceState({
+        isDeviceLoading: true,
+      })
     setLoading(true)
     const pin = pinFieldRef.current?.value
     if (pin && pin.length > 0) {
       try {
         // The event handler will pick up the response to the sendPin request
-        console.log('about to send pin', wallet)
+        // console.log('about to send pin', wallet)
         await wallet?.sendPin(pin)
-        console.log('done sending pin')
+        // console.log('done sending pin')
         if (translationType === 'remove') return setLoading(false)
         switch (disposition) {
           case 'recovering':

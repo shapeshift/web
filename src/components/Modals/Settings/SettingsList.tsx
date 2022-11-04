@@ -89,7 +89,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
 
   useEffect(() => {
     ipcRenderer.on('@app/settings', (_event, data) => {
-      console.log('APP SETTINGS RECIEVED', data)
+      // console.log('APP SETTINGS RECIEVED', data)
       setAppSettings(data)
     })
   }, [])
@@ -104,7 +104,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     )
       return
     setPrevAppSettings(appSettings)
-    console.log('APP SETTINGS SAVED')
+    // console.log('APP SETTINGS SAVED')
     ipcRenderer.send('@app/update-settings', appSettings)
   }, [appSettings])
 

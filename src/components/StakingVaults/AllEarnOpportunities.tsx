@@ -15,6 +15,7 @@ import { fromBaseUnit } from 'lib/math'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
+import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssets,
@@ -49,6 +50,8 @@ export const AllEarnOpportunities = () => {
     [lpOpportunitiesById],
   )
 
+  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.underlyingAssetId]
+
   const aggregatedLpAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
   )
@@ -67,13 +70,26 @@ export const AllEarnOpportunities = () => {
       ),
     [
       aggregatedLpAssetBalance,
+      assets,
       opportunityData?.underlyingAssetIds,
       opportunityData.underlyingAssetRatios,
     ],
   )
 
   // TODO: toEarnOpportunity util something something
-  const foxEthLpOpportunity = useMemo(() => ({}), [])
+  const foxEthLpOpportunity = useMemo(
+    () => ({
+      ...baseEarnOpportunity,
+      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
+      chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
+      underlyingFoxAmount,
+      underlyingEthAmount,
+      cryptoAmount: aggregatedLpAssetBalance,
+      // TODO: this all goes away anyway
+      fiatAmount: '42',
+    }),
+    [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
+  )
 
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {

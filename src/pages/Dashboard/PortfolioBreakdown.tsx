@@ -79,7 +79,7 @@ export const PortfolioBreakdown = () => {
   // This is effectively coming back to the previous implementation with specific fields we don't need like
   // `underlyingFoxAmount` and `underlyingEthAmount`, surely we can pass the LP token value and calculate this in place
   // The `useXYZDefiNormalizedStakingEarnDefiSomethingOPportunities` hooks are going away soon so this isn't staying here for long
-  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
+  const [, underlyingFoxAmount] = useMemo(
     () =>
       opportunityData?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
@@ -95,10 +95,8 @@ export const PortfolioBreakdown = () => {
     ],
   )
 
-  // TODO: toEarnOpportunity util something something
-  const foxEthLpOpportunity = useMemo(() => ({}), [])
-
-  const lpBalance = opportunityData?.underlyingFoxAmount ?? 0
+  // TODO: This seems wrong?
+  const lpBalance = underlyingFoxAmount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state =>
     selectPortfolioTotalFiatBalanceWithStakingData(state, emptyFilter),

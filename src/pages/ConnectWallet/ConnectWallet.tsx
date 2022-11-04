@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -55,7 +55,7 @@ export const ConnectWallet = () => {
           <Flex flexDir='column' zIndex={4} width='full'>
             <Center flexDir='column' height='100vh' px={6}>
               <Circle size='100px' mb={6}>
-                <FoxIcon boxSize='100%' color='white' />
+                <KeepKeyIcon boxSize='100%' color='white' />
               </Circle>
               <Flex
                 flexDir='row'

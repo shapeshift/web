@@ -250,36 +250,3 @@ ipcMain.on('@app/get-asset-url', (event, data) => {
 ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
 })
-
-ipcMain.on('@app/start', async (event, data) => {
-    appStartCalled = true
-    const tag = TAG + ' | onStartApp | '
-    try {
-        log.info(tag, 'event: onStartApp: ', data)
-
-        //load DB
-        try {
-            log.info(tag, 2)
-            db.find({}, function (err, docs) {
-                for (let i = 0; i < docs.length; i++) {
-                    let doc = docs[i]
-                    APPROVED_ORIGINS.push(doc.origin)
-                }
-            });
-            log.info(tag, "APPROVED_ORIGINS: ", APPROVED_ORIGINS)
-            event.sender.send('loadOrigins', { payload: APPROVED_ORIGINS })
-        } catch (e) {
-            log.error("failed to load db: ", e)
-        }
-
-        try {
-            if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
-        } catch (e) {
-            log.error('Failed to start_bridge! e: ', e)
-        }
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
-

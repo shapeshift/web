@@ -45,10 +45,9 @@ export const lastKnownKeepkeyState: {
 }
 
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve) => {
-    ipcMain.on('@app/start', async (event, data) => {
+    ipcMain.on('@app/start', async () => {
         let newQueue = [...ipcQueue]
         await new Promise(() => {
-            const endIdx = ipcQueue.length - 1
             ipcQueue.forEach((item, idx) => {
                 log.info('ipcEventCalledFromQueue: ' + item.eventName)
                 if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)

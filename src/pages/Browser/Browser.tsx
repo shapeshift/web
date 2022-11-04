@@ -99,7 +99,6 @@ export const Browser = () => {
             <webview
               id='webview'
               src={url}
-              autosize={true}
               style={{
                 minHeight: '60em',
               }}

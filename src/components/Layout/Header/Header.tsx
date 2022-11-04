@@ -133,7 +133,6 @@ export const Header = () => {
                 </Box>
               )}
               <ChainMenu display={{ base: 'none', md: 'block' }} />
-              <FiatRamps />
             </Flex>
           </HStack>
         </HStack>

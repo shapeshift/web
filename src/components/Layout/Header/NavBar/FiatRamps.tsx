@@ -1,4 +1,4 @@
-import type { BoxProps } from '@chakra-ui/react'
+import { BoxProps, Button } from '@chakra-ui/react'
 import { useMediaQuery } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import { keyframes } from '@chakra-ui/react'
@@ -48,18 +48,11 @@ export const FiatRamps = (props: FiatRampsProps) => {
   `
 
   return (
-    <Box {...props}>
+    <Box alignSelf='flex-end' {...props} mr={4}>
       <Tooltip label={translate('fiatRamps.headerLabel')} isDisabled={!isLargerThanMd}>
-        <IconButton
-          icon={<FaCreditCard />}
-          data-test='fiat-ramps-button'
-          bg={bg}
-          backgroundSize='300% 300%'
-          animation={`${rainbow} 10s ease infinite`}
-          width='full'
-          aria-label={translate('fiatRamps.headerLabel')}
-          onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
-        />
+        <Button onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}>
+          Buy Bitcoin
+        </Button>
       </Tooltip>
     </Box>
   )

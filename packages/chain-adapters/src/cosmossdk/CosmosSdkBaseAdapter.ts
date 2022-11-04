@@ -1,4 +1,4 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { AssetId, ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -301,7 +301,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     const txToSign = {
       addressNList: toAddressNList(bip44Params),
       tx: unsignedTx,
-      chain_id: this.getType(),
+      chain_id: fromChainId(this.getType()).chainReference,
       account_number: account.chainSpecific.accountNumber,
       sequence: account.chainSpecific.sequence,
     } as unknown as SignTx<U>

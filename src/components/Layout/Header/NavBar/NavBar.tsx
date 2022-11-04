@@ -6,10 +6,8 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
-import { YatBanner } from 'components/Banners/YatBanner'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { MainNavLink } from './MainNavLink'
 
@@ -21,7 +19,6 @@ type NavBarProps = {
 export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
   const groupColor = useColorModeValue('gray.300', 'gray.600')
 
   const navItemGroups = useMemo(() => {
@@ -73,7 +70,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
           </Stack>
         )
       })}
-      {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
+      {/* {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />} */}
     </Stack>
   )
 }

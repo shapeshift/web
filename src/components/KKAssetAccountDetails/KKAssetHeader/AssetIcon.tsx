@@ -1,7 +1,7 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,14 +57,14 @@ export const AssetIcon = ({ asset, src, ...rest }: AssetIconProps) => {
   return asset ? (
     <AssetWithNetwork
       asset={asset}
-      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+      icon={<KeepKeyIcon boxSize='16px' color={assetIconColor} />}
       {...rest}
     />
   ) : (
     <Avatar
       src={src}
       bg={assetIconBg}
-      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+      icon={<KeepKeyIcon boxSize='16px' color={assetIconColor} />}
       {...rest}
     />
   )

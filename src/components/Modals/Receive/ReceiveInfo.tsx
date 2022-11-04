@@ -74,6 +74,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
   })
 
+  const dontShowXPub = ['eth', 'atom', 'rune']
+
   useEffect(() => {
     if (!accountId) return
     setXpub(getPubFromAccountID(accountId))
@@ -196,15 +198,17 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 onChange={setSelectedAccountId}
                 buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
               />
-              <HStack mt={4}>
-                <Text translation='modals.receive.toggleXpub' />
-                <Switch
-                  isChecked={shouldUseXpub}
-                  onChange={() => {
-                    setShouldUseXpub(curr => !curr)
-                  }}
-                />
-              </HStack>
+              {!dontShowXPub.includes(asset.symbol.toLowerCase()) && !!xpub && (
+                <HStack mt={4}>
+                  <Text translation='modals.receive.toggleXpub' />
+                  <Switch
+                    isChecked={shouldUseXpub}
+                    onChange={() => {
+                      setShouldUseXpub(curr => !curr)
+                    }}
+                  />
+                </HStack>
+              )}
             </Flex>
             <Flex justifyContent='center'>
               {ensReceiveAddress && (

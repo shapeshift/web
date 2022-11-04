@@ -12,7 +12,7 @@ import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import Web3 from 'web3'
 import { Card } from 'components/Card/Card'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -173,7 +173,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
           <AddressSummaryCard
             address={address}
             name='My Wallet' // TODO: what string do we put here?
-            icon={<FoxIcon color='gray.500' w='full' h='full' />}
+            icon={<KeepKeyIcon color='gray.500' w='full' h='full' />}
           />
         </Box>
 

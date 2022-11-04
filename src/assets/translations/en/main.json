@@ -149,12 +149,15 @@
     "noProvidersBody": "Looks like we don't have any providers for that asset yet."
   },
   "connectWalletPage": {
+    "nextFrontier": "The Next Frontier of Crypto Security",
+    "protectYourCrypto": "Protect your cryptocurrencies, store your private keys offline, and safeguard your assets from hackers. It’s time to achieve financial freedom in the most secure way with KeepKey.",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "betaSunset": "Beta has been sunset, Learn More",
+    "poweredBy": "Powered by ShapeShift",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo",

@@ -43,6 +43,7 @@ describe('opportunitiesSlice', () => {
               apy: '0.42',
               type: DefiType.LiquidityPool,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,
                 string,
@@ -66,6 +67,7 @@ describe('opportunitiesSlice', () => {
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
+              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,
@@ -88,6 +90,7 @@ describe('opportunitiesSlice', () => {
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
+              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,

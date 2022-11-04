@@ -12,7 +12,6 @@ import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
 import {
-  selectAssetById,
   selectHighestBalanceAccountIdByLpId,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -51,7 +50,10 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [lpOpportunitiesById, opportunityId],
   )
 
-  const lpAsset = useAppSelector(state => selectAssetById(state, opportunityId ?? ''))
+  const lpAsset = useMemo(
+    () => assets[opportunityMetadata?.underlyingAssetId ?? ''],
+    [assets, opportunityMetadata?.underlyingAssetId],
+  )
 
   const lpAssetBalanceFilter = useMemo(
     () => ({

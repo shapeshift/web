@@ -19,7 +19,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -46,6 +45,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
+
   const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
@@ -81,6 +81,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const lpAsset = useMemo(
+    () => assets[opportunityData?.underlyingAssetId ?? ''],
+    [assets, opportunityData?.underlyingAssetId],
+  )
+
   const underlyingAssetsIcons = useMemo(
     () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId].icon),
     [assets, opportunityData?.underlyingAssetIds],
@@ -95,9 +100,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetsFiatBalance = useMemo(() => {
     const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(2)
     // TODO: add a stakingAssetId property in OpportunityMetadata ?
-    const foxEthLpFiatPrice = marketData?.[foxEthLpAssetId]?.price ?? '0'
+    const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
-  }, [marketData, opportunityData?.stakedAmountCryptoPrecision])
+  }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])
 
   const underlyingAssetsWithBalancesAndIcons = useMemo(
     () =>

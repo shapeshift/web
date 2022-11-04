@@ -1,7 +1,7 @@
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { mockStore } from 'test/mocks/store'
 
-import { foxEthPair } from './constants'
+import { foxEthLpAssetId, foxEthPair } from './constants'
 import {
   catpuccinoAccountId,
   fauxmesAccountId,
@@ -196,6 +196,7 @@ describe('opportunitiesSlice selectors', () => {
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
         },
       },
@@ -245,6 +246,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -260,6 +262,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -281,6 +284,7 @@ describe('opportunitiesSlice selectors', () => {
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
           rewardsAmountCryptoPrecision: '430',

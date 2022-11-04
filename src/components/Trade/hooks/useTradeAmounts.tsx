@@ -96,7 +96,7 @@ export const useTradeAmounts = () => {
       const buyAssetUsdRate = args.buyAssetUsdRate ?? buyAssetFiatRateFormState
       const sellAssetUsdRate = args.sellAssetUsdRate ?? sellAssetFiatRateFormState
       const fees = args.fees ?? feesFormState
-      if (sellAsset && buyAsset && amount && action && buyAssetUsdRate && sellAssetUsdRate) {
+      if (sellAsset && buyAsset && action && buyAssetUsdRate && sellAssetUsdRate) {
         setTradeAmounts({
           amount,
           action,

@@ -93,7 +93,7 @@ export const Header = () => {
             </HStack>
           </Box>
         )}
-        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
+        <HStack height='4.5rem' width='full' borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'
             margin='0 auto'
@@ -110,11 +110,11 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <Box flex={1} justifyContent={{ base: 'flex-start' }}>
+            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
                 <Image boxSize='48px' src={KeepKeyIconBlack} alt='Go to Dashboard' />
               </Link>
-            </Box>
+            </Flex>
             <HStack
               width='100%'
               flex={1}

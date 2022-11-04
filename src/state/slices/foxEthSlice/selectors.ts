@@ -90,17 +90,6 @@ export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqua
   },
 )
 
-export const selectFoxFarmingAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
-  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  foxFarmingOpportunities => {
-    const aggregatedOpportunitiesByContractAddress = foxFarmingOpportunities
-      .flatMap(opportunity => opportunity)
-      .reduce(farmingOpportunitiesReducer, {} as Record<string, UserEarnOpportunityType>)
-
-    return Object.values(aggregatedOpportunitiesByContractAddress)
-  },
-)
-
 // Non-aggregated opportunities, to use for account-level granularity
 export const selectVisibleFoxFarmingAccountOpportunities = createDeepEqualOutputSelector(
   selectFoxFarmingOpportunitiesByMaybeAccountAddress,
@@ -141,21 +130,6 @@ export const selectVisibleFoxFarmingAccountOpportunitiesAggregated = createDeepE
       }
     })
   },
-)
-
-export const selectFoxFarmingOpportunityByContractAddress = createDeepEqualOutputSelector(
-  selectFoxFarmingOpportunitiesByMaybeAccountAddress,
-  selectContractAddressParamFromFilter,
-  selectAccountAddressParamFromFilter,
-  (opportunities, contractAddress, accountAddress) =>
-    opportunities
-      .flatMap(opportunity => opportunity)
-      .find(opportunity => {
-        return (
-          opportunity.contractAddress === contractAddress &&
-          opportunity.accountAddress === accountAddress
-        )
-      }),
 )
 
 // Aggregations give precisely that, an aggregation

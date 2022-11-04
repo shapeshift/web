@@ -12,12 +12,12 @@ import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContain
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
+import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { PinMatrixRequestType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 
 export const KeepKeyMenu = () => {
   const { navigateToRoute } = useMenuRoutes()

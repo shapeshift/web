@@ -1,6 +1,6 @@
 import { type Plugins } from 'plugins/types'
 import { RouteCategory } from 'Routes/helpers'
-import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { FoxPage } from './foxPage'
 
@@ -11,13 +11,13 @@ export default function register(): Plugins {
       'foxPage',
       {
         name: 'foxPage',
-        icon: <KeepKeyIcon />,
+        icon: <FoxIcon />,
         routes: [
           {
             path: '/fox',
             label: 'navBar.foxToken',
             main: () => <FoxPage />,
-            icon: <KeepKeyIcon />,
+            icon: <FoxIcon />,
             category: RouteCategory.Explore,
             routes: [
               {

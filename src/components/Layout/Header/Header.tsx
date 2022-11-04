@@ -7,13 +7,14 @@ import {
   Flex,
   HStack,
   IconButton,
+  Image,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import KeepKeyIconBlack from 'assets/kk-icon-black.png'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -109,11 +110,11 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
+            <Box flex={1} justifyContent={{ base: 'flex-start' }}>
               <Link to='/'>
-                <KeepKeyIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
+                <Image boxSize='48px' src={KeepKeyIconBlack} alt='Go to Dashboard' />
               </Link>
-            </Flex>
+            </Box>
             <HStack
               width='100%'
               flex={1}

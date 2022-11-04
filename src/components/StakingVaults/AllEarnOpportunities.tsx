@@ -64,15 +64,20 @@ export const AllEarnOpportunities = () => {
     () =>
       opportunityData?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
-          .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
+          .times(
+            fromBaseUnit(
+              opportunityData?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
           .toFixed(6)
           .toString(),
-      ),
+      ) ?? ['0', '0'],
     [
       aggregatedLpAssetBalance,
       assets,
       opportunityData?.underlyingAssetIds,
-      opportunityData.underlyingAssetRatios,
+      opportunityData?.underlyingAssetRatios,
     ],
   )
 

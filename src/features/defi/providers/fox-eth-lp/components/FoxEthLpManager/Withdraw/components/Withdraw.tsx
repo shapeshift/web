@@ -82,15 +82,20 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () =>
       opportunityData?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(lpAssetBalance)
-          .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
+          .times(
+            fromBaseUnit(
+              opportunityData?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
           .toFixed(6)
           .toString(),
-      ),
+      ) ?? ['0', '0'],
     [
       assets,
       lpAssetBalance,
       opportunityData?.underlyingAssetIds,
-      opportunityData.underlyingAssetRatios,
+      opportunityData?.underlyingAssetRatios,
     ],
   )
 

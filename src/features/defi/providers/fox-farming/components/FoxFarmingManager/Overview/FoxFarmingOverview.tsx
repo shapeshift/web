@@ -109,7 +109,12 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       opportunityData?.underlyingAssetIds.map((assetId, i) => ({
         ...assets[assetId],
         cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
-          .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
+          .times(
+            fromBaseUnit(
+              opportunityData?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
           .toFixed(6)
           .toString(),
         icons: [underlyingAssetsIcons![i]],

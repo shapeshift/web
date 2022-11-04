@@ -137,6 +137,17 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
   },
 )
 
+// "Give me the total values over all my accounts aggregated into one for each opportunity"
+// TODO: testme
+export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
+  selectStakingIds,
+  (state: ReduxState) => state,
+  (stakingIds, state): (UserStakingOpportunity & OpportunityMetadata)[] =>
+    stakingIds.map(stakingId =>
+      selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }),
+    ),
+)
+
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
 export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,

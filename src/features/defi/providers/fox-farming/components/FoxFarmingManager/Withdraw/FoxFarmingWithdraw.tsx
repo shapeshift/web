@@ -1,5 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -17,9 +18,11 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
+import type { UserEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
+import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -74,6 +77,16 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const foxFarmingOpportunity: UserEarnOpportunityType = useMemo(
+    () => ({
+      ...LP_EARN_OPPORTUNITIES[opportunityData?.assetId ?? ''],
+      ...opportunityData,
+      chainId: fromAssetId(opportunityData?.assetId ?? '').chainId,
+      rewardsAmountCryptoPrecision: opportunityData?.rewardsAmountCryptoPrecision ?? '',
+    }),
+    [opportunityData],
+  )
+
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
@@ -85,13 +98,16 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
           type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
           payload: fromAccountId(farmingAccountId).account,
         })
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunityData })
+        dispatch({
+          type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY,
+          payload: foxFarmingOpportunity,
+        })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
       }
     })()
-  }, [farmingAccountId, translate, contractAddress, opportunityData])
+  }, [farmingAccountId, translate, contractAddress, opportunityData, foxFarmingOpportunity])
 
   const handleBack = () => {
     history.push({

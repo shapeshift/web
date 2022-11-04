@@ -5,11 +5,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import {
+  foxEthLpAssetId,
+  LP_EARN_OPPORTUNITIES,
+  STAKING_EARN_OPPORTUNITIES,
+} from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedUserStakingOpportunities,
   selectAssets,
-  selectFoxFarmingAccountsOpportunitiesAggregated,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -20,9 +24,18 @@ import type { ExternalOpportunity } from '../FoxCommon'
 export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const assets = useSelector(selectAssets)
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)
-  const foxFarmingOpportunities = useAppSelector(state =>
-    selectFoxFarmingAccountsOpportunitiesAggregated(state, emptyFilter),
+
+  const foxFarmingOpportunitiesAggregated = useAppSelector(selectAggregatedUserStakingOpportunities)
+  const foxFarmingOpportunities = useMemo(
+    () =>
+      foxFarmingOpportunitiesAggregated.map(opportunity => ({
+        ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
+        chainId: fromAssetId(opportunity.assetId).chainId,
+        ...opportunity,
+      })),
+    [foxFarmingOpportunitiesAggregated],
   )
+
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
   const opportunityData = useMemo(
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],
@@ -76,7 +89,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
       case DefiProvider.FoxFarming:
         const foxFarmingOpportunity = foxFarmingOpportunities.find(
           foxFarmingOpportunity =>
-            foxFarmingOpportunity.contractAddress === opportunity.opportunityContractAddress,
+            foxFarmingOpportunity.assetId === opportunity.opportunityContractAddress,
         )
         if (!foxFarmingOpportunity) return
         setDefiOpportunity(foxFarmingOpportunity)

@@ -1,5 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -8,6 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,6 +21,7 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
+import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -72,6 +75,15 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     [contractAddress, stakingOpportunitiesById],
   )
 
+  const foxFarmingOpportunity: EarnOpportunityType = useMemo(
+    () => ({
+      ...LP_EARN_OPPORTUNITIES[opportunity.assetId],
+      ...opportunity,
+      chainId: fromAssetId(opportunity.assetId).chainId,
+    }),
+    [opportunity],
+  )
+
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
@@ -83,13 +95,16 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
           type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
           payload: fromAccountId(farmingAccountId).account,
         })
-        dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
+        dispatch({
+          type: FoxFarmingDepositActionType.SET_OPPORTUNITY,
+          payload: foxFarmingOpportunity,
+        })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [farmingAccountId, translate, toast, contractAddress, opportunity])
+  }, [farmingAccountId, translate, toast, contractAddress, opportunity, foxFarmingOpportunity])
 
   const handleBack = () => {
     history.push({

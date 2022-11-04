@@ -1339,7 +1339,10 @@
     "selectChain": "Select the chain you would like to create an account for.",
     "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
     "newAccountAdded": "New %{name} Account added",
-    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}"
+    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}",
+    "showAssets": "Show assets",
+    "hideAssets": "Hide assets",
+    "viewAccount": "View account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

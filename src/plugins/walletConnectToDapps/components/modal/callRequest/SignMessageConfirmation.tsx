@@ -14,7 +14,7 @@ import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBrid
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { RawText, Text } from 'components/Text'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
@@ -44,7 +44,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onRejec
         <AddressSummaryCard
           address={address}
           name='My Wallet' // TODO: what string do we put here?
-          icon={<FoxIcon color='gray.500' w='full' h='full' />}
+          icon={<KeepKeyIcon color='gray.500' w='full' h='full' />}
         />
       </Box>
 

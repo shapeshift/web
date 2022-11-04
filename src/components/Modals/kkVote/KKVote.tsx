@@ -9,184 +9,125 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import Web3 from 'web3'
-import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { erc20Abi } from 'pages/Leaderboard/helpers/erc20Abi'
-import { nftAbi } from 'pages/Leaderboard/helpers/nftAbi'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+
+import { doApproveTx, doVoteTx, getApprovedAndBalances, getFees } from './utils'
 
 export const KKVote = ({ geckoId }: { geckoId: any }) => {
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const { getKeepkeyAsset } = useKeepKey()
+  const { getKeepkeyAsset, kkErc20Contract, kkNftContract, kkWeb3 } = useKeepKey()
   const {
     state: { wallet },
   } = useWallet()
-  const projectName = useMemo(() => getKeepkeyAsset(geckoId)?.name, [geckoId, getKeepkeyAsset])
 
-  const [burnAmount, setBurnAmount] = useState('0')
+  const projectName = useMemo(() => getKeepkeyAsset(geckoId)?.name, [geckoId, getKeepkeyAsset])
 
   const { kkVote } = useModal()
   const { close, isOpen } = kkVote
 
-  const [approvedAmount, setApprovedAmount] = useState('0')
+  // has clicked button.  not necessarily broadcast or mined yet
+  const [approveClicked, setApproveClicked] = useState(false)
+  const [voteClicked, setVoteClicked] = useState(false)
 
-  const [isApproving, setIsApproving] = useState(false)
+  // have a txid. not necessarily mined yet
   const [approveTxid, setApproveTxid] = useState('')
-
-  const [isVoting, setIsVoting] = useState(false)
   const [voteTxid, setVoteTxid] = useState('')
 
-  const loadApprovedAmount = useCallback(async () => {
-    const network = 'goerli'
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(
-        `https://${network}.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
-      ),
-    )
-    const erc20Contract = new web3.eth.Contract(
-      erc20Abi as any,
-      '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3',
-    )
-    const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
+  // 1 or more confirmations
+  const [voteConfirmed, setVoteConfirmed] = useState(false)
+  const [approveConfirmed, setApproveConfirmed] = useState(false)
 
-    const address = await (wallet as KeepKeyHDWallet).ethGetAddress({
-      addressNList,
-      showDisplay: false,
-    })
+  // burn amount input field
+  const [burnAmount, setBurnAmount] = useState('0')
 
-    const approved = await erc20Contract.methods
-      .allowance(address, '0xa869a28a7185df50e4abdba376284c44497c4753')
-      .call()
-    setApprovedAmount(approved)
-  }, [wallet])
+  // fee data (limit, price, & eth) for vote and approve
+  const [feeData, setFeeData] = useState({
+    voteEth: '0',
+    approvalEth: '0',
+    voteGas: '0',
+    approvalGas: '0',
+    gasPrice: '0',
+  })
+
+  // users approved amount, keepkey token balance, and eth balance
+  const [approvedAndBalances, setApprovedAndBalances] = useState({
+    ethBalance: '0',
+    kkBalance: '0',
+    approved: '0', // 0 or huge
+  })
+
+  // user needs to approve
+  const needsApproval = !approveConfirmed && bnOrZero(approvedAndBalances?.approved).eq(0)
+
+  // user has enough eth for approval transaction
+  const hasEthForApproval = bnOrZero(approvedAndBalances.ethBalance).gte(
+    bnOrZero(feeData?.approvalEth),
+  )
+
+  // user has enough eth to vote
+  const hasEthForVote = bnOrZero(approvedAndBalances.ethBalance).gte(bnOrZero(feeData?.voteEth))
+
+  // user has some tokens to vote with
+  const hasTokenForVote = bnOrZero(approvedAndBalances?.kkBalance).gt(bnOrZero(burnAmount))
+
+  // vote button is clickable
+  const voteValidationPassed =
+    !needsApproval && hasEthForVote && hasTokenForVote && burnAmount?.length > 0
+
+  // approve button is clickable
+  const approvalValidationPassed = hasEthForApproval
+
+  const errorMessage = !hasEthForApproval
+    ? 'Not enough eth for approval transaction'
+    : !hasEthForVote
+    ? 'Not enough eth for vote transaction'
+    : !hasTokenForVote
+    ? 'Not enough tokens'
+    : ''
 
   useEffect(() => {
-    loadApprovedAmount()
-  }, [loadApprovedAmount, geckoId])
+    if (kkWeb3) getFees(kkWeb3).then((fees: any) => setFeeData(fees))
+    if (kkWeb3 && wallet)
+      getApprovedAndBalances(
+        kkWeb3,
+        wallet as KeepKeyHDWallet,
+        kkErc20Contract,
+        kkNftContract,
+      ).then((result: any) => setApprovedAndBalances(result))
+  }, [geckoId, kkErc20Contract, kkNftContract, kkWeb3, wallet])
 
   const onVoteClick = useCallback(async () => {
-    setIsVoting(true)
-    const network = 'goerli'
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(
-        `https://${network}.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
-      ),
+    if (!kkWeb3) throw new Error('No Web3')
+    setVoteClicked(true)
+    const txid = await doVoteTx(
+      kkNftContract,
+      kkWeb3,
+      wallet as KeepKeyHDWallet,
+      setVoteConfirmed,
+      burnAmount,
+      geckoId,
     )
-    const nftContract = new web3.eth.Contract(
-      nftAbi as any,
-      '0xa869a28a7185df50e4abdba376284c44497c4753',
-    )
-
-    const voteData = nftContract.methods.mintNFT(burnAmount, geckoId).encodeABI()
-
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
-    const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
-
-    const gasPrice = await web3.eth.getGasPrice()
-
-    const address = await (wallet as KeepKeyHDWallet).ethGetAddress({
-      addressNList,
-      showDisplay: false,
-    })
-
-    const nonce = await web3.eth.getTransactionCount(address)
-
-    const txToSign: ETHSignTx = {
-      to: '0xa869a28a7185df50e4abdba376284c44497c4753',
-      nonce: Web3.utils.toHex(nonce),
-      data: voteData,
-      value: '0x0',
-      chainId: 5,
-      addressNList,
-      gasLimit: '0x3D090', //250k
-      gasPrice: Web3.utils.toHex(gasPrice),
-    }
-
-    if (!wallet) throw new Error('needs wallet')
-    const signedTx = await adapter.signTransaction({
-      txToSign,
-      wallet,
-    })
-
-    web3.eth.sendSignedTransaction(signedTx).then(() => {
-      setIsVoting(false)
-    })
-    const txHash = await web3.utils.sha3(signedTx)
-    setVoteTxid(txHash ?? '')
-  }, [burnAmount, ethAsset?.chainId, geckoId, wallet])
+    setVoteTxid(txid)
+  }, [burnAmount, geckoId, kkNftContract, kkWeb3, wallet])
 
   const onApproveClick = useCallback(async () => {
-    setIsApproving(true)
-    const network = 'goerli'
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(
-        `https://${network}.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
-      ),
+    if (!kkWeb3) throw new Error('No Web3')
+    setApproveClicked(true)
+    const txid = await doApproveTx(
+      kkErc20Contract,
+      kkNftContract,
+      kkWeb3,
+      wallet as KeepKeyHDWallet,
+      setApproveConfirmed,
     )
-    const erc20Contract = new web3.eth.Contract(
-      erc20Abi as any,
-      '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3',
-    )
+    setApproveTxid(txid)
+  }, [kkErc20Contract, kkNftContract, kkWeb3, wallet])
 
-    const approveData = erc20Contract.methods
-      .approve(
-        '0xa869a28a7185df50e4abdba376284c44497c4753',
-        '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-      )
-      .encodeABI()
-
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
-    const addressNList = bip32ToAddressNList("m/44'/60'/0'/0/0")
-
-    const gasPrice = await web3.eth.getGasPrice()
-
-    const address = await (wallet as KeepKeyHDWallet).ethGetAddress({
-      addressNList,
-      showDisplay: false,
-    })
-
-    const nonce = await web3.eth.getTransactionCount(address)
-
-    const txToSign: ETHSignTx = {
-      to: '0xcc5a5975E8f6dF4dDD9Ff4Eb57471a3Ff32526a3',
-      nonce: Web3.utils.toHex(nonce),
-      data: approveData,
-      value: '0x0',
-      chainId: 5,
-      addressNList,
-      gasLimit: '0x15F90', //90k
-      gasPrice: Web3.utils.toHex(gasPrice),
-    }
-
-    if (!wallet) throw new Error('needs wallet')
-    const signedTx = await adapter.signTransaction({
-      txToSign,
-      wallet,
-    })
-
-    web3.eth.sendSignedTransaction(signedTx).then(() => {
-      setIsApproving(false)
-    })
-    const txHash = await web3.utils.sha3(signedTx)
-    setApproveTxid(txHash ?? '')
-  }, [ethAsset, wallet])
   return (
     <Modal
       isOpen={isOpen}
@@ -207,34 +148,73 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
             </ModalHeader>
           </div>
           <div>
-            <Input
-              placeholder='Burn amount'
-              onChange={input => {
-                setBurnAmount(input.target.value)
-              }}
-            />
+            <RawText color='gray.500'>Token Balance {`${approvedAndBalances?.kkBalance}`}</RawText>
           </div>
           <div>
-            {bnOrZero(approvedAmount).eq(0) && !approveTxid && (
-              <Button isLoading={isApproving} onClick={onApproveClick}>
+            <RawText color='gray.500'>Eth Balance {`${approvedAndBalances?.ethBalance}`}</RawText>
+          </div>
+          <div>
+            {needsApproval && (
+              <RawText color='gray.500'>Eth Fee {`${feeData?.approvalEth}`}</RawText>
+            )}
+          </div>
+          <div>
+            <RawText color='gray.500'>Eth Fee {`${feeData?.voteEth}`}</RawText>
+          </div>
+          <div>
+            {needsApproval && (
+              <Button
+                isDisabled={!approvalValidationPassed}
+                isLoading={approveClicked}
+                onClick={onApproveClick}
+              >
                 Approve
               </Button>
             )}
-            <Link
-              color='blue.400'
-              isExternal
-              href={`https://goerli.etherscan.io/tx/${approveTxid}`}
-            >{`${approveTxid}`}</Link>
-            {bnOrZero(approvedAmount).gt(0) && !voteTxid && (
-              <Button isLoading={isVoting} onClick={onVoteClick}>
+          </div>
+          <div>
+            {!!approveTxid && (
+              <Link
+                color='blue.400'
+                isExternal
+                href={`https://goerli.etherscan.io/tx/${approveTxid}`}
+              >
+                View approval on etherscan
+              </Link>
+            )}
+          </div>
+          <div>
+            {!voteClicked && (
+              <Input
+                my='10px'
+                isDisabled={needsApproval}
+                placeholder='Token Amount'
+                onChange={(input: any) => setBurnAmount(input.target.value)}
+              />
+            )}
+          </div>
+          <div>
+            {!voteConfirmed && (
+              <Button
+                isDisabled={!voteValidationPassed}
+                isLoading={voteClicked}
+                onClick={onVoteClick}
+              >
                 Vote
               </Button>
             )}
-            <Link
-              color='blue.400'
-              isExternal
-              href={`https://goerli.etherscan.io/tx/${voteTxid}`}
-            >{`${voteTxid}`}</Link>
+          </div>
+          <div>
+            {voteTxid && (
+              <Link
+                color='blue.400'
+                isExternal
+                href={`https://goerli.etherscan.io/tx/${voteTxid}`}
+              >{`View vote on etherscan`}</Link>
+            )}
+          </div>
+          <div>
+            <RawText color='red.500'>{errorMessage}</RawText>
           </div>
         </ModalBody>
       </ModalContent>

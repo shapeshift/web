@@ -31,6 +31,11 @@ export const Browser = () => {
     state: { browserUrl },
   } = useWallet()
 
+  const formatAndSaveUrl = (url: string) => {
+    if (url.startsWith('http') || url.startsWith('https')) return setInputUrl(url)
+    setInputUrl(`https://${url}`)
+  }
+
   useEffect(() => {
     const webview: any = document.getElementById('webview')
     if (!webview) return
@@ -44,14 +49,16 @@ export const Browser = () => {
       setLoading(false)
       dispatch({ type: WalletActions.SET_BROWSER_URL, payload: webviewUrl })
     })
-  }, [dispatch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const webview: any = document.getElementById('webview')
     if (!webview || !browserUrl || !hasMounted) return
     if (browserUrl === url) return
     setUrl(browserUrl)
-  }, [browserUrl, hasMounted,url])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [browserUrl, hasMounted])
 
   const loadUrl = (e: any) => {
     e.preventDefault()
@@ -67,7 +74,7 @@ export const Browser = () => {
             <Input
               disabled={loading}
               value={inputUrl}
-              onChange={e => setInputUrl(e.target.value)}
+              onChange={e => formatAndSaveUrl(e.target.value)}
             />
             <Button isLoading={loading} type='submit'>
               Load URL
@@ -91,7 +98,7 @@ export const Browser = () => {
               src={url}
               style={{
                 width: '100%',
-                height: url !== '' ? '30em' : '0px',
+                height: url !== '' ? '50em' : '0px',
               }}
             ></webview>
           </Card.Body>

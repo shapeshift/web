@@ -14,7 +14,7 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
     <Redirect
       to={{
         pathname: '/connect-wallet',
-        search: `returnUrl=${location?.pathname ?? '/dashboard'}`,
+        search: `returnUrl=${location?.pathname ?? '/dapps'}`,
       }}
     />
   )

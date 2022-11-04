@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react'
+import { FiatRamps } from 'components/Layout/Header/NavBar/FiatRamps'
 import { Main } from 'components/Layout/Main'
 
 import { DashboardSidebar } from './DashboardSidebar'
@@ -13,6 +14,7 @@ export const Dashboard = () => {
         mx='auto'
         direction={{ base: 'column', xl: 'row' }}
       >
+        <FiatRamps />
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Portfolio />
         </Stack>

@@ -56,24 +56,6 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
   },
 )((_accountIds, paramFilter) => paramFilter?.assetId ?? 'undefined')
 
-export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCachedSelector(
-  // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
-  (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
-  selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds) => {
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-    )
-  },
-)((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
-
-export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
-  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  foxEthAccountOpportunities => foxEthAccountOpportunities[0],
-)
-
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
   // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,

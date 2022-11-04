@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -18,10 +19,16 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectAssets,
+  selectLpOpportunitiesById,
   selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -45,6 +52,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const assets = useAppSelector(selectAssets)
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -66,14 +74,51 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const opportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    [lpOpportunitiesById],
   )
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
+  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
+
+  const aggregatedLpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
+  )
+
+  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
+    () =>
+      opportunityData?.underlyingAssetIds.map((assetId, i) =>
+        bnOrZero(aggregatedLpAssetBalance)
+          .times(
+            fromBaseUnit(
+              opportunityData?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
+          .toFixed(6)
+          .toString(),
+      ) ?? ['0', '0'],
+    [
+      aggregatedLpAssetBalance,
+      assets,
+      opportunityData?.underlyingAssetIds,
+      opportunityData?.underlyingAssetRatios,
+    ],
+  )
+
+  // TODO: toEarnOpportunity util something something
+  const foxEthLpOpportunity = useMemo(
+    () => ({
+      ...baseEarnOpportunity,
+      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
+      chainId: fromAssetId(foxEthLpAssetId).chainId,
+      underlyingFoxAmount,
+      underlyingEthAmount,
+      cryptoAmount: aggregatedLpAssetBalance,
+      // TODO: this all goes away anyway
+      fiatAmount: '42',
     }),
+    [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
   )
 
   // user info
@@ -81,9 +126,9 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState || !opportunity) return
-    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-  }, [opportunity, walletState])
+    if (!walletState || !opportunityData) return
+    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
+  }, [foxEthLpOpportunity, opportunityData, walletState])
 
   const handleBack = () => {
     history.push({

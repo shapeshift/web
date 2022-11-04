@@ -41,7 +41,7 @@ import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, start_bridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
@@ -63,9 +63,6 @@ if(!app.requestSingleInstanceLock()) app.quit()
 
 const TAG = ' | MAIN | '
 
-let APPROVED_ORIGINS: string[] = []
-
-export let appStartCalled = false
 export let shouldShowWindow = false;
 
 
@@ -195,51 +192,6 @@ app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-ipcMain.on('@account/info', async (event, data) => {
-    const tag = TAG + ' | onAccountInfo | '
-    try {
-        if (data.length > 0 && shared.USER.accounts.length === 0) {
-            shared.USER.online = true
-            for (let i = 0; i < data.length; i++) {
-                let entry = data[i]
-                let caip = Object.keys(entry)
-                let pubkey = entry[caip[0]]
-                let entryNew: any = {
-                    pubkey,
-                    caip: caip[0]
-                }
-                //TODO parse this better
-                if (entryNew.caip === 'eip155:1') {
-                    entryNew.network = "ETH"
-                }
-                if (entryNew.caip === 'bip122:000000000019d6689c085ae165831e93') {
-                    entryNew.network = "BTC"
-                }
-                shared.USER.accounts.push(entryNew)
-            }
-            db.findOne({ type: 'user' }, (err, doc) => {
-                if (!doc) db.insert({ type: 'user', user: shared.USER })
-                db.update({ type: 'user' }, { type: 'user', user: shared.USER })
-            })
-        }
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@account/balance', async (event, data) => {
-    const tag = TAG + ' | onBalanceInfo | '
-    try {
-        // console.log("data: ", data)
-        if (data.length > 0) {
-            shared.USER.balances = data
-        }
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
 // C:\Users\amito\AppData\Local\Programs\keepkey-desktop\resources\app.asar\electron\dist
 log.info("__dirname", __dirname)
 ipcMain.on('@app/get-asset-url', (event, data) => {

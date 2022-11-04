@@ -169,15 +169,6 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <Amount.Fiat value={fiatBalance} />
           </Stack>
         </Button>
-        {/* <IconButton
-          size='sm'
-          variant='ghost'
-          isActive={isOpen}
-          aria-label='Expand Account'
-          data-test='expand-account-button'
-          icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          onClick={onToggle}
-        /> */}
         {buttonProps.onClick && (
           <Menu>
             <MenuButton

@@ -14,14 +14,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
-import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssets,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

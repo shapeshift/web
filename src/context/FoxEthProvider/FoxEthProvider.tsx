@@ -34,10 +34,12 @@ import type { Nullable } from 'types/common'
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 export type UserEarnOpportunityType = {
-  rewardsAmountCryptoPrecision: string
+  stakedAmountCryptoPrecision?: string
+  rewardsAmountCryptoPrecision?: string
   isVisible?: boolean
+  // TODO: AccountId
+  accountAddress?: string
 } & EarnOpportunityType
-
 type FoxEthProviderProps = {
   children: React.ReactNode
 }

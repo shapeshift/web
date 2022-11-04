@@ -9,7 +9,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssets,

@@ -14,7 +14,7 @@ import { foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constant
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectHighestBalanceAccountIdByLpId,
-  selectHighestBalanceFoxFarmingOpportunityAccountAddress,
+  selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
@@ -24,17 +24,10 @@ import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const highestFarmingBalanceAccountAddressFilter = useMemo(
-    () => ({
-      contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+  const highestFarmingBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, {
+      stakingId: foxEthStakingAssetIdV4 as StakingId,
     }),
-    [],
-  )
-  const highestFarmingBalanceAccountAddress = useAppSelector(state =>
-    selectHighestBalanceFoxFarmingOpportunityAccountAddress(
-      state,
-      highestFarmingBalanceAccountAddressFilter,
-    ),
   )
 
   const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
@@ -79,7 +72,9 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               ],
               opportunityProvider: DefiProvider.FoxFarming,
               opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-              highestBalanceAccountAddress: highestFarmingBalanceAccountAddress,
+              highestBalanceAccountAddress: highestFarmingBalanceAccountId
+                ? fromAccountId(highestFarmingBalanceAccountId).account
+                : undefined,
             },
           ],
         },
@@ -143,7 +138,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     defaultLpOpportunityData,
     defaultStakingOpportunityData,
     highestBalanceLpAccountId,
-    highestFarmingBalanceAccountAddress,
+    highestFarmingBalanceAccountId,
   ])
 
   return otherOpportunities

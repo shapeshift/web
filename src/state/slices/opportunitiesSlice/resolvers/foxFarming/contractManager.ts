@@ -1,7 +1,7 @@
 import type { ContractInterface } from '@ethersproject/contracts'
 import { Contract } from '@ethersproject/contracts'
 
-import { ethersProvider } from './utils'
+import { ethersProvider } from '../utils'
 
 type DefinedContract = {
   contract: Contract

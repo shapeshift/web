@@ -3,8 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-
-import type { UserEarnOpportunityType } from '../foxEthSlice/foxEthCommon'
+import type { UserEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 
 // LP contracts
 export const foxEthPair = [ethAssetId, foxAssetId] as const

@@ -1,5 +1,9 @@
+import type { Fetcher, Token } from '@uniswap/sdk'
+import type { providers } from 'ethers'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pipe from 'lodash/flow'
+import memoize from 'lodash/memoize'
+import { getEthersProvider } from 'plugins/foxPage/utils'
 
 import {
   DefiProviderToMetadataResolverByDeFiType,
@@ -41,3 +45,14 @@ export const getUserDataResolversByDefiProviderAndDefiType = (
     getDefiProviderUserDataResolvers,
     getDefiTypeUserDataResolvers.bind(this, defiType),
   )(defiProvider)
+
+export const ethersProvider = getEthersProvider()
+
+export const fetchPairData = memoize(
+  async (
+    tokenA: Token,
+    tokenB: Token,
+    fetchPairData: typeof Fetcher['fetchPairData'],
+    provider: providers.Web3Provider,
+  ) => await fetchPairData(tokenA, tokenB, provider),
+)

@@ -5,8 +5,7 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
-import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedUserStakingOpportunity,

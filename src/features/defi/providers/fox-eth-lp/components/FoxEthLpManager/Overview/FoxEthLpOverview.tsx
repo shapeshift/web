@@ -10,7 +10,8 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { foxEthLpAssetId, foxEthLpOpportunityName } from 'state/slices/foxEthSlice/constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectHighestBalanceAccountIdByLpId,
   selectLpOpportunitiesById,
@@ -40,13 +41,16 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
   const opportunityId = foxEthLpAssetId
 
-  const highestBalanceAccountIdFilter = useMemo(() => ({ lpId: opportunityId }), [opportunityId])
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ lpId: opportunityId as LpId }),
+    [opportunityId],
+  )
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
 
   const opportunityMetadata = useMemo(
-    () => lpOpportunitiesById[opportunityId],
+    () => lpOpportunitiesById[opportunityId as LpId],
     [lpOpportunitiesById, opportunityId],
   )
 
@@ -137,7 +141,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
       icons={underlyingAssetsIcons}
-      name={foxEthLpOpportunityName}
+      name={opportunityMetadata.name ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       underlyingAssets={underlyingAssetsWithBalances}
       provider={opportunityMetadata.provider}

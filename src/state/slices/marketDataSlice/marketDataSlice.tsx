@@ -17,7 +17,7 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { foxEthLpAssetId } from '../foxEthSlice/constants'
+import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 

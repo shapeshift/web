@@ -10,7 +10,7 @@ import {
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
-import { selectPortfolioAccountBalances } from '../portfolioSlice/selectors'
+import type { PortfolioAccountBalances } from '../portfolioSlice/portfolioSliceCommon'
 import type {
   LpId,
   OpportunityMetadata,
@@ -19,6 +19,12 @@ import type {
   UserStakingOpportunity,
 } from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
+
+// Redeclared because of circular deps, don't export me
+const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
+  (state: ReduxState): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId,
+  accountBalances => accountBalances,
+)
 
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids

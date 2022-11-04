@@ -172,7 +172,7 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
 export const selectHighestBalanceAccountIdByLpId = createSelector(
   selectPortfolioAccountBalances,
   selectLpIdParamFromFilter,
-  (portfolioAccountBalances, lpId): AccountId => {
+  (portfolioAccountBalances, lpId): AccountId | undefined => {
     if (lpId === '') return '*' // Narrowing flavoured type
 
     const foundEntries = Object.entries(portfolioAccountBalances)
@@ -188,7 +188,7 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
       )[0]
 
     // Chainable methods that produce an iterable screw the narrowed type back to string
-    const foundAccountId: AccountId = foundEntries[0]
+    const foundAccountId: AccountId = foundEntries?.[0]
 
     return foundAccountId
   },

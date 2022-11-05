@@ -54,7 +54,7 @@ export const foxFarmingLpMetadataResolver = async ({
   const assets: AssetsState = state.assets
   const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
 
-  if (!ethMarketData?.price) {
+  if (bnOrZero(ethMarketData?.price).isZero()) {
     throw new Error(`Market data not ready for ${ethAssetId}`)
   }
 
@@ -102,6 +102,7 @@ export const foxFarmingLpMetadataResolver = async ({
   const lpMarketData = {
     [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
   }
+  debugger
   // hacks for adding lp price and price history
   dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
   Object.values(HistoryTimeframe).forEach(timeframe => {

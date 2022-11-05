@@ -86,7 +86,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
     await Promise.all(
-      ethAccountIds.map(async accountId => fetchAllOpportunitiesUserData(accountId)),
+      ethAccountIds.map(
+        async accountId => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }),
+      ),
     )
   }, [ethAccountIds])
 

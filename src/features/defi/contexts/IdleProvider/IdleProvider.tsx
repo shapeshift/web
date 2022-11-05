@@ -1,4 +1,4 @@
-import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
+import type { IdleInvestor } from '@keepkey/investor-idle'
 import type { PropsWithChildren } from 'react'
 import React, { useContext, useEffect, useState } from 'react'
 import { logger } from 'lib/logger'

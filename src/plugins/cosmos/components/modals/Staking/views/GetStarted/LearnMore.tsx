@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { useMemo } from 'react'

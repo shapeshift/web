@@ -1,5 +1,5 @@
 import { Skeleton } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { Card } from 'components/Card/Card'

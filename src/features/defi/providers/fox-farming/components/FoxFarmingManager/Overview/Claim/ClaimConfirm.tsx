@@ -8,8 +8,8 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@keepkey/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@keepkey/caip'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

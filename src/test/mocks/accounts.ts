@@ -7,10 +7,10 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
-} from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import { type Account } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@keepkey/caip'
+import type { cosmossdk } from '@keepkey/chain-adapters'
+import { type Account } from '@keepkey/chain-adapters'
+import { KnownChainIds } from '@keepkey/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 

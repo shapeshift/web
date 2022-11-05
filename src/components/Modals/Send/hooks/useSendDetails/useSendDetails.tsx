@@ -1,12 +1,12 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@keepkey/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@keepkey/caip'
 import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
   UtxoBaseAdapter,
   UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/chain-adapters'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

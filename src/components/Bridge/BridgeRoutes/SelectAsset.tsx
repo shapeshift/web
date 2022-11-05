@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Circle, Stack } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@keepkey/caip'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'

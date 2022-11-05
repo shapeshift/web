@@ -1,4 +1,4 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
+/* eslint-disable @keepkey/logger/no-native-console */
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'

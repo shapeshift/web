@@ -9,7 +9,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@keepkey/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
 import React, { useRef, useState } from 'react'

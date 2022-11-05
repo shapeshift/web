@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@keepkey/types'
 import { useFormContext } from 'react-hook-form'
 import type { RouteComponentProps } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'

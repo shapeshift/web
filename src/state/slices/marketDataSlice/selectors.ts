@@ -1,11 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import type {
   HistoryData,
   HistoryTimeframe,
   MarketCapResult,
   MarketData,
-} from '@shapeshiftoss/types'
+} from '@keepkey/types'
 import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'

@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@keepkey/caip'
 
 export enum DefiType {
   LiquidityPool = 'liquidity_pool',

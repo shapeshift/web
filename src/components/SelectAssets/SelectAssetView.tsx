@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import { useEffect } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'

@@ -1,5 +1,5 @@
-import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { ethChainId, toAssetId } from '@keepkey/caip'
+import { foxyAddresses } from '@keepkey/investor-foxy'
 import { matchPath } from 'react-router'
 
 const FOX_PAGE_DEFAULT_ASSET = 'fox'

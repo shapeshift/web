@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters } from '@keepkey/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import flatten from 'lodash/flatten'

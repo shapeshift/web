@@ -1,6 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

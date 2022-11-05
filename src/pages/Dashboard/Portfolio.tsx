@@ -8,7 +8,7 @@ import {
   StatNumber,
   Switch,
 } from '@chakra-ui/react'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { HistoryTimeframe } from '@keepkey/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'

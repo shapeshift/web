@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@keepkey/caip'
+import { toAssetId } from '@keepkey/caip'
 import type {
   DefiParams,
   DefiQueryParams,

@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { capitalize, words } from 'lodash'
 import { useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'

@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@keepkey/caip'
+import type { HistoryTimeframe } from '@keepkey/types'
 import { useEffect } from 'react'
 import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'

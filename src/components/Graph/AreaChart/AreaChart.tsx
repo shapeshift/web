@@ -1,4 +1,4 @@
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { HistoryData } from '@keepkey/types'
 import type { AxisScale } from '@visx/axis'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { LinearGradient } from '@visx/gradient'

@@ -1,5 +1,5 @@
 import { Box, Stat, StatArrow, StatNumber, Text } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@keepkey/types'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'

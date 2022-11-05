@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import { useHistory } from 'react-router-dom'
 import { AssetSearchKK } from 'components/AssetSearchKK/AssetSearchKK'
 import { Main } from 'components/Layout/Main'

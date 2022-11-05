@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
+import { adapters } from '@keepkey/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'

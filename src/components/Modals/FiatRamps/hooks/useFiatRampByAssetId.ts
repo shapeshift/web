@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useEffect, useState } from 'react'
 import { useGetFiatRampAssetsQuery } from 'state/apis/fiatRamps/fiatRamps'
 

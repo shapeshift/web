@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@keepkey/caip'
 import { Text } from 'components/Text'
 import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'

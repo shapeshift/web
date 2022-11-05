@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@keepkey/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'

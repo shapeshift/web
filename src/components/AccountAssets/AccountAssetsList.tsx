@@ -1,5 +1,5 @@
 import { Box, Button, Collapse, Stack, useDisclosure } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useMemo } from 'react'
 import { FaArrowCircleDown, FaArrowCircleUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

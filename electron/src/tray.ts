@@ -94,19 +94,18 @@ export const createTray = () => {
 export const updateTrayIcon = (state: string) => {
     const trayIcon = `${lightDark}/keepKey/${state}.png`
     tray.setImage(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
-    const newTemplate = menuTemplate
     switch (state) {
         case "error":
-            newTemplate[0].label = "KeepKey Disconnected/Errored"
+            menuTemplate[0].label = "KeepKey Disconnected/Errored"
             break;
         case "success":
-            newTemplate[0].label = "Bridge running"
+            menuTemplate[0].label = "Bridge running"
             break;
         default:
-            newTemplate[0].label = "Bridge Not Running"
+            menuTemplate[0].label = "Bridge Not Running"
             break;
     }
-    newTemplate[0].icon = path.join(assetsDirectory, `status/${state}.png`)
+    menuTemplate[0].icon = path.join(assetsDirectory, `status/${state}.png`)
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
     tray.setContextMenu(contextMenu)
 }

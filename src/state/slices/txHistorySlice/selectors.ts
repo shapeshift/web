@@ -1,5 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@keepkey/caip'
+import { fromAccountId } from '@keepkey/caip'
 import intersection from 'lodash/intersection'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'

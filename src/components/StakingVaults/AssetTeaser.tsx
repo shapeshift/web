@@ -11,7 +11,7 @@ import {
   SkeletonText,
   Stack,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'

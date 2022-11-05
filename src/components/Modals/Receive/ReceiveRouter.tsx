@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId } from '@keepkey/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'

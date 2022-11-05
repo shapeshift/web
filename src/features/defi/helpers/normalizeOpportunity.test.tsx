@@ -1,4 +1,4 @@
-import { cosmosChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId } from '@keepkey/caip'
 import { renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
@@ -8,7 +8,7 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { useNormalizeOpportunities } from './normalizeOpportunity'
 
 jest.mock('pages/Defi/hooks/useVaultBalances')
-jest.mock('@shapeshiftoss/investor-yearn')
+jest.mock('@keepkey/investor-yearn')
 jest.mock('pages/Defi/hooks/useFoxyBalances')
 
 const mockCosmosStakingOpportunities = [

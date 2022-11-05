@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Tag, useMediaQuery } from '@chakra-ui/react'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@keepkey/unchained-client'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'

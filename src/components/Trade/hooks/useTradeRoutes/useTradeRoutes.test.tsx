@@ -1,4 +1,4 @@
-import { ethAssetId as mockEthAssetId, foxAssetId as mockFoxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId as mockEthAssetId, foxAssetId as mockFoxAssetId } from '@keepkey/caip'
 import { renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -23,7 +23,7 @@ jest.mock('hooks/useWallet/useWallet', () => ({
     state: { wallet: {} },
   }),
 }))
-jest.mock('@shapeshiftoss/swapper')
+jest.mock('@keepkey/swapper')
 jest.mock('state/slices/selectors', () => ({
   selectAssets: () => ({
     [mockEthAssetId]: mockETH,

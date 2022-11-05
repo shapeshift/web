@@ -1,6 +1,6 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import type { Asset } from '@keepkey/asset-service'
+import { TradeType, TransferType } from '@keepkey/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'

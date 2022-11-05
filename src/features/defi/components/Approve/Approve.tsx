@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
 import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import isUndefined from 'lodash/isUndefined'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { FaInfoCircle } from 'react-icons/fa'

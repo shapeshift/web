@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, btcAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
+import { adapters, btcAssetId } from '@keepkey/caip'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'

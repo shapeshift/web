@@ -1,6 +1,6 @@
 import { Button, Stack } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@keepkey/caip'
+import { FeeDataKey } from '@keepkey/chain-adapters'
 import axios from 'axios'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'

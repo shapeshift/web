@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { toAssetId } from '@keepkey/caip'
+import { KnownChainIds } from '@keepkey/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {

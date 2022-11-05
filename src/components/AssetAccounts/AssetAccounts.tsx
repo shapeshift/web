@@ -1,5 +1,5 @@
 import { Grid, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'

@@ -6,7 +6,7 @@ import {
   osmosisAssetId,
   osmosisChainId,
   toAccountId,
-} from '@shapeshiftoss/caip'
+} from '@keepkey/caip'
 import { cosmosPubKeys, osmoPubKeys } from 'test/mocks/accounts'
 
 import {

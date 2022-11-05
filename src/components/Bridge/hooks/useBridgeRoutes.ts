@@ -1,4 +1,4 @@
-import { avalancheChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { avalancheChainId, ethChainId, fromAssetId } from '@keepkey/caip'
 import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'

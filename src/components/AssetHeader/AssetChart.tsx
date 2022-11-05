@@ -13,8 +13,8 @@ import {
   StatNumber,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@keepkey/caip'
+import type { HistoryTimeframe } from '@keepkey/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'

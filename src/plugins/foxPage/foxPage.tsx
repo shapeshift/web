@@ -15,10 +15,10 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
+import { foxAssetId, foxyAssetId } from '@keepkey/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
+import { foxyAddresses } from '@keepkey/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'

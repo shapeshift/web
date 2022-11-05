@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import { fromAssetId } from '@keepkey/caip'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 

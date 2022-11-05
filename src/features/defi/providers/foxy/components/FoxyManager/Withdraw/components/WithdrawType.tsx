@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { WithdrawType } from '@shapeshiftoss/types'
+import type { Asset } from '@keepkey/asset-service'
+import { WithdrawType } from '@keepkey/types'
 import { useMemo } from 'react'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

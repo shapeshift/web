@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@keepkey/caip'
+import type { KnownChainIds } from '@keepkey/types'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'

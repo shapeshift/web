@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Asset } from '@keepkey/asset-service'
+import type { cosmossdk } from '@keepkey/chain-adapters'
+import type { BIP44Params } from '@keepkey/types'
 import {
   isStakingChainAdapter,
   StakingAction,

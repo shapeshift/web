@@ -22,7 +22,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-// import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 

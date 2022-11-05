@@ -10,7 +10,6 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
-// import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'

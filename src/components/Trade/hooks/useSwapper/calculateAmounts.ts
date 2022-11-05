@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { TradeAmountInputField } from 'components/Trade/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'

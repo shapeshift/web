@@ -1,5 +1,5 @@
-import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { DefiType } from '@keepkey/investor-foxy'
+import { KnownChainIds } from '@keepkey/types'
 import { bn } from 'lib/bignumber/bignumber'
 
 import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'

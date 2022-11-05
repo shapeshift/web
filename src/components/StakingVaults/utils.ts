@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpAssetId,

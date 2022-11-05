@@ -1,5 +1,5 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@keepkey/caip'
 import type { ControllerProps } from 'react-hook-form'
 import { Controller, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

@@ -1,6 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import type { FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'

@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@keepkey/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@keepkey/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {

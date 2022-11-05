@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId } from '@keepkey/caip'
 import { useRef } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'

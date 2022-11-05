@@ -93,7 +93,7 @@ export const App = () => {
       ) {
         sign.open({ unsignedTx, nonce: data.nonce })
       } else {
-        // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
+        // eslint-disable-next-line @keepkey/logger/no-native-console
         console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
       }
     })

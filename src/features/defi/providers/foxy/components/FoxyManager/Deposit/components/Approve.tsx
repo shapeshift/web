@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@keepkey/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@keepkey/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'

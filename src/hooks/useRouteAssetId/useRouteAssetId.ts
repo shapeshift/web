@@ -1,5 +1,5 @@
-import type { AssetId, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
-import { toChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainNamespace, ChainReference } from '@keepkey/caip'
+import { toChainId } from '@keepkey/caip'
 import { getFoxPageRouteAssetId } from 'plugins/foxPage/utils/getFoxPageRouteAssetId'
 import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'

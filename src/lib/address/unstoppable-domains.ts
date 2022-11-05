@@ -1,4 +1,4 @@
-import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import { btcChainId, ethChainId } from '@keepkey/caip'
 import { Resolution } from '@unstoppabledomains/resolution'
 import { getConfig } from 'config'
 import type {

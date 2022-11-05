@@ -1,4 +1,4 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@keepkey/caip'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'

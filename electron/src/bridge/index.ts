@@ -22,6 +22,7 @@ appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
+import logger from 'redux-logger'
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
@@ -118,6 +119,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
     try {
         await Controller.init()
     } catch (e) {
+        log.error('failed to init controller, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
         // We need to have them unplug and fully exit the app to fix it
         app.quit()

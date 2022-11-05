@@ -3,14 +3,11 @@ import { windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { lastKnownKeepkeyState } from '../';
 import { GetPublicKey } from '../types';
-import wait from 'wait-promise'
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
 @Tags('KeepKey Wallet Endpoints')
 @Route('')
 export class DPubkeyController extends Controller {
-
-    private sleep = wait.sleep;
 
     @Post('/getPublicKeys')
     @Security("api_key")

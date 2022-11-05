@@ -30,15 +30,16 @@ export let server: Server
 export let bridgeRunning = false
 let ipcQueue = new Array<IpcQueueItem>()
 
-export const lastKnownKeepkeyState: {
-    STATE: number,
-    STATUS: string,
+type MessageAndEvent = { ipcMessage: string, event: any}
+export type KeepkeyState = {
+    state: MessageAndEvent | undefined
     device: Device | undefined,
     transport: TransportDelegate | undefined,
     wallet: KeepKeyHDWallet | undefined
-} = {
-    STATE: 0,
-    STATUS: 'preInit',
+}
+
+export const lastKnownKeepkeyState: KeepkeyState = {
+    state: undefined,
     device: undefined,
     transport: undefined,
     wallet: undefined
@@ -94,24 +95,30 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
     bridgeRunning = true
 
     Controller.events.on('logs', async function (event) {
-        if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
-            queueIpcEvent('requestBootloaderMode', {})
-        } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
-            queueIpcEvent('updateBootloader', {event})
-        } else if (event.firmwareUpdateNeededNotBootloader) {
-            queueIpcEvent('updateFirmware', {event})
-        } else if(event.needsInitialize) {
-            queueIpcEvent('needsInitialize', {})
-        } else if(event.ready) {
-            queueIpcEvent('connected', {})
-            lastKnownKeepkeyState.device = Controller.device
-            lastKnownKeepkeyState.wallet = Controller.wallet
-            lastKnownKeepkeyState.transport = Controller.transport
-            shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-        }
+        let ipcMessage = ''
+        if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
+        else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
+        else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
+        else if(event.needsInitialize)ipcMessage = 'needsInitialize'
+        else if(event.ready) ipcMessage = 'connected'
+        else throw new Error('Unknown event type')
+
+        queueIpcEvent(ipcMessage, {event})
+        lastKnownKeepkeyState.state = { ipcMessage, event }
+        lastKnownKeepkeyState.device = Controller.device
+        lastKnownKeepkeyState.wallet = Controller.wallet
+        lastKnownKeepkeyState.transport = Controller.transport
+        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
+
     })
     Controller.events.on('error', function (event) {
-        queueIpcEvent('@keepkey/hardwareError', { event })
+        const ipcMessage = '@keepkey/hardwareError'
+        queueIpcEvent(ipcMessage, { event })
+        lastKnownKeepkeyState.state = { ipcMessage, event }
+        lastKnownKeepkeyState.device = Controller.device
+        lastKnownKeepkeyState.wallet = Controller.wallet
+        lastKnownKeepkeyState.transport = Controller.transport
+        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
     })
 
 

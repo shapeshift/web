@@ -50,21 +50,24 @@ export const ConnectWallet = () => {
           width='100%'
           height='100%'
           alignItems='center'
-          justifyContent='center'>
+          justifyContent='center'
+        >
           <Flex
             flexDir='column'
             alignItems='center'
             justifyContent='center'
             zIndex={4}
             width='100vw'
-            height='100vh'>
+            height='100vh'
+          >
             <Flex
               flex={1}
               flexDir='column'
               justifyContent='center'
               height='100vh'
               width='60%'
-              px={6}>
+              px={6}
+            >
               <Image objectFit='cover' width='70px' src={logo} />
               <Flex flexDir='row' letterSpacing='-2px' my={6}>
                 <RawText
@@ -74,7 +77,8 @@ export const ConnectWallet = () => {
                   fontWeight='light'
                   lineHeight={1}
                   fontSize='6xl'
-                  userSelect={'none'}>
+                  userSelect={'none'}
+                >
                   {translate('connectWalletPage.nextFrontier')}
                 </RawText>
               </Flex>
@@ -92,7 +96,8 @@ export const ConnectWallet = () => {
                 width='160px'
                 href='https://keepkey.myshopify.com/'
                 rightIcon={<ExternalLinkIcon />}
-                colorScheme='blue'>
+                colorScheme='blue'
+              >
                 {translate('connectWalletPage.buyKeepKey')}
               </Button>
             </Flex>
@@ -105,18 +110,21 @@ export const ConnectWallet = () => {
               py={3}
               px={4}
               bottom={0}
-              alignItems={'center'}>
+              alignItems={'center'}
+            >
               <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
                 <Link
                   href='/#/legal/terms-of-service'
                   color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}>
+                  _hover={{ color: 'white' }}
+                >
                   <Text translation='common.terms' />
                 </Link>
                 <Link
                   href='/#/legal/privacy-policy'
                   color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}>
+                  _hover={{ color: 'white' }}
+                >
                   <Text translation='common.privacy' />
                 </Link>
                 {isMigrationMessageEnabled && (
@@ -124,7 +132,8 @@ export const ConnectWallet = () => {
                     href='https://github.com/shapeshift'
                     isExternal
                     color='whiteAlpha.500'
-                    _hover={{ color: 'white' }}>
+                    _hover={{ color: 'white' }}
+                  >
                     <Text translation='connectWalletPage.poweredBy' />
                   </Link>
                 )}

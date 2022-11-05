@@ -56,7 +56,7 @@ export const KeepKeyPin = ({
   )
 
   const handleSubmit = async () => {
-    console.log('handle submit pin')
+    // console.log('handle submit pin')
     setError(null)
     if (translationType !== 'remove')
       setDeviceState({

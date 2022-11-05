@@ -5,6 +5,7 @@ import type { KKAsset } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { Main } from '../Layout/Main'
+import { DappGrid } from './DappGrid'
 import { KKAssetHeader } from './KKAssetHeader/KKAssetHeader'
 type AssetDetailsProps = {
   asset: KKAsset
@@ -25,6 +26,7 @@ export const KKAssetAccountDetails = ({ asset }: AssetDetailsProps) => {
         <Link color='blue.400' isExternal href={asset.link}>
           Visit Coingecko Page
         </Link>
+        <DappGrid asset={asset} />
       </Stack>
     </Main>
   )

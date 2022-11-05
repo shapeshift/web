@@ -1,0 +1,14 @@
+[
+    {
+        "id": "0",
+        "homepage": "https://keepkey-sdk.vercel.app/",
+        "name": "Ripple Demo app",
+        "image": "https://static.coincap.io/assets/icons/xrp@2x.png",
+        "author": "Highlander",
+        "devSignAddress": "0x2356A15042F98f0a53784F42237bd4b2873AADCF",
+        "associatedAsset": {
+            "assetId": "keepkey_XRP",
+            "symbol": "XRP"
+        }
+    }
+]

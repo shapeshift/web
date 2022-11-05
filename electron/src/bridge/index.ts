@@ -10,7 +10,7 @@ import { ipcMain, app } from 'electron'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
-import { appStartCalled, windows } from '../main'
+import { windows } from '../main'
 import { IpcQueueItem } from './types'
 import { KKController } from './kk-controller'
 
@@ -45,18 +45,15 @@ export const lastKnownKeepkeyState: {
     wallet: undefined
 }
 
+let renderListenersReady = false
+
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve) => {
-    ipcMain.on('@app/start', async (event, data) => {
-        let newQueue = [...ipcQueue]
-        await new Promise(() => {
-            const endIdx = ipcQueue.length - 1
-            ipcQueue.forEach((item, idx) => {
-                log.info('ipcEventCalledFromQueue: ' + item.eventName)
-                if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)
-                ipcQueue.splice(idx, 1);
-            })
+    ipcMain.on('renderListenersReady', async () => {
+        renderListenersReady = true
+        ipcQueue.forEach((item, idx) => {
+            if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)
+            ipcQueue.splice(idx, 1);
         })
-        ipcQueue = [...newQueue]
     })
     let tag = " | start_bridge | "
     let API_PORT = port || 1646
@@ -90,23 +87,14 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
 
     RegisterRoutes(appExpress);
 
-    //port
-    try {
-        log.info(tag, "starting server! **** ")
-        server = appExpress.listen(API_PORT, () => {
-            queueIpcEvent('@bridge/started', {})
-            log.info(`server started at http://localhost:${API_PORT}`)
-        })
-    } catch (e) {
-        log.info('e: ', e)
-    }
+    log.info(tag, "starting server! **** ")
+    server = appExpress.listen(API_PORT, () => {
+        log.info(`server started at http://localhost:${API_PORT}`)
+    })
 
     bridgeRunning = true
 
-    log.info("Starting Hardware Controller")
-
     Controller.events.on('logs', async function (event) {
-        console.log('event is', event)
         if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
             queueIpcEvent('requestBootloaderMode', {})
         } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
@@ -129,8 +117,15 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
         updateTrayIcon('error')
     })
 
-    //Init MUST be AFTER listeners are made (race condition)
-    await Controller.init()
+
+    try {
+        await Controller.init()
+    } catch (e) {
+        // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
+        // We need to have them unplug and fully exit the app to fix it
+        app.quit()
+        process.exit()
+    }
 
     ipcMain.on('@keepkey/update-firmware', async event => {
             let result = await getLatestFirmwareData()
@@ -141,9 +136,9 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
                 bootloader: true,
                 success: true
             })
-            app.quit();
+            app.quit()
             app.relaunch();
-    })
+        })
 
     ipcMain.on('@keepkey/update-bootloader', async event => {
         let result = await getLatestFirmwareData()
@@ -172,10 +167,10 @@ export const stop_bridge = () => new Promise<void>((resolve, reject) => {
 })
 
 export const queueIpcEvent = (eventName: string, args: any) => {
-    if (!appStartCalled) {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
         return ipcQueue.push({ eventName, args })
     }
-    else if (windows.mainWindow && !windows.mainWindow.isDestroyed()) {
+    else {
         return windows.mainWindow.webContents.send(eventName, args)
     }
 }

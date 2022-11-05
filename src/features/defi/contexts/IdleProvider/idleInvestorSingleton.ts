@@ -1,6 +1,6 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { IdleInvestor } from '@shapeshiftoss/investor-idle'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainAdapter } from '@keepkey/chain-adapters'
+import { IdleInvestor } from '@keepkey/investor-idle'
+import { KnownChainIds } from '@keepkey/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 

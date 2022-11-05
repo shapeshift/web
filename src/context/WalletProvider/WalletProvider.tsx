@@ -1,4 +1,4 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
+/* eslint-disable @keepkey/logger/no-native-console */
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import type { KeepKeySDK } from '@keepkey/keepkey-sdk'
 import { getKeepKeySDK } from '@keepkey/keepkey-sdk'
@@ -128,7 +128,7 @@ const initialState: InitialState = {
   deviceState: initialDeviceState,
   disconnectOnCloseModal: false,
   keepkeySdk: null,
-  browserUrl: null
+  browserUrl: null,
 }
 
 export const isKeyManagerWithProvider = (keyManager: KeyManager | null) => Boolean(keyManager)
@@ -346,7 +346,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const localWalletDeviceId = getLocalWalletDeviceId()
     fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
-      ; (async () => {
+      ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
@@ -458,15 +458,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const doStartBridge = useCallback(() => {
+  const startBridgeListeners = useCallback(() => {
     ipcRenderer.on('@walletconnect/paired', (_event, data) => {
       dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
     })
 
     //listen to events on main
     ipcRenderer.on('hardware', (_event, data) => {
-      //event
-      console.log('hardware event: ', data)
       switch (data.event.event) {
         case 'connect':
           playSound('success')
@@ -475,67 +473,20 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           playSound('fail')
           break
         default:
-        //TODO Spammy
-        //console.log("unhandled event! ",data.event)
       }
     })
 
-    ipcRenderer.on('@bridge/started', (_event, _data) => {
-      pairAndConnect.current()
-    })
-
-    ipcRenderer.on('@keepkey/hardwareError', (_event, _data) => {
+    ipcRenderer.on('@keepkey/hardwareError', () => {
       setNeedsResetIfNotUpdating()
     })
 
-    ipcRenderer.on('needsInitialize', (_event, data) => {
+    ipcRenderer.on('needsInitialize', () => {
       // if needs initialize we do the normal pair process and then web detects that it needs initialize
-      if (data.state === 5) pairAndConnect.current()
+      pairAndConnect.current()
     })
 
     //HDwallet API
     //TODO moveme into own file
-    ipcRenderer.on('@hdwallet/getPublicKeys', async (_event, data) => {
-      if (state.wallet) {
-        // @ts-ignore
-        let pubkeys = await state.wallet.getPublicKeys(data.payload.paths)
-        console.info('pubkeys: ', pubkeys)
-        ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/btcGetAddress', async (_event, data) => {
-      let payload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        console.info('payload: ', payload)
-        // @ts-ignore
-        let pubkeys = await state.wallet.btcGetAddress(payload)
-        ipcRenderer.send('@hdwallet/response/btcGetAddress', pubkeys)
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/ethGetAddress', async (_event, data) => {
-      let payload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        console.info('payload: ', payload)
-        // @ts-ignore
-        let pubkeys = await state.wallet.ethGetAddress(payload)
-        ipcRenderer.send('@hdwallet/response/ethGetAddress', pubkeys)
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/thorchainGetAddress', async (_event, data) => {
-      let payload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.thorchainGetAddress(payload)
-        ipcRenderer.send('@hdwallet/response/thorchainGetAddress', pubkeys)
-      }
-    })
-
     ipcRenderer.on('@hdwallet/osmosisGetAddress', async (_event, data) => {
       let payload = data.payload
       if (state.wallet) {
@@ -543,51 +494,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisGetAddress(payload)
         ipcRenderer.send('@hdwallet/response/osmosisGetAddress', pubkeys)
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/binanceGetAddress', async (_event, data) => {
-      let payload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.binanceGetAddress(payload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response/binanceGetAddress', { error: 'wallet not online!' })
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/cosmosGetAddress', async (_event, data) => {
-      let payload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.cosmosGetAddress(payload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response/cosmosGetAddress', { error: 'wallet not online!' })
-      }
-    })
-
-    //signTx
-    ipcRenderer.on('@hdwallet/btcSignTx', async (_event, data) => {
-      let HDwalletPayload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.btcSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response/btcSignTx', pubkeys)
-      }
-    })
-
-    ipcRenderer.on('@hdwallet/thorchainSignTx', async (_event, data) => {
-      let HDwalletPayload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response/thorchainSignTx', pubkeys)
       }
     })
 
@@ -611,16 +517,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('@hdwallet/ethSignTx', async (_event, data) => {
-      let HDwalletPayload = data.payload
-      if (state.wallet) {
-        console.info('state.wallet: ', state.wallet)
-        // @ts-ignore
-        let pubkeys = await state.wallet.ethSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response/ethSignTx', pubkeys)
-      }
-    })
-
     ipcRenderer.on('connected', async (_event, _data) => {
       setNeedsReset(false)
       pairAndConnect.current()
@@ -628,7 +524,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     //END HDwallet API
 
-    ipcRenderer.send('@app/start', {})
+    // inform the electron process we are ready to receive ipc messages
+    ipcRenderer.send('renderListenersReady', {})
   }, [setNeedsResetIfNotUpdating, state.wallet])
 
   const setupKeepKeySDK = () => {
@@ -654,7 +551,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useEffect(() => {
     disconnect()
-    doStartBridge()
+    startBridgeListeners()
     setupKeepKeySDK()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

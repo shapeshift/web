@@ -1,5 +1,5 @@
 import { Center } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
+import type { AccountId } from '@keepkey/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {

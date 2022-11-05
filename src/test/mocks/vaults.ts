@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@keepkey/types'
 import BigNumber from 'bignumber.js'
 import type {
   MergedEarnVault,

@@ -9,8 +9,8 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId } from '@keepkey/caip'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'

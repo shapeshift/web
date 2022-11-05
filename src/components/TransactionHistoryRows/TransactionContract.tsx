@@ -1,4 +1,4 @@
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import { TransferType } from '@keepkey/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ContractMethod, Direction } from 'hooks/useTxDetails/useTxDetails'

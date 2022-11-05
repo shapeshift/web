@@ -19,10 +19,10 @@ import {
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId } from '@keepkey/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@keepkey/caip'
+import { KnownChainIds } from '@keepkey/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'

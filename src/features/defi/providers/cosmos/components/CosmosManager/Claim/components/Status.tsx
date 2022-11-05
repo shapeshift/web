@@ -1,5 +1,5 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@keepkey/caip'
 import type {
   DefiParams,
   DefiQueryParams,

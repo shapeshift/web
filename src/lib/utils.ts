@@ -1,5 +1,5 @@
-import type { AssetReference } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
+import type { AssetReference } from '@keepkey/caip'
+import { ASSET_REFERENCE } from '@keepkey/caip'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 

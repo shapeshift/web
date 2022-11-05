@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { SwapperManager } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { SwapperManager } from '@keepkey/swapper'
+import { KnownChainIds } from '@keepkey/types'
 import { act, renderHook } from '@testing-library/react'
 import debounce from 'lodash/debounce'
 import type { PropsWithChildren } from 'react'
@@ -19,7 +19,7 @@ import { useSwapper } from './useSwapper'
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
-jest.mock('@shapeshiftoss/swapper')
+jest.mock('@keepkey/swapper')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('context/PluginProvider/chainAdapterSingleton')

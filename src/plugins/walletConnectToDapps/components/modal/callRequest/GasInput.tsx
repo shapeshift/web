@@ -9,10 +9,10 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ethereum } from '@keepkey/chain-adapters'
+import { FeeDataKey } from '@keepkey/chain-adapters'
+import { bnOrZero } from '@keepkey/investor-foxy'
+import { KnownChainIds } from '@keepkey/types'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'

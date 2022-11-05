@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { bnOrZero } from '@keepkey/investor-foxy'
 import { type FC } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

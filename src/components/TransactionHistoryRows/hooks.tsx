@@ -1,5 +1,5 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { Dex } from '@shapeshiftoss/unchained-client'
+import { HistoryTimeframe } from '@keepkey/types'
+import { Dex } from '@keepkey/unchained-client'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'

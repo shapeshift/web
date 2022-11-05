@@ -1,5 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@keepkey/caip'
+import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@keepkey/caip'
 import flow from 'lodash/flow'
 
 import {

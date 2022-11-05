@@ -1,7 +1,7 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { SwapErrorTypes } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { fromAccountId } from '@keepkey/caip'
+import type { SwapErrorTypes } from '@keepkey/swapper'
+import type { KnownChainIds } from '@keepkey/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -210,7 +210,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmount && sellAssetAccountId)) return
+    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmountCryptoPrecision && sellAssetAccountId)) return
     setIsUpdatingTrade(true)
 
     try {
@@ -227,7 +227,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       await updateTrade({
         sellAsset: quote?.sellAsset,
         buyAsset: quote?.buyAsset,
-        amount: quote?.sellAmount,
+        amount: quote?.sellAmountCryptoPrecision,
       })
       history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate: feeAssetFiatRate } })
     } catch (e) {

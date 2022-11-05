@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { WithdrawType } from '@shapeshiftoss/types'
+import type { ChainId } from '@keepkey/caip'
+import type { WithdrawType } from '@keepkey/types'
 import type {
   Field as WithdrawField,
   WithdrawValues,

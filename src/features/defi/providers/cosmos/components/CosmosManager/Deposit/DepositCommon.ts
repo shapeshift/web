@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@keepkey/caip'
 import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BigNumber } from 'lib/bignumber/bignumber'

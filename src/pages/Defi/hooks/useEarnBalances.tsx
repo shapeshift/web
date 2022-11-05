@@ -1,4 +1,4 @@
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, osmosisAssetId } from '@keepkey/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'

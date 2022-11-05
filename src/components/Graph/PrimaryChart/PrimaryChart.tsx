@@ -1,6 +1,6 @@
 import { useColorModeValue } from '@chakra-ui/color-mode'
 import { useToken } from '@chakra-ui/system'
-import type { HistoryData } from '@shapeshiftoss/types'
+import type { HistoryData } from '@keepkey/types'
 import { localPoint } from '@visx/event'
 import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'

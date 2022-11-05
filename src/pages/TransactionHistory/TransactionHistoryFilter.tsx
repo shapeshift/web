@@ -13,7 +13,7 @@ import {
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { TradeType, TransferType } from '@keepkey/unchained-client'
 import dayjs from 'dayjs'
 import { useRef, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'

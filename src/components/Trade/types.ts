@@ -1,6 +1,6 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { type ChainId } from '@shapeshiftoss/caip'
+import { type Asset } from '@keepkey/asset-service'
+import type { AssetId } from '@keepkey/caip'
+import { type ChainId } from '@keepkey/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   type BuildTradeInput,
@@ -9,8 +9,8 @@ import {
   type QuoteFeeData,
   type Trade,
   type TradeQuote,
-} from '@shapeshiftoss/swapper'
-import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+} from '@keepkey/swapper'
+import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@keepkey/types'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
@@ -82,12 +82,12 @@ export type GetReceiveAddressArgs = {
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
+  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  'sellAmount' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
+  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
 >
 
 export type GetFormFeesArgs = {

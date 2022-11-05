@@ -9,6 +9,7 @@ import wait from 'wait-promise'
 import { EosToSignTx, EosTxSigned, BinanceSignedTx, BinanceSignTx, RippleSignedTx, RippleSignTx, BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 import { uniqueId } from 'lodash';
 import { openSignTxWindow } from '../../utils';
+import { checkKeepKeyUnlocked } from '../../utils';
 
 @Tags('KeepKey signTx Endpoints')
 @Route('')

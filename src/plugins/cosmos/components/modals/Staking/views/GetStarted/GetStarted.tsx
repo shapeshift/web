@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import type { History } from 'history'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { useMemo } from 'react'

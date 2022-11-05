@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertIcon, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import type { InterpolationOptions } from 'node-polyglot'

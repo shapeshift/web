@@ -1,4 +1,4 @@
-import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
+import { KnownChainIds, WithdrawType } from '@keepkey/types'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 

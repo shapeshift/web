@@ -1,8 +1,8 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { dogecoin } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import type { ChainId } from '@keepkey/caip'
+import type { ChainAdapter } from '@keepkey/chain-adapters'
+import { dogecoin } from '@keepkey/chain-adapters'
+import { KnownChainIds } from '@keepkey/types'
+import * as unchained from '@keepkey/unchained-client'
 import { getConfig } from 'config'
 import { type Plugins } from 'plugins/types'
 

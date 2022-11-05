@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@keepkey/caip'
 import type { History } from 'history'
 
 export type GetStartedManagerProps = {

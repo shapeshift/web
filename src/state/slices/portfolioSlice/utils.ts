@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId, AssetId, ChainId } from '@keepkey/caip'
 import {
   accountIdToChainId,
   avalancheChainId,
@@ -16,9 +16,9 @@ import {
   osmosisChainId,
   thorchainChainId,
   toAccountId,
-} from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/caip'
+import type { Account } from '@keepkey/chain-adapters'
+import { utxoAccountParams } from '@keepkey/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsBTC,
@@ -27,8 +27,8 @@ import {
   supportsEthSwitchChain,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { UtxoAccountType } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@keepkey/types'
+import { UtxoAccountType } from '@keepkey/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'

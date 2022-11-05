@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AssetId } from '@keepkey/caip'
+import type { HistoryTimeframe } from '@keepkey/types'
 import { useEffect } from 'react'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'

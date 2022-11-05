@@ -1,4 +1,4 @@
-import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import type { YearnOpportunity } from '@keepkey/investor-yearn'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 type EstimatedGas = {

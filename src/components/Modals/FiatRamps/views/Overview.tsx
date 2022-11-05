@@ -15,8 +15,8 @@ import {
   Text as RawText,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@keepkey/caip'
+import { fromAccountId } from '@keepkey/caip'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useEffect, useMemo, useState } from 'react'

@@ -1,4 +1,4 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
+import { type Asset } from '@keepkey/asset-service'
 import {
   type AssetId,
   type ChainId,
@@ -10,15 +10,15 @@ import {
   fromAssetId,
   fromChainId,
   osmosisAssetId,
-} from '@shapeshiftoss/caip'
-import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/caip'
+import { type EvmChainId } from '@keepkey/chain-adapters'
 import {
   type Swapper,
   type Trade,
   type TradeQuote,
   type UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@keepkey/swapper'
+import { KnownChainIds } from '@keepkey/types'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
@@ -75,7 +75,7 @@ export const getSendMaxAmount = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.fee)
+  const feeEstimate = bnOrZero(quote?.feeData?.networkFee)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
   return positiveOrZero(
@@ -103,15 +103,12 @@ const getEvmFees = <T extends EvmChainId>(
   const estimatedGas = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
 
   return {
-    fee: networkFeeCryptoHuman,
     chainSpecific: {
       approvalFee,
       gasPrice,
       estimatedGas,
       totalFee,
     },
-    // The fee paid to the protocol for the transaction
-    tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
@@ -138,9 +135,7 @@ export const getFormFees = ({
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         networkFeeCryptoHuman,
-        fee: networkFeeCryptoHuman,
         sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
-        tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
       }
@@ -149,9 +144,6 @@ export const getFormFees = ({
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         networkFeeCryptoHuman,
-        fee: networkFeeCryptoHuman,
-        chainSpecific: utxoTrade.feeData.chainSpecific,
-        tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
         sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',

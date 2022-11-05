@@ -7,13 +7,14 @@ import {
   Flex,
   HStack,
   IconButton,
+  Image,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import KeepKeyIconBlack from 'assets/kk-icon-black.png'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -21,7 +22,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -92,7 +92,7 @@ export const Header = () => {
             </HStack>
           </Box>
         )}
-        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
+        <HStack height='4.5rem' width='full' borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'
             margin='0 auto'
@@ -111,7 +111,7 @@ export const Header = () => {
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
-                <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
+                <Image boxSize='48px' src={KeepKeyIconBlack} alt='Go to Dashboard' />
               </Link>
             </Flex>
             <HStack
@@ -132,7 +132,6 @@ export const Header = () => {
                 </Box>
               )}
               <ChainMenu display={{ base: 'none', md: 'block' }} />
-              <FiatRamps />
             </Flex>
           </HStack>
         </HStack>

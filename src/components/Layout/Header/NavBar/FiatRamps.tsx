@@ -1,9 +1,6 @@
-import type { BoxProps } from '@chakra-ui/react'
+import { BoxProps, Button } from '@chakra-ui/react'
 import { useMediaQuery } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/react'
-import { keyframes } from '@chakra-ui/react'
-import { Box, IconButton, Tooltip } from '@chakra-ui/react'
-import { FaCreditCard } from 'react-icons/fa'
+import { Box, Tooltip } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
@@ -23,43 +20,12 @@ export const FiatRamps = (props: FiatRampsProps) => {
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
-  const bg = useColorModeValue(
-    'linear-gradient(126deg, var(--chakra-colors-gray-100) 0%, var(--chakra-colors-gray-100) 40%, var(--chakra-colors-white) 50%, var(--chakra-colors-gray-100) 60%)',
-    'linear-gradient(126deg, var(--chakra-colors-gray-700) 0%, var(--chakra-colors-gray-700) 40%, var(--chakra-colors-gray-500) 50%, var(--chakra-colors-gray-700) 60%)',
-  )
-
-  const rainbow = keyframes`
-    0% {
-      background-position: 10% 0;
-    }
-    2% {
-      background-position: 10% 0;
-    }
-    
-    10% {
-      background-position: 91% 100%;
-    }
-    14% {
-      background-position: 91% 100%;
-    }
-    100% {
-      background-position: 91% 100%;
-    }
-  `
-
   return (
-    <Box {...props}>
+    <Box alignSelf='flex-end' {...props} mr={4}>
       <Tooltip label={translate('fiatRamps.headerLabel')} isDisabled={!isLargerThanMd}>
-        <IconButton
-          icon={<FaCreditCard />}
-          data-test='fiat-ramps-button'
-          bg={bg}
-          backgroundSize='300% 300%'
-          animation={`${rainbow} 10s ease infinite`}
-          width='full'
-          aria-label={translate('fiatRamps.headerLabel')}
-          onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
-        />
+        <Button onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}>
+          Buy Bitcoin
+        </Button>
       </Tooltip>
     </Box>
   )

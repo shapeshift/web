@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import type { Asset } from '@keepkey/asset-service'
+import type { TxTransfer } from '@keepkey/chain-adapters'
+import { TransferType } from '@keepkey/unchained-client'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
   getBuyTransfer,

@@ -1,8 +1,8 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { ethChainId } from '@shapeshiftoss/caip'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import type { MarketData } from '@shapeshiftoss/types'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import type { Asset } from '@keepkey/asset-service'
+import { ethChainId } from '@keepkey/caip'
+import type { TxTransfer } from '@keepkey/chain-adapters'
+import type { MarketData } from '@keepkey/types'
+import { TradeType, TransferType } from '@keepkey/unchained-client'
 import { useEnsName } from 'wagmi'
 import type { ReduxState } from 'state/reducer'
 import {

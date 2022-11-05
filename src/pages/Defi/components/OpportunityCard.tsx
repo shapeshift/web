@@ -11,15 +11,15 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AssetId } from '@keepkey/caip'
 import {
   cosmosChainId,
   foxAssetId,
   foxyAssetId,
   fromAssetId,
   osmosisChainId,
-} from '@shapeshiftoss/caip'
+} from '@keepkey/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory } from 'react-router'

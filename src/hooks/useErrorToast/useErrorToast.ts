@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { SwapErrorTypes } from '@shapeshiftoss/swapper'
+import { SwapErrorTypes } from '@keepkey/swapper'
 import { get, isError } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { logger } from 'lib/logger'

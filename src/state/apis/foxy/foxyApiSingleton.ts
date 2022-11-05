@@ -1,6 +1,6 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainAdapter } from '@keepkey/chain-adapters'
+import { foxyAddresses, FoxyApi } from '@keepkey/investor-foxy'
+import { KnownChainIds } from '@keepkey/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 

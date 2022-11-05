@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@keepkey/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'

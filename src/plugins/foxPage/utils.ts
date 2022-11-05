@@ -1,5 +1,5 @@
 import type { Contract } from '@ethersproject/contracts'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@keepkey/caip'
 import type { TokenAmount } from '@uniswap/sdk'
 import { providers } from 'ethers'
 import memoize from 'lodash/memoize'

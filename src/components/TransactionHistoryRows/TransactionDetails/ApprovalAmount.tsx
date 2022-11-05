@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { AssetId } from '@keepkey/caip'
+import type { TxMetadata } from '@keepkey/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'

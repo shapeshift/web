@@ -1,5 +1,5 @@
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@keepkey/chain-adapters'
+import { KnownChainIds } from '@keepkey/types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { mocked } from 'jest-mock'
 import type { PropsWithChildren } from 'react'

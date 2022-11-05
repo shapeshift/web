@@ -1,10 +1,10 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@keepkey/asset-service'
+import { fromAssetId } from '@keepkey/caip'
+import type { UtxoBaseAdapter } from '@keepkey/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@keepkey/swapper'
+import type { BIP44Params, UtxoAccountType } from '@keepkey/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
@@ -48,7 +48,7 @@ export const getTradeQuoteArgs = async ({
 }: GetTradeQuoteInputArgs) => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmount: toBaseUnit(sellAmount, sellAsset?.precision || 0),
+    sellAmountCryptoPrecision: toBaseUnit(sellAmount, sellAsset?.precision || 0),
     sellAsset,
     buyAsset,
     sendMax: isSendMax,

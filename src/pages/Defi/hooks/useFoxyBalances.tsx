@@ -1,4 +1,4 @@
-import { ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, toAccountId } from '@keepkey/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'

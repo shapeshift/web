@@ -1,8 +1,8 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
-import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from '@keepkey/asset-service'
+import { ethChainId, foxAssetId } from '@keepkey/caip'
+import type { TxMetadata } from '@keepkey/chain-adapters'
+import type { MarketData } from '@keepkey/types'
 import { mockMarketData } from 'test/mocks/marketData'
 
 import { makeAmountOrDefault } from './utils'

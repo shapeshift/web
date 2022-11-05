@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@keepkey/caip'
+import { foxAssetId } from '@keepkey/caip'
 import type {
   DefiParams,
   DefiQueryParams,

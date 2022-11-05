@@ -1,13 +1,13 @@
-import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
-import type { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalancheChainId, ethChainId } from '@keepkey/caip'
+import type { avalanche, ethereum } from '@keepkey/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,
   SwapperManager,
   ThorchainSwapper,
   ZrxSwapper,
-} from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@keepkey/swapper'
+import { KnownChainIds } from '@keepkey/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'

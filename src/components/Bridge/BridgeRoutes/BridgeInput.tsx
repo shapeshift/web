@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Divider, IconButton, List, Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { bnOrZero } from '@keepkey/investor-foxy'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'

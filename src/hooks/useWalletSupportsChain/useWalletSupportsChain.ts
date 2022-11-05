@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@keepkey/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -9,7 +9,7 @@ import {
   ltcChainId,
   osmosisChainId,
   thorchainChainId,
-} from '@shapeshiftoss/caip'
+} from '@keepkey/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsBTC,

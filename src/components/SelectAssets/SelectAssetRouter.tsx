@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { AssetId } from '@keepkey/caip'
 import type { RouteComponentProps } from 'react-router-dom'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 

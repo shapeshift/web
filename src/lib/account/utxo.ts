@@ -1,11 +1,11 @@
-import { toAccountId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { toAccountId } from '@keepkey/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@keepkey/chain-adapters'
 import {
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams,
   utxoChainIds,
-} from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/chain-adapters'
 import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'

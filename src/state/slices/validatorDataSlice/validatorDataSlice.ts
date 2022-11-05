@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@keepkey/caip'
 import type {
   cosmossdk,
   CosmosSdkBaseAdapter,
   CosmosSdkChainId,
-} from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'

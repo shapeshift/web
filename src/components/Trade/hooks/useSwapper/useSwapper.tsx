@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@keepkey/asset-service'
+import type { ChainId } from '@keepkey/caip'
+import { CHAIN_NAMESPACE, ethAssetId, fromAssetId } from '@keepkey/caip'
+import type { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@keepkey/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   Swapper,
@@ -11,10 +11,10 @@ import type {
   TradeResult,
   TradeTxs,
   UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorTypes, SwapperManager } from '@shapeshiftoss/swapper'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
+} from '@keepkey/swapper'
+import { SwapError, SwapErrorTypes, SwapperManager } from '@keepkey/swapper'
+import type { BIP44Params, UtxoAccountType } from '@keepkey/types'
+import { KnownChainIds } from '@keepkey/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -298,10 +298,10 @@ export const useSwapper = () => {
 
     const trade: Trade<KnownChainIds> = await (async () => {
       const { chainNamespace } = fromAssetId(sellAsset.assetId)
-      if (isSupportedSwappingChain(sellAsset.chainId) && sellAccountMetadata) {
+      if (isSupportedSwappingChain(sellAsset.chainId) && sellAccountMetadata && sellAccountMetadata.accountType) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
-          sellAmount: amount,
+          sellAmountCryptoPrecision: amount,
           sellAsset,
           buyAsset,
           bip44Params: sellAccountMetadata.bip44Params,
@@ -321,7 +321,7 @@ export const useSwapper = () => {
         )
         return swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoSupportedChainIds,
-          sellAmount: amount,
+          sellAmountCryptoPrecision: amount,
           sellAsset,
           buyAsset,
           wallet,
@@ -461,7 +461,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId,
                 sellAsset,
                 buyAsset,
-                sellAmount: sellAmountSellAssetBaseUnit,
+                sellAmountCryptoPrecision: sellAmountSellAssetBaseUnit,
                 sendMax: false,
                 bip44Params: sellAccountMetadata.bip44Params,
                 receiveAddress,
@@ -480,7 +480,7 @@ export const useSwapper = () => {
                 chainId: sellAsset.chainId as UtxoSupportedChainIds,
                 sellAsset,
                 buyAsset,
-                sellAmount: sellAmountSellAssetBaseUnit,
+                sellAmountCryptoPrecision: sellAmountSellAssetBaseUnit,
                 sendMax: false,
                 bip44Params: sellAccountMetadata.bip44Params,
                 accountType: sellAccountMetadata.accountType,
@@ -494,7 +494,7 @@ export const useSwapper = () => {
           await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
           const minSellAmount = toBaseUnit(tradeQuote.minimum, tradeQuote.sellAsset.precision)
-          const isBelowMinSellAmount = bnOrZero(tradeQuote.sellAmount).lt(minSellAmount)
+          const isBelowMinSellAmount = bnOrZero(tradeQuote.sellAmountCryptoPrecision).lt(minSellAmount)
 
           if (isBelowMinSellAmount) {
             setValue('quoteError', SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL)
@@ -625,14 +625,12 @@ export const useSwapper = () => {
       const estimatedGas = bnOrZero(evmTrade.feeData.chainSpecific.estimatedGas).toString()
 
       return {
-        fee: networkFeeCryptoHuman,
         chainSpecific: {
           approvalFee,
           gasPrice,
           estimatedGas,
           totalFee,
         },
-        tradeFee: evmTrade.feeData.sellAssetTradeFeeUsd ?? '',
         tradeFeeSource,
         networkFeeCryptoHuman,
         sellAssetTradeFeeUsd: evmTrade.feeData.sellAssetTradeFeeUsd ?? '',
@@ -649,9 +647,7 @@ export const useSwapper = () => {
         break
       case CHAIN_NAMESPACE.CosmosSdk: {
         const fees: DisplayFeeData<KnownChainIds.OsmosisMainnet | KnownChainIds.CosmosMainnet> = {
-          fee: networkFeeCryptoHuman,
           networkFeeCryptoHuman,
-          tradeFee: trade.feeData.sellAssetTradeFeeUsd ?? '',
           buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
           tradeFeeSource,
           sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
@@ -664,10 +660,8 @@ export const useSwapper = () => {
           const utxoTrade = trade as Trade<UtxoSupportedChainIds>
 
           const fees: DisplayFeeData<UtxoSupportedChainIds> = {
-            fee: networkFeeCryptoHuman,
             networkFeeCryptoHuman,
             chainSpecific: utxoTrade.feeData.chainSpecific,
-            tradeFee: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
             buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
             tradeFeeSource,
             sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
@@ -700,7 +694,7 @@ export const useSwapper = () => {
     if (!swapper) throw new Error('no swapper available')
     if (!wallet) throw new Error('no wallet available')
     const txid = isExactAllowance
-      ? await swapper.approveAmount({ amount: quote.sellAmount, quote, wallet })
+      ? await swapper.approveAmount({ amount: quote.sellAmountCryptoPrecision, quote, wallet })
       : await swapper.approveInfinite({ quote, wallet })
     return txid
   }

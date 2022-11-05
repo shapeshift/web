@@ -5,7 +5,6 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
-  Button,
   Divider,
   Flex,
   Link,
@@ -13,9 +12,9 @@ import {
   StackDivider,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@keepkey/caip'
+import { type TradeTxs } from '@keepkey/swapper'
+import { TxStatus } from '@keepkey/unchained-client'
 import { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -53,6 +52,7 @@ import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
+import { Button } from '@chakra-ui/react'
 
 type TradeConfirmParams = {
   fiatRate: string
@@ -217,7 +217,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   }
 
   const sellAmountCrypto = fromBaseUnit(
-    bnOrZero(trade?.sellAmount),
+    bnOrZero(trade.sellAmountCryptoPrecision),
     trade?.sellAsset?.precision ?? 0,
   )
 
@@ -293,7 +293,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 )}
               </Flex>
               <Stack spacing={4}>
-                <Row>
+                <Row colorScheme={undefined}>
                   <Row.Label>{translate('common.send')}</Row.Label>
                   <Row.Value textAlign='right'>
                     <Amount.Crypto value={sellAmountCrypto} symbol={trade.sellAsset.symbol} />
@@ -303,24 +303,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={
-                    executedTradeAmountConstants?.beforeFeesBuyAsset ??
+                  beforeFees={executedTradeAmountConstants?.beforeFeesBuyAsset ??
                     tradeAmountConstants?.beforeFeesBuyAsset ??
-                    ''
-                  }
-                  protocolFee={
-                    executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
+                    ''}
+                  protocolFee={executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
                     tradeAmountConstants?.totalTradeFeeBuyAsset ??
-                    ''
-                  }
+                    ''}
                   shapeShiftFee='0'
                   slippage={slippage}
-                  swapperName={swapperName}
-                />
+                  swapperName={swapperName} colorScheme={undefined}                />
               </Stack>
               <Stack spacing={4}>
                 {sellTxid && (
-                  <Row>
+                  <Row colorScheme={undefined}>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
@@ -331,7 +326,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     </Box>
                   </Row>
                 )}
-                <Row>
+                <Row colorScheme={undefined}>
                   <HelperTooltip label={translate('trade.tooltip.rate')}>
                     <Row.Label>
                       <Text translation='trade.rate' />
@@ -346,14 +341,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     )}
                   </Box>
                 </Row>
-                <Row>
+                <Row colorScheme={undefined}>
                   <HelperTooltip label={translate('trade.tooltip.minerFee')}>
                     <Row.Label>
                       <Text translation='trade.minerFee' />
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {bnOrZero(fees?.fee).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
+                    {bnOrZero(fees?.networkFeeCryptoHuman).toNumber()} {defaultFeeAsset.symbol} ≃{' '}
                     {toFiat(networkFeeFiat.toNumber())}
                   </Row.Value>
                 </Row>

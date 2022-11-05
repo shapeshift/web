@@ -1,5 +1,5 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@keepkey/caip'
+import { fromAccountId } from '@keepkey/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 

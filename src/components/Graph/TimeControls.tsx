@@ -1,5 +1,5 @@
 import type { ButtonGroupProps } from '@chakra-ui/button'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@keepkey/types'
 import { Radio } from 'components/Radio/Radio'
 
 type TimeControlsProps = {

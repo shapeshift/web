@@ -1,7 +1,7 @@
 import { AddressZero } from '@ethersproject/constants'
-import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
-import { UtxoAccountType } from '@shapeshiftoss/types'
-import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { ethAssetId, ethChainId, foxAssetId } from '@keepkey/caip'
+import { UtxoAccountType } from '@keepkey/types'
+import { Dex, TradeType, TransferType, TxStatus } from '@keepkey/unchained-client'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {

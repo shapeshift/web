@@ -1,4 +1,4 @@
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE } from '@keepkey/caip'
 import { fetchEnsAddress, fetchEnsName } from '@wagmi/core'
 import memoize from 'lodash/memoize'
 

@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import type { AssetId } from '@keepkey/caip'
+import { bnOrZero } from '@keepkey/investor-foxy'
 import React, { useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
 import { AssetInput } from 'components/DeFi/components/AssetInput'

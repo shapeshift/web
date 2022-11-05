@@ -12,9 +12,9 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
-import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@keepkey/caip/dist/assetId/assetId'
+import { CHAIN_NAMESPACE } from '@keepkey/caip/dist/constants'
+import type { FeeDataKey } from '@keepkey/chain-adapters'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

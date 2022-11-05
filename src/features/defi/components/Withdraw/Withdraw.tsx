@@ -11,9 +11,9 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from '@keepkey/asset-service'
+import type { AccountId } from '@keepkey/caip'
+import type { MarketData } from '@keepkey/types'
 import type { PropsWithChildren, ReactNode } from 'react'
 import React from 'react'
 import type { ControllerProps, FieldValues } from 'react-hook-form'

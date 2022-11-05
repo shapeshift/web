@@ -1,4 +1,4 @@
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { IdleOpportunity } from '@keepkey/investor-idle'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
 export enum WithdrawPath {

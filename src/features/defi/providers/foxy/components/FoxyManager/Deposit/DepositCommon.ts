@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { DefiType } from '@shapeshiftoss/investor-foxy'
+import type { ChainId } from '@keepkey/caip'
+import type { DefiType } from '@keepkey/investor-foxy'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 

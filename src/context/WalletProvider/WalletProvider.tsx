@@ -1,4 +1,4 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
+/* eslint-disable @keepkey/logger/no-native-console */
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import type { KeepKeySDK } from '@keepkey/keepkey-sdk'
 import { getKeepKeySDK } from '@keepkey/keepkey-sdk'

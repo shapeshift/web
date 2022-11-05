@@ -1,4 +1,4 @@
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataKey } from '@keepkey/chain-adapters'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'hooks/useWallet/useWallet'

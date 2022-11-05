@@ -1,6 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@keepkey/asset-service'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

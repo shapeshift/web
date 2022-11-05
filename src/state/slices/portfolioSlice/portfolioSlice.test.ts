@@ -1,4 +1,4 @@
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId, foxAssetId } from '@keepkey/caip'
 import {
   assetIds,
   btcAddresses,

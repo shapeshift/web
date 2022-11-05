@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@keepkey/caip'
+import { fromAssetId } from '@keepkey/caip'
 import { useMemo } from 'react'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'

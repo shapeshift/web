@@ -1,6 +1,6 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainAdapter } from '@keepkey/chain-adapters'
+import { YearnInvestor } from '@keepkey/investor-yearn'
+import type { KnownChainIds } from '@keepkey/types'
 import { getConfig } from 'config'
 
 let maybeYearnInvestor: YearnInvestor | undefined

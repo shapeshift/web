@@ -1,12 +1,12 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { type Asset } from '@keepkey/asset-service'
+import type { UtxoBaseAdapter } from '@keepkey/chain-adapters'
 import {
   type Swapper,
   type UtxoSupportedChainIds,
   SwapperManager,
   SwapperName,
-} from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+} from '@keepkey/swapper'
+import type { KnownChainIds } from '@keepkey/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -157,7 +157,7 @@ export const useSwapper = () => {
     if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmount: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
+      sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,

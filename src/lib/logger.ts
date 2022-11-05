@@ -1,6 +1,6 @@
 // eslint-disable no-console
-import type { LoggerFunction, LoggerOptions } from '@shapeshiftoss/logger'
-import { Logger, LogLevel } from '@shapeshiftoss/logger'
+import type { LoggerFunction, LoggerOptions } from '@keepkey/logger'
+import { Logger, LogLevel } from '@keepkey/logger'
 import { getConfig } from 'config'
 import { isMobile } from 'lib/globals'
 

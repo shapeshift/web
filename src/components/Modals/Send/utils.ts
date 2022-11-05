@@ -1,13 +1,13 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@keepkey/asset-service'
+import type { ChainId } from '@keepkey/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@keepkey/caip'
 import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
   UtxoBaseAdapter,
   UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+} from '@keepkey/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 

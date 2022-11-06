@@ -28,10 +28,6 @@ export class KKController {
             this.transport = undefined
             this.keyring = new Keyring()
             this.events.emit('logs', { unplugged: true})
-            this.events.emit('error', {
-                error: "KeepKey detached",
-                detached: true
-            })
         })
     }
 

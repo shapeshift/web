@@ -4,7 +4,6 @@ import { createWindow, settings, shouldShowWindow, windows } from './main';
 import isDev from 'electron-is-dev'
 import { app, BrowserWindow, ipcMain } from 'electron';
 import log from 'electron-log';
-import { createTray, tray } from './tray';
 import path from 'path';
 
 let skipUpdateTimeout: NodeJS.Timeout;
@@ -15,12 +14,6 @@ export const setupAutoUpdater = () => {
     autoUpdater.logger = log;
 
     app.on('ready', () => {
-        try {
-            if (!tray) createTray()
-        } catch (e) {
-            log.error('Failed to create tray! e: ', e)
-        }
-
         createSplashWindow()
 
         settings.loadSettingsFromDb().then(async (settings) => {

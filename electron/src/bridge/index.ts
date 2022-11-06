@@ -22,7 +22,7 @@ appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
-import { updateTray } from '../tray'
+import { createAndUpdateTray } from '../tray'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
@@ -98,15 +98,19 @@ export const start_bridge = async (port?: number) => {
         log.info(`server started at http://localhost:${API_PORT}`)
     })
 
-    bridgeRunning = true
-    updateTray()
     Controller.events.on('logs', async function (event) {
         let ipcMessage = ''
         if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
         else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
         else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
         else if (event.needsInitialize) ipcMessage = 'needsInitialize'
-        else if (event.ready) { ipcMessage = 'connected'; updateTray('success') }
+        else if (event.ready) {
+            ipcMessage = 'connected',
+            bridgeRunning = true
+            createAndUpdateTray() 
+        }
+        // This technically isnt an error but this ipcMessage triggers a modals thats good enough for now
+        else if(event.unplugged) ipcMessage = '@keepkey/hardwareError'
         else throw new Error('Unknown event type')
 
         queueIpcEvent(ipcMessage, { event })
@@ -124,7 +128,6 @@ export const start_bridge = async (port?: number) => {
         lastKnownKeepkeyState.wallet = Controller.wallet
         lastKnownKeepkeyState.transport = Controller.transport
         shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-        updateTray('error')
     })
 
     try {
@@ -162,21 +165,22 @@ export const start_bridge = async (port?: number) => {
 }
 
 export const stop_bridge = async () => {
-
+    console.log('stopping bridge')
+    bridgeClosing = true
     const p = new Promise((resolve) => {
-        bridgeClosing = true
-        updateTray()
+        createAndUpdateTray()
         server.close(() => {
             lastKnownKeepkeyState.transport?.disconnect().then(() => {
                 Controller.events.removeAllListeners()
                 bridgeRunning = false
                 bridgeClosing = false
-                updateTray()
+                createAndUpdateTray()
                 resolve(true)
             })
         })
     })
     await p
+    console.log('bridge stopped')
 }
 
 const queueIpcEvent = (eventName: string, args: any) => {

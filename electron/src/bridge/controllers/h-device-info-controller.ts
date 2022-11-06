@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { lastKnownKeepkeyState } from '../';
+import { Controller, Get, Security, Route, Tags, Response } from 'tsoa';
+import { kkStateController } from '../';
 import wait from 'wait-promise'
 import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
@@ -16,9 +16,9 @@ export class HDeviceInfoController extends Controller {
     public async getNumCoins(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getDeviceID().then(resolve)
+            kkStateController.wallet.getDeviceID().then(resolve)
         })
     }
 
@@ -28,9 +28,9 @@ export class HDeviceInfoController extends Controller {
     public async getCoinTable(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getCoinTable().then(resolve)
+            kkStateController.wallet.getCoinTable().then(resolve)
         })
     }
 
@@ -40,9 +40,9 @@ export class HDeviceInfoController extends Controller {
     public async getDeviceID(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getDeviceID().then(resolve)
+            kkStateController.wallet.getDeviceID().then(resolve)
         })
     }
 
@@ -52,9 +52,9 @@ export class HDeviceInfoController extends Controller {
     public async getVendor(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            resolve(lastKnownKeepkeyState.wallet.getVendor())
+            resolve(kkStateController.wallet.getVendor())
         })
     }
 
@@ -65,9 +65,9 @@ export class HDeviceInfoController extends Controller {
     public async getModel(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getModel().then(resolve)
+            kkStateController.wallet.getModel().then(resolve)
         })
     }
 
@@ -77,9 +77,9 @@ export class HDeviceInfoController extends Controller {
     public async getFirmwareVersion(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getFirmwareVersion().then(resolve)
+            kkStateController.wallet.getFirmwareVersion().then(resolve)
         })
     }
 
@@ -89,9 +89,9 @@ export class HDeviceInfoController extends Controller {
     public async getLabel(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.getLabel().then(resolve)
+            kkStateController.wallet.getLabel().then(resolve)
         })
     }
 
@@ -101,9 +101,9 @@ export class HDeviceInfoController extends Controller {
     public async isInitialized(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.isInitialized().then(resolve)
+            kkStateController.wallet.isInitialized().then(resolve)
         })
     }
 
@@ -112,9 +112,9 @@ export class HDeviceInfoController extends Controller {
     @Response(500, "Internal server error")
     public async isLocked(): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.isLocked().then(resolve)
+            kkStateController.wallet.isLocked().then(resolve)
         })
     }
 
@@ -124,9 +124,9 @@ export class HDeviceInfoController extends Controller {
     public async hasOnDevicePinEntry(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            resolve(lastKnownKeepkeyState.wallet.hasOnDevicePinEntry())
+            resolve(kkStateController.wallet.hasOnDevicePinEntry())
         })
     }
 
@@ -136,9 +136,9 @@ export class HDeviceInfoController extends Controller {
     public async hasOnDevicePassphrase(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            resolve(lastKnownKeepkeyState.wallet.hasOnDevicePassphrase())
+            resolve(kkStateController.wallet.hasOnDevicePassphrase())
         })
     }
 
@@ -148,9 +148,9 @@ export class HDeviceInfoController extends Controller {
     public async hasOnDeviceDisplay(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            resolve(lastKnownKeepkeyState.wallet.hasOnDeviceDisplay())
+            resolve(kkStateController.wallet.hasOnDeviceDisplay())
         })
     }
 
@@ -160,9 +160,9 @@ export class HDeviceInfoController extends Controller {
     public async hasOnDeviceRecovery(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            resolve(lastKnownKeepkeyState.wallet.hasOnDeviceRecovery())
+            resolve(kkStateController.wallet.hasOnDeviceRecovery())
         })
     }
 }

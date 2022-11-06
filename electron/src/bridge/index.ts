@@ -4,15 +4,13 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
 import log from 'electron-log'
-import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Server } from 'http'
 import { ipcMain, app } from 'electron'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
-import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { windows } from '../main'
 import { IpcQueueItem } from './types'
-import { CONNECTED, HARDWARE_ERROR, KKStateController, NEEDS_INITIALIZE, REQUEST_BOOTLOADER_MODE, UPDATE_BOOTLOADER, UPDATE_FIRMWARE } from './kk-state-controller'
+import {  KKStateController } from './kk-state-controller'
 
 
 const queueIpcEvent = (eventName: string, args: any) => {
@@ -24,14 +22,13 @@ const queueIpcEvent = (eventName: string, args: any) => {
     }
 }
 
-const Controller = new KKStateController(queueIpcEvent)
+export const kkStateController = new KKStateController(queueIpcEvent)
 
 const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
-import { shared } from '../shared'
 import { createAndUpdateTray } from '../tray'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
@@ -44,21 +41,6 @@ export let bridgeRunning = false
 export let bridgeClosing = false
 
 let ipcQueue = new Array<IpcQueueItem>()
-
-type MessageAndEvent = { ipcMessage: string, event: any }
-export type KeepkeyState = {
-    state: MessageAndEvent | undefined
-    device: Device | undefined,
-    transport: TransportDelegate | undefined,
-    wallet: KeepKeyHDWallet | undefined
-}
-
-export const lastKnownKeepkeyState: KeepkeyState = {
-    state: undefined,
-    device: undefined,
-    transport: undefined,
-    wallet: undefined
-}
 
 let renderListenersReady = false
 
@@ -109,7 +91,7 @@ export const start_bridge = async (port?: number) => {
     })
 
     try {
-        await Controller.init()
+        await kkStateController.init()
     } catch (e) {
         log.error('failed to init controller, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
@@ -122,7 +104,7 @@ export const start_bridge = async (port?: number) => {
         let result = await getLatestFirmwareData()
         let firmware = await downloadFirmware(result.firmware.url)
         if (!firmware) throw Error("Failed to load firmware from url!")
-        await loadFirmware(Controller.wallet, firmware)
+        await loadFirmware(kkStateController.wallet, firmware)
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader: true,
             success: true
@@ -134,7 +116,7 @@ export const start_bridge = async (port?: number) => {
     ipcMain.on('@keepkey/update-bootloader', async event => {
         let result = await getLatestFirmwareData()
         let firmware = await downloadFirmware(result.bootloader.url)
-        await loadFirmware(Controller.wallet, firmware)
+        await loadFirmware(kkStateController.wallet, firmware)
         event.sender.send('onCompleteBootloaderUpload', {
             bootloader: true,
             success: true
@@ -148,8 +130,7 @@ export const stop_bridge = async () => {
     const p = new Promise((resolve) => {
         createAndUpdateTray()
         server.close(() => {
-            lastKnownKeepkeyState.transport?.disconnect().then(() => {
-                Controller.events.removeAllListeners()
+            kkStateController.transport?.disconnect().then(() => {
                 bridgeRunning = false
                 bridgeClosing = false
                 createAndUpdateTray()

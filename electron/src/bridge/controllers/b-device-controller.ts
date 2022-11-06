@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Route, Tags, Response } from 'tsoa';
-import {lastKnownKeepkeyState } from '..';
+import {kkStateController } from '..';
 import { WriteBody } from '../types';
 
 //route
@@ -11,8 +11,8 @@ export class BDeviceController extends Controller {
     @Response(500, "Unable to communicate with device")
     public async readDevice() {
         console.log('readDevice')
-        if (!lastKnownKeepkeyState.transport) throw new Error('Unable to communicate with device' )
-        let resp = await lastKnownKeepkeyState.transport.readChunk()
+        if (!kkStateController.transport) throw new Error('Unable to communicate with device' )
+        let resp = await kkStateController.transport.readChunk()
         return {
             data: Buffer.from(resp).toString('hex')
         }
@@ -23,9 +23,9 @@ export class BDeviceController extends Controller {
     @Response(500, "Unable to communicate with device")
     public async writeDevice(@Body() body: WriteBody) {
         console.log('writeDevice')
-        if (!lastKnownKeepkeyState.transport) throw new Error('Unable to communicate with device' )
+        if (!kkStateController.transport) throw new ErrorEvent('Unable to communicate with device' )
         let msg = Buffer.from(body.data, 'hex')
-        lastKnownKeepkeyState.transport.writeChunk(msg)
+        kkStateController.transport.writeChunk(msg)
         return { output: msg.toString() }
     }
 }

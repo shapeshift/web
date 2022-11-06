@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { windows } from '../../main';
-import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { lastKnownKeepkeyState } from '../';
+import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
+import { kkStateController } from '../';
 import { GetPublicKey } from '../types';
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
@@ -15,10 +15,10 @@ export class DPubkeyController extends Controller {
     public async getPublicKeys(@Body() body: GetPublicKey[]): Promise<Array<PublicKey | null>> {
         return new Promise<Array<PublicKey | null>>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
             // @ts-ignore
-            lastKnownKeepkeyState.wallet.getPublicKeys(body).then(resolve)
+            kkStateController.wallet.getPublicKeys(body).then(resolve)
         })
     }
 
@@ -28,9 +28,9 @@ export class DPubkeyController extends Controller {
     public async btcGetAddress(@Body() body: BTCGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.btcGetAddress(body).then(resolve)
+            kkStateController.wallet.btcGetAddress(body).then(resolve)
         })
     }
 
@@ -40,9 +40,9 @@ export class DPubkeyController extends Controller {
     public async ethGetAddress(@Body() body: ETHGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.ethGetAddress(body).then(resolve)
+            kkStateController.wallet.ethGetAddress(body).then(resolve)
         })
     }
 
@@ -52,9 +52,9 @@ export class DPubkeyController extends Controller {
     public async thorchainGetAddress(@Body() body: ThorchainGetAddress): Promise<string | null> {
         return new Promise<string | null>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.thorchainGetAddress(body).then(resolve)
+            kkStateController.wallet.thorchainGetAddress(body).then(resolve)
         })
     }
 
@@ -79,9 +79,9 @@ export class DPubkeyController extends Controller {
     public async binanceGetAddress(@Body() body: BinanceGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.binanceGetAddress(body).then(resolve)
+            kkStateController.wallet.binanceGetAddress(body).then(resolve)
         })
     }
 
@@ -91,9 +91,9 @@ export class DPubkeyController extends Controller {
     public async cosmosGetAddress(@Body() body: CosmosGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.cosmosGetAddress(body).then(resolve)
+            kkStateController.wallet.cosmosGetAddress(body).then(resolve)
         })
     }
 
@@ -103,9 +103,9 @@ export class DPubkeyController extends Controller {
     public async rippleGetAddress(@Body() body: RippleGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.rippleGetAddress(body).then(resolve)
+            kkStateController.wallet.rippleGetAddress(body).then(resolve)
         })
     }
 
@@ -115,9 +115,9 @@ export class DPubkeyController extends Controller {
     public async eosGetPublicKey(@Body() body: EosGetPublicKey): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.eosGetPublicKey(body).then(resolve)
+            kkStateController.wallet.eosGetPublicKey(body).then(resolve)
         })
     }
 

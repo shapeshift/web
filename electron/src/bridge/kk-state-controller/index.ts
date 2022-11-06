@@ -2,7 +2,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { usb } from 'usb'
-import EventEmitter from 'events';
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
 
@@ -26,16 +25,14 @@ export class KKStateController {
     public keyring: Keyring
     public device?: Device
     public wallet?: KeepKeyHDWallet
-    public events: EventEmitter
     public transport?: TransportDelegate
-    
+
     public lastState?: string
     public lastData?: any
 
     public queueIpcEvent: any
     constructor(queueIpcEvent: any) {
         this.keyring = new Keyring()
-        this.events = new EventEmitter();
         this.queueIpcEvent = queueIpcEvent
     }
 
@@ -52,10 +49,7 @@ export class KKStateController {
             await this.initializeDevice()
         })
         usb.on('detach', async () => {
-            this.wallet = undefined
-            this.transport = undefined
-            this.keyring = new Keyring()
-            this.events.emit('logs', { unplugged: true})
+            this.updateState(DISCONNECTED, { unplugged: true })
         })
     }
 
@@ -93,6 +87,7 @@ export class KKStateController {
             })
         }
 
+        console.log('returning from intiialize device')
         return {
             lastState: this.lastState,
             lastData: this.lastData,

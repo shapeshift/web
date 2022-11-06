@@ -37,17 +37,17 @@ export const initializeWallet = async (controller) =>
         deviceDetected = true
         await createWebUsbWallet(controller)
     }
+
     let resultPreWebUsb = findByIds(11044, 1)
     if (resultPreWebUsb) {
         deviceDetected = true
     }
+
     if (!deviceDetected) {
         controller.wallet = undefined
         controller.keyring = new Keyring()
 
-        return controller.events.emit('error', {
-            error: 'no device detected',
-        })
+        return 'no device detected'
     }
 
     let resultInit;

@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
-import { lastKnownKeepkeyState } from '../';
+import { kkStateController } from '../';
 import wait from 'wait-promise'
 import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
@@ -21,9 +21,9 @@ export class FDeveloperController extends Controller {
     public async loadDevice(@Body() body: LoadDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.loadDevice(body).then(resolve)
+            kkStateController.wallet.loadDevice(body).then(resolve)
         })
     }
 
@@ -33,8 +33,8 @@ export class FDeveloperController extends Controller {
     public async removePin(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
-            lastKnownKeepkeyState.wallet.removePin().then(resolve)
+            if (!kkStateController.wallet) return reject()
+            kkStateController.wallet.removePin().then(resolve)
         })
     }
 
@@ -44,9 +44,9 @@ export class FDeveloperController extends Controller {
     public async softReset(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.softReset().then(resolve)
+            kkStateController.wallet.softReset().then(resolve)
         })
     }
 
@@ -56,9 +56,9 @@ export class FDeveloperController extends Controller {
     public async clearSession(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.clearSession().then(resolve)
+            kkStateController.wallet.clearSession().then(resolve)
         })
     }
 
@@ -68,9 +68,9 @@ export class FDeveloperController extends Controller {
     public async reset(@Body() body: ResetDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.softReset().then(resolve)
+            kkStateController.wallet.softReset().then(resolve)
         })
     }
 
@@ -80,9 +80,9 @@ export class FDeveloperController extends Controller {
     public async wipe(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.wipe().then(resolve)
+            kkStateController.wallet.wipe().then(resolve)
         })
     }
 
@@ -92,8 +92,8 @@ export class FDeveloperController extends Controller {
     public async disconnect(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
-            lastKnownKeepkeyState.wallet.disconnect().then(resolve)
+            if (!kkStateController.wallet) return reject()
+            kkStateController.wallet.disconnect().then(resolve)
         })
     }
 
@@ -104,9 +104,9 @@ export class FDeveloperController extends Controller {
     public async applyPolicy(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.applyPolicy(body).then(resolve)
+            kkStateController.wallet.applyPolicy(body).then(resolve)
         })
     }
 
@@ -117,9 +117,9 @@ export class FDeveloperController extends Controller {
     public async applySettings(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.applySettings(body).then(resolve)
+            kkStateController.wallet.applySettings(body).then(resolve)
         })
     }
 
@@ -129,9 +129,9 @@ export class FDeveloperController extends Controller {
     public async firmwareErase(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.firmwareErase().then(resolve)
+            kkStateController.wallet.firmwareErase().then(resolve)
         })
     }
 
@@ -142,9 +142,9 @@ export class FDeveloperController extends Controller {
     public async firmwareUpload(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.firmwareUpload(body).then(resolve)
+            kkStateController.wallet.firmwareUpload(body).then(resolve)
         })
     }
 

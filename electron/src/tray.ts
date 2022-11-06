@@ -90,3 +90,23 @@ export const createTray = () => {
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
     tray.setContextMenu(contextMenu)
 }
+
+export const updateTrayIcon = (state: string) => {
+    const trayIcon = `${lightDark}/keepKey/${state}.png`
+    tray.setImage(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
+    switch (state) {
+        case "error":
+            menuTemplate[0].label = "KeepKey Disconnected/Errored"
+            break;
+        case "success":
+            menuTemplate[0].label = "Bridge running"
+            break;
+        default:
+            menuTemplate[0].label = "Bridge Not Running"
+            break;
+    }
+    menuTemplate[0].icon = path.join(assetsDirectory, `status/${state}.png`)
+    const contextMenu = Menu.buildFromTemplate(menuTemplate)
+    tray.setContextMenu(contextMenu)
+}
+

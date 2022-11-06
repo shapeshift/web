@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { BaseQueryError } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import * as E from 'fp-ts/lib/Either'
@@ -104,10 +105,17 @@ export const opportunitiesApi = createApi({
 
         return pipe(
           maybeData,
-          E.match(
-            err => {
-              throw err
-            },
+          E.match<
+            Error,
+            GetOpportunityMetadataOutput,
+            { data: GetOpportunityMetadataOutput } | { error: BaseQueryError<any> }
+          >(
+            err => ({
+              error: {
+                error: err.message,
+                status: 'CUSTOM_ERROR',
+              },
+            }),
             data => {
               dispatch(opportunities.actions.upsertOpportunityMetadata(data))
 
@@ -122,67 +130,63 @@ export const opportunitiesApi = createApi({
         { accountId, opportunityId, opportunityType, defiType },
         { dispatch, getState },
       ) => {
-        try {
-          const resolver = getUserDataResolversByDefiProviderAndDefiType(
-            DefiProvider.FoxFarming,
-            defiType,
-          )
+        const resolver = getUserDataResolversByDefiProviderAndDefiType(
+          DefiProvider.FoxFarming,
+          defiType,
+        )
 
-          if (!resolver) {
-            throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
-          }
-
-          const maybeData = await pipe(
-            TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
-              () =>
-                resolver({
-                  opportunityId,
-                  opportunityType,
-                  accountId,
-                  reduxApi: { dispatch, getState },
-                }),
-              E.toError,
-            ),
-            TE.map(resolved => resolved?.data),
-          )()
-
-          return pipe(
-            maybeData,
-            E.match(
-              err => {
-                throw err
-              },
-              data => {
-                if (data) {
-                  // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
-                  dispatch(opportunities.actions.upsertUserStakingOpportunities(data))
-                }
-
-                const byAccountId = {
-                  [accountId]: [opportunityId],
-                } as OpportunityDataById
-
-                const parsedData = {
-                  byAccountId,
-                  type: opportunityType,
-                }
-
-                dispatch(opportunities.actions.upsertOpportunityAccounts(parsedData))
-
-                return { data: parsedData }
-              },
-            ),
-          )
-        } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunities data'
-
-          return {
-            error: {
-              error: message,
-              status: 'CUSTOM_ERROR',
-            },
-          }
+        if (!resolver) {
+          throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
         }
+
+        const maybeData = await pipe(
+          TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
+            () =>
+              resolver({
+                opportunityId,
+                opportunityType,
+                accountId,
+                reduxApi: { dispatch, getState },
+              }),
+            E.toError,
+          ),
+          TE.map(resolved => resolved?.data),
+        )()
+
+        return pipe(
+          maybeData,
+          E.match<
+            Error,
+            GetOpportunityUserStakingDataOutput | undefined,
+            { data: GetOpportunityUserDataOutput } | { error: BaseQueryError<any> }
+          >(
+            err => ({
+              error: {
+                error: err.message,
+                status: 'CUSTOM_ERROR',
+              },
+            }),
+            data => {
+              if (data) {
+                // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
+                dispatch(opportunities.actions.upsertUserStakingOpportunities(data))
+              }
+
+              const byAccountId = {
+                [accountId]: [opportunityId],
+              } as OpportunityDataById
+
+              const parsedData = {
+                byAccountId,
+                type: opportunityType,
+              }
+
+              dispatch(opportunities.actions.upsertOpportunityAccounts(parsedData))
+
+              return { data: parsedData }
+            },
+          ),
+        )
       },
     }),
   }),

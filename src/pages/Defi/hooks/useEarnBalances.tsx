@@ -66,7 +66,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],
     [lpOpportunitiesById],
   )
-  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
+  const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[foxEthLpAssetId]
 
   const aggregatedLpAssetBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
@@ -100,7 +100,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   // TODO: toEarnOpportunity util something something
   const foxEthLpOpportunity = useMemo(
     () => ({
-      ...baseEarnOpportunity,
+      ...baseLpEarnOpportunity,
       ...opportunityData,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(foxEthLpAssetId).chainId,
@@ -112,7 +112,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     }),
     [
       aggregatedLpAssetBalance,
-      baseEarnOpportunity,
+      baseLpEarnOpportunity,
       opportunityData,
       underlyingEthAmount,
       underlyingFoxAmount,

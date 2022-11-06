@@ -12,15 +12,25 @@ import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { windows } from '../main'
 import { IpcQueueItem } from './types'
-import { KKController } from './kk-controller'
+import { CONNECTED, HARDWARE_ERROR, KKStateController, NEEDS_INITIALIZE, REQUEST_BOOTLOADER_MODE, UPDATE_BOOTLOADER, UPDATE_FIRMWARE } from './kk-state-controller'
 
-const Controller = new KKController()
+
+const queueIpcEvent = (eventName: string, args: any) => {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        return ipcQueue.push({ eventName, args })
+    }
+    else {
+        return windows.mainWindow.webContents.send(eventName, args)
+    }
+}
+
+const Controller = new KKStateController(queueIpcEvent)
 
 const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
-import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
+import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
 import { shared } from '../shared'
 import { createAndUpdateTray } from '../tray'
 
@@ -65,7 +75,7 @@ export const start_bridge = async (port?: number) => {
     let API_PORT = port || 1646
 
     // send paired apps when requested
-    ipcMain.on('@bridge/paired-apps', (event) => {
+    ipcMain.on('@bridge/paired-apps', () => {
         db.find({ type: 'service' }, (err, docs) => {
             queueIpcEvent('@bridge/paired-apps', docs)
         })
@@ -96,38 +106,6 @@ export const start_bridge = async (port?: number) => {
     log.info(tag, "starting server! **** ")
     server = appExpress.listen(API_PORT, () => {
         log.info(`server started at http://localhost:${API_PORT}`)
-    })
-
-    Controller.events.on('logs', async function (event) {
-        let ipcMessage = ''
-        if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
-        else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
-        else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
-        else if (event.needsInitialize) ipcMessage = 'needsInitialize'
-        else if (event.ready) {
-            ipcMessage = 'connected',
-            bridgeRunning = true
-            createAndUpdateTray() 
-        }
-        // This technically isnt an error but this ipcMessage triggers a modals thats good enough for now
-        else if(event.unplugged) ipcMessage = '@keepkey/hardwareError'
-        else throw new Error('Unknown event type')
-
-        queueIpcEvent(ipcMessage, { event })
-        lastKnownKeepkeyState.state = { ipcMessage, event }
-        lastKnownKeepkeyState.device = Controller.device
-        lastKnownKeepkeyState.wallet = Controller.wallet
-        lastKnownKeepkeyState.transport = Controller.transport
-        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-    })
-    Controller.events.on('error', function (event) {
-        const ipcMessage = '@keepkey/hardwareError'
-        queueIpcEvent(ipcMessage, { event })
-        lastKnownKeepkeyState.state = { ipcMessage, event }
-        lastKnownKeepkeyState.device = Controller.device
-        lastKnownKeepkeyState.wallet = Controller.wallet
-        lastKnownKeepkeyState.transport = Controller.transport
-        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
     })
 
     try {
@@ -181,13 +159,4 @@ export const stop_bridge = async () => {
     })
     await p
     console.log('bridge stopped')
-}
-
-const queueIpcEvent = (eventName: string, args: any) => {
-    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
-        return ipcQueue.push({ eventName, args })
-    }
-    else {
-        return windows.mainWindow.webContents.send(eventName, args)
-    }
 }

@@ -6,16 +6,44 @@ import EventEmitter from 'events';
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
 
-export class KKController {
+// possible states
+export const REQUEST_BOOTLOADER_MODE = 'requestBootloaderMode'
+export const UPDATE_BOOTLOADER = 'updateBootloader'
+export const UPDATE_FIRMWARE = 'updateFirmware'
+export const NEEDS_INITIALIZE = 'needsInitialize'
+export const CONNECTED = 'connected'
+export const HARDWARE_ERROR =  '@keepkey/hardwareError'
+
+
+// temporarily using the same state as hardware error
+export const DISCONNECTED =  '@keepkey/hardwareError'
+
+/**
+ * Keeps track of the last known state of the keepkey
+ * sends ipc events to the web renderer on state change
+ */
+export class KKStateController {
     public keyring: Keyring
     public device?: Device
     public wallet?: KeepKeyHDWallet
     public events: EventEmitter
     public transport?: TransportDelegate
     
-    constructor() {
+    public lastState?: string
+    public lastData?: any
+
+    public queueIpcEvent: any
+    constructor(queueIpcEvent: any) {
         this.keyring = new Keyring()
         this.events = new EventEmitter();
+        this.queueIpcEvent = queueIpcEvent
+    }
+
+    updateState = async (newState: string, newData: any) => {
+        // TODO event is a bad name, change it to data everywhere its used
+        this.queueIpcEvent(newState, { event: newData })
+        this.lastState = newState
+        this.lastData = newData
     }
 
     init = async () => {
@@ -35,12 +63,10 @@ export class KKController {
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
-        if (!resultInit || !resultInit.success || resultInit.error) {
-            this.events.emit('error', {
-                error: resultInit?.error
-            })
-        } else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
-            this.events.emit('logs', {
+        if (!resultInit || !resultInit.success || resultInit.error) 
+            this.updateState(HARDWARE_ERROR, { error: resultInit?.error })
+        else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version)
+            this.updateState(UPDATE_BOOTLOADER, {
                 bootloaderUpdateNeeded: true,
                 firmware: resultInit.firmwareVersion,
                 bootloader: resultInit.bootloaderVersion,
@@ -48,8 +74,8 @@ export class KKController {
                 recommendedFirmware: latestFirmware.firmware.version,
                 bootloaderMode: resultInit.bootloaderMode
             })
-        } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
-            this.events.emit('logs', {
+        else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
+            this.updateState(UPDATE_FIRMWARE, {
                 firmwareUpdateNeededNotBootloader: true,
                 firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
                 bootloader: resultInit.bootloaderVersion,
@@ -58,13 +84,19 @@ export class KKController {
                 bootloaderMode: resultInit.bootloaderMode
             })
         } else if (!resultInit?.features?.initialized) {
-            this.events.emit('logs', {
+            this.updateState(NEEDS_INITIALIZE, {
                 needsInitialize: true
             })
         } else {
-            this.events.emit('logs', {
+            this.updateState(CONNECTED, {
                 ready: true
             })
         }
+
+        return {
+            lastState: this.lastState,
+            lastData: this.lastData,
+        }
     }
+    
 }

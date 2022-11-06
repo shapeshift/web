@@ -71,7 +71,7 @@ export const KeepKeyMenu = () => {
         pinRequestType: PinMatrixRequestType.REMOVE,
       },
     })
-  }, [keepkeySdk,dispatch,deviceId])
+  }, [keepkeySdk, dispatch, deviceId])
 
   const deviceTimeoutTranslation: string =
     typeof deviceTimeout?.label === 'object'

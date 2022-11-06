@@ -2,7 +2,7 @@ import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 import path from 'path'
 import { start_bridge, stop_bridge, bridgeRunning, bridgeClosing } from './bridge'
 import { assetsDirectory } from './constants'
-import { createWindow, kkAutoLauncher, windows } from './main'
+import { createWindow, windows } from './main'
 
 export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
@@ -45,7 +45,7 @@ const menuTemplate: any = [
         click: () => windows.mainWindow && !windows.mainWindow.isDestroyed() && windows.mainWindow.webContents.openDevTools()
     },
     {
-        label: 'Quit KeepKey Bridge',
+        label: 'Quit KeepKey Desktop',
         click: function () {
             app.quit()
             process.exit(0)

@@ -106,7 +106,7 @@ export const start_bridge = async (port?: number) => {
         else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
         else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
         else if (event.needsInitialize) ipcMessage = 'needsInitialize'
-        else if (event.ready) ipcMessage = 'connected'
+        else if (event.ready) { ipcMessage = 'connected'; updateTray('success') }
         else throw new Error('Unknown event type')
 
         queueIpcEvent(ipcMessage, { event })
@@ -115,7 +115,6 @@ export const start_bridge = async (port?: number) => {
         lastKnownKeepkeyState.wallet = Controller.wallet
         lastKnownKeepkeyState.transport = Controller.transport
         shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-        updateTray()
     })
     Controller.events.on('error', function (event) {
         const ipcMessage = '@keepkey/hardwareError'

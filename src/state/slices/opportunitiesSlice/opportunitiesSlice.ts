@@ -97,7 +97,7 @@ export const opportunitiesApi = createApi({
                 opportunityType,
                 reduxApi: { dispatch, getState },
               }),
-            () => new Error(),
+            E.toError,
           ),
           TE.map(resolved => resolved.data),
         )()
@@ -141,7 +141,7 @@ export const opportunitiesApi = createApi({
                   accountId,
                   reduxApi: { dispatch, getState },
                 }),
-              () => new Error(),
+              E.toError,
             ),
             TE.map(resolved => resolved?.data),
           )()

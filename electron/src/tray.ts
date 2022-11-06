@@ -42,7 +42,7 @@ const menuTemplate: any = [
     { type: 'separator' },
     {
         label: 'Disable Auto Launch',
-        click: kkAutoLauncher.disable
+        // click: kkAutoLauncher.disable
     },
     {
         label: 'Open dev tools',

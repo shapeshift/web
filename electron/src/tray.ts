@@ -42,11 +42,6 @@ export const createAndUpdateTray = () => {
             enabled: !bridgeClosing && bridgeRunning,
             click: stop_bridge
         },
-        { type: 'separator' },
-        {
-            label: 'Disable Auto Launch',
-            click: kkAutoLauncher.disable
-        },
         {
             label: 'Open dev tools',
             click: () => windows.mainWindow && !windows.mainWindow.isDestroyed() && windows.mainWindow.webContents.openDevTools()

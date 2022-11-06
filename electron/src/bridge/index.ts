@@ -45,7 +45,9 @@ let ipcQueue = new Array<IpcQueueItem>()
 let renderListenersReady = false
 
 export const start_bridge = async (port?: number) => {
+    console.log('NOW STARTING BEIDGE 0')
     if (bridgeRunning) return
+    console.log('NOW STARTING BEIDGE 1')
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -55,6 +57,7 @@ export const start_bridge = async (port?: number) => {
     })
     let tag = " | start_bridge | "
     let API_PORT = port || 1646
+    console.log('NOW STARTING BEIDGE 2')
 
     // send paired apps when requested
     ipcMain.on('@bridge/paired-apps', () => {
@@ -77,6 +80,7 @@ export const start_bridge = async (port?: number) => {
     ipcMain.on(`@bridge/remove-service`, (event, data) => {
         db.remove({ ...data })
     })
+    console.log('NOW STARTING BEIDGE 3')
 
     appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -89,6 +93,7 @@ export const start_bridge = async (port?: number) => {
     server = appExpress.listen(API_PORT, () => {
         log.info(`server started at http://localhost:${API_PORT}`)
     })
+    console.log('NOW STARTING BEIDGE 4')
 
     try {
         await kkStateController.init()
@@ -99,6 +104,7 @@ export const start_bridge = async (port?: number) => {
         app.quit()
         process.exit()
     }
+    console.log('NOW STARTING BEIDGE 5')
 
     ipcMain.on('@keepkey/update-firmware', async event => {
         let result = await getLatestFirmwareData()
@@ -125,17 +131,24 @@ export const start_bridge = async (port?: number) => {
 }
 
 export const stop_bridge = async () => {
-    console.log('stopping bridge')
+    console.log('stopping bridge 0')
     bridgeClosing = true
     const p = new Promise((resolve) => {
+        console.log('stopping bridge 1')
         createAndUpdateTray()
-        server.close(() => {
-            kkStateController.transport?.disconnect().then(() => {
-                bridgeRunning = false
-                bridgeClosing = false
-                createAndUpdateTray()
-                resolve(true)
-            })
+        console.log('stopping bridge 2')
+        server.close(async () => {
+            console.log('stopping bridge 3')
+
+            await kkStateController.transport?.disconnect()
+            console.log('stopping bridge 4')
+            bridgeRunning = false
+            console.log('stopping bridge 5')
+            bridgeClosing = false
+            createAndUpdateTray()
+            resolve(true)
+
+            console.log('stopping bridge 6')
         })
     })
     await p

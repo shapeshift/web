@@ -4,6 +4,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { usb } from 'usb'
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
+import { start_bridge, stop_bridge } from '..';
 
 // possible states
 export const REQUEST_BOOTLOADER_MODE = 'requestBootloaderMode'
@@ -49,7 +50,17 @@ export class KKStateController {
             await this.initializeDevice()
         })
         usb.on('detach', async () => {
+//            usb.removeAllListeners()
+            console.log('stopping bridge')
+            await stop_bridge()
+            console.log('bridge stopped')
+            await start_bridge()
+            console.log('bridge restarted')
+            this.wallet = undefined
+            this.transport = undefined
+            this.keyring = new Keyring()
             this.updateState(DISCONNECTED, { unplugged: true })
+            console.log('state is', this.lastState)
         })
     }
 
@@ -89,10 +100,7 @@ export class KKStateController {
             })
         }
 
-        return {
-            lastState: this.lastState,
-            lastData: this.lastData,
-        }
+        console.log('state is', this.lastState)
     }
     
 }

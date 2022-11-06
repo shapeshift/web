@@ -23,7 +23,7 @@ export class BDeviceController extends Controller {
     @Response(500, "Unable to communicate with device")
     public async writeDevice(@Body() body: WriteBody) {
         console.log('writeDevice')
-        if (!kkStateController.transport) throw new ErrorEvent('Unable to communicate with device' )
+        if (!kkStateController.transport) throw new Error('Unable to communicate with device' )
         let msg = Buffer.from(body.data, 'hex')
         kkStateController.transport.writeChunk(msg)
         return { output: msg.toString() }

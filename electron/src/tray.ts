@@ -41,10 +41,6 @@ const menuTemplate: any = [
     },
     { type: 'separator' },
     {
-        label: 'Disable Auto Launch',
-        click: kkAutoLauncher.disable
-    },
-    {
         label: 'Open dev tools',
         click: () => windows.mainWindow && !windows.mainWindow.isDestroyed() && windows.mainWindow.webContents.openDevTools()
     },

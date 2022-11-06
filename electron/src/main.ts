@@ -78,7 +78,6 @@ export const kkAutoLauncher = new AutoLaunch({
     name: 'KeepKey Desktop'
 })
 
-
 try {
     if (isWin && nativeTheme.shouldUseDarkColors === true) {
         // require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
@@ -109,9 +108,10 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    if (!bridgeRunning && settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
+    if (settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
 
     windows.mainWindow = new BrowserWindow({
+        focusable: true,
         width: isDev ? 1960 : 960,
         height: 780,
         show: false,

@@ -22,6 +22,7 @@ appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
+import { createTray } from '../tray'
 import { updateTrayIcon } from '../tray'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
@@ -30,6 +31,9 @@ if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
 export let server: Server
 export let bridgeRunning = false
+
+export let bridgeClosing = false
+
 let ipcQueue = new Array<IpcQueueItem>()
 
 type MessageAndEvent = { ipcMessage: string, event: any}
@@ -49,7 +53,8 @@ export const lastKnownKeepkeyState: KeepkeyState = {
 
 let renderListenersReady = false
 
-export const start_bridge = (port?: number) => new Promise<void>(async (resolve) => {
+export const start_bridge = async (port?: number) => {
+    if(bridgeRunning) return
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -95,7 +100,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
     })
 
     bridgeRunning = true
-
+    createTray()
     Controller.events.on('logs', async function (event) {
         if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
             queueIpcEvent('requestBootloaderMode', {})
@@ -123,6 +128,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
         else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
         else if(event.needsInitialize)ipcMessage = 'needsInitialize'
         else if(event.ready) ipcMessage = 'connected'
+        else if(event.unplugged) ipcMessage = '@keepkey/hardwareError'
         else throw new Error('Unknown event type')
 
         queueIpcEvent(ipcMessage, {event})
@@ -176,24 +182,27 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
             success: true
         })
     })
-    resolve()
-})
+}
 
-export const stop_bridge = () => new Promise<void>((resolve, reject) => {
-    try {
-        log.info('server: ', server)
-        server.close(() => {
-            log.info('Closed out remaining connections')
+export const stop_bridge = async () => {
+
+    const p = new Promise( (resolve) => {
+        bridgeClosing = true
+        createTray()
+        server.close( () => {
+            lastKnownKeepkeyState.transport?.disconnect().then( () => {
+                Controller.events.removeAllListeners()
+                bridgeRunning = false
+                bridgeClosing = false
+                createTray()
+                resolve(true)
+            })
         })
-        bridgeRunning = false
-        resolve()
-    } catch (e) {
-        log.error(e)
-        reject()
-    }
-})
+    })
+    await p
+}
 
-export const queueIpcEvent = (eventName: string, args: any) => {
+const queueIpcEvent = (eventName: string, args: any) => {
     if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
         return ipcQueue.push({ eventName, args })
     }

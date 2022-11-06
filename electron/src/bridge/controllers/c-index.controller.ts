@@ -27,7 +27,7 @@ export class CIndexController extends Controller {
         // TODO fix
     */
     @Get('/status')
-    public async status(): Promise<KeepkeyState> {
+    public async status(): Promise<any> {
         return lastKnownKeepkeyState
     }
 

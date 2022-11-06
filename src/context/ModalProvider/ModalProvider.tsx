@@ -70,7 +70,7 @@ type ModalSetup<S extends ModalSetup<S>> = {
   [k in keyof S]: ModalState<S>[k]['Component']
 }
 
-export function createInitialState<S>(modalSetup: S): ModalState<S> {
+export function createInitialState<S extends {}>(modalSetup: S): ModalState<S> {
   const modalMethods = { isOpen: false, open: noop, close: noop }
   const modalNames = Object.keys(modalSetup) as (keyof S)[]
   const result = modalNames.reduce(
@@ -115,7 +115,7 @@ type CreateModalProviderProps<M> = {
 }
 export type ModalStateType = typeof initialState
 // provider
-export function createModalProvider<M>({
+export function createModalProvider<M extends {}>({
   instanceInitialState,
   instanceReducer,
   InstanceModalContext,
@@ -148,7 +148,7 @@ export function createModalProvider<M>({
     return (
       <InstanceModalContext.Provider value={value}>
         {children}
-        {Object.values(value).map((Modal, key) => (
+        {Object.values(value).map((Modal: any, key) => (
           <Modal.Component key={key} {...Modal.props} />
         ))}
       </InstanceModalContext.Provider>

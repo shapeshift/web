@@ -23,6 +23,8 @@ appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
 import { createTray } from '../tray'
+import { updateTrayIcon } from '../tray'
+
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
@@ -100,6 +102,26 @@ export const start_bridge = async (port?: number) => {
     bridgeRunning = true
     createTray()
     Controller.events.on('logs', async function (event) {
+        if(event.bootloaderUpdateNeeded && !event.bootloaderMode) {
+            queueIpcEvent('requestBootloaderMode', {})
+        } else if (event.bootloaderUpdateNeeded && event.bootloaderMode) {
+            queueIpcEvent('updateBootloader', {event})
+        } else if (event.firmwareUpdateNeededNotBootloader) {
+            queueIpcEvent('updateFirmware', {event})
+        } else if(event.needsInitialize) {
+            queueIpcEvent('needsInitialize', {})
+        } else if(event.ready) {
+            queueIpcEvent('connected', {})
+            lastKnownKeepkeyState.device = Controller.device
+            lastKnownKeepkeyState.wallet = Controller.wallet
+            lastKnownKeepkeyState.transport = Controller.transport
+            shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
+            updateTrayIcon('success')
+        }
+    })
+    Controller.events.on('error', function (event) {
+        queueIpcEvent('@keepkey/hardwareError', { event })
+        updateTrayIcon('error')
         let ipcMessage = ''
         if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
         else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'

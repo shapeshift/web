@@ -1,4 +1,5 @@
-import { BoxProps, Button } from '@chakra-ui/react'
+import type { BoxProps } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import { useMediaQuery } from '@chakra-ui/react'
 import { Box, Tooltip } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'

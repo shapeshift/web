@@ -4,7 +4,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { usb } from 'usb'
 import EventEmitter from 'events';
 import { getLatestFirmwareData } from './firmwareUtils';
-import { initializeWallet } from './walletUtils' 
+import { initializeWallet } from './walletUtils'
 
 export class KKController {
     public keyring: Keyring
@@ -28,6 +28,10 @@ export class KKController {
             this.transport = undefined
             this.keyring = new Keyring()
             this.events.emit('logs', { unplugged: true})
+            this.events.emit('error', {
+                error: "KeepKey detached",
+                detached: true
+            })
         })
     }
 
@@ -35,19 +39,19 @@ export class KKController {
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
-        if(!resultInit || !resultInit.success || resultInit.error) {
+        if (!resultInit || !resultInit.success || resultInit.error) {
             this.events.emit('error', {
                 error: resultInit?.error
             })
         } else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
             this.events.emit('logs', {
-                    bootloaderUpdateNeeded: true,
-                    firmware: resultInit.firmwareVersion,
-                    bootloader: resultInit.bootloaderVersion,
-                    recommendedBootloader: latestFirmware.bootloader.version,
-                    recommendedFirmware: latestFirmware.firmware.version,
-                    bootloaderMode: resultInit.bootloaderMode
-                })
+                bootloaderUpdateNeeded: true,
+                firmware: resultInit.firmwareVersion,
+                bootloader: resultInit.bootloaderVersion,
+                recommendedBootloader: latestFirmware.bootloader.version,
+                recommendedFirmware: latestFirmware.firmware.version,
+                bootloaderMode: resultInit.bootloaderMode
+            })
         } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
             this.events.emit('logs', {
                 firmwareUpdateNeededNotBootloader: true,
@@ -57,7 +61,7 @@ export class KKController {
                 recommendedFirmware: latestFirmware.firmware.version,
                 bootloaderMode: resultInit.bootloaderMode
             })
-        } else if(!resultInit?.features?.initialized) {
+        } else if (!resultInit?.features?.initialized) {
             this.events.emit('logs', {
                 needsInitialize: true
             })

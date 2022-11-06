@@ -22,6 +22,7 @@ appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
+import { createTray } from '../tray'
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
@@ -47,7 +48,8 @@ export const lastKnownKeepkeyState: KeepkeyState = {
 
 let renderListenersReady = false
 
-export const start_bridge = (port?: number) => new Promise<void>(async (resolve) => {
+export const start_bridge = async (port?: number) => {
+    if(bridgeRunning) return
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -93,7 +95,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
     })
 
     bridgeRunning = true
-
+    createTray()
     Controller.events.on('logs', async function (event) {
         let ipcMessage = ''
         if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
@@ -153,24 +155,20 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve)
             success: true
         })
     })
-    resolve()
-})
+}
 
-export const stop_bridge = () => new Promise<void>((resolve, reject) => {
-    try {
-        log.info('server: ', server)
-        server.close(() => {
-            log.info('Closed out remaining connections')
-        })
-        bridgeRunning = false
-        resolve()
-    } catch (e) {
-        log.error(e)
-        reject()
-    }
-})
+export const stop_bridge = async () => {
+    console.log('STOIPPING THE FUCKING BRIDGE')
+    console.log('STOIPPING THE FUCKING BRIDGE')
+    console.log('STOIPPING THE FUCKING BRIDGE')
+    console.log('STOIPPING THE FUCKING BRIDGE')
+    server.close()
+    Controller.closeDevice()
+    bridgeRunning = false
+    createTray()
+}
 
-export const queueIpcEvent = (eventName: string, args: any) => {
+const queueIpcEvent = (eventName: string, args: any) => {
     if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
         return ipcQueue.push({ eventName, args })
     }

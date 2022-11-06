@@ -60,6 +60,7 @@ export const useKeepKeyEventHandler = (
                   payload: false,
                 })
               handleDisconnect(deviceId)
+              console.log('SET RESET `2')
               setNeedsReset(true)
               break
             case 'Device recovered':

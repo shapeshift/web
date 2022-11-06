@@ -43,7 +43,8 @@
     "electron:build": "yarn build && yarn electron:build:bridge && yarn electron:compile && electron-builder build",
     "electron:build:bridge": "yarn electron:build:routes && yarn electron:build:swagger",
     "electron:build:routes": "tsoa routes --configuration electron/tsoa.json",
-    "electron:build:swagger": "tsoa swagger --configuration electron/tsoa.json"
+    "electron:build:swagger": "tsoa swagger --configuration electron/tsoa.json",
+    "bootstrap": "./scripts/bootstrap.sh"
   },
   "eslintConfig": {
     "extends": "react-app",

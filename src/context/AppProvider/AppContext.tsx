@@ -106,10 +106,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')
     if (switched || disconnected) {
-      setNeedsReset(true)
       dispatch(accountSpecifiers.actions.clear())
       dispatch(portfolio.actions.clear())
       dispatch(txHistory.actions.clear())
+    }
+    if (disconnected) {
+      setNeedsReset(true)
     }
     // this effect changes accountSpecifiersList, don't create infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps

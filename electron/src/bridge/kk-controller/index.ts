@@ -1,7 +1,7 @@
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
-import { findByIds, usb } from 'usb'
+import { usb } from 'usb'
 import EventEmitter from 'events';
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils' 
@@ -66,13 +66,7 @@ export class KKController {
         }
     }
 
-    closeDevice = () => async () => {
-        console.log('trying to close device')
-        console.log('trying to close device')
-        console.log('trying to close device')
-        console.log('trying to close device')
-        console.log('trying to close device')
-        console.log('trying to close device')
-        this.wallet?.disconnect()
+    closeDevice = async () => {
+        await this.wallet?.disconnect()
     }
 }

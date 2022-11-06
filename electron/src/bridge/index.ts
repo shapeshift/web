@@ -158,12 +158,8 @@ export const start_bridge = async (port?: number) => {
 }
 
 export const stop_bridge = async () => {
-    console.log('STOIPPING THE FUCKING BRIDGE')
-    console.log('STOIPPING THE FUCKING BRIDGE')
-    console.log('STOIPPING THE FUCKING BRIDGE')
-    console.log('STOIPPING THE FUCKING BRIDGE')
     server.close()
-    Controller.closeDevice()
+    await Controller.closeDevice()
     bridgeRunning = false
     createTray()
 }

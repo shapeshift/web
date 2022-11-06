@@ -1,14 +1,14 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 
 import path from 'path'
-import { start_bridge, stop_bridge, bridgeRunning } from './bridge'
+import { start_bridge, stop_bridge, bridgeRunning, bridgeClosing } from './bridge'
 import { assetsDirectory } from './constants'
 import { createWindow, kkAutoLauncher, windows } from './main'
 
 export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 
-// createTray must be called anytime bridgeRunning changes
+// createTray must be called anytime bridgeRunning or bridgeCLosing changes
 export const createTray = () => {
     if(tray) tray.destroy()
 
@@ -36,11 +36,11 @@ export const createTray = () => {
         {
             label: 'Start Bridge',
             click: () => start_bridge(),
-            enabled: !bridgeRunning
+            enabled: !bridgeRunning && !bridgeClosing
         },
         {
-            label: 'Stop Bridge',
-            enabled: bridgeRunning,
+            label: !bridgeClosing ? 'Stop Bridge' : 'Bridge Closing, please wait...',
+            enabled: !bridgeClosing && bridgeRunning,
             click: stop_bridge
         },
         { type: 'separator' },

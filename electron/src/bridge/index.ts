@@ -29,6 +29,9 @@ if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
 export let server: Server
 export let bridgeRunning = false
+
+export let bridgeClosing = false
+
 let ipcQueue = new Array<IpcQueueItem>()
 
 type MessageAndEvent = { ipcMessage: string, event: any}
@@ -103,6 +106,7 @@ export const start_bridge = async (port?: number) => {
         else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
         else if(event.needsInitialize)ipcMessage = 'needsInitialize'
         else if(event.ready) ipcMessage = 'connected'
+        else if(event.unplugged) ipcMessage = '@keepkey/hardwareError'
         else throw new Error('Unknown event type')
 
         queueIpcEvent(ipcMessage, {event})
@@ -159,10 +163,21 @@ export const start_bridge = async (port?: number) => {
 }
 
 export const stop_bridge = async () => {
-    server.close()
-    await Controller.closeDevice()
-    bridgeRunning = false
-    createTray()
+
+    const p = new Promise( (resolve) => {
+        bridgeClosing = true
+        createTray()
+        server.close( () => {
+            lastKnownKeepkeyState.transport?.disconnect().then( () => {
+                Controller.events.removeAllListeners()
+                bridgeRunning = false
+                bridgeClosing = false
+                createTray()
+                resolve(true)
+            })
+        })
+    })
+    await p
 }
 
 const queueIpcEvent = (eventName: string, args: any) => {

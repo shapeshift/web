@@ -12,7 +12,7 @@ export class KKController {
     public wallet?: KeepKeyHDWallet
     public events: EventEmitter
     public transport?: TransportDelegate
-
+    
     constructor() {
         this.keyring = new Keyring()
         this.events = new EventEmitter();
@@ -25,7 +25,9 @@ export class KKController {
         })
         usb.on('detach', async () => {
             this.wallet = undefined
+            this.transport = undefined
             this.keyring = new Keyring()
+            this.events.emit('logs', { unplugged: true})
         })
     }
 
@@ -64,9 +66,5 @@ export class KKController {
                 ready: true
             })
         }
-    }
-
-    closeDevice = async () => {
-        await this.wallet?.disconnect()
     }
 }

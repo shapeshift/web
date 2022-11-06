@@ -57,7 +57,9 @@ export class KKStateController {
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
-        if (!resultInit || !resultInit.success || resultInit.error) 
+        if(resultInit.unplugged)
+            this.updateState(DISCONNECTED, { unplugged: true })
+        else if (!resultInit || !resultInit.success || resultInit.error)
             this.updateState(HARDWARE_ERROR, { error: resultInit?.error })
         else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version)
             this.updateState(UPDATE_BOOTLOADER, {
@@ -87,7 +89,6 @@ export class KKStateController {
             })
         }
 
-        console.log('returning from intiialize device')
         return {
             lastState: this.lastState,
             lastData: this.lastData,

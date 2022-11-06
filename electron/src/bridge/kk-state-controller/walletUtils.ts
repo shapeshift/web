@@ -47,7 +47,7 @@ export const initializeWallet = async (controller) =>
         controller.wallet = undefined
         controller.keyring = new Keyring()
 
-        return 'no device detected'
+        return { unplugged: true }
     }
 
     let resultInit;
@@ -80,7 +80,6 @@ const base64toHEX = (base64: any) => {
     }
     return HEX
 }
-    
 
 const createWebUsbWallet = async (controller) => {
         const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(controller.keyring);
@@ -106,47 +105,47 @@ const createWebUsbWallet = async (controller) => {
         })
 }
 
-    const createHidWallet = async (controller) => {
-        try {
-            let hidAdapter = await HIDKeepKeyAdapter.useKeyring(controller.keyring)
-            await hidAdapter.initialize()
-            const wallet = controller.keyring.get()
-            if (!wallet) {
-                return {
-                    success: false,
-                    bootloaderMode: false,
-                    prompt: 'No wallet in the keyring'
-                }
-            }
-            controller.wallet = wallet as KeepKeyHDWallet
-            if (controller.wallet.features && controller.wallet.features.bootloaderMode) {
-                const { majorVersion, minorVersion, patchVersion, bootloaderHash } = controller.wallet.features
-                // @ts-ignore
-                return ({
-                    success: true,
-                    bootloaderMode: true,
-                    bootloaderVersion: `v${majorVersion}.${minorVersion}.${patchVersion}`,
-                    features: controller.wallet.features,
-                })
-            } else {
-                let features = await controller.wallet.getFeatures()
-                const { majorVersion, minorVersion, patchVersion, bootloaderHash } = features
-                const decodedHash = base64toHEX(bootloaderHash)
-
-                let bootloaderVersion = bootloaderHashToVersion[decodedHash]
-                return ({
-                    success: true,
-                    bootloaderMode: false,
-                    bootloaderVersion,
-                    firmwareVersion: `v${majorVersion}.${minorVersion}.${patchVersion}`,
-                    features,
-                })
-            }
-
-        } catch (e: any) {
+const createHidWallet = async (controller) => {
+    try {
+        let hidAdapter = await HIDKeepKeyAdapter.useKeyring(controller.keyring)
+        await hidAdapter.initialize()
+        const wallet = controller.keyring.get()
+        if (!wallet) {
             return {
                 success: false,
-                error: e.toString(),
+                bootloaderMode: false,
+                prompt: 'No wallet in the keyring'
             }
         }
+        controller.wallet = wallet as KeepKeyHDWallet
+        if (controller.wallet.features && controller.wallet.features.bootloaderMode) {
+            const { majorVersion, minorVersion, patchVersion, bootloaderHash } = controller.wallet.features
+            // @ts-ignore
+            return ({
+                success: true,
+                bootloaderMode: true,
+                bootloaderVersion: `v${majorVersion}.${minorVersion}.${patchVersion}`,
+                features: controller.wallet.features,
+            })
+        } else {
+            let features = await controller.wallet.getFeatures()
+            const { majorVersion, minorVersion, patchVersion, bootloaderHash } = features
+            const decodedHash = base64toHEX(bootloaderHash)
+
+            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
+            return ({
+                success: true,
+                bootloaderMode: false,
+                bootloaderVersion,
+                firmwareVersion: `v${majorVersion}.${minorVersion}.${patchVersion}`,
+                features,
+            })
+        }
+
+    } catch (e: any) {
+        return {
+            success: false,
+            error: e.toString(),
+        }
     }
+}

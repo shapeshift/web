@@ -127,6 +127,7 @@ export const start_bridge = async (port?: number) => {
     try {
         await Controller.init()
     } catch (e) {
+        log.error('failed to init controller, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
         // We need to have them unplug and fully exit the app to fix it
         app.quit()

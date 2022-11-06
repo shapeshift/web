@@ -135,6 +135,7 @@
     "dompurify": "^2.3.8",
     "envalid": "^7.3.1",
     "eth-url-parser": "^1.0.4",
+    "fp-ts": "^2.13.1",
     "framer-motion": "^6.3.11",
     "friendly-challenge": "0.9.2",
     "html-react-parser": "^1.4.14",

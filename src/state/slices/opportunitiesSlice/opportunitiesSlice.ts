@@ -1,6 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import * as E from 'fp-ts/lib/Either'
+import { pipe } from 'fp-ts/lib/function'
+import * as TE from 'fp-ts/lib/TaskEither'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -85,15 +88,33 @@ export const opportunitiesApi = createApi({
           DefiProvider.FoxFarming,
           defiType,
         )
-        const resolved = await resolver({
-          opportunityId,
-          opportunityType,
-          reduxApi: { dispatch, getState },
-        })
 
-        dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
+        const maybeData = await pipe(
+          TE.tryCatch(
+            () =>
+              resolver({
+                opportunityId,
+                opportunityType,
+                reduxApi: { dispatch, getState },
+              }),
+            () => new Error(),
+          ),
+          TE.map(resolved => resolved.data),
+        )()
 
-        return { data: resolved.data }
+        return pipe(
+          maybeData,
+          E.match(
+            err => {
+              throw err
+            },
+            data => {
+              dispatch(opportunities.actions.upsertOpportunityMetadata(data))
+
+              return { data }
+            },
+          ),
+        )
       },
     }),
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
@@ -111,30 +132,47 @@ export const opportunitiesApi = createApi({
             throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
           }
 
-          const resolved = await resolver({
-            opportunityId,
-            opportunityType,
-            accountId,
-            reduxApi: { dispatch, getState },
-          })
+          const maybeData = await pipe(
+            TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
+              () =>
+                resolver({
+                  opportunityId,
+                  opportunityType,
+                  accountId,
+                  reduxApi: { dispatch, getState },
+                }),
+              () => new Error(),
+            ),
+            TE.map(resolved => resolved?.data),
+          )()
 
-          if (resolved?.data) {
-            // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
-          }
+          return pipe(
+            maybeData,
+            E.match(
+              err => {
+                throw err
+              },
+              data => {
+                if (data) {
+                  // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
+                  dispatch(opportunities.actions.upsertUserStakingOpportunities(data))
+                }
 
-          const byAccountId = {
-            [accountId]: [opportunityId],
-          } as OpportunityDataById
+                const byAccountId = {
+                  [accountId]: [opportunityId],
+                } as OpportunityDataById
 
-          const data = {
-            byAccountId,
-            type: opportunityType,
-          }
+                const parsedData = {
+                  byAccountId,
+                  type: opportunityType,
+                }
 
-          dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+                dispatch(opportunities.actions.upsertOpportunityAccounts(parsedData))
 
-          return { data }
+                return { data: parsedData }
+              },
+            ),
+          )
         } catch (e) {
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
 

@@ -22,7 +22,7 @@ appExpress.use(bodyParser.urlencoded({ extended: true }))
 appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
 import { shared } from '../shared'
-import { createTray } from '../tray'
+import { updateTray } from '../tray'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
@@ -35,7 +35,7 @@ export let bridgeClosing = false
 
 let ipcQueue = new Array<IpcQueueItem>()
 
-type MessageAndEvent = { ipcMessage: string, event: any}
+type MessageAndEvent = { ipcMessage: string, event: any }
 export type KeepkeyState = {
     state: MessageAndEvent | undefined
     device: Device | undefined,
@@ -53,7 +53,7 @@ export const lastKnownKeepkeyState: KeepkeyState = {
 let renderListenersReady = false
 
 export const start_bridge = async (port?: number) => {
-    if(bridgeRunning) return
+    if (bridgeRunning) return
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -99,17 +99,17 @@ export const start_bridge = async (port?: number) => {
     })
 
     bridgeRunning = true
-    createTray()
+    updateTray()
     Controller.events.on('logs', async function (event) {
         let ipcMessage = ''
         if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
         else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
         else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
-        else if(event.needsInitialize)ipcMessage = 'needsInitialize'
-        else if(event.ready) ipcMessage = 'connected'
+        else if (event.needsInitialize) ipcMessage = 'needsInitialize'
+        else if (event.ready) { ipcMessage = 'connected'; updateTray('success') }
         else throw new Error('Unknown event type')
 
-        queueIpcEvent(ipcMessage, {event})
+        queueIpcEvent(ipcMessage, { event })
         lastKnownKeepkeyState.state = { ipcMessage, event }
         lastKnownKeepkeyState.device = Controller.device
         lastKnownKeepkeyState.wallet = Controller.wallet
@@ -124,6 +124,7 @@ export const start_bridge = async (port?: number) => {
         lastKnownKeepkeyState.wallet = Controller.wallet
         lastKnownKeepkeyState.transport = Controller.transport
         shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
+        updateTray('error')
     })
 
     try {
@@ -137,17 +138,17 @@ export const start_bridge = async (port?: number) => {
     }
 
     ipcMain.on('@keepkey/update-firmware', async event => {
-            let result = await getLatestFirmwareData()
-            let firmware = await downloadFirmware(result.firmware.url)
-            if (!firmware) throw Error("Failed to load firmware from url!")
-            await loadFirmware(Controller.wallet, firmware)
-            event.sender.send('onCompleteFirmwareUpload', {
-                bootloader: true,
-                success: true
-            })
-            app.quit()
-            app.relaunch();
+        let result = await getLatestFirmwareData()
+        let firmware = await downloadFirmware(result.firmware.url)
+        if (!firmware) throw Error("Failed to load firmware from url!")
+        await loadFirmware(Controller.wallet, firmware)
+        event.sender.send('onCompleteFirmwareUpload', {
+            bootloader: true,
+            success: true
         })
+        app.quit()
+        app.relaunch();
+    })
 
     ipcMain.on('@keepkey/update-bootloader', async event => {
         let result = await getLatestFirmwareData()
@@ -162,15 +163,15 @@ export const start_bridge = async (port?: number) => {
 
 export const stop_bridge = async () => {
 
-    const p = new Promise( (resolve) => {
+    const p = new Promise((resolve) => {
         bridgeClosing = true
-        createTray()
-        server.close( () => {
-            lastKnownKeepkeyState.transport?.disconnect().then( () => {
+        updateTray()
+        server.close(() => {
+            lastKnownKeepkeyState.transport?.disconnect().then(() => {
                 Controller.events.removeAllListeners()
                 bridgeRunning = false
                 bridgeClosing = false
-                createTray()
+                updateTray()
                 resolve(true)
             })
         })

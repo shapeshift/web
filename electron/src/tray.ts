@@ -1,19 +1,19 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
-
 import path from 'path'
 import { start_bridge, stop_bridge, bridgeRunning, bridgeClosing } from './bridge'
 import { assetsDirectory } from './constants'
-import { createWindow, kkAutoLauncher, windows } from './main'
+import { createWindow, windows } from './main'
 
 export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 
+// createTray must be called anytime bridgeRunning or bridgeCLosing changes
 const menuTemplate: any = [
     {
-        label: !bridgeRunning ? 'Bridge Not Running!' : 'Bridge Running',
+        label: "Bridge Not Running",
         enabled: false,
         type: 'normal',
-        icon: path.join(assetsDirectory, !bridgeRunning ? 'status/unknown.png' : 'status/success.png')
+        icon: path.join(assetsDirectory, 'status/unknown.png')
     },
     { type: 'separator' },
     {
@@ -31,7 +31,7 @@ const menuTemplate: any = [
     { type: 'separator' },
     {
         label: 'Start Bridge',
-        click: () => start_bridge(),
+        click: start_bridge,
         enabled: !bridgeRunning && !bridgeClosing
     },
     {
@@ -41,15 +41,11 @@ const menuTemplate: any = [
     },
     { type: 'separator' },
     {
-        label: 'Disable Auto Launch',
-        // click: kkAutoLauncher.disable
-    },
-    {
         label: 'Open dev tools',
         click: () => windows.mainWindow && !windows.mainWindow.isDestroyed() && windows.mainWindow.webContents.openDevTools()
     },
     {
-        label: 'Quit KeepKey Bridge',
+        label: 'Quit KeepKey Desktop',
         click: function () {
             app.quit()
             process.exit(0)
@@ -57,13 +53,33 @@ const menuTemplate: any = [
     }
 ]
 
-// createTray must be called anytime bridgeRunning or bridgeCLosing changes
 export const createTray = () => {
-    if(tray) tray.destroy()
-
-
-    const trayIcon = !bridgeRunning ? `${lightDark}/keepKey/unknown.png` : `${lightDark}/keepKey/success.png`
+    const trayIcon = `${lightDark}/keepKey/unknown.png`
     tray = new Tray(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
     tray.setContextMenu(contextMenu)
 }
+
+export const updateTray = (state?: string) => {
+    let trayIcon = !bridgeRunning ? `${lightDark}/keepKey/unknown.png` : `${lightDark}/keepKey/success.png`
+    menuTemplate[0].label = !bridgeRunning ? 'Bridge Not Running!' : 'Bridge Running'
+    if (state) {
+        trayIcon = `${lightDark}/keepKey/${state}.png`
+        switch (state) {
+            case "error":
+                menuTemplate[0].label = "KeepKey Disconnected/Errored"
+                break;
+            case "success":
+                menuTemplate[0].label = "Bridge running"
+                break;
+            default:
+                menuTemplate[0].label = "Bridge Not Running"
+                break;
+        }
+        menuTemplate[0].icon = path.join(assetsDirectory, `status/${state}.png`)
+    }
+    tray.setImage(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
+    const contextMenu = Menu.buildFromTemplate(menuTemplate)
+    tray.setContextMenu(contextMenu)
+}
+

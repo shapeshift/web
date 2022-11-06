@@ -67,7 +67,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        accountId!,
+        (accountId ?? highestBalanceAccountId)!,
         toAssetId({
           chainId,
           assetNamespace: 'erc20',

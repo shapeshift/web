@@ -43,6 +43,7 @@ export const STAKING_ID_DELIMITER = '*'
 // This will go away in a follow-up PR as we remove those hooks
 
 export const earnLpOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+  assetId: foxEthLpAssetId,
   provider: DefiProvider.FoxFarming,
   contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
   rewardAddress: '',
@@ -76,24 +77,28 @@ export const baseFarmingOpportunity = {
 
 export const v4FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
   opportunityName: 'Fox Farming V4',
 }
 
 export const v3FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
   opportunityName: 'Fox Farming V3',
 }
 
 export const v2FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
   opportunityName: 'Fox Farming V2',
 }
 
 export const v1FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
   opportunityName: 'Fox Farming V1',
 }

@@ -21,6 +21,7 @@ const DefiHeader = () => {
 
 export const Overview = () => {
   const balances = useEarnBalances()
+  console.log({ balances })
   const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   return (
     <Main titleComponent={<DefiHeader />}>

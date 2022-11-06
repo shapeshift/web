@@ -114,6 +114,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const foxEthLpOpportunity = useMemo(
     () => ({
       ...baseEarnOpportunity,
+      ...opportunityData,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(foxEthLpAssetId).chainId,
       underlyingFoxAmount,
@@ -122,7 +123,13 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
       // TODO: this all goes away anyway
       fiatAmount: '42',
     }),
-    [lpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
+    [
+      baseEarnOpportunity,
+      opportunityData,
+      underlyingFoxAmount,
+      underlyingEthAmount,
+      lpAssetBalance,
+    ],
   )
 
   // user info

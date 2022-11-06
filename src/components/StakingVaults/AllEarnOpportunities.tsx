@@ -95,6 +95,7 @@ export const AllEarnOpportunities = () => {
   const foxEthLpOpportunity = useMemo(
     () => ({
       ...baseEarnOpportunity,
+      ...opportunityData,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
       underlyingFoxAmount,
@@ -103,7 +104,13 @@ export const AllEarnOpportunities = () => {
       // TODO: this all goes away anyway
       fiatAmount: '42',
     }),
-    [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
+    [
+      aggregatedLpAssetBalance,
+      baseEarnOpportunity,
+      opportunityData,
+      underlyingEthAmount,
+      underlyingFoxAmount,
+    ],
   )
 
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(

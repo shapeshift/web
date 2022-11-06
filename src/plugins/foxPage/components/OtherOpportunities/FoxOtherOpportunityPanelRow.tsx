@@ -3,6 +3,7 @@ import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -54,7 +55,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
-          provider,
+          // TODO: This should be done in the source of truth?
+          provider: defiOpportunity.type === 'lp' ? DefiProvider.FoxEthLP : DefiProvider.FoxFarming,
           chainId,
           contractAddress,
           assetReference,
@@ -84,6 +86,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     return hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
   }, [isDemoWallet, opportunity.link, hasActivePosition, wallet])
 
+  console.log({ opportunity, defiOpportunity })
   const isOpportunityButtonReady = useMemo(
     () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
     [isDemoWallet, wallet, defiOpportunity],

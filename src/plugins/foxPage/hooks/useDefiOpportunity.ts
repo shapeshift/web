@@ -32,6 +32,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
         ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
         chainId: fromAssetId(foxEthLpAssetId).chainId,
         ...opportunity,
+        isLoaded: true,
       })),
     [foxFarmingOpportunitiesAggregated],
   )
@@ -77,6 +78,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const foxEthLpOpportunity = useMemo(
     () => ({
       ...baseEarnOpportunity,
+      ...opportunityData,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
       underlyingFoxAmount,
@@ -84,13 +86,20 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
       cryptoAmount: aggregatedLpAssetBalance,
       // TODO: this all goes away anyway
       fiatAmount: '42',
+      isLoaded: true,
     }),
-    [aggregatedLpAssetBalance, baseEarnOpportunity, underlyingEthAmount, underlyingFoxAmount],
+    [
+      aggregatedLpAssetBalance,
+      baseEarnOpportunity,
+      opportunityData,
+      underlyingEthAmount,
+      underlyingFoxAmount,
+    ],
   )
 
   useEffect(() => {
-    if (!opportunity.opportunityProvider) return
-    switch (opportunity.opportunityProvider) {
+    if (!opportunity.type) return
+    switch (opportunity.type) {
       case DefiProvider.FoxFarming:
         const foxFarmingOpportunity = foxFarmingOpportunities.find(
           foxFarmingOpportunity =>
@@ -110,6 +119,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
     foxFarmingOpportunities,
     opportunity.opportunityContractAddress,
     opportunity.opportunityProvider,
+    opportunity.type,
   ])
   return { defiOpportunity }
 }

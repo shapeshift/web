@@ -119,25 +119,12 @@ export const start_bridge = async (port?: number) => {
     Controller.events.on('error', function (event) {
         const ipcMessage = '@keepkey/hardwareError'
         queueIpcEvent(ipcMessage, { event })
-
-        queueIpcEvent(ipcMessage, {event})
-        lastKnownKeepkeyState.state = { ipcMessage, event }
-        lastKnownKeepkeyState.device = Controller.device
-        lastKnownKeepkeyState.wallet = Controller.wallet
-        lastKnownKeepkeyState.transport = Controller.transport
-        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-
-    })
-    Controller.events.on('error', function (event) {
-        const ipcMessage = '@keepkey/hardwareError'
-        queueIpcEvent(ipcMessage, { event })
         lastKnownKeepkeyState.state = { ipcMessage, event }
         lastKnownKeepkeyState.device = Controller.device
         lastKnownKeepkeyState.wallet = Controller.wallet
         lastKnownKeepkeyState.transport = Controller.transport
         shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
     })
-
 
     try {
         await Controller.init()

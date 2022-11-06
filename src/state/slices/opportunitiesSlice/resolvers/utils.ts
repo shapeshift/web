@@ -1,5 +1,6 @@
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import pipe from 'lodash/flow'
+import { pipe } from 'fp-ts/function'
+import * as O from 'fp-ts/Option'
 
 import {
   DefiProviderToMetadataResolverByDeFiType,
@@ -8,21 +9,24 @@ import {
 
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderMetadataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToMetadataResolverByDeFiType[defiProvider]
+  O.fromNullable(DefiProviderToMetadataResolverByDeFiType[defiProvider])
 // "Give me the resolvers for a given DeFi type"
 export const getDefiTypeMetadataResolvers = (
   defiType: DefiType,
   resolversByType: ReturnType<typeof getDefiProviderMetadataResolvers>,
-) => resolversByType?.[defiType]
+) =>
+  pipe(
+    resolversByType,
+    O.map(resolversByType => resolversByType[defiType]),
+  )
 
 export const getMetadataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
 ) =>
-  pipe(
-    getDefiProviderMetadataResolvers,
-    getDefiTypeMetadataResolvers.bind(this, defiType),
-  )(defiProvider)
+  pipe(defiProvider, getDefiProviderMetadataResolvers, defiProviderMetadataResolvers =>
+    getDefiTypeMetadataResolvers(defiType, defiProviderMetadataResolvers),
+  )
 
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderUserDataResolvers = (defiProvider: DefiProvider) =>
@@ -37,7 +41,6 @@ export const getUserDataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
 ) =>
-  pipe(
-    getDefiProviderUserDataResolvers,
-    getDefiTypeUserDataResolvers.bind(this, defiType),
-  )(defiProvider)
+  pipe(getDefiProviderUserDataResolvers(defiProvider), defiProviderUserDataResolvers =>
+    getDefiTypeUserDataResolvers(defiType, defiProviderUserDataResolvers),
+  )

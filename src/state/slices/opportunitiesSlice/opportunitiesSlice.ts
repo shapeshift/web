@@ -4,6 +4,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import * as E from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/function'
+import * as O from 'fp-ts/lib/Option'
 import * as TE from 'fp-ts/lib/TaskEither'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -85,21 +86,26 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const resolver = getMetadataResolversByDefiProviderAndDefiType(
-          DefiProvider.FoxFarming,
-          defiType,
+        const maybeResolver = O.toNullable(
+          getMetadataResolversByDefiProviderAndDefiType(DefiProvider.FoxFarming, defiType),
         )
 
+        if (!maybeResolver) {
+          throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
+        }
+
         const maybeData = await pipe(
-          TE.tryCatch(
-            () =>
-              resolver({
-                opportunityId,
-                opportunityType,
-                reduxApi: { dispatch, getState },
-              }),
-            E.toError,
-          ),
+          maybeResolver,
+          resolver =>
+            TE.tryCatch(
+              () =>
+                resolver({
+                  opportunityId,
+                  opportunityType,
+                  reduxApi: { dispatch, getState },
+                }),
+              E.toError,
+            ),
           TE.map(resolved => resolved.data),
         )()
 
@@ -130,26 +136,28 @@ export const opportunitiesApi = createApi({
         { accountId, opportunityId, opportunityType, defiType },
         { dispatch, getState },
       ) => {
-        const resolver = getUserDataResolversByDefiProviderAndDefiType(
+        const maybeResolver = getUserDataResolversByDefiProviderAndDefiType(
           DefiProvider.FoxFarming,
           defiType,
         )
 
-        if (!resolver) {
+        if (!maybeResolver) {
           throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
         }
 
         const maybeData = await pipe(
-          TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
-            () =>
-              resolver({
-                opportunityId,
-                opportunityType,
-                accountId,
-                reduxApi: { dispatch, getState },
-              }),
-            E.toError,
-          ),
+          maybeResolver,
+          resolver =>
+            TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
+              () =>
+                resolver({
+                  opportunityId,
+                  opportunityType,
+                  accountId,
+                  reduxApi: { dispatch, getState },
+                }),
+              E.toError,
+            ),
           TE.map(resolved => resolved?.data),
         )()
 

@@ -3,7 +3,7 @@ import { kkStateController, windows } from '../../main';
 import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
 import { GetPublicKey } from '../types';
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from '../../utils';
+import { checkKeepKeyUnlocked } from '../utils';
 @Tags('KeepKey Wallet Endpoints')
 @Route('')
 export class DPubkeyController extends Controller {

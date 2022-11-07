@@ -63,5 +63,3 @@ export interface GetPublicKey {
     coin: Coin;
     symbol?: string
 }
-
-export type IpcQueueItem = { eventName: string, args: any }

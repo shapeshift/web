@@ -1,11 +1,11 @@
 import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
-import { db } from '../../db';
-import { createWindow, kkStateController, windows } from '../../main';
+import { createMainWindow, kkStateController, windows } from '../../main';
 import { shared, userType } from '../../shared';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security } from 'tsoa';
 import { GenericResponse, PairBody, PairResponse } from '../types';
+import { db } from '../globalState';
 
 
 export class ApiError extends Error {
@@ -40,7 +40,7 @@ export class CIndexController extends Controller {
     public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>(async (resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-                if (!await createWindow()) {
+                if (!await createMainWindow()) {
                     this.setStatus(500)
                     return resolve({ success: false, reason: 'Window not open' })
                 }

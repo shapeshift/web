@@ -1,55 +1,132 @@
-/**
- *
- * =====================================================================================
- *  =  ====  ===================  ====  ===================     ==  =====================
- *  =  ===  ====================  ===  ===================  ===  =  =====================
- *  =  ==  =====================  ==  ===================  =======  =================  ==
- *  =  =  =====   ===   ==    ==  =  =====   ==  =  =====  =======  =  ==   ==  = ==    =
- *  =     ====  =  =  =  =  =  =     ====  =  =  =  =====  =======  ====  =  =     ==  ==
- *  =  ==  ===     =     =  =  =  ==  ===     ==    =====  =======  =  =     =  =  ==  ==
- *  =  ===  ==  ====  ====    ==  ===  ==  =======  =====  =======  =  =  ====  =  ==  ==
- *  =  ====  =  =  =  =  =  ====  ====  =  =  =  =  ======  ===  =  =  =  =  =  =  ==  ==
- *  =  ====  ==   ===   ==  ====  ====  ==   ===   ========     ==  =  ==   ==  =  ==   =
- *  =====================================================================================
- *  KeepKey client
- *    - A companion application for the keepkey device
- *
- *  Features:
- *    * KeepKey bridge (express server on port: localhost:1646
- *    * invocation support (web app pairing similar UX to BEX embedding like Metamask)
- *
- *
- *  Notes:
- *    This will "pair" a users wallet with the pioneer api.
- *      Note: This is exporting a pubkey wallet of the users connected wallet and storing it service side
- *
- *    This pubkey wallet is also available to be read by any paired apikey
- *              (generally stored in an Web Applications local storage).
- *
- *    paired API keys allow any application to request payments from the users wallet
- *      * all payment requests are queued in this main process
- *          and must receive manual user approval before signing
- *
- *    P.S. use a keepkey!
- *                                                -Highlander
- */
-
 import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
-import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, shell, IpcMainEvent } from 'electron'
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { queueIpcEvent, startTcpBridge, stopBridge } from './bridge'
-import { shared } from './shared'
-import { isWin, ALLOWED_HOSTS } from './constants'
-import { db } from './db'
-import { Settings } from './settings'
-import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
+import { Settings } from './helpers/settings'
+import { setupAutoUpdater, skipUpdateCheckCompleted } from './helpers/updater'
 import fs from 'fs'
-import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, PLUGIN } from './bridge/kk-state-controller'
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, PLUGIN } from './helpers/kk-state-controller'
 import { createAndUpdateTray } from './tray'
+import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './helpers/kk-state-controller/firmwareUtils'
+import swaggerUi from 'swagger-ui-express'
+import express from 'express'
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import { RegisterRoutes } from './helpers/routes/routes'
+import { deviceBusyRead, deviceBusyWrite } from './helpers/controllers/b-device-controller'
+import { ALLOWED_HOSTS, db, ipcQueue, isWin, renderListenersReady, server, setRenderListenersReady, setServer, setTcpBridgeClosing, setTcpBridgeRunning, setTcpBridgeStarting, tcpBridgeClosing, tcpBridgeRunning, tcpBridgeStarting, windows } from './helpers/globalState'
+import { startIpcListeners } from './ipcListeners'
+import { startAppListeners } from './appListeners'
+import { startMainWindowListeners } from './mainWindowListeners'
+
+export const shared: {
+    USER: userType,
+    eventIPC: IpcMainEvent | null,
+    KEEPKEY_FEATURES: Record<string, unknown>
+} = {
+    USER: {
+        online: false,
+        accounts: [],
+        balances: []
+    },
+    eventIPC: null,
+    KEEPKEY_FEATURES: {},
+}
+
+export type userType = {
+    online: boolean,
+    accounts: Array<{
+        pubkey: any;
+        caip: string;
+    }>,
+    balances: any[]
+}
+
+// to keep track of device becomes busy or unbusy
+let lastDeviceBusyRead = false
+let lastDeviceBusyWrite = false
+
+// tcp bridge running and keepkey is successfully connected
+export let isWalletBridgeRunning = () => kkStateController?.lastState === CONNECTED && tcpBridgeRunning
+
+export const queueIpcEvent = (eventName: string, args: any) => {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        return ipcQueue.push({ eventName, args })
+    }
+    else {
+        return windows.mainWindow.webContents.send(eventName, args)
+    }
+}
+
+// hack to detect when the keepkey is busy so we can be careful not to do 2 things at once
+setInterval( () => {
+    // busy state has changed somehow
+    if(lastDeviceBusyRead !== deviceBusyRead || lastDeviceBusyWrite !== deviceBusyWrite)
+    {
+        if(deviceBusyRead === false && deviceBusyWrite === false) {
+            queueIpcEvent('deviceNotBusy', {})
+        } else {
+            queueIpcEvent('deviceBusy', {})
+        }
+    }
+    lastDeviceBusyRead = deviceBusyRead
+    lastDeviceBusyWrite = deviceBusyWrite
+}, 1000)
+
+export const startTcpBridge = async (port?: number) => {
+    if (tcpBridgeRunning || tcpBridgeStarting) return
+    setTcpBridgeStarting(true)
+    let API_PORT = port || 1646
+
+    const appExpress = express()
+    appExpress.use(cors())
+    appExpress.use(bodyParser.urlencoded({ extended: true }))
+    appExpress.use(bodyParser.json())
+
+    const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json'))
+    if (!swaggerDocument) throw Error("Failed to load API SPEC!")
+
+    appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    //swagger.json
+    appExpress.use('/spec', express.static(path.join(__dirname, '../../api/dist')));
+
+    RegisterRoutes(appExpress);
+
+    await new Promise( (resolve) =>  setServer(appExpress.listen(API_PORT, () => resolve(true))))
+    log.info(`Tcp bridge started at http://localhost:${API_PORT}`)
+
+    setTcpBridgeStarting(false)
+    setTcpBridgeRunning(true)
+    createAndUpdateTray()
+}
+
+export const stopTcpBridge = async () => {
+    if(tcpBridgeClosing) return false
+    setTcpBridgeClosing(true)
+    await new Promise(async (resolve) => {
+        createAndUpdateTray()
+        if(server) {
+            server?.close(async () => {
+                await kkStateController.transport?.disconnect()
+                setTcpBridgeRunning(false)
+                setTcpBridgeClosing(false)
+                createAndUpdateTray()
+                resolve(true)
+            })
+        } else {
+            await kkStateController.transport?.disconnect()
+            setTcpBridgeRunning(false)
+            setTcpBridgeClosing(false)
+            createAndUpdateTray()
+            resolve(true)
+        }
+    })
+    return true
+}
 
 dotenvConfig()
 
@@ -65,17 +142,23 @@ if (!app.requestSingleInstanceLock()) app.quit()
 
 export let shouldShowWindow = false;
 
-export const windows: {
-    mainWindow: undefined | BrowserWindow,
-    splash: undefined | BrowserWindow
-} = {
-    mainWindow: undefined,
-    splash: undefined
-}
-
 export const kkAutoLauncher = new AutoLaunch({
     name: 'KeepKey Desktop'
 })
+
+//Auto launch on startup
+if (!isDev && settings.shouldAutoLunch) {
+    kkAutoLauncher.enable()
+    kkAutoLauncher
+        .isEnabled()
+        .then(function (isEnabled) {
+            if (isEnabled) {
+                return
+            }
+            kkAutoLauncher.enable()
+        })
+}
+
 
 try {
     if (isWin && nativeTheme.shouldUseDarkColors === true) {
@@ -91,7 +174,7 @@ if (process.defaultApp) {
 const onKKStateChange = async (eventName: string, args: any) => {
     // try to start the tcp bridge if not already running
     if (eventName === CONNECTED) await startTcpBridge()
-    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopBridge()
+    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopTcpBridge()
     createAndUpdateTray()
     return queueIpcEvent(eventName, args)
 }
@@ -102,20 +185,7 @@ if(kkStateController.lastState !== 'DISCONNECTED')
     queueIpcEvent(PLUGIN, {})
 
 
-export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
-    //Auto launch on startup
-    if (!isDev && settings.shouldAutoLunch) {
-        kkAutoLauncher.enable()
-        kkAutoLauncher
-            .isEnabled()
-            .then(function (isEnabled) {
-                if (isEnabled) {
-                    return
-                }
-                kkAutoLauncher.enable()
-            })
-    }
-
+export const createMainWindow = () => new Promise<boolean>(async (resolve, reject) => {
     try {
         await kkStateController.syncState()
     } catch (e: any) {
@@ -127,7 +197,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             await new Promise( () => 0 )
         }
     }
-
 
     if (settings.shouldAutoStartBridge) await startTcpBridge(settings.bridgeApiPort)
 
@@ -146,6 +215,10 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         }
     })
 
+    db.findOne({ type: 'user' }, (err, doc) => {
+        if (doc) shared.USER = doc.user
+    })
+
     if (isDev) windows.mainWindow.webContents.openDevTools()
 
     const startURL = isDev
@@ -154,110 +227,8 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
 
     windows.mainWindow.loadURL(startURL)
 
-    windows.mainWindow.removeAllListeners('closed')
-    windows.mainWindow.removeAllListeners('ready-to-show')
-
-    windows.mainWindow.on('closed', () => {
-        if (windows.mainWindow) {
-            windows.mainWindow.destroy()
-            windows.mainWindow = undefined
-        }
-    })
-
-    windows.mainWindow.once('ready-to-show', () => {
-        shouldShowWindow = true;
-        if (skipUpdateCheckCompleted) windows.mainWindow?.show()
-    });
-
-    db.findOne({ type: 'user' }, (err, doc) => {
-        if (doc) shared.USER = doc.user
-    })
-
-    windows.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-        let urlObj = new URL(url);
-        let urlHost = urlObj.hostname;
-        if (ALLOWED_HOSTS.includes(urlHost)) return { action: 'allow' }
-        shell.openExternal(url);
-        return { action: 'deny' }
-    })
-
-    windows.mainWindow.webContents.on("will-navigate", (event, url) => {
-        let urlObj = new URL(url);
-        let urlHost = urlObj.hostname;
-        if (!ALLOWED_HOSTS.includes(urlHost)) {
-            event.preventDefault();
-            shell.openExternal(url);
-        }
-    });
+    startMainWindowListeners()
 })
 
-app.on("second-instance", async () => {
-    if (windows.mainWindow) {
-        if (windows.mainWindow.isDestroyed()) {
-            await createWindow();
-        } else if (windows.mainWindow.isMinimized()) {
-            windows.mainWindow.restore();
-        }
-        windows.mainWindow.focus();
-    } else {
-        await createWindow();
-    }
-});
-
-app.on('window-all-closed', () => {
-    if (!settings.shouldMinimizeToTray) app.quit()
-})
-
-app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-});
-
-// C:\Users\amito\AppData\Local\Programs\keepkey-desktop\resources\app.asar\electron\dist
-log.info("__dirname", __dirname)
-ipcMain.on('@app/get-asset-url', (event, data) => {
-    const assetUrl = !isDev ? `file://${path.resolve(__dirname, "../../build/", data.assetPath)}` : data.assetPath
-    event.sender.send(`@app/get-asset-url-${data.nonce}`, { nonce: data.nonce, assetUrl })
-})
-
-ipcMain.on("@app/version", (event, _data) => {
-    event.sender.send("@app/version", app.getVersion());
-})
-
-ipcMain.on("@app/pairings", (_event, _data) => {
-    db.find({ type: 'pairing' }, (err, docs) => {
-        if (windows.mainWindow && !windows.mainWindow.isDestroyed())
-            windows.mainWindow.webContents.send("@app/pairings", docs)
-    })
-})
-
-ipcMain.on("@walletconnect/pairing", (event, data) => {
-    db.findOne({
-        type: 'pairing', serviceName: data.serviceName,
-        serviceHomePage: data.serviceHomePage,
-        pairingType: 'walletconnect'
-    }, (err, doc) => {
-        if (doc) {
-            db.update({
-                type: 'pairing', serviceName: data.serviceName,
-                serviceHomePage: data.serviceHomePage,
-                pairingType: 'walletconnect'
-            }, {
-                type: 'pairing',
-                addedOn: Date.now(),
-                serviceName: data.serviceName,
-                serviceImageUrl: data.serviceImageUrl,
-                serviceHomePage: data.serviceHomePage,
-                pairingType: 'walletconnect'
-            })
-        } else {
-            db.insert({
-                type: 'pairing',
-                addedOn: Date.now(),
-                serviceName: data.serviceName,
-                serviceImageUrl: data.serviceImageUrl,
-                serviceHomePage: data.serviceHomePage,
-                pairingType: 'walletconnect'
-            })
-        }
-    })
-})
+startAppListeners()
+startIpcListeners()

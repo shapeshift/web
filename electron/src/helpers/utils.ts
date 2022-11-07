@@ -1,12 +1,12 @@
 import { ipcMain } from "electron";
-import { createWindow, kkStateController, windows } from "./main";
+import { createMainWindow, kkStateController, windows } from "../main";
 
 export const openSignTxWindow = async (signArgs: any) => {
     let prevContentSize = { width: 0, height: 0 }
     let windowWasPreviouslyOpen = false
 
     if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-        if (!await createWindow()) return
+        if (!await createMainWindow()) return
     } else {
         windows.mainWindow.focus()
         windows.mainWindow.setAlwaysOnTop(true)
@@ -35,7 +35,7 @@ export const openSignTxWindow = async (signArgs: any) => {
 export const checkKeepKeyUnlocked = async () => {
     if (!kkStateController.wallet) return
     if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-        if (!await createWindow()) return
+        if (!await createMainWindow()) return
     } else {
         let isLocked
         try {

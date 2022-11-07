@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
-import { tcpBridgeRunning, server, startTcpBridge, stopBridge } from "./bridge";
-import { db } from "./db";
-import { kkAutoLauncher } from "./main";
+import { startTcpBridge, stopTcpBridge } from "../main";
+import { kkAutoLauncher } from "../main";
 import { AddressInfo } from "net";
 import log from 'electron-log'
 import { setAllowPreRelease } from "./updater";
+import { db, server, tcpBridgeRunning } from "./globalState";
 
 let instance: Settings;
 
@@ -122,7 +122,7 @@ export class Settings {
         if (tcpBridgeRunning) {
             const address = server.address() as AddressInfo
             if (address.port !== value) {
-                await stopBridge()
+                await stopTcpBridge()
                 await startTcpBridge(value)
             }
         }

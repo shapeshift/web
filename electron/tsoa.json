@@ -1,5 +1,5 @@
 {
-  "entryFile": "./electron/src/bridge/index.ts",
+  "entryFile": "./electron/src/main.ts",
   "host": "localhost:1646",
   "schemes": [
     "http",
@@ -10,7 +10,7 @@
   "specVersion": 3,
   "outputDirectory": "./electron/api/dist",
   "controllerPathGlobs": [
-    "./electron/src/bridge/controllers/**/*controller.ts"
+    "./electron/src/helpers/controllers/**/*controller.ts"
   ],
   "spec": {
     "host": "localhost:1646",
@@ -19,11 +19,11 @@
       "ws"
     ],
     "basePath": "",
-    "entryFile": "./electron/src/bridge/index.ts",
+    "entryFile": "./electron/src/main.ts",
     "specVersion": 3,
     "outputDirectory": "./electron/api/dist",
     "controllerPathGlobs": [
-      "./electron/src/bridge/controllers/**/*controller.ts"
+      "./electron/src/helpers/controllers/**/*controller.ts"
     ],
     "securityDefinitions": {
       "api_key": {
@@ -35,9 +35,9 @@
   },
   "routes": {
     "basePath": "",
-    "entryFile": "./electron/src/bridge/index.ts",
-    "routesDir": "./electron/src/bridge/routes",
+    "entryFile": "./electron/src/main.ts",
+    "routesDir": "./electron/src/helpers/routes",
     "middleware": "express",
-    "authenticationModule": "./electron/src/bridge/auth.ts"
+    "authenticationModule": "./electron/src/helpers/auth.ts"
   }
 }

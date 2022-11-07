@@ -1,8 +1,8 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 import path from 'path'
-import { startTcpBridge, stopBridge, tcpBridgeClosing, tcpBridgeRunning, isWalletBridgeRunning } from './bridge'
-import { assetsDirectory } from './constants'
-import { createWindow, windows } from './main'
+import { assetsDirectory, tcpBridgeClosing } from './helpers/globalState'
+import { startTcpBridge, stopTcpBridge, isWalletBridgeRunning } from './main'
+import { createMainWindow, windows } from './main'
 
 export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
@@ -10,11 +10,6 @@ const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 // createAndUpdateTray must be called anytime bridgeRunning or bridgeCLosing changes
 export const createAndUpdateTray = () => {
     if(tray) tray.destroy()
-
-
-    console.log('isWalletBridgeRunning', isWalletBridgeRunning())
-    console.log('tcpBridgeRunning', tcpBridgeRunning)
-
     const menuTemplate: any = [
         {
             label: !isWalletBridgeRunning() ? 'Bridge Not Running!' : 'Bridge Running',
@@ -27,9 +22,9 @@ export const createAndUpdateTray = () => {
             label: 'Show App',
             enabled: true,
             click: () => {
-                if (!windows.mainWindow) return createWindow()
+                if (!windows.mainWindow) return createMainWindow()
                 if (windows.mainWindow.isDestroyed()) {
-                    createWindow();
+                    createMainWindow();
                 } else {
                     windows.mainWindow.show();
                 }
@@ -44,7 +39,7 @@ export const createAndUpdateTray = () => {
         {
             label: !tcpBridgeClosing ? 'Stop Bridge' : 'Bridge Closing, please wait...',
             enabled: !tcpBridgeClosing && isWalletBridgeRunning(),
-            click: stopBridge
+            click: stopTcpBridge
         },
         {
             label: 'Open dev tools',

@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
 import wait from 'wait-promise'
 import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from '../../utils';
+import { checkKeepKeyUnlocked } from '../utils';
 import { kkStateController } from '../../main';
 
 export type policy = {

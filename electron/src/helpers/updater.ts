@@ -1,10 +1,10 @@
 import { autoUpdater } from 'electron-updater'
-import { isLinux } from './constants';
-import { createWindow, settings, shouldShowWindow, windows } from './main';
+import { createMainWindow, settings, shouldShowWindow } from '../main';
 import isDev from 'electron-is-dev'
 import { app, BrowserWindow, ipcMain } from 'electron';
 import log from 'electron-log';
 import path from 'path';
+import { isLinux, windows } from './globalState';
 
 let skipUpdateTimeout: NodeJS.Timeout;
 let windowShowInterval: NodeJS.Timeout
@@ -78,26 +78,26 @@ export const setupAutoUpdater = () => {
     });
 
 
-    ipcMain.on('@app/update', async (event, data) => {
+    ipcMain.on('@app/update', async (event) => {
         if (isDev) return event.sender.send('@app/update', { updateInfo: { version: app.getVersion() } })
         const update = await autoUpdater.checkForUpdates()
         autoUpdater.autoDownload = settings.shouldAutoUpdate
         event.sender.send('@app/update', update)
     })
 
-    ipcMain.on('@app/download-updates', async (event, data) => {
+    ipcMain.on('@app/download-updates', async (event) => {
         await autoUpdater.downloadUpdate()
         event.sender.send('@app/download-updates')
     })
 
-    ipcMain.on('@app/install-updates', async (event, data) => {
+    ipcMain.on('@app/install-updates', async () => {
         autoUpdater.quitAndInstall()
     })
 }
 
 
 export const skipUpdateCheck = (splash: BrowserWindow) => {
-    createWindow();
+    createMainWindow();
     splash.webContents.send("@update/notfound");
     if (isLinux || isDev) {
         splash.webContents.send("@update/skipCheck");
@@ -122,7 +122,7 @@ export const skipUpdateCheck = (splash: BrowserWindow) => {
             clearInterval(windowShowInterval)
             setTimeout(() => {
                 if (windows.splash) splash.destroy()
-                if (windows.mainWindow) windows.mainWindow.show();
+                if (windows.mainWindow) windows.mainWindow.show()
             }, 800);
         }
     }, 1000);

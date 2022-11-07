@@ -15,7 +15,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { getAssetUrl } from '../../../lib/getAssetUrl'
+import { getAssetUrl } from '../../../../lib/getAssetUrl'
 
 export const HardwareErrorModal = (error: any) => {
   const { hardwareError } = useModal()

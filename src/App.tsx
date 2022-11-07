@@ -37,6 +37,16 @@ export const App = () => {
     updateKeepKey.open(data)
   }
 
+  const closeAllModals = () => {
+    setNeedsReset(false)
+    setIsUpdatingKeepkey(false)
+    updateKeepKey.close()
+    requestBootloaderMode.close()
+    hardwareError.close()
+    pair.close()
+    sign.close()
+  }
+
   useEffect(() => {
     if (needsReset) hardwareError.open({})
     else hardwareError.close()
@@ -48,13 +58,9 @@ export const App = () => {
       pair.open(data)
     })
 
-    ipcRenderer.on('needsInitialize', _event => {
-      dispatch({
-        type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
-        payload: {
-          deviceId,
-        },
-      })
+    ipcRenderer.on('needsInitialize', (_event, data) => {
+      closeAllModals()
+      updateKeepKey.open(data)
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {

@@ -9,7 +9,7 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 
 import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
-import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
+import { KeepKeyFactoryState } from '../../components/Modals/UpdateKeepKey/FactoryState'
 import { KeepKeyLabel } from './KeepKey/components/Label'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPinModal } from './KeepKey/components/PinModal'

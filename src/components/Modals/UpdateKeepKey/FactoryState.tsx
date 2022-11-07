@@ -29,13 +29,7 @@ export const KeepKeyFactoryState = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Flex alignItems='center'>
-          <CheckCircleIcon color='green.400' mr={3} />
-          <Text translation={'modals.keepKey.factoryState.header'} />
-        </Flex>
-      </ModalHeader>
-      <ModalBody>
+      <ModalBody pt={5}>
         <Text color='gray.500' translation={'modals.keepKey.factoryState.body'} mb={4} />
         <Button
           width='full'

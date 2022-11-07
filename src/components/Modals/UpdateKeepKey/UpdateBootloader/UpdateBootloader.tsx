@@ -31,7 +31,7 @@ export const UpdateBootloader = (params: any) => {
   }, [isOpen])
 
   return (
-    <>
+    <ModalBody pt={5}>
       <Table size='sm'>
         <Thead>
           <Tr>
@@ -42,18 +42,18 @@ export const UpdateBootloader = (params: any) => {
         <Tbody>
           <Tr>
             <Td>Current</Td>
-            <Td>Recomended</Td>
+            <Td>Recommended</Td>
           </Tr>
         </Tbody>
         <Tbody>
           <Tr>
-            <Td>{`${params?.event?.bootloader}`}</Td>
-            <Td>{`${params?.event?.recommendedBootloader}`}</Td>
+            <Td>{params?.event?.bootloader}</Td>
+            <Td>{params?.event?.recommendedBootloader}</Td>
           </Tr>
         </Tbody>
       </Table>
       <br />
-      <Text translation='Click on device' />
-    </>
+      <Text size='lg' translation='Confirm on device' />
+    </ModalBody>
   )
 }

@@ -32,7 +32,7 @@ export const UpdateFirmware = (params: any) => {
   }, [isOpen])
 
   return (
-    <>
+    <ModalBody pt={5}>
       <Table size='sm'>
         <Thead>
           <Tr>
@@ -43,18 +43,18 @@ export const UpdateFirmware = (params: any) => {
         <Tbody>
           <Tr>
             <Td>Current</Td>
-            <Td>Recomended</Td>
+            <Td>Recommended</Td>
           </Tr>
         </Tbody>
         <Tbody>
           <Tr>
-            <Td>{`${params?.event?.firmware}`}</Td>
-            <Td>{`${params?.event?.recommendedFirmware}`}</Td>
+            <Td>{params?.event?.firmware}</Td>
+            <Td>{params?.event?.recommendedFirmware}</Td>
           </Tr>
         </Tbody>
       </Table>
       <br />
-      <Text translation='Confirm on device' />
-    </>
+      <Text size='xl'  translation='Confirm on device' />
+    </ModalBody>
   )
 }

@@ -24,6 +24,7 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
   selectSelectedLocale,
@@ -45,7 +46,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const assets = useAppSelector(selectorState => selectorState.assets.byId)
+  const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()

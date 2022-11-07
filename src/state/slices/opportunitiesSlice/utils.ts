@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import type { StakingId, UserStakingId } from './types'
+import type { OpportunityMetadata, StakingId, UserStakingId } from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -28,3 +28,5 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 
   return deserializedStakingId === stakingId
 }
+
+export const toEarnOpportunity = (opportunityMeta: OpportunityMetadata) => {}

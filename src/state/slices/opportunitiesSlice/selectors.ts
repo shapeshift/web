@@ -141,14 +141,14 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
-  (userStakingOpportunities, stakingId): AccountId => {
+  (userStakingOpportunities, stakingId): AccountId | null => {
     if (stakingId === '') return '*' // Narrowing flavoured type
 
     const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
       UserStakingId,
       UserStakingOpportunity,
     ][]
-    const [foundUserStakingId] = userStakingOpportunitiesEntries
+    const foundEntry = (userStakingOpportunitiesEntries ?? [])
       .filter(([userStakingId]) =>
         filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
       )
@@ -156,7 +156,11 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
         bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
           .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)
           .toNumber(),
-      )[0]
+      )?.[0]
+
+    const foundUserStakingId = foundEntry?.[0]
+
+    if (!foundUserStakingId) return null
 
     const [foundAccountId] = deserializeUserStakingId(foundUserStakingId)
 

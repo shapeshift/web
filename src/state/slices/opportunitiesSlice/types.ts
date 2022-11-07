@@ -15,6 +15,7 @@ export type OpportunityMetadata = {
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]
   expired?: boolean
+  name?: string
 }
 
 // User-specific values for this opportunity

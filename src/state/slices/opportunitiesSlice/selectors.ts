@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -12,7 +13,8 @@ import {
 } from 'state/selectors'
 
 import type { PortfolioAccountBalances } from '../portfolioSlice/portfolioSliceCommon'
-import { STAKING_EARN_OPPORTUNITIES } from './constants'
+import { selectAssets, selectPortfolioCryptoHumanBalanceByAssetId } from '../selectors'
+import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
   OpportunityMetadata,
@@ -168,6 +170,47 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       cryptoAmount: opportunity.stakedAmountCryptoPrecision,
       isLoaded: true,
     })),
+)
+
+// The same as the previous selector, but parsed as an EarnOpportunityType
+// TODO: testme
+export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelector(
+  selectLpOpportunitiesById,
+  selectLpIdParamFromFilter,
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectAssets,
+  (lpOpportunitiesById, lpId, aggregatedLpAssetBalance, assets) => {
+    const opportunityMetadata = lpOpportunitiesById[lpId]
+    const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
+
+    const [underlyingEthAmount, underlyingFoxAmount] = opportunityMetadata?.underlyingAssetIds.map(
+      (assetId, i) =>
+        bnOrZero(aggregatedLpAssetBalance)
+          .times(
+            fromBaseUnit(
+              opportunityMetadata?.underlyingAssetRatios[i] ?? '0',
+              assets[assetId].precision,
+            ),
+          )
+          .toFixed(6)
+          .toString(),
+    ) ?? ['0', '0']
+
+    const opportunity = {
+      ...baseLpEarnOpportunity,
+      ...opportunityMetadata,
+      isLoaded: true,
+      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
+      chainId: fromAssetId(lpId).chainId,
+      underlyingFoxAmount,
+      underlyingEthAmount,
+      cryptoAmount: aggregatedLpAssetBalance,
+      // TODO: this all goes away anyway
+      fiatAmount: '42',
+    }
+
+    return opportunity
+  },
 )
 
 // "Give me the total values over all my accounts aggregated into one for each opportunity, and then aggregated these into one final value"

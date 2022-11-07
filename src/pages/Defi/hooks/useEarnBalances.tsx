@@ -1,19 +1,16 @@
-import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
   selectAggregatedUserStakingOpportunity,
-  selectAssets,
-  selectLpOpportunitiesById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -31,7 +28,6 @@ export type UseEarnBalancesReturn = {
 export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const assets = useAppSelector(selectAssets)
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
@@ -48,63 +44,11 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const opportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
-    [lpOpportunitiesById],
-  )
-  const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[foxEthLpAssetId]
-
-  const aggregatedLpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
-  )
-
-  // TODO: This doesn't belong here at all and needs a better shape
-  // This is effectively coming back to the previous implementation with specific fields we don't need like
-  // `underlyingFoxAmount` and `underlyingEthAmount`, surely we can pass the LP token value and calculate this in place
-  // The `useXYZDefiNormalizedStakingEarnDefiSomethingOPportunities` hooks are going away soon so this isn't staying here for long
-  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      ) ?? ['0', '0'],
-    [
-      aggregatedLpAssetBalance,
-      assets,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-    ],
-  )
-
-  // TODO: toEarnOpportunity util something something
-  const foxEthLpOpportunity = useMemo(
-    () => ({
-      ...baseLpEarnOpportunity,
-      ...opportunityData,
-      isLoaded: true,
-      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
-      chainId: fromAssetId(foxEthLpAssetId).chainId,
-      underlyingFoxAmount,
-      underlyingEthAmount,
-      cryptoAmount: aggregatedLpAssetBalance,
-      // TODO: this all goes away anyway
-      fiatAmount: '42',
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
     }),
-    [
-      aggregatedLpAssetBalance,
-      baseLpEarnOpportunity,
-      opportunityData,
-      underlyingEthAmount,
-      underlyingFoxAmount,
-    ],
   )
 
   const farmContractsAggregatedOpportunity = useAppSelector(selectAggregatedUserStakingOpportunity)

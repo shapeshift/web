@@ -36,18 +36,11 @@ export let bridgeRunning = false
 
 export let bridgeClosing = false
 
-export let bridgeStarting = false
-
 let ipcQueue = new Array<IpcQueueItem>()
 
 let renderListenersReady = false
 
 export const start_bridge = async (port?: number) => {
-    if(bridgeStarting) { 
-        console.log('bridge already starting')
-        return 
-    }
-    bridgeStarting = true
     if (bridgeRunning) return
 
     // web render thread has indicated it is ready to receive ipc messages
@@ -101,7 +94,7 @@ export const start_bridge = async (port?: number) => {
     try {
         await kkStateController.syncState()
     } catch (e) {
-        log.error('failed to init controller, exiting', e)
+        log.error('failed sync initial keepkey state, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
         // We need to have them unplug and fully exit the app to fix it
         app.quit()
@@ -130,7 +123,6 @@ export const start_bridge = async (port?: number) => {
             success: true
         })
     })
-    bridgeStarting = false
 }
 
 export const stop_bridge = async () => {

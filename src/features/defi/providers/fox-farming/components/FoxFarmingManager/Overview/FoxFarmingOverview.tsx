@@ -118,7 +118,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     ],
   )
 
-  const underlyingAssetWithBalancesAndIcons = useMemo(
+  const lpAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
       cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(6),
@@ -190,7 +190,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       name={opportunityData.name ?? ''}
       icons={underlyingAssetsIcons}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
-      underlyingAsset={underlyingAssetWithBalancesAndIcons}
+      lpAsset={lpAssetWithBalancesAndIcons}
       underlyingAssets={underlyingAssetsWithBalancesAndIcons}
       provider='ShapeShift'
       menu={

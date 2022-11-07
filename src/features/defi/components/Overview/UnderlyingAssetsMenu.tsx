@@ -8,18 +8,15 @@ import type { AssetWithBalance } from './Overview'
 import { UnderlyingAssetTag } from './UnderlyingAssetsTags'
 
 type UnderlyingAssetsMenuProps = {
-  underlyingAsset: AssetWithBalance
+  lpAsset: AssetWithBalance
   underlyingAssets: AssetWithBalance[]
 }
-export const UnderlyingAssetsMenu = ({
-  underlyingAsset,
-  underlyingAssets,
-}: UnderlyingAssetsMenuProps) => (
+export const UnderlyingAssetsMenu = ({ lpAsset, underlyingAssets }: UnderlyingAssetsMenuProps) => (
   <Box>
     <Popover matchWidth>
       <PopoverTrigger>
         <Box cursor='pointer'>
-          <UnderlyingAssetTag asset={underlyingAsset} showPercentage={false}>
+          <UnderlyingAssetTag asset={lpAsset} showPercentage={false}>
             <ChevronDownIcon />
           </UnderlyingAssetTag>
         </Box>

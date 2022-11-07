@@ -37,7 +37,7 @@ type OverviewProps = {
   accountId?: Nullable<AccountId>
   onAccountIdChange?: (accountId: AccountId) => void
   // The LP asset this opportunity represents
-  underlyingAsset?: AssetWithBalance
+  lpAsset?: AssetWithBalance
   // The assets underlying the LP one
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
@@ -56,7 +56,7 @@ type OverviewProps = {
 export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
-  underlyingAsset,
+  lpAsset,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -128,11 +128,8 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {underlyingAsset ? (
-                  <UnderlyingAssetsMenu
-                    underlyingAsset={underlyingAsset!}
-                    underlyingAssets={underlyingAssets}
-                  />
+                {lpAsset ? (
+                  <UnderlyingAssetsMenu lpAsset={lpAsset} underlyingAssets={underlyingAssets} />
                 ) : (
                   <UnderlyingAssetsTags underlyingAssets={underlyingAssets} />
                 )}

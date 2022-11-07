@@ -39,9 +39,9 @@ import {
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectPortfolioLoadingStatusGranular,
-  selectPortfolioRequestedAccountIds,
   selectSelectedCurrency,
   selectSelectedLocale,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
@@ -73,7 +73,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
-  const requestedAccountIds = useSelector(selectPortfolioRequestedAccountIds)
+  const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
@@ -143,8 +143,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           if (!account) return acc
           const accountId = accountIds[idx]
           const { chainId } = fromAccountId(accountId)
-          const accountBalance = Object.values(account.assetBalances.byId).reduce(
-            (acc, balance) => acc.plus(bnOrZero(balance)),
+          const accountBalance = Object.values(account.accountBalances.byId).reduce<BN>(
+            (acc, byAssetId) => {
+              Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
+              return acc
+            },
             bnOrZero(0),
           )
           acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)

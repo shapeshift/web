@@ -21,12 +21,11 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import {
-  selectPortfolioAccountIds,
-  selectPortfolioAccountMetadata,
-} from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { selectWalletAccountIds } from '../../../state/slices/portfolioSlice/selectors'
 
 /*
 The Default Asset Hook is responsible for populating the trade widget with initial assets.
@@ -42,7 +41,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
   const dispatch = useAppDispatch()
-  const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
 
   const { getUsdRates } = swapperApi.endpoints
@@ -124,7 +123,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     })()
 
     if (assetPair && wallet) {
-      const accountIds = portfolioAccountIds.filter(
+      const accountIds = walletAccountIds.filter(
         accountId => fromAccountId(accountId).chainId === assetPair.buyAsset.chainId,
       )
       // As long as we have at least one account id for the buy asset, we can do a trade
@@ -150,7 +149,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     featureFlags,
     getUsdRates,
     maybeWalletChainId,
-    portfolioAccountIds,
+    walletAccountIds,
     portfolioAccountMetaData,
     previousBuyChainId,
     routeBuyAssetId,

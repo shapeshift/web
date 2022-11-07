@@ -11,7 +11,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataById,
@@ -49,7 +49,7 @@ jest.mock('state/slices/selectors', () => ({
 const ethAssetId = 'eip155:1/slip44:60'
 const runeAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
 
-const balances: PortfolioBalancesById = {
+const balances: AssetBalancesById = {
   [ethAssetId]: '5000000000000000000',
   [runeAssetId]: '21000000000000000000',
 }

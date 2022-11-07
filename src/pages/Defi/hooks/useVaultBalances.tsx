@@ -14,7 +14,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,
@@ -46,7 +46,7 @@ export type IdleEarnVault = Partial<Account<ChainId>> &
     pricePerShare: BigNumber
   }
 
-async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
+async function getYearnVaults(balances: AssetBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, YearnEarnVault> = {}
   if (!yearn) return acc
   const opportunities = await yearn.findAll()
@@ -71,7 +71,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
   return acc
 }
 
-async function getIdleVaults(balances: PortfolioBalancesById, idleInvestor: IdleInvestor | null) {
+async function getIdleVaults(balances: AssetBalancesById, idleInvestor: IdleInvestor | null) {
   if (!idleInvestor) return {}
   const opportunities = await idleInvestor.findAll()
 

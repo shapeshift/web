@@ -48,18 +48,15 @@ export const ConnectModal: FC<Props> = ({ isOpen, onClose }) => {
   )
 
   useEffect(() => {
+    if (!isOpen) return
     // @ts-ignore
-    navigator.permissions.query({ name: 'clipboard-read' }).then(permission => {
-      if (permission.state === 'denied') return
-      navigator.clipboard.read().then(async data => {
-        const link = await data[0].getType('text/plain')
-        link.text().then(uri => {
-          if (uri.startsWith('wc:')) setValue('uri', uri)
-        })
+    navigator.clipboard.read().then(async data => {
+      const link = await data[0].getType('text/plain')
+      link.text().then(uri => {
+        if (uri.startsWith('wc:')) setValue('uri', uri)
       })
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isOpen, setValue])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>

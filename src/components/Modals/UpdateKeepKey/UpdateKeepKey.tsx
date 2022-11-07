@@ -10,15 +10,17 @@ import { UpdateBootloader } from './UpdateBootloader/UpdateBootloader'
 import { UpdateFirmware } from './UpdateFirmware/UpdateFirmware'
 import { Step, Steps, useSteps } from 'chakra-ui-steps';
 import { KeepKeyFactoryState } from './FactoryState'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 
 
 export const UpdateKeepKey = (params: any) => {
-    const { updateKeepKey } = useModal()
+    const { updateKeepKey, hardwareError } = useModal()
     const { close, isOpen } = updateKeepKey
     const { setStep, activeStep } = useSteps({
         initialStep: 0,
     });
+    const { setNeedsReset } = useWallet()
 
     useEffect(() => {
         if (params?.event?.bootloaderUpdateNeeded) {
@@ -42,6 +44,8 @@ export const UpdateKeepKey = (params: any) => {
             isOpen={isOpen}
             onClose={() => {
                 close()
+                hardwareError.open({})
+                setNeedsReset(true)
             }}
             isCentered
             closeOnOverlayClick={false}

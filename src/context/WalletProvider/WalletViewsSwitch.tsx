@@ -19,7 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
-import { ipcRenderer } from 'electron'
 
 const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 

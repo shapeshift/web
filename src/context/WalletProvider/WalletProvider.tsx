@@ -356,6 +356,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
+    console.log('main disconnect')
     setNeedsReset(true)
     dispatch({ type: WalletActions.RESET_STATE })
     setIsUpdatingKeepkey(false)
@@ -410,11 +411,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                    * wallet.
                    */
                   // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
-                  console.log("TODO DISC")
+                  console.error("TODO DISCONNECT")
                   disconnect()
                 }
               } catch (e) {
-                console.log("CATCH ERROR R", e)
+                console.error("CATCH ERROR DISCONNECT", e)
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -424,7 +425,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * The fall-through case also handles clearing
                * any demo wallet state on refresh/rerender.
                */
-              console.log("DEFAULT DISC")
+              console.error("DEFAULT DISCONNECT")
               disconnect()
               break
           }
@@ -604,7 +605,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, disconnect)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, disconnect, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({

@@ -32,7 +32,8 @@ export const App = () => {
 
   const openKeepKeyUpdater = (data: any) => {
     setIsUpdatingKeepkey(true)
-    requestBootloaderMode.close()
+    setNeedsReset(false)
+    requestBootloaderMode?.close()
     updateKeepKey.open(data)
   }
 
@@ -46,8 +47,7 @@ export const App = () => {
   }
 
   useEffect(() => {
-    // This is necessary so when it re-opens the tcp connection everything is good
-    state.wallet?.disconnect()
+    console.log('needsReset', needsReset)
     if (needsReset) hardwareError.open({})
     else hardwareError.close()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,21 +69,19 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
-      console.log('ipc disco')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       closeAllModals()
+      setNeedsReset(true)
       hardwareError.open({})
     })
 
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
-      // pair.open(data)
+      pair.open(data)
     })
 
     ipcRenderer.on('needsInitialize', (_event, data) => {
       closeAllModals()
-      setIsUpdatingKeepkey(true)
-      setNeedsReset(false)
-      updateKeepKey.open(data)
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
@@ -93,7 +91,6 @@ export const App = () => {
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
-      setNeedsReset(false)
       openKeepKeyUpdater(data)
     })
 
@@ -102,6 +99,7 @@ export const App = () => {
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {
+      setNeedsReset(false)
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

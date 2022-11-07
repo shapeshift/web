@@ -26,7 +26,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   const cryptoHumanBalance = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByAssetId(s, filter),
   )
-  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter))
+  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
 
   if (!asset) return null
 

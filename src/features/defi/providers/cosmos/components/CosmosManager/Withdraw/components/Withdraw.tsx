@@ -16,7 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
@@ -180,7 +180,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(bn(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -188,7 +188,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(bn(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`))
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

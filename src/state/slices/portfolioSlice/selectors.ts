@@ -512,9 +512,9 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   selectPortfolioAssetBalances,
   selectAccountIdParamFromFilterOptional,
   selectAssetIdParamFromFilter,
-  (accountBalances, assetBalances, accountId, assetId): string | undefined => {
+  (accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) return accountBalances?.[accountId]?.[assetId]
-    return assetId && assetBalances[assetId]
+    return assetId ? assetBalances[assetId] : '0'
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
@@ -814,8 +814,8 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
   selectPortfolioAccountMetadata,
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,
-  (accountBalances, accountMetadata, accountNumberString, chainId): string | undefined => {
-    if (!accountNumberString) return
+  (accountBalances, accountMetadata, accountNumberString, chainId): string => {
+    if (!accountNumberString) return '0'
     const accountNumber = parseInt(accountNumberString.toString())
     if (!Number.isInteger(accountNumber))
       throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
@@ -1028,13 +1028,9 @@ export const selectUnbondingEntriesByAccountId = createDeepEqualOutputSelector(
   selectStakingDataByFilter,
   selectValidatorAddressParamFromFilter,
   selectAssetIdParamFromFilter,
-  (
-    stakingDataByValidator,
-    validatorAddress,
-    assetId,
-  ): cosmossdk.UndelegationEntry[] | undefined => {
-    if (!validatorAddress) return
-    if (!assetId) return
+  (stakingDataByValidator, validatorAddress, assetId): cosmossdk.UndelegationEntry[] => {
+    if (!validatorAddress) return []
+    if (!assetId) return []
     // Since we pass an AccountId in, stakingDataByValidator is guaranteed to be 0-length
     // Thus, we can simply unwrap it by accessing the 0th item
     const unwrappedStakingDataByValidator = stakingDataByValidator[0]
@@ -1121,15 +1117,17 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
     assetId,
     defaultStakingData,
   ): OpportunitiesDataFull[] => {
-    if (defaultStakingData && !portfolioValidatorIds.length)
-      return [
-        {
-          isLoaded: true,
-          rewards: '0',
-          totalDelegations: '0',
-          ...defaultStakingData,
-        },
-      ]
+    if (!defaultStakingData) return []
+    const dummy: OpportunitiesDataFull[] = [
+      {
+        isLoaded: true,
+        rewards: '0',
+        totalDelegations: '0',
+        ...defaultStakingData,
+      },
+    ]
+    if (defaultStakingData && !portfolioValidatorIds.length) return dummy
+    if (!assetId) return dummy
     return portfolioValidatorIds.map(validatorId => {
       const delegatedAmount = stakingDataByValidator
         .reduce((acc, currentStakingDataByValidator) => {

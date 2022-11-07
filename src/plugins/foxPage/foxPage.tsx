@@ -119,7 +119,7 @@ export const FoxPage = () => {
 
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
 
-  const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
+  const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(bnOrZero(fiatBalanceFoxy)).toString()
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
@@ -199,7 +199,7 @@ export const FoxPage = () => {
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
                   cryptoAmount={cryptoHumanBalances[index]}
-                  fiatAmount={fiatBalances[index]}
+                  fiatAmount={fiatBalances[index] ?? '0'}
                   onClick={() => handleTabClick(asset.assetId)}
                 />
               ))}
@@ -221,7 +221,7 @@ export const FoxPage = () => {
                           assetSymbol={selectedAsset.symbol}
                           assetIcon={selectedAsset.icon}
                           cryptoAmount={cryptoHumanBalances[selectedAssetIndex]}
-                          fiatAmount={fiatBalances[selectedAssetIndex]}
+                          fiatAmount={fiatBalances[selectedAssetIndex] ?? '0'}
                         />
                       )}
                     </MenuButton>
@@ -233,7 +233,7 @@ export const FoxPage = () => {
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
                           cryptoAmount={cryptoHumanBalances[index]}
-                          fiatAmount={fiatBalances[index]}
+                          fiatAmount={fiatBalances[index] ?? '0'}
                           as={Box}
                         />
                       </MenuItem>

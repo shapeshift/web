@@ -95,6 +95,7 @@ export interface InitialState {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
+  isUpdatingKeepkey: boolean
   isDemoWallet: boolean
   provider: MetaMaskLikeProvider | WalletConnectProvider | null
   isLocked: boolean
@@ -129,6 +130,7 @@ const initialState: InitialState = {
   disconnectOnCloseModal: false,
   keepkeySdk: null,
   browserUrl: null,
+  isUpdatingKeepkey: false,
 }
 
 export const isKeyManagerWithProvider = (keyManager: KeyManager | null) => Boolean(keyManager)
@@ -339,26 +341,23 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // Keepkey is in a fucked state and needs to be unplugged/replugged
-  const [needsReset, setNeedsReset] = useState(false)
   // to know we are in the process of updating bootloader or firmware
   // so we dont unintentionally show the keepkey error modal while updating
   const [isUpdatingKeepkey, setIsUpdatingKeepkey] = useState(false)
 
-  const setNeedsResetIfNotUpdating = useCallback(() => {
-    if (!isUpdatingKeepkey) setNeedsReset(true)
-  }, [isUpdatingKeepkey])
+  // is keepkey device currently being interacted with
+  const [deviceBusy, setDeviceBusy] = useState(false)
 
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
+    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     /**
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
-    state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
     setIsUpdatingKeepkey(false)
     clearLocalWallet()
-  }, [state.wallet])
+  }, [])
 
   const load = useCallback(() => {
     const fnLogger = moduleLogger.child({ fn: ['load'] })
@@ -435,32 +434,29 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
       for (const walletName of Object.values(KeyManager)) {
         try {
-          if (walletName === 'keepkey') {
-            const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
-            const wallet = await adapter.pairDevice('http://localhost:1646')
-            setNeedsReset(false)
-            adapters.set(walletName, adapter)
-            dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-            const { name, icon } = KeepKeyConfig
-            const deviceId = await wallet.getDeviceID()
-            // Show the label from the wallet instead of a generic name
-            const label = (await wallet.getLabel()) || name
-            await wallet.initialize()
-            dispatch({
-              type: WalletActions.SET_WALLET,
-              payload: { wallet, name: label, icon, deviceId, meta: { label } },
-            })
-            dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-            /**
-             * The real deviceId of KeepKey wallet could be different from the
-             * deviceId recieved from the wallet, so we need to keep
-             * aliases[deviceId] in the local wallet storage.
-             */
-            setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
-          }
+          const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
+
+          const wallet = await adapter.pairDevice('http://localhost:1646')
+          adapters.set(walletName, adapter)
+          dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+          const { name, icon } = KeepKeyConfig
+          const deviceId = await wallet.getDeviceID()
+          // Show the label from the wallet instead of a generic name
+          const label = (await wallet.getLabel()) || name
+          await wallet.initialize()
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name: label, icon, deviceId, meta: { label } },
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          /**
+           * The real deviceId of KeepKey wallet could be different from the
+           * deviceId recieved from the wallet, so we need to keep
+           * aliases[deviceId] in the local wallet storage.
+           */
+          setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         } catch (e) {
           moduleLogger.error(e, 'Error initializing HDWallet adapters')
-          setNeedsResetIfNotUpdating()
         }
       }
     }, 2000),
@@ -495,10 +491,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           break
         default:
       }
-    })
-
-    ipcRenderer.on('@keepkey/hardwareError', () => {
-      setNeedsResetIfNotUpdating()
     })
 
     ipcRenderer.on('needsInitialize', () => {
@@ -539,15 +531,21 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('connected', async (_event, _data) => {
-      setNeedsReset(false)
       pairAndConnect.current()
+    })
+
+    ipcRenderer.on('deviceBusy', async (_event, _data) => {
+      setDeviceBusy(true)
+    })
+    ipcRenderer.on('deviceNotBusy', async (_event, _data) => {
+      setDeviceBusy(false)
     })
 
     //END HDwallet API
 
     // inform the electron process we are ready to receive ipc messages
     ipcRenderer.send('renderListenersReady', {})
-  }, [setNeedsResetIfNotUpdating, state.wallet])
+  }, [state.wallet])
 
   const setupKeepKeySDK = () => {
     let serviceKey = window.localStorage.getItem('@app/serviceKey')
@@ -600,7 +598,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -611,10 +609,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      needsReset,
-      setNeedsReset,
       isUpdatingKeepkey,
       setIsUpdatingKeepkey,
+      pairAndConnect,
+      deviceBusy,
     }),
     [
       state,
@@ -623,10 +621,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      needsReset,
-      setNeedsReset,
       setIsUpdatingKeepkey,
       isUpdatingKeepkey,
+      pairAndConnect,
+      deviceBusy,
     ],
   )
 

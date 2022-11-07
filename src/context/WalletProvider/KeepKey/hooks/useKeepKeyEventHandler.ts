@@ -19,7 +19,6 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
-  setNeedsReset: (needsReset: boolean) => void,
 ) => {
   const {
     keyring,
@@ -60,7 +59,6 @@ export const useKeepKeyEventHandler = (
                   payload: false,
                 })
               handleDisconnect(deviceId)
-              setNeedsReset(true)
               break
             case 'Device recovered':
               setDeviceState({
@@ -299,6 +297,5 @@ export const useKeepKeyEventHandler = (
     disposition,
     toast,
     translate,
-    setNeedsReset,
   ])
 }

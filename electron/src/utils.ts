@@ -1,6 +1,5 @@
 import { ipcMain } from "electron";
-import { createWindow, windows } from "./main";
-import { lastKnownKeepkeyState } from "./bridge";
+import { createWindow, kkStateController, windows } from "./main";
 
 export const openSignTxWindow = async (signArgs: any) => {
     let prevContentSize = { width: 0, height: 0 }
@@ -33,18 +32,14 @@ export const openSignTxWindow = async (signArgs: any) => {
     })
 }
 
-
-
-
-
 export const checkKeepKeyUnlocked = async () => {
-    if (!lastKnownKeepkeyState.wallet) return
+    if (!kkStateController.wallet) return
     if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
         if (!await createWindow()) return
     } else {
         let isLocked
         try {
-            isLocked = await lastKnownKeepkeyState.wallet.isLocked()
+            isLocked = await kkStateController.wallet.isLocked()
         }catch(e) {
             console.log('error is', e)
         }

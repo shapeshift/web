@@ -8,7 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import KeepKeyConnect from 'assets/connect-keepkey.svg'
 import { Text } from 'components/Text'
@@ -19,7 +19,7 @@ import { getAssetUrl } from '../../../../lib/getAssetUrl'
 
 export const HardwareErrorModal = (error: any) => {
   const { hardwareError } = useModal()
-  const { isUpdatingKeepkey } = useWallet()
+  const { isUpdatingKeepkey, pairAndConnect, deviceBusy } = useWallet()
   const { close, isOpen } = hardwareError
 
   const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
@@ -43,6 +43,10 @@ export const HardwareErrorModal = (error: any) => {
   useEffect(() => {
     getAssetUrl(KeepKeyConnect).then(setKKConnect)
   }, [])
+
+  const retryPair = useCallback(async () => {
+    pairAndConnect.current()
+  }, [pairAndConnect])
 
   return (
     <Modal
@@ -77,6 +81,9 @@ export const HardwareErrorModal = (error: any) => {
               </ModalHeader>
               <Image src={kkConnect} alt='reconnect Device!' />
               <Text translation={'modals.keepKey.hardware.connect'} />
+              <Button isDisabled={deviceBusy} onClick={retryPair}>
+                {`${deviceBusy ? 'Retry (Device buys, please wait)' : 'Retry'}`}
+              </Button>
             </div>
           )}
         </ModalBody>

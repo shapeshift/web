@@ -41,13 +41,15 @@ import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, start_bridge } from './bridge'
+import { queueIpcEvent, startTcpBridge, stopBridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
 import { Settings } from './settings'
 import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
 import fs from 'fs'
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, PLUGIN } from './bridge/kk-state-controller'
+import { createAndUpdateTray } from './tray'
 
 dotenvConfig()
 
@@ -59,12 +61,9 @@ Sentry.init({ dsn: process.env.SENTRY_DSN });
 export const settings = new Settings()
 
 // dont allow muliple windows to open
-if(!app.requestSingleInstanceLock()) app.quit()
-
-const TAG = ' | MAIN | '
+if (!app.requestSingleInstanceLock()) app.quit()
 
 export let shouldShowWindow = false;
-
 
 export const windows: {
     mainWindow: undefined | BrowserWindow,
@@ -89,9 +88,21 @@ if (process.defaultApp) {
     app.setAsDefaultProtocolClient('keepkey')
 }
 
-export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
-    log.info('Creating window!')
+const onKKStateChange = async (eventName: string, args: any) => {
+    // try to start the tcp bridge if not already running
+    if (eventName === CONNECTED) await startTcpBridge()
+    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopBridge()
+    createAndUpdateTray()
+    return queueIpcEvent(eventName, args)
+}
 
+export const kkStateController = new KKStateController(onKKStateChange)
+// send a plugin event if its not unplugged
+if(kkStateController.lastState !== 'DISCONNECTED')
+    queueIpcEvent(PLUGIN, {})
+
+
+export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     //Auto launch on startup
     if (!isDev && settings.shouldAutoLunch) {
         kkAutoLauncher.enable()
@@ -103,12 +114,22 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
                 }
                 kkAutoLauncher.enable()
             })
-            .catch(function (e) {
-                log.error('failed to enable auto launch: ', e)
-            })
     }
 
-    if (settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
+    try {
+        await kkStateController.syncState()
+    } catch (e: any) {
+        if (e.toString().includes('claimInterface error')) {
+            windows?.splash?.webContents.send("@update/errorClaimed")
+            await new Promise( () => 0 )
+        } else {
+            windows?.splash?.webContents.send("@update/errorReset")
+            await new Promise( () => 0 )
+        }
+    }
+
+
+    if (settings.shouldAutoStartBridge) await startTcpBridge(settings.bridgeApiPort)
 
     windows.mainWindow = new BrowserWindow({
         focusable: true,
@@ -130,7 +151,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     const startURL = isDev
         ? 'http://localhost:3000'
         : `file://${path.join(__dirname, '../../build/index.html')}`
-    log.info('startURL: ', startURL)
 
     windows.mainWindow.loadURL(startURL)
 
@@ -185,7 +205,7 @@ app.on("second-instance", async () => {
 });
 
 app.on('window-all-closed', () => {
-    if (!bridgeRunning || !settings.shouldMinimizeToTray) app.quit()
+    if (!settings.shouldMinimizeToTray) app.quit()
 })
 
 app.on("activate", function () {
@@ -201,4 +221,43 @@ ipcMain.on('@app/get-asset-url', (event, data) => {
 
 ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
+})
+
+ipcMain.on("@app/pairings", (_event, _data) => {
+    db.find({ type: 'pairing' }, (err, docs) => {
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed())
+            windows.mainWindow.webContents.send("@app/pairings", docs)
+    })
+})
+
+ipcMain.on("@walletconnect/pairing", (event, data) => {
+    db.findOne({
+        type: 'pairing', serviceName: data.serviceName,
+        serviceHomePage: data.serviceHomePage,
+        pairingType: 'walletconnect'
+    }, (err, doc) => {
+        if (doc) {
+            db.update({
+                type: 'pairing', serviceName: data.serviceName,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            }, {
+                type: 'pairing',
+                addedOn: Date.now(),
+                serviceName: data.serviceName,
+                serviceImageUrl: data.serviceImageUrl,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            })
+        } else {
+            db.insert({
+                type: 'pairing',
+                addedOn: Date.now(),
+                serviceName: data.serviceName,
+                serviceImageUrl: data.serviceImageUrl,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            })
+        }
+    })
 })

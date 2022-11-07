@@ -17,16 +17,14 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { fromBaseUnit } from 'lib/math'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
-  selectLpOpportunitiesById,
   selectMarketData,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -56,47 +54,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [accountId],
   )
 
-  const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
-  const opportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
-    [lpOpportunitiesById],
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
+    }),
   )
 
   const underlyingAssetsIcons = useMemo(
-    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId].icon),
-    [assets, opportunityData?.underlyingAssetIds],
-  )
-
-  const lpAssetBalanceFilter = useMemo(
-    () => ({
-      assetId: foxEthLpAssetId ?? '',
-      accountId: accountId ?? '',
-    }),
-    [accountId],
-  )
-  const lpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, lpAssetBalanceFilter),
-  )
-
-  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(lpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      ) ?? ['0', '0'],
-    [
-      assets,
-      lpAssetBalance,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-    ],
+    () => foxEthLpOpportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    [assets, foxEthLpOpportunity?.underlyingAssetIds],
   )
 
   const { allowance, getApproveGasData, getWithdrawGasData } =
@@ -107,21 +74,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunityData?.assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId ?? ''))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
-  const fiatAmountAvailable = bnOrZero(lpAssetBalance)
+  const fiatAmountAvailable = bnOrZero(foxEthLpOpportunity?.cryptoAmount)
     .times(marketData?.[foxEthLpAssetId]?.price ?? '0')
     .toString()
 
   // user info
   const filter = useMemo(
-    () => ({ assetId: opportunityData?.assetId ?? '', accountId: accountId ?? '' }),
-    [opportunityData?.assetId, accountId],
+    () => ({ assetId: foxEthLpOpportunity?.assetId ?? '', accountId: accountId ?? '' }),
+    [foxEthLpOpportunity?.assetId, accountId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -141,7 +108,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handleContinue = async (formValues: WithdrawValues) => {
-    if (!opportunityData) return
+    if (!foxEthLpOpportunity) return
     // set withdraw state for future use
     dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
@@ -189,9 +156,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
     setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-    if (underlyingFoxAmount && underlyingEthAmount) {
-      setFoxAmount(bnOrZero(percent).times(underlyingFoxAmount).toFixed(8))
-      setEthAmount(bnOrZero(percent).times(underlyingEthAmount).toFixed(8))
+    if (foxEthLpOpportunity.underlyingFoxAmount && foxEthLpOpportunity.underlyingEthAmount) {
+      setFoxAmount(bnOrZero(percent).times(foxEthLpOpportunity.underlyingFoxAmount).toFixed(8))
+      setEthAmount(bnOrZero(percent).times(foxEthLpOpportunity.underlyingEthAmount).toFixed(8))
     }
   }
 
@@ -199,9 +166,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     const percentage = bnOrZero(value).div(
       bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailable),
     )
-    if (underlyingFoxAmount && underlyingEthAmount) {
-      setFoxAmount(percentage.times(underlyingFoxAmount).toFixed(8))
-      setEthAmount(percentage.times(underlyingEthAmount).toFixed(8))
+    if (foxEthLpOpportunity.underlyingFoxAmount && foxEthLpOpportunity.underlyingEthAmount) {
+      setFoxAmount(percentage.times(foxEthLpOpportunity.underlyingFoxAmount).toFixed(8))
+      setEthAmount(percentage.times(foxEthLpOpportunity.underlyingEthAmount).toFixed(8))
     }
   }
 
@@ -241,7 +208,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
-        isLoading={state.loading || !opportunityData}
+        isLoading={state.loading || !foxEthLpOpportunity}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
@@ -256,8 +223,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
-            balance={underlyingFoxAmount ?? undefined}
-            fiatBalance={bnOrZero(underlyingFoxAmount).times(foxMarketData.price).toFixed(2)}
+            balance={foxEthLpOpportunity.underlyingFoxAmount ?? undefined}
+            fiatBalance={bnOrZero(foxEthLpOpportunity.underlyingFoxAmount)
+              .times(foxMarketData.price)
+              .toFixed(2)}
             percentOptions={[]}
             isReadOnly={true}
           />
@@ -268,8 +237,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
-            balance={underlyingEthAmount ?? undefined}
-            fiatBalance={bnOrZero(underlyingEthAmount).times(ethMarketData.price).toFixed(2)}
+            balance={foxEthLpOpportunity.underlyingEthAmount ?? undefined}
+            fiatBalance={bnOrZero(foxEthLpOpportunity.underlyingEthAmount)
+              .times(ethMarketData.price)
+              .toFixed(2)}
             percentOptions={[]}
             isReadOnly={true}
           />

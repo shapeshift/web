@@ -1,5 +1,4 @@
 import { Center } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -17,16 +16,11 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
-  selectAssets,
-  selectLpOpportunitiesById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -50,69 +44,16 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const assets = useAppSelector(selectAssets)
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  // TODO: Everything from here to the end of the TODO could and/or should be abstracted, this is repeated all over the commit
-  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const opportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
-    [lpOpportunitiesById],
-  )
-  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
-
-  const aggregatedLpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, {
-      assetId: foxEthLpAssetId,
-      accountId: accountId ?? '',
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
     }),
   )
-
-  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      ) ?? ['0', '0'],
-    [
-      aggregatedLpAssetBalance,
-      assets,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-    ],
-  )
-
-  // TODO: toEarnOpportunity util something something
-  const foxEthLpOpportunity = useMemo(
-    () => ({
-      ...baseEarnOpportunity,
-      ...opportunityData,
-      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
-      chainId: fromAssetId(foxEthLpAssetId).chainId,
-      underlyingFoxAmount,
-      underlyingEthAmount,
-      cryptoAmount: aggregatedLpAssetBalance,
-      // TODO: this all goes away anyway
-      fiatAmount: '42',
-    }),
-    [
-      aggregatedLpAssetBalance,
-      baseEarnOpportunity,
-      opportunityData,
-      underlyingEthAmount,
-      underlyingFoxAmount,
-    ],
-  )
-  // TODO: ENDTODO
 
   const foxEthLpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
@@ -156,10 +97,10 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   }, [accountId, foxEthLpAsset.symbol, handleAccountIdChange, translate])
 
   useEffect(() => {
-    if (!opportunityData) return
+    if (!foxEthLpOpportunity) return
 
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
-  }, [foxEthLpOpportunity, opportunityData])
+  }, [foxEthLpOpportunity])
 
   if (loading || !foxEthLpAsset || !marketData) {
     return (

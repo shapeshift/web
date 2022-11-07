@@ -1,6 +1,5 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -19,16 +18,11 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
-  selectAssets,
-  selectLpOpportunitiesById,
-  selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -52,7 +46,6 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const assets = useAppSelector(selectAssets)
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -72,64 +65,12 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const opportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
-    [lpOpportunitiesById],
-  )
-  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[opportunityData?.assetId]
-
-  // TODO: I'm a dummy and this shouldn't need to be the aggregated one
-  const lpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, {
-      assetId: foxEthLpAssetId,
-      accountId: accountId ?? '',
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
     }),
-  )
-
-  const [underlyingEthAmount, underlyingFoxAmount] = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(lpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      ) ?? ['0', '0'],
-    [
-      lpAssetBalance,
-      assets,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-    ],
-  )
-
-  // TODO: toEarnOpportunity util something something
-  const foxEthLpOpportunity = useMemo(
-    () => ({
-      ...baseEarnOpportunity,
-      ...opportunityData,
-      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
-      chainId: fromAssetId(foxEthLpAssetId).chainId,
-      underlyingFoxAmount,
-      underlyingEthAmount,
-      cryptoAmount: lpAssetBalance,
-      // TODO: this all goes away anyway
-      fiatAmount: '42',
-    }),
-    [
-      baseEarnOpportunity,
-      opportunityData,
-      underlyingFoxAmount,
-      underlyingEthAmount,
-      lpAssetBalance,
-    ],
   )
 
   // user info
@@ -137,9 +78,9 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState || !opportunityData) return
+    if (!walletState || !foxEthLpOpportunity) return
     dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
-  }, [foxEthLpOpportunity, opportunityData, walletState])
+  }, [foxEthLpOpportunity, walletState])
 
   const handleBack = () => {
     history.push({
@@ -177,7 +118,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
     }
   }, [accountId, handleAccountIdChange, translate, underlyingAsset.symbol])
 
-  if (loading || !asset || !marketData)
+  if (loading || !asset || !foxEthLpOpportunity)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

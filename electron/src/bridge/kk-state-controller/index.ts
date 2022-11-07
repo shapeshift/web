@@ -31,40 +31,28 @@ export class KKStateController {
     public lastState?: string
     public lastData?: any
 
-    public queueIpcEvent: any
-    constructor(queueIpcEvent: any) {
+    public onStateChange: any
+    constructor(onStateChange: any) {
         this.keyring = new Keyring()
-        this.queueIpcEvent = queueIpcEvent
+        this.onStateChange = onStateChange
+        usb.on('attach', async () => {
+            await this.syncState()
+        })
+        usb.on('detach', async () => {
+            this.transport = undefined
+            this.keyring = new Keyring()
+            this.updateState(DISCONNECTED, { unplugged: true })
+        })
     }
 
     updateState = async (newState: string, newData: any) => {
         // TODO event is a bad name, change it to data everywhere its used
-        this.queueIpcEvent(newState, { event: newData })
+        this.onStateChange(newState, { event: newData })
         this.lastState = newState
         this.lastData = newData
     }
 
-    init = async () => {
-        await this.initializeDevice()
-        usb.on('attach', async () => {
-            await this.initializeDevice()
-        })
-        usb.on('detach', async () => {
-//            usb.removeAllListeners()
-            console.log('stopping bridge')
-            await stop_bridge()
-            console.log('bridge stopped')
-            await start_bridge()
-            console.log('bridge restarted')
-            this.wallet = undefined
-            this.transport = undefined
-            this.keyring = new Keyring()
-            this.updateState(DISCONNECTED, { unplugged: true })
-            console.log('state is', this.lastState)
-        })
-    }
-
-    initializeDevice = async () => {
+    syncState = async () => {
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
@@ -99,8 +87,6 @@ export class KKStateController {
                 ready: true
             })
         }
-
-        console.log('state is', this.lastState)
     }
     
 }

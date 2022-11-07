@@ -24,10 +24,6 @@ const queueIpcEvent = (eventName: string, args: any) => {
 
 export const kkStateController = new KKStateController(queueIpcEvent)
 
-const appExpress = express()
-appExpress.use(cors())
-appExpress.use(bodyParser.urlencoded({ extended: true }))
-appExpress.use(bodyParser.json())
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
 import { createAndUpdateTray } from '../tray'
 
@@ -40,14 +36,22 @@ export let bridgeRunning = false
 
 export let bridgeClosing = false
 
+export let bridgeStarting = false
+
 let ipcQueue = new Array<IpcQueueItem>()
 
 let renderListenersReady = false
 
 export const start_bridge = async (port?: number) => {
-    console.log('NOW STARTING BEIDGE 0')
+    if(bridgeStarting) { 
+        console.log('bridge already starting')
+        return 
+    }
+    bridgeStarting = true
     if (bridgeRunning) return
-    console.log('NOW STARTING BEIDGE 1')
+
+    // web render thread has indicated it is ready to receive ipc messages
+    // send any that have queued since then
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -55,9 +59,7 @@ export const start_bridge = async (port?: number) => {
             ipcQueue.splice(idx, 1);
         })
     })
-    let tag = " | start_bridge | "
     let API_PORT = port || 1646
-    console.log('NOW STARTING BEIDGE 2')
 
     // send paired apps when requested
     ipcMain.on('@bridge/paired-apps', () => {
@@ -80,7 +82,11 @@ export const start_bridge = async (port?: number) => {
     ipcMain.on(`@bridge/remove-service`, (event, data) => {
         db.remove({ ...data })
     })
-    console.log('NOW STARTING BEIDGE 3')
+
+    const appExpress = express()
+    appExpress.use(cors())
+    appExpress.use(bodyParser.urlencoded({ extended: true }))
+    appExpress.use(bodyParser.json())
 
     appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -89,14 +95,11 @@ export const start_bridge = async (port?: number) => {
 
     RegisterRoutes(appExpress);
 
-    log.info(tag, "starting server! **** ")
-    server = appExpress.listen(API_PORT, () => {
-        log.info(`server started at http://localhost:${API_PORT}`)
-    })
-    console.log('NOW STARTING BEIDGE 4')
+    await new Promise( (resolve) =>  server = appExpress.listen(API_PORT, () => resolve(true)))
+    log.info(`server started at http://localhost:${API_PORT}`)
 
     try {
-        await kkStateController.init()
+        await kkStateController.syncState()
     } catch (e) {
         log.error('failed to init controller, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
@@ -104,7 +107,6 @@ export const start_bridge = async (port?: number) => {
         app.quit()
         process.exit()
     }
-    console.log('NOW STARTING BEIDGE 5')
 
     ipcMain.on('@keepkey/update-firmware', async event => {
         let result = await getLatestFirmwareData()
@@ -128,29 +130,21 @@ export const start_bridge = async (port?: number) => {
             success: true
         })
     })
+    bridgeStarting = false
 }
 
 export const stop_bridge = async () => {
-    console.log('stopping bridge 0')
+    if(bridgeClosing) return false
     bridgeClosing = true
-    const p = new Promise((resolve) => {
-        console.log('stopping bridge 1')
+    await new Promise((resolve) => {
         createAndUpdateTray()
-        console.log('stopping bridge 2')
         server.close(async () => {
-            console.log('stopping bridge 3')
-
             await kkStateController.transport?.disconnect()
-            console.log('stopping bridge 4')
             bridgeRunning = false
-            console.log('stopping bridge 5')
             bridgeClosing = false
             createAndUpdateTray()
             resolve(true)
-
-            console.log('stopping bridge 6')
         })
     })
-    await p
-    console.log('bridge stopped')
+    return true
 }

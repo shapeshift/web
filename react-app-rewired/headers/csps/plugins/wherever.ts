@@ -2,9 +2,7 @@ import type { Csp } from '../../types'
 
 const agentCsp: Csp = {
   'connect-src': [
-    'https://staging-api.wherever.to',
     'https://api.wherever.to',
-    'https://backend-staging.epns.io',
     'https://backend.epns.io'
   ],
   'img-src': [

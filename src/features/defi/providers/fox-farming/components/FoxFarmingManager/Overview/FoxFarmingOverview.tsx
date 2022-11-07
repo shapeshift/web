@@ -51,7 +51,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
+  const { chainId, highestBalanceAccountAddress, contractAddress } = query
 
   const opportunityId = useMemo(
     () => toAssetId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -95,7 +95,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   // TODO: Abstract into a selector, not relying on the LP token but rather on the sum of both underlying tokens fiat value
   const underlyingAssetsFiatBalance = useMemo(() => {
     const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(2)
-    // TODO: add a stakingAssetId property in OpportunityMetadata ?
     const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])
@@ -144,21 +143,19 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highestBalanceAccountId])
 
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.underlyingAssetId ?? ''),
+  )
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
   const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountCryptoPrecision)
   const hasClaim = rewardAmountAvailable.gt(0)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+  const descriptionQuery = useGetAssetDescriptionQuery({
+    assetId: opportunityData?.underlyingAssetId ?? '',
+    selectedLocale,
+  })
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (

@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pickBy from 'lodash/pickBy'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -131,7 +132,8 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): UserStakingOpportunity & OpportunityMetadata => {
+  (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | null => {
+    if (!userStakingOpportunities?.length) return null
     const initial = {} as UserStakingOpportunity & OpportunityMetadata
 
     return userStakingOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
@@ -160,9 +162,13 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
   selectStakingIds,
   (state: ReduxState) => state,
   (stakingIds, state): (UserStakingOpportunity & OpportunityMetadata)[] =>
-    stakingIds.map(stakingId =>
-      selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }),
-    ),
+    stakingIds
+      .map(stakingId => selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }))
+      .filter(
+        (
+          x: (UserStakingOpportunity & OpportunityMetadata) | null,
+        ): x is UserStakingOpportunity & OpportunityMetadata => Boolean(x),
+      ),
 )
 
 // The same as the previous selector, but parsed as an EarnOpportunityType
@@ -172,9 +178,10 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
   aggregatedUserStakingOpportunities =>
     aggregatedUserStakingOpportunities.map(opportunity => ({
       ...opportunity,
-      ...STAKING_EARN_OPPORTUNITIES[opportunity.underlyingAssetId],
+      ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
       chainId: fromAssetId(opportunity.underlyingAssetId).chainId,
       cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+      provider: DefiProvider.FoxFarming,
       isLoaded: true,
     })),
 )

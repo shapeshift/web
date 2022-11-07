@@ -25,7 +25,7 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const { setIsUpdatingKeepkey, state } = useWallet()
+  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state } = useWallet()
 
   const { pair, sign, hardwareError, updateKeepKey, requestBootloaderMode, loading } =
     useModal()
@@ -38,12 +38,21 @@ export const App = () => {
 
   const closeAllModals = () => {
     updateKeepKey.close()
+    loading.close()
     requestBootloaderMode.close()
     hardwareError.close()
     pair.close()
     sign.close()
   }
 
+  useEffect(() => {
+    // This is necessary so when it re-opens the tcp connection everything is good
+    state.wallet?.disconnect()
+    if (needsReset) hardwareError.open({})
+    else hardwareError.close()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsReset])
+  console.log('needs reset app', needsReset)
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
     state.wallet?.disconnect()
@@ -60,6 +69,7 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
+      console.log('disconnected!!!')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       hardwareError.open({})
       loading.close()
@@ -72,16 +82,19 @@ export const App = () => {
     ipcRenderer.on('needsInitialize', (_event, data) => {
       closeAllModals()
       setIsUpdatingKeepkey(true)
+      setNeedsReset(false)
       console.log('data', data)
       updateKeepKey.open(data)
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
       setIsUpdatingKeepkey(true)
+      setNeedsReset(false)
       requestBootloaderMode.open({})
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
+      setNeedsReset(false)
       openKeepKeyUpdater(data)
     })
 

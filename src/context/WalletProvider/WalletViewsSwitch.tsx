@@ -19,8 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
-import { clearLocalWallet } from './local-wallet'
-import { useModal } from 'hooks/useModal/useModal'
+import { ipcRenderer } from 'electron'
 
 const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
@@ -35,8 +34,6 @@ export const WalletViewsSwitch = () => {
     dispatch,
     disconnect,
   } = useWallet()
-
-  const { hardwareError } = useModal()
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -53,9 +50,6 @@ export const WalletViewsSwitch = () => {
   const onClose = async () => {
     if (disconnectOnCloseModal) {
       disconnect()
-      dispatch({ type: WalletActions.RESET_STATE })
-      clearLocalWallet()
-      hardwareError?.open({ errorCode: 0 })
     }
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     await cancelWalletRequests()

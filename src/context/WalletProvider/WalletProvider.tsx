@@ -340,6 +340,8 @@ function playSound(type: any) {
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
+  // Keepkey is in a fucked state and needs to be unplugged/replugged
+  const [needsReset, setNeedsReset] = useState(false)
 
   // to know we are in the process of updating bootloader or firmware
   // so we dont unintentionally show the keepkey error modal while updating
@@ -354,6 +356,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
+    setNeedsReset(true)
     dispatch({ type: WalletActions.RESET_STATE })
     setIsUpdatingKeepkey(false)
     clearLocalWallet()
@@ -613,6 +616,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setIsUpdatingKeepkey,
       pairAndConnect,
       deviceBusy,
+      needsReset,
+      setNeedsReset
     }),
     [
       state,
@@ -625,6 +630,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       isUpdatingKeepkey,
       pairAndConnect,
       deviceBusy,
+      needsReset,
+      setNeedsReset
     ],
   )
 

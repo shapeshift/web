@@ -55,10 +55,7 @@ export const KeepKeyLabel = () => {
           type='text'
           value={label}
           placeholder={translate('modals.keepKey.label.placeholder')}
-          onChange={e => {
-            console.log('ee', e)
-            setLabel(e.target.value)
-          }}
+          onChange={e => setLabel(e.target.value)}
           size='lg'
           variant='filled'
           mt={3}

@@ -72,12 +72,10 @@ export const App = () => {
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
-      console.log("booooot", data)
       openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('updateFirmware', (_event, data) => {
-      console.log("fiiiirm", data)
       openKeepKeyUpdater(data)
     })
 

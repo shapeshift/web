@@ -94,6 +94,7 @@ export const start_bridge = async (port?: number) => {
     try {
         await kkStateController.syncState()
     } catch (e) {
+        windows?.splash?.webContents.send("@update/errorClaimed")
         log.error('failed sync initial keepkey state, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
         // We need to have them unplug and fully exit the app to fix it

@@ -62,6 +62,7 @@
                 launch: "Launching...",
                 skipCheck: "Skipping update checks...",
                 errorReset: "Please unplug and re-connect your KeepKey",
+                errorClaimed: "Another process is using the keepkey. Close the process, unplug and restart keepkey-desktop",
                 notfound: "No updates found..."
             };
             ipcRenderer.on('@update/download', () => {
@@ -83,6 +84,9 @@
             });
             ipcRenderer.on('@update/errorReset', () => {
                 header.textContent = text.errorReset;
+            });
+            ipcRenderer.on('@update/errorClaimed', () => {
+                header.textContent = text.errorClaimed;
             });
             ipcRenderer.on('@update/notfound', () => {
                 header.textContent = text.notfound;

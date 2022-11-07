@@ -86,13 +86,8 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const maybeResolver = getMetadataResolversByDefiProviderAndDefiType(
-          DefiProvider.FoxFarming,
-          defiType,
-        )
-
         const maybeData = await pipe(
-          maybeResolver,
+          getMetadataResolversByDefiProviderAndDefiType(DefiProvider.FoxFarming, defiType),
           O.chainNullableK(resolver =>
             TE.tryCatch(
               () =>
@@ -141,13 +136,8 @@ export const opportunitiesApi = createApi({
         { accountId, opportunityId, opportunityType, defiType },
         { dispatch, getState },
       ) => {
-        const maybeResolver = getUserDataResolversByDefiProviderAndDefiType(
-          DefiProvider.FoxFarming,
-          defiType,
-        )
-
         const maybeData = await pipe(
-          maybeResolver,
+          getUserDataResolversByDefiProviderAndDefiType(DefiProvider.FoxFarming, defiType),
           O.chainNullableK(resolver =>
             TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
               () =>

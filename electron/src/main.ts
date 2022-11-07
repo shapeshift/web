@@ -41,13 +41,15 @@ import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import AutoLaunch from 'auto-launch'
 import * as Sentry from "@sentry/electron";
 import { config as dotenvConfig } from 'dotenv'
-import { bridgeRunning, start_bridge } from './bridge'
+import { queueIpcEvent, startTcpBridge, stopBridge } from './bridge'
 import { shared } from './shared'
 import { isWin, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
 import { Settings } from './settings'
 import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
 import fs from 'fs'
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController } from './bridge/kk-state-controller'
+import { createAndUpdateTray } from './tray'
 
 dotenvConfig()
 
@@ -87,6 +89,16 @@ if (process.defaultApp) {
     app.setAsDefaultProtocolClient('keepkey')
 }
 
+const onKKStateChange = async (eventName: string, args: any) => {
+    // try to start the tcp bridge if not already running
+    if (eventName === CONNECTED) await startTcpBridge()
+    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopBridge()
+    createAndUpdateTray()
+    return queueIpcEvent(eventName, args)
+}
+
+export const kkStateController = new KKStateController(onKKStateChange)
+
 export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     //Auto launch on startup
     if (!isDev && settings.shouldAutoLunch) {
@@ -101,7 +113,20 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    if (settings.shouldAutoStartBridge) await start_bridge(settings.bridgeApiPort)
+    try {
+        await kkStateController.syncState()
+    } catch (e: any) {
+        if (e.toString().includes('claimInterface error')) {
+            windows?.splash?.webContents.send("@update/errorClaimed")
+            await new Promise( () => 0 )
+        } else {
+            windows?.splash?.webContents.send("@update/errorReset")
+            await new Promise( () => 0 )
+        }
+    }
+
+
+    if (settings.shouldAutoStartBridge) await startTcpBridge(settings.bridgeApiPort)
 
     windows.mainWindow = new BrowserWindow({
         focusable: true,
@@ -177,7 +202,7 @@ app.on("second-instance", async () => {
 });
 
 app.on('window-all-closed', () => {
-    if (!bridgeRunning || !settings.shouldMinimizeToTray) app.quit()
+    if (!settings.shouldMinimizeToTray) app.quit()
 })
 
 app.on("activate", function () {

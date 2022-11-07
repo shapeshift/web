@@ -48,9 +48,6 @@ export const HardwareErrorModal = (error: any) => {
     pairAndConnect.current()
   }, [pairAndConnect])
 
-  console.log('fjjfsdf', isUpdatingKeepkey)
-  console.log('isOpen', isOpen)
-
   return (
     <Modal
       isOpen={isOpen && !isUpdatingKeepkey}

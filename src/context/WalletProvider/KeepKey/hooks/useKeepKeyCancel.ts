@@ -1,10 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { clearLocalWallet } from 'context/WalletProvider/local-wallet'
 const moduleLogger = logger.child({ namespace: ['useKeepKeyCancel'] })
 
 export const useKeepKeyCancel = () => {
@@ -13,8 +11,6 @@ export const useKeepKeyCancel = () => {
   const {
     state: { wallet },
     disconnect,
-    dispatch,
-    setIsUpdatingKeepkey,
   } = useWallet()
 
 
@@ -32,9 +28,6 @@ export const useKeepKeyCancel = () => {
 
   const handleCancel = async () => {
     disconnect()
-    dispatch({ type: WalletActions.RESET_STATE })
-    setIsUpdatingKeepkey(false)
-    // clearLocalWallet()
     await cancelWalletRequest()
   }
 

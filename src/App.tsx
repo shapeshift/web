@@ -52,7 +52,7 @@ export const App = () => {
     else hardwareError.close()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [needsReset])
-  console.log('needs reset app', needsReset)
+
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
     state.wallet?.disconnect()
@@ -69,7 +69,6 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
-      console.log('disconnected!!!')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       hardwareError.open({})
       loading.close()
@@ -83,7 +82,6 @@ export const App = () => {
       closeAllModals()
       setIsUpdatingKeepkey(true)
       setNeedsReset(false)
-      console.log('data', data)
       updateKeepKey.open(data)
     })
 
@@ -103,7 +101,6 @@ export const App = () => {
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {
-      // console.log('PIN MODAL REQUESTED', deviceId)
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

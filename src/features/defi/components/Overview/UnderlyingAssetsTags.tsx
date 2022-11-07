@@ -21,7 +21,7 @@ type UnderlyingAssetsTagsProps = {
 export const UnderlyingAssetTag = ({
   asset,
   children,
-  showPercentage,
+  showPercentage = false,
 }: UnderlyingAssetsTagProps) => (
   <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
     {asset.icons ? (
@@ -38,7 +38,7 @@ export const UnderlyingAssetTag = ({
 )
 export const UnderlyingAssetsTags = ({
   underlyingAssets,
-  showPercentage = true,
+  showPercentage = false,
   children,
 }: UnderlyingAssetsTagsProps) => (
   <>

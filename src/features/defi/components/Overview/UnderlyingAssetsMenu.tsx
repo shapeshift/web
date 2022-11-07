@@ -16,7 +16,7 @@ export const UnderlyingAssetsMenu = ({ lpAsset, underlyingAssets }: UnderlyingAs
     <Popover matchWidth>
       <PopoverTrigger>
         <Box cursor='pointer'>
-          <UnderlyingAssetTag asset={lpAsset} showPercentage={false}>
+          <UnderlyingAssetTag asset={lpAsset}>
             <ChevronDownIcon />
           </UnderlyingAssetTag>
         </Box>

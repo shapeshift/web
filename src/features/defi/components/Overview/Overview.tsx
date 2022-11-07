@@ -131,7 +131,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 {lpAsset ? (
                   <UnderlyingAssetsMenu lpAsset={lpAsset} underlyingAssets={underlyingAssets} />
                 ) : (
-                  <UnderlyingAssetsTags underlyingAssets={underlyingAssets} />
+                  <UnderlyingAssetsTags underlyingAssets={underlyingAssets} showPercentage />
                 )}
               </Flex>
             </Stack>

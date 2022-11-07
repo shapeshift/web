@@ -1,8 +1,8 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 import path from 'path'
-import { assetsDirectory, tcpBridgeClosing } from './helpers/globalState'
-import { startTcpBridge, stopTcpBridge, isWalletBridgeRunning } from './main'
-import { createMainWindow, windows } from './main'
+import { assetsDirectory, isWalletBridgeRunning, tcpBridgeClosing, windows } from './helpers/globalState'
+import { createMainWindow } from './helpers/utils'
+import { startTcpBridge, stopTcpBridge } from './tcpBridge'
 
 export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'

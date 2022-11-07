@@ -1,8 +1,8 @@
 import { shell } from "electron"
 import { ALLOWED_HOSTS, setShouldShowWindow, windows } from "./helpers/globalState"
-import { skipUpdateCheckCompleted } from "./helpers/updater"
+import { skipUpdateCheckCompleted } from "./updaterListeners"
 
-export const startMainWindowListeners = () => {
+export const startWindowListeners = () => {
     windows.mainWindow?.removeAllListeners('closed')
     windows.mainWindow?.removeAllListeners('ready-to-show')
 

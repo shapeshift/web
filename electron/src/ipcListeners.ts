@@ -1,8 +1,9 @@
 import { app, ipcMain } from "electron"
-import { db, ipcQueue, setRenderListenersReady, windows } from "./helpers/globalState"
+import { db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./helpers/globalState"
 import isDev from 'electron-is-dev'
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from "./helpers/kk-state-controller/firmwareUtils"
-import { kkStateController, queueIpcEvent } from "./main"
+import * as path from 'path'
+import { queueIpcEvent } from "./helpers/utils"
 
 export const startIpcListeners = () => {
     ipcMain.on('@app/get-asset-url', (event, data) => {

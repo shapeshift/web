@@ -1,5 +1,10 @@
-import { ipcMain } from "electron";
-import { createMainWindow, kkStateController, windows } from "../main";
+import { BrowserWindow, ipcMain } from "electron"
+import { startTcpBridge } from "../tcpBridge"
+import { ipcQueue, kkStateController, renderListenersReady, settings, windows } from "./globalState"
+import isDev from 'electron-is-dev'
+import { startWindowListeners } from "../windowListeners"
+import { deviceBusyRead, deviceBusyWrite } from "./controllers/b-device-controller"
+import path from 'path';
 
 export const openSignTxWindow = async (signArgs: any) => {
     let prevContentSize = { width: 0, height: 0 }
@@ -63,4 +68,72 @@ export const getWallectConnectUri = (inputUri: string): string | undefined => {
     const uri = inputUri.replace("keepkey://", "")
     if (!uri.startsWith('wc')) return
     else return decodeURIComponent(uri.replace("wc/?uri=", "").replace("wc?uri=", ""))
+}
+
+
+export const queueIpcEvent = (eventName: string, args: any) => {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        return ipcQueue.push({ eventName, args })
+    }
+    else {
+        return windows.mainWindow.webContents.send(eventName, args)
+    }
+}
+
+export const createMainWindow = async () => {
+    try {
+        await kkStateController.syncState()
+    } catch (e: any) {
+        if (e.toString().includes('claimInterface error')) {
+            windows?.splash?.webContents.send("@update/errorClaimed")
+            await new Promise( () => 0 )
+        } else {
+            windows?.splash?.webContents.send("@update/errorReset")
+            await new Promise( () => 0 )
+        }
+    }
+
+    if (settings.shouldAutoStartBridge) await startTcpBridge(settings.bridgeApiPort)
+
+    windows.mainWindow = new BrowserWindow({
+        focusable: true,
+        width: isDev ? 1960 : 960,
+        height: 780,
+        show: false,
+        backgroundColor: 'white',
+        autoHideMenuBar: true,
+        webPreferences: {
+            webviewTag: true,
+            nodeIntegration: true,
+            contextIsolation: false,
+            devTools: true
+        }
+    })
+
+    windows.mainWindow.loadURL(isDev
+        ? 'http://localhost:3000'
+        : `file://${path.join(__dirname, '../../build/index.html')}`)
+
+    startWindowListeners()
+
+    return true
+}
+
+// hack to detect when the keepkey is busy so we can be careful not to do 2 things at once
+export const watchForDeviceBusy = () => {
+    let lastDeviceBusyRead = false
+    let lastDeviceBusyWrite = false
+    setInterval( () => {
+        // busy state has changed somehow
+        if(lastDeviceBusyRead !== deviceBusyRead || lastDeviceBusyWrite !== deviceBusyWrite)
+        {
+            if(deviceBusyRead === false && deviceBusyWrite === false) {
+                queueIpcEvent('deviceNotBusy', {})
+            } else {
+                queueIpcEvent('deviceBusy', {})
+            }
+        }
+        lastDeviceBusyRead = deviceBusyRead
+        lastDeviceBusyWrite = deviceBusyWrite
+    }, 1000)
 }

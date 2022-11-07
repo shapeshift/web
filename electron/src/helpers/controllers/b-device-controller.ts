@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Route, Tags, Response } from 'tsoa';
+import { kkStateController } from '../globalState';
 import { WriteBody } from '../types';
-import { kkStateController } from '../../main';
 export let deviceBusyRead = false
 export let deviceBusyWrite = false
 

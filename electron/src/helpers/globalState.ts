@@ -2,7 +2,14 @@ import path from "path";
 import nedb from 'nedb'
 import fs from 'fs'
 import { Server } from 'http'
-import { BrowserWindow } from "electron";
+import { BrowserWindow, IpcMainEvent } from "electron";
+import { UserType } from "./types";
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController } from "./kk-state-controller";
+import { Settings } from "./settings";
+import AutoLaunch from "auto-launch";
+import { startTcpBridge, stopTcpBridge } from "../tcpBridge";
+import { createAndUpdateTray } from "../tray";
+import { queueIpcEvent } from "./utils";
 
 export const assetsDirectory = path.join(__dirname, '../../assets')
 export const isMac = process.platform === "darwin"
@@ -19,6 +26,23 @@ if (!fs.existsSync(dbDirPath)) {
 }
 export const db = new nedb({ filename: dbPath, autoload: true });
 
+export const shared: {
+    USER: UserType,
+    eventIPC: IpcMainEvent | null,
+    KEEPKEY_FEATURES: Record<string, unknown>
+} = {
+    USER: {
+        online: false,
+        accounts: [],
+        balances: []
+    },
+    eventIPC: null,
+    KEEPKEY_FEATURES: {},
+}
+
+db.findOne({ type: 'user' }, (err, doc) => {
+    if (doc) shared.USER = doc.user
+})
 export let server: Server
 export let setServer = (value: Server) => server = value
 
@@ -38,7 +62,7 @@ export let setRenderListenersReady = (value: boolean) => renderListenersReady = 
 export let shouldShowWindow = false
 export let setShouldShowWindow = (value: boolean) => shouldShowWindow = value
 
-export let windows: {
+export const windows: {
     mainWindow: undefined | BrowserWindow,
     splash: undefined | BrowserWindow
 } = {
@@ -48,4 +72,20 @@ export let windows: {
 export const setSplashWindow =  (value: BrowserWindow) => windows.splash = value
 export const setMainWindow =  (value: BrowserWindow) => windows.splash = value
 
-export let ipcQueue = new Array<{ eventName: string, args: any }>()
+export const ipcQueue = new Array<{ eventName: string, args: any }>()
+
+// tcp bridge running and keepkey is successfully connected
+export const isWalletBridgeRunning = () => kkStateController?.lastState === CONNECTED && tcpBridgeRunning
+
+export const settings = new Settings()
+
+export const kkAutoLauncher = new AutoLaunch({
+    name: 'KeepKey Desktop'
+})
+
+export const kkStateController = new KKStateController(async (eventName: string, args: any) => {
+    if (eventName === CONNECTED) await startTcpBridge()
+    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopTcpBridge()
+    createAndUpdateTray()
+    return queueIpcEvent(eventName, args)
+})

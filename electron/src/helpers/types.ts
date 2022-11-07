@@ -63,3 +63,12 @@ export interface GetPublicKey {
     coin: Coin;
     symbol?: string
 }
+
+export type UserType = {
+    online: boolean,
+    accounts: Array<{
+        pubkey: any;
+        caip: string;
+    }>,
+    balances: any[]
+}

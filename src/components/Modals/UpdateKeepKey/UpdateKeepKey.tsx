@@ -24,9 +24,7 @@ export const UpdateKeepKey = (params: any) => {
     const { updateKeepKey } = useModal()
     const { close, isOpen } = updateKeepKey
     const updateFirmware = useMemo(() => params?.event?.firmwareUpdateNeededNotBootloader, [params])
-    const greenParams = {
-        color: 'green.500',
-    }
+
     return (
         <Modal
             isOpen={isOpen}

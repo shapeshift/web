@@ -29,7 +29,6 @@ export const UpdateBootloader = (params: any) => {
       handleUpdateBootloader()
     }
   }, [isOpen])
-  console.log("UpdateBootloader", params)
 
   return (
     <>

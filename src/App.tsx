@@ -34,7 +34,6 @@ export const App = () => {
     setNeedsReset(false)
     setIsUpdatingKeepkey(true)
     requestBootloaderMode.close()
-    console.log('data', data)
     updateKeepKey.open(data)
   }
 
@@ -71,7 +70,6 @@ export const App = () => {
 
     ipcRenderer.on('updateFirmware', (_event, data) => {
       console.log("fiiiirm", data)
-
       openKeepKeyUpdater(data)
     })
 

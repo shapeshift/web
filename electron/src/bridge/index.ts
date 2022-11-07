@@ -76,31 +76,6 @@ export const start_bridge = async (port?: number) => {
         db.remove({ ...data })
     })
 
-    const appExpress = express()
-    appExpress.use(cors())
-    appExpress.use(bodyParser.urlencoded({ extended: true }))
-    appExpress.use(bodyParser.json())
-
-    appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-    //swagger.json
-    appExpress.use('/spec', express.static(path.join(__dirname, '../../api/dist')));
-
-    RegisterRoutes(appExpress);
-
-    await new Promise( (resolve) =>  server = appExpress.listen(API_PORT, () => resolve(true)))
-    log.info(`server started at http://localhost:${API_PORT}`)
-
-    try {
-        await kkStateController.syncState()
-    } catch (e) {
-        log.error('failed sync initial keepkey state, exiting', e)
-        // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
-        // We need to have them unplug and fully exit the app to fix it
-        app.quit()
-        process.exit()
-    }
-
     ipcMain.on('@keepkey/update-firmware', async event => {
         let result = await getLatestFirmwareData()
         let firmware = await downloadFirmware(result.firmware.url)
@@ -123,6 +98,33 @@ export const start_bridge = async (port?: number) => {
             success: true
         })
     })
+
+    const appExpress = express()
+    appExpress.use(cors())
+    appExpress.use(bodyParser.urlencoded({ extended: true }))
+    appExpress.use(bodyParser.json())
+
+    appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    //swagger.json
+    appExpress.use('/spec', express.static(path.join(__dirname, '../../api/dist')));
+
+    RegisterRoutes(appExpress);
+
+    await new Promise( (resolve) =>  server = appExpress.listen(API_PORT, () => resolve(true)))
+    log.info(`server started at http://localhost:${API_PORT}`)
+
+    try {
+        await kkStateController.syncState()
+    } catch (e: any) {
+        if (e.toString().includes('claimInterface error')) {
+            windows?.splash?.webContents.send("@update/errorClaimed")
+            await new Promise( () => 0 )
+        } else {
+            windows?.splash?.webContents.send("@update/errorReset")
+            await new Promise( () => 0 )
+        }
+    }
 }
 
 export const stop_bridge = async () => {

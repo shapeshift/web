@@ -86,17 +86,14 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const maybeResolver = O.toNullable(
-          getMetadataResolversByDefiProviderAndDefiType(DefiProvider.FoxFarming, defiType),
+        const maybeResolver = getMetadataResolversByDefiProviderAndDefiType(
+          DefiProvider.FoxFarming,
+          defiType,
         )
-
-        if (!maybeResolver) {
-          throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
-        }
 
         const maybeData = await pipe(
           maybeResolver,
-          resolver =>
+          O.chainNullableK(resolver =>
             TE.tryCatch(
               () =>
                 resolver({
@@ -106,7 +103,15 @@ export const opportunitiesApi = createApi({
                 }),
               E.toError,
             ),
-          TE.map(resolved => resolved.data),
+          ),
+          O.chainNullableK(
+            TE.map((resolved: { data: GetOpportunityMetadataOutput }) => resolved.data),
+          ),
+          O.getOrElse(() =>
+            TE.left(
+              new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`),
+            ),
+          ),
         )()
 
         return pipe(
@@ -141,13 +146,9 @@ export const opportunitiesApi = createApi({
           defiType,
         )
 
-        if (!maybeResolver) {
-          throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
-        }
-
         const maybeData = await pipe(
           maybeResolver,
-          resolver =>
+          O.chainNullableK(resolver =>
             TE.tryCatch<Error, { data: GetOpportunityUserStakingDataOutput } | void>(
               () =>
                 resolver({
@@ -158,28 +159,44 @@ export const opportunitiesApi = createApi({
                 }),
               E.toError,
             ),
-          TE.map(resolved => resolved?.data),
+          ),
+          O.chainNullableK(TE.map(resolved => O.fromNullable(resolved?.data))),
+          O.getOrElse(() =>
+            TE.left(
+              new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`),
+            ),
+          ),
         )()
 
         return pipe(
           maybeData,
           E.match<
             Error,
-            GetOpportunityUserStakingDataOutput | undefined,
-            { data: GetOpportunityUserDataOutput } | { error: BaseQueryError<any> }
+            O.Option<GetOpportunityUserStakingDataOutput>,
+            E.Either<{ error: BaseQueryError<any> }, boolean>
           >(
-            err => ({
-              error: {
-                error: err.message,
-                status: 'CUSTOM_ERROR',
-              },
-            }),
-            data => {
-              if (data) {
-                // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
+            // An actual error in the maybeData Either<>, capture it as a Left
+            err =>
+              E.left({
+                error: {
+                  error: err.message,
+                  status: 'CUSTOM_ERROR',
+                },
+              }),
+            O.match(
+              () => E.right(true),
+              data => {
+                // We really only care about `data` for this specific line
                 dispatch(opportunities.actions.upsertUserStakingOpportunities(data))
-              }
-
+                return E.right(true)
+              },
+            ),
+          ),
+          E.match(
+            (error: BaseQueryError<any>) => error,
+            () => {
+              // Resolver didn't fail, and we inserted userStakingOpportunities in the previous method in the pipeline
+              // We can now safely insert the matching accounts
               const byAccountId = {
                 [accountId]: [opportunityId],
               } as OpportunityDataById

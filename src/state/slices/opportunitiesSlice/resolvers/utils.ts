@@ -30,17 +30,21 @@ export const getMetadataResolversByDefiProviderAndDefiType = (
 
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderUserDataResolvers = (defiProvider: DefiProvider) =>
-  DefiProviderToUserDataResolverByDeFiType[defiProvider]
+  O.fromNullable(DefiProviderToUserDataResolverByDeFiType[defiProvider])
 // "Give me the resolvers for a given DeFi type"
 export const getDefiTypeUserDataResolvers = (
   defiType: DefiType,
   resolversByType: ReturnType<typeof getDefiProviderUserDataResolvers>,
-) => resolversByType?.[defiType]
+) =>
+  pipe(
+    resolversByType,
+    O.map(resolversByType => resolversByType[defiType]),
+  )
 
 export const getUserDataResolversByDefiProviderAndDefiType = (
   defiProvider: DefiProvider,
   defiType: DefiType,
 ) =>
-  pipe(getDefiProviderUserDataResolvers(defiProvider), defiProviderUserDataResolvers =>
+  pipe(defiProvider, getDefiProviderUserDataResolvers, defiProviderUserDataResolvers =>
     getDefiTypeUserDataResolvers(defiType, defiProviderUserDataResolvers),
   )

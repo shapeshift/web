@@ -4,7 +4,6 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { usb } from 'usb'
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
-import { start_bridge, stop_bridge } from '..';
 
 // possible states
 export const REQUEST_BOOTLOADER_MODE = 'requestBootloaderMode'

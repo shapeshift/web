@@ -21,7 +21,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
@@ -133,11 +132,7 @@ export const Header = () => {
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <Box>
-                <Notifications />
-              </Box>
-              <FiatRamps />
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Notifications />
             </Flex>
           </HStack>
         </HStack>

@@ -1,4 +1,4 @@
-import { useColorMode } from '@chakra-ui/react'
+import { Box, useColorMode } from '@chakra-ui/react'
 import { IconButton } from '@chakra-ui/react'
 import type { CustomTheme } from '@wherever/react-notification-feed'
 import { NotificationBell, NotificationFeed } from '@wherever/react-notification-feed'
@@ -39,16 +39,18 @@ export const Notifications = () => {
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
 
   return (
-    <NotificationFeedProvider
-      partnerKey={partnerKey}
-      theme={themeObj}
-      disableAnalytics={disableAnalytics}
-    >
-      <NotificationFeed>
-        <IconButton aria-label='Open notifications'>
-          <NotificationBell size={20} />
-        </IconButton>
-      </NotificationFeed>
-    </NotificationFeedProvider>
+    <Box>
+      <NotificationFeedProvider
+        partnerKey={partnerKey}
+        theme={themeObj}
+        disableAnalytics={disableAnalytics}
+      >
+        <NotificationFeed>
+          <IconButton aria-label='Open notifications'>
+            <NotificationBell size={20} />
+          </IconButton>
+        </NotificationFeed>
+      </NotificationFeedProvider>
+    </Box>
   )
 }

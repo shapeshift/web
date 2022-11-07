@@ -11,11 +11,9 @@ export const UPDATE_BOOTLOADER = 'updateBootloader'
 export const UPDATE_FIRMWARE = 'updateFirmware'
 export const NEEDS_INITIALIZE = 'needsInitialize'
 export const CONNECTED = 'connected'
-export const HARDWARE_ERROR =  '@keepkey/hardwareError'
-
-
-// temporarily using the same state as hardware error
-export const DISCONNECTED =  '@keepkey/hardwareError'
+export const HARDWARE_ERROR =  'hardwareError'
+export const DISCONNECTED =  'disconnected'
+export const PLUGIN =  'plugin'
 
 /**
  * Keeps track of the last known state of the keepkey
@@ -35,28 +33,30 @@ export class KKStateController {
         this.keyring = new Keyring()
         this.onStateChange = onStateChange
         usb.on('attach', async () => {
+            this.updateState(PLUGIN, {})
             await this.syncState()
         })
         usb.on('detach', async () => {
             this.transport = undefined
             this.keyring = new Keyring()
-            this.updateState(DISCONNECTED, { unplugged: true })
+            this.updateState(DISCONNECTED, {})
         })
     }
 
-    updateState = async (newState: string, newData: any) => {
+    private updateState = async (newState: string, newData: any) => {
         // TODO event is a bad name, change it to data everywhere its used
         this.onStateChange(newState, { event: newData })
         this.lastState = newState
         this.lastData = newData
     }
 
-    syncState = async () => {
+    public syncState = async () => {
+
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
         if(resultInit.unplugged)
-            this.updateState(DISCONNECTED, { unplugged: true })
+            this.updateState(DISCONNECTED, {})
         else if (!resultInit || !resultInit.success || resultInit.error)
             this.updateState(HARDWARE_ERROR, { error: resultInit?.error })
         else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version)

@@ -48,7 +48,7 @@ import { db } from './db'
 import { Settings } from './settings'
 import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
 import fs from 'fs'
-import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController } from './bridge/kk-state-controller'
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, PLUGIN } from './bridge/kk-state-controller'
 import { createAndUpdateTray } from './tray'
 
 dotenvConfig()
@@ -64,7 +64,6 @@ export const settings = new Settings()
 if (!app.requestSingleInstanceLock()) app.quit()
 
 export let shouldShowWindow = false;
-
 
 export const windows: {
     mainWindow: undefined | BrowserWindow,
@@ -98,6 +97,10 @@ const onKKStateChange = async (eventName: string, args: any) => {
 }
 
 export const kkStateController = new KKStateController(onKKStateChange)
+// send a plugin event if its not unplugged
+if(kkStateController.lastState !== 'DISCONNECTED')
+    queueIpcEvent(PLUGIN, {})
+
 
 export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     //Auto launch on startup

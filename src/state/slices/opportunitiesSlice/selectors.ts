@@ -1,19 +1,22 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import pickBy from 'lodash/pickBy'
+import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
   selectLpIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
-import type { PortfolioAccountBalances } from '../portfolioSlice/portfolioSliceCommon'
-import { selectAssets, selectPortfolioCryptoHumanBalanceByAssetId } from '../selectors'
+import { selectAssets } from '../assetsSlice/selectors'
+import type { PortfolioAccountBalancesById } from '../portfolioSlice/portfolioSliceCommon'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
@@ -26,8 +29,12 @@ import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } fro
 
 // Redeclared because of circular deps, don't export me
 const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
-  (state: ReduxState): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId,
-  accountBalances => accountBalances,
+  (state: ReduxState) => state.portfolio.accountMetadata.ids,
+  (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
+  (walletAccountIds, accountBalancesById) =>
+    pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    ),
 )
 
 // IDs selectors
@@ -172,6 +179,25 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
     })),
 )
 
+const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalances,
+  (accountBalancesById): Record<AssetId, string> =>
+    Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAccountId) => {
+      Object.entries(byAccountId).forEach(
+        ([assetId, balance]) =>
+          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance).toString()).toString()),
+      )
+      return acc
+    }, {}),
+)
+const selectPortfolioCryptoHumanBalanceByAssetId = createCachedSelector(
+  selectAssets,
+  selectPortfolioAssetBalances,
+  selectAssetIdParamFromFilter,
+  (assets, balances, assetId): string =>
+    fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0),
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+
 // The same as the previous selector, but parsed as an EarnOpportunityType
 // TODO: testme
 export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelector(
@@ -201,7 +227,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       ...opportunityMetadata,
       isLoaded: true,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
-      chainId: fromAssetId(lpId).chainId,
+      chainId: fromAssetId(lpId as AssetId).chainId,
       underlyingFoxAmount,
       underlyingEthAmount,
       cryptoAmount: aggregatedLpAssetBalance,

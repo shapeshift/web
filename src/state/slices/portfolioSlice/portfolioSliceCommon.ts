@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
@@ -32,27 +31,12 @@ export type PortfolioAccounts = {
   ids: AccountId[]
 }
 
-export type PortfolioBalancesById = {
-  // these are aggregated balances across all accounts in a portfolio for the same asset
-  // balance in base units of asset - bn doesn't serialize
-  [k: AssetId]: string
-}
-
-export type PortfolioAssetBalances = {
-  byId: PortfolioBalancesById
-  // all asset ids in an account
-  ids: AssetId[]
-}
-
-export type PortfolioAssets = {
-  [k: AssetId]: Asset
-}
+// aggregated balances across all accounts in a portfolio for the same asset
+// balance in base units of asset
+export type AssetBalancesById = Record<AssetId, string>
 
 export type PortfolioAccountBalancesById = {
-  [k: AccountId]: {
-    // these are granular balances of this asset for this account
-    [k: AssetId]: string // balance for asset in base units
-  }
+  [k: AccountId]: AssetBalancesById
 }
 
 export type PortfolioAccountBalances = {
@@ -77,16 +61,11 @@ export type PortfolioAccountMetadata = {
 export type Portfolio = {
   accountMetadata: PortfolioAccountMetadata
   accounts: PortfolioAccounts
-  assetBalances: PortfolioAssetBalances
   accountBalances: PortfolioAccountBalances
 }
 
 export const initialState: Portfolio = {
   accounts: {
-    byId: {},
-    ids: [],
-  },
-  assetBalances: {
     byId: {},
     ids: [],
   },

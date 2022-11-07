@@ -25,12 +25,14 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const { needsReset, setNeedsReset, setIsUpdatingKeepkey } = useWallet()
+  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state } = useWallet()
 
   const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
     useModal()
 
   useEffect(() => {
+    // This is necessary so when it re-opens the tcp connection everything is good
+    state.wallet?.disconnect()
     if (needsReset) hardwareError.open({})
     else hardwareError.close()
     // eslint-disable-next-line react-hooks/exhaustive-deps

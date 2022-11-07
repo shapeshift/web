@@ -61,8 +61,6 @@ export const settings = new Settings()
 // dont allow muliple windows to open
 if(!app.requestSingleInstanceLock()) app.quit()
 
-const TAG = ' | MAIN | '
-
 export let shouldShowWindow = false;
 
 
@@ -90,8 +88,6 @@ if (process.defaultApp) {
 }
 
 export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
-    log.info('Creating window!')
-
     //Auto launch on startup
     if (!isDev && settings.shouldAutoLunch) {
         kkAutoLauncher.enable()
@@ -102,9 +98,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
                     return
                 }
                 kkAutoLauncher.enable()
-            })
-            .catch(function (e) {
-                log.error('failed to enable auto launch: ', e)
             })
     }
 
@@ -130,7 +123,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     const startURL = isDev
         ? 'http://localhost:3000'
         : `file://${path.join(__dirname, '../../build/index.html')}`
-    log.info('startURL: ', startURL)
 
     windows.mainWindow.loadURL(startURL)
 

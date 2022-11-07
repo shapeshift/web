@@ -1,13 +1,8 @@
-import { app, ipcMain } from 'electron';
-import { createWindow, windows } from '../../main';
-import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { lastKnownKeepkeyState } from '../';
-import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
-import { shared, userType } from '../../shared';
+import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
+import { kkStateController } from '../';
 import wait from 'wait-promise'
-import { RecoverDevice, LoadDevice, BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
-import { uniqueId } from 'lodash';
-import { checkKeepKeyUnlocked, openSignTxWindow } from '../../utils';
+import { RecoverDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
+import { checkKeepKeyUnlocked } from '../../utils';
 
 @Tags('Recovery Endpoints')
 @Route('')
@@ -22,9 +17,9 @@ export class GRecoveryController extends Controller {
     public async recover(@Body() body: RecoverDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.recover(body).then(resolve)
+            kkStateController.wallet.recover(body).then(resolve)
         })
     }
 
@@ -35,9 +30,9 @@ export class GRecoveryController extends Controller {
     public async changePin(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.changePin().then(resolve)
+            kkStateController.wallet.changePin().then(resolve)
         })
     }
 
@@ -47,9 +42,9 @@ export class GRecoveryController extends Controller {
     public async sendWord(@Body() body: string): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.sendWord(body).then(resolve)
+            kkStateController.wallet.sendWord(body).then(resolve)
         })
     }
 
@@ -59,9 +54,9 @@ export class GRecoveryController extends Controller {
     public async sendCharacter(@Body() body: string): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.sendCharacter(body).then(resolve)
+            kkStateController.wallet.sendCharacter(body).then(resolve)
         })
     }
 
@@ -71,9 +66,9 @@ export class GRecoveryController extends Controller {
     public async sendCharacterDelete(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.sendCharacterDelete().then(resolve)
+            kkStateController.wallet.sendCharacterDelete().then(resolve)
         })
     }
 
@@ -83,9 +78,9 @@ export class GRecoveryController extends Controller {
     public async sendCharacterDone(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.sendCharacterDone().then(resolve)
+            kkStateController.wallet.sendCharacterDone().then(resolve)
         })
     }
 

@@ -4,24 +4,27 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
 import log from 'electron-log'
-import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Server } from 'http'
 import { ipcMain, app } from 'electron'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
-import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { windows } from '../main'
 import { IpcQueueItem } from './types'
-import { KKController } from './kk-controller'
+import {  KKStateController } from './kk-state-controller'
 
-const Controller = new KKController()
 
-const appExpress = express()
-appExpress.use(cors())
-appExpress.use(bodyParser.urlencoded({ extended: true }))
-appExpress.use(bodyParser.json())
-import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-controller/firmwareUtils'
-import { shared } from '../shared'
+const queueIpcEvent = (eventName: string, args: any) => {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        return ipcQueue.push({ eventName, args })
+    }
+    else {
+        return windows.mainWindow.webContents.send(eventName, args)
+    }
+}
+
+export const kkStateController = new KKStateController(queueIpcEvent)
+
+import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
 import { createAndUpdateTray } from '../tray'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
@@ -35,25 +38,13 @@ export let bridgeClosing = false
 
 let ipcQueue = new Array<IpcQueueItem>()
 
-type MessageAndEvent = { ipcMessage: string, event: any }
-export type KeepkeyState = {
-    state: MessageAndEvent | undefined
-    device: Device | undefined,
-    transport: TransportDelegate | undefined,
-    wallet: KeepKeyHDWallet | undefined
-}
-
-export const lastKnownKeepkeyState: KeepkeyState = {
-    state: undefined,
-    device: undefined,
-    transport: undefined,
-    wallet: undefined
-}
-
 let renderListenersReady = false
 
 export const start_bridge = async (port?: number) => {
     if (bridgeRunning) return
+
+    // web render thread has indicated it is ready to receive ipc messages
+    // send any that have queued since then
     ipcMain.on('renderListenersReady', async () => {
         renderListenersReady = true
         ipcQueue.forEach((item, idx) => {
@@ -61,11 +52,10 @@ export const start_bridge = async (port?: number) => {
             ipcQueue.splice(idx, 1);
         })
     })
-    let tag = " | start_bridge | "
     let API_PORT = port || 1646
 
     // send paired apps when requested
-    ipcMain.on('@bridge/paired-apps', (event) => {
+    ipcMain.on('@bridge/paired-apps', () => {
         db.find({ type: 'service' }, (err, docs) => {
             queueIpcEvent('@bridge/paired-apps', docs)
         })
@@ -86,6 +76,11 @@ export const start_bridge = async (port?: number) => {
         db.remove({ ...data })
     })
 
+    const appExpress = express()
+    appExpress.use(cors())
+    appExpress.use(bodyParser.urlencoded({ extended: true }))
+    appExpress.use(bodyParser.json())
+
     appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
     //swagger.json
@@ -93,47 +88,13 @@ export const start_bridge = async (port?: number) => {
 
     RegisterRoutes(appExpress);
 
-    log.info(tag, "starting server! **** ")
-    server = appExpress.listen(API_PORT, () => {
-        log.info(`server started at http://localhost:${API_PORT}`)
-    })
-
-    Controller.events.on('logs', async function (event) {
-        let ipcMessage = ''
-        if (event.bootloaderUpdateNeeded && !event.bootloaderMode) ipcMessage = 'requestBootloaderMode'
-        else if (event.bootloaderUpdateNeeded && event.bootloaderMode) ipcMessage = 'updateBootloader'
-        else if (event.firmwareUpdateNeededNotBootloader) ipcMessage = 'updateFirmware'
-        else if (event.needsInitialize) ipcMessage = 'needsInitialize'
-        else if (event.ready) {
-            ipcMessage = 'connected',
-            bridgeRunning = true
-            createAndUpdateTray() 
-        }
-        // This technically isnt an error but this ipcMessage triggers a modals thats good enough for now
-        else if(event.unplugged) ipcMessage = '@keepkey/hardwareError'
-        else throw new Error('Unknown event type')
-
-        queueIpcEvent(ipcMessage, { event })
-        lastKnownKeepkeyState.state = { ipcMessage, event }
-        lastKnownKeepkeyState.device = Controller.device
-        lastKnownKeepkeyState.wallet = Controller.wallet
-        lastKnownKeepkeyState.transport = Controller.transport
-        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-    })
-    Controller.events.on('error', function (event) {
-        const ipcMessage = '@keepkey/hardwareError'
-        queueIpcEvent(ipcMessage, { event })
-        lastKnownKeepkeyState.state = { ipcMessage, event }
-        lastKnownKeepkeyState.device = Controller.device
-        lastKnownKeepkeyState.wallet = Controller.wallet
-        lastKnownKeepkeyState.transport = Controller.transport
-        shared.KEEPKEY_FEATURES = (Controller.wallet?.getFeatures() as any)
-    })
+    await new Promise( (resolve) =>  server = appExpress.listen(API_PORT, () => resolve(true)))
+    log.info(`server started at http://localhost:${API_PORT}`)
 
     try {
-        await Controller.init()
+        await kkStateController.syncState()
     } catch (e) {
-        log.error('failed to init controller, exiting', e)
+        log.error('failed sync initial keepkey state, exiting', e)
         // This can be triggered if the keepkey is in a fucked state and gets stuck initializing and then they unplug.
         // We need to have them unplug and fully exit the app to fix it
         app.quit()
@@ -144,7 +105,7 @@ export const start_bridge = async (port?: number) => {
         let result = await getLatestFirmwareData()
         let firmware = await downloadFirmware(result.firmware.url)
         if (!firmware) throw Error("Failed to load firmware from url!")
-        await loadFirmware(Controller.wallet, firmware)
+        await loadFirmware(kkStateController.wallet, firmware)
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader: true,
             success: true
@@ -156,7 +117,7 @@ export const start_bridge = async (port?: number) => {
     ipcMain.on('@keepkey/update-bootloader', async event => {
         let result = await getLatestFirmwareData()
         let firmware = await downloadFirmware(result.bootloader.url)
-        await loadFirmware(Controller.wallet, firmware)
+        await loadFirmware(kkStateController.wallet, firmware)
         event.sender.send('onCompleteBootloaderUpload', {
             bootloader: true,
             success: true
@@ -165,29 +126,17 @@ export const start_bridge = async (port?: number) => {
 }
 
 export const stop_bridge = async () => {
-    console.log('stopping bridge')
+    if(bridgeClosing) return false
     bridgeClosing = true
-    const p = new Promise((resolve) => {
+    await new Promise((resolve) => {
         createAndUpdateTray()
-        server.close(() => {
-            lastKnownKeepkeyState.transport?.disconnect().then(() => {
-                Controller.events.removeAllListeners()
-                bridgeRunning = false
-                bridgeClosing = false
-                createAndUpdateTray()
-                resolve(true)
-            })
+        server.close(async () => {
+            await kkStateController.transport?.disconnect()
+            bridgeRunning = false
+            bridgeClosing = false
+            createAndUpdateTray()
+            resolve(true)
         })
     })
-    await p
-    console.log('bridge stopped')
-}
-
-const queueIpcEvent = (eventName: string, args: any) => {
-    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
-        return ipcQueue.push({ eventName, args })
-    }
-    else {
-        return windows.mainWindow.webContents.send(eventName, args)
-    }
+    return true
 }

@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { WalletActions } from 'context/WalletProvider/actions'
 const moduleLogger = logger.child({ namespace: ['useKeepKeyCancel'] })
 
 export const useKeepKeyCancel = () => {
@@ -11,6 +12,7 @@ export const useKeepKeyCancel = () => {
   const {
     state: { wallet },
     disconnect,
+    dispatch
   } = useWallet()
 
 
@@ -29,6 +31,7 @@ export const useKeepKeyCancel = () => {
   const handleCancel = async () => {
     disconnect()
     await cancelWalletRequest()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }
 
   return handleCancel

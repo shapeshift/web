@@ -31,6 +31,8 @@ export const KeepKeyLabel = () => {
     setDeviceState({ awaitingDeviceInteraction: true, disposition })
     await wallet?.reset(resetMessage).catch(e => {
       console.log('WOAH WOAH', e)
+      setLoading(false)
+      setDeviceState({ awaitingDeviceInteraction: false, disposition })
       moduleLogger.error(e)
       toast({
         title: translate('common.error'),
@@ -47,7 +49,6 @@ export const KeepKeyLabel = () => {
     await recoverKeepKey(label)
   }
 
-  console.log("DISPO", disposition)
   return (
     <>
       <ModalHeader>

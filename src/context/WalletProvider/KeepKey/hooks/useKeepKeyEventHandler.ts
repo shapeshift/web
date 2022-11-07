@@ -19,6 +19,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
+  disconnect: any,
 ) => {
   const {
     keyring,
@@ -268,7 +269,7 @@ export const useKeepKeyEventHandler = (
         if (modal) {
           // Little trick to send the user back to the wallet select route
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          disconnect()
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

@@ -410,9 +410,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                    * wallet.
                    */
                   // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
+                  console.log("TODO DISC")
                   disconnect()
                 }
               } catch (e) {
+                console.log("CATCH ERROR R", e)
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -422,6 +424,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * The fall-through case also handles clearing
                * any demo wallet state on refresh/rerender.
                */
+              console.log("DEFAULT DISC")
               disconnect()
               break
           }
@@ -601,7 +604,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, disconnect)
 
   const value: IWalletContext = useMemo(
     () => ({

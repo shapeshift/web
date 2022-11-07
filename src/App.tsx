@@ -69,13 +69,14 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
+      console.log('ipc disco')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      closeAllModals()
       hardwareError.open({})
-      loading.close()
     })
 
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
-      pair.open(data)
+      // pair.open(data)
     })
 
     ipcRenderer.on('needsInitialize', (_event, data) => {

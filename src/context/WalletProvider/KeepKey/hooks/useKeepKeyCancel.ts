@@ -5,16 +5,18 @@ import { useHistory } from 'react-router-dom'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { useModal } from 'hooks/useModal/useModal'
 const moduleLogger = logger.child({ namespace: ['useKeepKeyCancel'] })
 
 export const useKeepKeyCancel = () => {
-  const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
   const {
-    state: { wallet },
+    state: { wallet, deviceId },
     dispatch,
   } = useWallet()
+
+  const { updateKeepKey } = useModal()
 
   const cancelWalletRequest = useCallback(async () => {
     await wallet?.cancel().catch(e => {
@@ -29,8 +31,7 @@ export const useKeepKeyCancel = () => {
   }, [toast, translate, wallet])
 
   const handleCancel = async () => {
-    history.replace('/')
-    dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    dispatch({ type: WalletActions.RESET_STATE })
     await cancelWalletRequest()
   }
 

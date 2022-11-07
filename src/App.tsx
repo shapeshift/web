@@ -61,6 +61,7 @@ export const App = () => {
       closeAllModals()
       setNeedsReset(false)
       setIsUpdatingKeepkey(true)
+      console.log('data', data)
       updateKeepKey.open(data)
     })
 

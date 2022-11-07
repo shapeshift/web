@@ -273,6 +273,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
+        showBackButton: false,
+        disconnectOnCloseModal: true,
         type: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.RecoverySettings,
@@ -354,6 +356,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      */
     state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
+    setIsUpdatingKeepkey(false)
     clearLocalWallet()
   }, [state.wallet])
 

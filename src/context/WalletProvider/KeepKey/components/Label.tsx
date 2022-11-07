@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
@@ -13,7 +12,6 @@ const moduleLogger = logger.child({ namespace: ['Label'] })
 
 export const KeepKeyLabel = () => {
   const [loading, setLoading] = useState(false)
-  const { updateKeepKey } = useModal()
   const {
     setDeviceState,
     state: {
@@ -25,7 +23,6 @@ export const KeepKeyLabel = () => {
   const translate = useTranslate()
   const [label, setLabel] = useState('')
   const recoverKeepKey = useKeepKeyRecover()
-  console.log('loading', loading)
 
   const handleInitializeSubmit = async () => {
     setLoading(true)

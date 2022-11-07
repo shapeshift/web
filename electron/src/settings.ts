@@ -1,5 +1,5 @@
 import { ipcMain } from "electron";
-import { bridgeRunning, server, start_bridge, stop_bridge } from "./bridge";
+import { tcpBridgeRunning, server, startTcpBridge, stopBridge } from "./bridge";
 import { db } from "./db";
 import { kkAutoLauncher } from "./main";
 import { AddressInfo } from "net";
@@ -119,11 +119,11 @@ export class Settings {
 
     async setBridgeApiPort(value: number, bulk = false) {
         this.bridgeApiPort = value
-        if (bridgeRunning) {
+        if (tcpBridgeRunning) {
             const address = server.address() as AddressInfo
             if (address.port !== value) {
-                await stop_bridge()
-                await start_bridge(value)
+                await stopBridge()
+                await startTcpBridge(value)
             }
         }
         if (!bulk) this.syncSettingsWithDB()

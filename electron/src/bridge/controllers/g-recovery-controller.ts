@@ -1,8 +1,8 @@
 import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
-import { kkStateController } from '../';
 import wait from 'wait-promise'
 import { RecoverDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
+import { kkStateController } from '../../main';
 
 @Tags('Recovery Endpoints')
 @Route('')

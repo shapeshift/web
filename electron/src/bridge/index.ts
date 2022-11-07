@@ -8,36 +8,41 @@ import { Server } from 'http'
 import { ipcMain, app } from 'electron'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
-import { windows } from '../main'
+import { kkStateController, windows } from '../main'
 import { IpcQueueItem } from './types'
-import {  KKStateController } from './kk-state-controller'
-
-
-const queueIpcEvent = (eventName: string, args: any) => {
-    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
-        return ipcQueue.push({ eventName, args })
-    }
-    else {
-        return windows.mainWindow.webContents.send(eventName, args)
-    }
-}
-
-export const kkStateController = new KKStateController(queueIpcEvent)
-
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
 import { createAndUpdateTray } from '../tray'
 import { deviceBusyRead, deviceBusyWrite } from './controllers/b-device-controller'
+import { CONNECTED } from './kk-state-controller'
+
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
 export let server: Server
-export let bridgeRunning = false
 
-export let bridgeClosing = false
+// tcp server portion of the bridge
+export let tcpBridgeRunning = false
+export let tcpBridgeStarting = false
+
+export let tcpBridgeClosing = false
+
+// tcp bridge running and keepkey is successfully connected
+export let isWalletBridgeRunning = () => kkStateController?.lastState === CONNECTED && tcpBridgeRunning
+
+
 
 let ipcQueue = new Array<IpcQueueItem>()
+
+export const queueIpcEvent = (eventName: string, args: any) => {
+    if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        return ipcQueue.push({ eventName, args })
+    }
+    else {
+        return windows.mainWindow.webContents.send(eventName, args)
+    }
+}    
 
 let renderListenersReady = false
 
@@ -45,9 +50,9 @@ let renderListenersReady = false
 let lastDeviceBusyRead = false
 let lastDeviceBusyWrite = false
 
-export const start_bridge = async (port?: number) => {
-    if (bridgeRunning) return
-
+export const startTcpBridge = async (port?: number) => {
+    if (tcpBridgeRunning || tcpBridgeStarting) return
+    tcpBridgeStarting = true
     // web render thread has indicated it is ready to receive ipc messages
     // send any that have queued since then
     ipcMain.on('renderListenersReady', async () => {
@@ -119,18 +124,6 @@ export const start_bridge = async (port?: number) => {
     await new Promise( (resolve) =>  server = appExpress.listen(API_PORT, () => resolve(true)))
     log.info(`server started at http://localhost:${API_PORT}`)
 
-    try {
-        await kkStateController.syncState()
-    } catch (e: any) {
-        if (e.toString().includes('claimInterface error')) {
-            windows?.splash?.webContents.send("@update/errorClaimed")
-            await new Promise( () => 0 )
-        } else {
-            windows?.splash?.webContents.send("@update/errorReset")
-            await new Promise( () => 0 )
-        }
-    }
-
     // hack to detect when the keepkey is busy so we can be careful not to do 2 things at once
     setInterval( () => {
         // busy state has changed somehow
@@ -145,20 +138,33 @@ export const start_bridge = async (port?: number) => {
         lastDeviceBusyRead = deviceBusyRead
         lastDeviceBusyWrite = deviceBusyWrite
     }, 1000)
+
+    tcpBridgeStarting = false
+    tcpBridgeRunning = true
+
+    createAndUpdateTray()
 }
 
-export const stop_bridge = async () => {
-    if(bridgeClosing) return false
-    bridgeClosing = true
-    await new Promise((resolve) => {
+export const stopBridge = async () => {
+    if(tcpBridgeClosing) return false
+    tcpBridgeClosing = true
+    await new Promise(async (resolve) => {
         createAndUpdateTray()
-        server.close(async () => {
+        if(server) {
+            server?.close(async () => {
+                await kkStateController.transport?.disconnect()
+                tcpBridgeRunning = false
+                tcpBridgeClosing = false
+                createAndUpdateTray()
+                resolve(true)
+            })
+        } else {
             await kkStateController.transport?.disconnect()
-            bridgeRunning = false
-            bridgeClosing = false
+            tcpBridgeRunning = false
+            tcpBridgeClosing = false
             createAndUpdateTray()
             resolve(true)
-        })
+        }
     })
     return true
 }

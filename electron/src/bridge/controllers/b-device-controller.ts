@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, Route, Tags, Response } from 'tsoa';
-import {kkStateController } from '..';
 import { WriteBody } from '../types';
-
+import { kkStateController } from '../../main';
 export let deviceBusyRead = false
 export let deviceBusyWrite = false
 
@@ -13,12 +12,17 @@ export class BDeviceController extends Controller {
     // @Security("api_key")
     @Response(500, "Unable to communicate with device")
     public async readDevice() {
-        deviceBusyRead = true
-        console.log('readDevice')
-        let resp = await kkStateController.transport?.readChunk() ?? ''
-        deviceBusyRead = false
-        return {
-            data: Buffer.from(resp as any).toString('hex')
+        try {
+            deviceBusyRead = true
+            console.log('readDevice')
+            let resp = await kkStateController.transport?.readChunk() ?? ''
+            deviceBusyRead = false
+            return {
+                data: Buffer.from(resp as any).toString('hex')
+            }
+        } catch (e) {
+            deviceBusyRead = false
+            throw(e)
         }
     }
 
@@ -26,11 +30,16 @@ export class BDeviceController extends Controller {
     // @Security("api_key")
     @Response(500, "Unable to communicate with device")
     public async writeDevice(@Body() body: WriteBody) {
-        deviceBusyWrite = true
-        console.log('writeDevice')
-        let msg = Buffer.from(body.data, 'hex') ?? ''
-        kkStateController.transport?.writeChunk(msg)
-        deviceBusyWrite = false
-        return { output: msg.toString() }
+        try {
+            deviceBusyWrite = true
+            console.log('writeDevice')
+            let msg = Buffer.from(body.data, 'hex') ?? ''
+            kkStateController.transport?.writeChunk(msg)
+            deviceBusyWrite = false
+            return { output: msg.toString() }
+        } catch (e) {
+            deviceBusyRead = false
+            throw(e)
+        }
     }
 }

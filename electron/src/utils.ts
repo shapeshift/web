@@ -1,6 +1,5 @@
 import { ipcMain } from "electron";
-import { kkStateController } from "./bridge";
-import { createWindow, windows } from "./main";
+import { createWindow, kkStateController, windows } from "./main";
 
 export const openSignTxWindow = async (signArgs: any) => {
     let prevContentSize = { width: 0, height: 0 }

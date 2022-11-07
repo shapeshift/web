@@ -1,6 +1,6 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 import path from 'path'
-import { start_bridge, stop_bridge, bridgeRunning, bridgeClosing } from './bridge'
+import { startTcpBridge, stopBridge, tcpBridgeClosing, tcpBridgeRunning, isWalletBridgeRunning } from './bridge'
 import { assetsDirectory } from './constants'
 import { createWindow, windows } from './main'
 
@@ -11,12 +11,16 @@ const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 export const createAndUpdateTray = () => {
     if(tray) tray.destroy()
 
+
+    console.log('isWalletBridgeRunning', isWalletBridgeRunning())
+    console.log('tcpBridgeRunning', tcpBridgeRunning)
+
     const menuTemplate: any = [
         {
-            label: !bridgeRunning ? 'Bridge Not Running!' : 'Bridge Running',
+            label: !isWalletBridgeRunning() ? 'Bridge Not Running!' : 'Bridge Running',
             enabled: false,
             type: 'normal',
-            icon: path.join(assetsDirectory, !bridgeRunning ? 'status/unknown.png' : 'status/success.png')
+            icon: path.join(assetsDirectory, !isWalletBridgeRunning() ? 'status/unknown.png' : 'status/success.png')
         },
         { type: 'separator' },
         {
@@ -34,13 +38,13 @@ export const createAndUpdateTray = () => {
         { type: 'separator' },
         {
             label: 'Start Bridge',
-            click: () => start_bridge(),
-            enabled: !bridgeRunning && !bridgeClosing
+            click: () => startTcpBridge(),
+            enabled: !isWalletBridgeRunning() && !tcpBridgeClosing
         },
         {
-            label: !bridgeClosing ? 'Stop Bridge' : 'Bridge Closing, please wait...',
-            enabled: !bridgeClosing && bridgeRunning,
-            click: stop_bridge
+            label: !tcpBridgeClosing ? 'Stop Bridge' : 'Bridge Closing, please wait...',
+            enabled: !tcpBridgeClosing && isWalletBridgeRunning(),
+            click: stopBridge
         },
         {
             label: 'Open dev tools',
@@ -54,7 +58,7 @@ export const createAndUpdateTray = () => {
             }
         }
     ]
-    const trayIcon = !bridgeRunning ? `${lightDark}/keepKey/unknown.png` : `${lightDark}/keepKey/success.png`
+    const trayIcon = !isWalletBridgeRunning() ? `${lightDark}/keepKey/unknown.png` : `${lightDark}/keepKey/success.png`
     tray = new Tray(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
     tray.setContextMenu(contextMenu)

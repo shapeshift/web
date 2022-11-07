@@ -13,8 +13,7 @@ import { RequestBootloaderMode } from 'components/Modals/RequestBootloaderMode/R
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
 import { SignModal } from 'components/Modals/Sign/Sign'
-import { UpdateBootloader } from 'components/Modals/UpdateBootloader/UpdateBootloader'
-import { UpdateFirmware } from 'components/Modals/UpdateFirmware/UpdateFirmware'
+import { UpdateKeepKey } from 'components/Modals/UpdateKeepKey/UpdateKeepKey'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { ModalContext } from './ModalContext'
@@ -35,8 +34,7 @@ const MODALS = {
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   requestBootloaderMode: RequestBootloaderMode,
-  updateBootloader: UpdateBootloader,
-  updateFirmware: UpdateFirmware,
+  updateKeepKey: UpdateKeepKey,
   kkVote: KKVote,
 }
 

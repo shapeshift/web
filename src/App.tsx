@@ -27,8 +27,16 @@ export const App = () => {
   const translate = useTranslate()
   const { needsReset, setNeedsReset, setIsUpdatingKeepkey } = useWallet()
 
-  const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
+  const { pair, sign, hardwareError, updateKeepKey, requestBootloaderMode } =
     useModal()
+
+  const openKeepKeyUpdater = (data: any) => {
+    setNeedsReset(false)
+    setIsUpdatingKeepkey(true)
+    requestBootloaderMode.close()
+    console.log('data', data)
+    updateKeepKey.open(data)
+  }
 
   useEffect(() => {
     if (needsReset) hardwareError.open({})
@@ -57,18 +65,14 @@ export const App = () => {
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
-      setNeedsReset(false)
-      setIsUpdatingKeepkey(true)
-      requestBootloaderMode.close()
-      updateBootloader.open(data)
+      console.log("booooot", data)
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('updateFirmware', (_event, data) => {
-      setNeedsReset(false)
-      setIsUpdatingKeepkey(true)
-      requestBootloaderMode.close()
-      updateBootloader.close()
-      updateFirmware.open(data)
+      console.log("fiiiirm", data)
+
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {

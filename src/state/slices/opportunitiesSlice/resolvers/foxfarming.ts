@@ -32,7 +32,7 @@ import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/p
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
-import { foxEthPair } from '../constants'
+import { foxEthPair, STAKING_ID_TO_NAME } from '../constants'
 import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -213,6 +213,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   const timeStamp = await foxFarmingContract.periodFinish()
   const expired =
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
+  const name = STAKING_ID_TO_NAME[opportunityId]
 
   const data = {
     byId: {
@@ -228,6 +229,7 @@ export const foxFarmingStakingMetadataResolver = async ({
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
         ] as const,
         expired,
+        name,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

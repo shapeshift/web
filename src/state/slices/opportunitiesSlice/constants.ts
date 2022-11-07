@@ -24,4 +24,11 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV4,
 ] as const
 
+export const STAKING_ID_TO_NAME = {
+  [foxEthStakingAssetIdV1]: 'Fox Farming V1',
+  [foxEthStakingAssetIdV2]: 'Fox Farming V2',
+  [foxEthStakingAssetIdV3]: 'Fox Farming V3',
+  [foxEthStakingAssetIdV4]: 'Fox Farming V4',
+}
+
 export const STAKING_ID_DELIMITER = '*'

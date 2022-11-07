@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
+import { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { FaQrcode } from 'react-icons/fa'
@@ -31,7 +32,7 @@ type FormValues = {
 export const ConnectModal: FC<Props> = ({ isOpen, onClose }) => {
   const translate = useTranslate()
 
-  const { register, handleSubmit, control, formState } = useForm<FormValues>({
+  const { register, handleSubmit, control, formState, setValue } = useForm<FormValues>({
     mode: 'onChange',
     defaultValues: { uri: '' },
   })
@@ -45,6 +46,20 @@ export const ConnectModal: FC<Props> = ({ isOpen, onClose }) => {
     },
     [connect, onClose],
   )
+
+  useEffect(() => {
+    // @ts-ignore
+    navigator.permissions.query({ name: 'clipboard-read' }).then(permission => {
+      if (permission.state === 'denied') return
+      navigator.clipboard.read().then(async data => {
+        const link = await data[0].getType('text/plain')
+        link.text().then(uri => {
+          if (uri.startsWith('wc:')) setValue('uri', uri)
+        })
+      })
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>

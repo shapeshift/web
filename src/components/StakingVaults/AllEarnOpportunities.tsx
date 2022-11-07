@@ -14,14 +14,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import {
-  foxEthLpAssetId,
-  LP_EARN_OPPORTUNITIES,
-  STAKING_EARN_OPPORTUNITIES,
-} from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunities,
   selectAssets,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -43,18 +39,7 @@ export const AllEarnOpportunities = () => {
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const foxFarmingOpportunitiesAggregated = useAppSelector(selectAggregatedUserStakingOpportunities)
-  const foxFarmingOpportunities = useMemo(
-    () =>
-      foxFarmingOpportunitiesAggregated.map(opportunity => ({
-        ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
-        ...opportunity,
-        chainId: fromAssetId(foxEthLpAssetId).chainId,
-        cryptoAmount: opportunity.stakedAmountCryptoPrecision,
-        isLoaded: true,
-      })),
-    [foxFarmingOpportunitiesAggregated],
-  )
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
   const opportunityData = useMemo(

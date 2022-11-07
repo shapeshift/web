@@ -16,12 +16,9 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import {
-  LP_EARN_OPPORTUNITIES,
-  STAKING_EARN_OPPORTUNITIES,
-} from 'state/slices/opportunitiesSlice/constants'
-import {
-  selectAggregatedUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunities,
   selectAssetById,
   selectLpOpportunitiesById,
 } from 'state/slices/selectors'
@@ -47,16 +44,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const { vaults } = useVaultBalances()
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const foxFarmingOpportunitiesAggregated = useAppSelector(selectAggregatedUserStakingOpportunities)
-  const foxFarmingOpportunities = useMemo(
-    () =>
-      foxFarmingOpportunitiesAggregated.map(opportunity => ({
-        ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
-        chainId: fromAssetId(foxEthLpAssetId).chainId,
-        ...opportunity,
-      })),
-    [foxFarmingOpportunitiesAggregated],
-  )
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
   const foxEthLpOpportunityData = useMemo(

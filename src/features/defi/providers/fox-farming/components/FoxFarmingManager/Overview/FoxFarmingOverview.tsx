@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -75,15 +76,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         }) as StakingId,
       ),
     }),
-    [accountId, chainId, contractAddress],
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
   )
   const opportunityData = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
-  )
-
-  const lpAsset = useMemo(
-    () => assets[opportunityData?.underlyingAssetId ?? ''],
-    [assets, opportunityData?.underlyingAssetId],
   )
 
   const underlyingAssetsIcons = useMemo(

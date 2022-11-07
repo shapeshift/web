@@ -5,14 +5,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  foxEthLpAssetId,
-  LP_EARN_OPPORTUNITIES,
-  STAKING_EARN_OPPORTUNITIES,
-} from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunities,
   selectAssets,
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByAssetId,
@@ -25,17 +21,7 @@ export const useDefiOpportunity = (opportunity: ExternalOpportunity) => {
   const assets = useSelector(selectAssets)
   const [defiOpportunity, setDefiOpportunity] = useState<EarnOpportunityType | null>(null)
 
-  const foxFarmingOpportunitiesAggregated = useAppSelector(selectAggregatedUserStakingOpportunities)
-  const foxFarmingOpportunities = useMemo(
-    () =>
-      foxFarmingOpportunitiesAggregated.map(opportunity => ({
-        ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
-        chainId: fromAssetId(foxEthLpAssetId).chainId,
-        ...opportunity,
-        isLoaded: true,
-      })),
-    [foxFarmingOpportunitiesAggregated],
-  )
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
   const opportunityData = useMemo(

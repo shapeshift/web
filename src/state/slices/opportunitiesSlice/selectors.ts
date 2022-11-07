@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -11,6 +12,7 @@ import {
 } from 'state/selectors'
 
 import type { PortfolioAccountBalances } from '../portfolioSlice/portfolioSliceCommon'
+import { STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
   OpportunityMetadata,
@@ -152,6 +154,20 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
     stakingIds.map(stakingId =>
       selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }),
     ),
+)
+
+// The same as the previous selector, but parsed as an EarnOpportunityType
+// TODO: testme
+export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
+  selectAggregatedUserStakingOpportunities,
+  aggregatedUserStakingOpportunities =>
+    aggregatedUserStakingOpportunities.map(opportunity => ({
+      ...opportunity,
+      ...STAKING_EARN_OPPORTUNITIES[opportunity.underlyingAssetId],
+      chainId: fromAssetId(opportunity.underlyingAssetId).chainId,
+      cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+      isLoaded: true,
+    })),
 )
 
 // "Give me the total values over all my accounts aggregated into one for each opportunity, and then aggregated these into one final value"

@@ -7,7 +7,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
-import { selectPortfolioAccountIds, selectPortfolioAccountMetadata } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
 import type { Nullable } from 'types/common'
 
 import type { FiatRampAction } from '../FiatRampsCommon'
@@ -29,7 +29,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   assetId = ethAssetId,
   fiatRampAction,
 }) => {
-  const portfolioAccountIds = useSelector(selectPortfolioAccountIds)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
@@ -50,7 +50,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
     if (isDemoWallet) return
     ;(async () => {
       const plainAddressResults = await Promise.allSettled(
-        portfolioAccountIds.map(accountId => {
+        walletAccountIds.map(accountId => {
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
           moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
@@ -74,7 +74,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
       const parsedAddressResults = await Promise.allSettled(
         plainAddresses.map((value, idx) => {
           if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
-          const { chainId } = fromAccountId(portfolioAccountIds[idx])
+          const { chainId } = fromAccountId(walletAccountIds[idx])
           return parseAddressInput({ chainId, value })
         }),
       )
@@ -82,7 +82,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
       const addressesByAccountId = parsedAddressResults.reduce<AddressesByAccountId>(
         (acc, parsedAddressResult, idx) => {
           if (parsedAddressResult.status === 'rejected') return acc
-          const accountId = portfolioAccountIds[idx]
+          const accountId = walletAccountIds[idx]
           const { value } = parsedAddressResult
           acc[accountId] = value
           return acc
@@ -92,7 +92,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
       setAddressByAccountId(addressesByAccountId)
     })()
-  }, [isDemoWallet, portfolioAccountIds, portfolioAccountMetadata, wallet])
+  }, [isDemoWallet, walletAccountIds, portfolioAccountMetadata, wallet])
 
   const { address, vanityAddress } = useMemo(() => {
     const empty = { address: '', vanityAddress: '' }

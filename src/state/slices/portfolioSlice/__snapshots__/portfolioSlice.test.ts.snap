@@ -28,14 +28,6 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "assetBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93/slip44:0": "100",
-    },
-    "ids": Array [
-      "bip122:000000000019d6689c085ae165831e93/slip44:0",
-    ],
-  },
 }
 `;
 
@@ -75,14 +67,6 @@ Object {
     "ids": Array [
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
-    ],
-  },
-  "assetBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93/slip44:0": "200",
-    },
-    "ids": Array [
-      "bip122:000000000019d6689c085ae165831e93/slip44:0",
     ],
   },
 }
@@ -148,22 +132,6 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "assetBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93/slip44:0": "1010",
-      "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9": "16356704",
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "82416912",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "83458486654698803892",
-      "eip155:1/slip44:60": "51607633096574740",
-    },
-    "ids": Array [
-      "eip155:1/slip44:60",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9",
-      "bip122:000000000019d6689c085ae165831e93/slip44:0",
-    ],
-  },
 }
 `;
 
@@ -213,24 +181,6 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
-  "assetBalances": Object {
-    "byId": Object {
-      "bip122:000000000019d6689c085ae165831e93/slip44:0": "1010",
-      "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9": "8178312",
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "41208442",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "40729243327349401958",
-      "eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574": "4516126",
-      "eip155:1/slip44:60": "23803816548287371",
-    },
-    "ids": Array [
-      "eip155:1/slip44:60",
-      "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9",
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
-      "eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574",
-      "bip122:000000000019d6689c085ae165831e93/slip44:0",
-    ],
-  },
 }
 `;
 
@@ -262,16 +212,6 @@ Object {
     },
     "ids": Array [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
-    ],
-  },
-  "assetBalances": Object {
-    "byId": Object {
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
-      "eip155:1/slip44:60": "1000",
-    },
-    "ids": Array [
-      "eip155:1/slip44:60",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
     ],
   },
 }
@@ -319,55 +259,7 @@ Object {
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
     ],
   },
-  "assetBalances": Object {
-    "byId": Object {
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
-      "eip155:1/slip44:60": "1010",
-    },
-    "ids": Array [
-      "eip155:1/slip44:60",
-      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
-      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    ],
-  },
 }
 `;
 
-exports[`portfolioSlice selectors selectPortfolioAccountRows should return correct portfolio rows in case of 100% allocation on one asset 1`] = `
-Array [
-  Object {
-    "allocation": 0,
-    "assetId": "eip155:1/slip44:60",
-    "cryptoAmount": "0",
-    "fiatAmount": "0.00",
-    "icon": "https://assets.coincap.io/assets/icons/eth@2x.png",
-    "name": "Ethereum",
-    "price": "1000",
-    "priceChange": 2,
-    "symbol": "ETH",
-  },
-  Object {
-    "allocation": 100,
-    "assetId": "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
-    "cryptoAmount": "0.123456",
-    "fiatAmount": "3.88",
-    "icon": "https://assets.coincap.io/assets/icons/fox@2x.png",
-    "name": "Fox",
-    "price": "31.39",
-    "priceChange": 2,
-    "symbol": "FOX",
-  },
-  Object {
-    "allocation": 0,
-    "assetId": "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "cryptoAmount": "0",
-    "fiatAmount": "0.00",
-    "icon": "https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463",
-    "name": "USD Coin",
-    "price": "1",
-    "priceChange": 2,
-    "symbol": "ETH",
-  },
-]
-`;
+exports[`portfolioSlice selectors selectPortfolioAccountRows should return correct portfolio rows in case of 100% allocation on one asset 1`] = `Array []`;

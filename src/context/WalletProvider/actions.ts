@@ -22,9 +22,11 @@ export enum WalletActions {
   OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
   OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE',
   OPEN_KEEPKEY_INITIALIZE = 'OPEN_KEEPKEY_INITIALIZE',
+  OPEN_KEEPKEY_LABEL = 'OPEN_KEEPKEY_LABEL',
   OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE = 'OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE',
   SET_DEVICE_STATE = 'SET_DEVICE_STATE',
   SET_PIN_REQUEST_TYPE = 'SET_PIN_REQUEST_TYPE',
+  OPEN_KEEPKEY_RECOVERY_SETTINGS = 'OPEN_KEEPKEY_RECOVERY_SETTINGS',
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
@@ -84,6 +86,12 @@ export type ActionTypes =
       }
     }
   | {
+      type: WalletActions.OPEN_KEEPKEY_RECOVERY_SETTINGS
+      payload: {
+        deviceId: string
+      }
+    }
+  | {
       type: WalletActions.OPEN_KEEPKEY_RECOVERY_SYNTAX_FAILURE
       payload: {
         deviceId: string
@@ -93,6 +101,12 @@ export type ActionTypes =
   | { type: WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE }
   | {
       type: WalletActions.OPEN_KEEPKEY_INITIALIZE
+      payload: {
+        deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_LABEL
       payload: {
         deviceId: string
       }

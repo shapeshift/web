@@ -39,7 +39,6 @@ export const App = () => {
 
   const closeAllModals = () => {
     setNeedsReset(false)
-    setIsUpdatingKeepkey(false)
     updateKeepKey.close()
     requestBootloaderMode.close()
     hardwareError.close()
@@ -60,6 +59,8 @@ export const App = () => {
 
     ipcRenderer.on('needsInitialize', (_event, data) => {
       closeAllModals()
+      setNeedsReset(false)
+      setIsUpdatingKeepkey(true)
       updateKeepKey.open(data)
     })
 

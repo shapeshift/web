@@ -20,6 +20,7 @@ import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
 import { clearLocalWallet } from './local-wallet'
+
 const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
 export const WalletViewsSwitch = () => {
@@ -27,7 +28,7 @@ export const WalletViewsSwitch = () => {
   const location = useLocation()
   const toast = useToast()
   const translate = useTranslate()
-  const match = useRouteMatch('/')
+  const match = useRouteMatch('/keepkey/label')
   const {
     state: { wallet, modal, showBackButton, initialRoute, type, disconnectOnCloseModal },
     dispatch,
@@ -47,14 +48,12 @@ export const WalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const onClose = async () => {
-    history.replace('/')
     if (disconnectOnCloseModal) {
       disconnect()
       dispatch({ type: WalletActions.RESET_STATE })
       clearLocalWallet()
-    } else {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     await cancelWalletRequests()
   }
 
@@ -86,16 +85,16 @@ export const WalletViewsSwitch = () => {
     () =>
       type
         ? SUPPORTED_WALLETS[type].routes.map(route => {
-            const Component = route.component
-            return !Component ? null : (
-              <Route
-                exact
-                key={'route'}
-                path={route.path}
-                render={routeProps => <Component {...routeProps} />}
-              />
-            )
-          })
+          const Component = route.component
+          return !Component ? null : (
+            <Route
+              exact
+              key={'route'}
+              path={route.path}
+              render={routeProps => <Component {...routeProps} />}
+            />
+          )
+        })
         : [],
     [type],
   )

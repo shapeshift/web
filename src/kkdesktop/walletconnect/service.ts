@@ -1,10 +1,11 @@
 import type { ethereum } from '@keepkey/chain-adapters'
-import * as core from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@keepkey/logger'
 import { KnownChainIds } from '@keepkey/types'
+import * as core from '@shapeshiftoss/hdwallet-core'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
+import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
@@ -81,6 +82,13 @@ export class WCService {
   }
 
   async _onConnect(error: Error | null, payload: any) {
+    if (this.connector.connected && this.connector.peerMeta) {
+      ipcRenderer.send('@walletconnect/pairing', {
+        serviceName: this.connector.peerMeta.name,
+        serviceImageUrl: this.connector.peerMeta.icons[0],
+        serviceHomePage: this.connector.peerMeta.url,
+      })
+    }
     this.log('Connect', { error, payload })
   }
 

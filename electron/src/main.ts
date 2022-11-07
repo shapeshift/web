@@ -59,7 +59,7 @@ Sentry.init({ dsn: process.env.SENTRY_DSN });
 export const settings = new Settings()
 
 // dont allow muliple windows to open
-if(!app.requestSingleInstanceLock()) app.quit()
+if (!app.requestSingleInstanceLock()) app.quit()
 
 const TAG = ' | MAIN | '
 
@@ -201,4 +201,43 @@ ipcMain.on('@app/get-asset-url', (event, data) => {
 
 ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
+})
+
+ipcMain.on("@app/pairings", (_event, _data) => {
+    db.find({ type: 'pairing' }, (err, docs) => {
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed())
+            windows.mainWindow.webContents.send("@app/pairings", docs)
+    })
+})
+
+ipcMain.on("@walletconnect/pairing", (event, data) => {
+    db.findOne({
+        type: 'pairing', serviceName: data.serviceName,
+        serviceHomePage: data.serviceHomePage,
+        pairingType: 'walletconnect'
+    }, (err, doc) => {
+        if (doc) {
+            db.update({
+                type: 'pairing', serviceName: data.serviceName,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            }, {
+                type: 'pairing',
+                addedOn: Date.now(),
+                serviceName: data.serviceName,
+                serviceImageUrl: data.serviceImageUrl,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            })
+        } else {
+            db.insert({
+                type: 'pairing',
+                addedOn: Date.now(),
+                serviceName: data.serviceName,
+                serviceImageUrl: data.serviceImageUrl,
+                serviceHomePage: data.serviceHomePage,
+                pairingType: 'walletconnect'
+            })
+        }
+    })
 })

@@ -414,29 +414,27 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
       for (const walletName of Object.values(KeyManager)) {
         try {
-          if (walletName === 'keepkey') {
-            const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
-            const wallet = await adapter.pairDevice('http://localhost:1646')
-            setNeedsReset(false)
-            adapters.set(walletName, adapter)
-            dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-            const { name, icon } = KeepKeyConfig
-            const deviceId = await wallet.getDeviceID()
-            // Show the label from the wallet instead of a generic name
-            const label = (await wallet.getLabel()) || name
-            await wallet.initialize()
-            dispatch({
-              type: WalletActions.SET_WALLET,
-              payload: { wallet, name: label, icon, deviceId, meta: { label } },
-            })
-            dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-            /**
-             * The real deviceId of KeepKey wallet could be different from the
-             * deviceId recieved from the wallet, so we need to keep
-             * aliases[deviceId] in the local wallet storage.
-             */
-            setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
-          }
+          const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
+          const wallet = await adapter.pairDevice('http://localhost:1646')
+          setNeedsReset(false)
+          adapters.set(walletName, adapter)
+          dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+          const { name, icon } = KeepKeyConfig
+          const deviceId = await wallet.getDeviceID()
+          // Show the label from the wallet instead of a generic name
+          const label = (await wallet.getLabel()) || name
+          await wallet.initialize()
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name: label, icon, deviceId, meta: { label } },
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          /**
+           * The real deviceId of KeepKey wallet could be different from the
+           * deviceId recieved from the wallet, so we need to keep
+           * aliases[deviceId] in the local wallet storage.
+           */
+          setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         } catch (e) {
           moduleLogger.error(e, 'Error initializing HDWallet adapters')
           setNeedsResetIfNotUpdating()

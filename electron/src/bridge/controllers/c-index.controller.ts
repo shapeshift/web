@@ -5,7 +5,7 @@ import { createWindow, windows } from '../../main';
 import { shared, userType } from '../../shared';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse, Security } from 'tsoa';
-import { KeepkeyState, lastKnownKeepkeyState } from '../';
+import { kkStateController } from '../';
 import { GenericResponse, PairBody, PairResponse, Status } from '../types';
 
 
@@ -27,8 +27,8 @@ export class CIndexController extends Controller {
         // TODO fix
     */
     @Get('/status')
-    public async status(): Promise<any> {
-        return lastKnownKeepkeyState
+    public async status(): Promise<string | undefined> {
+        return kkStateController.lastState
     }
 
     @Get('/device')

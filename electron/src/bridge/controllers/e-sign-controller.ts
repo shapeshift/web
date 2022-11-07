@@ -2,7 +2,7 @@
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { lastKnownKeepkeyState } from '../';
+import { kkStateController } from '../';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
@@ -24,9 +24,9 @@ export class ESignController extends Controller {
         // BTCSignTxKK results in a circular import
         return new Promise<BTCSignedTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.btcSignTx(body).then(resolve)
+            kkStateController.wallet.btcSignTx(body).then(resolve)
         })
     }
 
@@ -37,9 +37,9 @@ export class ESignController extends Controller {
     public async thorchainSignTx(@Body() body: ThorchainSignTx): Promise<ThorchainTx> {
         return new Promise<ThorchainTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.thorchainSignTx(body).then(resolve)
+            kkStateController.wallet.thorchainSignTx(body).then(resolve)
         })
     }
 
@@ -49,9 +49,9 @@ export class ESignController extends Controller {
     public async cosmosSignTx(@Body() body: CosmosSignTx): Promise<CosmosSignedTx> {
         return new Promise<CosmosSignedTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.cosmosSignTx(body).then(resolve)
+            kkStateController.wallet.cosmosSignTx(body).then(resolve)
         })
     }
 
@@ -76,9 +76,9 @@ export class ESignController extends Controller {
     public async rippleSignTx(@Body() body: RippleSignTx): Promise<RippleSignedTx> {
         return new Promise<RippleSignedTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.rippleSignTx(body).then(resolve)
+            kkStateController.wallet.rippleSignTx(body).then(resolve)
         })
     }
 
@@ -89,9 +89,9 @@ export class ESignController extends Controller {
     public async binanceSignTx(@Body() body: any): Promise<any> {
         return new Promise<BinanceSignedTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.binanceSignTx(body).then(resolve)
+            kkStateController.wallet.binanceSignTx(body).then(resolve)
         })
     }
 
@@ -101,9 +101,9 @@ export class ESignController extends Controller {
     public async ethSignTx(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<ETHSignedTx>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.ethSignTx(body).then(resolve)
+            kkStateController.wallet.ethSignTx(body).then(resolve)
         })
     }
 
@@ -113,9 +113,9 @@ export class ESignController extends Controller {
     public async eosSignTx(@Body() body: any): Promise<any> {
         return new Promise<EosTxSigned>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
-            if (!lastKnownKeepkeyState.wallet) return reject()
+            if (!kkStateController.wallet) return reject()
 
-            lastKnownKeepkeyState.wallet.eosSignTx(body).then(resolve)
+            kkStateController.wallet.eosSignTx(body).then(resolve)
         })
     }
 

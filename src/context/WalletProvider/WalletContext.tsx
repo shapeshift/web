@@ -17,6 +17,8 @@ export interface IWalletContext {
   setNeedsReset: any
   isUpdatingKeepkey: boolean
   setIsUpdatingKeepkey: any
+  pairAndConnect: any
+  deviceBusy: boolean
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

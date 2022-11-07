@@ -1,8 +1,8 @@
 import { Controller, Get, Security, Route, Tags, Response } from 'tsoa';
-import { kkStateController } from '../';
 import wait from 'wait-promise'
 import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from '../../utils';
+import { checkKeepKeyUnlocked } from '../../utils'
+import { kkStateController } from '../../main'
 
 @Tags('Device Info Endpoints')
 @Route('')

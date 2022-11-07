@@ -1,12 +1,11 @@
 import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
 import { db } from '../../db';
-import { createWindow, windows } from '../../main';
+import { createWindow, kkStateController, windows } from '../../main';
 import { shared, userType } from '../../shared';
 
-import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse, Security } from 'tsoa';
-import { kkStateController } from '../';
-import { GenericResponse, PairBody, PairResponse, Status } from '../types';
+import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security } from 'tsoa';
+import { GenericResponse, PairBody, PairResponse } from '../types';
 
 
 export class ApiError extends Error {
@@ -91,6 +90,14 @@ export class CIndexController extends Controller {
                         serviceName: body.serviceName,
                         serviceImageUrl: body.serviceImageUrl,
                         serviceKey
+                    })
+
+                    db.insert({
+                        type: 'pairing',
+                        addedOn: Date.now(),
+                        serviceName: body.serviceName,
+                        serviceImageUrl: body.serviceImageUrl,
+                        pairingType: 'sdk'
                     })
 
                     db.find({ type: 'service' }, (err, docs) => {

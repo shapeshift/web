@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron';
-import { windows } from '../../main';
+import { kkStateController, windows } from '../../main';
 import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
-import { kkStateController } from '../';
 import { GetPublicKey } from '../types';
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';

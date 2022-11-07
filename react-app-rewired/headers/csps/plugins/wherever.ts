@@ -17,7 +17,7 @@ const agentCsp: Csp = {
   ],
 }
 
-export const csp: Csp = agentCsp;
-  // process.env.REACT_APP_FEATURE_WHEREVER === 'true'
-  //   ? agentCsp
-  //   : {}
+export const csp: Csp =
+  process.env.REACT_APP_FEATURE_WHEREVER === 'true'
+    ?  agentCsp
+    : {}

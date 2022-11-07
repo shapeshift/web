@@ -26,6 +26,7 @@ export const kkStateController = new KKStateController(queueIpcEvent)
 
 import { downloadFirmware, getLatestFirmwareData, loadFirmware } from './kk-state-controller/firmwareUtils'
 import { createAndUpdateTray } from '../tray'
+import { deviceBusyRead, deviceBusyWrite } from './controllers/b-device-controller'
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
@@ -39,6 +40,10 @@ export let bridgeClosing = false
 let ipcQueue = new Array<IpcQueueItem>()
 
 let renderListenersReady = false
+
+// to keep track of device becomes busy or unbusy
+let lastDeviceBusyRead = false
+let lastDeviceBusyWrite = false
 
 export const start_bridge = async (port?: number) => {
     if (bridgeRunning) return
@@ -125,6 +130,21 @@ export const start_bridge = async (port?: number) => {
             await new Promise( () => 0 )
         }
     }
+
+    // hack to detect when the keepkey is busy so we can be careful not to do 2 things at once
+    setInterval( () => {
+        // busy state has changed somehow
+        if(lastDeviceBusyRead !== deviceBusyRead || lastDeviceBusyWrite !== deviceBusyWrite)
+        {
+            if(deviceBusyRead === false && deviceBusyWrite === false) {
+                queueIpcEvent('deviceNotBusy', {})
+            } else {
+                queueIpcEvent('deviceBusy', {})
+            }
+        }
+        lastDeviceBusyRead = deviceBusyRead
+        lastDeviceBusyWrite = deviceBusyWrite
+    }, 1000)
 }
 
 export const stop_bridge = async () => {

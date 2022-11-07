@@ -329,15 +329,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (!isUpdatingKeepkey) setNeedsReset(true)
   }, [isUpdatingKeepkey])
 
-  const disconnect = useCallback(() => {
+  // is keepkey device currently being interacted with
+  const [deviceBusy, setDeviceBusy] = useState(false)
+
+  const disconnect = useCallback(async () => {
     /**
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
-    state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
     clearLocalWallet()
-  }, [state.wallet])
+  }, [])
 
   const load = useCallback(() => {
     const fnLogger = moduleLogger.child({ fn: ['load'] })
@@ -415,6 +417,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       for (const walletName of Object.values(KeyManager)) {
         try {
           const adapter = SUPPORTED_WALLETS[walletName].adapter.useKeyring(state.keyring, options)
+
           const wallet = await adapter.pairDevice('http://localhost:1646')
           setNeedsReset(false)
           adapters.set(walletName, adapter)
@@ -520,6 +523,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       pairAndConnect.current()
     })
 
+    ipcRenderer.on('deviceBusy', async (_event, _data) => {
+      setDeviceBusy(true)
+    })
+    ipcRenderer.on('deviceNotBusy', async (_event, _data) => {
+      setDeviceBusy(false)
+    })
+
     //END HDwallet API
 
     // inform the electron process we are ready to receive ipc messages
@@ -592,6 +602,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setNeedsReset,
       isUpdatingKeepkey,
       setIsUpdatingKeepkey,
+      pairAndConnect,
+      deviceBusy,
     }),
     [
       state,
@@ -604,6 +616,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setNeedsReset,
       setIsUpdatingKeepkey,
       isUpdatingKeepkey,
+      pairAndConnect,
+      deviceBusy,
     ],
   )
 

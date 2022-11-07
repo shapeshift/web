@@ -449,11 +449,20 @@
     "unknown": "Transaction"
   },
   "pairedApps": {
-    "header": "Paired Apps",
-    "body": "List of all the apps that have been paired with your KeepKey",
+    "header": "Current Pairings",
+    "body": "List of all the apps that are currently paired with your KeepKey",
     "noApps": "There are currently no paired apps",
     "cta": {
-      "unpair": "Unpair App"
+      "unpair": "Unpair App",
+      "launchDapp": "Launch Dapp"
+    },
+    "history": {
+      "header": "Pairing History",
+      "wc": "WalletConnect Apps",
+      "sdk": "KeepKey SDK Apps",
+      "body": "List of all the apps that have been paired with KeepKey desktop",
+      "noApps": "There have been no previously paired apps",
+      "notPairedWith": "No apps have been previously paired with %{name}"
     }
   },
   "bridge": {

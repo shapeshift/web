@@ -92,6 +92,14 @@ export class CIndexController extends Controller {
                         serviceKey
                     })
 
+                    db.insert({
+                        type: 'pairing',
+                        addedOn: Date.now(),
+                        serviceName: body.serviceName,
+                        serviceImageUrl: body.serviceImageUrl,
+                        pairingType: 'sdk'
+                    })
+
                     db.find({ type: 'service' }, (err, docs) => {
                         if (windows.mainWindow) windows.mainWindow.webContents.send('@bridge/paired-apps', docs)
                     })

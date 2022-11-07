@@ -48,7 +48,6 @@ export const earnLpOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
   rewardAddress: '',
   tvl: '',
-  assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
   // This goes away at the very least

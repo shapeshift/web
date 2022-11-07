@@ -48,8 +48,10 @@ export const AllEarnOpportunities = () => {
     () =>
       foxFarmingOpportunitiesAggregated.map(opportunity => ({
         ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
-        chainId: fromAssetId(foxEthLpAssetId).chainId,
         ...opportunity,
+        chainId: fromAssetId(foxEthLpAssetId).chainId,
+        cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+        isLoaded: true,
       })),
     [foxFarmingOpportunitiesAggregated],
   )
@@ -103,6 +105,7 @@ export const AllEarnOpportunities = () => {
       cryptoAmount: aggregatedLpAssetBalance,
       // TODO: this all goes away anyway
       fiatAmount: '42',
+      isLoaded: true,
     }),
     [
       aggregatedLpAssetBalance,

@@ -57,6 +57,8 @@ export function useEarnBalances(): UseEarnBalancesReturn {
         ...STAKING_EARN_OPPORTUNITIES[foxEthLpAssetId],
         chainId: fromAssetId(foxEthLpAssetId).chainId,
         ...opportunity,
+        cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+        isLoaded: true,
       })),
     [foxFarmingOpportunitiesAggregated],
   )
@@ -102,6 +104,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     () => ({
       ...baseLpEarnOpportunity,
       ...opportunityData,
+      isLoaded: true,
       // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(foxEthLpAssetId).chainId,
       underlyingFoxAmount,

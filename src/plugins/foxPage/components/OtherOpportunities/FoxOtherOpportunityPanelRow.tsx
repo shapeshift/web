@@ -50,7 +50,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     }
 
     if (defiOpportunity) {
-      const { provider, chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
+      const { chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
       const { assetReference } = fromAssetId(assetId)
       history.push({
         pathname: location.pathname,

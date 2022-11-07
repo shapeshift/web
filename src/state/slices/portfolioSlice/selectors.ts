@@ -35,10 +35,8 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
-  selectAccountIdParamFromFilterOptional,
   selectAccountNumberParamFromFilter,
   selectAssetIdParamFromFilter,
-  selectAssetIdParamFromFilterOptional,
   selectChainIdParamFromFilter,
   selectValidatorAddressParamFromFilter,
 } from 'state/selectors'
@@ -356,7 +354,7 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
   selectAssetIdParamFromFilter,
-  selectAccountIdParamFromFilterOptional,
+  selectAccountIdParamFromFilter,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
     if (assetId && !accountId) return portfolioAssetFiatBalances?.[assetId] ?? '0'
     if (assetId && accountId) return portfolioAccountFiatbalances?.[accountId]?.[assetId] ?? '0'
@@ -388,7 +386,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilterOptional,
+  selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
@@ -431,7 +429,7 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
 // Always returns an array, either of one or many - needs to be unwrapped
 export const selectStakingDataByFilter = createCachedSelector(
   selectPortfolioAccounts,
-  selectAccountIdParamFromFilterOptional,
+  selectAccountIdParamFromFilter,
   selectPortfolioAccountIdsByAssetId,
   (portfolioAccounts, maybeAccountId, accountIds): (StakingDataByValidatorId | null)[] => {
     return (maybeAccountId ? [maybeAccountId] : accountIds).map(
@@ -510,7 +508,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
 export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilterOptional,
+  selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) return accountBalances?.[accountId]?.[assetId]
@@ -664,8 +662,8 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
 export const selectPortfolioStakingCryptoHumanBalanceByFilter = createCachedSelector(
   selectAssets,
   selectPortfolioStakingCryptoBalances,
-  selectAssetIdParamFromFilterOptional,
-  selectAccountIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
   (assets, stakingBalances, assetIdFilter, accountIdFilter): string => {
     return Object.entries(stakingBalances)
       .filter(([accountId]) => (accountIdFilter ? accountId === accountIdFilter : true))
@@ -772,15 +770,15 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
 
 export const selectFiatBalanceIncludingStakingByFilter = createCachedSelector(
   selectPortfolioAccountsFiatBalancesIncludingStaking,
-  selectAssetIdParamFromFilterOptional,
-  selectAccountIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSelector(
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
-  selectAssetIdParamFromFilterOptional,
-  selectAccountIdParamFromFilterOptional,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
@@ -1069,7 +1067,7 @@ export const selectTotalBondingsBalanceByAssetId = createSelector(
 // We need to explicitly deep output compare, since ([SHAPESHIFT_VALIDATOR_ADDRESS] === [SHAPESHIFT_VALIDATOR_ADDRESS]) === false
 export const selectValidatorIdsByFilter = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
-  selectAccountIdParamFromFilterOptional,
+  selectAccountIdParamFromFilter,
   (portfolioAccounts, accountId): PubKey[] => {
     if (!accountId)
       return uniq(

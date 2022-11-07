@@ -7,39 +7,38 @@ import type { ReduxState } from './reducer'
 import type { LpId, StakingId, UserStakingId } from './slices/opportunitiesSlice/types'
 import type { PubKey } from './slices/validatorDataSlice/validatorDataSlice'
 
-// List of all the params filter consumed with selectParamFromFilterOptional
-type OptionalParamFilter = {
-  accountAddress?: string
-  contractAddress?: string
-  assetId?: AssetId
-  accountId?: AccountId
-  validatorAddress?: PubKey
-  accountNumber?: number
-  chainId?: ChainId
-  userStakingId?: UserStakingId
-  stakingId?: StakingId
-  lpId?: LpId
-}
+/**
+ * List of all the params filter consumed with selectParamFromFilter
+ * note - this **must** stay as Partial, it's the selectors consumers responsibility to check
+ * for existence of these. it's neither ergonomic nor feasible for the view layer consumers
+ * to guard, or even necessarily have, the required params before calling selectors.
+ * wen conditional hooks?
+ */
+type ParamFilter = Partial<{
+  accountAddress: string
+  contractAddress: string
+  assetId: AssetId
+  accountId: AccountId
+  validatorAddress: PubKey
+  accountNumber: number
+  chainId: ChainId
+  userStakingId: UserStakingId
+  stakingId: StakingId
+  lpId: LpId
+}>
 
-type OptionalParamFilterKey = keyof OptionalParamFilter
+type OptionalParamFilterKey = keyof ParamFilter
 
-export const selectParamFromFilterOptional = <T extends OptionalParamFilterKey>(param: T) =>
+export const selectParamFromFilter = <T extends OptionalParamFilterKey>(param: T) =>
   createCachedSelector(
-    (
-      _state: ReduxState,
-      filter: Pick<OptionalParamFilter, T>,
-    ): OptionalParamFilter[T] | undefined => {
+    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | undefined => {
       const result = filter?.[param]
+      // TODO(0xdef1cafe): remove
       if (!result) console.warn(`no result for param ${param}`)
       return result
     },
     param => param,
-  )(
-    (_state: ReduxState, filter: Pick<OptionalParamFilter, T>) =>
-      `${param}-${filter?.[param]}` ?? param,
-  )
-
-export const selectParamFromFilter = selectParamFromFilterOptional
+  )((_state: ReduxState, filter: Pick<ParamFilter, T>) => `${param}-${filter?.[param]}` ?? param)
 
 export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
@@ -50,8 +49,3 @@ export const selectValidatorAddressParamFromFilter = selectParamFromFilter('vali
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
-
-export const selectAccountAddressParamFromFilterOptional =
-  selectParamFromFilterOptional('accountAddress')
-export const selectAccountIdParamFromFilterOptional = selectParamFromFilterOptional('accountId')
-export const selectAssetIdParamFromFilterOptional = selectParamFromFilterOptional('assetId')

@@ -17,7 +17,6 @@ import { Link, useHistory } from 'react-router-dom'
 import KeepKeyIconBlack from 'assets/kk-icon-black.png'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -34,8 +33,6 @@ export const Header = () => {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
-
-  const isWalletConnectToDappsAvailable = useFeatureFlag('WalletConnectToDapps')
 
   /**
    * FOR DEVELOPERS:
@@ -126,11 +123,9 @@ export const Header = () => {
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
-              {isWalletConnectToDappsAvailable && (
-                <Box display={{ base: 'none', md: 'block' }}>
-                  <WalletConnectToDappsHeaderButton />
-                </Box>
-              )}
+              <Box display={{ base: 'none', md: 'block' }}>
+                <WalletConnectToDappsHeaderButton />
+              </Box>
               <ChainMenu display={{ base: 'none', md: 'block' }} />
             </Flex>
           </HStack>

@@ -1,11 +1,6 @@
-import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@keepkey/caip'
-import type {
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData,
-} from '@keepkey/types'
+import type { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@keepkey/types'
+import { createSelector } from '@reduxjs/toolkit'
 import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'

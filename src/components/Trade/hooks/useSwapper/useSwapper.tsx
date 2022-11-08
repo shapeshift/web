@@ -3,7 +3,6 @@ import type { Asset } from '@keepkey/asset-service'
 import type { ChainId } from '@keepkey/caip'
 import { CHAIN_NAMESPACE, ethAssetId, fromAssetId } from '@keepkey/caip'
 import type { ChainAdapter, EvmChainId, UtxoBaseAdapter } from '@keepkey/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   Swapper,
   Trade,
@@ -15,6 +14,7 @@ import type {
 import { SwapError, SwapErrorTypes, SwapperManager } from '@keepkey/swapper'
 import type { BIP44Params, UtxoAccountType } from '@keepkey/types'
 import { KnownChainIds } from '@keepkey/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -298,7 +298,11 @@ export const useSwapper = () => {
 
     const trade: Trade<KnownChainIds> = await (async () => {
       const { chainNamespace } = fromAssetId(sellAsset.assetId)
-      if (isSupportedSwappingChain(sellAsset.chainId) && sellAccountMetadata && sellAccountMetadata.accountType) {
+      if (
+        isSupportedSwappingChain(sellAsset.chainId) &&
+        sellAccountMetadata &&
+        sellAccountMetadata.accountType
+      ) {
         return swapper.buildTrade({
           chainId: sellAsset.chainId,
           sellAmountCryptoPrecision: amount,
@@ -494,7 +498,9 @@ export const useSwapper = () => {
           await setFormFees({ trade: tradeQuote, sellAsset, tradeFeeSource: swapper.name })
 
           const minSellAmount = toBaseUnit(tradeQuote.minimum, tradeQuote.sellAsset.precision)
-          const isBelowMinSellAmount = bnOrZero(tradeQuote.sellAmountCryptoPrecision).lt(minSellAmount)
+          const isBelowMinSellAmount = bnOrZero(tradeQuote.sellAmountCryptoPrecision).lt(
+            minSellAmount,
+          )
 
           if (isBelowMinSellAmount) {
             setValue('quoteError', SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL)

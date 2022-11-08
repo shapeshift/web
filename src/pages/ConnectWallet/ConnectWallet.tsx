@@ -34,9 +34,9 @@ export const ConnectWallet = () => {
     )
     const path = match
       ? generatePath('/accounts/:accountId/:assetId', {
-        accountId: match?.params?.accountId ?? '',
-        assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
-      })
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
       : query?.returnUrl
     hasWallet && history.push(path ?? '/dapps')
   }, [history, hasWallet, query, state, dispatch])

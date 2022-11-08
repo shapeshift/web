@@ -84,16 +84,16 @@ export const WalletViewsSwitch = () => {
     () =>
       type
         ? SUPPORTED_WALLETS[type].routes.map(route => {
-          const Component = route.component
-          return !Component ? null : (
-            <Route
-              exact
-              key={'route'}
-              path={route.path}
-              render={routeProps => <Component {...routeProps} />}
-            />
-          )
-        })
+            const Component = route.component
+            return !Component ? null : (
+              <Route
+                exact
+                key={'route'}
+                path={route.path}
+                render={routeProps => <Component {...routeProps} />}
+              />
+            )
+          })
         : [],
     [type],
   )

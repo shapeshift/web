@@ -1,5 +1,3 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@keepkey/caip'
 import type {
   FiatMarketDataArgs,
@@ -13,6 +11,8 @@ import {
 } from '@keepkey/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@keepkey/types'
 import { HistoryTimeframe } from '@keepkey/types'
+import { createSlice } from '@reduxjs/toolkit'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'

@@ -29,7 +29,7 @@ export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
       setNeedsReset(false)
       close()
     }
-  }, [close, closing, isConnected, isOpen, isUpdatingKeepkey])
+  }, [close, closing, isConnected, isOpen, isUpdatingKeepkey, setNeedsReset])
 
   return (
     <Modal

@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { toAssetId } from '@keepkey/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@keepkey/investor-idle'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'

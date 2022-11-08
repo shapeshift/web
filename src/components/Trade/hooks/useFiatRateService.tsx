@@ -1,5 +1,5 @@
-import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@keepkey/caip'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import type { TS } from 'components/Trade/types'

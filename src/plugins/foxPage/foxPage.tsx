@@ -108,12 +108,12 @@ export const FoxPage = () => {
   )
 
   const fiatBalances = useMemo(
-    () => [fiatBalanceFox, fiatBalanceFoxy],
+    () => [fiatBalanceFox ?? '0', fiatBalanceFoxy ?? '0'],
     [fiatBalanceFox, fiatBalanceFoxy],
   )
 
   const cryptoHumanBalances = useMemo(
-    () => [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
+    () => [cryptoHumanBalanceFox ?? '0', cryptoHumanBalanceFoxy ?? '0'],
     [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
   )
 
@@ -198,8 +198,8 @@ export const FoxPage = () => {
                   key={asset.assetId}
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
-                  cryptoAmount={cryptoHumanBalances[index] ?? '0'}
-                  fiatAmount={fiatBalances[index] ?? '0'}
+                  cryptoAmount={cryptoHumanBalances[index]}
+                  fiatAmount={fiatBalances[index]}
                   onClick={() => handleTabClick(asset.assetId)}
                 />
               ))}
@@ -220,8 +220,8 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={selectedAsset.symbol}
                           assetIcon={selectedAsset.icon}
-                          cryptoAmount={cryptoHumanBalances[selectedAssetIndex] ?? '0'}
-                          fiatAmount={fiatBalances[selectedAssetIndex] ?? '0'}
+                          cryptoAmount={cryptoHumanBalances[selectedAssetIndex]}
+                          fiatAmount={fiatBalances[selectedAssetIndex]}
                         />
                       )}
                     </MenuButton>
@@ -232,8 +232,8 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
-                          cryptoAmount={cryptoHumanBalances[index] ?? '0'}
-                          fiatAmount={fiatBalances[index] ?? '0'}
+                          cryptoAmount={cryptoHumanBalances[index]}
+                          fiatAmount={fiatBalances[index]}
                           as={Box}
                         />
                       </MenuItem>
@@ -258,7 +258,7 @@ export const FoxPage = () => {
                   apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
                   isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
-                  balance={cryptoHumanBalances[selectedAssetIndex] ?? '0'}
+                  balance={cryptoHumanBalances[selectedAssetIndex]}
                   onClick={handleOpportunityClick}
                 />
 

@@ -173,12 +173,16 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  aggregatedUserStakingOpportunities =>
+  selectMarketData,
+  (aggregatedUserStakingOpportunities, marketData) =>
     aggregatedUserStakingOpportunities.map(opportunity => ({
       ...opportunity,
       ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
       chainId: fromAssetId(opportunity.underlyingAssetId).chainId,
       cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+      fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
+        .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
+        .toString(),
       provider: DefiProvider.FoxFarming,
       isLoaded: true,
     })),

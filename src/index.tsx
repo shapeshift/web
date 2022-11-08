@@ -1,3 +1,4 @@
+import './wdyr'
 import 'lib/polyfills'
 
 import { App } from 'App'

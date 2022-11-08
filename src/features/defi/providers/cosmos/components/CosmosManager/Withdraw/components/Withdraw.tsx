@@ -180,7 +180,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -188,7 +188,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

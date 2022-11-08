@@ -135,7 +135,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!wallet || yearnLoading || idleLoading) return
+    if (!wallet || yearnLoading || idleLoading || !idleInvestor) return
     ;(async () => {
       setLoading(true)
       try {

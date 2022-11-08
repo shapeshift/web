@@ -17,7 +17,6 @@ const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 export const useKeepKeyEventHandler = (
   state: InitialState,
   dispatch: Dispatch<ActionTypes>,
-  loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
   setNeedsReset: (reset: boolean) => void,
 ) => {
@@ -54,7 +53,6 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              setNeedsReset(false)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
@@ -77,7 +75,6 @@ export const useKeepKeyEventHandler = (
             awaitingDeviceInteraction: false,
             lastDeviceInteractionStatus: 'success',
           })
-          loadWallet()
           break
         case MessageType.BUTTONREQUEST:
           setDeviceState({ awaitingDeviceInteraction: true })
@@ -283,7 +280,6 @@ export const useKeepKeyEventHandler = (
   }, [
     dispatch,
     keyring,
-    loadWallet,
     isUpdatingPin,
     modal,
     state.walletInfo,

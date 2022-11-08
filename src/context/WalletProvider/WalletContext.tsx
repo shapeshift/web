@@ -10,7 +10,6 @@ export interface IWalletContext {
   dispatch: React.Dispatch<ActionTypes>
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
-  load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void
   needsReset: boolean
   setNeedsReset: any

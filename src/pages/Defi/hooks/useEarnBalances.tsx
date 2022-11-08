@@ -39,17 +39,14 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
+  const visibleFoxFarmingOpportunities = useAppSelector(s =>
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(s, null),
   )
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
+  const foxEthLpOpportunity = useAppSelector(s =>
+    selectFoxEthLpAccountsOpportunitiesAggregated(s, null),
   )
-  const farmContractsFiatBalance = useAppSelector(state =>
-    selectFarmContractsFiatBalance(state, emptyFilter),
-  )
+  const farmContractsFiatBalance = useAppSelector(s => selectFarmContractsFiatBalance(s, null))
   const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
 
   const opportunities = useNormalizeOpportunities({

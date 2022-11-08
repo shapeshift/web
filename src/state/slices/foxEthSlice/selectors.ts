@@ -8,10 +8,7 @@ import { toBaseUnit } from 'lib/math'
 import { isDefined } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountAddressParamFromFilter,
-  selectAccountAddressParamFromFilterOptional,
-} from 'state/selectors'
+import { selectAccountAddressParamFromFilter } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
@@ -64,7 +61,7 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
 export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCachedSelector(
   // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
+  selectAccountAddressParamFromFilter,
   selectEthAccountIdsByAssetId,
   (foxEthState, accountAddress, ethAccountIds): FoxEthLpEarnOpportunityType[] => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
@@ -121,7 +118,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
   // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
+  selectAccountAddressParamFromFilter,
   selectEthAccountIdsByAssetId,
   (foxEthState, accountAddress, ethAccountIds) => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)

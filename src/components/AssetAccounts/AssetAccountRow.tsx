@@ -58,9 +58,10 @@ export const AssetAccountRow = ({
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
-  const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
-  )
+  const allocation =
+    useAppSelector(state =>
+      selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
+    ) ?? 0
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
     filter,

@@ -10,6 +10,7 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -59,7 +60,10 @@ export const AllEarnOpportunities = () => {
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities,
+    foxFarmingOpportunities: foxFarmingOpportunities.filter(
+      opportunity =>
+        !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+    ),
   })
 
   const handleClick = useCallback(

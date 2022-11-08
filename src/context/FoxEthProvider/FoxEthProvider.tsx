@@ -39,8 +39,6 @@ export type UserEarnOpportunityType = OpportunityMetadata & {
   underlyingToken0Amount?: string
   underlyingToken1Amount?: string
   isVisible?: boolean
-  // TODO: AccountId
-  accountAddress?: string
 } & EarnOpportunityType
 type FoxEthProviderProps = {
   children: React.ReactNode

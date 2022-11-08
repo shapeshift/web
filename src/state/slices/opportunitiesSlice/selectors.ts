@@ -278,7 +278,9 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectAssets,
-  (lpOpportunitiesById, lpId, aggregatedLpAssetBalance, assets) => {
+  selectMarketData,
+  (lpOpportunitiesById, lpId, aggregatedLpAssetBalance, assets, marketData) => {
+    const marketDataPrice = marketData[lpId as AssetId]?.price
     const opportunityMetadata = lpOpportunitiesById[lpId]
     const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
 
@@ -305,7 +307,9 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       underlyingEthAmount,
       cryptoAmount: aggregatedLpAssetBalance,
       // TODO: this all goes away anyway
-      fiatAmount: '42',
+      fiatAmount: bnOrZero(aggregatedLpAssetBalance)
+        .times(marketDataPrice ?? '0')
+        .toString(),
     }
 
     return opportunity

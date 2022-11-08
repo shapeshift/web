@@ -9,7 +9,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -35,7 +35,7 @@ export const AssetRow: React.FC<ListChildComponentProps<FiatRampRow>> = ({
   const asset = useMemo(() => assets[assetId], [assets, assetId])
   const filter = useMemo(() => ({ assetId }), [assetId])
   const cryptoHumanBalance =
-    useAppSelector(s => selectPortfolioCryptoHumanBalanceByAssetId(s, filter)) ?? '0'
+    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, filter)) ?? '0'
   const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
   const disabled = useMemo(
     () => !Boolean(wallet && isAssetSupportedByWallet(assetId, wallet)),

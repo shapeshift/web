@@ -516,14 +516,6 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-export const selectPortfolioCryptoHumanBalanceByAssetId = createCachedSelector(
-  selectAssets,
-  selectPortfolioAssetBalances,
-  selectAssetIdParamFromFilter,
-  (assets, balances, assetId): string | undefined =>
-    assetId && fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0),
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
-
 export const selectPortfolioMixedHumanBalancesBySymbol = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketData,

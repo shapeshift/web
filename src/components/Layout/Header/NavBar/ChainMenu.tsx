@@ -50,7 +50,7 @@ const ChainMenuItem: React.FC<{
 type ChainMenuProps = BoxProps
 
 export const ChainMenu = (props: ChainMenuProps) => {
-  const { state, load } = useWallet()
+  const { state } = useWallet()
   const { isLoading, supportedEvmChainIds, connectedEvmChainId, setEthNetwork } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
@@ -59,7 +59,6 @@ export const ChainMenu = (props: ChainMenuProps) => {
     try {
       await (state.wallet as ETHWallet).ethSwitchChain?.(Number(chainId))
       setEthNetwork(chainId)
-      load()
     } catch (e) {
       // TODO: Handle me after https://github.com/shapeshift/hdwallet/pull/551 is published
     }

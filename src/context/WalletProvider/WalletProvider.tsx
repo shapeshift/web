@@ -28,6 +28,8 @@ import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
 import {
   clearLocalWallet,
+  getLocalWalletDeviceId,
+  getLocalWalletType,
   setLocalWalletTypeAndDeviceId,
 } from './local-wallet'
 import type { IWalletContext } from './WalletContext'
@@ -524,7 +526,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, setDeviceState, setNeedsReset)
+  useKeepKeyEventHandler(state, dispatch, disconnect, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({

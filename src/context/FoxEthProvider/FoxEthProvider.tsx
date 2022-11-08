@@ -20,7 +20,7 @@ import {
   fetchAllStakingOpportunitiesMetadata,
   fetchAllStakingOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import type { LpId, OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -33,9 +33,11 @@ import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
-export type UserEarnOpportunityType = {
+export type UserEarnOpportunityType = OpportunityMetadata & {
   stakedAmountCryptoPrecision?: string
   rewardsAmountCryptoPrecision?: string
+  underlyingToken0Amount?: string
+  underlyingToken1Amount?: string
   isVisible?: boolean
   // TODO: AccountId
   accountAddress?: string

@@ -3,7 +3,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import type { UserEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 
 // LP contracts
 export const foxEthPair = [ethAssetId, foxAssetId] as const
@@ -67,28 +66,28 @@ export const baseFarmingOpportunity = {
   type: DefiType.Farming,
 }
 
-export const v4FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
+export const v4FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
   opportunityName: 'Fox Farming V4',
 }
 
-export const v3FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
+export const v3FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
   opportunityName: 'Fox Farming V3',
 }
 
-export const v2FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
+export const v2FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
   opportunityName: 'Fox Farming V2',
 }
 
-export const v1FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {
+export const v1FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,

@@ -67,7 +67,7 @@ export const PortfolioBreakdown = () => {
   )
 
   // TODO: This seems wrong?
-  const lpBalance = foxEthLpOpportunity?.underlyingFoxAmount ?? 0
+  const lpBalance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state))
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)

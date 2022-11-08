@@ -382,7 +382,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         if (state.adapters?.has(localWalletType)) {
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
-
           switch (localWalletType) {
             case KeyManager.KeepKey:
               try {

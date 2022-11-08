@@ -13,7 +13,7 @@ import { KeepKeyFactoryState } from './FactoryState'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const UpdateKeepKey = (params: any) => {
-    const { updateKeepKey, hardwareError } = useModal()
+    const { updateKeepKey } = useModal()
     const { close, isOpen } = updateKeepKey
     const { setStep, activeStep } = useSteps({
         initialStep: 0,

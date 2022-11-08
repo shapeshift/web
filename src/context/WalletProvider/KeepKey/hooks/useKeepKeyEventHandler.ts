@@ -61,11 +61,8 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal)
-                dispatch({
-                  type: WalletActions.SET_WALLET_MODAL,
-                  payload: false,
-                })
+              setNeedsReset(false)
+              handleDisconnect(deviceId)
               toast({
                 title: translate('common.success'),
                 description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),

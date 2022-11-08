@@ -1,9 +1,9 @@
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
-import { usb } from 'usb'
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
+import { usb } from 'usb';
 
 // possible states
 export const REQUEST_BOOTLOADER_MODE = 'requestBootloaderMode'
@@ -29,16 +29,18 @@ export class KKStateController {
     public lastData?: any
 
     public onStateChange: any
+
     constructor(onStateChange: any) {
         this.keyring = new Keyring()
         this.onStateChange = onStateChange
-        usb.on('attach', async () => {
+
+        usb.on('attach', async (e) => {
+            if(e.deviceDescriptor.idVendor !== 11044) return
             this.updateState(PLUGIN, {})
             await this.syncState()
         })
-        usb.on('detach', async () => {
-            this.transport = undefined
-            this.keyring = new Keyring()
+        usb.on('detach', async (e) => {
+            if(e.deviceDescriptor.idVendor !== 11044) return
             this.updateState(DISCONNECTED, {})
         })
     }

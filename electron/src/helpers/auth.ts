@@ -1,5 +1,5 @@
 import * as express from "express";
-import { db } from "../db";
+import { db } from "./globalState";
 
 export function expressAuthentication(
     request: express.Request,
@@ -11,22 +11,18 @@ export function expressAuthentication(
         if (request.headers && request.headers.authorization) {
             serviceKey = request.headers.authorization;
         }
-
         if (!serviceKey) {
-            return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
+            return Promise.reject({ success: false, reason: 'Please provide a valid serviceKey' })
         }
-
         return Promise.resolve(new Promise<any>((resolve, reject) => {
-            
             db.findOne({ type: 'service', serviceKey }, (err, doc) => {
                 if (!doc) {
-                    return reject({ success: false, reason: 'Please provice a valid serviceKey' })
+                    return reject({ success: false, reason: 'Please provide a valid serviceKey' })
                 } else {
                     return resolve({})
                 }
             })
         }))
-
     }
-    return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
+    return Promise.reject({ success: false, reason: 'Please provide a valid serviceKey' })
 }

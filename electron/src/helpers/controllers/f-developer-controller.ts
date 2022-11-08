@@ -1,168 +1,151 @@
-import { Controller, Get, Security, Route, Tags, Response } from 'tsoa';
+import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
 import wait from 'wait-promise'
-import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
-import { checkKeepKeyUnlocked } from '../../utils'
-import { kkStateController } from '../../main'
+import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
+import { checkKeepKeyUnlocked } from '../utils';
+import { kkStateController } from '../globalState';
 
-@Tags('Device Info Endpoints')
+export type policy = {
+    policyName?: string,
+    enabled?: boolean,
+}
+
+@Tags('Developer Endpoints')
 @Route('')
-export class HDeviceInfoController extends Controller {
+export class FDeveloperController extends Controller {
 
     private sleep = wait.sleep;
 
-    @Get('/getNumCoins')
+    @Post('/loadDevice')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getNumCoins(): Promise<ETHSignedTx> {
+    public async loadDevice(@Body() body: LoadDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getDeviceID().then(resolve)
+            kkStateController.wallet.loadDevice(body).then(resolve)
         })
     }
 
-    @Get('/getCoinTable')
+    @Post('/removePin')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getCoinTable(): Promise<ETHSignedTx> {
+    public async removePin(): Promise<ETHSignedTx> {
+        return new Promise<any>(async (resolve, reject) => {
+            await checkKeepKeyUnlocked()
+            if (!kkStateController.wallet) return reject()
+            kkStateController.wallet.removePin().then(resolve)
+        })
+    }
+
+    @Post('/softReset')
+    @Security("api_key")
+    @Response(500, "Internal server error")
+    public async softReset(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getCoinTable().then(resolve)
+            kkStateController.wallet.softReset().then(resolve)
         })
     }
 
-    @Get('/getDeviceID')
+    @Post('/clearSession')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getDeviceID(): Promise<ETHSignedTx> {
+    public async clearSession(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getDeviceID().then(resolve)
+            kkStateController.wallet.clearSession().then(resolve)
         })
     }
 
-    @Get('/getVendor')
+    @Post('/reset')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getVendor(): Promise<ETHSignedTx> {
+    public async reset(@Body() body: ResetDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            resolve(kkStateController.wallet.getVendor())
+            kkStateController.wallet.softReset().then(resolve)
         })
     }
 
-
-    @Get('/getModel')
+    @Post('/wipe')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getModel(): Promise<ETHSignedTx> {
+    public async wipe(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getModel().then(resolve)
+            kkStateController.wallet.wipe().then(resolve)
         })
     }
 
-    @Get('/getFirmwareVersion')
+    @Post('/disconnect')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getFirmwareVersion(): Promise<ETHSignedTx> {
+    public async disconnect(@Body() body: void): Promise<ETHSignedTx> {
+        return new Promise<any>(async (resolve, reject) => {
+            await checkKeepKeyUnlocked()
+            if (!kkStateController.wallet) return reject()
+            kkStateController.wallet.disconnect().then(resolve)
+        })
+    }
+
+    @Post('/applyPolicy')
+    @Security("api_key")
+    @Response(500, "Internal server error")
+    //TODO get policy type
+    public async applyPolicy(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getFirmwareVersion().then(resolve)
+            kkStateController.wallet.applyPolicy(body).then(resolve)
         })
     }
 
-    @Get('/getLabel')
+    @Post('/applySettings')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getLabel(): Promise<ETHSignedTx> {
+    //TODO get settings type
+    public async applySettings(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.getLabel().then(resolve)
+            kkStateController.wallet.applySettings(body).then(resolve)
         })
     }
 
-    @Get('/isInitialized')
+    @Post('/firmwareErase')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async isInitialized(): Promise<ETHSignedTx> {
+    public async firmwareErase(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            kkStateController.wallet.isInitialized().then(resolve)
+            kkStateController.wallet.firmwareErase().then(resolve)
         })
     }
 
-    @Get('/isLocked')
+    @Post('/firmwareUpload')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async isLocked(): Promise<ETHSignedTx> {
-        return new Promise<any>((resolve, reject) => {
-            if (!kkStateController.wallet) return reject()
-
-            kkStateController.wallet.isLocked().then(resolve)
-        })
-    }
-
-    @Get('/hasOnDevicePinEntry')
-    @Security("api_key")
-    @Response(500, "Internal server error")
-    public async hasOnDevicePinEntry(): Promise<ETHSignedTx> {
+    //TODO Firmware sent as buffer, express in types
+    public async firmwareUpload(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
             await checkKeepKeyUnlocked()
             if (!kkStateController.wallet) return reject()
 
-            resolve(kkStateController.wallet.hasOnDevicePinEntry())
+            kkStateController.wallet.firmwareUpload(body).then(resolve)
         })
     }
 
-    @Get('/hasOnDevicePassphrase')
-    @Security("api_key")
-    @Response(500, "Internal server error")
-    public async hasOnDevicePassphrase(): Promise<ETHSignedTx> {
-        return new Promise<any>(async (resolve, reject) => {
-            await checkKeepKeyUnlocked()
-            if (!kkStateController.wallet) return reject()
-
-            resolve(kkStateController.wallet.hasOnDevicePassphrase())
-        })
-    }
-
-    @Get('/hasOnDeviceDisplay')
-    @Security("api_key")
-    @Response(500, "Internal server error")
-    public async hasOnDeviceDisplay(): Promise<ETHSignedTx> {
-        return new Promise<any>(async (resolve, reject) => {
-            await checkKeepKeyUnlocked()
-            if (!kkStateController.wallet) return reject()
-
-            resolve(kkStateController.wallet.hasOnDeviceDisplay())
-        })
-    }
-
-    @Get('/hasOnDeviceRecovery')
-    @Security("api_key")
-    @Response(500, "Internal server error")
-    public async hasOnDeviceRecovery(): Promise<ETHSignedTx> {
-        return new Promise<any>(async (resolve, reject) => {
-            await checkKeepKeyUnlocked()
-            if (!kkStateController.wallet) return reject()
-
-            resolve(kkStateController.wallet.hasOnDeviceRecovery())
-        })
-    }
 }

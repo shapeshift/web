@@ -19,7 +19,7 @@ export const startWindowListeners = () => {
         if(!deviceBusyRead && !deviceBusyWrite) return
 
         setInterval( async () => {
-            if(!deviceBusyRead && !deviceBusyWrite) { 
+            if(!deviceBusyRead && !deviceBusyWrite) {
                 await stopTcpBridge()
                 app.quit()
             }

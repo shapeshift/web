@@ -19,7 +19,7 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
   )
 
   const userAddress = useMemo(() => {
-    if (!accountNumber) return null
+    if (accountNumber === undefined) return null
     const accountId = accountsByNumber[accountNumber]?.[0] // Only one address per account for EVM chains i.e no multiple accountTypes
     return accountId ? fromAccountId(accountId).account : null
   }, [accountNumber, accountsByNumber])
@@ -41,9 +41,7 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
   )
 
   const portfolioAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, {
-      assetId: foxAssetId ?? '',
-    }),
+    selectPortfolioAccountIdsByAssetId(state, { assetId: foxAssetId }),
   )
 
   const accountIds = maybeAccountIdFilter ? [maybeAccountIdFilter] : portfolioAccountIds
@@ -57,8 +55,8 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
       skip:
         !foxyAprData ||
         !supportsEthereumChain ||
-        !!(!maybeAccountIdFilter && accountNumber) ||
-        !!(!userAddress?.length && accountNumber),
+        !!(!maybeAccountIdFilter && accountNumber !== undefined) ||
+        !!(!userAddress?.length && accountNumber !== undefined),
     },
   )
 

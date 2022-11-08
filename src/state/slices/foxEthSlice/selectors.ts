@@ -65,7 +65,7 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCac
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds) => {
+  (foxEthState, accountAddress, ethAccountIds): (FoxEthLpEarnOpportunityType | undefined)[] => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
     return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
       accountAddress => foxEthState[accountAddress]?.lpOpportunity,

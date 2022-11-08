@@ -91,7 +91,7 @@ export const foxEth = createSlice({
         draftState[action.payload.accountAddress ?? ''] = {
           farmingOpportunities: [],
           lpOpportunity: undefined,
-        } as FoxEthOpportunities
+        }
       }
 
       // There's an entry for that accountAddress but no farmingOpportunities field - meaning we only have lpOpportunity so far

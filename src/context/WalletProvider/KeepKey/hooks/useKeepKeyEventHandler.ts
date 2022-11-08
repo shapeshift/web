@@ -20,7 +20,7 @@ export const useKeepKeyEventHandler = (
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
   disconnect: any,
-  setNeedsReset: any
+  setNeedsReset: any,
 ) => {
   const {
     keyring,
@@ -55,14 +55,7 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal)
-                dispatch({
-                  type: WalletActions.SET_WALLET_MODAL,
-                  payload: false,
-                })
               handleDisconnect(deviceId)
-              setNeedsReset(true)
-              console.log('d/c')
               break
             case 'Device recovered':
               setDeviceState({
@@ -270,20 +263,7 @@ export const useKeepKeyEventHandler = (
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
         if (modal) {
-          // Little trick to send the user back to the wallet select route
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          disconnect()
-          const id = keyring.getAlias(deviceId)
-          const wallet = keyring.get(id)
-          await wallet?.cancel().catch(e => {
-            moduleLogger.error(e)
-            toast({
-              title: translate('common.error'),
-              description: e?.message ?? translate('common.somethingWentWrong'),
-              status: 'error',
-              isClosable: true,
-            })
-          })
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

@@ -254,12 +254,10 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       ...baseLpEarnOpportunity,
       ...opportunityMetadata,
       isLoaded: true,
-      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(lpId as AssetId).chainId,
       underlyingFoxAmount,
       underlyingEthAmount,
       cryptoAmount: lpAssetBalance,
-      // TODO: this all goes away anyway
       fiatAmount: bnOrZero(lpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),
@@ -299,12 +297,10 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       ...baseLpEarnOpportunity,
       ...opportunityMetadata,
       isLoaded: true,
-      // TODO; All of these should be derived in one place, this is wrong, just an intermediary step to make tsc happy
       chainId: fromAssetId(lpId as AssetId).chainId,
       underlyingFoxAmount,
       underlyingEthAmount,
       cryptoAmount: aggregatedLpAssetBalance,
-      // TODO: this all goes away anyway
       fiatAmount: bnOrZero(aggregatedLpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),

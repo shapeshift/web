@@ -812,11 +812,10 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
   selectPortfolioAccountMetadata,
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,
-  (accountBalances, accountMetadata, accountNumberString, chainId): string => {
-    if (!accountNumberString) return '0'
-    const accountNumber = parseInt(accountNumberString.toString())
-    if (!Number.isInteger(accountNumber))
-      throw new Error(`failed to parse accountNumberString ${accountNumberString}`)
+  (accountBalances, accountMetadata, accountNumber, chainId): string => {
+    // 0 is a valid number and falsy
+    if (accountNumber === undefined) throw new Error('accountNumber must be a number')
+    if (accountNumber < 0) throw new Error('how did you manage this?')
     return Object.entries(accountBalances)
       .reduce((acc, [accountId, accountBalanceByAssetId]) => {
         if (fromAccountId(accountId).chainId !== chainId) return acc

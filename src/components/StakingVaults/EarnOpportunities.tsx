@@ -7,7 +7,7 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -16,11 +16,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
-import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
   selectAssetById,
-  selectLpOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,20 +46,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const foxEthLpOpportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId],
-    [lpOpportunitiesById],
-  )
-
-  const baseEarnOpportunity = LP_EARN_OPPORTUNITIES[foxEthLpOpportunityData?.underlyingAssetId]
-  const foxEthLpOpportunity = useMemo(
-    () => ({
-      ...baseEarnOpportunity,
-      ...foxEthLpOpportunityData,
-      chainId: fromAssetId(baseEarnOpportunity.assetId).chainId,
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
     }),
-    [baseEarnOpportunity, foxEthLpOpportunityData],
   )
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()

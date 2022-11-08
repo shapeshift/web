@@ -166,11 +166,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
   (stakingIds, state): (UserStakingOpportunity & OpportunityMetadata)[] =>
     stakingIds
       .map(stakingId => selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }))
-      .filter(
-        (
-          x: (UserStakingOpportunity & OpportunityMetadata) | null,
-        ): x is UserStakingOpportunity & OpportunityMetadata => Boolean(x),
-      ),
+      .filter(<T>(x: T | null): x is T => Boolean(x)),
 )
 
 // The same as the previous selector, but parsed as an EarnOpportunityType

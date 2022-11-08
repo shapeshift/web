@@ -31,6 +31,7 @@ import type { BridgeAsset } from 'components/Bridge/types'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isValidAccountNumber } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -805,9 +806,7 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,
   (accountBalances, accountMetadata, accountNumber, chainId): string => {
-    // 0 is a valid number and falsy
-    if (accountNumber === undefined) throw new Error('accountNumber must be a number')
-    if (accountNumber < 0) throw new Error('how did you manage this?')
+    if (!isValidAccountNumber(accountNumber)) throw new Error('invalid account number')
     return Object.entries(accountBalances)
       .reduce((acc, [accountId, accountBalanceByAssetId]) => {
         if (fromAccountId(accountId).chainId !== chainId) return acc

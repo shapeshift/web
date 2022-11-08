@@ -2,6 +2,7 @@ import { ethChainId, foxAssetId, fromAccountId, toAccountId } from '@shapeshifto
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isValidAccountNumber } from 'lib/utils'
 import { useGetFoxyAprQuery, useGetFoxyBalancesQuery } from 'state/apis/foxy/foxyApi'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -19,7 +20,7 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
   )
 
   const userAddress = useMemo(() => {
-    if (accountNumber === undefined) return null
+    if (!isValidAccountNumber(accountNumber)) return null
     const accountId = accountsByNumber[accountNumber]?.[0] // Only one address per account for EVM chains i.e no multiple accountTypes
     return accountId ? fromAccountId(accountId).account : null
   }, [accountNumber, accountsByNumber])
@@ -55,8 +56,8 @@ export function useFoxyBalances({ accountNumber }: { accountNumber?: number } = 
       skip:
         !foxyAprData ||
         !supportsEthereumChain ||
-        !!(!maybeAccountIdFilter && accountNumber !== undefined) ||
-        !!(!userAddress?.length && accountNumber !== undefined),
+        !!(!maybeAccountIdFilter && isValidAccountNumber(accountNumber)) ||
+        !!(!userAddress?.length && isValidAccountNumber(accountNumber)),
     },
   )
 

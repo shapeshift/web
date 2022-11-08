@@ -62,8 +62,5 @@ export const isValidAccountNumber = (
 ): accountNumber is number => {
   if (accountNumber === undefined) return false
   if (accountNumber === null) return false
-  if (Number.isNaN(accountNumber)) return false
-  if (!Number.isInteger(accountNumber)) return false
-  if (accountNumber >= 0) return true
-  return false
+  return Number.isInteger(accountNumber) && accountNumber >= 0
 }

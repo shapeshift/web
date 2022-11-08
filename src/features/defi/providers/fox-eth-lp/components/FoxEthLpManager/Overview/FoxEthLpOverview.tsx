@@ -52,6 +52,8 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [lpOpportunitiesById, opportunityId],
   )
 
+  console.log({ opportunityMetadata })
+
   const lpAsset = useMemo(
     () => assets[opportunityMetadata?.underlyingAssetId ?? ''],
     [assets, opportunityMetadata?.underlyingAssetId],

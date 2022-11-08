@@ -26,7 +26,12 @@ import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/p
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
-import { foxEthLpAssetId, foxEthPair, STAKING_ID_TO_NAME } from '../../constants'
+import {
+  foxEthLpAssetId,
+  foxEthPair,
+  LP_EARN_OPPORTUNITIES,
+  STAKING_ID_TO_NAME,
+} from '../../constants'
 import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -102,7 +107,6 @@ export const foxFarmingLpMetadataResolver = async ({
   const lpMarketData = {
     [foxEthLpAssetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
   }
-  debugger
   // hacks for adding lp price and price history
   dispatch(marketData.actions.setCryptoMarketData(lpMarketData))
   Object.values(HistoryTimeframe).forEach(timeframe => {
@@ -128,6 +132,7 @@ export const foxFarmingLpMetadataResolver = async ({
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
         ] as const,
+        name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

@@ -2,6 +2,7 @@ import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
+import isUndefined from 'lodash/isUndefined'
 
 // we don't want utils to mutate by default, so spreading here is ok
 export const upsertArray = <T extends unknown>(arr: T[], item: T): T[] =>
@@ -53,4 +54,4 @@ export const isToken = (assetReference: AssetReference | string) =>
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
 
-export const isDefined = <T>(optional: T | undefined): optional is T => Boolean(optional)
+export const isDefined = <T>(optional: T | undefined): optional is T => !isUndefined(optional)

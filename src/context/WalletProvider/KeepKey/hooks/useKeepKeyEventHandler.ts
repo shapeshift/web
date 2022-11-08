@@ -11,7 +11,6 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 
 import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
-import { useHistory } from 'react-router'
 
 const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 
@@ -21,7 +20,6 @@ export const useKeepKeyEventHandler = (
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
   setNeedsReset: (reset: boolean) => void,
-  disconnect: any
 ) => {
   const {
     keyring,
@@ -31,7 +29,6 @@ export const useKeepKeyEventHandler = (
 
   const toast = useToast()
   const translate = useTranslate()
-  const history = useHistory()
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
@@ -54,7 +51,6 @@ export const useKeepKeyEventHandler = (
           fnLogger.trace(message.message)
           switch (message.message) {
             case 'Device reset':
-              console.log("DEVICE RESET")
               setDeviceState({
                 disposition: 'initialized',
               })
@@ -269,9 +265,7 @@ export const useKeepKeyEventHandler = (
         }
         if (modal) {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          // disconnect()
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-          // history.push('/')
+          dispatch({ type: WalletActions.CLEAR_MODAL_CACHE, payload: { deviceId } })
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

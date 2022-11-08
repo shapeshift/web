@@ -10,6 +10,7 @@ export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
   SET_WALLET = 'SET_WALLET',
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
+  CLEAR_MODAL_CACHE = 'CLEAR_MODAL_CACHE',
   SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
   SET_PROVIDER = 'SET_PROVIDER',
@@ -87,6 +88,12 @@ export type ActionTypes =
     }
   | {
       type: WalletActions.OPEN_KEEPKEY_RECOVERY_SETTINGS
+      payload: {
+        deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.CLEAR_MODAL_CACHE
       payload: {
         deviceId: string
       }

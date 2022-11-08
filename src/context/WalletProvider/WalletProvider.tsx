@@ -140,7 +140,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      console.log("BUT SET_WALLET")
       return {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
@@ -290,6 +289,16 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.RecoverySentenceInvalid,
       }
+    case WalletActions.CLEAR_MODAL_CACHE:
+      return {
+        ...state,
+        modal: false,
+        initialRoute: '/',
+        isLoadingLocalWallet: false,
+        showBackButton: true,
+        keepKeyPinRequestType: null,
+        keyring: new Keyring()
+      }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
@@ -356,9 +365,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
-    console.log('main d/c')
     clearLocalWallet()
-    setNeedsReset(true)
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.RESET_STATE })
     setIsUpdatingKeepkey(false)
@@ -369,13 +376,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
-    console.log('localwalletType', localWalletType)
     fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ; (async () => {
-        console.log('ii', localWalletType)
         if (state.adapters?.has(localWalletType)) {
-          console.log('has')
           // Fixes issue with wallet `type` being null when the wallet is loaded from state
           dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
 
@@ -396,7 +400,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   const label = (await localKeepKeyWallet.getLabel()) || name
 
                   await localKeepKeyWallet.initialize()
-                  console.log('inside load', localKeepKeyWallet)
 
                   dispatch({
                     type: WalletActions.SET_WALLET,
@@ -454,7 +457,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           // Show the label from the wallet instead of a generic name
           const label = (await wallet.getLabel()) || name
           await wallet.initialize()
-          console.log('p and c')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name: label, icon, deviceId, meta: { label } },
@@ -593,14 +595,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
-  useEffect(() => {
-    const localWalletType = getLocalWalletType()
-    console.log('localwalletType in effect', localWalletType)
-    load()}
-    , [load, state.adapters, state.keyring])
+  useEffect(() => load(), [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset, disconnect)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({

@@ -1337,6 +1337,9 @@
         "allocation": "Allocation",
         "amount": "Amount",
         "value": "Value"
+      },
+      "nft": {
+        "nftAllocation": "NFT Collection"
       }
     },
     "assetCards": {

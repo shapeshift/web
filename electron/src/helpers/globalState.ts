@@ -4,7 +4,7 @@ import fs from 'fs'
 import { Server } from 'http'
 import { BrowserWindow, IpcMainEvent } from "electron";
 import { UserType } from "./types";
-import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController } from "./kk-state-controller";
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, NEEDS_INITIALIZE } from "./kk-state-controller";
 import { Settings } from "./settings";
 import AutoLaunch from "auto-launch";
 import { startTcpBridge, stopTcpBridge } from "../tcpBridge";
@@ -80,7 +80,7 @@ export const kkAutoLauncher = new AutoLaunch({
 })
 
 export const kkStateController = new KKStateController(async (eventName: string, args: any) => {
-    if (eventName === CONNECTED) await startTcpBridge()
+    if (eventName === CONNECTED || eventName === NEEDS_INITIALIZE) await startTcpBridge()
     else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopTcpBridge()
     createAndUpdateTray()
     return queueIpcEvent(eventName, args)

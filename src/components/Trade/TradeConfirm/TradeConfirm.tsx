@@ -12,6 +12,7 @@ import {
   StackDivider,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@keepkey/caip'
 import { type TradeTxs } from '@keepkey/swapper'
 import { TxStatus } from '@keepkey/unchained-client'
@@ -52,7 +53,6 @@ import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
-import { Button } from '@chakra-ui/react'
 
 type TradeConfirmParams = {
   fiatRate: string
@@ -303,15 +303,21 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <ReceiveSummary
                   symbol={trade.buyAsset.symbol ?? ''}
                   amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={executedTradeAmountConstants?.beforeFeesBuyAsset ??
+                  beforeFees={
+                    executedTradeAmountConstants?.beforeFeesBuyAsset ??
                     tradeAmountConstants?.beforeFeesBuyAsset ??
-                    ''}
-                  protocolFee={executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
+                    ''
+                  }
+                  protocolFee={
+                    executedTradeAmountConstants?.totalTradeFeeBuyAsset ??
                     tradeAmountConstants?.totalTradeFeeBuyAsset ??
-                    ''}
+                    ''
+                  }
                   shapeShiftFee='0'
                   slippage={slippage}
-                  swapperName={swapperName} colorScheme={undefined}                />
+                  swapperName={swapperName}
+                  colorScheme={undefined}
+                />
               </Stack>
               <Stack spacing={4}>
                 {sellTxid && (

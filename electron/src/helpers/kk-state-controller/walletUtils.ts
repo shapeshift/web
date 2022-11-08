@@ -1,4 +1,3 @@
-import { Keyring } from '@shapeshiftoss/hdwallet-core';
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { findByIds } from 'usb';
@@ -28,7 +27,7 @@ const bootloaderHashToVersion = {
     'e6685ab14844d0a381d658d77e13d6145fe7ae80469e5a5360210ae9c3447a77': "v2.1.3",
     'fe98454e7ebd4aef4a6db5bd4c60f52cf3f58b974283a7c1e1fcc5fea02cf3eb': "v2.1.4"
 }
-    
+
 export const initializeWallet = async (controller) =>
 {
     let deviceDetected = false
@@ -45,7 +44,6 @@ export const initializeWallet = async (controller) =>
 
     if (!deviceDetected) {
         controller.wallet = undefined
-        controller.keyring = new Keyring()
 
         return { unplugged: true }
     }

@@ -16,11 +16,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
   const { state, dispatch } = useWallet()
-  const hasWallet = Boolean(state.walletInfo?.deviceId)
-
+  const hasWallet = Boolean(state.walletInfo?.deviceId) && state.isConnected
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
+
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
     // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
@@ -40,6 +40,7 @@ export const ConnectWallet = () => {
       : query?.returnUrl
     hasWallet && history.push(path ?? '/dapps')
   }, [history, hasWallet, query, state, dispatch])
+
   return (
     <Page>
       <DarkMode>

@@ -5,17 +5,16 @@ import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
-import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 import { KKVote } from 'components/Modals/kkVote/KKVote'
 import { LoadingModal } from 'components/Modals/Loading/Loading'
 import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
-import { RequestBootloaderMode } from 'components/Modals/RequestBootloaderMode/RequestBootloaderMode'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
 import { SignModal } from 'components/Modals/Sign/Sign'
-import { UpdateBootloader } from 'components/Modals/UpdateBootloader/UpdateBootloader'
-import { UpdateFirmware } from 'components/Modals/UpdateFirmware/UpdateFirmware'
+import { HardwareErrorModal } from 'components/Modals/UpdateKeepKey/HardwareError/HardwareError'
+import { RequestBootloaderMode } from 'components/Modals/UpdateKeepKey/RequestBootloaderMode/RequestBootloaderMode'
+import { UpdateKeepKey } from 'components/Modals/UpdateKeepKey/UpdateKeepKey'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { ModalContext } from './ModalContext'
@@ -36,8 +35,7 @@ const MODALS = {
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   requestBootloaderMode: RequestBootloaderMode,
-  updateBootloader: UpdateBootloader,
-  updateFirmware: UpdateFirmware,
+  updateKeepKey: UpdateKeepKey,
   kkVote: KKVote,
   loading: LoadingModal,
 }

@@ -44,18 +44,15 @@ export const STAKING_ID_DELIMITER = '*'
 
 export const earnLpOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
   assetId: foxEthLpAssetId,
+  opportunityName: 'ETH/FOX Pool',
   provider: DefiProvider.FoxFarming,
   contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
   rewardAddress: '',
   tvl: '',
   fiatAmount: '',
   cryptoAmount: '',
-  // This goes away at the very least
-  // chainId: ethChainId,
   isLoaded: false,
   type: DefiType.LiquidityPool,
-  // And so does this
-  // icons,
 }
 
 export const baseFarmingOpportunity = {
@@ -66,12 +63,8 @@ export const baseFarmingOpportunity = {
   fiatAmount: '',
   cryptoAmount: '',
   rewardsAmountCryptoPrecision: '',
-  // This goes away at the very least
-  // chainId: ethChainId,
   isLoaded: false,
   type: DefiType.Farming,
-  // And so does this
-  // icons,
 }
 
 export const v4FarmingOpportunity: Omit<UserEarnOpportunityType, 'chainId'> = {

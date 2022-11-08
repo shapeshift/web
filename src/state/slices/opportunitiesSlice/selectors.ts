@@ -18,6 +18,7 @@ import {
 } from 'state/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
+import { selectMarketData } from '../marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from '../portfolioSlice/portfolioSliceCommon'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
@@ -232,7 +233,9 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectAssets,
-  (lpOpportunitiesById, lpId, lpAssetBalance, assets) => {
+  selectMarketData,
+  (lpOpportunitiesById, lpId, lpAssetBalance, assets, marketData) => {
+    const marketDataPrice = marketData[lpId as AssetId]?.price
     const opportunityMetadata = lpOpportunitiesById[lpId]
     const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
 
@@ -259,7 +262,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       underlyingEthAmount,
       cryptoAmount: lpAssetBalance,
       // TODO: this all goes away anyway
-      fiatAmount: '42',
+      fiatAmount: bnOrZero(lpAssetBalance).times(marketDataPrice).toString(),
     }
 
     return opportunity

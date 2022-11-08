@@ -5,6 +5,7 @@ import keys from 'lodash/keys'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { isDefined } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -16,6 +17,7 @@ import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import { baseLpOpportunity } from './foxEthCommon'
 
 const farmingOpportunitiesReducer = (
   acc: Record<string, FoxFarmingEarnOpportunityType>,
@@ -64,11 +66,11 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCac
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds) => {
+  (foxEthState, accountAddress, ethAccountIds): FoxEthLpEarnOpportunityType[] => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-    )
+    return (accountAddress ? [accountAddress] : ethAccountAddresses)
+      .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
+      .filter(isDefined)
   },
 )((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 
@@ -81,27 +83,27 @@ export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
 export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   (state: ReduxState) => state,
-  (wrappedEthLpOpportunities, state) => {
-    const aggregatedOpportunity = wrappedEthLpOpportunities
-      .filter(Boolean)
-      .reduce((acc, currentOpportunity) => {
-        acc = {
-          ...currentOpportunity,
-          underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
-            .plus(currentOpportunity.underlyingFoxAmount ?? '')
-            .toString(),
-          underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
-            .plus(currentOpportunity.underlyingEthAmount ?? '')
-            .toString(),
-          cryptoAmount: bnOrZero(acc.cryptoAmount)
-            .plus(currentOpportunity.cryptoAmount ?? '')
-            .toString(),
-          fiatAmount: bnOrZero(acc.fiatAmount)
-            .plus(currentOpportunity.fiatAmount ?? '')
-            .toString(),
-        }
-        return acc
-      }, {} as FoxEthLpEarnOpportunityType)
+  (wrappedEthLpOpportunities, state): FoxEthLpEarnOpportunityType => {
+    const aggregatedOpportunity = wrappedEthLpOpportunities.reduce<
+      Partial<FoxEthLpEarnOpportunityType | undefined>
+    >(
+      (acc, currentOpportunity) => ({
+        ...currentOpportunity,
+        underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
+          .plus(currentOpportunity?.underlyingFoxAmount ?? '')
+          .toString(),
+        underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
+          .plus(currentOpportunity?.underlyingEthAmount ?? '')
+          .toString(),
+        cryptoAmount: bnOrZero(acc?.cryptoAmount)
+          .plus(currentOpportunity?.cryptoAmount ?? '')
+          .toString(),
+        fiatAmount: bnOrZero(acc?.fiatAmount)
+          .plus(currentOpportunity?.fiatAmount ?? '')
+          .toString(),
+      }),
+      undefined,
+    )
 
     const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
       state,
@@ -109,6 +111,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
     )
 
     return {
+      ...baseLpOpportunity,
       ...aggregatedOpportunity,
       highestBalanceAccountAddress,
     }
@@ -217,9 +220,8 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
 export const selectHighestBalanceFoxLpOpportunityAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   opportunities =>
-    opportunities.sort((a, b) => {
-      return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
-    })[0]?.accountAddress ?? '',
+    opportunities.sort((a, b) => bn(b.fiatAmount).minus(a.fiatAmount).toNumber())[0]
+      ?.accountAddress ?? '',
 )
 
 export const selectFarmContractsAccountsBalanceAggregated = createSelector(

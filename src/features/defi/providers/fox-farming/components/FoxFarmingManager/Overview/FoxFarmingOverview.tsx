@@ -92,9 +92,8 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     [accountId],
   )
 
-  // TODO: Abstract into a selector, not relying on the LP token but rather on the sum of both underlying tokens fiat value
   const underlyingAssetsFiatBalance = useMemo(() => {
-    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(2)
+    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toString()
     const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])

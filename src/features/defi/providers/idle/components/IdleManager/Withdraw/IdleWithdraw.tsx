@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -46,8 +46,9 @@ type WithdrawProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const idleInvestor = getIdleInvestor()
+
 export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
-  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -104,16 +105,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
         moduleLogger.error(error, 'IdleWithdraw:useEffect error')
       }
     })()
-  }, [
-    idleInvestor,
-    chainAdapter,
-    vaultAddress,
-    walletState.wallet,
-    translate,
-    toast,
-    chainId,
-    bip44Params,
-  ])
+  }, [chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
 
   const handleBack = useCallback(() => {
     history.push({

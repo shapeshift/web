@@ -1,9 +1,8 @@
-import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { PropsWithChildren } from 'react'
+import { useMemo } from 'react'
 import React, { useContext, useEffect, useState } from 'react'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { logger } from 'lib/logger'
-import { selectFeatureFlags } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { getIdleInvestor } from './idleInvestorSingleton'
 
@@ -12,7 +11,6 @@ const moduleLogger = logger.child({ namespace: ['Defi', 'Contexts', 'IdleProvide
 type IdleContextProps = {
   loading: boolean
   enabled: boolean
-  idleInvestor: IdleInvestor | null
 }
 
 const IdleContext = React.createContext<IdleContextProps | null>(null)
@@ -24,10 +22,8 @@ export const useIdle = () => {
 }
 
 export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [idleInvestor, setIdle] = useState<IdleInvestor | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const featureFlags = useAppSelector(selectFeatureFlags)
-  const isIdleEnabled = featureFlags.IdleFinance
+  const isIdleEnabled = useFeatureFlag('IdleFinance')
 
   useEffect(() => {
     ;(async () => {
@@ -39,7 +35,6 @@ export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
         if (!investor) throw new Error('No Investor')
 
         await investor.initialize()
-        setIdle(investor)
       } catch (error) {
         moduleLogger.error(error, 'IdleProvider:useEffect error')
       } finally {
@@ -48,9 +43,10 @@ export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
     })()
   }, [isIdleEnabled])
 
-  return (
-    <IdleContext.Provider value={{ idleInvestor, loading, enabled: isIdleEnabled }}>
-      {children}
-    </IdleContext.Provider>
+  const value: IdleContextProps = useMemo(
+    () => ({ loading, enabled: isIdleEnabled }),
+    [isIdleEnabled, loading],
   )
+
+  return <IdleContext.Provider value={value}>{children}</IdleContext.Provider>
 }

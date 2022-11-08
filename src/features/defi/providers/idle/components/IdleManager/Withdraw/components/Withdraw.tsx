@@ -6,7 +6,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -27,10 +27,11 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
 })
 
+const idleInvestor = getIdleInvestor()
+
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
@@ -88,7 +89,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
-    [state?.userAddress, opportunity, assetReference, idleInvestor, asset],
+    [state?.userAddress, opportunity, assetReference, asset],
   )
 
   const handleContinue = useCallback(

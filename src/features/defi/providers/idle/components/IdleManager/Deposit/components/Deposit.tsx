@@ -8,7 +8,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -36,6 +36,7 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 } & StepComponentProps
 
+const idleInvestor = getIdleInvestor()
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
@@ -45,7 +46,6 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
 
@@ -90,15 +90,7 @@ export const Deposit: React.FC<DepositProps> = ({
         })
       }
     },
-    [
-      state?.userAddress,
-      opportunity,
-      assetReference,
-      idleInvestor,
-      asset?.precision,
-      translate,
-      toast,
-    ],
+    [state?.userAddress, opportunity, assetReference, asset.precision, translate, toast],
   )
 
   const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
@@ -125,7 +117,7 @@ export const Deposit: React.FC<DepositProps> = ({
         status: 'error',
       })
     }
-  }, [state?.userAddress, assetReference, opportunity, idleInvestor, toast, translate])
+  }, [state?.userAddress, assetReference, opportunity, toast, translate])
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -176,8 +168,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [
       state?.userAddress,
       opportunity,
-      idleInvestor,
-      asset?.precision,
+      asset.precision,
       translate,
       dispatch,
       toast,

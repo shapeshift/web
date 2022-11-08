@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -38,10 +38,11 @@ const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
 type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
+const idleInvestor = getIdleInvestor()
+
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
-  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
@@ -93,7 +94,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
       }
     })()
-  }, [state.userAddress, dispatch, idleInvestor, assetId])
+  }, [state.userAddress, dispatch, assetId])
 
   const claimableTokensTotalBalance = useMemo(() => {
     if (!state.claimableTokens) return bnOrZero(0)
@@ -169,7 +170,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference,
     walletState.wallet,
     opportunity,
-    idleInvestor,
     onNext,
   ])
 

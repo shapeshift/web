@@ -13,7 +13,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -56,11 +56,12 @@ type IdleOverviewProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+const idleInvestor = getIdleInvestor()
+
 export const IdleOverview: React.FC<IdleOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { idleInvestor } = useIdle()
   const translate = useTranslate()
   const toast = useToast()
   const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
@@ -157,7 +158,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         moduleLogger.error(error, 'IdleOverview:useEffect error')
       }
     })()
-  }, [idleInvestor, vaultAddress, chainId, toast, translate, walletAddress])
+  }, [vaultAddress, chainId, toast, translate, walletAddress])
 
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 

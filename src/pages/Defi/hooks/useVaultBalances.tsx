@@ -4,6 +4,7 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import type { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
@@ -114,6 +115,8 @@ export type UseVaultBalancesReturn = {
   loading: boolean
 }
 
+const idleInvestor = getIdleInvestor()
+
 export function useVaultBalances(): UseVaultBalancesReturn {
   const USDC_PRECISION = 6
   const {
@@ -125,7 +128,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
-  const { idleInvestor, loading: idleLoading } = useIdle()
+  const { loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
 
   const balances = useSelector(selectPortfolioAssetBalances)
@@ -150,7 +153,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idleInvestor])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

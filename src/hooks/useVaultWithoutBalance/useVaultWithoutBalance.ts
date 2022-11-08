@@ -1,4 +1,5 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useMemo, useState } from 'react'
@@ -19,6 +20,7 @@ export type UseVaultWithoutBalanceReturn = {
   vaultsWithoutBalanceLoading: boolean
 }
 
+const idleInvestor = getIdleInvestor()
 export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const USDC_PRECISION = 6
   const {
@@ -29,7 +31,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
-  const { idleInvestor, loading: idleLoading, enabled: isIdleEnabled } = useIdle()
+  const { loading: idleLoading, enabled: isIdleEnabled } = useIdle()
 
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
@@ -75,17 +77,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
         setLoading(false)
       }
     })()
-  }, [
-    balances,
-    dispatch,
-    wallet,
-    balancesLoading,
-    yearnLoading,
-    yearn,
-    idleLoading,
-    idleInvestor,
-    isIdleEnabled,
-  ])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, isIdleEnabled])
 
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(

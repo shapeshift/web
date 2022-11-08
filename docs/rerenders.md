@@ -11,5 +11,3 @@ ComponentName.whyDidYouRender = true
 This will detect re-renders despite values being equal.
 
 For advanced usage, see [why-did-you-render](https://github.com/welldone-software/why-did-you-render) docs.
-
-

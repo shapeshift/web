@@ -25,17 +25,32 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const { setIsUpdatingKeepkey, state } = useWallet()
+  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state, disconnect } = useWallet()
 
-  const {
-    pair,
-    sign,
-    hardwareError,
-    updateBootloader,
-    updateFirmware,
-    requestBootloaderMode,
-    loading,
-  } = useModal()
+  const { pair, sign, hardwareError, updateKeepKey, requestBootloaderMode, loading } =
+    useModal()
+
+  const openKeepKeyUpdater = (data: any) => {
+    setIsUpdatingKeepkey(true)
+    setNeedsReset(false)
+    requestBootloaderMode?.close()
+    updateKeepKey.open(data)
+  }
+
+  const closeAllModals = () => {
+    updateKeepKey.close()
+    loading.close()
+    requestBootloaderMode.close()
+    hardwareError.close()
+    pair.close()
+    sign.close()
+  }
+
+  useEffect(() => {
+    if (needsReset) hardwareError.open({})
+    else hardwareError.close()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsReset])
 
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
@@ -58,43 +73,36 @@ export const App = () => {
 
     ipcRenderer.on('disconnected', () => {
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      closeAllModals()
+      disconnect()
       hardwareError.open({})
-      loading.close()
     })
 
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
       pair.open(data)
     })
 
-    ipcRenderer.on('needsInitialize', _event => {
-      dispatch({
-        type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
-        payload: {
-          deviceId,
-        },
-      })
+    ipcRenderer.on('needsInitialize', (_event, data) => {
+      closeAllModals()
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
       setIsUpdatingKeepkey(true)
+      setNeedsReset(false)
       requestBootloaderMode.open({})
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
-      setIsUpdatingKeepkey(true)
-      requestBootloaderMode.close()
-      updateBootloader.open(data)
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('updateFirmware', (_event, data) => {
-      setIsUpdatingKeepkey(true)
-      requestBootloaderMode.close()
-      updateBootloader.close()
-      updateFirmware.open(data)
+      openKeepKeyUpdater(data)
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {
-      // console.log('PIN MODAL REQUESTED', deviceId)
+      setNeedsReset(false)
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

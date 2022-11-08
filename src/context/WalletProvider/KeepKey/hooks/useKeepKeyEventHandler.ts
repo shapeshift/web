@@ -19,6 +19,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
+  setNeedsReset: (reset: boolean) => void,
 ) => {
   const {
     keyring,
@@ -53,11 +54,7 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal)
-                dispatch({
-                  type: WalletActions.SET_WALLET_MODAL,
-                  payload: false,
-                })
+              setNeedsReset(false)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
@@ -241,6 +238,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
+          console.log('handle connect')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -266,9 +264,8 @@ export const useKeepKeyEventHandler = (
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
         if (modal) {
-          // Little trick to send the user back to the wallet select route
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          dispatch({ type: WalletActions.CLEAR_MODAL_CACHE, payload: { deviceId } })
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

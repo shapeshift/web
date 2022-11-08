@@ -12,6 +12,8 @@ export interface IWalletContext {
   disconnect: () => void
   load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void
+  needsReset: boolean
+  setNeedsReset: any
   isUpdatingKeepkey: boolean
   setIsUpdatingKeepkey: any
   pairAndConnect: any

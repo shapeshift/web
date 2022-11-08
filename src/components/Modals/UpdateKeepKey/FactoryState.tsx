@@ -1,15 +1,14 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, Flex, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Button, ModalBody } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useModal } from 'hooks/useModal/useModal'
+import { WalletActions } from 'context/WalletProvider/actions'
 
 export const KeepKeyFactoryState = () => {
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
-  const { setDeviceState } = useWallet()
+  const { dispatch, setDeviceState, state: { deviceId } } = useWallet()
+  const { updateKeepKey } = useModal()
 
   useEffect(() => {
     setDeviceState({ disposition: undefined })
@@ -18,24 +17,30 @@ export const KeepKeyFactoryState = () => {
   const handleCreateWalletPress = async () => {
     setLoading(true)
     setDeviceState({ disposition: 'initializing' })
-    history.push(KeepKeyRoutes.NewLabel)
+    dispatch({
+      type: WalletActions.OPEN_KEEPKEY_LABEL,
+      payload: {
+        deviceId,
+      },
+    })
+    updateKeepKey.close()
   }
 
   const handleRecoverWalletPress = async () => {
     setLoading(true)
     setDeviceState({ disposition: 'recovering' })
-    history.push(KeepKeyRoutes.RecoverySettings)
+    dispatch({
+      type: WalletActions.OPEN_KEEPKEY_RECOVERY_SETTINGS,
+      payload: {
+        deviceId,
+      },
+    })
+    updateKeepKey.close()
   }
 
   return (
     <>
-      <ModalHeader>
-        <Flex alignItems='center'>
-          <CheckCircleIcon color='green.400' mr={3} />
-          <Text translation={'modals.keepKey.factoryState.header'} />
-        </Flex>
-      </ModalHeader>
-      <ModalBody>
+      <ModalBody pt={5}>
         <Text color='gray.500' translation={'modals.keepKey.factoryState.body'} mb={4} />
         <Button
           width='full'

@@ -11,8 +11,8 @@ import { useEffect, useState } from 'react'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
-import KeepKeyConnect from '../../../assets/connect-keepkey.svg'
-import { getAssetUrl } from '../../../lib/getAssetUrl'
+import KeepKeyConnect from '../../../../assets/connect-keepkey.svg'
+import { getAssetUrl } from '../../../../lib/getAssetUrl'
 
 export const RequestBootloaderMode = () => {
   const { requestBootloaderMode } = useModal()

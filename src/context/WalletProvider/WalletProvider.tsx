@@ -26,12 +26,7 @@ import { KeepKeyConfig } from './KeepKey/config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
-import {
-  clearLocalWallet,
-  getLocalWalletDeviceId,
-  getLocalWalletType,
-  setLocalWalletTypeAndDeviceId,
-} from './local-wallet'
+import { clearLocalWallet, setLocalWalletTypeAndDeviceId } from './local-wallet'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
@@ -297,7 +292,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isLoadingLocalWallet: false,
         showBackButton: true,
         keepKeyPinRequestType: null,
-        keyring: new Keyring()
+        keyring: new Keyring(),
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
@@ -540,7 +535,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       pairAndConnect,
       deviceBusy,
       needsReset,
-      setNeedsReset
+      setNeedsReset,
     }),
     [
       state,
@@ -552,7 +547,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       pairAndConnect,
       deviceBusy,
       needsReset,
-      setNeedsReset
+      setNeedsReset,
     ],
   )
 

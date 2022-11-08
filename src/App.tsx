@@ -47,7 +47,6 @@ export const App = () => {
   }
 
   useEffect(() => {
-    console.log('needsReset', needsReset)
     if (needsReset) hardwareError.open({})
     else hardwareError.close()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,7 +72,6 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
-      console.log('ipc d/c')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       closeAllModals()
       disconnect()

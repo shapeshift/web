@@ -210,9 +210,6 @@ export const KeepKeyRecoverySentenceEntry = () => {
 
   // Only the next expected input field should be in focus, else we get out of sync with the KeepKey
   const preventClickIfNotCurrentIndex = (e: MouseEvent<HTMLInputElement>, inputIndex: number) => {
-    console.log('recoveryCharacterIndex', recoveryCharacterIndex)
-    console.log('inputIndex', inputIndex)
-    console.log('truthy', (inputIndex !== 3 && recoveryCharacterIndex !== 4))
     // if at end (4) then allow for selecting final box
     if ((inputIndex !== recoveryCharacterIndex) && !(inputIndex === 3 && recoveryCharacterIndex === 4)) {
       e.preventDefault()

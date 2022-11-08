@@ -18,6 +18,7 @@ import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
+import { AssetAccountNft } from './AssetAccountNft'
 
 type AssetDetailsProps = {
   assetId: AssetId
@@ -41,6 +42,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <MaybeChartUnavailable assetIds={assetIds} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <AssetAccounts assetId={assetId} accountId={accountId} />
+          <AssetAccountNft assetId={assetId} accountId={accountId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={3} assetId={assetId} accountId={accountId} />

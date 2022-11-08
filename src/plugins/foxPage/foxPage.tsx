@@ -98,22 +98,22 @@ export const FoxPage = () => {
 
   const foxFilter = useMemo(() => ({ assetId: foxAssetId }), [])
   const foxyFilter = useMemo(() => ({ assetId: foxyAssetId }), [])
-  const fiatBalanceFox = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter))
-  const fiatBalanceFoxy = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter))
-  const cryptoHumanBalanceFox = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter),
-  )
-  const cryptoHumanBalanceFoxy = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter),
-  )
+  const fiatBalanceFox =
+    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter)) ?? '0'
+  const fiatBalanceFoxy =
+    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter)) ?? '0'
+  const cryptoHumanBalanceFox =
+    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter)) ?? '0'
+  const cryptoHumanBalanceFoxy =
+    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter)) ?? '0'
 
   const fiatBalances = useMemo(
-    () => [fiatBalanceFox ?? '0', fiatBalanceFoxy ?? '0'],
+    () => [fiatBalanceFox, fiatBalanceFoxy],
     [fiatBalanceFox, fiatBalanceFoxy],
   )
 
   const cryptoHumanBalances = useMemo(
-    () => [cryptoHumanBalanceFox ?? '0', cryptoHumanBalanceFoxy ?? '0'],
+    () => [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
     [cryptoHumanBalanceFox, cryptoHumanBalanceFoxy],
   )
 

@@ -84,21 +84,21 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
     const aggregatedOpportunity = wrappedEthLpOpportunities.reduce<
       Partial<FoxEthLpEarnOpportunityType | undefined>
     >(
-      (acc, currentOpportunity) => ({
-        ...currentOpportunity,
-        underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
-          .plus(currentOpportunity?.underlyingFoxAmount ?? '')
-          .toString(),
-        underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
-          .plus(currentOpportunity?.underlyingEthAmount ?? '')
-          .toString(),
-        cryptoAmount: bnOrZero(acc?.cryptoAmount)
-          .plus(currentOpportunity?.cryptoAmount ?? '')
-          .toString(),
-        fiatAmount: bnOrZero(acc?.fiatAmount)
-          .plus(currentOpportunity?.fiatAmount ?? '')
-          .toString(),
-      }),
+      (acc, currentOpportunity) =>
+        Object.assign(acc ?? {}, {
+          underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
+            .plus(currentOpportunity?.underlyingFoxAmount ?? '')
+            .toString(),
+          underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
+            .plus(currentOpportunity?.underlyingEthAmount ?? '')
+            .toString(),
+          cryptoAmount: bnOrZero(acc?.cryptoAmount)
+            .plus(currentOpportunity?.cryptoAmount ?? '')
+            .toString(),
+          fiatAmount: bnOrZero(acc?.fiatAmount)
+            .plus(currentOpportunity?.fiatAmount ?? '')
+            .toString(),
+        }),
       undefined,
     )
 

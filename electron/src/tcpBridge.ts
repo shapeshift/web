@@ -1,4 +1,4 @@
-import { kkStateController, server, setServer, setTcpBridgeClosing, setTcpBridgeRunning, setTcpBridgeStarting, tcpBridgeClosing, tcpBridgeRunning, tcpBridgeStarting } from "./helpers/globalState"
+import { server, setServer, setTcpBridgeClosing, setTcpBridgeRunning, setTcpBridgeStarting, tcpBridgeClosing, tcpBridgeRunning, tcpBridgeStarting } from "./helpers/globalState"
 import { RegisterRoutes } from "./helpers/routes/routes"
 import swaggerUi from 'swagger-ui-express'
 import express from 'express'
@@ -43,14 +43,12 @@ export const stopTcpBridge = async () => {
         createAndUpdateTray()
         if(server) {
             server?.close(async () => {
-                await kkStateController.transport?.disconnect()
                 setTcpBridgeRunning(false)
                 setTcpBridgeClosing(false)
                 createAndUpdateTray()
                 resolve(true)
             })
         } else {
-            await kkStateController.transport?.disconnect()
             setTcpBridgeRunning(false)
             setTcpBridgeClosing(false)
             createAndUpdateTray()

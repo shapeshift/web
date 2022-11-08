@@ -55,7 +55,6 @@ export let setTcpBridgeStarting = (value: boolean) => tcpBridgeStarting = value
 export let tcpBridgeClosing = false
 export let setTcpBridgeClosing = (value: boolean) => tcpBridgeClosing = value
 
-// web render thread has indicated it is ready to receive ipc messages
 export let renderListenersReady = false
 export let setRenderListenersReady = (value: boolean) => renderListenersReady = value
 
@@ -69,12 +68,9 @@ export const windows: {
     mainWindow: undefined,
     splash: undefined
 }
-export const setSplashWindow =  (value: BrowserWindow) => windows.splash = value
-export const setMainWindow =  (value: BrowserWindow) => windows.splash = value
 
 export const ipcQueue = new Array<{ eventName: string, args: any }>()
 
-// tcp bridge running and keepkey is successfully connected
 export const isWalletBridgeRunning = () => kkStateController?.lastState === CONNECTED && tcpBridgeRunning
 
 export const settings = new Settings()
@@ -89,3 +85,8 @@ export const kkStateController = new KKStateController(async (eventName: string,
     createAndUpdateTray()
     return queueIpcEvent(eventName, args)
 })
+
+export let deviceBusyRead = false
+export let setDeviceBusyRead = (value: boolean) => deviceBusyRead = value
+export let deviceBusyWrite = false
+export let setDeviceBusyWrite = (value: boolean) => deviceBusyWrite = value

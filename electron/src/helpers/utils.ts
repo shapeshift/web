@@ -1,9 +1,8 @@
 import { BrowserWindow, ipcMain } from "electron"
 import { startTcpBridge } from "../tcpBridge"
-import { ipcQueue, kkStateController, renderListenersReady, settings, windows } from "./globalState"
+import { deviceBusyRead, deviceBusyWrite, ipcQueue, kkStateController, renderListenersReady, settings, windows } from "./globalState"
 import isDev from 'electron-is-dev'
 import { startWindowListeners } from "../windowListeners"
-import { deviceBusyRead, deviceBusyWrite } from "./controllers/b-device-controller"
 import path from 'path';
 
 export const openSignTxWindow = async (signArgs: any) => {

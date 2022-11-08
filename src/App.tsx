@@ -42,8 +42,12 @@ export const App = () => {
     state.wallet?.disconnect()
 
     ipcRenderer.on('plugin', () => {
-      loading.open({})
+      loading.open({ closing: false })
       hardwareError.close()
+    })
+
+    ipcRenderer.on('appClosing', () => {
+      loading.open({ closing: true })
     })
 
     ipcRenderer.on('hardwareError', () => {

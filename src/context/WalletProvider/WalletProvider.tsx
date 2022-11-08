@@ -469,19 +469,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }, 2000),
   )
 
-  const connect = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
-
   const startBridgeListeners = useCallback(() => {
     ipcRenderer.on('@walletconnect/paired', (_event, data) => {
       dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
@@ -611,7 +598,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     () => ({
       state,
       dispatch,
-      connect,
       create,
       disconnect,
       load,
@@ -625,7 +611,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }),
     [
       state,
-      connect,
       create,
       disconnect,
       load,

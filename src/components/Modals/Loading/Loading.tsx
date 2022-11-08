@@ -5,7 +5,7 @@ import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const LoadingModal = () => {
+export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
   const { loading } = useModal()
   const { close, isOpen } = loading
   const {
@@ -25,11 +25,12 @@ export const LoadingModal = () => {
   }, [history.location.pathname])
 
   useEffect(() => {
-    if ((isConnected || isUpdatingKeepkey) && isOpen) {
+    if ((isConnected || isUpdatingKeepkey) && isOpen  && !closing) {
       setNeedsReset(false)
       close()
     }
-  }, [close, isConnected, isOpen, isUpdatingKeepkey])
+  }, [close, closing, isConnected, isOpen, isUpdatingKeepkey])
+
   return (
     <Modal
       isOpen={isOpen}
@@ -46,7 +47,7 @@ export const LoadingModal = () => {
           <Stack alignContent='center'>
             <Spinner size='xl' alignSelf='center' />
             <RawText fontSize='xl' fontWeight='bold' color='gray.500' alignContent='center'>
-              Connecting to KeepKey
+              {closing ? 'Shutting Down...' : 'Connecting to KeepKey'}
             </RawText>
           </Stack>
         </Center>

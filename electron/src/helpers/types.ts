@@ -64,4 +64,11 @@ export interface GetPublicKey {
     symbol?: string
 }
 
-export type IpcQueueItem = { eventName: string, args: any }
+export type UserType = {
+    online: boolean,
+    accounts: Array<{
+        pubkey: any;
+        caip: string;
+    }>,
+    balances: any[]
+}

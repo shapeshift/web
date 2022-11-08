@@ -52,3 +52,5 @@ export const isToken = (assetReference: AssetReference | string) =>
 
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
+
+export const isDefined = <T>(optional: T | undefined): optional is T => Boolean(optional)

@@ -5,6 +5,7 @@ import keys from 'lodash/keys'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { isDefined } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -65,11 +66,11 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCac
   (state: ReduxState) => state.foxEth,
   selectAccountAddressParamFromFilterOptional,
   selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds): (FoxEthLpEarnOpportunityType | undefined)[] => {
+  (foxEthState, accountAddress, ethAccountIds): FoxEthLpEarnOpportunityType[] => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-    )
+    return (accountAddress ? [accountAddress] : ethAccountAddresses)
+      .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
+      .filter(isDefined)
   },
 )((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 

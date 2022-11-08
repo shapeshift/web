@@ -10,7 +10,6 @@ import { randomUUID } from 'crypto'
 import { ipcRenderer } from 'electron'
 import type { providers } from 'ethers'
 import debounce from 'lodash/debounce'
-import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -34,7 +33,6 @@ import { WalletViewsRouter } from './WalletViewsRouter'
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
-  initialize: (...args: any[]) => Promise<any>
   pairDevice: (...args: any[]) => Promise<HDWallet>
 }
 
@@ -310,13 +308,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         },
       }
     }
-    case WalletActions.DOWNLOAD_UPDATER:
-      return {
-        ...state,
-        modal: true,
-        type: KeyManager.KeepKey,
-        initialRoute: KeepKeyRoutes.DownloadUpdater,
-      }
     default:
       return state
   }
@@ -500,19 +491,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const create = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
-
   const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
       type: WalletActions.SET_DEVICE_STATE,
@@ -527,7 +505,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     () => ({
       state,
       dispatch,
-      create,
       disconnect,
       setDeviceState,
       isUpdatingKeepkey,
@@ -539,7 +516,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }),
     [
       state,
-      create,
       disconnect,
       setDeviceState,
       setIsUpdatingKeepkey,

@@ -1,4 +1,5 @@
 import { shell, app } from "electron"
+import { checkIfStuck } from "./helpers/controllers/b-device-controller"
 import { ALLOWED_HOSTS, deviceBusyRead, deviceBusyWrite, setShouldShowWindow, windows } from "./helpers/globalState"
 import { queueIpcEvent } from "./helpers/utils"
 import { stopTcpBridge } from "./tcpBridge"
@@ -16,9 +17,15 @@ export const startWindowListeners = () => {
     })
 
     windows.mainWindow?.on('close', async (e) => {
+        const stuckResult = checkIfStuck()
+        // no messages for 10 seconds
+        // device probably waiting for input or stuck
+        // hard exit required
+        if(stuckResult > 10000) process.exit()
         if(!deviceBusyRead && !deviceBusyWrite) return
-
         setInterval( async () => {
+            const stuckResult = checkIfStuck()
+            if(stuckResult > 10000) process.exit()
             if(!deviceBusyRead && !deviceBusyWrite) {
                 await stopTcpBridge()
                 app.quit()

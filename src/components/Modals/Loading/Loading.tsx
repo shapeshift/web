@@ -27,7 +27,6 @@ export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
     if ((isConnected || isUpdatingKeepkey) && isOpen && !closing) close()
   }, [close, closing, isConnected, isOpen, isUpdatingKeepkey])
 
-  console.log('closing is', closing)
   return (
     <Modal
       isOpen={isOpen}

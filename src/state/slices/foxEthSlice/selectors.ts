@@ -84,26 +84,26 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   (state: ReduxState) => state,
   (wrappedEthLpOpportunities, state): FoxEthLpEarnOpportunityType => {
-    const aggregatedOpportunity = wrappedEthLpOpportunities
-      .filter(Boolean)
-      .reduce<Partial<FoxEthLpEarnOpportunityType | undefined>>(
-        (acc, currentOpportunity) => ({
-          ...currentOpportunity,
-          underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
-            .plus(currentOpportunity?.underlyingFoxAmount ?? '')
-            .toString(),
-          underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
-            .plus(currentOpportunity?.underlyingEthAmount ?? '')
-            .toString(),
-          cryptoAmount: bnOrZero(acc?.cryptoAmount)
-            .plus(currentOpportunity?.cryptoAmount ?? '')
-            .toString(),
-          fiatAmount: bnOrZero(acc?.fiatAmount)
-            .plus(currentOpportunity?.fiatAmount ?? '')
-            .toString(),
-        }),
-        undefined,
-      )
+    const aggregatedOpportunity = wrappedEthLpOpportunities.reduce<
+      Partial<FoxEthLpEarnOpportunityType | undefined>
+    >(
+      (acc, currentOpportunity) => ({
+        ...currentOpportunity,
+        underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
+          .plus(currentOpportunity?.underlyingFoxAmount ?? '')
+          .toString(),
+        underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
+          .plus(currentOpportunity?.underlyingEthAmount ?? '')
+          .toString(),
+        cryptoAmount: bnOrZero(acc?.cryptoAmount)
+          .plus(currentOpportunity?.cryptoAmount ?? '')
+          .toString(),
+        fiatAmount: bnOrZero(acc?.fiatAmount)
+          .plus(currentOpportunity?.fiatAmount ?? '')
+          .toString(),
+      }),
+      undefined,
+    )
 
     const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
       state,
@@ -220,11 +220,8 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
 export const selectHighestBalanceFoxLpOpportunityAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   opportunities =>
-    opportunities.sort((a, b) => {
-      return bnOrZero(b?.fiatAmount)
-        .minus(a?.fiatAmount ?? '0')
-        .toNumber()
-    })[0]?.accountAddress ?? '',
+    opportunities.sort((a, b) => bn(b.fiatAmount).minus(a.fiatAmount).toNumber())[0]
+      ?.accountAddress ?? '',
 )
 
 export const selectFarmContractsAccountsBalanceAggregated = createSelector(

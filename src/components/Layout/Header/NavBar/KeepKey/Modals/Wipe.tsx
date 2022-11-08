@@ -26,7 +26,7 @@ export const WipeModal = () => {
   const initRef = useRef<HTMLInputElement | null>(null)
   const finalRef = useRef<HTMLDivElement | null>(null)
   const { keepKeyWallet } = useKeepKey()
-  const { disconnect } = useWallet()
+  const { disconnect, setNeedsReset } = useWallet()
   const translate = useTranslate()
   const {
     keepKeyWipe: { close, isOpen },
@@ -57,7 +57,8 @@ export const WipeModal = () => {
     try {
       await keepKeyWallet?.wipe()
       disconnect()
-      close()
+      onClose()
+      setNeedsReset(true)
     } catch (e) {
       moduleLogger.error(e, { fn: 'wipeDevice' }, 'KeepKey Wipe Failed')
       toast({

@@ -12,15 +12,13 @@ import { Step, Steps, useSteps } from 'chakra-ui-steps';
 import { KeepKeyFactoryState } from './FactoryState'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-
-
 export const UpdateKeepKey = (params: any) => {
     const { updateKeepKey, hardwareError } = useModal()
     const { close, isOpen } = updateKeepKey
     const { setStep, activeStep } = useSteps({
         initialStep: 0,
     });
-    const { setNeedsReset } = useWallet()
+    const { setNeedsReset, disconnect } = useWallet()
 
     useEffect(() => {
         if (params?.event?.bootloaderUpdateNeeded) {
@@ -43,8 +41,8 @@ export const UpdateKeepKey = (params: any) => {
         <Modal
             isOpen={isOpen}
             onClose={() => {
+                disconnect()
                 close()
-                hardwareError.open({})
                 setNeedsReset(true)
             }}
             isCentered

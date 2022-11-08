@@ -134,6 +134,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(accountSpecifiers.actions.upsertAccountSpecifiers(accountSpecifiersPayload))
         dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       } catch (e) {
+        console.log('here')
         moduleLogger.error(e, 'AppContext:deriveAccountIdsAndMetadata')
       }
     })()

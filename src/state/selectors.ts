@@ -29,9 +29,9 @@ type ParamFilter = Partial<{
   lpId: LpId
 }>
 
-type OptionalParamFilterKey = keyof ParamFilter
+type ParamFilterKey = keyof ParamFilter
 
-export const selectParamFromFilter = <T extends OptionalParamFilterKey>(param: T) =>
+export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
   createCachedSelector(
     (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | undefined =>
       filter?.[param],

@@ -190,7 +190,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
         .toString(),
       provider: DefiProvider.FoxFarming,
       isLoaded: true,
-      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
+      icons: opportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
     })),
 )
 
@@ -342,6 +342,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       fiatAmount: bnOrZero(aggregatedLpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),
+      icons: opportunityMetadata?.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
 
     return opportunity

@@ -30,6 +30,7 @@ export const KeepKeyMenu = () => {
     setDeviceState,
     dispatch,
     disconnect,
+    setNeedsReset,
     state: { isConnected, walletInfo, keepkeySdk, deviceId },
   } = useWallet()
   const { keepKeyWipe } = useModal()
@@ -43,6 +44,11 @@ export const KeepKeyMenu = () => {
       })
     })()
   }, [setDeviceState])
+
+  const dc = () => {
+    setNeedsReset(true)
+    disconnect()
+  }
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -168,7 +174,7 @@ export const KeepKeyMenu = () => {
           <MenuItem onClick={handleRemovePinClick} color='red.500' icon={<LockIcon />}>
             {translate('walletProvider.keepKey.settings.menuLabels.removePin')}
           </MenuItem>
-          <MenuItem onClick={disconnect} color='red.500' icon={<CloseIcon />}>
+          <MenuItem onClick={dc} color='red.500' icon={<CloseIcon />}>
             {translate('connectWallet.menu.disconnect')}
           </MenuItem>
           <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>

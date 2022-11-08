@@ -69,6 +69,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { supportedChains } = usePlugins()
   const {
     state: { wallet },
+    disconnect,
+    setNeedsReset
   } = useWallet()
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)

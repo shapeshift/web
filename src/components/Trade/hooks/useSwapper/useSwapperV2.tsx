@@ -115,7 +115,6 @@ export const useSwapper = () => {
     async (buyAsset: Asset) => {
       if (!buyAccountMetadata) return
       const { accountType, bip44Params } = buyAccountMetadata
-      if (!bip44Params) return
       return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
     },
     [buyAccountMetadata, wallet],

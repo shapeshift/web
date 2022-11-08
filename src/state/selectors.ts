@@ -9,9 +9,11 @@ import type { PubKey } from './slices/validatorDataSlice/validatorDataSlice'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
+ *
  * note - this **must** stay as Partial, it's the selectors consumers responsibility to check
  * for existence of these. it's neither ergonomic nor feasible for the view layer consumers
  * to guard, or even necessarily have, the required params before calling selectors.
+ *
  * wen conditional hooks?
  */
 type ParamFilter = Partial<{
@@ -31,12 +33,8 @@ type OptionalParamFilterKey = keyof ParamFilter
 
 export const selectParamFromFilter = <T extends OptionalParamFilterKey>(param: T) =>
   createCachedSelector(
-    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | undefined => {
-      const result = filter?.[param]
-      // TODO(0xdef1cafe): remove
-      if (!result) console.warn(`no result for param ${param}`)
-      return result
-    },
+    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | undefined =>
+      filter?.[param],
     param => param,
   )((_state: ReduxState, filter: Pick<ParamFilter, T>) => `${param}-${filter?.[param]}` ?? param)
 

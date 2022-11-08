@@ -457,7 +457,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectLpPlusFarmContractsBaseUnitBalance,
-    (_state: ReduxState, filter: { accountId?: string }) => filter?.accountId ?? '', // TODO(gomes): selector
+    selectAccountIdParamFromFilter, // TODO(gomes): selector
     (
       assetsById,
       accountBalances,

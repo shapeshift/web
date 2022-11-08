@@ -33,10 +33,13 @@ type ParamFilterKey = keyof ParamFilter
 
 export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
   createCachedSelector(
-    (_state: ReduxState, filter: Pick<ParamFilter, T>): ParamFilter[T] | undefined =>
+    (_state: ReduxState, filter: Pick<ParamFilter, T> | null): ParamFilter[T] | undefined =>
       filter?.[param],
     param => param,
-  )((_state: ReduxState, filter: Pick<ParamFilter, T>) => `${param}-${filter?.[param]}` ?? param)
+  )(
+    (_state: ReduxState, filter: Pick<ParamFilter, T> | null) =>
+      `${param}-${filter?.[param]}` ?? param,
+  )
 
 export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')

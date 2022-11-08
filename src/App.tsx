@@ -64,7 +64,7 @@ export const App = () => {
     ipcRenderer.on('appClosing', () => {
       loading.open({ closing: true })
     })
- 
+
     ipcRenderer.on('hardwareError', () => {
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       hardwareError.open({})

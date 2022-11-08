@@ -25,7 +25,7 @@ export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
   }, [history.location.pathname])
 
   useEffect(() => {
-    if ((isConnected || isUpdatingKeepkey) && isOpen  && !closing) {
+    if ((isConnected || isUpdatingKeepkey) && isOpen && !closing) {
       setNeedsReset(false)
       close()
     }

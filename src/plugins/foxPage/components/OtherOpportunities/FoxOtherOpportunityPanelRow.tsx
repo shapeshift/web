@@ -86,7 +86,6 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     return hasActivePosition ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted'
   }, [isDemoWallet, opportunity.link, hasActivePosition, wallet])
 
-  console.log({ opportunity, defiOpportunity })
   const isOpportunityButtonReady = useMemo(
     () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
     [isDemoWallet, wallet, defiOpportunity],

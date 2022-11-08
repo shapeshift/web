@@ -449,3 +449,26 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
     }))
   },
 )
+export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
+  selectUserStakingOpportunityByUserStakingId,
+  selectAssets,
+  (userStakingOpportunities, assets): AssetWithBalance[] | undefined => {
+    const underlyingAssetsIcons = userStakingOpportunities?.underlyingAssetIds.map(
+      assetId => assets[assetId].icon,
+    )
+    return userStakingOpportunities?.underlyingAssetIds.map((assetId, i) => ({
+      ...assets[assetId],
+      cryptoBalance: bnOrZero(userStakingOpportunities?.stakedAmountCryptoPrecision)
+        .times(
+          fromBaseUnit(
+            userStakingOpportunities?.underlyingAssetRatios[i] ?? '0',
+            assets[assetId].precision,
+          ),
+        )
+        .toFixed(6)
+        .toString(),
+      icons: [underlyingAssetsIcons![i]],
+      allocationPercentage: '0.50',
+    }))
+  },
+)

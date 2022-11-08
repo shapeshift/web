@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
@@ -28,6 +27,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
   selectSelectedLocale,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -98,29 +98,8 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])
 
-  const underlyingAssetsWithBalancesAndIcons = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) => ({
-        ...assets[assetId],
-        cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-        icons: [underlyingAssetsIcons![i]],
-        allocationPercentage: '0.50',
-      })),
-    [
-      assets,
-      opportunityData?.stakedAmountCryptoPrecision,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-      underlyingAssetsIcons,
-    ],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
   const lpAssetWithBalancesAndIcons = useMemo(

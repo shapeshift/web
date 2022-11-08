@@ -1,5 +1,5 @@
 # feature flags
-REACT_APP_FEATURE_PENDO=true
+REACT_APP_FEATURE_PENDO=false
 
 # pendo
 REACT_APP_PENDO_API_KEY=

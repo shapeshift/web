@@ -17,7 +17,7 @@ const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 export const useKeepKeyEventHandler = (
   state: InitialState,
   dispatch: Dispatch<ActionTypes>,
-  loadWallet: () => void,
+  disconnect: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
   setNeedsReset: (reset: boolean) => void,
 ) => {
@@ -54,14 +54,19 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              setNeedsReset(false)
+              setNeedsReset(true)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
               setDeviceState({
                 disposition: 'initialized',
               })
-              setNeedsReset(false)
+              if (modal)
+                dispatch({
+                  type: WalletActions.SET_WALLET_MODAL,
+                  payload: false,
+                })
+              setNeedsReset(true)
               handleDisconnect(deviceId)
               toast({
                 title: translate('common.success'),
@@ -77,7 +82,7 @@ export const useKeepKeyEventHandler = (
             awaitingDeviceInteraction: false,
             lastDeviceInteractionStatus: 'success',
           })
-          loadWallet()
+          disconnect()
           break
         case MessageType.BUTTONREQUEST:
           setDeviceState({ awaitingDeviceInteraction: true })
@@ -262,7 +267,7 @@ export const useKeepKeyEventHandler = (
         }
         if (modal) {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.CLEAR_MODAL_CACHE, payload: { deviceId } })
+          disconnect()
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')
@@ -283,7 +288,7 @@ export const useKeepKeyEventHandler = (
   }, [
     dispatch,
     keyring,
-    loadWallet,
+    disconnect,
     isUpdatingPin,
     modal,
     state.walletInfo,

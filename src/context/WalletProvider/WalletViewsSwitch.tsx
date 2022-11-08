@@ -32,6 +32,7 @@ export const WalletViewsSwitch = () => {
     state: { wallet, modal, showBackButton, initialRoute, type, disconnectOnCloseModal },
     dispatch,
     disconnect,
+    setNeedsReset,
   } = useWallet()
 
   const cancelWalletRequests = useCallback(async () => {
@@ -48,6 +49,7 @@ export const WalletViewsSwitch = () => {
 
   const onClose = async () => {
     if (disconnectOnCloseModal) {
+      setNeedsReset(true)
       disconnect()
     }
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

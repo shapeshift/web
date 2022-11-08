@@ -371,75 +371,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setIsUpdatingKeepkey(false)
   }, [])
 
-  const load = useCallback(() => {
-    const fnLogger = moduleLogger.child({ fn: ['load'] })
-
-    const localWalletType = getLocalWalletType()
-    const localWalletDeviceId = getLocalWalletDeviceId()
-    fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
-    if (localWalletType && localWalletDeviceId && state.adapters) {
-      ; (async () => {
-        if (state.adapters?.has(localWalletType)) {
-          // Fixes issue with wallet `type` being null when the wallet is loaded from state
-          dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
-          switch (localWalletType) {
-            case KeyManager.KeepKey:
-              try {
-                const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
-                /**
-                 * if localKeepKeyWallet is not null it means
-                 * KeepKey remained connected during the reload
-                 */
-                if (localKeepKeyWallet) {
-                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
-                  const deviceId = await localKeepKeyWallet.getDeviceID()
-                  // This gets the firmware version needed for some KeepKey "supportsX" functions
-                  await localKeepKeyWallet.getFeatures()
-                  // Show the label from the wallet instead of a generic name
-                  const label = (await localKeepKeyWallet.getLabel()) || name
-
-                  await localKeepKeyWallet.initialize()
-
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localKeepKeyWallet,
-                      name: label,
-                      icon,
-                      deviceId,
-                      meta: { label },
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                  setNeedsReset(false)
-                } else {
-                  /**
-                   * The KeepKey wallet is disconnected,
-                   * because the accounts are not persisted, the app cannot load without getting pub keys from the
-                   * wallet.
-                   */
-                  // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
-                  disconnect()
-                }
-              } catch (e) {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            default:
-              /**
-               * The fall-through case also handles clearing
-               * any demo wallet state on refresh/rerender.
-               */
-              disconnect()
-              break
-          }
-        }
-      })()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.adapters, state.keyring])
-
   const pairAndConnect = useRef(
     debounce(async () => {
       const adapters: Adapters = new Map()
@@ -594,10 +525,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
-  useEffect(() => load(), [load, state.adapters, state.keyring])
-
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset)
+  useKeepKeyEventHandler(state, dispatch, disconnect, setDeviceState, setNeedsReset)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -605,7 +534,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch,
       create,
       disconnect,
-      load,
       setDeviceState,
       isUpdatingKeepkey,
       setIsUpdatingKeepkey,
@@ -618,7 +546,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       state,
       create,
       disconnect,
-      load,
       setDeviceState,
       setIsUpdatingKeepkey,
       isUpdatingKeepkey,

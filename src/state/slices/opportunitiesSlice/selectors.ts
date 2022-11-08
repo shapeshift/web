@@ -178,7 +178,8 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectMarketData,
-  (aggregatedUserStakingOpportunities, marketData): UserEarnOpportunityType[] =>
+  selectAssets,
+  (aggregatedUserStakingOpportunities, marketData, assets): UserEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => ({
       ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
       ...opportunity,
@@ -189,6 +190,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
         .toString(),
       provider: DefiProvider.FoxFarming,
       isLoaded: true,
+      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     })),
 )
 

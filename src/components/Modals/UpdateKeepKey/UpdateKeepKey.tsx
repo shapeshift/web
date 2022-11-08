@@ -50,7 +50,7 @@ export const UpdateKeepKey = (params: any) => {
             closeOnEsc={false}
         >
             <ModalOverlay />
-            <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+            <ModalContent justifyContent='center' p={3}>
                 <ModalCloseButton ml='auto' borderRadius='full' position='static' />
                 <Steps activeStep={activeStep}>
                     {steps.map(({ label, content }: any) => (

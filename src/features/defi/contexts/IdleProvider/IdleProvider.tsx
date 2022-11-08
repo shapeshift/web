@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { logger } from 'lib/logger'
 
@@ -13,13 +13,7 @@ type IdleContextProps = {
   enabled: boolean
 }
 
-const IdleContext = React.createContext<IdleContextProps | null>(null)
-
-export const useIdle = () => {
-  const context = useContext(IdleContext)
-  if (!context) throw new Error("useIdle can't be used outside of the IdleProvider")
-  return context
-}
+export const IdleContext = React.createContext<IdleContextProps | null>(null)
 
 export const IdleProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false)

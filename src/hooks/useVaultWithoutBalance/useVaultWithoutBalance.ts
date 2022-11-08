@@ -1,6 +1,6 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { useIdle } from 'features/defi/contexts/IdleProvider/useIdle'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

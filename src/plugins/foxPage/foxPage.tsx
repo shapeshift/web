@@ -198,7 +198,7 @@ export const FoxPage = () => {
                   key={asset.assetId}
                   assetSymbol={asset.symbol}
                   assetIcon={asset.icon}
-                  cryptoAmount={cryptoHumanBalances[index]}
+                  cryptoAmount={cryptoHumanBalances[index] ?? '0'}
                   fiatAmount={fiatBalances[index] ?? '0'}
                   onClick={() => handleTabClick(asset.assetId)}
                 />
@@ -220,7 +220,7 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={selectedAsset.symbol}
                           assetIcon={selectedAsset.icon}
-                          cryptoAmount={cryptoHumanBalances[selectedAssetIndex]}
+                          cryptoAmount={cryptoHumanBalances[selectedAssetIndex] ?? '0'}
                           fiatAmount={fiatBalances[selectedAssetIndex] ?? '0'}
                         />
                       )}
@@ -232,7 +232,7 @@ export const FoxPage = () => {
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}
-                          cryptoAmount={cryptoHumanBalances[index]}
+                          cryptoAmount={cryptoHumanBalances[index] ?? '0'}
                           fiatAmount={fiatBalances[index] ?? '0'}
                           as={Box}
                         />
@@ -258,7 +258,7 @@ export const FoxPage = () => {
                   apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
                   isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
-                  balance={cryptoHumanBalances[selectedAssetIndex]}
+                  balance={cryptoHumanBalances[selectedAssetIndex] ?? '0'}
                   onClick={handleOpportunityClick}
                 />
 

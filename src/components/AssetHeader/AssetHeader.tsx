@@ -67,7 +67,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
         <AssetActions
           assetId={assetId}
           accountId={accountId ? accountId : singleAccount}
-          cryptoBalance={cryptoBalance}
+          cryptoBalance={cryptoBalance ?? '0'}
         />
       ) : null}
     </Flex>

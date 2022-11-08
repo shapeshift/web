@@ -389,7 +389,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
   selectPortfolioAssetBalances,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+  (assets, accountBalances, assetBalances, accountId, assetId): string | undefined => {
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances?.[accountId]?.[assetId]),
@@ -397,7 +397,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
       )
     }
 
-    if (!assetId) return '0'
+    if (!assetId) return
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets?.[assetId]?.precision ?? 0)
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')

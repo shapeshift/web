@@ -1,26 +1,18 @@
-import { Box, Button, Flex, Grid, HStack, Stack } from '@chakra-ui/react'
+import { Grid, GridItem, Image, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@keepkey/caip'
-import { useMemo } from 'react'
-import type { Route } from 'Routes/helpers'
-import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { TradeCard } from 'pages/Dashboard/TradeCard'
-import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { AccountAssets } from './AccountAssets/AccountAssets'
-import { AssetAccounts } from './AssetAccounts/AssetAccounts'
-import { AssetChart } from './AssetHeader/AssetChart'
-import { AssetDescription } from './AssetHeader/AssetDescription'
-import { AssetHeader } from './AssetHeader/AssetHeader'
-import { AssetMarketData } from './AssetHeader/AssetMarketData'
-import { Main } from './Layout/Main'
-import { MaybeChartUnavailable } from './MaybeChartUnavailable'
-import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
-import { UnderlyingToken } from './UnderlyingToken'
-import { Card } from './Card/Card'
-import { Text } from './Text/Text'
+import type { ethereum } from '@keepkey/chain-adapters'
+import { KnownChainIds } from '@keepkey/types'
+import axios from 'axios'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { Route } from 'Routes/helpers'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+import type { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { colors } from 'theme/colors'
+
+import { Card } from './Card/Card'
 
 type AssetDetailsProps = {
   assetId: AssetId
@@ -28,12 +20,38 @@ type AssetDetailsProps = {
   route?: Route
 }
 
-export const AssetAccountNft = ({ assetId, accountId }: AssetDetailsProps) => {
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const assetIds = useMemo(() => [assetId], [assetId])
-  const translate = useTranslate()
+const moduleLogger = logger.child({
+  namespace: ['AssetAccountNft'],
+})
 
-  if (assetId !== 'eip155:1/slip44:60') return null
+export const AssetAccountNft = ({ assetId }: AssetDetailsProps) => {
+  const [nfts, setNfts] = useState([])
+  const translate = useTranslate()
+  const adapterManager = useMemo(() => getChainAdapterManager(), [])
+  const { state: walletState } = useWallet()
+
+  useEffect(() => {
+    ;(async (): Promise<unknown> => {
+      try {
+        const adapter = adapterManager.get(
+          KnownChainIds.EthereumMainnet,
+        ) as unknown as ethereum.ChainAdapter
+
+        if (!walletState.wallet) return
+        const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+        const address = await adapter.getAddress({ wallet: walletState.wallet, bip44Params })
+        if (!address) throw new Error(`Can't get address`)
+
+        const { data } = await axios.get(`https://api.opensea.io/api/v1/assets?owner=${address}`)
+        if (data?.assets.length > 0) setNfts(data.assets)
+      } catch (e) {
+        moduleLogger.error(e, `Failed to get NFT's`)
+        return null
+      }
+    })()
+  }, [adapterManager, walletState])
+
+  if (assetId !== 'eip155:1/slip44:60' || nfts.length === 0) return null
 
   return (
     <Card>
@@ -42,44 +60,23 @@ export const AssetAccountNft = ({ assetId, accountId }: AssetDetailsProps) => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          <Grid
-            templateColumns={{
-              base: '1fr 1fr',
-              md: '1fr 1fr 1fr',
-              lg: '2fr 150px repeat(2, 1fr)',
-            }}
-            gap='1rem'
-            pl={4}
-            pr={4}
-            fontSize='sm'
-            lineHeight='shorter'>
-            <Text translation='assets.assetDetails.assetAccounts.account' color='gray.500' />
-            <Text
-              translation='assets.assetDetails.assetAccounts.allocation'
-              color='gray.500'
-              textAlign='right'
-              display={{ base: 'none', lg: 'block' }}
-            />
-            <Text
-              translation='assets.assetDetails.assetAccounts.amount'
-              display={{ base: 'none', md: 'block', lg: 'block' }}
-              color='gray.500'
-              textAlign='right'
-            />
-            <Text
-              translation='assets.assetDetails.assetAccounts.value'
-              textAlign='right'
-              color='gray.500'
-            />
+          <Grid templateColumns='repeat(auto-fit,minmax(200px,1fr))' gap='1rem'>
+            {nfts.map((nft: any) => (
+              <GridItem
+                key={nft.permalink}
+                cursor='pointer'
+                onClick={() => window.open(nft.permalink, '_blank')}
+              >
+                <Image
+                  height='100%'
+                  style={{ background: nft.background_color ?? colors.gray[100] }}
+                  src={
+                    nft.image_thumbnail_url ?? 'https://opensea.io/static/images/placeholder.png'
+                  }
+                />
+              </GridItem>
+            ))}
           </Grid>
-          {/* {accountIds.map(accountId => (
-            <AssetAccountRow
-              accountId={accountId}
-              assetId={assetId}
-              key={accountId}
-              showAllocation
-            />
-          ))} */}
         </Stack>
       </Card.Body>
     </Card>

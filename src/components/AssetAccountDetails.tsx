@@ -9,6 +9,7 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
+import { AssetAccountNft } from './AssetAccountNft'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetChart } from './AssetHeader/AssetChart'
 import { AssetDescription } from './AssetHeader/AssetDescription'
@@ -18,7 +19,6 @@ import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
-import { AssetAccountNft } from './AssetAccountNft'
 
 type AssetDetailsProps = {
   assetId: AssetId
@@ -42,7 +42,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <MaybeChartUnavailable assetIds={assetIds} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <AssetAccounts assetId={assetId} accountId={accountId} />
-          <AssetAccountNft assetId={assetId} accountId={accountId} />
+          <AssetAccountNft assetId={assetId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={3} assetId={assetId} accountId={accountId} />

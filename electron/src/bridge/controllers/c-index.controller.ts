@@ -4,8 +4,9 @@ import { db } from '../../db';
 import { createWindow, kkStateController, windows } from '../../main';
 import { shared, userType } from '../../shared';
 
-import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security } from 'tsoa';
+import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security, Middlewares } from 'tsoa';
 import { GenericResponse, PairBody, PairResponse } from '../types';
+import { logger } from '../middlewares/logger';
 
 
 export class ApiError extends Error {
@@ -36,6 +37,7 @@ export class CIndexController extends Controller {
     }
 
     @Response(500)
+    @Middlewares([logger])
     @Post('/pair')
     public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>(async (resolve, reject) => {
@@ -131,6 +133,7 @@ export class CIndexController extends Controller {
 
     @Get('/user')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(401, "Please provide a valid serviceKey")
     public async user(): Promise<userType> {
         return shared.USER

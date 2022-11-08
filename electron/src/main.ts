@@ -50,6 +50,7 @@ import { setupAutoUpdater, skipUpdateCheckCompleted } from './updater'
 import fs from 'fs'
 import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, PLUGIN } from './bridge/kk-state-controller'
 import { createAndUpdateTray } from './tray'
+import { BridgeLogger } from './bridge/logger'
 
 dotenvConfig()
 
@@ -59,6 +60,7 @@ setupAutoUpdater()
 Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 export const settings = new Settings()
+export const bridgeLogger = new BridgeLogger()
 
 // dont allow muliple windows to open
 if (!app.requestSingleInstanceLock()) app.quit()
@@ -91,14 +93,14 @@ if (process.defaultApp) {
 const onKKStateChange = async (eventName: string, args: any) => {
     // try to start the tcp bridge if not already running
     if (eventName === CONNECTED) await startTcpBridge()
-    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopBridge()
+    else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR) await stopBridge()
     createAndUpdateTray()
     return queueIpcEvent(eventName, args)
 }
 
 export const kkStateController = new KKStateController(onKKStateChange)
 // send a plugin event if its not unplugged
-if(kkStateController.lastState !== 'DISCONNECTED')
+if (kkStateController.lastState !== 'DISCONNECTED')
     queueIpcEvent(PLUGIN, {})
 
 
@@ -121,10 +123,10 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     } catch (e: any) {
         if (e.toString().includes('claimInterface error')) {
             windows?.splash?.webContents.send("@update/errorClaimed")
-            await new Promise( () => 0 )
+            await new Promise(() => 0)
         } else {
             windows?.splash?.webContents.send("@update/errorReset")
-            await new Promise( () => 0 )
+            await new Promise(() => 0)
         }
     }
 
@@ -211,6 +213,8 @@ app.on('window-all-closed', () => {
 app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+
+app.on("before-quit", bridgeLogger.saveLogs)
 
 // C:\Users\amito\AppData\Local\Programs\keepkey-desktop\resources\app.asar\electron\dist
 log.info("__dirname", __dirname)

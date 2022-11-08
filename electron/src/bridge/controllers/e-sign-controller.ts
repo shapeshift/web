@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
-import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
+import { Body, Controller, Get, Post, Security, Route, Tags, Response, Middlewares } from 'tsoa';
 import { kkStateController } from '../';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
@@ -10,6 +10,7 @@ import { EosToSignTx, EosTxSigned, BinanceSignedTx, BinanceSignTx, RippleSignedT
 import { uniqueId } from 'lodash';
 import { openSignTxWindow } from '../../utils';
 import { checkKeepKeyUnlocked } from '../../utils';
+import { logger } from '../middlewares/logger';
 
 @Tags('KeepKey signTx Endpoints')
 @Route('')
@@ -19,6 +20,7 @@ export class ESignController extends Controller {
 
     @Post('/btcSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async btcSignTx(@Body() body: any): Promise<BTCSignedTx> {
         // BTCSignTxKK results in a circular import
@@ -33,6 +35,7 @@ export class ESignController extends Controller {
 
     @Post('/thorchainSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async thorchainSignTx(@Body() body: ThorchainSignTx): Promise<ThorchainTx> {
         return new Promise<ThorchainTx>(async (resolve, reject) => {
@@ -45,6 +48,7 @@ export class ESignController extends Controller {
 
     @Post('/cosmosSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async cosmosSignTx(@Body() body: CosmosSignTx): Promise<CosmosSignedTx> {
         return new Promise<CosmosSignedTx>(async (resolve, reject) => {
@@ -57,6 +61,7 @@ export class ESignController extends Controller {
 
     @Post('/osmosisSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async osmosisSignTx(@Body() body: any): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -72,6 +77,7 @@ export class ESignController extends Controller {
 
     @Post('/rippleSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async rippleSignTx(@Body() body: RippleSignTx): Promise<RippleSignedTx> {
         return new Promise<RippleSignedTx>(async (resolve, reject) => {
@@ -84,6 +90,7 @@ export class ESignController extends Controller {
 
     @Post('/binanceSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     //TODO unknown type  Error: Unknown type: TupleType
     public async binanceSignTx(@Body() body: any): Promise<any> {
@@ -97,6 +104,7 @@ export class ESignController extends Controller {
 
     @Post('/ethSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async ethSignTx(@Body() body: any): Promise<ETHSignedTx> {
         return new Promise<ETHSignedTx>(async (resolve, reject) => {
@@ -109,6 +117,7 @@ export class ESignController extends Controller {
 
     @Post('/eosSignTx')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async eosSignTx(@Body() body: any): Promise<any> {
         return new Promise<EosTxSigned>(async (resolve, reject) => {
@@ -121,6 +130,7 @@ export class ESignController extends Controller {
 
     @Post('/sign')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async signTransaction(@Body() body: any): Promise<SignedTx | Error> {
         return new Promise<SignedTx | Error>(async (resolve, reject) => {

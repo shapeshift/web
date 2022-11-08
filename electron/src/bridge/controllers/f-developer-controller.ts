@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
+import { Body, Controller, Post, Security, Route, Tags, Response, Middlewares } from 'tsoa';
 import wait from 'wait-promise'
 import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
 import { kkStateController } from '../../main';
+import { logger } from '../middlewares/logger';
 
 export type policy = {
     policyName?: string,
@@ -17,6 +18,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/loadDevice')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async loadDevice(@Body() body: LoadDevice): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -29,6 +31,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/removePin')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async removePin(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -52,6 +55,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/clearSession')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async clearSession(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -76,6 +80,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/wipe')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async wipe(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -88,6 +93,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/disconnect')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async disconnect(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -99,6 +105,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/applyPolicy')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     //TODO get policy type
     public async applyPolicy(@Body() body: any): Promise<ETHSignedTx> {
@@ -112,6 +119,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/applySettings')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     //TODO get settings type
     public async applySettings(@Body() body: any): Promise<ETHSignedTx> {
@@ -125,6 +133,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/firmwareErase')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async firmwareErase(@Body() body: void): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -137,6 +146,7 @@ export class FDeveloperController extends Controller {
 
     @Post('/firmwareUpload')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     //TODO Firmware sent as buffer, express in types
     public async firmwareUpload(@Body() body: any): Promise<ETHSignedTx> {

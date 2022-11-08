@@ -1,15 +1,18 @@
 import { ipcMain } from 'electron';
 import { kkStateController, windows } from '../../main';
-import { Body, Controller, Post, Security, Route, Tags, Response } from 'tsoa';
+import { Body, Controller, Post, Security, Route, Tags, Response, Middlewares } from 'tsoa';
 import { GetPublicKey } from '../types';
 import { EosGetPublicKey, RippleGetAddress, BinanceGetAddress, ETHGetAddress, OsmosisGetAddress, PublicKey, ThorchainGetAddress, CosmosGetAddress, BTCGetAddress } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../../utils';
+import { logger } from '../middlewares/logger';
+
 @Tags('KeepKey Wallet Endpoints')
 @Route('')
 export class DPubkeyController extends Controller {
 
     @Post('/getPublicKeys')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getPublicKeys(@Body() body: GetPublicKey[]): Promise<Array<PublicKey | null>> {
         return new Promise<Array<PublicKey | null>>(async (resolve, reject) => {
@@ -23,6 +26,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/btcGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async btcGetAddress(@Body() body: BTCGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -35,6 +39,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/ethGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async ethGetAddress(@Body() body: ETHGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -47,6 +52,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/thorchainGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async thorchainGetAddress(@Body() body: ThorchainGetAddress): Promise<string | null> {
         return new Promise<string | null>(async (resolve, reject) => {
@@ -59,6 +65,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/osmosisGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async osmosisGetAddress(@Body() body: OsmosisGetAddress): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -74,6 +81,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/binanceGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async binanceGetAddress(@Body() body: BinanceGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -86,6 +94,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/cosmosGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async cosmosGetAddress(@Body() body: CosmosGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -98,6 +107,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/rippleGetAddress')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async rippleGetAddress(@Body() body: RippleGetAddress): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -110,6 +120,7 @@ export class DPubkeyController extends Controller {
 
     @Post('/eosGetPublicKey')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async eosGetPublicKey(@Body() body: EosGetPublicKey): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {

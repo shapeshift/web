@@ -7,17 +7,15 @@ import { Overview } from 'features/defi/components/Overview/Overview'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectHighestBalanceAccountIdByLpId,
   selectLpOpportunitiesById,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
+  selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import type { Nullable } from 'types/common'
@@ -63,30 +61,17 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     () => ({
       assetId: opportunityId ?? '',
       accountId: accountId ?? '',
+      lpId: opportunityId as LpId,
     }),
     [accountId, opportunityId],
   )
-  const lpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, lpAssetBalanceFilter),
+  const underlyingAssetsIcons = useMemo(
+    () => opportunityMetadata?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    [assets, opportunityMetadata?.underlyingAssetIds],
   )
 
-  const underlyingAssetsWithBalances = useMemo(
-    () =>
-      opportunityMetadata?.underlyingAssetIds.map((assetId, i) => ({
-        ...assets[assetId],
-        cryptoBalance: bnOrZero(lpAssetBalance)
-          .times(
-            fromBaseUnit(opportunityMetadata.underlyingAssetRatios[i], assets[assetId].precision),
-          )
-          .toString(),
-        allocationPercentage: '0.50',
-      })),
-    [
-      assets,
-      lpAssetBalance,
-      opportunityMetadata?.underlyingAssetIds,
-      opportunityMetadata.underlyingAssetRatios,
-    ],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingLpAssetsWithBalancesAndIcons(state, lpAssetBalanceFilter),
   )
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
@@ -99,11 +84,6 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const underlyingAssetsFiatBalance = useAppSelector(state =>
     selectPortfolioFiatBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
-  )
-
-  const underlyingAssetsIcons = useMemo(
-    () => opportunityMetadata?.underlyingAssetIds.map(assetId => assets[assetId].icon),
-    [assets, opportunityMetadata?.underlyingAssetIds],
   )
 
   const highestBalanceAccountAddress = useMemo(
@@ -125,7 +105,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     selectedLocale,
   })
 
-  if (!opportunityMetadata || !underlyingAssetsWithBalances) {
+  if (!opportunityMetadata || !underlyingAssetsWithBalancesAndIcons) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -143,7 +123,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       icons={underlyingAssetsIcons}
       name={opportunityMetadata.name ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
-      underlyingAssets={underlyingAssetsWithBalances}
+      underlyingAssets={underlyingAssetsWithBalancesAndIcons}
       provider={opportunityMetadata.provider}
       description={{
         description: lpAsset?.description,

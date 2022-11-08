@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pickBy from 'lodash/pickBy'
 import { createCachedSelector } from 're-reselect'
@@ -421,5 +422,30 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
     const foundAccountId: AccountId = foundEntries?.[0]
 
     return foundAccountId
+  },
+)
+
+export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
+  selectLpIdParamFromFilter,
+  selectLpOpportunitiesById,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectAssets,
+  (lpId, lpOpportunitiesById, lpAssetBalance, assets): AssetWithBalance[] | undefined => {
+    if (!lpId) return
+    const opportunityMetadata = lpOpportunitiesById[lpId as LpId]
+    const underlyingAssetsIcons = opportunityMetadata?.underlyingAssetIds.map(
+      assetId => assets[assetId].icon,
+    )
+    return opportunityMetadata?.underlyingAssetIds.map((assetId, i) => ({
+      ...assets[assetId],
+      cryptoBalance: bnOrZero(lpAssetBalance)
+        .times(
+          fromBaseUnit(opportunityMetadata.underlyingAssetRatios[i], assets[assetId].precision),
+        )
+        .toFixed(6)
+        .toString(),
+      icons: [underlyingAssetsIcons![i]],
+      allocationPercentage: '0.50',
+    }))
   },
 )

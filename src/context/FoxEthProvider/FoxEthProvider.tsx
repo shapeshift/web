@@ -94,7 +94,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   useEffect(() => {
     ;(async () => {
-      await fetchAllOpportunitiesMetadata().catch(e => moduleLogger.error(e))
+      await fetchAllOpportunitiesMetadata()
     })()
   }, [ethAccountIds, dispatch, refetchFoxEthLpAccountData])
 

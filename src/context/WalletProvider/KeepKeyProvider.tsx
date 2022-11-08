@@ -9,8 +9,8 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react'
-import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { Asset } from '@keepkey/asset-service'
+import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'

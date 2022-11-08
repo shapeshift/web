@@ -1,5 +1,5 @@
-import { createSelector } from '@reduxjs/toolkit'
 import type { cosmossdk } from '@keepkey/chain-adapters'
+import { createSelector } from '@reduxjs/toolkit'
 import type { ReduxState } from 'state/reducer'
 
 import type { PubKey, ValidatorData, ValidatorDataByPubKey } from './validatorDataSlice'

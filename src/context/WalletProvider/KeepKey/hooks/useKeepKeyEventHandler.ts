@@ -240,7 +240,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
-          console.log('handle connect')
+
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -293,6 +293,7 @@ export const useKeepKeyEventHandler = (
     modal,
     state.walletInfo,
     setDeviceState,
+    setNeedsReset,
     disposition,
     toast,
     translate,

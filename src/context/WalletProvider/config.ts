@@ -7,9 +7,9 @@ import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/Change
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
+import { UpdateKeepKey } from 'components/Modals/UpdateKeepKey/UpdateKeepKey'
 
 import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
-import { KeepKeyFactoryState } from '../../components/Modals/UpdateKeepKey/FactoryState'
 import { KeepKeyLabel } from './KeepKey/components/Label'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPinModal } from './KeepKey/components/PinModal'
@@ -22,7 +22,6 @@ import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeyManager } from './KeyManager'
 import { KeepKeyRoutes } from './routes'
-import { UpdateKeepKey } from 'components/Modals/UpdateKeepKey/UpdateKeepKey'
 export interface SupportedWalletInfo {
   adapter: any
   supportsMobile?: 'browser' | 'app' | 'both'

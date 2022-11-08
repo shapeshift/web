@@ -1,17 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from '@chakra-ui/react'
+import { ModalBody, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
 import { Text } from 'components/Text'
@@ -19,7 +6,7 @@ import { useModal } from 'hooks/useModal/useModal'
 
 export const UpdateFirmware = (params: any) => {
   const { updateKeepKey } = useModal()
-  const { close, isOpen } = updateKeepKey
+  const { isOpen } = updateKeepKey
 
   const handleUpdateFirmware = async () => {
     ipcRenderer.send('@keepkey/update-firmware', {})
@@ -54,7 +41,7 @@ export const UpdateFirmware = (params: any) => {
         </Tbody>
       </Table>
       <br />
-      <Text size='xl'  translation='Confirm on device' />
+      <Text size='xl' translation='Confirm on device' />
     </ModalBody>
   )
 }

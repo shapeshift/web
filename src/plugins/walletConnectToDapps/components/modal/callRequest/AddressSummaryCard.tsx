@@ -8,10 +8,15 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 type AddressSummaryCardProps = {
   address: string
+  showWalletProviderName?: boolean
   icon?: React.ReactNode
 }
 
-export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({ address, icon }) => {
+export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
+  address,
+  icon,
+  showWalletProviderName = true,
+}) => {
   const walletName = useWallet().state.walletInfo?.name ?? ''
   const handleCopyAddressClick = useCallback(
     () => navigator.clipboard.writeText(address),
@@ -27,7 +32,7 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({ address,
         )}
         <Box flex={1}>
           <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
-          {walletName && (
+          {showWalletProviderName && (
             <RawText color='gray.500' fontWeight='medium' mt={1}>
               {walletName}
             </RawText>

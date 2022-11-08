@@ -1,7 +1,10 @@
+import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { HDWalletWCBridge } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
-import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
@@ -10,10 +13,11 @@ import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<HDWalletWCBridge>()
+  const { connectedEvmChainId } = useEvm()
 
   const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
   const onCallRequest = useCallback(
-    (request: WalletConnectCallRequest) => setCallRequests(prev => [...prev, request]),
+    (request: WalletConnectCallRequest) => setCallRequests(prev => [request, ...prev]),
     [],
   )
   const approveRequest = useCallback(
@@ -45,36 +49,62 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         alert('TODO: No HDWallet connected')
         return
       }
-      if (!('_supportsETH' in wallet)) {
+
+      if (!supportsETH(wallet)) {
         alert('TODO: No ETH HDWallet connected')
         return
       }
 
-      const newBridge = HDWalletWCBridge.fromURI(uri, wallet, { onCallRequest })
+      const newBridge = HDWalletWCBridge.fromURI(
+        uri,
+        wallet,
+        connectedEvmChainId
+          ? fromChainId(connectedEvmChainId).chainReference
+          : CHAIN_REFERENCE.EthereumMainnet,
+        {
+          onCallRequest,
+        },
+      )
+
       newBridge.connector.on('connect', rerender)
       newBridge.connector.on('disconnect', disconnect)
       await newBridge.connect()
+
       setBridge(newBridge)
     },
-    [wallet, disconnect, rerender, onCallRequest],
+    [wallet, connectedEvmChainId, onCallRequest, rerender, disconnect],
   )
 
   const tryConnectingToExistingSession = useCallback(async () => {
     if (!!bridge) return
-    if (!wallet || !('_supportsETH' in wallet)) return
+    if (!wallet || !supportsETH(wallet)) return
 
     const wcSessionJsonString = localStorage.getItem('walletconnect')
-    if (!wcSessionJsonString) {
-      return
-    }
+    if (!wcSessionJsonString) return
 
     const session = JSON.parse(wcSessionJsonString)
-    const existingBridge = HDWalletWCBridge.fromSession(session, wallet, { onCallRequest })
+    const existingBridge = HDWalletWCBridge.fromSession(
+      session,
+      wallet,
+      connectedEvmChainId
+        ? fromChainId(connectedEvmChainId).chainReference
+        : CHAIN_REFERENCE.EthereumMainnet,
+      {
+        onCallRequest,
+      },
+    )
     existingBridge.connector.on('connect', rerender)
     existingBridge.connector.on('disconnect', disconnect)
     await existingBridge.connect()
     setBridge(existingBridge)
-  }, [bridge, wallet, disconnect, rerender, onCallRequest])
+  }, [bridge, wallet, connectedEvmChainId, onCallRequest, rerender, disconnect])
+
+  // TODO(Q): fix the race condition between the following two hooks
+  // if the wallet provider or connectedEvmChainId changes, disconnect the dapp
+  // useEffect(() => {
+  //   disconnect()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [wallet, connectedEvmChainId])
 
   useEffect(() => {
     tryConnectingToExistingSession()

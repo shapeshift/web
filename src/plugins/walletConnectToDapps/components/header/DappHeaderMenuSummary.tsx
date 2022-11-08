@@ -69,8 +69,17 @@ export const DappHeaderMenuSummary = () => {
             connected={walletConnect.bridge.connector.connected}
           />
           <Box fontWeight='medium'>
-            <RawText>{walletConnect.dapp.name}</RawText>
-            <RawText fontSize='sm' color='gray.500'>
+            <RawText maxWidth='215px' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
+              {walletConnect.dapp.name}
+            </RawText>
+            <RawText
+              fontSize='sm'
+              color='gray.500'
+              maxWidth='215px'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+            >
               {walletConnect.dapp.url.replace(/^https?:\/\//, '')}
             </RawText>
           </Box>

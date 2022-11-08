@@ -10,7 +10,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
+import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -64,7 +64,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
             {
               value: FeeDataKey.Fast,
               label: translate(getFeeTranslation(FeeDataKey.Fast)),
-              duration: '~ 3 seconds',
+              duration: '~ 30 seconds',
               amount: fees.fast.txFee,
               color: 'red.400',
             },

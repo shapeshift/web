@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
+import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 
 import { ConnectModal } from '../modal/connect/ConnectModal'
 import { DappAvatar } from './DappAvatar'
@@ -23,6 +24,7 @@ export const WalletConnectToDappsHeaderButton = () => {
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
           onClick={() => setOpen(true)}
+          isLoading={!!walletConnect.bridge}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>
@@ -48,14 +50,16 @@ export const WalletConnectToDappsHeaderButton = () => {
         rightIcon={<ChevronDownIcon />}
         width={{ base: 'full', md: 'auto' }}
         textAlign='left'
+        flexShrink='none'
       >
-        {/* TODO: when setting "flex: unset" or "flex-shrink: none" to the Button content parent, overflow isn't a problem */}
-        <RawText fontSize='sm'>{walletConnect.dapp.name}</RawText>
+        <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
+          {trimWithEndEllipsis(walletConnect.dapp.name, 16)}
+        </RawText>
         <RawText fontSize='xs' color='gray.500'>
-          {walletConnect.dapp.url.replace(/^https?:\/\//, '')}
+          {trimWithEndEllipsis(walletConnect.dapp.url.replace(/^https?:\/\//, ''), 18)}
         </RawText>
       </MenuButton>
-      <MenuList>
+      <MenuList zIndex={2}>
         <DappHeaderMenuSummary />
       </MenuList>
     </Menu>

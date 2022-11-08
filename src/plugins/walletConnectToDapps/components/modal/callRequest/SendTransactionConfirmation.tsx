@@ -9,6 +9,7 @@ import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
 import { ContractInteractionBreakdown } from './ContractInteractionBreakdown'
@@ -33,6 +34,10 @@ type Props = {
 export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onReject }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
+  const {
+    state: { walletInfo },
+  } = useWallet()
+  const WalletIcon = walletInfo?.icon ?? FoxIcon
 
   const form = useForm<ConfirmData>({
     defaultValues: {
@@ -55,10 +60,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             translation='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'
             mb={4}
           />
-          <AddressSummaryCard
-            address={address}
-            icon={<FoxIcon color='gray.500' w='full' h='full' />}
-          />
+          <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
         </Box>
 
         <Box>
@@ -69,6 +71,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
           />
           <AddressSummaryCard
             address={request.to}
+            showWalletProviderName={false}
             icon={
               <Image
                 borderRadius='full'

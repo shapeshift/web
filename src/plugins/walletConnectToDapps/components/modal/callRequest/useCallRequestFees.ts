@@ -1,6 +1,6 @@
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
+import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useCallback, useEffect, useState } from 'react'
 import type { FeePrice } from 'components/Modals/Send/views/Confirm'
@@ -10,11 +10,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 export function useCallRequestFees(
   request: WalletConnectEthSendTransactionCallRequest['params'][number],
 ) {
-  const [fees, setFees] = useState<FeePrice | undefined>({
-    [FeeDataKey.Slow]: { txFee: '0.0001', fiatFee: '5.00' },
-    [FeeDataKey.Average]: { txFee: '0.0001', fiatFee: '5.00' },
-    [FeeDataKey.Fast]: { txFee: '0.0001', fiatFee: '5.00' },
-  })
+  const [fees, setFees] = useState<FeePrice | undefined>()
 
   const walletConnect = useWalletConnect()
   const address = walletConnect.bridge?.connector.accounts[0]

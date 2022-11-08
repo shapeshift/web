@@ -11,7 +11,8 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectContractByAddress } from 'state/apis/abi/selectors'
+import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
+import { handleAbiApiResponse } from 'state/apis/abi/utils'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -24,7 +25,8 @@ type Props = {
 export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   const translate = useTranslate()
 
-  const { contract } = useAppSelector(s => selectContractByAddress(s, request.to))
+  const query = useGetContractAbiQuery(request.to)
+  const { contract } = handleAbiApiResponse(query)
   const transaction = useMemo(
     () => contract?.parseTransaction({ data: request.data, value: request.value }),
     [contract, request.data, request.value],
@@ -32,13 +34,13 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
 
   const evmChainId = request.chainId
   const assets = useAppSelector(selectAssets)
-  const symbol = useMemo(() => {
+  const feeAsset = useMemo(() => {
     const chainId = `${CHAIN_NAMESPACE.Evm}${evmChainId}`
     const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
-    if (!feeAssetId) return '?'
+    if (!feeAssetId) return null
     const feeAsset = assets[feeAssetId]
-    if (!feeAsset) return '?'
-    return feeAsset.symbol
+    if (!feeAsset) return null
+    return feeAsset
   }, [assets, evmChainId])
 
   return (
@@ -58,7 +60,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
           translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
         />
         <RawText fontWeight='medium'>
-          <Amount.Crypto value={request.value} symbol={symbol} />
+          {feeAsset && <Amount.Crypto value={request.value} symbol={feeAsset.symbol} />}
         </RawText>
         <Divider my={4} />
         {!!transaction &&

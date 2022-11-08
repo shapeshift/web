@@ -21,15 +21,13 @@ export const abiApi = createApi({
           const apiKey = getConfig().REACT_APP_ETHERSCAN_API_KEY
           const url = `https://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${apiKey}`
           const res = await fetch(url).then(res => res.json())
-          if (res.status !== '1' || isEmpty(res.result)) throw new Error(res.result)
+          if (isEmpty(res.result)) throw new Error(res)
           const abi = JSON.parse(res.result)
           return { data: abi }
         } catch (e) {
-          const data = `unable to fetch abi for ${contractAddress}`
-          moduleLogger.error(e, { contractAddress }, data)
-          const status = 400
-          const error = { data, status }
-          return error
+          const error = `unable to fetch abi for ${contractAddress}`
+          moduleLogger.error(e, { contractAddress }, error)
+          return { error }
         }
       },
     }),

@@ -1,5 +1,7 @@
-import type { HDWalletWCBridge } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
-import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
+import type {
+  HDWalletWCBridge,
+  WalletConnectCallRequest,
+} from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import type { IClientMeta } from '@walletconnect/types'
 import { createContext, useContext } from 'react'
 

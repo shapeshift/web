@@ -136,7 +136,7 @@ export class WCService {
           data: txData.data,
           gasLimit: txData.gasLimit,
           to: txData.to,
-          value: txData.value,
+          value: txData.value ?? '0x0',
           nonce: txData.nonce,
           maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
           maxFeePerGas: txData.maxFeePerGas,

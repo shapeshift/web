@@ -44,7 +44,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
         />
         <RawText fontWeight='medium'>
           {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
-          {CurrencyAmount.ether(request.value).toFixed()}
+          {CurrencyAmount.ether(request?.value ?? '0x0').toFixed()}
         </RawText>
 
         <Divider my={4} />

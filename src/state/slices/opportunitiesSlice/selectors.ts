@@ -262,7 +262,9 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       underlyingEthAmount,
       cryptoAmount: lpAssetBalance,
       // TODO: this all goes away anyway
-      fiatAmount: bnOrZero(lpAssetBalance).times(marketDataPrice).toString(),
+      fiatAmount: bnOrZero(lpAssetBalance)
+        .times(marketDataPrice ?? '0')
+        .toString(),
     }
 
     return opportunity

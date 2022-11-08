@@ -25,20 +25,43 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state } = useWallet()
+  const { setIsUpdatingKeepkey, state } = useWallet()
 
-  const { pair, sign, hardwareError, updateBootloader, updateFirmware, requestBootloaderMode } =
-    useModal()
+  const {
+    pair,
+    sign,
+    hardwareError,
+    updateBootloader,
+    updateFirmware,
+    requestBootloaderMode,
+    loading,
+  } = useModal()
 
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
     state.wallet?.disconnect()
-    if (needsReset) hardwareError.open({})
-    else hardwareError.close()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [needsReset])
 
-  useEffect(() => {
+    ipcRenderer.on('plugin', () => {
+      loading.open({ closing: false })
+      hardwareError.close()
+    })
+
+    ipcRenderer.on('appClosing', () => {
+      loading.open({ closing: true })
+    })
+
+    ipcRenderer.on('hardwareError', () => {
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      hardwareError.open({})
+      loading.close()
+    })
+
+    ipcRenderer.on('disconnected', () => {
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      hardwareError.open({})
+      loading.close()
+    })
+
     ipcRenderer.on('@modal/pair', (_event, data: PairingProps) => {
       pair.open(data)
     })
@@ -53,20 +76,17 @@ export const App = () => {
     })
 
     ipcRenderer.on('requestBootloaderMode', () => {
-      setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.open({})
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
-      setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.close()
       updateBootloader.open(data)
     })
 
     ipcRenderer.on('updateFirmware', (_event, data) => {
-      setNeedsReset(false)
       setIsUpdatingKeepkey(true)
       requestBootloaderMode.close()
       updateBootloader.close()

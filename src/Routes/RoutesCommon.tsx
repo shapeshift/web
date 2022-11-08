@@ -1,3 +1,4 @@
+import { WalletConnectToDapps } from 'plugins/walletConnectToDapps/WalletConnectToDapps'
 import { FaFlag, FaGlobe, FaLock, FaPlug, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
@@ -5,6 +6,7 @@ import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
+import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -31,6 +33,13 @@ import { RouteCategory } from './helpers'
 
 export const routes: NestedRoute[] = [
   {
+    path: '/dapps',
+    label: 'navBar.dApps',
+    main: WalletConnectToDapps,
+    icon: <WalletConnectCurrentColorIcon />,
+    category: RouteCategory.Wallet,
+  },
+  {
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
@@ -38,10 +47,31 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Wallet,
   },
   {
+    path: '/pairings',
+    label: 'navBar.pairings',
+    icon: <FaPlug />,
+    category: RouteCategory.Wallet,
+    main: Pairings,
+  },
+  {
     path: '/leaderboard',
     label: 'Leaderboard',
     icon: <IoSwapVertical />,
     main: Leaderboard,
+    category: RouteCategory.Wallet,
+  },
+  {
+    path: '/browser',
+    label: 'navBar.browser',
+    icon: <FaGlobe />,
+    category: RouteCategory.Explore,
+    main: Browser,
+  },
+  {
+    path: '/trade',
+    label: 'navBar.trade',
+    icon: <IoSwapVertical />,
+    main: Trade,
     category: RouteCategory.Explore,
   },
   {
@@ -167,32 +197,11 @@ export const routes: NestedRoute[] = [
     ],
   },
   {
-    path: '/browser',
-    label: 'navBar.browser',
-    icon: <FaGlobe />,
-    category: RouteCategory.Explore,
-    main: Browser,
-  },
-  {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
     icon: <TxHistoryIcon />,
     main: TransactionHistory,
     category: RouteCategory.Wallet,
-  },
-  {
-    path: '/trade',
-    label: 'navBar.trade',
-    icon: <IoSwapVertical />,
-    main: Trade,
-    category: RouteCategory.Explore,
-  },
-  {
-    path: '/pairings',
-    label: 'navBar.pairings',
-    icon: <FaPlug />,
-    category: RouteCategory.Explore,
-    main: Pairings,
   },
   {
     path: '/flags',

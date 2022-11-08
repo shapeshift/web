@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { app, ipcMain } from 'electron';
-import { createWindow, windows } from '../../main';
+import { createMainWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
-import { kkStateController } from '../';
+import { kkStateController } from '../kk-state-controller';
 import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
 import { EosToSignTx, EosTxSigned, BinanceSignedTx, BinanceSignTx, RippleSignedTx, RippleSignTx, BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 import { uniqueId } from 'lodash';
-import { openSignTxWindow } from '../../utils';
-import { checkKeepKeyUnlocked } from '../../utils';
+import { openSignTxWindow } from '../utils';
+import { checkKeepKeyUnlocked } from '../utils';
 
 @Tags('KeepKey signTx Endpoints')
 @Route('')

@@ -176,7 +176,7 @@ async function getFoxyOpportunities(
           })
 
           return {
-            balance: resolvedAcc.balance.plus(balance),
+            balance: resolvedAcc.balance.plus(bnOrZero(balance)),
             withdrawInfo: { ...resolvedAcc.withdrawInfo, [accountId]: withdrawInfo },
           }
         },

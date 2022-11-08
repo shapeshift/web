@@ -55,3 +55,12 @@ export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
 
 export const isDefined = <T>(optional: T | undefined): optional is T => !isUndefined(optional)
+
+// 0 is valid but falsy, dum language
+export const isValidAccountNumber = (
+  accountNumber: number | undefined | null,
+): accountNumber is number => {
+  if (accountNumber === undefined) return false
+  if (accountNumber === null) return false
+  return Number.isInteger(accountNumber) && accountNumber >= 0
+}

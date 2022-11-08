@@ -32,12 +32,11 @@ export const AllEarnOpportunities = () => {
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
+  const visibleFoxFarmingOpportunities = useAppSelector(s =>
+    selectVisibleFoxFarmingAccountOpportunitiesAggregated(s, null),
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
+  const foxEthLpOpportunity = useAppSelector(s =>
+    selectFoxEthLpAccountsOpportunitiesAggregated(s, null),
   )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {

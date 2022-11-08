@@ -39,21 +39,21 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
 export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => lpIdsByAccountId[accountId] ?? [],
+  (lpIdsByAccountId, accountId): LpId[] => (accountId ? lpIdsByAccountId[accountId] : []),
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
 export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
-  (stakingIdsByAccountId, accountId): StakingId[] => stakingIdsByAccountId[accountId] ?? [],
+  (stakingIdsByAccountId, accountId): StakingId[] =>
+    accountId ? stakingIdsByAccountId[accountId] : [],
 )
 
 export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {
-    if (userStakingId === '') return '*' // Narrowing flavoured template litteral type
-
+    if (!userStakingId) return '*' // Narrowing flavoured template litteral type
     const parts = deserializeUserStakingId(userStakingId)
     const [, stakingId] = parts
     return stakingId
@@ -72,8 +72,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     stakingId,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    if (userStakingId === '') return // Narrowing flavoured template litteral type
-
+    if (!userStakingId) return // Narrowing flavoured template literal type
     const userOpportunity = userStakingOpportunities[userStakingId]
     const opportunityMetadata = stakingOpportunities[stakingId]
 
@@ -96,6 +95,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     userStakingOpportunityIds,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
+    if (!stakingId) return []
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
       filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
@@ -142,7 +142,7 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
   (userStakingOpportunities, stakingId): AccountId | null => {
-    if (stakingId === '') return '*' // Narrowing flavoured type
+    if (!stakingId) return '*' // Narrowing flavoured type
 
     const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
       UserStakingId,
@@ -173,7 +173,7 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
   selectPortfolioAccountBalances,
   selectLpIdParamFromFilter,
   (portfolioAccountBalances, lpId): AccountId | undefined => {
-    if (lpId === '') return '*' // Narrowing flavoured type
+    if (!lpId) return '*' // Narrowing flavoured type
 
     const foundEntries = Object.entries(portfolioAccountBalances)
       .filter(([, byAccountId]) => byAccountId.hasOwnProperty(lpId))

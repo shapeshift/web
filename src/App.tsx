@@ -25,7 +25,7 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state } = useWallet()
+  const { needsReset, setNeedsReset, setIsUpdatingKeepkey, state, disconnect } = useWallet()
 
   const { pair, sign, hardwareError, updateKeepKey, requestBootloaderMode, loading } =
     useModal()
@@ -72,6 +72,7 @@ export const App = () => {
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       closeAllModals()
       setNeedsReset(true)
+      disconnect()
       hardwareError.open({})
     })
 

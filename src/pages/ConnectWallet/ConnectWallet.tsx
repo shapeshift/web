@@ -16,7 +16,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
   const { state, dispatch } = useWallet()
-  const hasWallet = Boolean(state.walletInfo?.deviceId)
+  console.log('state', state)
+  const hasWallet = Boolean(state.walletInfo?.deviceId) && state.isConnected
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()

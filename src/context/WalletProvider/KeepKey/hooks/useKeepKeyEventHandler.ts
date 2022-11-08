@@ -11,6 +11,7 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 
 import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
+import { useHistory } from 'react-router'
 
 const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 
@@ -19,8 +20,8 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
-  disconnect: any,
-  setNeedsReset: any,
+  setNeedsReset: (reset: boolean) => void,
+  disconnect: any
 ) => {
   const {
     keyring,
@@ -30,6 +31,7 @@ export const useKeepKeyEventHandler = (
 
   const toast = useToast()
   const translate = useTranslate()
+  const history = useHistory()
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
@@ -52,9 +54,11 @@ export const useKeepKeyEventHandler = (
           fnLogger.trace(message.message)
           switch (message.message) {
             case 'Device reset':
+              console.log("DEVICE RESET")
               setDeviceState({
                 disposition: 'initialized',
               })
+              setNeedsReset(false)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
@@ -238,6 +242,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
+          console.log('handle connect')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -264,6 +269,9 @@ export const useKeepKeyEventHandler = (
         }
         if (modal) {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          // disconnect()
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          // history.push('/')
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

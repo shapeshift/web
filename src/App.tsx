@@ -65,7 +65,7 @@ export const App = () => {
     ipcRenderer.on('appClosing', () => {
       loading.open({ closing: true })
     })
-
+ 
     ipcRenderer.on('hardwareError', () => {
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       hardwareError.open({})
@@ -73,9 +73,9 @@ export const App = () => {
     })
 
     ipcRenderer.on('disconnected', () => {
+      console.log('ipc d/c')
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       closeAllModals()
-      setNeedsReset(true)
       disconnect()
       hardwareError.open({})
     })

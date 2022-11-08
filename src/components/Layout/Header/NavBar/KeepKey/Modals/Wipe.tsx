@@ -56,7 +56,6 @@ export const WipeModal = () => {
     moduleLogger.trace({ fn: 'wipeDevice' }, 'Wiping KeepKey...')
     try {
       await keepKeyWallet?.wipe()
-      setNeedsReset(true)
       disconnect()
       onClose()
     } catch (e) {

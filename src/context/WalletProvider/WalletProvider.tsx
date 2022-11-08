@@ -140,7 +140,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      console.log("BUT SET")
+      console.log("BUT SET_WALLET")
       return {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
@@ -352,26 +352,94 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [deviceBusy, setDeviceBusy] = useState(false)
 
   const disconnect = useCallback(async () => {
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     /**
      * in case of KeepKey placeholder wallet,
      * the disconnect function is undefined
      */
-    console.log('main disconnect')
+    console.log('main d/c')
     clearLocalWallet()
     setNeedsReset(true)
+    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.RESET_STATE })
     setIsUpdatingKeepkey(false)
   }, [])
 
   const load = useCallback(() => {
+    const fnLogger = moduleLogger.child({ fn: ['load'] })
 
+    const localWalletType = getLocalWalletType()
+    const localWalletDeviceId = getLocalWalletDeviceId()
+    console.log('localwalletType', localWalletType)
+    fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
+    if (localWalletType && localWalletDeviceId && state.adapters) {
+      ; (async () => {
+        console.log('ii', localWalletType)
+        if (state.adapters?.has(localWalletType)) {
+          console.log('has')
+          // Fixes issue with wallet `type` being null when the wallet is loaded from state
+          dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
+
+          switch (localWalletType) {
+            case KeyManager.KeepKey:
+              try {
+                const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
+                /**
+                 * if localKeepKeyWallet is not null it means
+                 * KeepKey remained connected during the reload
+                 */
+                if (localKeepKeyWallet) {
+                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+                  const deviceId = await localKeepKeyWallet.getDeviceID()
+                  // This gets the firmware version needed for some KeepKey "supportsX" functions
+                  await localKeepKeyWallet.getFeatures()
+                  // Show the label from the wallet instead of a generic name
+                  const label = (await localKeepKeyWallet.getLabel()) || name
+
+                  await localKeepKeyWallet.initialize()
+                  console.log('inside load', localKeepKeyWallet)
+
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localKeepKeyWallet,
+                      name: label,
+                      icon,
+                      deviceId,
+                      meta: { label },
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                  setNeedsReset(false)
+                } else {
+                  /**
+                   * The KeepKey wallet is disconnected,
+                   * because the accounts are not persisted, the app cannot load without getting pub keys from the
+                   * wallet.
+                   */
+                  // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
+                  disconnect()
+                }
+              } catch (e) {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            default:
+              /**
+               * The fall-through case also handles clearing
+               * any demo wallet state on refresh/rerender.
+               */
+              disconnect()
+              break
+          }
+        }
+      })()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
   const pairAndConnect = useRef(
     debounce(async () => {
-      console.log("PAIR AND CONNECT")
       const adapters: Adapters = new Map()
       let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
       for (const walletName of Object.values(KeyManager)) {
@@ -386,6 +454,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           // Show the label from the wallet instead of a generic name
           const label = (await wallet.getLabel()) || name
           await wallet.initialize()
+          console.log('p and c')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name: label, icon, deviceId, meta: { label } },
@@ -524,10 +593,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
-  useEffect(() => load(), [load, state.adapters, state.keyring])
+  useEffect(() => {
+    const localWalletType = getLocalWalletType()
+    console.log('localwalletType in effect', localWalletType)
+    load()}
+    , [load, state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, disconnect, setNeedsReset)
+  useKeepKeyEventHandler(state, dispatch, load, setDeviceState, setNeedsReset, disconnect)
 
   const value: IWalletContext = useMemo(
     () => ({

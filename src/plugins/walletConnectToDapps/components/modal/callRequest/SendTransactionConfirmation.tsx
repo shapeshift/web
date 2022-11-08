@@ -78,7 +78,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     ) as unknown as ethereum.ChainAdapter
     adapter.getGasFeeData().then(feeData => {
       setGasFeeData(feeData)
-      const fastData = gasFeeData[FeeDataKey.Fast]
+      const fastData = feeData[FeeDataKey.Fast]
       const fastAmount = fromBaseUnit(
         bnOrZero(fastData?.maxFeePerGas).times(txInputGas),
         18,

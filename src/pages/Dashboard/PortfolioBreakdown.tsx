@@ -1,20 +1,16 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAssets,
-  selectLpOpportunitiesById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectAggregatedEarnUserLpOpportunity,
   selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -57,50 +53,21 @@ const BreakdownCard: React.FC<StatCardProps> = ({
 }
 
 export const PortfolioBreakdown = () => {
-  const assets = useAppSelector(selectAssets)
   const isDashboardBreakdownEnabled = useFeatureFlag('DashboardBreakdown')
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
   //FOX/ETH LP Balance
 
-  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const opportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
-    [lpOpportunitiesById],
-  )
-
-  const aggregatedLpAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: foxEthLpAssetId }),
-  )
-
-  // TODO: This doesn't belong here at all and needs a better shape
-  // This is effectively coming back to the previous implementation with specific fields we don't need like
-  // `underlyingFoxAmount` and `underlyingEthAmount`, surely we can pass the LP token value and calculate this in place
-  // The `useXYZDefiNormalizedStakingEarnDefiSomethingOPportunities` hooks are going away soon so this isn't staying here for long
-  const [, underlyingFoxAmount] = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityData?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      ) ?? ['0', '0'],
-    [
-      aggregatedLpAssetBalance,
-      assets,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-    ],
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
+    }),
   )
 
   // TODO: This seems wrong?
-  const lpBalance = underlyingFoxAmount ?? 0
+  const lpBalance = foxEthLpOpportunity?.underlyingFoxAmount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state))
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)

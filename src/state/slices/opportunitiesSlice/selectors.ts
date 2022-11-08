@@ -239,6 +239,8 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     const opportunityMetadata = lpOpportunitiesById[lpId]
     const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
 
+    if (!opportunityMetadata) return null
+
     const [underlyingEthAmount, underlyingFoxAmount] = opportunityMetadata?.underlyingAssetIds.map(
       (assetId, i) =>
         bnOrZero(lpAssetBalance)
@@ -250,7 +252,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
           )
           .toFixed(6)
           .toString(),
-    ) ?? ['0', '0']
+    )
 
     const opportunity = {
       ...baseLpEarnOpportunity,

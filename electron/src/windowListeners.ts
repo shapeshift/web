@@ -1,6 +1,7 @@
 import { shell, app } from "electron"
 import { ALLOWED_HOSTS, deviceBusyRead, deviceBusyWrite, setShouldShowWindow, windows } from "./helpers/globalState"
 import { queueIpcEvent } from "./helpers/utils"
+import { stopTcpBridge } from "./tcpBridge"
 import { skipUpdateCheckCompleted } from "./updaterListeners"
 
 export const startWindowListeners = () => {
@@ -14,12 +15,16 @@ export const startWindowListeners = () => {
         }
     })
 
-    windows.mainWindow?.on('close', (e) => {
+    windows.mainWindow?.on('close', async (e) => {
         if(!deviceBusyRead && !deviceBusyWrite) return
 
-        setInterval( () => {
-            if(!deviceBusyRead && !deviceBusyWrite) app.quit()
+        setInterval( async () => {
+            if(!deviceBusyRead && !deviceBusyWrite) { 
+                await stopTcpBridge()
+                app.quit()
+            }
         }, 1000)
+
         queueIpcEvent('appClosing', {})
         return e.preventDefault()
     })

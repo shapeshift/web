@@ -158,7 +158,7 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
         </ModalHeader>
         <ModalBody>
           <RawText fontWeight='bold' color='gray.500' mb={4}>
-            With the KODI you can prioritize our development roadmap by signalling support for this
+            With KODI you can prioritize our development roadmap by signalling support for this
             asset. To continue you must have KODI tokens in your wallet.
             <br />
             <br />

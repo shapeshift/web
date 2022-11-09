@@ -135,8 +135,22 @@ describe('opportunitiesSlice selectors', () => {
     })
   })
   describe('selectUserStakingOpportunityByUserStakingId', () => {
+    const mockMetadata = {
+      apy: '1000',
+      assetId: mockStakingContractTwo,
+      provider: DefiProvider.FoxEthLP,
+      tvl: '91283233211',
+      type: DefiType.LiquidityPool,
+      underlyingAssetIds: foxEthPair,
+      underlyingAssetId: foxEthLpAssetId,
+      underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
+    }
+
     const staking = {
-      ...initialState.staking,
+      byId: {
+        [mockStakingContractOne]: mockMetadata,
+        [mockStakingContractTwo]: mockMetadata,
+      },
     }
     const userStaking = {
       ...initialState.staking,
@@ -174,6 +188,7 @@ describe('opportunitiesSlice selectors', () => {
       ).toEqual({
         stakedAmountCryptoPrecision: '1337',
         rewardsAmountCryptoPrecision: '420',
+        ...mockMetadata,
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
@@ -182,6 +197,7 @@ describe('opportunitiesSlice selectors', () => {
       ).toEqual({
         stakedAmountCryptoPrecision: '4',
         rewardsAmountCryptoPrecision: '3',
+        ...mockMetadata,
       })
     })
   })

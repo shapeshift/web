@@ -14,7 +14,7 @@ export const UpdateKeepKey = (params: any) => {
   const { setStep, activeStep } = useSteps({
     initialStep: 0,
   })
-  const { setNeedsReset, disconnect } = useWallet()
+  const { disconnect } = useWallet()
 
   useEffect(() => {
     if (params?.event?.bootloaderUpdateNeeded) {
@@ -38,7 +38,7 @@ export const UpdateKeepKey = (params: any) => {
       onClose={() => {
         disconnect()
         close()
-        setNeedsReset(true)
+        setStep(0)
       }}
       isCentered
       closeOnOverlayClick={false}

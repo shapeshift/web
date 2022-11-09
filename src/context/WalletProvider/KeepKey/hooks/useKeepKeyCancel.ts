@@ -12,7 +12,6 @@ export const useKeepKeyCancel = () => {
   const {
     state: { wallet },
     disconnect,
-    setNeedsReset,
     dispatch,
   } = useWallet()
 
@@ -29,7 +28,6 @@ export const useKeepKeyCancel = () => {
   }, [toast, translate, wallet])
 
   const handleCancel = async () => {
-    setNeedsReset(true)
     disconnect()
     await cancelWalletRequest()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

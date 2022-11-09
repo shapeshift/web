@@ -23,7 +23,6 @@ export const HardwareErrorModal = (error: any) => {
   const { close, isOpen } = hardwareError
 
   const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
-
   const history = useHistory()
 
   useEffect(() => {

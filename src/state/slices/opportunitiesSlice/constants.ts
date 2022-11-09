@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -41,12 +42,14 @@ export const STAKING_ID_DELIMITER = '*'
 // The current abstraction just forces us to pass a lot of fluff that could be derived / we don't need
 // This will go away in a follow-up PR as we remove those hooks
 
-export const earnLpOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+export const earnLpOpportunity: EarnOpportunityType = {
   assetId: foxEthLpAssetId,
   opportunityName: 'ETH/FOX Pool',
   provider: DefiProvider.FoxFarming,
   contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
+  chainId: ethChainId,
   rewardAddress: '',
+  apy: '',
   tvl: '',
   fiatAmount: '',
   cryptoAmount: '',
@@ -57,6 +60,8 @@ export const earnLpOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
 export const baseFarmingOpportunity = {
   provider: DefiProvider.FoxFarming,
   rewardAddress: fromAssetId(foxAssetId).assetReference,
+  chainId: ethChainId,
+  apy: '',
   tvl: '',
   assetId: foxEthLpAssetId,
   fiatAmount: '',
@@ -66,28 +71,28 @@ export const baseFarmingOpportunity = {
   type: DefiType.Farming,
 }
 
-export const v4FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+export const v4FarmingOpportunity: EarnOpportunityType = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
   opportunityName: 'Fox Farming V4',
 }
 
-export const v3FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+export const v3FarmingOpportunity: EarnOpportunityType = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
   opportunityName: 'Fox Farming V3',
 }
 
-export const v2FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+export const v2FarmingOpportunity: EarnOpportunityType = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
   opportunityName: 'Fox Farming V2',
 }
 
-export const v1FarmingOpportunity: Omit<EarnOpportunityType, 'chainId'> = {
+export const v1FarmingOpportunity: EarnOpportunityType = {
   ...baseFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,

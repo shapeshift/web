@@ -8,6 +8,7 @@ import { createCachedSelector } from 're-reselect'
 import type { FoxFarmingEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -135,11 +136,18 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 
     if (!userStakingOpportunityIds.length) return []
 
-    return filteredUserStakingOpportunityIds.map(userStakingId => ({
-      ...userStakingOpportunities[userStakingId],
-      ...stakingOpportunities[stakingId],
-      userStakingId,
-    }))
+    return filteredUserStakingOpportunityIds
+      .map(userStakingId => {
+        const opportunityData = userStakingOpportunities[userStakingId]
+        const opportunityMetadata = stakingOpportunities[stakingId]
+        if (!opportunityData || !opportunityMetadata) return undefined
+        return {
+          ...opportunityMetadata,
+          ...opportunityData,
+          userStakingId,
+        }
+      })
+      .filter(isSome)
   },
 )
 
@@ -358,7 +366,6 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
     assets,
     marketData,
   ): FoxFarmingEarnOpportunityType | undefined => {
-    console.log({ lpId, aggregatedLpAssetBalance })
     if (!lpId || !aggregatedLpAssetBalance) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price

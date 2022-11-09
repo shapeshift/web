@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isDefined } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -39,10 +40,7 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
 export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => {
-    const maybeLpIds = accountId && lpIdsByAccountId[accountId]
-    return maybeLpIds ?? []
-  },
+  (lpIdsByAccountId, accountId): LpId[] => (accountId && lpIdsByAccountId[accountId]) ?? [],
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
@@ -50,7 +48,7 @@ export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelec
   selectStakingOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
   (stakingIdsByAccountId, accountId): StakingId[] =>
-    accountId ? stakingIdsByAccountId[accountId] : [],
+    (accountId && stakingIdsByAccountId[accountId]) ?? [],
 )
 
 export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
@@ -75,18 +73,16 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     stakingId,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    if (!userStakingId) return // Narrowing flavoured template literal type
-    const userOpportunity = userStakingOpportunities[userStakingId]
+    // if (!userStakingId) return // Narrowing flavoured template literal type
+    const userOpportunity = userStakingId ? userStakingOpportunities[userStakingId] : undefined
     const opportunityMetadata = stakingOpportunities[stakingId]
-
-    return {
-      ...userOpportunity,
-      ...opportunityMetadata,
-    }
+    return userOpportunity && opportunityMetadata
+      ? { ...userOpportunity, ...opportunityMetadata }
+      : undefined
   },
 )
 
-// "Give me the staking values of all my acccounts for that specific opportunity"
+// "Give me the staking values of all my accounts for that specific opportunity"
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
@@ -98,19 +94,21 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     userStakingOpportunityIds,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
-    if (!stakingId) return []
+    if (!stakingId || !userStakingOpportunityIds.length) return []
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
       filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
     )
 
-    if (!userStakingOpportunityIds.length) return []
-
-    return filteredUserStakingOpportunityIds.map(userStakingId => ({
-      ...userStakingOpportunities[userStakingId],
-      ...stakingOpportunities[stakingId],
-      userStakingId,
-    }))
+    return filteredUserStakingOpportunityIds
+      .map(userStakingId => {
+        const userStakingOpportunity = userStakingOpportunities[userStakingId]
+        const stakingOpportunity = stakingOpportunities[stakingId]
+        return userStakingOpportunity && stakingOpportunity
+          ? { ...userStakingOpportunity, ...stakingOpportunity, userStakingId }
+          : undefined
+      })
+      .filter(isDefined)
   },
 )
 

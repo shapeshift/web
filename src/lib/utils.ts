@@ -64,3 +64,5 @@ export const isValidAccountNumber = (
   if (accountNumber === null) return false
   return Number.isInteger(accountNumber) && accountNumber >= 0
 }
+
+export type PartialRecord<K extends keyof any, T> = Partial<Record<K, T>>

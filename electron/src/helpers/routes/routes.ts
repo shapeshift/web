@@ -56,7 +56,7 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "userType": {
+    "UserType": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"balances":{"dataType":"array","array":{"dataType":"any"},"required":true},"accounts":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"caip":{"dataType":"string","required":true},"pubkey":{"dataType":"any","required":true}}},"required":true},"online":{"dataType":"boolean","required":true}},"validators":{}},
     },

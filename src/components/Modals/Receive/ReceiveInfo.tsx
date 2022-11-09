@@ -101,7 +101,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [ensName, isEnsNameLoaded])
 
   const handleVerify = async () => {
-    if (!(wallet && chainAdapter && receiveAddress)) return
+    if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
     const { chainNamespace } = fromChainId(asset.chainId)
     if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
     const deviceAddress = await chainAdapter.getAddress({

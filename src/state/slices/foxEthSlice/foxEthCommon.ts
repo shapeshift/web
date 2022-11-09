@@ -29,7 +29,7 @@ const icons = [
   'https://assets.coincap.io/assets/icons/256/fox.png',
 ]
 
-export const lpOpportunity: EarnOpportunityType = {
+export const baseLpOpportunity: EarnOpportunityType = {
   provider: DefiProvider.FoxEthLP,
   contractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
   rewardAddress: '',

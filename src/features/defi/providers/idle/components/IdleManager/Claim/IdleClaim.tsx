@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -37,8 +37,8 @@ const moduleLogger = logger.child({
 type IdleClaimProps = { accountId: Nullable<AccountId> }
 
 export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
-  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -97,7 +97,6 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -105,6 +104,7 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
   ])
 
   const handleBack = useCallback(() => {

@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -51,7 +51,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { idleInvestor } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -73,6 +73,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
+        if (state.userAddress && state.opportunity) return
         if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor && bip44Params))
           return
         const [address, opportunity] = await Promise.all([
@@ -98,7 +99,6 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -106,6 +106,9 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
+    state.userAddress,
+    state.opportunity,
   ])
 
   const handleBack = useCallback(() => {
@@ -142,6 +145,8 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     }
   }, [translate, asset.symbol, accountId, handleAccountIdChange])
 
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
   if (loading || !asset || !marketData || !idleInvestor) {
     return (
       <Center minW='350px' minH='350px'>
@@ -151,7 +156,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   }
 
   return (
-    <DepositContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}

@@ -44,9 +44,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
-  )
+  const cryptoBalance =
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
 
   const formattedPrice = toFiat(marketData.price)
 

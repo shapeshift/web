@@ -11,7 +11,6 @@ export interface BridgeLog {
 }
 
 export class BridgeLogger {
-    // commented this out because it was crashing for elmutt and toshi
     private logs: BridgeLog[] = new Array<BridgeLog>()
     public logPath = path.join(app.getPath('logs'), './bridge.json')
 

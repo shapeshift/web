@@ -2,7 +2,7 @@ import { ipcMain } from "electron";
 import { AddressInfo } from "net";
 import log from 'electron-log'
 import { setAllowPreRelease } from "../updaterListeners";
-import { db, kkAutoLauncher, server, tcpBridgeRunning } from "./globalState";
+import { db, kkAutoLauncher, server, tcpBridgeRunning } from "../globalState";
 import { startTcpBridge, stopTcpBridge } from "../tcpBridge";
 
 let instance: Settings;

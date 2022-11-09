@@ -1,5 +1,5 @@
 import * as express from "express";
-import { db } from "./globalState";
+import { db } from "../globalState";
 
 export function expressAuthentication(
     request: express.Request,

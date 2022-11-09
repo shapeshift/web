@@ -4,7 +4,8 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
+import { useIdle } from 'features/defi/contexts/IdleProvider/useIdle'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import type { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
 import type { SerializableOpportunity as YearnSerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
@@ -125,7 +126,9 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
-  const { idleInvestor, loading: idleLoading } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
+
+  const { loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
 
   const balances = useSelector(selectPortfolioAssetBalances)

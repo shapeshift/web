@@ -1,5 +1,6 @@
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
+import { useIdle } from 'features/defi/contexts/IdleProvider/useIdle'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -28,8 +29,9 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const [vaults, setVaults] = useState<MergedSerializableOpportunity[]>([])
   const dispatch = useDispatch()
 
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { yearn, loading: yearnLoading } = useYearn()
-  const { idleInvestor, loading: idleLoading, enabled: isIdleEnabled } = useIdle()
+  const { loading: idleLoading, enabled: isIdleEnabled } = useIdle()
 
   const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
@@ -83,8 +85,8 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
     yearnLoading,
     yearn,
     idleLoading,
-    idleInvestor,
     isIdleEnabled,
+    idleInvestor,
   ])
 
   const mergedVaults = useMemo(() => {

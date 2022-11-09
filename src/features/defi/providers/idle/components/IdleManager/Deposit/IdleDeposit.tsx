@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -51,7 +51,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { idleInvestor } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -98,7 +98,6 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -106,6 +105,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
   ])
 
   const handleBack = useCallback(() => {

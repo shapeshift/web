@@ -115,8 +115,6 @@ export type UseVaultBalancesReturn = {
   loading: boolean
 }
 
-const idleInvestor = getIdleInvestor()
-
 export function useVaultBalances(): UseVaultBalancesReturn {
   const USDC_PRECISION = 6
   const {
@@ -127,6 +125,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const marketData = useSelector(selectMarketData)
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
+
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
 
   const { loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
@@ -153,7 +153,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idleInvestor])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

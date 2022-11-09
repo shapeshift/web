@@ -56,12 +56,11 @@ type IdleOverviewProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-const idleInvestor = getIdleInvestor()
-
 export const IdleOverview: React.FC<IdleOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const toast = useToast()
   const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
@@ -158,7 +157,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         moduleLogger.error(error, 'IdleOverview:useEffect error')
       }
     })()
-  }, [vaultAddress, chainId, toast, translate, walletAddress])
+  }, [vaultAddress, chainId, toast, translate, walletAddress, idleInvestor])
 
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 

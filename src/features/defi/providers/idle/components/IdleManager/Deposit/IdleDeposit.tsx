@@ -47,12 +47,11 @@ type IdleDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-const idleInvestor = getIdleInvestor()
-
 export const IdleDeposit: React.FC<IdleDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -98,7 +97,16 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
         moduleLogger.error(error, 'IdleDeposit:useEffect error')
       }
     })()
-  }, [chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
+  }, [
+    chainAdapter,
+    vaultAddress,
+    walletState.wallet,
+    translate,
+    toast,
+    chainId,
+    bip44Params,
+    idleInvestor,
+  ])
 
   const handleBack = useCallback(() => {
     history.push({

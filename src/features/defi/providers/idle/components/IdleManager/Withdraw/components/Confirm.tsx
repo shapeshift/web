@@ -39,9 +39,8 @@ const moduleLogger = logger.child({
 
 type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-const idleInvestor = getIdleInvestor()
-
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -93,7 +92,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
@@ -124,6 +123,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetReference,
     opportunity,
     chainAdapter,
+    idleInvestor,
     asset.precision,
     onNext,
   ])

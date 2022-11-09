@@ -46,9 +46,8 @@ type WithdrawProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-const idleInvestor = getIdleInvestor()
-
 export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -105,7 +104,16 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
         moduleLogger.error(error, 'IdleWithdraw:useEffect error')
       }
     })()
-  }, [chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
+  }, [
+    chainAdapter,
+    vaultAddress,
+    walletState.wallet,
+    translate,
+    toast,
+    chainId,
+    bip44Params,
+    idleInvestor,
+  ])
 
   const handleBack = useCallback(() => {
     history.push({

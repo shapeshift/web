@@ -36,12 +36,12 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 } & StepComponentProps
 
-const idleInvestor = getIdleInvestor()
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
@@ -90,13 +90,21 @@ export const Deposit: React.FC<DepositProps> = ({
         })
       }
     },
-    [state?.userAddress, opportunity, assetReference, asset.precision, translate, toast],
+    [
+      state?.userAddress,
+      opportunity,
+      assetReference,
+      idleInvestor,
+      asset.precision,
+      toast,
+      translate,
+    ],
   )
 
   const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
     if (!(state?.userAddress && assetReference && opportunity)) return
     try {
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
@@ -117,7 +125,7 @@ export const Deposit: React.FC<DepositProps> = ({
         status: 'error',
       })
     }
-  }, [state?.userAddress, assetReference, opportunity, toast, translate])
+  }, [state?.userAddress, assetReference, opportunity, idleInvestor, toast, translate])
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -127,7 +135,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       try {
         // Check is approval is required for user address
-        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity.positionAsset.assetId ?? '',
         )
         if (!idleOpportunity) throw new Error('No opportunity')
@@ -168,13 +176,14 @@ export const Deposit: React.FC<DepositProps> = ({
     [
       state?.userAddress,
       opportunity,
-      asset.precision,
-      translate,
       dispatch,
-      toast,
+      idleInvestor,
+      asset.precision,
+      getDepositGasEstimate,
       onNext,
       getApproveGasEstimate,
-      getDepositGasEstimate,
+      toast,
+      translate,
     ],
   )
 

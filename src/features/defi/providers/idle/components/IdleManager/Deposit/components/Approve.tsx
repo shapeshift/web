@@ -33,9 +33,8 @@ type IdleApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
-const idleInvestor = getIdleInvestor()
-
 export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -86,7 +85,15 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         })
       }
     },
-    [state?.userAddress, opportunity, assetReference, asset.precision, toast, translate],
+    [
+      state?.userAddress,
+      opportunity,
+      assetReference,
+      idleInvestor,
+      asset.precision,
+      toast,
+      translate,
+    ],
   )
 
   const handleApprove = useCallback(async () => {
@@ -105,7 +112,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
 
     try {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
@@ -156,6 +163,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    idleInvestor,
     getDepositGasEstimate,
     onNext,
     asset.precision,

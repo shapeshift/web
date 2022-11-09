@@ -37,9 +37,8 @@ const moduleLogger = logger.child({ namespace: ['IdleDeposit:Confirm'] })
 
 type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-const idleInvestor = getIdleInvestor()
-
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -85,7 +84,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
@@ -116,13 +115,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
-    state?.userAddress,
-    state?.opportunity?.positionAsset.assetId,
-    state?.deposit?.cryptoAmount,
+    state.userAddress,
+    state.opportunity?.positionAsset.assetId,
+    state.deposit.cryptoAmount,
     assetReference,
     walletState.wallet,
     opportunity,
     chainAdapter,
+    idleInvestor,
     asset.precision,
     onNext,
     toast,

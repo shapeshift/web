@@ -38,9 +38,8 @@ const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
 type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
 
-const idleInvestor = getIdleInvestor()
-
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
@@ -94,7 +93,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
       }
     })()
-  }, [state.userAddress, dispatch, assetId])
+  }, [state.userAddress, dispatch, assetId, idleInvestor])
 
   const claimableTokensTotalBalance = useMemo(() => {
     if (!state.claimableTokens) return bnOrZero(0)
@@ -142,7 +141,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       )
         return
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
@@ -170,6 +169,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference,
     walletState.wallet,
     opportunity,
+    idleInvestor,
     onNext,
   ])
 

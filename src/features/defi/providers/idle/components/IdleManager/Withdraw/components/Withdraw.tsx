@@ -27,9 +27,8 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
 })
 
-const idleInvestor = getIdleInvestor()
-
 export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
@@ -72,7 +71,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     async (withdraw: WithdrawValues) => {
       if (!(state?.userAddress && opportunity && assetReference)) return
       try {
-        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity?.positionAsset.assetId,
         )
         if (!idleOpportunity) throw new Error('No opportunity')
@@ -89,7 +88,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
-    [state?.userAddress, opportunity, assetReference, asset],
+    [state?.userAddress, opportunity, assetReference, idleInvestor, asset.precision],
   )
 
   const handleContinue = useCallback(

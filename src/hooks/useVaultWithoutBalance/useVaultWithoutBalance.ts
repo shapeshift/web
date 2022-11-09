@@ -20,7 +20,6 @@ export type UseVaultWithoutBalanceReturn = {
   vaultsWithoutBalanceLoading: boolean
 }
 
-const idleInvestor = getIdleInvestor()
 export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const USDC_PRECISION = 6
   const {
@@ -30,6 +29,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
   const [vaults, setVaults] = useState<MergedSerializableOpportunity[]>([])
   const dispatch = useDispatch()
 
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { yearn, loading: yearnLoading } = useYearn()
   const { loading: idleLoading, enabled: isIdleEnabled } = useIdle()
 
@@ -77,7 +77,17 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, isIdleEnabled])
+  }, [
+    balances,
+    dispatch,
+    wallet,
+    balancesLoading,
+    yearnLoading,
+    yearn,
+    idleLoading,
+    isIdleEnabled,
+    idleInvestor,
+  ])
 
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(

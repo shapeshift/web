@@ -87,7 +87,7 @@
       "first": "Acheter des cryptos",
       "second": "en quelques secondes"
     },
-    "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez des Bitcoin, Ethereum, USDT, USDC ou des centaines d'autres cryptomonnaies.",
+    "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies majeures. Fournisseurs non-KYC disponibles.",
     "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
     "cta": {
       "title": {
@@ -411,7 +411,7 @@
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
     "trade": "Échanger",
-    "buyCrypto": "Acheter des cryptos"
+    "buyCrypto": "Acheter/Vendre des cryptos"
   },
   "transactionRow": {
     "send": "Envoi",

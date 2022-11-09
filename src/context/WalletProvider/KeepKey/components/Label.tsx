@@ -12,7 +12,7 @@ import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
 const moduleLogger = logger.child({ namespace: ['Label'] })
 
 export const KeepKeyLabel = () => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const {
     setDeviceState,
     state: {
@@ -43,12 +43,11 @@ export const KeepKeyLabel = () => {
   }
 
   useEffect(() => {
-    console.log('useEffect')
-    ipcRenderer.on('@app/bridge-connected', (_event, data: any) => {
-      console.log('data', data)
-      console.log('_event', _event)
-    })
-    ipcRenderer.send('@app/bridge-connected')
+    // Label screen hangs if you click skip too quickly
+    // Hack to keep that from happening
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000)
   }, [])
 
   const handleRecoverSubmit = async () => {

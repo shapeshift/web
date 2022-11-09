@@ -1,17 +1,5 @@
-<<<<<<< HEAD
-import { app, ipcMain } from 'electron'
-import {
-  db,
-  ipcQueue,
-  kkStateController,
-  setRenderListenersReady,
-  tcpBridgeRunning,
-  windows,
-} from './helpers/globalState'
-=======
 import { app, ipcMain } from "electron"
 import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./helpers/globalState"
->>>>>>> develop
 import isDev from 'electron-is-dev'
 import {
   downloadFirmware,
@@ -29,14 +17,6 @@ export const startIpcListeners = () => {
 
     ipcMain.on("@app/version", (event, _data) => {
         event.sender.send("@app/version", app.getVersion());
-    })
-
-    ipcMain.on('@app/bridge-connected', (event, _data) => {
-      if (windows.mainWindow && !windows.mainWindow.isDestroyed()) {
-        console.log('ipcmainf', windows.mainWindow)
-        windows.mainWindow.webContents.send('@app/bridge-connected', tcpBridgeRunning)
-      }
-      // event.sender.send('@app/bridge-connected', tcpBridgeRunning)
     })
 
     ipcMain.on("@app/pairings", (_event, _data) => {

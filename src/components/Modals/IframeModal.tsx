@@ -15,9 +15,9 @@ export const IframeModal: React.FC<IframeModalProps> = ({
   height = '660px',
 }) => {
   const { iframe } = useModal()
-  const { close, isOpen } = iframe
+  const { close: onClose, isOpen } = iframe
   return (
-    <Modal isOpen={isOpen} onClose={close} size='full'>
+    <Modal isOpen={isOpen} onClose={onClose} size='full'>
       <ModalOverlay backdropFilter='blur(10px)' />
       <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
         <Center width={{ base: '100%', md: width }} height={height} position='relative'>

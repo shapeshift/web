@@ -43,7 +43,7 @@ import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { SupportedFiatRampConfig } from '../config'
+import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
@@ -69,7 +69,7 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
-  const isIframeEnabled = useFeatureFlag('FiatIfame')
+  const isIframeEnabled = useFeatureFlag('FiatIframe')
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -138,15 +138,8 @@ export const Overview: React.FC<OverviewProps> = ({
   }, [accountId, accountMetadata, address, wallet])
 
   const handleIframeClick = useCallback(
-    ({
-      ramp,
-      assetId,
-      address,
-    }: {
-      ramp: SupportedFiatRampConfig
-      assetId: AssetId
-      address: string
-    }) => {
+    ({ rampId, assetId, address }: { rampId: FiatRamp; assetId: AssetId; address: string }) => {
+      const ramp = supportedFiatRamps[rampId]
       const url = ramp.onSubmit(fiatRampAction, assetId, address)
       if (ramp.iframe && url && isIframeEnabled) {
         iframe.open({ url, title: 'Buy' })
@@ -181,7 +174,7 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => handleIframeClick({ ramp, assetId, address: passedAddress })}
+            onClick={() => handleIframeClick({ rampId, assetId, address: passedAddress })}
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}

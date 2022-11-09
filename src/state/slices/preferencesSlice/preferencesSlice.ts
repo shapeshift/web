@@ -21,7 +21,7 @@ export type FeatureFlags = {
   WalletConnectToDapps: boolean
   MigrationMessage: boolean
   DashboardBreakdown: boolean
-  FiatIfame: boolean
+  FiatIframe: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -55,7 +55,7 @@ const initialState: Preferences = {
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
-    FiatIfame: getConfig().REACT_APP_FEATURE_FIAT_IFRAME,
+    FiatIframe: getConfig().REACT_APP_FEATURE_FIAT_IFRAME,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

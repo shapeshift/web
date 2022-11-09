@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
@@ -61,7 +62,8 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(state?.userAddress && opportunity && assetReference && idleInvestor)) return
+      if (!(state?.userAddress && opportunity && assetReference && idleInvestor && accountId))
+        return
       try {
         const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity.positionAsset.assetId ?? '',
@@ -69,7 +71,7 @@ export const Deposit: React.FC<DepositProps> = ({
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
           amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-          address: state.userAddress,
+          address: fromAccountId(accountId).account,
         })
         // TODO(theobold): Figure out a better way for the safety factor
         return bnOrZero(preparedTx.gasPrice)

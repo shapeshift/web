@@ -24,6 +24,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -65,6 +66,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -77,7 +81,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const handleConfirm = useCallback(async () => {
-    if (!dispatch) return
+    if (!dispatch || !bip44Params) return
     try {
       if (
         !(
@@ -99,7 +103,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         address: state.userAddress,
         amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -116,6 +119,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
+    bip44Params,
     state?.userAddress,
     state?.withdraw.cryptoAmount,
     walletState.wallet,

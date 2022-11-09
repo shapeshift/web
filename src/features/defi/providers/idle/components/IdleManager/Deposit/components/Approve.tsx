@@ -22,7 +22,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
@@ -32,7 +36,7 @@ type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined 
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
-export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
@@ -53,6 +57,9 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
 
   // notify
   const toast = useToast()
+
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
@@ -104,7 +111,8 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
         opportunity &&
-        chainAdapter
+        chainAdapter &&
+        bip44Params
       )
     )
       return
@@ -114,7 +122,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareApprove(state.userAddress)
       await idleOpportunity.signAndBroadcast({
@@ -162,6 +169,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    bip44Params,
     idleInvestor,
     getDepositGasEstimate,
     onNext,

@@ -85,7 +85,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
       Partial<FoxEthLpEarnOpportunityType | undefined>
     >(
       (acc, currentOpportunity) =>
-        Object.assign(acc ?? {}, {
+        Object.assign(acc ?? {}, currentOpportunity, {
           underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
             .plus(currentOpportunity?.underlyingFoxAmount ?? '')
             .toString(),

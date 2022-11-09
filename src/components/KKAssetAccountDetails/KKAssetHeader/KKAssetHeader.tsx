@@ -26,7 +26,7 @@ export const KKAssetHeader: React.FC<AssetHeaderProps> = ({ asset, onVoteClick }
             </Heading>
           </Box>
         </Flex>
-        <Button onClick={onVoteClick}>VOTE</Button>
+        <Button mt={2} onClick={onVoteClick}>VOTE</Button>
       </Flex>
     </Flex>
   )

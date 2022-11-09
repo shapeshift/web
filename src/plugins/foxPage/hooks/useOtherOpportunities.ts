@@ -85,7 +85,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
             {
               title: foxEthLpOpportunityName,
               isLoaded: Boolean(defaultLpOpportunityData),
-              apy: defaultLpOpportunityData?.apy ?? null,
+              apy: defaultLpOpportunityData?.apy,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',

@@ -1,5 +1,6 @@
-import { CopyIcon } from '@chakra-ui/icons'
-import { Box, Divider, HStack, IconButton } from '@chakra-ui/react'
+import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Box, Divider, Flex, HStack, IconButton, Link, useColorModeValue } from '@chakra-ui/react'
+import type { ParamType } from '@ethersproject/abi'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import startCase from 'lodash/startCase'
@@ -46,6 +47,57 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
     return feeAsset
   }, [assets, evmChainId])
 
+  const addressColor = useColorModeValue('blue.500', 'blue.200')
+
+  const renderAbiInput = (input: ParamType, index: number) => {
+    const inputValue = transaction!.args[index].toString()
+    switch (input.type) {
+      case 'bytes[]':
+        return (
+          <HStack>
+            <MiddleEllipsis fontWeight='medium' value={inputValue} fontSize='md' />
+            <IconButton
+              size='small'
+              variant='ghost'
+              aria-label='Copy'
+              icon={<CopyIcon />}
+              onClick={() => navigator.clipboard.writeText(inputValue)}
+            />
+          </HStack>
+        )
+      case 'address':
+        return (
+          <HStack>
+            <Box flex={1} fontFamily='monospace' fontSize='md'>
+              <MiddleEllipsis color={addressColor} value={inputValue} />
+            </Box>
+            <IconButton
+              size='small'
+              variant='ghost'
+              aria-label='Copy'
+              icon={<CopyIcon />}
+              onClick={() => navigator.clipboard.writeText(inputValue)}
+            />
+            <Link href={`https://etherscan.com/address/${inputValue}`} isExternal>
+              <IconButton
+                icon={<ExternalLinkIcon />}
+                variant='ghost'
+                size='small'
+                aria-label={inputValue}
+                p={2}
+                colorScheme='gray'
+              />
+            </Link>
+          </HStack>
+        )
+      default:
+        return (
+          <RawText fontWeight='normal' fontSize='md'>
+            {inputValue}
+          </RawText>
+        )
+    }
+  }
   return (
     <ModalSection
       title={
@@ -78,47 +130,31 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
               <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
                 {startCase(input.name)} ({input.type})
               </RawText>
-              {input.type === 'bytes[]' ? (
-                <HStack>
-                  <MiddleEllipsis
-                    fontWeight='medium'
-                    value={transaction.args[index].toString()}
-                    fontSize='md'
-                  />
-                  <IconButton
-                    size='small'
-                    variant='ghost'
-                    aria-label='Copy'
-                    icon={<CopyIcon />}
-                    onClick={() =>
-                      navigator.clipboard.writeText(transaction.args[index].toString())
-                    }
-                  />
-                </HStack>
-              ) : (
-                <RawText fontWeight='normal' fontSize='md'>
-                  {transaction.args[index].toString()}
-                </RawText>
-              )}
+              {renderAbiInput(input, index)}
               <Divider my={4} />
             </Fragment>
           ))}
 
-        <Text
-          color='gray.500'
-          fontWeight='medium'
-          translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'
-        />
-        <HStack>
-          <MiddleEllipsis value={request.data} fontWeight='medium' />
-          <IconButton
-            size='small'
-            variant='ghost'
-            aria-label='Copy'
-            icon={<CopyIcon />}
-            onClick={() => navigator.clipboard.writeText(request.data)}
-          />
-        </HStack>
+        <Flex justifyContent='space-between'>
+          <Box>
+            <Text
+              color='gray.500'
+              fontWeight='medium'
+              fontSize='sm'
+              translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'
+            />
+          </Box>
+          <Flex>
+            <RawText pr={2}>{new TextEncoder().encode(request.data).length} bytes</RawText>
+            <IconButton
+              size='small'
+              variant='ghost'
+              aria-label='Copy'
+              icon={<CopyIcon />}
+              onClick={() => navigator.clipboard.writeText(request.data)}
+            />
+          </Flex>
+        </Flex>
       </Box>
     </ModalSection>
   )

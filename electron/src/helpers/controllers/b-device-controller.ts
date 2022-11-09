@@ -28,7 +28,7 @@ export class BDeviceController extends Controller {
         try {
             lastReadTime = Date.now()
             setDeviceBusyRead(true)
-            console.log('readDevice')
+            // console.log('readDevice')
             let resp = await kkStateController.transport?.readChunk() ?? ''
             setDeviceBusyRead(false)
             return {
@@ -47,7 +47,7 @@ export class BDeviceController extends Controller {
         try {
             lastWriteTime = Date.now()
             setDeviceBusyWrite(true)
-            console.log('writeDevice')
+            // console.log('writeDevice')
             let msg = Buffer.from(body.data, 'hex') ?? ''
             kkStateController.transport?.writeChunk(msg)
             setDeviceBusyWrite(false)

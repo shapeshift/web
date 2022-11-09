@@ -10,6 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { FaBug } from 'react-icons/fa'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -95,6 +96,12 @@ export const Browser = () => {
     if (webview.canGoForward()) webview.goForward()
   }
 
+  const openDevTools = () => {
+    const webview: any = document.getElementById('webview')
+    if (!webview) return
+    webview.openDevTools()
+  }
+
   return (
     <Main titleComponent={<BrowserHeader />} height='full'>
       <Stack direction={{ base: 'column', md: 'column' }} spacing={6} height='full'>
@@ -120,6 +127,7 @@ export const Browser = () => {
               onClick={goForward}
               isLoading={loading}
             />
+            <IconButton aria-label='Open developer tools' icon={<FaBug />} onClick={openDevTools} />
           </HStack>
         </form>
 

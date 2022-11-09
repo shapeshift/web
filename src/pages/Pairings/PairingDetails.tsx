@@ -45,7 +45,7 @@ export const PairingDetails = () => {
     <Main
       titleComponent={
         <Stack pb={4} direction='row'>
-          <Image src={app?.serviceImageUrl} borderRadius='full' height='15' width='15' />
+          <Image src={app?.serviceImageUrl} borderRadius='full' height='50' width='50' />
           <Heading>{app?.serviceName}</Heading>
         </Stack>
       }

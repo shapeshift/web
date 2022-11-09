@@ -20,7 +20,7 @@ export const IframeModal: React.FC<IframeModalProps> = ({
     <Modal isOpen={isOpen} onClose={close} size='full'>
       <ModalOverlay backdropFilter='blur(10px)' />
       <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
-        <Center width={width} height={height} position='relative'>
+        <Center width={{ base: '100%', md: width }} height={height} position='relative'>
           <ModalCloseButton top={-12} right={0} variant='solid' />
           <iframe
             src={url}

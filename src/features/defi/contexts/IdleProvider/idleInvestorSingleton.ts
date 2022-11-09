@@ -8,7 +8,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 let _idleInvestor: IdleInvestor | undefined = undefined
 
 // we need to be able to access this outside react
-export const getIdleInvestor = (): IdleInvestor | undefined => {
+export const getIdleInvestor = (): IdleInvestor => {
   if (_idleInvestor) return _idleInvestor
 
   const idleInvestor = new IdleInvestor({

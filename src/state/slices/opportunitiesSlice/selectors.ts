@@ -143,17 +143,18 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
   (userStakingOpportunities, stakingId): AccountId | null => {
     if (!stakingId) return '*' // Narrowing flavoured type
 
-    const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
-      UserStakingId,
-      UserStakingOpportunity,
-    ][]
+    const userStakingOpportunitiesEntries: [UserStakingId, UserStakingOpportunity | undefined][] =
+      Object.entries(userStakingOpportunities).map(([userStakingId, userStakingOpportunity]) => [
+        userStakingId as UserStakingId,
+        userStakingOpportunity,
+      ])
     const foundEntry = (userStakingOpportunitiesEntries ?? [])
       .filter(([userStakingId]) =>
         filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
       )
       .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
-        bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
-          .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)
+        bnOrZero(userStakingOpportunityB?.stakedAmountCryptoPrecision)
+          .minus(userStakingOpportunityA?.stakedAmountCryptoPrecision ?? '0')
           .toNumber(),
       )?.[0]
 

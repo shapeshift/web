@@ -1,11 +1,12 @@
 import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/toast'
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { ipcRenderer } from 'electron'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
 const moduleLogger = logger.child({ namespace: ['Label'] })
@@ -41,6 +42,15 @@ export const KeepKeyLabel = () => {
     })
   }
 
+  useEffect(() => {
+    console.log('useEffect')
+    ipcRenderer.on('@bridge/bridge-connected', (_event, data: any) => {
+      console.log('data', data)
+      console.log('_event', _event)
+    })
+    ipcRenderer.send('@app/bridge-connected')
+  }, [])
+
   const handleRecoverSubmit = async () => {
     setLoading(true)
     await recoverKeepKey(label)
@@ -69,8 +79,7 @@ export const KeepKeyLabel = () => {
           colorScheme='blue'
           onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
           disabled={loading}
-          mb={3}
-        >
+          mb={3}>
           <Text
             translation={
               label ? 'modals.keepKey.label.setLabelButton' : 'modals.keepKey.label.skipLabelButton'

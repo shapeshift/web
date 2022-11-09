@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Route, Tags, Response } from 'tsoa';
-import { kkStateController, setDeviceBusyRead, setDeviceBusyWrite, deviceBusyRead, deviceBusyWrite } from '../globalState';
+import { kkStateController, setDeviceBusyRead, setDeviceBusyWrite, deviceBusyRead, deviceBusyWrite } from '../../globalState';
 import { WriteBody } from '../types';
 
 export let lastReadTime = 0

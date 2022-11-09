@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron"
-import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./helpers/globalState"
+import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./globalState"
 import isDev from 'electron-is-dev'
 import {
   downloadFirmware,

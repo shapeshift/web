@@ -2,7 +2,7 @@ import { Body, Controller, Post, Security, Route, Tags, Response, Middlewares } 
 import wait from 'wait-promise'
 import { ResetDevice, LoadDevice, ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../utils';
-import { kkStateController } from '../globalState';
+import { kkStateController } from '../../globalState';
 import { logger } from '../middlewares/logger';
 
 export type policy = {

@@ -64,6 +64,7 @@ export const KeepKeyLabel = () => {
         <Input
           type='text'
           value={label}
+          disabled={loading}
           placeholder={translate('modals.keepKey.label.placeholder')}
           onChange={e => setLabel(e.target.value)}
           size='lg'

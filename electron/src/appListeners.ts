@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from "electron";
-import { isLinux, settings, windows, bridgeLogger } from "./helpers/globalState";
+import { isLinux, settings, windows, bridgeLogger } from "./globalState";
 import { createUpdaterSplashWindow, skipUpdateCheck } from "./updaterListeners";
 import isDev from 'electron-is-dev'
 import { autoUpdater } from 'electron-updater'

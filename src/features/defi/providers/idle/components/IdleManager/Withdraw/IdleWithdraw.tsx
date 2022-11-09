@@ -80,6 +80,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   useEffect(() => {
     ;(async () => {
       try {
+        if (state.userAddress && state.opportunity) return
         if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
           return
         const [address, opportunity] = await Promise.all([
@@ -113,6 +114,8 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     chainId,
     bip44Params,
     idleInvestor,
+    state.userAddress,
+    state.opportunity,
   ])
 
   const handleBack = useCallback(() => {
@@ -146,6 +149,8 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     // We only need this to update on symbol change
   }, [accountId, translate, underlyingAsset.symbol])
 
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
   if (loading || !asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
@@ -154,7 +159,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     )
 
   return (
-    <WithdrawContext.Provider value={{ state, dispatch }}>
+    <WithdrawContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {

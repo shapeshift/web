@@ -73,6 +73,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
+        if (state.userAddress && state.opportunity) return
         if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor && bip44Params))
           return
         const [address, opportunity] = await Promise.all([
@@ -106,6 +107,8 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     chainId,
     bip44Params,
     idleInvestor,
+    state.userAddress,
+    state.opportunity,
   ])
 
   const handleBack = useCallback(() => {
@@ -142,6 +145,8 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     }
   }, [translate, asset.symbol, accountId, handleAccountIdChange])
 
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
   if (loading || !asset || !marketData || !idleInvestor) {
     return (
       <Center minW='350px' minH='350px'>
@@ -151,7 +156,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   }
 
   return (
-    <DepositContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}

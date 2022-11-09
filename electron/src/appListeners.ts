@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from "electron";
-import { isLinux, settings, windows } from "./helpers/globalState";
+import { isLinux, settings, windows, bridgeLogger } from "./helpers/globalState";
 import { createUpdaterSplashWindow, skipUpdateCheck } from "./updaterListeners";
 import isDev from 'electron-is-dev'
 import { autoUpdater } from 'electron-updater'
@@ -39,6 +39,10 @@ export const startAppListeners = () => {
     
     app.on("activate", function () {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
+    })
+
+    app.on("before-quit", ()=>{
+        bridgeLogger.saveLogs()
     })
     
 }

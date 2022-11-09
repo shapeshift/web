@@ -10,6 +10,7 @@ import AutoLaunch from "auto-launch";
 import { startTcpBridge, stopTcpBridge } from "../tcpBridge";
 import { createAndUpdateTray } from "../tray";
 import { queueIpcEvent } from "./utils";
+import { BridgeLogger } from "./bridgeLogger";
 
 export const assetsDirectory = path.join(__dirname, '../../assets')
 export const isMac = process.platform === "darwin"
@@ -74,6 +75,7 @@ export const ipcQueue = new Array<{ eventName: string, args: any }>()
 export const isWalletBridgeRunning = () => kkStateController?.lastState === CONNECTED && tcpBridgeRunning
 
 export const settings = new Settings()
+export const bridgeLogger = new BridgeLogger()
 
 export const kkAutoLauncher = new AutoLaunch({
     name: 'KeepKey Desktop'

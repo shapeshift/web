@@ -78,8 +78,8 @@ export const Pairings = () => {
           <Card.Body>
             <Stack divider={<StackDivider />}>
               {apps &&
-                apps.map(app => (
-                  <Box display='flex' flexDirection='row' alignItems='center' gap='10px'>
+                apps.map((app, idx) => (
+                  <Box display='flex' flexDirection='row' alignItems='center' gap='10px' key={idx}>
                     <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
                     <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center'>
                       <p>{app.serviceName}</p>
@@ -88,6 +88,16 @@ export const Pairings = () => {
                       <RawText color='gray.500' fontSize='xs'>
                         {dayjs(app.addedOn).format('DD/MM/YYYY - HH:mm')}
                       </RawText>
+                    </Box>
+                    <Box>
+                      <Button
+                        colorScheme='blue'
+                        onClick={() => {
+                          history.push(`/pairings/${app.serviceKey}`)
+                        }}
+                      >
+                        <Text translation={'pairedApps.cta.openLogs'} />
+                      </Button>
                     </Box>
                     <Box>
                       <Button
@@ -130,8 +140,14 @@ export const Pairings = () => {
               {pairings &&
                 pairings
                   .filter(app => app.pairingType === 'sdk')
-                  .map(app => (
-                    <Box display='flex' flexDirection='row' alignItems='center' gap='10px'>
+                  .map((app, idx) => (
+                    <Box
+                      display='flex'
+                      flexDirection='row'
+                      alignItems='center'
+                      gap='10px'
+                      key={idx}
+                    >
                       <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
                       <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center'>
                         <p>{app.serviceName}</p>

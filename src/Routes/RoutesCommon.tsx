@@ -24,6 +24,7 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
+import { PairingDetails } from 'pages/Pairings/PairingDetails'
 import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
@@ -52,6 +53,15 @@ export const routes: NestedRoute[] = [
     icon: <FaPlug />,
     category: RouteCategory.Wallet,
     main: Pairings,
+    routes: [
+      {
+        path: '/:serviceKey',
+        label: 'Pairing Detail',
+        icon: <FaPlug />,
+        main: PairingDetails,
+        hide: true,
+      },
+    ],
   },
   {
     path: '/leaderboard',

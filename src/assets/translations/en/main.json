@@ -454,7 +454,8 @@
     "noApps": "There are currently no paired apps",
     "cta": {
       "unpair": "Unpair App",
-      "launchDapp": "Launch Dapp"
+      "launchDapp": "Launch Dapp",
+      "openLogs": "Open Logs"
     },
     "history": {
       "header": "Pairing History",
@@ -464,6 +465,11 @@
       "noApps": "There have been no previously paired apps",
       "notPairedWith": "No apps have been previously paired with %{name}"
     }
+  },
+  "pairingDetails": {
+    "header": "Requests Log",
+    "body": "List of all the requests made to the KeepKey bridge by %{name}",
+    "noRequests": "No requests have been made yet"
   },
   "bridge": {
     "confirm": "Confirm Bridge",
@@ -1337,9 +1343,6 @@
         "allocation": "Allocation",
         "amount": "Amount",
         "value": "Value"
-      },
-      "nft": {
-        "nftAllocation": "NFT Collection"
       }
     },
     "assetCards": {

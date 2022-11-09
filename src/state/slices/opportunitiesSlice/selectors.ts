@@ -54,7 +54,7 @@ export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelec
 export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {
-    if (!userStakingId) return '*' // Narrowing flavoured template litteral type
+    if (!userStakingId) return '*' // Narrowing flavoured template literal type
     const parts = deserializeUserStakingId(userStakingId)
     const [, stakingId] = parts
     return stakingId
@@ -73,7 +73,6 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     stakingId,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    // if (!userStakingId) return // Narrowing flavoured template literal type
     const userOpportunity = userStakingId ? userStakingOpportunities[userStakingId] : undefined
     const opportunityMetadata = stakingOpportunities[stakingId]
     return userOpportunity && opportunityMetadata
@@ -115,26 +114,25 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): UserStakingOpportunity & OpportunityMetadata => {
-    const initial = {} as UserStakingOpportunity & OpportunityMetadata
+  (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+    // const initial = {} as UserStakingOpportunity & OpportunityMetadata
 
-    return userStakingOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
-      (acc, userStakingOpportunity) => {
-        const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-          userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+    return userStakingOpportunities.reduce<
+      (UserStakingOpportunity & OpportunityMetadata) | undefined
+    >((acc, userStakingOpportunity) => {
+      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
+        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
 
-        return {
-          ...userStakingOpportunityWithoutUserStakingId,
-          stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
-            .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
-            .toString(),
-          rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
-            .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-            .toString(),
-        }
-      },
-      initial,
-    )
+      return {
+        ...userStakingOpportunityWithoutUserStakingId,
+        stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
+          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+          .toString(),
+        rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
+          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+          .toString(),
+      }
+    }, undefined)
   },
 )
 

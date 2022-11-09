@@ -139,7 +139,7 @@
     "routeTitle": "Купить или продать",
     "routeTitleForGem": "Gem on Ramp",
     "title": "Купить или продать криптовалюту",
-    "titleMessage": "Вы можете %{action} %{asset, используя:",
+    "titleMessage": "Вы можете %{action} %{asset}, используя:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -517,7 +517,7 @@
     "whyNeedThis": "Зачем мне это нужно?",
     "estimatedGasFee": "Предполагаемая комиссия за газ",
     "receiveInclFee": "Поступления (вкл. комиссию)",
-    "approvingAsset": "Подтверждение %{символ}",
+    "approvingAsset": "Подтверждение %{symbol}",
     "viewTransaction": "Посмотреть транзакцию",
     "unlimited": "Безлимитный",
     "exact": "Точный",
@@ -525,7 +525,7 @@
     "beforeFees": "До уплаты комиссии",
     "minAmountAfterSlippage": "Мин. ожидаемое время после проскальзывания ( %{slippage}%)",
     "free": "Бесплатно",
-    "slowSwapTitle": "%{протокол} торговля",
+    "slowSwapTitle": "%{protocol} торговля",
     "slowSwapBody": "Этот обмен может занять несколько минут.",
     "updatingQuote": "Обновление котировок...",
     "intoRUNETitle": "Торговля в RUNE",
@@ -706,7 +706,7 @@
       "errorTitle": "Ваша отправка %{asset} не удалась",
       "errors": {
         "generic": "Произошла ошибка.",
-        "notEnoughNativeToken": "Недостаточно %{активов} для покрытия оплаты газа",
+        "notEnoughNativeToken": "Недостаточно %{asset} для покрытия оплаты газа",
         "transactionRejected": " Пользователь отклонил транзакцию",
         "qrPermissions": "Для работы этой функции необходимы разрешения на доступ к камере. Пожалуйста, измените настройки браузера."
       },
@@ -740,7 +740,7 @@
     "receive": {
       "connectAWallet": "Подключить кошелек для получения %{symbol}",
       "receiveAsset": "Получить %{asset}",
-      "onlySend": "Отправляйте %{актив} (%{символ}) только на этот адрес. Отправка любых других монет может привести к необратимой потере.",
+      "onlySend": "Отправляйте %{asset} (%{symbol}) только на этот адрес. Отправка любых других монет может привести к необратимой потере.",
       "copy": "Копировать",
       "copied": "Адрес получения %{symbol} скопирован в буфер обмена",
       "copyFailed": "Не удалось скопировать адрес получения %{symbol} в буфер обмена",
@@ -791,7 +791,7 @@
       "instant": "Мгновенно",
       "delayed": "от 7 до 14 дней",
       "fee": "%{fee}% %{symbol} комиссия",
-      "noFee": "Без комиссии %{символ}",
+      "noFee": "Без комиссии %{symbol}",
       "requestWithdraw": "Запрос на вывод",
       "withdrawFee": "За вывод средств взимается отдельная плата за газ.",
       "notEnoughGas": "Недостаточно %{assetSymbol} для покрытия газа",
@@ -1330,7 +1330,7 @@
     "selectChain": "Выберите сеть, для которой вы хотите создать учетную запись.",
     "requiresPriorTxHistory": "Вы можете добавить новый счет только в том случае, если существующий счет (счета) имеет предыдущую историю транзакций",
     "newAccountAdded": "Добавлен новый аккаунт %{name}",
-    "youCanNowUse": "Теперь вы можете использовать %{имя} Аккаунт #%{номер счета}"
+    "youCanNowUse": "Теперь вы можете использовать %{name} Аккаунт #%{accountNumber}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1394,7 +1394,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Купить%{assetSymbol} на Coinbase",
+      "buyAssetOnCoinbase": "Купить %{assetSymbol} на Coinbase",
       "totalFoxValue": "Общая стоимость Fox",
       "foxToken": "ShapeShift %{assetSymbol} Токен",
       "foxDescription": "С 2019 года наш токен FOX  предлагает пользователям постоянно расширяющийся мир полезностей и преимуществ. Сегодня наш токен управления ERC-20 не только позволяет вам влиять на будущее ShapeShift с помощью вашего голоса, но и открывает перед вами все более широкие возможности для инвестирования. Инвестируйте, отслеживайте и управляйте своими активами FOX здесь.",

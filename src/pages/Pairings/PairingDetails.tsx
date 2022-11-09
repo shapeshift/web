@@ -34,7 +34,7 @@ const PairingsHeader = () => {
   )
 }
 
-export const Pairings = () => {
+export const PairingDetails = () => {
   const [apps, setApps] = useState<PairedAppProps[]>([])
   const [pairings, setPairings] = useState<PairingProps[]>([])
 

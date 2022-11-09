@@ -59,6 +59,7 @@ export const mockStore: ReduxState = {
       WalletConnectToDapps: false,
       MigrationMessage: false,
       DashboardBreakdown: false,
+      FiatIfame: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

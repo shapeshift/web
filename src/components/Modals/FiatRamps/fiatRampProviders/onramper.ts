@@ -4,6 +4,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
 import { logger } from 'lib/logger'
+import { colors } from 'theme/colors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 
@@ -91,6 +92,7 @@ export const createOnRamperUrl = (
   }
 
   params.set('darkMode', 'true')
+  params.set('color', colors.blue[500].replace('#', ''))
   params.set('redirectURL', currentUrl)
 
   return `${baseUrl.toString()}?${params.toString()}`

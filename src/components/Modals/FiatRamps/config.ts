@@ -42,8 +42,9 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
+  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => string | undefined
   minimumSellThreshold?: number
+  iframe?: boolean
 }
 
 const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
@@ -68,7 +69,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       try {
         const ticker = adapters.assetIdToGemTicker(assetId)
         const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
-        window.open(gemPartnerUrl, '_blank')?.focus()
+        return gemPartnerUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
@@ -83,6 +84,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     logo: OnRamperLogo,
     isActive: () => true,
     minimumSellThreshold: 0,
+    iframe: true,
     order: 2,
     getBuyAndSellList: async () => {
       const buyAndSellAssetIds = await getOnRamperAssets()
@@ -96,7 +98,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
           address,
           window.location.href,
         )
-        window.open(onRamperCheckoutUrl, '_blank')?.focus()
+        return onRamperCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
@@ -119,7 +121,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const ticker = adapters.assetIdToBanxaTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by Banxa')
         const banxaCheckoutUrl = createBanxaUrl(action, ticker, address)
-        window.open(banxaCheckoutUrl, '_blank')?.focus()
+        return banxaCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
       }
@@ -142,7 +144,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         const ticker = adapters.assetIdToJunoPayTicker(assetId)
         if (!ticker) throw new Error('Asset not supported by JunoPay')
         const junoPayCheckoutUrl = createJunoPayUrl(action, ticker, address)
-        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+        return junoPayCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
       }
@@ -166,7 +168,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: (action, assetId) => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
-        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+        return mtPelerinCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
       }

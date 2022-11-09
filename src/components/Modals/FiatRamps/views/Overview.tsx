@@ -28,6 +28,8 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -41,6 +43,7 @@ import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
+import type { SupportedFiatRampConfig } from '../config'
 import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
@@ -66,12 +69,14 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
+  const isIframeEnabled = useFeatureFlag('FiatIfame')
   const translate = useTranslate()
   const toast = useToast()
   const {
     state: { wallet, isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
+  const { iframe } = useModal()
 
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   useEffect(() => setShownOnDisplay(null), [accountId])
@@ -132,6 +137,26 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
+  const handleIframeClick = useCallback(
+    ({
+      ramp,
+      assetId,
+      address,
+    }: {
+      ramp: SupportedFiatRampConfig
+      assetId: AssetId
+      address: string
+    }) => {
+      const url = ramp.onSubmit(fiatRampAction, assetId, address)
+      if (ramp.iframe && url && isIframeEnabled) {
+        iframe.open({ url, title: 'Buy' })
+      } else {
+        window.open(url, '_blank')?.focus()
+      }
+    },
+    [fiatRampAction, iframe, isIframeEnabled],
+  )
+
   const renderProviders = useMemo(() => {
     if (!assetId) return null
     if (isRampsLoading) return null
@@ -156,14 +181,23 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
+            onClick={() => handleIframeClick({ ramp, assetId, address: passedAddress })}
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
           />
         )
       })
-  }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
+  }, [
+    accountFiatBalance,
+    address,
+    assetId,
+    fiatRampAction,
+    handleIframeClick,
+    isDemoWallet,
+    isRampsLoading,
+    ramps,
+  ])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress

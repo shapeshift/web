@@ -3,6 +3,7 @@ import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
+import { isSome } from 'lib/utils'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 
@@ -32,7 +33,7 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
   const mtPelerinSymbols = Object.values(data).map(({ symbol }) => symbol)
   return Array.from(
     new Set(mtPelerinSymbols.flatMap(symbol => adapters.mtPelerinSymbolToAssetIds(symbol))),
-  ).filter(Boolean)
+  ).filter(isSome)
 }
 
 export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {

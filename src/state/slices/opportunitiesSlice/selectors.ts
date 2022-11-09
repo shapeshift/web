@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -39,7 +40,7 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
 export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => (accountId ? lpIdsByAccountId[accountId] : []),
+  (lpIdsByAccountId, accountId): LpId[] => (accountId && lpIdsByAccountId[accountId]) ?? [],
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
@@ -47,13 +48,13 @@ export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelec
   selectStakingOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
   (stakingIdsByAccountId, accountId): StakingId[] =>
-    accountId ? stakingIdsByAccountId[accountId] : [],
+    (accountId && stakingIdsByAccountId[accountId]) ?? [],
 )
 
 export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {
-    if (!userStakingId) return '*' // Narrowing flavoured template litteral type
+    if (!userStakingId) return '*' // Narrowing flavoured template literal type
     const parts = deserializeUserStakingId(userStakingId)
     const [, stakingId] = parts
     return stakingId
@@ -72,18 +73,15 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     stakingId,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    if (!userStakingId) return // Narrowing flavoured template literal type
-    const userOpportunity = userStakingOpportunities[userStakingId]
+    const userOpportunity = userStakingId ? userStakingOpportunities[userStakingId] : undefined
     const opportunityMetadata = stakingOpportunities[stakingId]
-
-    return {
-      ...userOpportunity,
-      ...opportunityMetadata,
-    }
+    return userOpportunity && opportunityMetadata
+      ? { ...userOpportunity, ...opportunityMetadata }
+      : undefined
   },
 )
 
-// "Give me the staking values of all my acccounts for that specific opportunity"
+// "Give me the staking values of all my accounts for that specific opportunity"
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
@@ -95,45 +93,44 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     userStakingOpportunityIds,
     stakingOpportunities,
   ): (UserStakingOpportunity & OpportunityMetadata & { userStakingId: UserStakingId })[] => {
-    if (!stakingId) return []
+    if (!stakingId || !userStakingOpportunityIds.length) return []
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
       filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
     )
 
-    if (!userStakingOpportunityIds.length) return []
-
-    return filteredUserStakingOpportunityIds.map(userStakingId => ({
-      ...userStakingOpportunities[userStakingId],
-      ...stakingOpportunities[stakingId],
-      userStakingId,
-    }))
+    return filteredUserStakingOpportunityIds
+      .map(userStakingId => {
+        const userStakingOpportunity = userStakingOpportunities[userStakingId]
+        const stakingOpportunity = stakingOpportunities[stakingId]
+        return userStakingOpportunity && stakingOpportunity
+          ? { ...userStakingOpportunity, ...stakingOpportunity, userStakingId }
+          : undefined
+      })
+      .filter(isSome)
   },
 )
 
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): UserStakingOpportunity & OpportunityMetadata => {
-    const initial = {} as UserStakingOpportunity & OpportunityMetadata
+  (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+    return userStakingOpportunities.reduce<
+      (UserStakingOpportunity & OpportunityMetadata) | undefined
+    >((acc, userStakingOpportunity) => {
+      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
+        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
 
-    return userStakingOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
-      (acc, userStakingOpportunity) => {
-        const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-          userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
-
-        return {
-          ...userStakingOpportunityWithoutUserStakingId,
-          stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
-            .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
-            .toString(),
-          rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
-            .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-            .toString(),
-        }
-      },
-      initial,
-    )
+      return {
+        ...userStakingOpportunityWithoutUserStakingId,
+        stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
+          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+          .toString(),
+        rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
+          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+          .toString(),
+      }
+    }, undefined)
   },
 )
 
@@ -144,17 +141,18 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
   (userStakingOpportunities, stakingId): AccountId | null => {
     if (!stakingId) return '*' // Narrowing flavoured type
 
-    const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
-      UserStakingId,
-      UserStakingOpportunity,
-    ][]
+    const userStakingOpportunitiesEntries: [UserStakingId, UserStakingOpportunity | undefined][] =
+      Object.entries(userStakingOpportunities).map(([userStakingId, userStakingOpportunity]) => [
+        userStakingId as UserStakingId,
+        userStakingOpportunity,
+      ])
     const foundEntry = (userStakingOpportunitiesEntries ?? [])
       .filter(([userStakingId]) =>
         filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
       )
       .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
-        bnOrZero(userStakingOpportunityB.stakedAmountCryptoPrecision)
-          .minus(userStakingOpportunityA.stakedAmountCryptoPrecision)
+        bnOrZero(userStakingOpportunityB?.stakedAmountCryptoPrecision)
+          .minus(userStakingOpportunityA?.stakedAmountCryptoPrecision ?? '0')
           .toNumber(),
       )?.[0]
 

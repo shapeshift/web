@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
-import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
+import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
@@ -39,6 +39,14 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
           />
         )
       case 'eth_sendTransaction':
+        return (
+          <SendTransactionConfirmation
+            request={callRequest.params[0]}
+            onConfirm={approve}
+            onReject={reject}
+          />
+        )
+      case 'eth_signTransaction':
         return (
           <SendTransactionConfirmation
             request={callRequest.params[0]}

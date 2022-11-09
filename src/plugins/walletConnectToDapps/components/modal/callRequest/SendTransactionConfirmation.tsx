@@ -1,6 +1,6 @@
 import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge/dist/types'
+import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -96,7 +96,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
 
         <ModalSection
           title={
-            <HStack justify='space-between'>
+            <HStack flex={1} justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
               <GasFeeEstimateLabel request={request} />
             </HStack>

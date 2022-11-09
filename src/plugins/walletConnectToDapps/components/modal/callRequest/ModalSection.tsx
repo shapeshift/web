@@ -36,9 +36,15 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         }
         fontWeight='medium'
         children={
-          <Box display={'flex'} justifyContent={'space-between'}>
-            <RawText flex={1}>{title}</RawText>
-            {titleRightComponent}
+          <Box display='flex' justifyContent='space-between' mb={1} flex={1}>
+            <RawText flex={1} textTransform='capitalize' textAlign='left'>
+              {title}
+            </RawText>
+            {titleRightComponent && (
+              <Box flex={1} textAlign='right'>
+                {titleRightComponent}
+              </Box>
+            )}
           </Box>
         }
         onClick={toggle}

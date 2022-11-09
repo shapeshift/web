@@ -17,7 +17,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
   const onCallRequest = useCallback(
-    (request: WalletConnectCallRequest) => setCallRequests(prev => [request, ...prev]),
+    (request: WalletConnectCallRequest) => setCallRequests(prev => [...prev, request]),
     [],
   )
   const approveRequest = useCallback(

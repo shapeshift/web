@@ -58,7 +58,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const getDepositGasEstimate = useCallback(

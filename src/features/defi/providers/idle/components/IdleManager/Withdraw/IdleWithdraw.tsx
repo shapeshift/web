@@ -70,7 +70,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info

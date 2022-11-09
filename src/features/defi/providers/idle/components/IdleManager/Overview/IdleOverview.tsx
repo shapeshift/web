@@ -60,7 +60,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()

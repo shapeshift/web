@@ -54,7 +54,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
@@ -95,6 +95,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         address: state.userAddress,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
+      console.log({ bip44Params })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,

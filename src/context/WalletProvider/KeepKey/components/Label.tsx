@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { ipcRenderer } from 'electron'
 
 import { useKeepKeyRecover } from '../hooks/useKeepKeyRecover'
 const moduleLogger = logger.child({ namespace: ['Label'] })
@@ -78,7 +77,8 @@ export const KeepKeyLabel = () => {
           colorScheme='blue'
           onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
           disabled={loading}
-          mb={3}>
+          mb={3}
+        >
           <Text
             translation={
               label ? 'modals.keepKey.label.setLabelButton' : 'modals.keepKey.label.skipLabelButton'

@@ -28,7 +28,14 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 export type FoxFarmingEarnOpportunityType = {
-  unclaimedRewards: string
+  /**
+   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
+   */
+  unclaimedRewards?: string
+  stakedAmountCryptoPrecision?: string
+  rewardsAmountCryptoPrecision?: string
+  underlyingToken0Amount?: string
+  underlyingToken1Amount?: string
   isVisible?: boolean
 } & EarnOpportunityType
 

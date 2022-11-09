@@ -170,6 +170,26 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
   },
 )
 
+export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
+  selectAggregatedUserStakingOpportunityByStakingId,
+  selectMarketData,
+  selectAssets,
+  (opportunity, marketData, assets): FoxFarmingEarnOpportunityType | undefined =>
+    opportunity &&
+    Object.assign({}, opportunity, {
+      ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
+      ...opportunity,
+      chainId: fromAssetId(opportunity.assetId).chainId,
+      cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+      fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
+        .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
+        .toString(),
+      provider: DefiProvider.FoxFarming,
+      isLoaded: true,
+      icons: opportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    }),
+)
+
 // "Give me the total values over all my accounts aggregated into one for each opportunity"
 // TODO: testme
 export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
@@ -202,7 +222,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
     })),
 )
 
-// The same as the previous, aggregated into one
+// All opportunities, across all accounts, aggregated into one
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunities,

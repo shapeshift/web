@@ -17,7 +17,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
-  selectAggregatedEarnUserStakingOpportunity,
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,7 +51,9 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           assetId: opportunityId as AssetId | undefined,
           lpId: opportunityId as LpId | undefined,
         })
-      : selectAggregatedEarnUserStakingOpportunity(state),
+      : selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
+          stakingId: opportunityId as StakingId,
+        }),
   )
 
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')

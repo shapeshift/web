@@ -4,7 +4,7 @@ import { app } from 'electron'
 
 export interface BridgeLog {
     serviceKey: string,
-    body?: Object,
+    body?: any,
     route: string,
     method: string,
     time: number
@@ -30,8 +30,12 @@ export class BridgeLogger {
 
     saveLogs() {
         const stringifiedLogs = JSON.stringify(this.logs)
-        console.log("LOGS: ", stringifiedLogs)
         if (!stringifiedLogs) return
         writeFileSync(this.logPath, stringifiedLogs)
+    }
+
+    fetchLogs(serviceKey: string) {
+        const logs = this.logs.filter((log) => log.serviceKey === serviceKey)
+        return logs
     }
 }

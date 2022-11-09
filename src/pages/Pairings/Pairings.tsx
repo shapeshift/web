@@ -91,6 +91,16 @@ export const Pairings = () => {
                     </Box>
                     <Box>
                       <Button
+                        colorScheme='blue'
+                        onClick={() => {
+                          history.push(`/pairings/${app.serviceKey}`)
+                        }}
+                      >
+                        <Text translation={'pairedApps.cta.openLogs'} />
+                      </Button>
+                    </Box>
+                    <Box>
+                      <Button
                         colorScheme='red'
                         onClick={() => {
                           unpair(app)

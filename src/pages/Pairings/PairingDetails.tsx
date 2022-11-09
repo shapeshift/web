@@ -1,222 +1,97 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Button, Heading, HStack, Image, Stack, StackDivider } from '@chakra-ui/react'
+import { Badge, Box, Button, Code, Heading, Image, Stack, StackDivider } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { ipcRenderer } from 'electron'
-import { useCallback, useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { useEffect, useState } from 'react'
+import { FaClipboard } from 'react-icons/fa'
+import { useParams } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
-export type PairedAppProps = {
-  addedOn: number
-  serviceName: string
-  serviceImageUrl: string
+import type { PairedAppProps } from './Pairings'
+
+export interface BridgeLog {
   serviceKey: string
-  isKeepKeyDesktop?: boolean
-}
-
-export type PairingProps = {
-  addedOn: number
-  serviceName: string
-  serviceImageUrl: string
-  serviceHomePage?: string
-  pairingType: 'walletconnect' | 'sdk'
-}
-
-const PairingsHeader = () => {
-  return (
-    <Stack pb={4}>
-      <Heading>Pairings</Heading>
-    </Stack>
-  )
+  body?: Object
+  route: string
+  method: string
+  time: number
 }
 
 export const PairingDetails = () => {
-  const [apps, setApps] = useState<PairedAppProps[]>([])
-  const [pairings, setPairings] = useState<PairingProps[]>([])
-
-  const { dispatch } = useWallet()
-  const history = useHistory()
+  const params: any = useParams()
+  const [logs, setLogs] = useState<BridgeLog[]>([])
+  const [app, setApp] = useState<PairedAppProps>()
 
   useEffect(() => {
-    ipcRenderer.send('@bridge/paired-apps')
-    ipcRenderer.send('@app/pairings')
-    ipcRenderer.on('@bridge/paired-apps', (_event, data: PairedAppProps[]) => {
-      setApps(data)
-    })
-    ipcRenderer.on('@app/pairings', (_event, data: PairingProps[]) => {
-      setPairings(data)
+    if (!params || !params.serviceKey) return
+    const serviceKey: string = params.serviceKey
+
+    ipcRenderer.send('@bridge/service-details', serviceKey)
+  }, [params])
+
+  useEffect(() => {
+    ipcRenderer.on('@bridge/service-details', (_event, data: any) => {
+      setApp(data.app)
+      setLogs(data.logs)
     })
   }, [])
 
-  const unpair = (app: PairedAppProps) => {
-    if (app.isKeepKeyDesktop) return
-    ipcRenderer.send('@bridge/remove-service', app)
-    ipcRenderer.send('@bridge/paired-apps')
+  const copy = async (data: string) => {
+    await navigator.clipboard.writeText(data)
   }
 
-  const unpairAll = useCallback(() => {
-    if (!apps) return
-    apps.forEach(unpair)
-  }, [apps])
-
   return (
-    <Main titleComponent={<PairingsHeader />}>
+    <Main
+      titleComponent={
+        <Stack pb={4} direction='row'>
+          <Image src={app?.serviceImageUrl} borderRadius='full' height='15' width='15' />
+          <Heading>{app?.serviceName}</Heading>
+        </Stack>
+      }
+    >
       <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
         <Card flex={1}>
           <Card.Header>
             <Stack pb={4}>
               <Heading>
-                <Text translation={'pairedApps.header'} />
+                <Text translation={'pairingDetails.header'} />
               </Heading>
-              <Text translation={'pairedApps.body'} color='gray.500' />
+              <Text
+                translation={['pairingDetails.body', { name: app?.serviceName }]}
+                color='gray.500'
+              />
             </Stack>
           </Card.Header>
           <Card.Body>
             <Stack divider={<StackDivider />}>
-              {apps &&
-                apps.map((app, idx) => (
+              {logs &&
+                logs.map((log, idx) => (
                   <Box display='flex' flexDirection='row' alignItems='center' gap='10px' key={idx}>
-                    <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
-                    <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center'>
-                      <p>{app.serviceName}</p>
+                    <Badge
+                      fontSize='inherit'
+                      colorScheme={log.method.toLowerCase() === 'post' ? 'green' : 'blue'}
+                    >
+                      {log.method}
+                    </Badge>
+                    <Box>
+                      <Code>{log.route}</Code>
                     </Box>
                     <Box>
-                      <RawText color='gray.500' fontSize='xs'>
-                        {dayjs(app.addedOn).format('DD/MM/YYYY - HH:mm')}
-                      </RawText>
+                      <RawText>{dayjs(log.time).format('DD/MM/YYYY - HH:mm')}</RawText>
                     </Box>
                     <Box>
                       <Button
-                        colorScheme='red'
-                        onClick={() => {
-                          unpair(app)
-                        }}
-                        disabled={app.isKeepKeyDesktop}
+                        colorScheme='grey'
+                        onClick={() => copy(JSON.stringify(log.body))}
+                        leftIcon={<FaClipboard />}
                       >
-                        <Text translation={'pairedApps.cta.unpair'} />
+                        Copy request body
                       </Button>
                     </Box>
                   </Box>
                 ))}
-              {(!apps || apps.length === 0) && <Text translation={'pairedApps.noApps'} />}
-            </Stack>
-          </Card.Body>
-          {apps && apps.length !== 0 && (
-            <Card.Footer>
-              <HStack my={4} width='full'>
-                <Button onClick={unpairAll}>Unpair all apps</Button>
-              </HStack>
-            </Card.Footer>
-          )}
-        </Card>
-        <Card flex={1}>
-          <Card.Header>
-            <Stack pb={4}>
-              <Heading>
-                <Text translation={'pairedApps.history.header'} />
-              </Heading>
-              <Text translation={'pairedApps.history.body'} color='gray.500' />
-            </Stack>
-          </Card.Header>
-          <Card.Body>
-            <Stack divider={<StackDivider />}>
-              <Heading fontSize={'xl'}>
-                <Text translation={'pairedApps.history.sdk'} />
-              </Heading>
-              {pairings &&
-                pairings
-                  .filter(app => app.pairingType === 'sdk')
-                  .map((app, idx) => (
-                    <Box
-                      display='flex'
-                      flexDirection='row'
-                      alignItems='center'
-                      gap='10px'
-                      key={idx}
-                    >
-                      <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
-                      <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center'>
-                        <p>{app.serviceName}</p>
-                      </Box>
-                      <Box>
-                        <RawText color='gray.500' fontSize='xs'>
-                          {dayjs(app.addedOn).format('DD/MM/YYYY - HH:mm')}
-                        </RawText>
-                      </Box>
-                      <Box>
-                        {app.pairingType === 'walletconnect' && (
-                          <Button
-                            colorScheme='blue'
-                            leftIcon={<ExternalLinkIcon />}
-                            onClick={() => {
-                              if (!app.serviceHomePage) return
-                              dispatch({
-                                type: WalletActions.SET_BROWSER_URL,
-                                payload: app.serviceHomePage,
-                              })
-                              history.push('/browser')
-                            }}
-                          >
-                            <Text translation={'pairedApps.cta.launchDapp'} />
-                          </Button>
-                        )}
-                      </Box>
-                    </Box>
-                  ))}
-              {pairings && pairings.filter(app => app.pairingType === 'sdk').length === 0 && (
-                <Text
-                  translation={['pairedApps.history.notPairedWith', { name: 'KeepKey SDK' }]}
-                  color='gray.500'
-                />
-              )}
-              <Heading fontSize={'xl'}>
-                <Text translation={'pairedApps.history.wc'} />
-              </Heading>
-              {pairings &&
-                pairings
-                  .filter(app => app.pairingType === 'walletconnect')
-                  .map(app => (
-                    <Box display='flex' flexDirection='row' alignItems='center' gap='10px'>
-                      <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
-                      <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center'>
-                        <p>{app.serviceName}</p>
-                      </Box>
-                      <Box>
-                        <RawText color='gray.500' fontSize='xs'>
-                          {dayjs(app.addedOn).format('DD/MM/YYYY - HH:mm')}
-                        </RawText>
-                      </Box>
-                      <Box>
-                        {app.pairingType === 'walletconnect' && (
-                          <Button
-                            colorScheme='blue'
-                            leftIcon={<ExternalLinkIcon />}
-                            onClick={() => {
-                              if (!app.serviceHomePage) return
-                              dispatch({
-                                type: WalletActions.SET_BROWSER_URL,
-                                payload: app.serviceHomePage,
-                              })
-                              history.push('/browser')
-                            }}
-                          >
-                            <Text translation={'pairedApps.cta.launchDapp'} />
-                          </Button>
-                        )}
-                      </Box>
-                    </Box>
-                  ))}
-              {pairings &&
-                pairings.filter(app => app.pairingType === 'walletconnect').length === 0 && (
-                  <Text
-                    translation={['pairedApps.history.notPairedWith', { name: 'Wallet Connect' }]}
-                    color='gray.500'
-                  />
-                )}
+              {(!logs || logs.length === 0) && <Text translation={'pairingDetails.noRequests'} />}
             </Stack>
           </Card.Body>
         </Card>

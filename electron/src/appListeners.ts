@@ -41,6 +41,8 @@ export const startAppListeners = () => {
         if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
     })
 
-    app.on("before-quit", bridgeLogger.saveLogs)
+    app.on("before-quit", ()=>{
+        bridgeLogger.saveLogs()
+    })
     
 }

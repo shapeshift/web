@@ -7,6 +7,8 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ServiceNameBreadcrumb } from './ServiceNameBreadcrumb'
+
 const GetAccountName = (props: any) => {
   const {
     match: {
@@ -41,6 +43,15 @@ const GetAssetName2 = (props: any) => {
   return <>{asset?.name}</>
 }
 
+const GetServiceName = (props: any) => {
+  const {
+    match: {
+      params: { serviceKey },
+    },
+  } = props
+  return <ServiceNameBreadcrumb serviceKey={serviceKey} />
+}
+
 const routes: BreadcrumbsRoute[] = [
   {
     path: '/accounts/:accountId',
@@ -52,6 +63,7 @@ const routes: BreadcrumbsRoute[] = [
   },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
   { path: '/assets/keepkey/:chainId/:assetSubId', breadcrumb: GetAssetName2 },
+  { path: '/pairings/:serviceKey', breadcrumb: GetServiceName },
 ]
 
 const options = {

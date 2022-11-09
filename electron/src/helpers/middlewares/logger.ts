@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { bridgeLogger } from '../../main'
+import { bridgeLogger } from '../globalState'
 
 export const logger = (req: Request, _res: Response, next: NextFunction) => {
     const serviceKey = req.headers.authorization

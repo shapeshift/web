@@ -1,10 +1,11 @@
 import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
 
-import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security } from 'tsoa';
+import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security, Middlewares } from 'tsoa';
 import { GenericResponse, PairBody, PairResponse, UserType } from '../types';
 import { db, kkStateController, shared, windows } from '../globalState';
 import { createMainWindow } from '../utils';
+import { logger } from '../middlewares/logger';
 
 
 export class ApiError extends Error {
@@ -35,6 +36,7 @@ export class CIndexController extends Controller {
     }
 
     @Response(500)
+    @Middlewares([logger])
     @Post('/pair')
     public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>(async (resolve, reject) => {
@@ -130,6 +132,7 @@ export class CIndexController extends Controller {
 
     @Get('/user')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(401, "Please provide a valid serviceKey")
     public async user(): Promise<UserType> {
         return shared.USER

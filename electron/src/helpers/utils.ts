@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from "electron"
 import { startTcpBridge } from "../tcpBridge"
-import { deviceBusyRead, deviceBusyWrite, ipcQueue, kkStateController, renderListenersReady, settings, windows } from "./globalState"
+import { deviceBusyRead, deviceBusyWrite, ipcQueue, kkStateController, renderListenersReady, settings, windows } from "../globalState"
 import isDev from 'electron-is-dev'
 import { startWindowListeners } from "../windowListeners"
 import path from 'path';

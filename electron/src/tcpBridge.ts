@@ -1,4 +1,4 @@
-import { server, setServer, setTcpBridgeClosing, setTcpBridgeRunning, setTcpBridgeStarting, tcpBridgeClosing, tcpBridgeRunning, tcpBridgeStarting } from "./helpers/globalState"
+import { server, setServer, setTcpBridgeClosing, setTcpBridgeRunning, setTcpBridgeStarting, tcpBridgeClosing, tcpBridgeRunning, tcpBridgeStarting } from "./globalState"
 import { RegisterRoutes } from "./helpers/routes/routes"
 import swaggerUi from 'swagger-ui-express'
 import express from 'express'

@@ -2,7 +2,7 @@ import { Controller, Get, Security, Route, Tags, Response, Middlewares } from 't
 import wait from 'wait-promise'
 import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../utils'
-import { kkStateController } from '../globalState';
+import { kkStateController } from '../../globalState';
 import { logger } from '../middlewares/logger';
 
 @Tags('Device Info Endpoints')

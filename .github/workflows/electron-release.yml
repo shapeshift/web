@@ -6,6 +6,7 @@ on:
       - ci-test
       - release-candidate
       - master
+      - amitoj-dev-2
   workflow_dispatch:
 
 jobs:

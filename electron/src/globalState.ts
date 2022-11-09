@@ -3,16 +3,16 @@ import nedb from 'nedb'
 import fs from 'fs'
 import { Server } from 'http'
 import { BrowserWindow, IpcMainEvent } from "electron";
-import { UserType } from "./types";
-import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, NEEDS_INITIALIZE } from "./kk-state-controller";
-import { Settings } from "./settings";
+import { UserType } from "./helpers/types";
+import { CONNECTED, DISCONNECTED, HARDWARE_ERROR, KKStateController, NEEDS_INITIALIZE } from "./helpers/kk-state-controller";
+import { Settings } from "./helpers/settings";
 import AutoLaunch from "auto-launch";
-import { startTcpBridge, stopTcpBridge } from "../tcpBridge";
-import { createAndUpdateTray } from "../tray";
-import { queueIpcEvent } from "./utils";
-import { BridgeLogger } from "./bridgeLogger";
+import { startTcpBridge, stopTcpBridge } from "./tcpBridge";
+import { createAndUpdateTray } from "./tray";
+import { queueIpcEvent } from "./helpers/utils";
+import { BridgeLogger } from "./helpers/bridgeLogger";
 
-export const assetsDirectory = path.join(__dirname, '../../assets')
+export const assetsDirectory = path.join(__dirname, '../assets')
 export const isMac = process.platform === "darwin"
 export const isWin = process.platform === "win32"
 export const isLinux = process.platform !== "darwin" && process.platform !== "win32"

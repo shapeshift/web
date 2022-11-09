@@ -3,7 +3,7 @@ import { uniqueId } from 'lodash';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, Security, Middlewares } from 'tsoa';
 import { GenericResponse, PairBody, PairResponse, UserType } from '../types';
-import { db, kkStateController, shared, windows } from '../globalState';
+import { db, kkStateController, shared, windows } from '../../globalState';
 import { createMainWindow } from '../utils';
 import { logger } from '../middlewares/logger';
 

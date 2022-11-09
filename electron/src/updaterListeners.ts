@@ -3,7 +3,7 @@ import isDev from 'electron-is-dev'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import log from 'electron-log'
 import path from 'path'
-import { isLinux, settings, shouldShowWindow, windows } from './helpers/globalState'
+import { isLinux, settings, shouldShowWindow, windows } from './globalState'
 import { createMainWindow } from './helpers/utils'
 
 let skipUpdateTimeout: NodeJS.Timeout;

@@ -1,6 +1,6 @@
 import { app, Menu, nativeImage, nativeTheme, Tray } from 'electron'
 import path from 'path'
-import { assetsDirectory, isWalletBridgeRunning, tcpBridgeClosing, windows } from './helpers/globalState'
+import { assetsDirectory, isWalletBridgeRunning, tcpBridgeClosing, windows } from './globalState'
 import { createMainWindow } from './helpers/utils'
 import { startTcpBridge, stopTcpBridge } from './tcpBridge'
 

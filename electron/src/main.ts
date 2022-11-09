@@ -11,7 +11,7 @@ import {
   kkAutoLauncher,
   kkStateController,
   settings
-} from './helpers/globalState'
+} from './globalState'
 import { startIpcListeners } from './ipcListeners'
 import { startAppListeners } from './appListeners'
 import { queueIpcEvent, watchForDeviceBusy } from './helpers/utils'

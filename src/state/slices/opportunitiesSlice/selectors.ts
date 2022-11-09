@@ -194,7 +194,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
         .toString(),
       provider: DefiProvider.FoxFarming,
       isLoaded: true,
-      icons: opportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }),
 )
 
@@ -226,7 +226,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
         .toString(),
       provider: DefiProvider.FoxFarming,
       isLoaded: true,
-      icons: opportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     })),
 )
 
@@ -343,10 +343,10 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
     if (!userStakingOpportunity) return
 
     return {
-      ...LP_EARN_OPPORTUNITIES[userStakingOpportunity?.assetId ?? ''],
+      ...LP_EARN_OPPORTUNITIES[userStakingOpportunity.assetId ?? ''],
       ...userStakingOpportunity,
-      chainId: fromAssetId(userStakingOpportunity?.assetId ?? '').chainId,
-      rewardsAmountCryptoPrecision: userStakingOpportunity?.rewardsAmountCryptoPrecision ?? '',
+      chainId: fromAssetId(userStakingOpportunity.assetId ?? '').chainId,
+      rewardsAmountCryptoPrecision: userStakingOpportunity.rewardsAmountCryptoPrecision ?? '',
     }
   },
 )

@@ -1,5 +1,6 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
+import { isNull } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
@@ -54,7 +55,8 @@ export const isToken = (assetReference: AssetReference | string) =>
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
 
-export const isDefined = <T>(optional: T | undefined): optional is T => !isUndefined(optional)
+export const isSome = <T>(option: T | null | undefined): option is T =>
+  !isUndefined(option) && !isNull(option)
 
 // 0 is valid but falsy, dum language
 export const isValidAccountNumber = (

@@ -29,6 +29,7 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -59,7 +60,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
-  const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
+  const assetIds = useMemo(() => [assetId].filter(isSome), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}

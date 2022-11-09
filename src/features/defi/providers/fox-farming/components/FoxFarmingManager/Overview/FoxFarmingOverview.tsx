@@ -151,7 +151,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const hasClaim = rewardAmountAvailable.gt(0)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
+  const descriptionQuery = useGetAssetDescriptionQuery({
+    assetId: opportunityData?.underlyingAssetId,
+    selectedLocale,
+  })
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (

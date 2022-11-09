@@ -48,7 +48,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   const earnOpportunity = useAppSelector(state =>
     opportunity.type === DefiType.LiquidityPool
       ? selectAggregatedEarnUserLpOpportunity(state, {
-          assetId: opportunityId as AssetId,
+          assetId: opportunityId as AssetId | undefined,
           lpId: opportunityId as LpId | undefined,
         })
       : selectAggregatedEarnUserStakingOpportunity(state),

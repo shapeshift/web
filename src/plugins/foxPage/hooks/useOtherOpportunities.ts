@@ -94,7 +94,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
               highestBalanceAccountAddress: highestBalanceLpAccountId
                 ? fromAccountId(highestBalanceLpAccountId).account
-                : '',
+                : undefined,
             },
           ],
         },

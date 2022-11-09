@@ -53,6 +53,7 @@ export const Browser = () => {
       const webviewUrl = webview.getURL()
       setInputUrl(webviewUrl)
       setLoading(false)
+      setFailedToLoad(false)
       dispatch({ type: WalletActions.SET_BROWSER_URL, payload: webviewUrl })
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,11 +70,14 @@ export const Browser = () => {
   useEffect(() => {
     if (loading) {
       setTimeout(() => {
-        if (loading) {
-          setFailedToLoad(true)
-          dispatch({ type: WalletActions.SET_BROWSER_URL, payload: null })
-          setLoading(false)
-        }
+        setLoading(currentLoading => {
+          if (currentLoading) {
+            setFailedToLoad(true)
+            dispatch({ type: WalletActions.SET_BROWSER_URL, payload: null })
+            return false
+          }
+          return currentLoading
+        })
       }, 10000)
     }
   }, [dispatch, loading])

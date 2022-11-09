@@ -17,8 +17,9 @@ const moduleLogger = logger.child({ namespace: ['useKeepKeyEventHandler'] })
 export const useKeepKeyEventHandler = (
   state: InitialState,
   dispatch: Dispatch<ActionTypes>,
-  loadWallet: () => void,
+  disconnect: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
+  setNeedsReset: (reset: boolean) => void,
 ) => {
   const {
     keyring,
@@ -53,11 +54,7 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              if (modal)
-                dispatch({
-                  type: WalletActions.SET_WALLET_MODAL,
-                  payload: false,
-                })
+              setNeedsReset(true)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
@@ -69,6 +66,8 @@ export const useKeepKeyEventHandler = (
                   type: WalletActions.SET_WALLET_MODAL,
                   payload: false,
                 })
+              setNeedsReset(true)
+              handleDisconnect(deviceId)
               toast({
                 title: translate('common.success'),
                 description: translate('modals.keepKey.recoverySentenceEntry.toastMessage'),
@@ -83,7 +82,7 @@ export const useKeepKeyEventHandler = (
             awaitingDeviceInteraction: false,
             lastDeviceInteractionStatus: 'success',
           })
-          loadWallet()
+          disconnect()
           break
         case MessageType.BUTTONREQUEST:
           setDeviceState({ awaitingDeviceInteraction: true })
@@ -241,6 +240,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
+
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -266,9 +266,8 @@ export const useKeepKeyEventHandler = (
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
         if (modal) {
-          // Little trick to send the user back to the wallet select route
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          disconnect()
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')
@@ -289,11 +288,12 @@ export const useKeepKeyEventHandler = (
   }, [
     dispatch,
     keyring,
-    loadWallet,
+    disconnect,
     isUpdatingPin,
     modal,
     state.walletInfo,
     setDeviceState,
+    setNeedsReset,
     disposition,
     toast,
     translate,

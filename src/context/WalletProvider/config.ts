@@ -7,9 +7,9 @@ import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/Change
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
+import { UpdateKeepKey } from 'components/Modals/UpdateKeepKey/UpdateKeepKey'
 
 import { KeepKeyDownloadUpdaterApp } from './KeepKey/components/DownloadUpdaterApp'
-import { KeepKeyFactoryState } from './KeepKey/components/FactoryState'
 import { KeepKeyLabel } from './KeepKey/components/Label'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPinModal } from './KeepKey/components/PinModal'
@@ -40,7 +40,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPinModal },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },
-      { path: KeepKeyRoutes.FactoryState, component: KeepKeyFactoryState },
+      { path: KeepKeyRoutes.FactoryState, component: UpdateKeepKey },
       { path: KeepKeyRoutes.NewLabel, component: KeepKeyLabel },
       { path: KeepKeyRoutes.NewRecoverySentence, component: KeepKeyRecoverySentence },
       { path: KeepKeyRoutes.RecoverySentenceEntry, component: KeepKeyRecoverySentenceEntry },

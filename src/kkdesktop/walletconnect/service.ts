@@ -71,7 +71,7 @@ export class WCService {
     const address = await this.wallet.ethGetAddress({ addressNList, showDisplay: false })
     if (address) {
       this.connector.approveSession({
-        chainId: payload.params[0].chainId ?? 4,
+        chainId: payload.params[0].chainId ?? 1,
         accounts: [address],
       })
     }
@@ -136,7 +136,7 @@ export class WCService {
           data: txData.data,
           gasLimit: txData.gasLimit,
           to: txData.to,
-          value: txData.value,
+          value: txData.value ?? '0x0',
           nonce: txData.nonce,
           maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
           maxFeePerGas: txData.maxFeePerGas,

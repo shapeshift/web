@@ -210,7 +210,15 @@ export const TradeInput = ({ history }: RouterProps) => {
     .gte(0)
 
   const onSubmit = async () => {
-    if (!(quote?.sellAsset && quote?.buyAsset && quote.sellAmountCryptoPrecision && sellAssetAccountId)) return
+    if (
+      !(
+        quote?.sellAsset &&
+        quote?.buyAsset &&
+        quote.sellAmountCryptoPrecision &&
+        sellAssetAccountId
+      )
+    )
+      return
     setIsUpdatingTrade(true)
 
     try {

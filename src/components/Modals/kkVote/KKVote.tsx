@@ -9,8 +9,8 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { bnOrZero } from '@keepkey/investor-foxy'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'

@@ -1,7 +1,6 @@
 import { type Asset } from '@keepkey/asset-service'
 import type { AssetId } from '@keepkey/caip'
 import { type ChainId } from '@keepkey/caip'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   type BuildTradeInput,
   type CowTrade,
@@ -11,6 +10,7 @@ import {
   type TradeQuote,
 } from '@keepkey/swapper'
 import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@keepkey/types'
+import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { type AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {

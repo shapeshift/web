@@ -19,6 +19,8 @@ import {
 } from '@keepkey/caip'
 import type { Account } from '@keepkey/chain-adapters'
 import { utxoAccountParams } from '@keepkey/chain-adapters'
+import type { KnownChainIds } from '@keepkey/types'
+import { UtxoAccountType } from '@keepkey/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsBTC,
@@ -27,8 +29,6 @@ import {
   supportsEthSwitchChain,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@keepkey/types'
-import { UtxoAccountType } from '@keepkey/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'

@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
 import type { ChainId } from '@keepkey/caip'
+import { createSlice } from '@reduxjs/toolkit'
 import isEqual from 'lodash/isEqual'
 import { logger } from 'lib/logger'
 

@@ -115,9 +115,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
-    state.userAddress,
-    state.opportunity?.positionAsset.assetId,
-    state.deposit.cryptoAmount,
+    state?.userAddress,
+    state?.opportunity?.positionAsset.assetId,
+    state?.deposit.cryptoAmount,
     assetReference,
     walletState.wallet,
     opportunity,

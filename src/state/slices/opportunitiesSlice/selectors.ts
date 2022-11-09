@@ -115,8 +115,6 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    // const initial = {} as UserStakingOpportunity & OpportunityMetadata
-
     return userStakingOpportunities.reduce<
       (UserStakingOpportunity & OpportunityMetadata) | undefined
     >((acc, userStakingOpportunity) => {

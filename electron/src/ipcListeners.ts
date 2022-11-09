@@ -31,7 +31,7 @@ export const startIpcListeners = () => {
   ipcMain.on('@app/bridge-connected', (event, _data) => {
     if (windows.mainWindow && !windows.mainWindow.isDestroyed()) {
       console.log('ipcmainf', windows.mainWindow)
-      event.sender.send('@app/bridge-connected', tcpBridgeRunning)
+      windows.mainWindow.webContents.send('@app/bridge-connected', tcpBridgeRunning)
     }
     // event.sender.send('@app/bridge-connected', tcpBridgeRunning)
   })

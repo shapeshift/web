@@ -44,7 +44,7 @@ export const KeepKeyLabel = () => {
 
   useEffect(() => {
     console.log('useEffect')
-    ipcRenderer.on('@bridge/bridge-connected', (_event, data: any) => {
+    ipcRenderer.on('@app/bridge-connected', (_event, data: any) => {
       console.log('data', data)
       console.log('_event', _event)
     })

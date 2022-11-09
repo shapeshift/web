@@ -6,6 +6,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
+import { isSome } from 'lib/utils'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -53,7 +54,7 @@ export const TransactionHistory = () => {
               <TransactionHistoryFilter
                 resetFilters={handleReset}
                 setFilters={setFilters}
-                hasAppliedFilter={!!Object.values(filters).filter(Boolean).length}
+                hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
               />
             </Flex>
             <DownloadButton txIds={txIds} />

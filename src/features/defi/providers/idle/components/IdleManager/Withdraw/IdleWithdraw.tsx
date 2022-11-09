@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -47,7 +47,7 @@ type WithdrawProps = {
 }
 
 export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
-  const { idleInvestor } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -80,6 +80,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   useEffect(() => {
     ;(async () => {
       try {
+        if (state.userAddress && state.opportunity) return
         if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
           return
         const [address, opportunity] = await Promise.all([
@@ -105,7 +106,6 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -113,6 +113,9 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
+    state.userAddress,
+    state.opportunity,
   ])
 
   const handleBack = useCallback(() => {
@@ -146,6 +149,8 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     // We only need this to update on symbol change
   }, [accountId, translate, underlyingAsset.symbol])
 
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
   if (loading || !asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
@@ -154,7 +159,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     )
 
   return (
-    <WithdrawContext.Provider value={{ state, dispatch }}>
+    <WithdrawContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {

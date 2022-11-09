@@ -1,8 +1,9 @@
-import { Controller, Get, Security, Route, Tags, Response } from 'tsoa';
+import { Controller, Get, Security, Route, Tags, Response, Middlewares } from 'tsoa';
 import wait from 'wait-promise'
 import { ETHSignedTx } from '@shapeshiftoss/hdwallet-core'
 import { checkKeepKeyUnlocked } from '../utils'
 import { kkStateController } from '../globalState';
+import { logger } from '../middlewares/logger';
 
 @Tags('Device Info Endpoints')
 @Route('')
@@ -12,6 +13,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getNumCoins')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getNumCoins(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -24,6 +26,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getCoinTable')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getCoinTable(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -36,6 +39,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getDeviceID')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getDeviceID(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -48,6 +52,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getVendor')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getVendor(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -61,6 +66,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getModel')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getModel(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -73,6 +79,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getFirmwareVersion')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getFirmwareVersion(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -85,6 +92,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/getLabel')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async getLabel(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -97,6 +105,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/isInitialized')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async isInitialized(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -109,6 +118,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/isLocked')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async isLocked(): Promise<ETHSignedTx> {
         return new Promise<any>((resolve, reject) => {
@@ -120,6 +130,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/hasOnDevicePinEntry')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async hasOnDevicePinEntry(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -132,6 +143,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/hasOnDevicePassphrase')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async hasOnDevicePassphrase(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -144,6 +156,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/hasOnDeviceDisplay')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async hasOnDeviceDisplay(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {
@@ -156,6 +169,7 @@ export class HDeviceInfoController extends Controller {
 
     @Get('/hasOnDeviceRecovery')
     @Security("api_key")
+    @Middlewares([logger])
     @Response(500, "Internal server error")
     public async hasOnDeviceRecovery(): Promise<ETHSignedTx> {
         return new Promise<any>(async (resolve, reject) => {

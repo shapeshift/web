@@ -17,6 +17,7 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 - [Developer Onboarding](#developer-onboarding)
 - [Commands](#commands)
 - [Linking local dependencies](#linking)
+- [Debugging](#debugging)
 
 ## Helpful Docs
 
@@ -38,6 +39,11 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 - [lib](https://github.com/shapeshift/lib)
 - [unchained](https://github.com/shapeshift/unchained)
 - [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (optional; must be installed manually)
+
+
+## Debugging
+
+- [Rerenders](docs/rerenders.md)
 
 ## Quick Start
 

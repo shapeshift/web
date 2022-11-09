@@ -24,6 +24,8 @@ import type { Nullable } from 'types/common'
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
+import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
+import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
 export type AssetWithBalance = {
   cryptoBalance: string
@@ -34,6 +36,9 @@ export type AssetWithBalance = {
 type OverviewProps = {
   accountId?: Nullable<AccountId>
   onAccountIdChange?: (accountId: AccountId) => void
+  // The LP asset this opportunity represents
+  lpAsset?: AssetWithBalance
+  // The assets underlying the LP one
   underlyingAssets: AssetWithBalance[]
   rewardAssets?: AssetWithBalance[]
   name: string
@@ -51,6 +56,7 @@ type OverviewProps = {
 export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
+  lpAsset,
   underlyingAssets,
   rewardAssets,
   asset,
@@ -65,24 +71,6 @@ export const Overview: React.FC<OverviewProps> = ({
   children,
   expired,
 }) => {
-  const renderUnderlyingAssets = useMemo(() => {
-    return underlyingAssets.map(asset => {
-      return (
-        <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
-          {asset.icons ? (
-            <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
-          ) : (
-            <AssetIcon src={asset.icon} size='2xs' />
-          )}
-          <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
-          {asset.allocationPercentage && (
-            <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-          )}
-        </Tag>
-      )
-    })
-  }, [underlyingAssets])
-
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssets) return null
     return rewardAssets.map((asset, index) => (
@@ -140,7 +128,11 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {renderUnderlyingAssets}
+                {lpAsset ? (
+                  <UnderlyingAssetsMenu lpAsset={lpAsset} underlyingAssets={underlyingAssets} />
+                ) : (
+                  <UnderlyingAssetsTags underlyingAssets={underlyingAssets} showPercentage />
+                )}
               </Flex>
             </Stack>
             {rewardAssets && (
@@ -166,14 +158,18 @@ export const Overview: React.FC<OverviewProps> = ({
                   {tvl && (
                     <Stat fontWeight='medium'>
                       <Amount.Fiat value={tvl} fontSize='lg' />
-                      <StatLabel>TVL</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.tvl' />
+                      </StatLabel>
                     </Stat>
                   )}
 
                   {apy && (
                     <Stat fontWeight='medium'>
                       <Amount.Percent autoColor value={apy} fontSize='lg' />
-                      <StatLabel>APY</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.apy' />
+                      </StatLabel>
                     </Stat>
                   )}
 

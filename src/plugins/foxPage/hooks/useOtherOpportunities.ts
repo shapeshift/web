@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpOpportunityName,
@@ -30,8 +30,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 
-  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
-  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
+  const ethAccountIds = useAppSelector(s => selectAccountIdsByAssetId(s, null), isEqual)
 
   useEffect(() => {
     ;(async () => {
@@ -106,9 +105,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     ),
   )
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const highestLpBalanceAccountAddress = useAppSelector(state =>
-    selectHighestBalanceFoxLpOpportunityAccountAddress(state, emptyFilter),
+  const highestLpBalanceAccountAddress = useAppSelector(s =>
+    selectHighestBalanceFoxLpOpportunityAccountAddress(s, null),
   )
 
   const otherOpportunities = useMemo(() => {

@@ -1,9 +1,9 @@
-import { ModalBody, Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useParams } from 'react-router'
+import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 
@@ -13,11 +13,11 @@ import { FiatRampAction } from '../FiatRampsCommon'
 type AssetSelectProps = {
   handleAssetSelect: (assetId: AssetId) => void
   selectAssetTranslation: string
+  fiatRampAction: FiatRampAction
 }
 
 export const AssetSelect: React.FC<AssetSelectProps> = props => {
-  const { handleAssetSelect, selectAssetTranslation } = props
-  const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
+  const { handleAssetSelect, selectAssetTranslation, fiatRampAction } = props
   const { data: ramps, isLoading } = useGetFiatRampsQuery()
   const translate = useTranslate()
   const history = useHistory()
@@ -38,11 +38,11 @@ export const AssetSelect: React.FC<AssetSelectProps> = props => {
   return (
     <SlideTransition>
       <DefiModalHeader onBack={handleBack} title={translate(selectAssetTranslation)} />
-      <ModalBody pb={0}>
+      <Box p={6} pb={0}>
         <Stack height='338px'>
           <AssetSearch onClick={handleAssetSelect} action={fiatRampAction} assetIds={assetIds} />
         </Stack>
-      </ModalBody>
+      </Box>
     </SlideTransition>
   )
 }

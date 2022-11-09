@@ -5,17 +5,16 @@ import keys from 'lodash/keys'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import {
-  selectAccountAddressParamFromFilter,
-  selectAccountAddressParamFromFilterOptional,
-} from 'state/selectors'
+import { selectAccountAddressParamFromFilter } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
 
 import { foxEthLpAssetId } from './constants'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
+import { baseLpOpportunity } from './foxEthCommon'
 
 const farmingOpportunitiesReducer = (
   acc: Record<string, FoxFarmingEarnOpportunityType>,
@@ -62,13 +61,13 @@ const selectEthAccountIdsByAssetId = createCachedSelector(
 export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCachedSelector(
   // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
+  selectAccountAddressParamFromFilter,
   selectEthAccountIdsByAssetId,
-  (foxEthState, accountAddress, ethAccountIds) => {
+  (foxEthState, accountAddress, ethAccountIds): FoxEthLpEarnOpportunityType[] => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    return (accountAddress ? [accountAddress] : ethAccountAddresses).map(
-      accountAddress => foxEthState[accountAddress]?.lpOpportunity,
-    )
+    return (accountAddress ? [accountAddress] : ethAccountAddresses)
+      .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
+      .filter(isSome)
   },
 )((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 
@@ -81,27 +80,27 @@ export const selectFoxEthLpOpportunityByAccountAddress = createSelector(
 export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutputSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   (state: ReduxState) => state,
-  (wrappedEthLpOpportunities, state) => {
-    const aggregatedOpportunity = wrappedEthLpOpportunities
-      .filter(Boolean)
-      .reduce((acc, currentOpportunity) => {
-        acc = {
-          ...currentOpportunity,
-          underlyingFoxAmount: bnOrZero(acc.underlyingFoxAmount)
-            .plus(currentOpportunity.underlyingFoxAmount ?? '')
-            .toString(),
-          underlyingEthAmount: bnOrZero(acc.underlyingEthAmount)
-            .plus(currentOpportunity.underlyingEthAmount ?? '')
-            .toString(),
-          cryptoAmount: bnOrZero(acc.cryptoAmount)
-            .plus(currentOpportunity.cryptoAmount ?? '')
-            .toString(),
-          fiatAmount: bnOrZero(acc.fiatAmount)
-            .plus(currentOpportunity.fiatAmount ?? '')
-            .toString(),
-        }
-        return acc
-      }, {} as FoxEthLpEarnOpportunityType)
+  (wrappedEthLpOpportunities, state): FoxEthLpEarnOpportunityType => {
+    const aggregatedOpportunity = wrappedEthLpOpportunities.reduce<
+      Partial<FoxEthLpEarnOpportunityType | undefined>
+    >(
+      (acc, currentOpportunity) => ({
+        ...currentOpportunity,
+        underlyingFoxAmount: bnOrZero(acc?.underlyingFoxAmount)
+          .plus(currentOpportunity?.underlyingFoxAmount ?? '')
+          .toString(),
+        underlyingEthAmount: bnOrZero(acc?.underlyingEthAmount)
+          .plus(currentOpportunity?.underlyingEthAmount ?? '')
+          .toString(),
+        cryptoAmount: bnOrZero(acc?.cryptoAmount)
+          .plus(currentOpportunity?.cryptoAmount ?? '')
+          .toString(),
+        fiatAmount: bnOrZero(acc?.fiatAmount)
+          .plus(currentOpportunity?.fiatAmount ?? '')
+          .toString(),
+      }),
+      undefined,
+    )
 
     const highestBalanceAccountAddress = selectHighestBalanceFoxLpOpportunityAccountAddress(
       state,
@@ -109,6 +108,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
     )
 
     return {
+      ...baseLpOpportunity,
       ...aggregatedOpportunity,
       highestBalanceAccountAddress,
     }
@@ -118,7 +118,7 @@ export const selectFoxEthLpAccountsOpportunitiesAggregated = createDeepEqualOutp
 export const selectFoxFarmingOpportunitiesByMaybeAccountAddress = createDeepEqualOutputSelector(
   // TODO(0xdef1cafe): this causes 200+ renders, we can't react on the entire slice changing!
   (state: ReduxState) => state.foxEth,
-  selectAccountAddressParamFromFilterOptional,
+  selectAccountAddressParamFromFilter,
   selectEthAccountIdsByAssetId,
   (foxEthState, accountAddress, ethAccountIds) => {
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
@@ -217,9 +217,8 @@ export const selectHighestBalanceFoxFarmingOpportunityAccountAddress = createSel
 export const selectHighestBalanceFoxLpOpportunityAccountAddress = createSelector(
   selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
   opportunities =>
-    opportunities.sort((a, b) => {
-      return bn(b.fiatAmount).minus(a.fiatAmount).toNumber()
-    })[0]?.accountAddress ?? '',
+    opportunities.sort((a, b) => bn(b.fiatAmount).minus(a.fiatAmount).toNumber())[0]
+      ?.accountAddress ?? '',
 )
 
 export const selectFarmContractsAccountsBalanceAggregated = createSelector(
@@ -265,7 +264,7 @@ export const selectFoxEthLpFiatBalance = createSelector(
     const accountAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
     const lpOpportunities = accountAddresses
       .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
-      .filter(Boolean)
+      .filter(isSome)
 
     const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
     const lpOpportunitiesCryptoAmount = lpOpportunities.reduce((acc, currentLpOpportunity) => {

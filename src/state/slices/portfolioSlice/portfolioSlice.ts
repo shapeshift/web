@@ -4,7 +4,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
@@ -29,7 +28,9 @@ export const portfolio = createSlice({
         ...state.accountMetadata.byId,
         ...payload,
       }
-      state.accountMetadata.ids = Array.from(new Set([...Object.keys(payload)]))
+      state.accountMetadata.ids = Array.from(
+        new Set([...state.accountMetadata.ids, ...Object.keys(payload)]),
+      )
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.debug('upserting portfolio')
@@ -38,41 +39,13 @@ export const portfolio = createSlice({
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
 
-      /**
-       * when fetching an account we got to calculate the difference between the
-       * state accountBalance and the payload accountBalance for each of account assets
-       * and then add [or subtract] the diff to the state.assetBalances related item.
-       */
-      payload.accountBalances.ids.forEach(accountId => {
-        // iterate over the account assets balances and calculate the diff
-        Object.entries(payload.accountBalances.byId[accountId]).forEach(
-          ([assetId, newAccountAssetBalance]) => {
-            // in case if getting accounts for the first time
-            const currentAccountBalance = bnOrZero(state.accountBalances.byId[accountId]?.[assetId])
-            // diff could be both positive [tx type -> receive] and negative [tx type -> send]
-            const differenceBetweenCurrentAndNew =
-              bnOrZero(newAccountAssetBalance).minus(currentAccountBalance)
-            // get current asset balance from the state
-            const currentAssetBalance = bnOrZero(state.assetBalances.byId?.[assetId])
-            // update state.assetBalances with calculated diff
-            state.assetBalances.byId[assetId] = currentAssetBalance
-              .plus(differenceBetweenCurrentAndNew)
-              .toString()
-          },
-        )
-      })
-
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId,
       }
-      const assetBalanceIds = Array.from(
-        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids]),
-      )
       const accountBalanceIds = Array.from(
         new Set([...state.accountBalances.ids, ...payload.accountBalances.ids]),
       )
-      state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
     },
   },
@@ -95,7 +68,6 @@ export const portfolioApi = createApi({
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
-          dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           moduleLogger.error(e, `error fetching account ${accountId}`)

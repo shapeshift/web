@@ -3,8 +3,7 @@ import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
 import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import isUndefined from 'lodash/isUndefined'
-import { FaExchangeAlt } from 'react-icons/fa'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -137,7 +136,7 @@ export const Approve = ({
         <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
-            disabled={disabled}
+            disabled={disabled || loading}
             size='lg'
             colorScheme='blue'
             width='full'

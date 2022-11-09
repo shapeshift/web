@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
+import { Deposit as ReusableDeposit, Field } from 'features/defi/components/Deposit/Deposit'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -10,13 +10,16 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
+import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -59,6 +62,42 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // notify
   const toast = useToast()
+
+  const cryptoAmountAvailable = useMemo(
+    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    [asset.precision, balance],
+  )
+  const fiatAmountAvailable = useMemo(
+    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
+    [cryptoAmountAvailable, marketData.price],
+  )
+
+  const handleMaxClick = useCallback(
+    async (setValue: UseFormSetValue<DepositValues>) => {
+      if (!accountId) return
+      const estimatedFees = await estimateFees({
+        cryptoAmount: cryptoAmountAvailable.toString(),
+        asset,
+        address: '',
+        sendMax: true,
+        accountId,
+        contractAddress: '',
+      })
+      const amountAvailableCryptoPrecision = toBaseUnit(cryptoAmountAvailable, asset.precision)
+      const cryptoAmountHuman = bnOrZero(amountAvailableCryptoPrecision)
+        .minus(estimatedFees.average.txFee)
+        .div(bn(10).pow(asset.precision))
+        .toString()
+      const fiatAmount = bnOrZero(cryptoAmountHuman).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), {
+        shouldValidate: true,
+      })
+      setValue(Field.CryptoAmount, cryptoAmountHuman.toString(), {
+        shouldValidate: true,
+      })
+    },
+    [accountId, asset, cryptoAmountAvailable, marketData.price],
+  )
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -132,9 +171,6 @@ export const Deposit: React.FC<DepositProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
-
   return (
     <ReusableDeposit
       accountId={accountId}
@@ -155,6 +191,7 @@ export const Deposit: React.FC<DepositProps> = ({
       marketData={marketData}
       onCancel={handleCancel}
       onContinue={handleContinue}
+      onMaxClick={handleMaxClick}
       percentOptions={[0.25, 0.5, 0.75, 1]}
       enableSlippage={false}
     />

@@ -7,7 +7,6 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import {
   foxEthLpAssetId,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
@@ -29,7 +28,7 @@ import { selectMarketDataById } from '../selectors'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from './constants'
 import { getOrCreateContract } from './contractManager'
 import type { FoxEthLpEarnOpportunityType, FoxFarmingEarnOpportunityType } from './foxEthCommon'
-import { farmingOpportunities, lpOpportunity } from './foxEthCommon'
+import { baseLpOpportunity, farmingOpportunities } from './foxEthCommon'
 import type {
   GetFoxEthLpAccountDataArgs,
   GetFoxEthLpAccountDataReturn,
@@ -44,7 +43,7 @@ import { fetchPairData } from './utils'
 
 type FoxEthOpportunities = {
   farmingOpportunities: FoxFarmingEarnOpportunityType[]
-  lpOpportunity: FoxEthLpEarnOpportunityType
+  lpOpportunity: FoxEthLpEarnOpportunityType | undefined
 }
 
 type FoxEthState = Record<
@@ -69,7 +68,7 @@ export const foxEth = createSlice({
         draftState[action.payload.accountAddress] = {} as FoxEthOpportunities
       }
       draftState[action.payload.accountAddress ?? ''].lpOpportunity = {
-        ...lpOpportunity, // Common LP properties
+        ...baseLpOpportunity, // Common LP properties
         ...(draftState[action.payload.accountAddress ?? '']?.lpOpportunity ?? {}),
         ...action.payload,
       }
@@ -91,8 +90,8 @@ export const foxEth = createSlice({
       if (!draftState[action.payload.accountAddress ?? '']) {
         draftState[action.payload.accountAddress ?? ''] = {
           farmingOpportunities: [],
-          lpOpportunity: {} as EarnOpportunityType,
-        } as FoxEthOpportunities
+          lpOpportunity: undefined,
+        }
       }
 
       // There's an entry for that accountAddress but no farmingOpportunities field - meaning we only have lpOpportunity so far

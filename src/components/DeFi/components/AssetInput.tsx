@@ -31,22 +31,25 @@ import type { Nullable } from 'types/common'
 import { Balance } from './Balance'
 import { PercentOptionsButtonGroup } from './PercentOptionsButtonGroup'
 
-const CryptoInput = (props: InputProps) => (
-  <Input
-    size='lg'
-    fontSize='xl'
-    borderRadius={0}
-    py={0}
-    height='auto'
-    type='number'
-    textAlign='right'
-    variant='inline'
-    placeholder='Enter amount'
-    style={{ caretColor: colors.blue[200] }}
-    autoComplete='off'
-    {...props}
-  />
-)
+const CryptoInput = (props: InputProps) => {
+  const translate = useTranslate()
+  return (
+    <Input
+      size='lg'
+      fontSize='xl'
+      borderRadius={0}
+      py={0}
+      height='auto'
+      type='number'
+      textAlign='right'
+      variant='inline'
+      placeholder={translate('common.enterAmount')}
+      style={{ caretColor: colors.blue[200] }}
+      autoComplete='off'
+      {...props}
+    />
+  )
+}
 
 export type AssetInputProps = {
   accountId?: Nullable<AccountId>
@@ -132,6 +135,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     >
       <Stack direction='row' alignItems='center' px={4}>
         <Button
+          data-test='asset-input-selection-button'
           onClick={onAssetClick}
           size='sm'
           variant={onAssetClick ? 'solid' : 'read-only'}

@@ -24,7 +24,7 @@ import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
@@ -75,7 +75,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assetIds: AssetId[]
-  balances: PortfolioBalancesById
+  balances: AssetBalancesById
 }
 
 // adjust this to give charts more or less granularity
@@ -347,9 +347,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const balances = useAppSelector(state =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, emptyFilter),
+  const balances = useAppSelector(s =>
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(s, null),
   )
 
   const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])

@@ -34,6 +34,7 @@ import last from 'lodash/last'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import type {
@@ -126,8 +127,9 @@ export const accountIdToUtxoParams = (accountId: AccountId, accountIndex: number
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],
-  assetId: AssetId,
+  assetId?: AssetId,
 ): AccountId[] => {
+  if (!assetId) return []
   const result = Object.entries(portfolioAccounts).reduce<AccountId[]>(
     (acc, [accountId, account]) => {
       if (account.assetIds.includes(assetId)) acc.push(accountId)
@@ -157,10 +159,6 @@ type AccountToPortfolioArgs = {
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
-const sumBalance = (totalBalance: string, currentBalance: string) => {
-  return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toString()
-}
-
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = args => {
@@ -181,14 +179,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[accountId].assetIds.push(assetId)
         portfolio.accounts.ids.push(accountId)
 
-        portfolio.assetBalances.byId[assetId] = sumBalance(
-          portfolio.assetBalances.byId[assetId] ?? '0',
-          ethAccount.balance,
-        )
-
-        // add assetId without dupes
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
-
         portfolio.accountBalances.byId[accountId] = {
           [assetId]: ethAccount.balance,
         }
@@ -199,16 +189,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
-          // add assetId without dupes
-          portfolio.assetBalances.ids = Array.from(
-            new Set([...portfolio.assetBalances.ids, token.assetId]),
-          )
-
-          // if token already exist inside assetBalances, add balance to existing balance
-          portfolio.assetBalances.byId[token.assetId] = sumBalance(
-            portfolio.assetBalances.byId[token.assetId] ?? '0',
-            token.balance,
-          )
 
           portfolio.accountBalances.byId[accountId] = {
             ...portfolio.accountBalances.byId[accountId],
@@ -222,7 +202,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountId = `${chainId}:${pubkey}`
 
-        portfolio.assetBalances.ids.push(assetId)
         portfolio.accountBalances.ids.push(accountId)
 
         // initialize this
@@ -243,12 +222,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[accountId].assetIds = Array.from(
           new Set([...portfolio.accounts.byId[accountId].assetIds, assetId]),
         )
-
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
-
-        portfolio.assetBalances.byId[assetId] = bnOrZero(portfolio.assetBalances.byId[assetId])
-          .plus(bnOrZero(balance))
-          .toString()
 
         break
       }
@@ -275,7 +248,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
                 .map(undelegation => {
                   return undelegation?.validator?.address
                 })
-                .filter(Boolean),
+                .filter(isSome),
               cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
             ].flat(),
           ),
@@ -333,14 +306,6 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         })
 
         portfolio.accounts.ids.push(accountId)
-
-        portfolio.assetBalances.byId[assetId] = sumBalance(
-          portfolio.assetBalances.byId[assetId] ?? '0',
-          account.balance,
-        )
-
-        // add assetId without dupes
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
 
         portfolio.accountBalances.byId[accountId] = {
           [assetId]: account.balance,

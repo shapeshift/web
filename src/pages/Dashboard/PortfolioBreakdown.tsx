@@ -1,5 +1,4 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -56,16 +55,11 @@ export const PortfolioBreakdown = () => {
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  const emptyFilter = useMemo(() => ({}), [])
   //FOX/ETH LP Balance
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
-  )
+  const opportunity = useAppSelector(s => selectFoxEthLpAccountsOpportunitiesAggregated(s, null))
   const lpBalance = opportunity?.underlyingFoxAmount ?? 0
   // Portfolio including Staking
-  const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, emptyFilter),
-  )
+  const netWorth = useAppSelector(s => selectPortfolioTotalFiatBalanceWithStakingData(s, null))
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null

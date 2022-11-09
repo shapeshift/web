@@ -5,7 +5,7 @@ import keys from 'lodash/keys'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { isDefined } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountAddressParamFromFilter } from 'state/selectors'
@@ -67,7 +67,7 @@ export const selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress = createCac
     const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
     return (accountAddress ? [accountAddress] : ethAccountAddresses)
       .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
-      .filter(isDefined)
+      .filter(isSome)
   },
 )((_s: ReduxState, filter) => filter?.accountAddress ?? 'accountAddress')
 
@@ -264,7 +264,7 @@ export const selectFoxEthLpFiatBalance = createSelector(
     const accountAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
     const lpOpportunities = accountAddresses
       .map(accountAddress => foxEthState[accountAddress]?.lpOpportunity)
-      .filter(Boolean)
+      .filter(isSome)
 
     const lpTokenPrice = marketData[foxEthLpAssetId]?.price ?? 0
     const lpOpportunitiesCryptoAmount = lpOpportunities.reduce((acc, currentLpOpportunity) => {

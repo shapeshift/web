@@ -114,6 +114,8 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     chainId,
     bip44Params,
     idleInvestor,
+    state.userAddress,
+    state.opportunity,
   ])
 
   const handleBack = useCallback(() => {

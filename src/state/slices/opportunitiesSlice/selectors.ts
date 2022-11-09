@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isDefined } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -107,7 +107,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
           ? { ...userStakingOpportunity, ...stakingOpportunity, userStakingId }
           : undefined
       })
-      .filter(isDefined)
+      .filter(isSome)
   },
 )
 

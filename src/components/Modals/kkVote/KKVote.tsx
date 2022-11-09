@@ -189,7 +189,7 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
             <Input
               my='10px'
               isDisabled={needsApproval}
-              placeholder='Token Amount'
+              placeholder={needsApproval ? 'Please Approve' : 'Token Amount'}
               onChange={(input: any) => setBurnAmount(input.target.value)}
             />
           )}

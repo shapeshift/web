@@ -1,5 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Nominal } from 'types/common'
 
@@ -35,8 +34,8 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {
-    byAccountId: Record<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: Record<LpId, OpportunityMetadata>
+    byAccountId: Partial<Record<AccountId, LpId[]>> // a 1:n foreign key of which user AccountIds hold this LpId
+    byId: Partial<Record<LpId, OpportunityMetadata>>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract

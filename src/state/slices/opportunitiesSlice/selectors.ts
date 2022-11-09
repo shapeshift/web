@@ -39,7 +39,10 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
 export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => (accountId ? lpIdsByAccountId[accountId] : []),
+  (lpIdsByAccountId, accountId): LpId[] => {
+    const maybeLpIds = accountId && lpIdsByAccountId[accountId]
+    return maybeLpIds ?? []
+  },
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice

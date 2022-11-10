@@ -1,13 +1,11 @@
-import type { ethereum } from '@keepkey/chain-adapters'
 import { Logger } from '@keepkey/logger'
-import { KnownChainIds } from '@keepkey/types'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 
 import type { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from './types'
 
@@ -19,7 +17,6 @@ type WCServiceOptions = {
 
 export class WCService {
   private logger = new Logger({ name: 'WCService', level: 'debug' })
-
   constructor(
     private readonly wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
@@ -38,13 +35,15 @@ export class WCService {
     return new WCService(wallet, new WalletConnect({ session }), options)
   }
 
+  // ****************
+  // ****************
+  // ****************
+  // TODO we need a dropdown to allow them to update session with a new chain id client side
+  // TODO also implement wallet_switchEthereumChain for the other way
   async connect() {
-    if (!this.wallet) throw new Error('Missing ETH Wallet to connect with')
-
     if (!this.connector.connected) {
       await this.connector.createSession()
     }
-
     this.subscribeToEvents()
   }
 
@@ -69,9 +68,12 @@ export class WCService {
     this.log('Session Request', { error, payload })
 
     const address = await this.wallet.ethGetAddress({ addressNList, showDisplay: false })
+
     if (address) {
       this.connector.approveSession({
-        chainId: payload.params[0].chainId ?? 1,
+        // default to polygon if request doesnt have chainId (temporary for dev)
+        // this will be replaced with the ability for them to change chain id from wallet
+        chainId: payload.params[0].chainId ?? 137,
         accounts: [address],
       })
     }
@@ -103,12 +105,6 @@ export class WCService {
   }
 
   public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
-    const adapterManager = getChainAdapterManager()
-    // TODO work for any chain (avalanche etc)
-    const adapter = adapterManager.get(
-      KnownChainIds.EthereumMainnet,
-    ) as unknown as ethereum.ChainAdapter
-
     let result: any
     switch (request.method) {
       // TODO
@@ -130,9 +126,9 @@ export class WCService {
         break
       }
       case 'eth_sendTransaction': {
-        const sendData = {
+        const sendData: any = {
           addressNList,
-          chainId: 1, // TODO non eth chains
+          chainId: this.connector.chainId,
           data: txData.data,
           gasLimit: txData.gasLimit,
           to: txData.to,
@@ -142,8 +138,17 @@ export class WCService {
           maxFeePerGas: txData.maxFeePerGas,
         }
 
+        if (txData.gasPrice) {
+          sendData['gasPrice'] = txData.gasPrice
+          delete sendData.maxPriorityFeePerGas
+          delete sendData.maxFeePerGas
+        }
+
         const signedData = await this.wallet.ethSignTx?.(sendData)
-        result = await adapter.broadcastTransaction(signedData?.serialized ?? '')
+
+        const chainWeb3 = web3ByChainId(this.connector.chainId) as any
+        result = (await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)).blockHash
+
         break
       }
       // TODO further testing that this works correctly
@@ -151,7 +156,7 @@ export class WCService {
         {
           const response = await this.wallet.ethSignTx({
             addressNList,
-            chainId: 1, // TODO non eth chains
+            chainId: this.connector.chainId,
             data: txData.data,
             gasLimit: txData.gasLimit,
             nonce: txData.nonce,

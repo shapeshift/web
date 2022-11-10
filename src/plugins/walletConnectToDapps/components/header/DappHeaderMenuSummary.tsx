@@ -21,10 +21,14 @@ export const DappHeaderMenuSummary: FC = () => {
 
   const walletConnect = useWalletConnect()
   const connectedChainId = walletConnect.bridge?.connector.chainId
+
   const chainName = useMemo(() => {
-    const name = chainAdapterManager
+    let name = chainAdapterManager
       .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedChainId}`) ?? '')
       ?.getDisplayName()
+
+    // Todo get a better name
+    if (!name) name = `ChainId ${connectedChainId}`
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
   }, [chainAdapterManager, connectedChainId, supportedEvmChainIds, translate])

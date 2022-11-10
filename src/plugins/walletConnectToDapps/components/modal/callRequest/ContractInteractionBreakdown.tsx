@@ -21,11 +21,14 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   const translate = useTranslate()
 
   const { contract } = useContract(request.to, request.chainId)
-  const transaction = useMemo(
-    () => contract?.parseTransaction({ data: request.data, value: request.value }),
-    [contract, request.data, request.value],
-  )
-
+  const transaction = useMemo(() => {
+    try {
+      return contract?.parseTransaction({ data: request.data, value: request.value })
+    } catch (e) {
+      return
+    }
+  }, [contract, request.data, request.value])
+  if (!transaction) return null
   return (
     <ModalSection
       title={

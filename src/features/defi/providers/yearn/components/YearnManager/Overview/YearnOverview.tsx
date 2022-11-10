@@ -26,14 +26,13 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Yearn', 'YearnOverview'],
 })
 
 export const YearnOverview: React.FC<{
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }> = ({ accountId, onAccountIdChange: handleAccountIdChange }) => {
   const { yearn: api } = useYearn()

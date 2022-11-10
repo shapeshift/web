@@ -9,10 +9,9 @@ import {
   selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type UseCosmosStakingBalancesProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   assetId: AssetId
 }
 

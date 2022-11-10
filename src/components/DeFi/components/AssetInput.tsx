@@ -26,7 +26,6 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
-import type { Nullable } from 'types/common'
 
 import { Balance } from './Balance'
 import { PercentOptionsButtonGroup } from './PercentOptionsButtonGroup'
@@ -52,7 +51,7 @@ const CryptoInput = (props: InputProps) => {
 }
 
 export type AssetInputProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   assetId?: AssetId
   assetSymbol: string
   assetIcon: string

@@ -21,13 +21,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {

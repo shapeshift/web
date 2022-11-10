@@ -1,5 +1,9 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { isNull } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
@@ -68,3 +72,14 @@ export const isValidAccountNumber = (
 }
 
 export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>
+
+export const walletCanEditMemo = (wallet: HDWallet): boolean => {
+  switch (true) {
+    case wallet instanceof KeepKeyHDWallet:
+    case wallet instanceof NativeHDWallet:
+      return false
+    case wallet instanceof KeplrHDWallet:
+    default:
+      return true
+  }
+}

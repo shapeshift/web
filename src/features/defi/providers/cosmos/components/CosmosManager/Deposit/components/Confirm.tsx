@@ -23,6 +23,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { walletCanEditMemo } from 'lib/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -52,6 +53,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Cosmos,
   })
+
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
@@ -194,13 +199,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           </Row.Value>
         </Row>
       </Summary>
-      <Alert status='info' size='sm' gap={2}>
-        <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
-        <HelperTooltip
-          label={translate('defi.memoNote.body')}
-          iconProps={{ color: 'currentColor' }}
-        />
-      </Alert>
+      {wallet && walletCanEditMemo(wallet) && (
+        <Alert status='info' size='sm' gap={2}>
+          <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
+          <HelperTooltip
+            label={translate('defi.memoNote.body')}
+            iconProps={{ color: 'currentColor' }}
+          />
+        </Alert>
+      )}
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />

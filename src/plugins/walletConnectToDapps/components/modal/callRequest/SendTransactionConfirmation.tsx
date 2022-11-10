@@ -146,7 +146,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const [trueNonce, setTrueNonce] = useState('0')
   useEffect(() => {
     ;(async () => {
-      const count = await (chainWeb3 as any).eth.getTransactionCount(address)
+      const count = await (chainWeb3 as any)?.eth?.getTransactionCount(address)
       setTrueNonce(`${count}`)
     })()
   }, [adapterManager, address, chainWeb3, walletState.wallet])

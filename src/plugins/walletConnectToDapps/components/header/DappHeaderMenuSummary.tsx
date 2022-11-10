@@ -27,14 +27,13 @@ export const DappHeaderMenuSummary: FC = () => {
       .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedChainId}`) ?? '')
       ?.getDisplayName()
 
-    // Todo get a better name
     if (!name) name = `ChainId ${connectedChainId}`
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
   }, [chainAdapterManager, connectedChainId, supportedEvmChainIds, translate])
   const handleDisconnect = walletConnect.disconnect
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  if (!walletConnect || !walletConnect.bridge || !walletConnect.dapp) return null
 
   return (
     <>
@@ -70,7 +69,12 @@ export const DappHeaderMenuSummary: FC = () => {
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
-          <MiddleEllipsis value={walletConnect.bridge.connector.accounts[0]} color='blue.200' />
+          {!!walletConnect?.bridge?.connector?.accounts && (
+            <MiddleEllipsis
+              value={walletConnect?.bridge?.connector?.accounts[0]}
+              color='blue.200'
+            />
+          )}
         </HStack>
         {!!connectedChainId && (
           <HStack justifyContent='space-between' spacing={4}>

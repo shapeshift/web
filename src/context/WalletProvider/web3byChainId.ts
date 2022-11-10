@@ -19,7 +19,9 @@ export const web3ByChainId = (chainId: number) => {
       ),
     )
   } else if (chainId === 137) {
-    return new Web3(new Web3.providers.HttpProvider(`https://rpc-mainnet.maticvigil.com`))
+    return new Web3(new Web3.providers.HttpProvider(`https://rpc-mainnet.matic.quiknode.pro`))
+  } else if (chainId === 100) {
+    return new Web3(new Web3.providers.HttpProvider(`https://rpc.ankr.com/gnosis`))
   } else {
     throw new Error('unsupported chain id')
   }

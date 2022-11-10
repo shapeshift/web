@@ -17,6 +17,7 @@ type WCServiceOptions = {
 
 export class WCService {
   private logger = new Logger({ name: 'WCService', level: 'debug' })
+
   constructor(
     private readonly wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
@@ -54,6 +55,7 @@ export class WCService {
     this.connector.off('connect')
     this.connector.off('disconnect')
     this.connector.off('call_request')
+    this.connector.off('wallet_switchEthereumChain')
   }
 
   private subscribeToEvents() {
@@ -62,6 +64,7 @@ export class WCService {
     this.connector.on('connect', this._onConnect.bind(this))
     this.connector.on('disconnect', this._onDisconnect.bind(this))
     this.connector.on('call_request', this._onCallRequest.bind(this))
+    this.connector.on('wallet_switchEthereumChain', this._onSwitchChain.bind(this))
   }
 
   async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
@@ -73,7 +76,7 @@ export class WCService {
       this.connector.approveSession({
         // default to polygon if request doesnt have chainId (temporary for dev)
         // this will be replaced with the ability for them to change chain id from wallet
-        chainId: payload.params[0].chainId ?? 137,
+        chainId: payload.params[0].chainId ?? 1,
         accounts: [address],
       })
     }
@@ -102,6 +105,13 @@ export class WCService {
     this.log('Call Request', { error, payload })
 
     this.options?.onCallRequest(payload)
+  }
+
+  async _onSwitchChain(error: Error | null, payload: any) {
+    this.connector.updateSession({
+      chainId: payload.params[0].chainId,
+      accounts: payload.params[0].accounts,
+    })
   }
 
   public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
@@ -147,8 +157,8 @@ export class WCService {
         const signedData = await this.wallet.ethSignTx?.(sendData)
 
         const chainWeb3 = web3ByChainId(this.connector.chainId) as any
-        result = (await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)).blockHash
-
+        await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
+        result = await chainWeb3.utils.sha3(signedData?.serialized)
         break
       }
       // TODO further testing that this works correctly

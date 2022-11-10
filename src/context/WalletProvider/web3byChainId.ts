@@ -1,11 +1,8 @@
+import { getConfig } from 'config'
 import Web3 from 'web3'
 export const web3ByChainId = (chainId: number) => {
   if (chainId === 1) {
-    return new Web3(
-      new Web3.providers.HttpProvider(
-        `https://mainnet.infura.io/v3/fb05c87983c4431baafd4600fd33de7e`,
-      ),
-    )
+    return new Web3(new Web3.providers.HttpProvider(getConfig().REACT_APP_ETHEREUM_INFURA_URL))
   } else if (chainId === 5) {
     return new Web3(
       new Web3.providers.HttpProvider(

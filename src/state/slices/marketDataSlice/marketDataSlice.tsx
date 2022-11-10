@@ -6,44 +6,21 @@ import type {
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import {
-  findByFiatSymbol,
-  findPriceHistoryByFiatSymbol,
-  MarketServiceManager,
-} from '@shapeshiftoss/market-service'
+import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
+import type {
+  FindPriceHistoryByAssetIdArgs,
+  MarketDataState,
+  PriceHistoryByTimeframe,
+} from 'state/slices/marketDataSlice/types'
 
 import { foxEthLpAssetId } from '../foxEthSlice/constants'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
-
-export type PriceHistoryData = {
-  [k: AssetId]: HistoryData[] | undefined
-}
-
-type PriceHistoryByTimeframe = {
-  [k in HistoryTimeframe]: PriceHistoryData
-}
-
-type MarketDataStateVariant<T extends string> = {
-  byId: {
-    [k in T]?: MarketData
-  }
-  priceHistory: PriceHistoryByTimeframe
-  ids: T[]
-}
-
-type FiatMarketDataState = MarketDataStateVariant<SupportedFiatCurrencies>
-type CryptoMarketDataState = MarketDataStateVariant<AssetId>
-
-export type MarketDataState = {
-  crypto: CryptoMarketDataState
-  fiat: FiatMarketDataState
-}
 
 export const INITIAL_PRICE_HISTORY: PriceHistoryByTimeframe = Object.freeze({
   [HistoryTimeframe.HOUR]: {},
@@ -77,28 +54,6 @@ export const defaultMarketData: MarketData = {
   marketCap: '0',
   volume: '0',
   changePercent24Hr: 0,
-}
-
-// do not directly use or export, singleton
-let _marketServiceManager: MarketServiceManager | undefined
-
-type GetMarketServiceManager = () => MarketServiceManager
-
-const getMarketServiceManager: GetMarketServiceManager = () => {
-  const config = getConfig()
-  if (!_marketServiceManager) {
-    _marketServiceManager = new MarketServiceManager({
-      coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
-      // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
-      yearnChainReference: 1,
-      providerUrls: {
-        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
-        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
-      },
-    })
-  }
-  return _marketServiceManager
 }
 
 export const marketData = createSlice({
@@ -139,8 +94,6 @@ export const marketData = createSlice({
     },
   },
 })
-
-type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

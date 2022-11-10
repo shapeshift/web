@@ -81,7 +81,7 @@ export const HardwareErrorModal = (error: any) => {
               <Image src={kkConnect} alt='reconnect Device!' />
               <Text translation={'modals.keepKey.hardware.connect'} />
               <Button isDisabled={deviceBusy} onClick={retryPair}>
-                {`${deviceBusy ? 'Retry (Device buys, please wait)' : 'Retry'}`}
+                {`${deviceBusy ? 'Retry (Device busy, please wait)' : 'Retry'}`}
               </Button>
             </div>
           )}

@@ -5,11 +5,11 @@ import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 import { SelectAccount } from 'components/Trade/SelectAccount'
 
-import { useSwapper } from '../hooks/useSwapper/useSwapperV2'
+import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { AssetClickAction, useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
-import { TradeInput as TradeInputV2 } from '../TradeInputV2'
+import { TradeInput as TradeInputV2 } from '../TradeInput'
 import { TradeRoutePaths } from '../types'
 
 export const entries = ['/send/details', '/send/confirm']

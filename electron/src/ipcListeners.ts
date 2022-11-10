@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron"
-import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./globalState"
+import { bridgeLogger, db, ipcQueue, isWalletBridgeRunning, kkStateController, setRenderListenersReady, windows } from "./globalState"
 import isDev from 'electron-is-dev'
 import {
   downloadFirmware,
@@ -71,6 +71,11 @@ export const startIpcListeners = () => {
             })
         })
     })
+
+    ipcMain.on('@bridge/connected', (event, serviceKey) => {
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed())
+          windows.mainWindow.webContents.send('@bridge/connected', isWalletBridgeRunning())
+      })
 
     ipcMain.on("@bridge/service-name", (event, serviceKey) => {
         db.findOne({

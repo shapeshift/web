@@ -13,7 +13,6 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectFoxFarmingOpportunityByContractAddress } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -29,7 +28,7 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onBack: () => void
 }
 

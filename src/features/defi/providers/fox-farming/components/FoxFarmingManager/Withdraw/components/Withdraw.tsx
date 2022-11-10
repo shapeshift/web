@@ -17,7 +17,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -25,7 +24,7 @@ import { WithdrawContext } from '../WithdrawContext'
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 

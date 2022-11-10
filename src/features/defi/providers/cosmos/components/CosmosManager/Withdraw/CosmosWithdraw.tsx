@@ -27,7 +27,6 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -41,7 +40,7 @@ const moduleLogger = logger.child({
 })
 
 type CosmosWithdrawProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({

@@ -17,16 +17,14 @@ import {
   selectHighestBalanceFoxLpOpportunityAccountAddress,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
   const dispatch = useAppDispatch()
-  const [lpApy, setLpApy] = useState<Nullable<string>>(null)
-  const [farmingV4Data, setFarmingV4Data] =
-    useState<Nullable<GetFoxFarmingContractMetricsReturn>>(null)
+  const [lpApy, setLpApy] = useState<string>()
+  const [farmingV4Data, setFarmingV4Data] = useState<GetFoxFarmingContractMetricsReturn>()
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 

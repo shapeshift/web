@@ -28,7 +28,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -36,7 +35,7 @@ import { ClaimableAsset } from './ClaimableAsset'
 
 const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])

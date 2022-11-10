@@ -27,7 +27,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -36,7 +35,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Deposit', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
+export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
   onNext,
 }) => {

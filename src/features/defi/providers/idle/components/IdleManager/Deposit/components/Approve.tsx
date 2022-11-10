@@ -24,12 +24,11 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type IdleApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
+type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 

@@ -27,7 +27,6 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 interface ClaimStatusState {
   txid: string
@@ -73,7 +72,7 @@ const moduleLogger = logger.child({
 })
 
 type ClaimStatusProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {

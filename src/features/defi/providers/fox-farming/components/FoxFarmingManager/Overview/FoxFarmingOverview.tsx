@@ -31,13 +31,12 @@ import {
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type FoxFarmingOverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 

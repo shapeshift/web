@@ -54,9 +54,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     assetReference: ASSET_REFERENCE.Cosmos,
   })
 
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))

@@ -51,9 +51,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
 
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info

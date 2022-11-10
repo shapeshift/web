@@ -1,5 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 
 // LP contracts
 export const foxEthPair = [ethAssetId, foxAssetId] as const
@@ -32,3 +36,76 @@ export const STAKING_ID_TO_NAME = {
 }
 
 export const STAKING_ID_DELIMITER = '*'
+
+// Earn opportunity types - everyting after this comment is here for backwards compatibility
+// with the expected EarnOpportunityType the DeFi hooks / normalizeOpportunity expect
+// The current abstraction just forces us to pass a lot of fluff that could be derived / we don't need
+// This will go away in a follow-up PR as we remove those hooks
+
+export const earnLpOpportunity: EarnOpportunityType = {
+  assetId: foxEthLpAssetId,
+  opportunityName: 'ETH/FOX Pool',
+  provider: DefiProvider.FoxFarming,
+  contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
+  chainId: ethChainId,
+  rewardAddress: '',
+  apy: '',
+  tvl: '',
+  fiatAmount: '',
+  cryptoAmount: '',
+  isLoaded: false,
+  type: DefiType.LiquidityPool,
+}
+
+export const baseEarnFarmingOpportunity = {
+  provider: DefiProvider.FoxFarming,
+  rewardAddress: fromAssetId(foxAssetId).assetReference,
+  chainId: ethChainId,
+  apy: '',
+  tvl: '',
+  assetId: foxEthLpAssetId,
+  fiatAmount: '',
+  cryptoAmount: '',
+  rewardsAmountCryptoPrecision: '',
+  isLoaded: false,
+  type: DefiType.Farming,
+}
+
+export const v4EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV4,
+  contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
+  opportunityName: 'Fox Farming V4',
+}
+
+export const v3EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV3,
+  contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
+  opportunityName: 'Fox Farming V3',
+}
+
+export const v2EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV2,
+  contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
+  opportunityName: 'Fox Farming V2',
+}
+
+export const v1EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV1,
+  contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
+  opportunityName: 'Fox Farming V1',
+}
+
+export const STAKING_EARN_OPPORTUNITIES = {
+  [foxEthStakingAssetIdV1]: v1EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV2]: v2EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV3]: v3EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV4]: v4EarnFarmingOpportunity,
+}
+
+export const LP_EARN_OPPORTUNITIES = {
+  [foxEthLpAssetId]: earnLpOpportunity,
+}

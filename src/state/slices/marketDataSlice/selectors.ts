@@ -16,6 +16,7 @@ import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 import { defaultMarketData } from './marketDataSlice'
+import type { MarketDataById } from './types'
 
 const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
@@ -24,11 +25,7 @@ export const selectMarketData = createDeepEqualOutputSelector(
   selectCryptoMarketData,
   selectFiatMarketData,
   selectSelectedCurrency,
-  (
-    cryptoMarketData,
-    fiatMarketData,
-    selectedCurrency,
-  ): { [k: AssetId]: MarketData | undefined } => {
+  (cryptoMarketData, fiatMarketData, selectedCurrency): MarketDataById<AssetId> => {
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
     if (fiatPrice.eq(1)) return cryptoMarketData // don't unnecessarily compute price history for USD
     return Object.entries(cryptoMarketData).reduce<MarketCapResult>(

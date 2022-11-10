@@ -6,8 +6,10 @@ import type { PartialRecord } from 'lib/utils'
 export type PriceHistoryData = PartialRecord<AssetId, HistoryData[]>
 export type PriceHistoryByTimeframe = PartialRecord<HistoryTimeframe, PriceHistoryData>
 
+export type MarketDataById<T extends string> = PartialRecord<T, MarketData>
+
 export type MarketDataStateVariant<T extends string> = {
-  byId: PartialRecord<T, MarketData>
+  byId: MarketDataById<T>
   priceHistory: PriceHistoryByTimeframe
   ids: T[]
 }

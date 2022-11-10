@@ -145,6 +145,7 @@ describe('opportunitiesSlice selectors', () => {
       tvl: '424242',
       apy: '0.42',
       type: DefiType.LiquidityPool,
+      underlyingAssetId: foxEthLpAssetId,
       underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
       underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
     }
@@ -201,6 +202,7 @@ describe('opportunitiesSlice selectors', () => {
         stakedAmountCryptoPrecision: '1337',
         tvl: '424242',
         type: 'lp',
+        underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         underlyingAssetIds: [
           'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
           'eip155:1/slip44:60',
@@ -219,6 +221,7 @@ describe('opportunitiesSlice selectors', () => {
         rewardsAmountCryptoPrecision: '3',
         tvl: '424242',
         type: 'lp',
+        underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         underlyingAssetIds: [
           'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
           'eip155:1/slip44:60',
@@ -238,6 +241,7 @@ describe('opportunitiesSlice selectors', () => {
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
         },
       },
@@ -287,6 +291,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -302,6 +307,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -323,6 +329,7 @@ describe('opportunitiesSlice selectors', () => {
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
           rewardsAmountCryptoPrecision: '430',

@@ -156,25 +156,23 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
   selectUserStakingOpportunitiesByStakingId,
   (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
     if (!userStakingOpportunities?.length) return
-    const initial = {} as UserStakingOpportunity & OpportunityMetadata
 
-    return userStakingOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
-      (acc, userStakingOpportunity) => {
-        const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-          userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+    return userStakingOpportunities.reduce<
+      (UserStakingOpportunity & OpportunityMetadata) | undefined
+    >((acc, userStakingOpportunity) => {
+      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
+        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
 
-        return {
-          ...userStakingOpportunityWithoutUserStakingId,
-          stakedAmountCryptoPrecision: bnOrZero(acc.stakedAmountCryptoPrecision)
-            .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
-            .toString(),
-          rewardsAmountCryptoPrecision: bnOrZero(acc.rewardsAmountCryptoPrecision)
-            .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-            .toString(),
-        }
-      },
-      initial,
-    )
+      return {
+        ...userStakingOpportunityWithoutUserStakingId,
+        stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
+          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+          .toString(),
+        rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
+          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+          .toString(),
+      }
+    }, undefined)
   },
 )
 
@@ -206,7 +204,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
   (stakingIds, state): (UserStakingOpportunity & OpportunityMetadata)[] =>
     stakingIds
       .map(stakingId => selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }))
-      .filter(<T>(x: T | undefined): x is T => Boolean(x)),
+      .filter(isSome),
 )
 
 // The same as selectAggregatedUserStakingOpportunities, but parsed as an EarnOpportunityType

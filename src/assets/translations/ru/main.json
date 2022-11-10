@@ -77,7 +77,10 @@
     "selectAsset": "Выберите актив",
     "switchNetwork": "Переключить сеть",
     "unsupportedNetwork": "Неподдерживаемая сеть",
-    "chartUnavailable": "Данные графика баланса временно недоступны для %{unavailableAssetNames}."
+    "chartUnavailable": "Данные графика баланса временно недоступны для %{unavailableAssetNames}.",
+    "search": "Поиск",
+    "enterAmount": "Ввести сумму",
+    "pageNotFound": "Страница, которую вы ищете, не найдена"
   },
   "buyPage": {
     "title": {
@@ -92,7 +95,7 @@
         "second": "отслеживайте свою криптовалюту по 8 сетям"
       }
     },
-    "topAssets": "Ведущие активы"
+    "availableAssets": "Доступные активы"
   },
   "updateToast": {
     "body": "Доступна новая версия приложения",
@@ -133,6 +136,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Последние транзакции"
+    },
+    "tradeCard": {
+      "trade": "Торговля",
+      "bridge": "Мост"
     }
   },
   "fiatRamps": {
@@ -163,7 +170,8 @@
     "nonUS": "НЕ США",
     "availableProviders": "Доступные провайдеры",
     "noProvidersAvailable": "Провайдеры отсутствуют",
-    "noProvidersBody": "Похоже, у нас пока нет провайдеров для этого актива."
+    "noProvidersBody": "Похоже, у нас пока нет провайдеров для этого актива.",
+    "notSupported": "%{asset} не поддерживается %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -300,6 +308,7 @@
     "asset": "Активы",
     "category": "Категория",
     "tvl": "TVL",
+    "type": "Тип",
     "apy": "APY",
     "apr": "APR",
     "ended": "Завершено",
@@ -381,6 +390,7 @@
     "assetStakingBalance": "%{assetSymbol} Баланс стейкинга"
   },
   "navBar": {
+    "home": "На главную",
     "dashboard": "Панель управления",
     "assets": "Активы",
     "assetDetails": "Детали активов",
@@ -1330,7 +1340,10 @@
     "selectChain": "Выберите сеть, для которой вы хотите создать учетную запись.",
     "requiresPriorTxHistory": "Вы можете добавить новый счет только в том случае, если существующий счет (счета) имеет предыдущую историю транзакций",
     "newAccountAdded": "Добавлен новый аккаунт %{name}",
-    "youCanNowUse": "Теперь вы можете использовать %{name} Аккаунт #%{accountNumber}"
+    "youCanNowUse": "Теперь вы можете использовать %{name} Аккаунт #%{accountNumber}",
+    "showAssets": "Показать активы",
+    "hideAssets": "Скрыть активы",
+    "viewAccount": "Просмотр аккаунта"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1464,11 +1477,13 @@
             "alert": "Только для опытных пользователей. Изменение этих настроек может привести к задержке транзакций.",
             "nonce": {
               "title": "Nonce",
-              "placeholder": "Nonce..."
+              "placeholder": "Nonce...",
+              "tooltip": "Количество транзакций, отправленных с данного адреса. Только для опытных пользователей."
             },
             "gasLimit": {
               "title": "Лимит газа",
-              "placeholder": "Лимит газа..."
+              "placeholder": "Лимит газа...",
+              "tooltip": "Лимит газа означает максимальное количество газа, которое пользователь может израсходовать для проведения транзакции."
             }
           }
         }
@@ -1506,7 +1521,8 @@
     },
     "estGasCost": "Предположительная. Стоимость газа",
     "gasPrice": {
-      "label": "Цена за газ"
+      "label": "Цена за газ",
+      "tooltip": "Сумма, которую вы хотите заплатить за единицу газа в качестве платы майнеру или валидатору"
     },
     "base": {
       "label": "Базовая комиссия",

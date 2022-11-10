@@ -75,28 +75,28 @@ export const v4EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
-  opportunityName: 'Fox Farming V4',
+  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV4],
 }
 
 export const v3EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
-  opportunityName: 'Fox Farming V3',
+  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV3],
 }
 
 export const v2EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
-  opportunityName: 'Fox Farming V2',
+  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV2],
 }
 
 export const v1EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
-  opportunityName: 'Fox Farming V1',
+  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV1],
 }
 
 export const STAKING_EARN_OPPORTUNITIES = {

@@ -408,7 +408,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
 export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   (aggregatedOpportunities): UserStakingOpportunity & OpportunityMetadata =>
-    aggregatedOpportunities.reduce<UserStakingOpportunity & OpportunityMetadata>(
+    aggregatedOpportunities.reduce<(UserStakingOpportunity & OpportunityMetadata) | undefined>(
       (acc, currentOpportunity) => {
         return {
           ...acc,
@@ -421,7 +421,7 @@ export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelec
             .toString(),
         }
       },
-      {} as UserStakingOpportunity & OpportunityMetadata,
+      undefined,
     ),
 )
 
@@ -503,7 +503,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
         )
         .toFixed(6)
         .toString(),
-      icons: [underlyingAssetsIcons![i]],
+      icons: [underlyingAssetsIcons[i]],
       allocationPercentage: '0.50',
     }))
   },

@@ -19,6 +19,8 @@ export const foxEthStakingAssetIdV3: AssetId =
   'eip155:1/erc20:0x212ebf9fd3c10f371557b08e993eaab385c3932b'
 export const foxEthStakingAssetIdV4: AssetId =
   'eip155:1/erc20:0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0'
+export const foxEthStakingAssetIdV5: AssetId =
+  'eip155:1/erc20:0xc14eaa8284feff79edc118e06cadbf3813a7e555'
 
 // Tuple of all staking contracts, to iterate over and dispatch RTK queries for
 export const foxEthStakingIds = [
@@ -26,6 +28,7 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV2,
   foxEthStakingAssetIdV3,
   foxEthStakingAssetIdV4,
+  foxEthStakingAssetIdV5,
 ] as const
 
 export const STAKING_ID_TO_NAME = {
@@ -33,6 +36,7 @@ export const STAKING_ID_TO_NAME = {
   [foxEthStakingAssetIdV2]: 'Fox Farming V2',
   [foxEthStakingAssetIdV3]: 'Fox Farming V3',
   [foxEthStakingAssetIdV4]: 'Fox Farming V4',
+  [foxEthStakingAssetIdV5]: 'Fox Farming V5',
 }
 
 export const STAKING_ID_DELIMITER = '*'
@@ -69,6 +73,13 @@ export const baseEarnFarmingOpportunity = {
   rewardsAmountCryptoPrecision: '',
   isLoaded: false,
   type: DefiType.Farming,
+}
+
+export const v5EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
+  assetId: foxEthStakingAssetIdV5,
+  contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
+  opportunityName: 'Fox Farming V5',
 }
 
 export const v4EarnFarmingOpportunity: EarnOpportunityType = {

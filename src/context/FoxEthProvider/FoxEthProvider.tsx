@@ -37,7 +37,7 @@ export type FoxFarmingEarnOpportunityType = {
   underlyingToken0Amount?: string
   underlyingToken1Amount?: string
   isVisible?: boolean
-  underlyingAssetId: AssetId
+  underlyingAssetId?: AssetId
 } & EarnOpportunityType
 
 type FoxEthProviderProps = {

@@ -84,7 +84,9 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           provider,
           chainId,
           contractAddress,
-          assetReference: fromAssetId(earnOpportunity.underlyingAssetId).assetReference,
+          assetReference: earnOpportunity.underlyingAssetId
+            ? fromAssetId(earnOpportunity.underlyingAssetId).assetReference
+            : undefined,
           highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',

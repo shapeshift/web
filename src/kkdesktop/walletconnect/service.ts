@@ -104,7 +104,7 @@ export class WCService {
   // ****************
   // ****************
   // TODO we need a dropdown to allow them to update session with a new chain id client side
-  async _onSwitchChain(error: Error | null, payload: any) {
+  async _onSwitchChain(_error: Error | null, payload: any) {
     this.connector.updateSession({
       chainId: payload.params[0].chainId,
       accounts: payload.params[0].accounts,

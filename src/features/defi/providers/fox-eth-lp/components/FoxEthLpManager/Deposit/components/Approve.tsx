@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -9,25 +10,29 @@ import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type FoxEthLpApproveProps = {
+type FoxEthLpApproveProps = StepComponentProps & {
+  accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 
-export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { lpAccountAddress } = useFoxEth()
   const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountAddress)
@@ -103,19 +108,27 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(estimatedGasCrypto) &&
+      isSome(accountId) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [estimatedGasCrypto, accountId, feeAsset],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   if (!state || !dispatch) return null
@@ -124,11 +137,9 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .times(feeMarketData.price)
-        .toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}

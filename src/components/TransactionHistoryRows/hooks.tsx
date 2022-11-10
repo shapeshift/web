@@ -34,7 +34,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (!(txDetails.tx.trade && buy && sell)) return
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
-    if (!cryptoPriceHistoryData[buy.asset.assetId]) {
+    if (!cryptoPriceHistoryData?.[buy.asset.assetId]) {
       dispatch(
         findPriceHistoryByAssetId.initiate({
           assetId: buy.asset.assetId,
@@ -43,7 +43,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
       )
     }
 
-    if (!cryptoPriceHistoryData[sell.asset.assetId]) {
+    if (!cryptoPriceHistoryData?.[sell.asset.assetId]) {
       dispatch(
         findPriceHistoryByAssetId.initiate({
           assetId: buy.asset.assetId,

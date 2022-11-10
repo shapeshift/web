@@ -29,7 +29,6 @@ import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
 import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -46,9 +45,8 @@ const FoxFarmCTA = () => {
   const history = useHistory()
   const location = useLocation()
 
-  const [lpApy, setLpApy] = useState<Nullable<string>>(null)
-  const [farmingV4Data, setFarmingV4Data] =
-    useState<Nullable<GetFoxFarmingContractMetricsReturn>>(null)
+  const [lpApy, setLpApy] = useState<string | undefined>()
+  const [farmingV4Data, setFarmingV4Data] = useState<GetFoxFarmingContractMetricsReturn>()
   const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
   const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
 

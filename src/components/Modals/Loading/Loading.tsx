@@ -10,7 +10,6 @@ export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
   const { close, isOpen } = loading
   const {
     state: { isConnected, isUpdatingKeepkey },
-    setNeedsReset,
   } = useWallet()
 
   const history = useHistory()
@@ -26,10 +25,9 @@ export const LoadingModal = ({ closing = false }: { closing: boolean }) => {
 
   useEffect(() => {
     if ((isConnected || isUpdatingKeepkey) && isOpen && !closing) {
-      setNeedsReset(false)
       close()
     }
-  }, [close, closing, isConnected, isOpen, isUpdatingKeepkey, setNeedsReset])
+  }, [close, closing, isConnected, isOpen, isUpdatingKeepkey])
 
   return (
     <Modal

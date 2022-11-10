@@ -337,7 +337,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, initialState)
   // Keepkey is in a fucked state and needs to be unplugged/replugged
-  const [needsReset, setNeedsReset] = useState(false)
 
   // to know we are in the process of updating bootloader or firmware
   // so we dont unintentionally show the keepkey error modal while updating
@@ -499,7 +498,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, disconnect, setDeviceState, setNeedsReset)
+  useKeepKeyEventHandler(state, dispatch, disconnect, setDeviceState)
 
   const value: IWalletContext = useMemo(
     () => ({
@@ -511,8 +510,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       setIsUpdatingKeepkey,
       pairAndConnect,
       deviceBusy,
-      needsReset,
-      setNeedsReset,
     }),
     [
       state,
@@ -522,8 +519,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       isUpdatingKeepkey,
       pairAndConnect,
       deviceBusy,
-      needsReset,
-      setNeedsReset,
     ],
   )
 

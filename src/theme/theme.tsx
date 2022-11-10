@@ -93,6 +93,18 @@ const styles = {
       flexDirection: 'column',
       alignItems: 'stretch',
     },
+    '.chakra-switch__track': {
+      _checked: {
+        background: 'var(--chakra-colors-blue-400) !important',
+      },
+    },
+    span: {
+      '.chakra-switch__thumb': {
+        _checked: {
+          background: 'var(--chakra-colors-blue-600) !important',
+        },
+      },
+    },
   }),
 }
 

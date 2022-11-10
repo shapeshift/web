@@ -19,7 +19,6 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   disconnect: () => void,
   setDeviceState: (deviceState: Partial<DeviceState>) => void,
-  setNeedsReset: (reset: boolean) => void,
 ) => {
   const {
     keyring,
@@ -54,7 +53,6 @@ export const useKeepKeyEventHandler = (
               setDeviceState({
                 disposition: 'initialized',
               })
-              setNeedsReset(true)
               handleDisconnect(deviceId)
               break
             case 'Device recovered':
@@ -66,7 +64,6 @@ export const useKeepKeyEventHandler = (
                   type: WalletActions.SET_WALLET_MODAL,
                   payload: false,
                 })
-              setNeedsReset(true)
               handleDisconnect(deviceId)
               toast({
                 title: translate('common.success'),
@@ -293,7 +290,6 @@ export const useKeepKeyEventHandler = (
     modal,
     state.walletInfo,
     setDeviceState,
-    setNeedsReset,
     disposition,
     toast,
     translate,

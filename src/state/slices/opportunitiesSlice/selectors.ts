@@ -407,17 +407,17 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
 // TODO: testme
 export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  (aggregatedOpportunities): UserStakingOpportunity & OpportunityMetadata =>
+  (aggregatedOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined =>
     aggregatedOpportunities.reduce<(UserStakingOpportunity & OpportunityMetadata) | undefined>(
       (acc, currentOpportunity) => {
         return {
           ...acc,
           ...currentOpportunity,
           stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
-            .plus(acc.stakedAmountCryptoPrecision)
+            .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
           rewardsAmountCryptoPrecision: bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision)
-            .plus(acc.rewardsAmountCryptoPrecision)
+            .plus(acc?.rewardsAmountCryptoPrecision ?? 0)
             .toString(),
         }
       },

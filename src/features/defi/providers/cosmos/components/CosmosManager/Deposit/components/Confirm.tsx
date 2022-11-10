@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -194,6 +194,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           </Row.Value>
         </Row>
       </Summary>
+      <Alert status='info'>
+        <AlertDescription>{translate('defi.memoNote')}</AlertDescription>
+      </Alert>
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />

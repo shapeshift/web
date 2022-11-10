@@ -162,7 +162,11 @@ const FoxFarmCTA = () => {
           <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
             {translate('defi.clickHereToEarn')}
             <span> </span>
-            <Skeleton display='inline-block' isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}>
+            <Skeleton
+              as='span'
+              display='inline-block'
+              isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}
+            >
               <Amount.Percent
                 as='span'
                 value={bnOrZero(farmingV4Data?.apy)

@@ -274,6 +274,7 @@
         "claimYour": "Claim your %{opportunity}"
       }
     },
+    "memoNote": "Note: Please don't edit the transaction memo.",
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",

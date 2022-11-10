@@ -959,7 +959,6 @@
           "pin": "Die PIN ist eine Kombination aus bis zu 9 Zahlen, die Sie nach der Initialisierung Ihres KeepKey auswählen. Eine PIN schützt Ihr Gerät vor unbefugter Nutzung, falls Ihr KeepKey in die falschen Hände gerät.",
           "passphrase": "Aktivieren Sie die Möglichkeit, mehrere Wallets zu haben, auf die Sie zugreifen können, indem Sie eine eindeutige Passphrase für jede Wallet verwenden.",
           "label": "Durch die Kennzeichnung der einzelnen Geräte können Sie sie leicht voneinander unterscheiden.",
-          "timeout": "Ihr Gerät wechselt standardmäßig nach 10 Minuten Aktivität in den Ruhezustand. Sie können dies jedoch ändern.",
           "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{Einstellung} des Geräts zu ändern.",
           "updateSuccess": "%{setting} erfolgreich aktualisiert!",
           "updateFailed": "Beim Aktualisieren von %{setting} ist ein Fehler aufgetreten.",

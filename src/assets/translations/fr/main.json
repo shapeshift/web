@@ -959,7 +959,6 @@
           "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
           "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de sécurité unique pour chaque porte-monnaie.",
           "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
-          "timeout": "Votre appareil se met en veille après 10 minutes d'activité par défaut. Cependant, vous pouvez changer cela.",
           "buttonPrompt": "Appuyez longuement sur le bouton de votre KeepKey pour modifier le %{setting} de l'appareil.",
           "updateSuccess": "%{setting} mis à jour avec succès !",
           "updateFailed": "Une erreur s'est produite lors de la mise à jour de %{setting}.",

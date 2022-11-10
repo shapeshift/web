@@ -1,5 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -82,15 +83,17 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (state.userAddress && state.opportunity) return
+        const userAddress = accountId && fromAccountId(accountId).account
+        if (userAddress && userAddress !== state.userAddress) {
+          dispatch({ type: IdleWithdrawActionType.SET_USER_ADDRESS, payload: userAddress })
+        }
+
+        if (state.opportunity) return
         if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
           return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          idleInvestor.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
+        const opportunity = await idleInvestor.findByOpportunityId(
+          toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+        )
         if (!opportunity) {
           return toast({
             position: 'top-right',
@@ -99,7 +102,6 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
             status: 'error',
           })
         }
-        dispatch({ type: IdleWithdrawActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: IdleWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
@@ -118,6 +120,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     idleInvestor,
     state.userAddress,
     state.opportunity,
+    accountId,
   ])
 
   const handleBack = useCallback(() => {

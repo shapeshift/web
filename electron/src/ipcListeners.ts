@@ -86,7 +86,8 @@ export const startIpcListeners = () => {
     ipcMain.on('renderListenersReady', async () => {
         log.info('renderListenersReady')
         setRenderListenersReady(true)
-        ipcQueue.forEach((item, idx) => {
+        const newQueue = [...ipcQueue]
+        newQueue.forEach((item, idx) => {
             log.info('ipc event called from queue', item)
             if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)
             ipcQueue.splice(idx, 1);

@@ -77,15 +77,16 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     }
 
     if (earnOpportunity) {
-      const { provider, chainId, contractAddress, assetId, rewardAddress } = earnOpportunity
-      const { assetReference } = fromAssetId(assetId)
+      const { provider, chainId, contractAddress, rewardAddress } = earnOpportunity
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
           provider,
           chainId,
           contractAddress,
-          assetReference,
+          assetReference: earnOpportunity.underlyingAssetId
+            ? fromAssetId(earnOpportunity.underlyingAssetId).assetReference
+            : undefined,
           highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',
@@ -94,16 +95,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       })
       return
     }
-  }, [
-    opportunity.highestBalanceAccountAddress,
-    isDemoWallet,
-    earnOpportunity,
-    dispatch,
-    history,
-    location,
-    opportunity.link,
-    wallet,
-  ])
+  }, [opportunity, isDemoWallet, wallet, earnOpportunity, dispatch, history, location])
 
   const opportunityButtonTranslation = useMemo(() => {
     if (opportunity.link) return 'plugins.foxPage.getStarted'

@@ -80,7 +80,7 @@ export const v5EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV5,
   contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
-  opportunityName: 'Fox Farming V5',
+  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV5],
 }
 
 export const v4EarnFarmingOpportunity: EarnOpportunityType = {

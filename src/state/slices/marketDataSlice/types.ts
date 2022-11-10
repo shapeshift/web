@@ -1,19 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
+import type { PartialRecord } from 'lib/utils'
 
-export type PriceHistoryData = {
-  [k: AssetId]: HistoryData[] | undefined
-}
-
-export type PriceHistoryByTimeframe = {
-  [k in HistoryTimeframe]: PriceHistoryData
-}
+export type PriceHistoryData = PartialRecord<AssetId, HistoryData[]>
+export type PriceHistoryByTimeframe = Record<HistoryTimeframe, PriceHistoryData>
 
 export type MarketDataStateVariant<T extends string> = {
-  byId: {
-    [k in T]?: MarketData
-  }
+  byId: PartialRecord<T, MarketData>
   priceHistory: PriceHistoryByTimeframe
   ids: T[]
 }

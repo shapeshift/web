@@ -29,7 +29,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -87,7 +87,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: vaultTokenId }),
+    selectPortfolioCryptoBalanceByFilter(state, { accountId, assetId: vaultTokenId }),
   )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${vault.precision}`)

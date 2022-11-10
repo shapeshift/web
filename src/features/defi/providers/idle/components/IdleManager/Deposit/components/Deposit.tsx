@@ -22,7 +22,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,7 +55,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+  )
 
   // notify
   const toast = useToast()
@@ -96,6 +98,7 @@ export const Deposit: React.FC<DepositProps> = ({
       opportunity,
       assetReference,
       idleInvestor,
+      accountId,
       asset.precision,
       toast,
       translate,

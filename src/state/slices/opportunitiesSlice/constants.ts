@@ -57,7 +57,7 @@ export const earnLpOpportunity: EarnOpportunityType = {
   type: DefiType.LiquidityPool,
 }
 
-export const baseFarmingOpportunity = {
+export const baseEarnFarmingOpportunity = {
   provider: DefiProvider.FoxFarming,
   rewardAddress: fromAssetId(foxAssetId).assetReference,
   chainId: ethChainId,
@@ -71,39 +71,39 @@ export const baseFarmingOpportunity = {
   type: DefiType.Farming,
 }
 
-export const v4FarmingOpportunity: EarnOpportunityType = {
-  ...baseFarmingOpportunity,
+export const v4EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
   opportunityName: 'Fox Farming V4',
 }
 
-export const v3FarmingOpportunity: EarnOpportunityType = {
-  ...baseFarmingOpportunity,
+export const v3EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
   opportunityName: 'Fox Farming V3',
 }
 
-export const v2FarmingOpportunity: EarnOpportunityType = {
-  ...baseFarmingOpportunity,
+export const v2EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
   opportunityName: 'Fox Farming V2',
 }
 
-export const v1FarmingOpportunity: EarnOpportunityType = {
-  ...baseFarmingOpportunity,
+export const v1EarnFarmingOpportunity: EarnOpportunityType = {
+  ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
   opportunityName: 'Fox Farming V1',
 }
 
 export const STAKING_EARN_OPPORTUNITIES = {
-  [foxEthStakingAssetIdV1]: v1FarmingOpportunity,
-  [foxEthStakingAssetIdV2]: v2FarmingOpportunity,
-  [foxEthStakingAssetIdV3]: v3FarmingOpportunity,
-  [foxEthStakingAssetIdV4]: v4FarmingOpportunity,
+  [foxEthStakingAssetIdV1]: v1EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV2]: v2EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV3]: v3EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV4]: v4EarnFarmingOpportunity,
 }
 
 export const LP_EARN_OPPORTUNITIES = {

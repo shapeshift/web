@@ -36,11 +36,6 @@ export class WCService {
     return new WCService(wallet, new WalletConnect({ session }), options)
   }
 
-  // ****************
-  // ****************
-  // ****************
-  // TODO we need a dropdown to allow them to update session with a new chain id client side
-  // TODO also implement wallet_switchEthereumChain for the other way
   async connect() {
     if (!this.connector.connected) {
       await this.connector.createSession()
@@ -74,8 +69,6 @@ export class WCService {
 
     if (address) {
       this.connector.approveSession({
-        // default to polygon if request doesnt have chainId (temporary for dev)
-        // this will be replaced with the ability for them to change chain id from wallet
         chainId: payload.params[0].chainId ?? 1,
         accounts: [address],
       })
@@ -107,6 +100,10 @@ export class WCService {
     this.options?.onCallRequest(payload)
   }
 
+  // ****************
+  // ****************
+  // ****************
+  // TODO we need a dropdown to allow them to update session with a new chain id client side
   async _onSwitchChain(error: Error | null, payload: any) {
     this.connector.updateSession({
       chainId: payload.params[0].chainId,

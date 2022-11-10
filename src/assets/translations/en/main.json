@@ -987,7 +987,7 @@
           "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
           "passphrase": "Enable the ability to have multiple wallets, accessible by using a unique passphrase for each wallet.",
           "label": "Labelling each of devices allows you to easily distinguish one from the other.",
-          "timeout": "Your device goes to sleep after 10 minutes of activity by default. However, you can change this.",
+          "timeout": "Your device goes to sleep after 10 minutes of inactivity by default. However, you can change this.",
           "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
           "updateSuccess": "%{setting} successfully updated!",
           "updateFailed": "An error occurred whilst updating the %{setting}.",

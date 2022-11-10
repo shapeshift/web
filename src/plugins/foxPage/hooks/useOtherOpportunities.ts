@@ -1,110 +1,54 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
+  foxEthLpAssetId,
   foxEthLpOpportunityName,
   UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
 } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
-import isEqual from 'lodash/isEqual'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
-import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
+import { foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByAssetId,
-  selectHighestBalanceFoxFarmingOpportunityAccountAddress,
-  selectHighestBalanceFoxLpOpportunityAccountAddress,
+  selectHighestBalanceAccountIdByLpId,
+  selectHighestBalanceAccountIdByStakingId,
+  selectLpOpportunitiesById,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const dispatch = useAppDispatch()
-  const [lpApy, setLpApy] = useState<string>()
-  const [farmingV4Data, setFarmingV4Data] = useState<GetFoxFarmingContractMetricsReturn>()
-  const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
-  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
-
-  const ethAccountIds = useAppSelector(s => selectAccountIdsByAssetId(s, null), isEqual)
-
-  useEffect(() => {
-    ;(async () => {
-      if (!ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      const metricsPromises = await Promise.all(
-        ethAccountAddresses.map(
-          async accountAddress =>
-            await dispatch(
-              foxEthApi.endpoints.getFoxEthLpMetrics.initiate({
-                accountAddress,
-              }),
-            ),
-        ),
-      )
-
-      // To get the APY, we need to fire the metrics requests for all accounts
-      // However, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const { isLoading, isSuccess, data } = metricsPromises[0]
-
-      if (isLoading || !data) return
-
-      if (isSuccess) {
-        setLpApy(data.apy)
-        setIsLpAprLoaded(true)
-      }
-    })()
-  }, [ethAccountIds, dispatch])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      const metricsPromises = await Promise.all(
-        ethAccountAddresses.map(
-          async accountAddress =>
-            await dispatch(
-              foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
-                contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-                accountAddress,
-              }),
-            ),
-        ),
-      )
-
-      // To get the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const { isLoading, isSuccess, data } = metricsPromises[0]
-
-      if (isLoading || !data) return
-
-      if (isSuccess) {
-        setFarmingV4Data(data)
-        setIsFarmingAprV4Loaded(true)
-      }
-    })()
-  }, [ethAccountIds, dispatch])
-
-  const highestFarmingBalanceAccountAddressFilter = useMemo(
-    () => ({
-      contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+  const highestFarmingBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, {
+      stakingId: foxEthStakingAssetIdV4 as StakingId,
     }),
-    [],
-  )
-  const highestFarmingBalanceAccountAddress = useAppSelector(state =>
-    selectHighestBalanceFoxFarmingOpportunityAccountAddress(
-      state,
-      highestFarmingBalanceAccountAddressFilter,
-    ),
   )
 
-  const highestLpBalanceAccountAddress = useAppSelector(s =>
-    selectHighestBalanceFoxLpOpportunityAccountAddress(s, null),
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
+
+  const defaultLpOpportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    [lpOpportunitiesById],
+  )
+  const defaultStakingOpportunityData = useMemo(
+    () => stakingOpportunitiesById[foxEthStakingAssetIdV4 as StakingId],
+    [stakingOpportunitiesById],
+  )
+
+  const lpOpportunityId = foxEthLpAssetId
+  const highestBalanceLpAccountIdFilter = useMemo(
+    () => ({ lpId: lpOpportunityId }),
+    [lpOpportunityId],
+  )
+  const highestBalanceLpAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
   const otherOpportunities = useMemo(() => {
@@ -115,21 +59,23 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.farming',
           opportunities: [
             {
+              type: DefiType.Staking,
               title: 'ETH-FOX UNI V4 Farm',
-              isLoaded: isFarmingAprV4Loaded && isLpAprLoaded,
-              apy:
-                isFarmingAprV4Loaded && isLpAprLoaded
-                  ? bnOrZero(farmingV4Data?.apy)
-                      .plus(lpApy ?? 0)
-                      .toString()
-                  : null,
+              isLoaded: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData),
+              apy: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData)
+                ? bnOrZero(defaultStakingOpportunityData?.apy)
+                    .plus(defaultLpOpportunityData?.apy ?? 0)
+                    .toString()
+                : undefined,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxFarming,
               opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-              highestBalanceAccountAddress: highestFarmingBalanceAccountAddress,
+              highestBalanceAccountAddress: highestFarmingBalanceAccountId
+                ? fromAccountId(highestFarmingBalanceAccountId).account
+                : undefined,
             },
           ],
         },
@@ -138,16 +84,19 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
+              type: DefiType.LiquidityPool,
               title: foxEthLpOpportunityName,
-              isLoaded: isLpAprLoaded,
-              apy: lpApy ?? null,
+              isLoaded: Boolean(defaultLpOpportunityData),
+              apy: defaultLpOpportunityData?.apy,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-              highestBalanceAccountAddress: highestLpBalanceAccountAddress,
+              highestBalanceAccountAddress: highestBalanceLpAccountId
+                ? fromAccountId(highestBalanceLpAccountId).account
+                : undefined,
             },
           ],
         },
@@ -188,12 +137,10 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     return opportunities[assetId]
   }, [
     assetId,
-    farmingV4Data?.apy,
-    highestFarmingBalanceAccountAddress,
-    highestLpBalanceAccountAddress,
-    isFarmingAprV4Loaded,
-    isLpAprLoaded,
-    lpApy,
+    defaultLpOpportunityData,
+    defaultStakingOpportunityData,
+    highestBalanceLpAccountId,
+    highestFarmingBalanceAccountId,
   ])
 
   return otherOpportunities

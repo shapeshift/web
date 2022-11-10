@@ -26,9 +26,10 @@ watchForDeviceBusy()
 
 dotenvConfig()
 
-startUpdaterListeners()
 startAppListeners()
 startIpcListeners()
+startUpdaterListeners()
+
 
 //Auto launch on startup
 if (!isDev && settings.shouldAutoLunch) {

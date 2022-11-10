@@ -11,6 +11,7 @@ import { startTcpBridge, stopTcpBridge } from "./tcpBridge";
 import { createAndUpdateTray } from "./tray";
 import { queueIpcEvent } from "./helpers/utils";
 import { BridgeLogger } from "./helpers/bridgeLogger";
+import log from 'electron-log'
 
 export const assetsDirectory = path.join(__dirname, '../assets')
 export const isMac = process.platform === "darwin"
@@ -85,6 +86,7 @@ export const kkStateController = new KKStateController(async (eventName: string,
     if (eventName === CONNECTED || eventName === NEEDS_INITIALIZE) await startTcpBridge()
     else if (eventName === DISCONNECTED || eventName === HARDWARE_ERROR)  await stopTcpBridge()
     createAndUpdateTray()
+    log.info('keepkey state changed: ', eventName, args)
     return queueIpcEvent(eventName, args)
 })
 

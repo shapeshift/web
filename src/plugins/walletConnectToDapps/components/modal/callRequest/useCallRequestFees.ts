@@ -75,5 +75,5 @@ export function useCallRequestFees(
     fetchFees().then(setFees)
   }, [fetchFees])
 
-  return fees
+  return { fees, feeAsset }
 }

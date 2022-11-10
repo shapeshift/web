@@ -35,7 +35,7 @@ type GasOption = {
 }
 
 export const GasInput: FC<GasInputProps> = ({ request }) => {
-  const fees = useCallRequestFees(request)
+  const { fees } = useCallRequestFees(request)
   const { control, setValue } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
 

@@ -1,33 +1,28 @@
 import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Divider, Flex, HStack, IconButton, Link, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType } from '@ethersproject/abi'
-import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import startCase from 'lodash/startCase'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 import { handleAbiApiResponse } from 'state/apis/abi/utils'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { ModalSection } from './ModalSection'
+import { useCallRequestFees } from './useCallRequestFees'
 
 type Props = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
 }
 
 export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
-  const translate = useTranslate()
-  const walletConnect = useWalletConnect()
+  // TODO(Q): this shouldn't be feeAsset, get the real asset from request
+  const { feeAsset } = useCallRequestFees(request)
 
   const query = useGetContractAbiQuery(request.to)
   const { contract } = handleAbiApiResponse(query)
@@ -35,17 +30,6 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
     () => contract?.parseTransaction({ data: request.data, value: request.value }),
     [contract, request.data, request.value],
   )
-  const connectedChainId = walletConnect.bridge?.connector.chainId
-  const evmChainId = request.chainId ?? connectedChainId
-  const assets = useAppSelector(selectAssets)
-  const feeAsset = useMemo(() => {
-    const chainId = `${CHAIN_NAMESPACE.Evm}:${evmChainId}`
-    const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
-    if (!feeAssetId) return null
-    const feeAsset = assets[feeAssetId]
-    if (!feeAsset) return null
-    return feeAsset
-  }, [assets, evmChainId])
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
 
@@ -101,10 +85,9 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   return (
     <ModalSection
       title={
-        transaction?.name ??
-        translate(
-          'plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.sendingEth',
-        )
+        <Box lineHeight={2.4} m={0}>
+          {transaction?.name}
+        </Box>
       }
       icon={<FaCode />}
     >

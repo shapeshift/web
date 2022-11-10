@@ -11,7 +11,6 @@ export const getMarketServiceManager: GetMarketServiceManager = () => {
   if (!_marketServiceManager) {
     _marketServiceManager = new MarketServiceManager({
       coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
-      // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
       yearnChainReference: 1,
       providerUrls: {
         jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,

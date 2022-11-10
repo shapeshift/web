@@ -30,8 +30,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }),
   )
 
-  const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
-  const stakingOpportunitiesById = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],

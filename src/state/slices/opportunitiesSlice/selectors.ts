@@ -528,7 +528,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
         )
         .toFixed(6)
         .toString(),
-      icons: [underlyingAssetsIcons![i]],
+      icons: [underlyingAssetsIcons[i]],
       allocationPercentage: '0.50',
     }))
   },

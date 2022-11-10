@@ -40,7 +40,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
 })
 
-type ConfirmProps = StepComponentProps & { accountId: AccountId | null }
+type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const [gasLimit, setGasLimit] = useState<string | null>(null)

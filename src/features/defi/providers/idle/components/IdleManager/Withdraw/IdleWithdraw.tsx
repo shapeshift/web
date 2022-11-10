@@ -28,7 +28,6 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -42,7 +41,7 @@ const moduleLogger = logger.child({
 })
 
 type WithdrawProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 

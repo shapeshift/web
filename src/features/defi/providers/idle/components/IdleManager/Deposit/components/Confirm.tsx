@@ -28,14 +28,13 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])

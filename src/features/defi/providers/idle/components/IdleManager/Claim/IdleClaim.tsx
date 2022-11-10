@@ -22,7 +22,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -34,7 +33,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleClaim'],
 })
 
-type IdleClaimProps = { accountId: Nullable<AccountId> }
+type IdleClaimProps = { accountId: AccountId | undefined }
 
 export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)

@@ -21,10 +21,9 @@ import {
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type FoxEthLpOverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 

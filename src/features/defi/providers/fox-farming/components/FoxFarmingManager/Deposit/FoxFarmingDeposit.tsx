@@ -26,7 +26,6 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -42,7 +41,7 @@ const moduleLogger = logger.child({
 
 type FoxFarmingDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   accountId,

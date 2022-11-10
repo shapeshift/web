@@ -30,7 +30,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -39,7 +38,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Deposit', 'Confirm'],
 })
 
-type ConfirmProps = StepComponentProps & { accountId: Nullable<AccountId> }
+type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { foxy: api } = useFoxy()

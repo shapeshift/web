@@ -81,7 +81,10 @@ export const KeepKeyMenu = () => {
   const RenderMenu = () => {
     const keepKeyStateLoading = (
       <>
-        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
+        <SubmenuHeader
+          title={translate('common.connectedWalletSettings')}
+          shouldShowBackClick={false}
+        />
         <MenuGroup>
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
@@ -102,7 +105,10 @@ export const KeepKeyMenu = () => {
 
     const keepKeyStateLoaded = (
       <>
-        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
+        <SubmenuHeader
+          title={translate('common.connectedWalletSettings')}
+          shouldShowBackClick={false}
+        />
         <MenuGroup>
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />

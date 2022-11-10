@@ -18,7 +18,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
@@ -27,17 +26,15 @@ import {
   selectAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
-  selectSelectedLocale,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type FoxFarmingOverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -50,7 +47,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
+  const { chainId, highestBalanceAccountAddress, contractAddress } = query
 
   const opportunityId = useMemo(
     () => toAssetId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -138,21 +135,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highestBalanceAccountId])
 
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
   const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountCryptoPrecision)
   const hasClaim = rewardAmountAvailable.gt(0)
-
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (
@@ -225,11 +212,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
               },
             ]
       }
-      description={{
-        description: stakingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: stakingAsset.isTrustedDescription,
-      }}
       tvl={opportunityData.tvl}
       apy={opportunityData.apy}
       expired={opportunityData.expired}

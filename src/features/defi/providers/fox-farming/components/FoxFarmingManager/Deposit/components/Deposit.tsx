@@ -27,7 +27,6 @@ import {
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -35,7 +34,7 @@ import { DepositContext } from '../DepositContext'
 const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 export const Deposit: React.FC<DepositProps> = ({

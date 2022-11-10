@@ -26,13 +26,12 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
-  accountId?: Nullable<AccountId>
+  accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 

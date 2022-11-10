@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import type { TS } from 'components/Trade/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'

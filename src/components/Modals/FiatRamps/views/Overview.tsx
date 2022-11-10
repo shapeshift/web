@@ -37,7 +37,6 @@ import {
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
@@ -46,7 +45,7 @@ import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   address: string
   vanityAddress: string
   assetId: AssetId

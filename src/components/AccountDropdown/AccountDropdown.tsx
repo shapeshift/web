@@ -43,7 +43,6 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
@@ -102,8 +101,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
-  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>(
-    defaultAccountId ?? null,
+  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
+    defaultAccountId,
   )
   // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
   const previousSelectedAccountId = usePrevious(selectedAccountId)

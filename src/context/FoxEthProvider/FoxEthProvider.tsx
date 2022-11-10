@@ -24,12 +24,18 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 export type FoxFarmingEarnOpportunityType = {
-  unclaimedRewards: string
+  /**
+   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
+   */
+  unclaimedRewards?: string
+  stakedAmountCryptoPrecision?: string
+  rewardsAmountCryptoPrecision?: string
+  underlyingToken0Amount?: string
+  underlyingToken1Amount?: string
   isVisible?: boolean
 } & EarnOpportunityType
 
@@ -38,9 +44,9 @@ type FoxEthProviderProps = {
 }
 
 type IFoxEthContext = {
-  farmingAccountId: Nullable<AccountId>
+  farmingAccountId: AccountId | undefined
   setFarmingAccountId: (accountId: AccountId) => void
-  lpAccountId: Nullable<AccountId>
+  lpAccountId: AccountId | undefined
   setLpAccountId: (accountId: AccountId) => void
   lpAccountAddress: string
   farmingAccountAddress: string
@@ -49,8 +55,8 @@ type IFoxEthContext = {
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
-  lpAccountId: null,
-  farmingAccountId: null,
+  lpAccountId: undefined,
+  farmingAccountId: undefined,
   setLpAccountId: _accountId => {},
   setFarmingAccountId: _accountId => {},
   lpAccountAddress: '',
@@ -76,8 +82,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
   const [lpAccountAddress, setLpAccountAddress] = useState<string>('')
   const [farmingAccountAddress, setFarmingAccountAddress] = useState<string>('')
-  const [farmingAccountId, setFarmingAccountId] = useState<Nullable<AccountId>>(null)
-  const [lpAccountId, setLpAccountId] = useState<Nullable<AccountId>>(null)
+  const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
+  const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
   const readyToFetchLpData = useMemo(
     () => !isPortfolioLoading && wallet && supportsETH(wallet),
     [isPortfolioLoading, wallet],

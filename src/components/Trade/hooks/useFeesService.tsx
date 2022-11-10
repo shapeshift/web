@@ -1,7 +1,7 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import type { TS } from 'components/Trade/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'

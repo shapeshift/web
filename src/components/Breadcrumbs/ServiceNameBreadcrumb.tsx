@@ -10,6 +10,7 @@ export const ServiceNameBreadcrumb: FC<{ serviceKey: string }> = ({ serviceKey }
     ipcRenderer.once('@bridge/service-name', (_event, serviceName) => {
       setServiceName(serviceName)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return <>{serviceName}</>
 }

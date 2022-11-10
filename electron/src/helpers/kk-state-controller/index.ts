@@ -6,7 +6,6 @@ import { initializeWallet } from './walletUtils'
 import { usb } from 'usb';
 
 // possible states
-export const REQUEST_BOOTLOADER_MODE = 'requestBootloaderMode'
 export const UPDATE_BOOTLOADER = 'updateBootloader'
 export const UPDATE_FIRMWARE = 'updateFirmware'
 export const NEEDS_INITIALIZE = 'needsInitialize'

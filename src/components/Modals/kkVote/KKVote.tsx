@@ -12,6 +12,7 @@ import {
 import { bnOrZero } from '@keepkey/investor-foxy'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useHistory } from 'react-router'
 import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
@@ -26,6 +27,7 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
   } = useWallet()
 
   const projectName = useMemo(() => getKeepkeyAsset(geckoId)?.name, [geckoId, getKeepkeyAsset])
+  const history = useHistory()
 
   const { kkVote } = useModal()
   const { close, isOpen } = kkVote
@@ -128,6 +130,16 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
     setApproveTxid(txid)
   }, [kkErc20Contract, kkNftContract, kkWeb3, wallet])
 
+  const goToTrade = useCallback(() => {
+    history.push({
+      pathname: '/dashboard',
+      state: {
+        defaultBuyAssetId: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f', // TODO: Replace with KODI address
+      },
+    })
+    kkVote.close()
+  }, [history, kkVote])
+
   return (
     <Modal
       isOpen={isOpen}
@@ -141,60 +153,56 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
+        <ModalHeader>
+          <Text translation={`Burn tokens to vote on ${projectName}`} />
+        </ModalHeader>
         <ModalBody>
-          <div>
-            <ModalHeader>
-              <Text translation={`Burn tokens to vote on ${projectName}`} />
-            </ModalHeader>
-          </div>
-          <div>
-            <RawText color='gray.500'>Token Balance {`${approvedAndBalances?.kkBalance}`}</RawText>
-          </div>
-          <div>
-            <RawText color='gray.500'>Eth Balance {`${approvedAndBalances?.ethBalance}`}</RawText>
-          </div>
-          <div>
-            {needsApproval && (
-              <RawText color='gray.500'>Eth Fee {`${feeData?.approvalEth}`}</RawText>
-            )}
-          </div>
-          <div>
-            <RawText color='gray.500'>Eth Fee {`${feeData?.voteEth}`}</RawText>
-          </div>
-          <div>
-            {needsApproval && (
-              <Button
-                isDisabled={!approvalValidationPassed}
-                isLoading={approveClicked}
-                onClick={onApproveClick}
-              >
-                Approve
-              </Button>
-            )}
-          </div>
-          <div>
-            {!!approveTxid && (
-              <Link
-                color='blue.400'
-                isExternal
-                href={`https://goerli.etherscan.io/tx/${approveTxid}`}
-              >
-                View approval on etherscan
-              </Link>
-            )}
-          </div>
-          <div>
-            {!voteClicked && (
-              <Input
-                my='10px'
-                isDisabled={needsApproval}
-                placeholder='Token Amount'
-                onChange={(input: any) => setBurnAmount(input.target.value)}
-              />
-            )}
-          </div>
-          <div>
-            {!voteConfirmed && (
+          <RawText fontWeight='bold' color='gray.500' mb={4}>
+            With KODI you can prioritize our development roadmap by signalling support for this
+            asset. To continue you must have KODI tokens in your wallet.
+            <br />
+            <br />
+            <Link color='blue.500' onClick={goToTrade}>
+              Get KODI tokens here
+            </Link>
+            <br />
+            Please note (THESE TOKENS WILL BE BURNED)
+            <br /> To prevent gaming our voting Protocol requires votes be burned. Burning KODI
+            tokens supports and funds our continued development
+          </RawText>
+          <RawText fontWeight='bold' color='gray.500'>
+            Token Balance {`${approvedAndBalances?.kkBalance}`}
+          </RawText>
+          <RawText fontWeight='bold' color='gray.500'>
+            Eth Balance {`${approvedAndBalances?.ethBalance}`}
+          </RawText>
+          {needsApproval ? (
+            <RawText fontWeight='bold' color='gray.500'>
+              Eth Fee {`${feeData?.approvalEth}`}
+            </RawText>
+          ) : (
+            <RawText fontWeight='bold' color='gray.500'>
+              Eth Fee {`${feeData?.voteEth}`}
+            </RawText>
+          )}
+          {!voteClicked && (
+            <Input
+              my='10px'
+              isDisabled={needsApproval}
+              placeholder={needsApproval ? 'Please Approve' : 'Token Amount'}
+              onChange={(input: any) => setBurnAmount(input.target.value)}
+            />
+          )}
+          {needsApproval ? (
+            <Button
+              isDisabled={!approvalValidationPassed}
+              isLoading={approveClicked}
+              onClick={onApproveClick}
+            >
+              Approve
+            </Button>
+          ) : (
+            !voteConfirmed && (
               <Button
                 isDisabled={!voteValidationPassed}
                 isLoading={voteClicked}
@@ -202,20 +210,27 @@ export const KKVote = ({ geckoId }: { geckoId: any }) => {
               >
                 Vote
               </Button>
-            )}
-          </div>
-          <div>
-            {voteTxid && (
-              <Link
-                color='blue.400'
-                isExternal
-                href={`https://goerli.etherscan.io/tx/${voteTxid}`}
-              >{`View vote on etherscan`}</Link>
-            )}
-          </div>
-          <div>
-            <RawText color='red.500'>{errorMessage}</RawText>
-          </div>
+            )
+          )}
+          {!!approveTxid && (
+            <Link
+              color='blue.400'
+              isExternal
+              href={`https://goerli.etherscan.io/tx/${approveTxid}`}
+            >
+              View approval on etherscan
+            </Link>
+          )}
+          {voteTxid && (
+            <Link
+              color='blue.400'
+              isExternal
+              href={`https://goerli.etherscan.io/tx/${voteTxid}`}
+            >{`View vote on etherscan`}</Link>
+          )}
+          <RawText mt={2} color='red.500'>
+            {errorMessage}
+          </RawText>
         </ModalBody>
       </ModalContent>
     </Modal>

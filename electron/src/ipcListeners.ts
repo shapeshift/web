@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron"
-import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./helpers/globalState"
+import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./globalState"
 import isDev from 'electron-is-dev'
 import {
   downloadFirmware,
@@ -8,6 +8,7 @@ import {
 } from './helpers/kk-state-controller/firmwareUtils'
 import * as path from 'path'
 import { queueIpcEvent } from './helpers/utils'
+import log from 'electron-log'
 
 export const startIpcListeners = () => {
     ipcMain.on('@app/get-asset-url', (event, data) => {
@@ -83,8 +84,11 @@ export const startIpcListeners = () => {
     // web render thread has indicated it is ready to receive ipc messages
     // send any that have queued since then
     ipcMain.on('renderListenersReady', async () => {
+        log.info('renderListenersReady')
         setRenderListenersReady(true)
-        ipcQueue.forEach((item, idx) => {
+        const newQueue = [...ipcQueue]
+        newQueue.forEach((item, idx) => {
+            log.info('ipc event called from queue', item)
             if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)
             ipcQueue.splice(idx, 1);
         })

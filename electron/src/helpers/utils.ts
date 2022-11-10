@@ -1,9 +1,10 @@
 import { BrowserWindow, ipcMain } from "electron"
 import { startTcpBridge } from "../tcpBridge"
-import { deviceBusyRead, deviceBusyWrite, ipcQueue, kkStateController, renderListenersReady, settings, windows } from "./globalState"
+import { deviceBusyRead, deviceBusyWrite, ipcQueue, kkStateController, renderListenersReady, settings, windows } from "../globalState"
 import isDev from 'electron-is-dev'
 import { startWindowListeners } from "../windowListeners"
 import path from 'path';
+import log from 'electron-log'
 
 export const openSignTxWindow = async (signArgs: any) => {
     let prevContentSize = { width: 0, height: 0 }
@@ -72,9 +73,11 @@ export const getWallectConnectUri = (inputUri: string): string | undefined => {
 
 export const queueIpcEvent = (eventName: string, args: any) => {
     if (!renderListenersReady || !windows?.mainWindow || windows.mainWindow.isDestroyed()) {
+        log.info('queued ipc event: ', eventName)
         return ipcQueue.push({ eventName, args })
     }
     else {
+        log.info('renderListenersReady skipping queue: ', eventName)
         return windows.mainWindow.webContents.send(eventName, args)
     }
 }

@@ -960,7 +960,6 @@
           "pin": "O PIN é uma combinação de até 9 números que você seleciona após inicializar a KeepKey. Um PIN protege seu dispositivo contra uso não autorizado caso sua KeepKey caia em mãos erradas.",
           "passphrase": "Habilite a capacidade de ter várias carteiras acessíveis usando uma senha exclusiva para cada carteira.",
           "label": "Nomear seu dispositivo permite distinguir facilmente um do outro.",
-          "timeout": "Seu dispositivo vai hibernar após 10 minutos de atividade por padrão. No entanto, você pode alterar isso.",
           "buttonPrompt": "Pressione e segure o botão em sua KeepKey para alterar o dispositivo %{setting}.",
           "updateSuccess": "%{setting} atualizado com sucesso!",
           "updateFailed": "Ocorreu um erro durante a atualização do dispositivo %{setting}.",

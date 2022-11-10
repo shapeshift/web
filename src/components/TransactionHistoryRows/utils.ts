@@ -27,7 +27,7 @@ type GetTradeFeesInput = {
   buy: Transfer
   sell: Transfer
   blockTime: number
-  cryptoPriceHistoryData: PriceHistoryData
+  cryptoPriceHistoryData?: PriceHistoryData
 }
 
 export type TradeFees = {
@@ -37,8 +37,8 @@ export type TradeFees = {
 
 export const getTradeFees = memoize(
   ({ sell, buy, blockTime, cryptoPriceHistoryData }: GetTradeFeesInput): TradeFees | undefined => {
-    const sellAssetPriceHistoryData = cryptoPriceHistoryData[sell.asset.assetId]
-    const buyAssetPriceHistoryData = cryptoPriceHistoryData[buy.asset.assetId]
+    const sellAssetPriceHistoryData = cryptoPriceHistoryData?.[sell.asset.assetId]
+    const buyAssetPriceHistoryData = cryptoPriceHistoryData?.[buy.asset.assetId]
 
     if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return
 

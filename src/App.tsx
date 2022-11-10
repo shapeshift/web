@@ -95,7 +95,6 @@ export const App = () => {
     })
 
     ipcRenderer.on('@modal/pin', (_event, _data) => {
-      // hardwareError.close()
       dispatch({
         type: WalletActions.OPEN_KEEPKEY_PIN,
         payload: {

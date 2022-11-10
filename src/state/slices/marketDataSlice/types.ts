@@ -4,7 +4,7 @@ import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/t
 import type { PartialRecord } from 'lib/utils'
 
 export type PriceHistoryData = PartialRecord<AssetId, HistoryData[]>
-export type PriceHistoryByTimeframe = Record<HistoryTimeframe, PriceHistoryData>
+export type PriceHistoryByTimeframe = PartialRecord<HistoryTimeframe, PriceHistoryData>
 
 export type MarketDataStateVariant<T extends string> = {
   byId: PartialRecord<T, MarketData>

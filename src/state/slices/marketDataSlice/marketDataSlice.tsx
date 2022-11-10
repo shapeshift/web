@@ -8,39 +8,29 @@ import type {
 } from '@shapeshiftoss/market-service'
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import merge from 'lodash/merge'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
 import type {
   FindPriceHistoryByAssetIdArgs,
   MarketDataState,
-  PriceHistoryByTimeframe,
 } from 'state/slices/marketDataSlice/types'
 
 import { foxEthLpAssetId } from '../foxEthSlice/constants'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
-export const INITIAL_PRICE_HISTORY: PriceHistoryByTimeframe = Object.freeze({
-  [HistoryTimeframe.HOUR]: {},
-  [HistoryTimeframe.DAY]: {},
-  [HistoryTimeframe.WEEK]: {},
-  [HistoryTimeframe.MONTH]: {},
-  [HistoryTimeframe.YEAR]: {},
-  [HistoryTimeframe.ALL]: {},
-})
-
 const initialState: MarketDataState = {
   crypto: {
     byId: {},
     ids: [],
-    priceHistory: INITIAL_PRICE_HISTORY,
+    priceHistory: {},
   },
   fiat: {
     byId: {},
     ids: [],
-    priceHistory: INITIAL_PRICE_HISTORY,
+    priceHistory: {},
   },
 }
 
@@ -72,7 +62,16 @@ export const marketData = createSlice({
     ) => {
       const { args, data } = payload
       const { assetId, timeframe } = args
-      state.crypto.priceHistory[timeframe][assetId] = data
+      const incoming = {
+        crypto: {
+          priceHistory: {
+            [timeframe]: {
+              [assetId]: data,
+            },
+          },
+        },
+      }
+      merge(state, incoming)
     },
     setFiatMarketData: (
       state,
@@ -90,7 +89,16 @@ export const marketData = createSlice({
     ) => {
       const { args, data } = payload
       const { symbol, timeframe } = args
-      state.fiat.priceHistory[timeframe][symbol] = data
+      const incoming = {
+        fiat: {
+          priceHistory: {
+            [timeframe]: {
+              [symbol]: data,
+            },
+          },
+        },
+      }
+      merge(state, incoming)
     },
   },
 })

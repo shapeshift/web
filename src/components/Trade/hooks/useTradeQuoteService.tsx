@@ -7,7 +7,7 @@ import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshift
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,

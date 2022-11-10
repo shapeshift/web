@@ -28,7 +28,8 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV2,
   foxEthStakingAssetIdV3,
   foxEthStakingAssetIdV4,
-  foxEthStakingAssetIdV5,
+  // TODO: uncomment me in a follow-up PR swapping v4 for v5 everywhere
+  // foxEthStakingAssetIdV5,
 ] as const
 
 export const STAKING_ID_TO_NAME = {

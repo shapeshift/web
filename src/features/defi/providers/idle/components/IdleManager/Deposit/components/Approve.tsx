@@ -22,6 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -179,22 +180,29 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(accountId) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, feeAsset, state?.approve.estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
         estimatedGasCrypto={state?.approve.estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, state?.approve.estimatedGasCrypto],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !state?.approve.estimatedGasCrypto) return null
 
   return (
     <ReusableApprove

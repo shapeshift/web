@@ -103,7 +103,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    () =>
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
+        accountId,
+      }),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 

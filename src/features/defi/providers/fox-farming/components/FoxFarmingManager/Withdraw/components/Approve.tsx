@@ -113,13 +113,19 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
+    () =>
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
+        accountId,
+      }),
     [feeAsset, state?.approve.estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
         estimatedGasCrypto={state?.approve.estimatedGasCrypto}

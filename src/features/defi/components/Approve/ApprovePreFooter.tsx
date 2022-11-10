@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -12,7 +13,9 @@ export const ApprovePreFooter = ({
   action,
   feeAsset,
   estimatedGasCrypto,
+  accountId,
 }: {
+  accountId: AccountId
   action: DefiAction.Deposit | DefiAction.Withdraw
   estimatedGasCrypto?: string
   feeAsset: Asset
@@ -21,8 +24,8 @@ export const ApprovePreFooter = ({
 
   const alertTextColor = useColorModeValue('blue.800', 'white')
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, estimatedGasCrypto),
-    [feeAsset, estimatedGasCrypto],
+    () => canCoverTxFees({ feeAsset, estimatedGasCrypto, accountId }),
+    [feeAsset, estimatedGasCrypto, accountId],
   )
 
   const feeTranslation = useMemo(

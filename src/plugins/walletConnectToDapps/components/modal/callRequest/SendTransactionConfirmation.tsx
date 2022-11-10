@@ -15,6 +15,7 @@ import { Card } from 'components/Card/Card'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -30,6 +31,7 @@ type CallRequest = WalletConnectEthSendTransactionCallRequest
 export type TxData = {
   nonce: string
   gasLimit: string
+  gasPrice?: string
   maxPriorityFeePerGas: string
   maxFeePerGas: string
   data: string
@@ -62,14 +64,21 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
 
   const [gasFeeData, setGasFeeData] = useState(undefined as any)
 
+  const [web3GasFeeData, setweb3GasFeeData] = useState('0')
+  const [chainWeb3, setChainWeb3] = useState()
+
   // determine which gasLimit to use: user input > from the request > or estimate
   const requestGas = parseInt(request.gas ?? '0x0', 16).toString(10)
   const inputGas = useWatch({ control: form.control, name: 'gasLimit' })
-  const estimatedGas = '250000' // TODO a better estimation
+
+  const [estimatedGas, setEstimatedGas] = useState('0')
 
   const txInputGas = Web3.utils.toHex(
-    !!inputGas ? inputGas : !!requestGas ? requestGas : estimatedGas,
+    !!bnOrZero(inputGas).gt(0) ? inputGas : bnOrZero(requestGas).gt(0) ? requestGas : estimatedGas,
   )
+  const walletConnect = useWalletConnect()
+  const address = walletConnect.bridge?.connector.accounts[0]
+
   useEffect(() => {
     const adapterManager = getChainAdapterManager()
 
@@ -85,8 +94,12 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
       ).toString()
       form.setValue('currentFeeAmount', fastAmount)
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txInputGas])
+
+    // for non mainnet chains we use the simple web3.getGasPrice()
+    const chainWeb3 = web3ByChainId(walletConnect.bridge?.connector.chainId ?? 1) as any
+    chainWeb3.eth.getGasPrice().then((p: any) => setweb3GasFeeData(p))
+    setChainWeb3(chainWeb3)
+  }, [form, txInputGas, walletConnect.bridge?.connector.chainId])
 
   // determine which gas fees to use: user input > from the request > Fast
   const requestMaxPriorityFeePerGas = request.maxPriorityFeePerGas
@@ -112,6 +125,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
       ? requestMaxFeePerGas
       : fastMaxFeePerGas,
   )
+
   const txMaxPriorityFeePerGas = Web3.utils.toHex(
     !!inputMaxPriorityFeePerGas
       ? inputMaxPriorityFeePerGas
@@ -132,21 +146,40 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const [trueNonce, setTrueNonce] = useState('0')
   useEffect(() => {
     ;(async () => {
-      const adapter = adapterManager.get(
-        KnownChainIds.EthereumMainnet,
-      ) as unknown as ethereum.ChainAdapter
-
-      if (!walletState.wallet) return
-      const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
-      const address = await adapter.getAddress({ wallet: walletState.wallet, bip44Params })
-      const account = await adapter.getAccount(address)
-
-      setTrueNonce(`${account.chainSpecific.nonce}`)
+      const count = await (chainWeb3 as any)?.eth?.getTransactionCount(address)
+      setTrueNonce(`${count}`)
     })()
-  }, [adapterManager, walletState.wallet])
+  }, [adapterManager, address, chainWeb3, walletState.wallet])
   const txInputNonce = Web3.utils.toHex(
     !!inputNonce ? inputNonce : !!requestNonce ? requestNonce : trueNonce,
   )
+
+  useEffect(() => {
+    try {
+      ;(chainWeb3 as any).eth
+        .estimateGas({
+          from: walletConnect.bridge?.connector.accounts[0],
+          nonce: txInputNonce,
+          to: request.to,
+          data: request.data,
+        })
+        .then((estimate: any) => {
+          setEstimatedGas(estimate)
+        })
+    } catch (e) {
+      // 500k seemed reasonable
+      setEstimatedGas('500000')
+    }
+  }, [
+    txInputNonce,
+    address,
+    chainWeb3,
+    request.to,
+    request.data,
+    walletConnect.bridge?.connector.accounts,
+  ])
+
+  if (!walletConnect.bridge || !walletConnect.dapp) return null
 
   const txInput: TxData = {
     nonce: txInputNonce,
@@ -157,9 +190,15 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     maxFeePerGas: txMaxFeePerGas,
     maxPriorityFeePerGas: txMaxPriorityFeePerGas,
   }
-  const walletConnect = useWalletConnect()
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
-  const address = walletConnect.bridge?.connector.accounts[0]
+
+  // not mainnet and they havent entered custom gas fee data and no fee data from wc request.
+  // default to the web3 gasPrice for the network
+  if (
+    walletConnect.bridge?.connector.chainId !== 1 &&
+    !inputMaxPriorityFeePerGas &&
+    !requestMaxPriorityFeePerGas
+  )
+    txInput['gasPrice'] = Web3.utils.toHex(web3GasFeeData)
 
   return (
     <FormProvider {...form}>
@@ -171,7 +210,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             mb={4}
           />
           <AddressSummaryCard
-            address={address}
+            address={address ?? ''}
             name='My Wallet' // TODO: what string do we put here?
             icon={<KeepKeyIcon color='gray.500' w='full' h='full' />}
           />

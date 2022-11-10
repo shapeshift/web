@@ -53,6 +53,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
       const newBridge = WCService.fromURI(uri, wallet, { onCallRequest })
       newBridge.connector.on('connect', rerender)
+      newBridge.connector.on('wallet_switchEthereumChain', rerender)
       newBridge.connector.on('disconnect', disconnect)
       await newBridge.connect()
       setBridge(newBridge)

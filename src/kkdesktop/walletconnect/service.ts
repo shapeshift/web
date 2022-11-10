@@ -1,13 +1,11 @@
-import type { ethereum } from '@keepkey/chain-adapters'
 import { Logger } from '@keepkey/logger'
-import { KnownChainIds } from '@keepkey/types'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 
 import type { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from './types'
 
@@ -39,12 +37,9 @@ export class WCService {
   }
 
   async connect() {
-    if (!this.wallet) throw new Error('Missing ETH Wallet to connect with')
-
     if (!this.connector.connected) {
       await this.connector.createSession()
     }
-
     this.subscribeToEvents()
   }
 
@@ -55,6 +50,7 @@ export class WCService {
     this.connector.off('connect')
     this.connector.off('disconnect')
     this.connector.off('call_request')
+    this.connector.off('wallet_switchEthereumChain')
   }
 
   private subscribeToEvents() {
@@ -63,12 +59,14 @@ export class WCService {
     this.connector.on('connect', this._onConnect.bind(this))
     this.connector.on('disconnect', this._onDisconnect.bind(this))
     this.connector.on('call_request', this._onCallRequest.bind(this))
+    this.connector.on('wallet_switchEthereumChain', this._onSwitchChain.bind(this))
   }
 
   async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
     this.log('Session Request', { error, payload })
 
     const address = await this.wallet.ethGetAddress({ addressNList, showDisplay: false })
+
     if (address) {
       this.connector.approveSession({
         chainId: payload.params[0].chainId ?? 1,
@@ -102,13 +100,18 @@ export class WCService {
     this.options?.onCallRequest(payload)
   }
 
-  public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
-    const adapterManager = getChainAdapterManager()
-    // TODO work for any chain (avalanche etc)
-    const adapter = adapterManager.get(
-      KnownChainIds.EthereumMainnet,
-    ) as unknown as ethereum.ChainAdapter
+  // ****************
+  // ****************
+  // ****************
+  // TODO we need a dropdown to allow them to update session with a new chain id client side
+  async _onSwitchChain(error: Error | null, payload: any) {
+    this.connector.updateSession({
+      chainId: payload.params[0].chainId,
+      accounts: payload.params[0].accounts,
+    })
+  }
 
+  public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
     let result: any
     switch (request.method) {
       // TODO
@@ -130,9 +133,9 @@ export class WCService {
         break
       }
       case 'eth_sendTransaction': {
-        const sendData = {
+        const sendData: any = {
           addressNList,
-          chainId: 1, // TODO non eth chains
+          chainId: this.connector.chainId,
           data: txData.data,
           gasLimit: txData.gasLimit,
           to: txData.to,
@@ -142,8 +145,17 @@ export class WCService {
           maxFeePerGas: txData.maxFeePerGas,
         }
 
+        if (txData.gasPrice) {
+          sendData['gasPrice'] = txData.gasPrice
+          delete sendData.maxPriorityFeePerGas
+          delete sendData.maxFeePerGas
+        }
+
         const signedData = await this.wallet.ethSignTx?.(sendData)
-        result = await adapter.broadcastTransaction(signedData?.serialized ?? '')
+
+        const chainWeb3 = web3ByChainId(this.connector.chainId) as any
+        await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
+        result = await chainWeb3.utils.sha3(signedData?.serialized)
         break
       }
       // TODO further testing that this works correctly
@@ -151,7 +163,7 @@ export class WCService {
         {
           const response = await this.wallet.ethSignTx({
             addressNList,
-            chainId: 1, // TODO non eth chains
+            chainId: this.connector.chainId,
             data: txData.data,
             gasLimit: txData.gasLimit,
             nonce: txData.nonce,

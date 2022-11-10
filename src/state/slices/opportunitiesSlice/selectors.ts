@@ -116,7 +116,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
   },
 )
 
-// "Give me the staking values of all my acccounts for that specific opportunity"
+// "Give me the staking values of all my accounts for that specific opportunity"
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,

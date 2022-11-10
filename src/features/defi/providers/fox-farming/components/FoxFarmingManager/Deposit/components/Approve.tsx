@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -17,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -24,13 +26,15 @@ import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type FoxFarmingApproveProps = {
+  accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 
 const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Approve'] })
 
-export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
@@ -111,23 +115,26 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
+      isSome(estimatedGasCrypto) &&
+      isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
+        estimatedGasCrypto,
         accountId,
       }),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
   if (!state || !dispatch || !opportunity) return null
 

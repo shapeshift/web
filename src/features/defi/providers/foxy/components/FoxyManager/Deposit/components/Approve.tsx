@@ -20,6 +20,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -37,6 +38,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const history = useHistory()
   const translate = useTranslate()
   const toast = useToast()
@@ -171,12 +173,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
+      isSome(accountId) &&
+      isSome(estimatedGasCrypto) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
+        estimatedGasCrypto,
         accountId,
       }),
-    [accountId, feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
@@ -185,10 +189,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [accountId, feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   if (!state || !dispatch) return null
@@ -197,11 +201,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

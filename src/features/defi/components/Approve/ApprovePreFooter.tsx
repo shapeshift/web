@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import { isSome } from 'lib/utils'
 
 export const ApprovePreFooter = ({
   action,
@@ -15,17 +16,20 @@ export const ApprovePreFooter = ({
   estimatedGasCrypto,
   accountId,
 }: {
-  accountId: AccountId
+  accountId: AccountId | undefined
   action: DefiAction.Deposit | DefiAction.Withdraw
-  estimatedGasCrypto?: string
+  estimatedGasCrypto: string | undefined
   feeAsset: Asset
 }) => {
   const translate = useTranslate()
 
   const alertTextColor = useColorModeValue('blue.800', 'white')
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees({ feeAsset, estimatedGasCrypto, accountId }),
-    [feeAsset, estimatedGasCrypto, accountId],
+    () =>
+      isSome(estimatedGasCrypto) &&
+      isSome(accountId) &&
+      canCoverTxFees({ feeAsset, estimatedGasCrypto, accountId }),
+    [estimatedGasCrypto, accountId, feeAsset],
   )
 
   const feeTranslation = useMemo(
@@ -43,6 +47,8 @@ export const ApprovePreFooter = ({
         : ['modals.withdraw.notEnoughGas', { assetSymbol: feeAsset.symbol }],
     [action, feeAsset.symbol],
   )
+
+  if (!accountId) return null
 
   return (
     <>

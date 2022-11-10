@@ -23,12 +23,9 @@ export const canCoverTxFees = ({
   accountId,
 }: {
   feeAsset: Asset
-  estimatedGasCrypto?: string
+  estimatedGasCrypto: string
   accountId: AccountId
 }) => {
-  if (!estimatedGasCrypto) {
-    console.error('No estimatedGasCrypto passed')
-  }
   const state = store.getState()
   const feeAssetBalance = selectPortfolioCryptoHumanBalanceByFilter(state, {
     accountId,

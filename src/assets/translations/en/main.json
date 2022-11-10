@@ -274,6 +274,10 @@
         "claimYour": "Claim your %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Please don't edit the transaction memo",
+      "body": "Transactions originating from ShapeShit help support the DAO."
+    },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",

@@ -5,6 +5,7 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
 import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],
@@ -60,13 +61,11 @@ export async function getJunoPayAssets(): Promise<AssetId[]> {
     }, [])
 }
 
-export const createJunoPayUrl = (
-  action: FiatRampAction,
-  asset: string,
-  address: string,
-): string => {
+export const createJunoPayUrl = ({ action, address, assetId }: CreateUrlProps): string => {
   const baseUrl = new URL(getConfig().REACT_APP_JUNOPAY_BASE_APP_URL)
   const params = new URLSearchParams()
+  const asset = adapters.assetIdToJunoPayTicker(assetId)
+  if (!asset) throw new Error('Asset not supported by JunoPay')
 
   // currently, only buy is supported by JunoPay
   params.set('action', action === FiatRampAction.Sell ? 'sell' : 'buy')

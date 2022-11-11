@@ -6,6 +6,7 @@ import head from 'lodash/head'
 import { logger } from 'lib/logger'
 
 import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
@@ -60,13 +61,13 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
     ),
   )
 
-export const createOnRamperUrl = (
-  action: FiatRampAction,
-  assetId: AssetId,
-  address: string,
-  currentUrl: string,
-  language: string,
-): string => {
+export const createOnRamperUrl = ({
+  action,
+  assetId,
+  address,
+  currentUrl,
+  options: { language, mode },
+}: CreateUrlProps): string => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
 
@@ -92,8 +93,8 @@ export const createOnRamperUrl = (
   }
   params.set('language', language)
 
-  params.set('darkMode', 'true')
-  params.set('redirectURL', currentUrl)
+  params.set('darkMode', mode === 'dark' ? 'true' : 'false')
+  currentUrl && params.set('redirectURL', currentUrl)
 
   return `${baseUrl.toString()}?${params.toString()}`
 }

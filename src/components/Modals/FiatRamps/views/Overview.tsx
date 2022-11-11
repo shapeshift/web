@@ -12,6 +12,7 @@ import {
   Spinner,
   Stack,
   Text as RawText,
+  useColorMode,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -67,6 +68,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
   const selectedLocale = useAppSelector(selectSelectedLocale)
+  const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -157,7 +159,17 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress, selectedLocale)}
+            onClick={() =>
+              ramp.onSubmit({
+                action: fiatRampAction,
+                assetId,
+                address: passedAddress,
+                options: {
+                  language: selectedLocale,
+                  mode: colorMode,
+                },
+              })
+            }
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
@@ -168,6 +180,7 @@ export const Overview: React.FC<OverviewProps> = ({
     accountFiatBalance,
     address,
     assetId,
+    colorMode,
     fiatRampAction,
     isDemoWallet,
     isRampsLoading,

@@ -6,6 +6,7 @@ import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 
 import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'MtPelerin'],
@@ -36,12 +37,11 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
   ).filter(isSome)
 }
 
-export const createMtPelerinUrl = (
-  action: FiatRampAction,
-  assetId: AssetId,
-  _address: string,
-  language: string,
-): string => {
+export const createMtPelerinUrl = ({
+  action,
+  assetId,
+  options: { mode, language },
+}: CreateUrlProps): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
@@ -85,6 +85,7 @@ export const createMtPelerinUrl = (
   // params.set('addr', address)
   // params.set('code', code)
   params.set('lang', language)
+  params.set('mode', mode)
 
   return `${baseUrl.toString()}?${params.toString()}`
 }

@@ -1,8 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
@@ -240,7 +237,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   return { data }
 }
 
-export const foxFarmingLpUserDataResolver = async ({
+export const foxFarmingLpUserDataResolver = ({
   opportunityId,
   opportunityType: _opportunityType,
   accountId,
@@ -269,7 +266,7 @@ export const foxFarmingLpUserDataResolver = async ({
   }
 
   // All checks passed, resolve the promise so we continue the RTK query execution and populate LP/Account IDs
-  return
+  return Promise.resolve()
 }
 
 export const foxFarmingStakingUserDataResolver = async ({

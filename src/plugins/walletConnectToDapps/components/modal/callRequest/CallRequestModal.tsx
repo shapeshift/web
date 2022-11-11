@@ -65,7 +65,7 @@ export const CallRequestModal = () => {
       default:
         return null
     }
-  }, [currentRequest.method, currentRequest.params, onConfirm, onReject])
+  }, [currentRequest, onConfirm, onReject])
 
   return (
     <Modal

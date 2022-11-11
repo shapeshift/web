@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpAssetId,
   foxEthLpOpportunityName,
@@ -59,7 +58,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.farming',
           opportunities: [
             {
-              type: DefiProvider.FoxFarming,
+              type: DefiType.Staking,
               title: 'ETH-FOX UNI V4 Farm',
               isLoaded: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData),
               apy: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData)
@@ -84,7 +83,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              type: DefiProvider.FoxEthLP,
+              type: DefiType.LiquidityPool,
               title: foxEthLpOpportunityName,
               isLoaded: Boolean(defaultLpOpportunityData),
               apy: defaultLpOpportunityData?.apy,

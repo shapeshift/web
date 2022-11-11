@@ -97,16 +97,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       })
       return
     }
-  }, [
-    opportunity.highestBalanceAccountAddress,
-    isDemoWallet,
-    earnOpportunity,
-    dispatch,
-    history,
-    location,
-    opportunity.link,
-    wallet,
-  ])
+  }, [opportunity, isDemoWallet, wallet, earnOpportunity, dispatch, history, location])
 
   const opportunityButtonTranslation = useMemo(() => {
     if (opportunity.link) return 'plugins.foxPage.getStarted'

@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   ethereum,
@@ -398,7 +398,7 @@ export const useFoxEthLiquidityPool = (
       if (skip || !accountId || !uniswapRouterContract) return
       const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
-        FOX_TOKEN_CONTRACT_ADDRESS,
+        fromAssetId(foxAssetId).assetReference,
         bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),

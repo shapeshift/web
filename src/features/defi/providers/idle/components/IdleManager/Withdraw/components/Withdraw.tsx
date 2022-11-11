@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -16,7 +17,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,7 +28,9 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
 })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
+
+export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -53,8 +56,11 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
+  const balanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  )
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const pricePerShare = useMemo(() => {

@@ -57,8 +57,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // something further up the tree from this provider is causing renders when the portfolio status changes,
     // even though it shouldn't
     if (portfolioLoadingStatus === 'loading') return
-    moduleLogger.debug({ accountIds }, 'subscribing txs')
-    ;(() =>
+    ;(() => {
+      moduleLogger.debug({ accountIds }, 'subscribing txs')
       accountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         const adapter = getChainAdapterManager().get(chainId)
@@ -81,7 +81,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 dispatch(getValidatorData.initiate(accountId))
 
               // refetch account on new tx
-              dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
+              dispatch(
+                getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
+              )
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
             },
@@ -90,8 +92,10 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         } catch (e: unknown) {
           moduleLogger.error(e, { accountId }, 'error subscribing to txs')
         }
-      }))()
-    setIsSubscribed(true)
+      })
+
+      setIsSubscribed(true)
+    })()
   }, [dispatch, isSubscribed, portfolioLoadingStatus, portfolioAccountMetadata, wallet])
 
   return <>{children}</>

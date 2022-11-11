@@ -121,19 +121,11 @@ export const AddAccountModal = () => {
 
       const { getAccount } = portfolioApi.endpoints
       const opts = { forceRefetch: true }
+      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       const accountIds = Object.keys(accountMetadataByAccountId)
-      const accountPromises = accountIds.map(id => dispatch(getAccount.initiate(id, opts)))
-      const accountResults = await Promise.allSettled(accountPromises)
-      accountResults.forEach((res, idx) => {
-        if (res.status === 'rejected') return
-        const { data: account } = res.value
-        if (!account) return
-        const accountId = accountIds[idx]
-        const accountMetadata = accountMetadataByAccountId[accountId]
-        const payload = { [accountId]: accountMetadata }
-        dispatch(portfolio.actions.upsertAccountMetadata(payload))
-        dispatch(portfolio.actions.upsertPortfolio(account))
-      })
+      accountIds.forEach(accountId =>
+        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
+      )
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]
       toast({

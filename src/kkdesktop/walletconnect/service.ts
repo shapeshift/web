@@ -66,7 +66,7 @@ export class WCService {
 
     if (address) {
       this.connector.approveSession({
-        chainId: 137,
+        chainId: payload.params[0].chainId ?? 1,
         accounts: [address],
       })
     }

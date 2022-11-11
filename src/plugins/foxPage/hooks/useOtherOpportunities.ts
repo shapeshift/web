@@ -1,12 +1,17 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthLpAssetId, foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
+import {
+  foxEthLpAssetId,
+  foxEthStakingAssetIdV4,
+  STAKING_ID_TO_NAME,
+  v4EarnFarmingOpportunity,
+} from 'state/slices/opportunitiesSlice/constants'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunitiesById,
@@ -45,6 +50,11 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
+  const farmingv4EarnOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
+      stakingId: foxEthStakingAssetIdV4 as StakingId,
+    }),
+  )
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
@@ -53,20 +63,17 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.farming',
           opportunities: [
             {
-              type: DefiType.Staking,
-              title: 'ETH-FOX UNI V4 Farm',
-              isLoaded: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData),
-              apy: Boolean(defaultLpOpportunityData && defaultStakingOpportunityData)
-                ? bnOrZero(defaultStakingOpportunityData?.apy)
+              ...farmingv4EarnOpportunity,
+              isLoaded: Boolean(farmingv4EarnOpportunity),
+              title: STAKING_ID_TO_NAME[foxEthStakingAssetIdV4],
+              apy: Boolean(defaultLpOpportunityData && farmingv4EarnOpportunity)
+                ? bnOrZero(farmingv4EarnOpportunity?.apy)
                     .plus(defaultLpOpportunityData?.apy ?? 0)
                     .toString()
                 : undefined,
-              icons: [
-                'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/256/fox.png',
-              ],
-              opportunityProvider: DefiProvider.FoxFarming,
-              opportunityContractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+              icons: farmingv4EarnOpportunity?.underlyingAssetsIcons,
+              opportunityProvider: farmingv4EarnOpportunity?.provider,
+              opportunityContractAddress: v4EarnFarmingOpportunity.contractAddress,
               highestBalanceAccountAddress: highestFarmingBalanceAccountId
                 ? fromAccountId(highestFarmingBalanceAccountId).account
                 : undefined,
@@ -133,6 +140,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     assetId,
     defaultLpOpportunityData,
     defaultStakingOpportunityData,
+    farmingv4EarnOpportunity,
     highestBalanceLpAccountId,
     highestFarmingBalanceAccountId,
   ])

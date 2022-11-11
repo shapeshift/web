@@ -105,7 +105,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { assetReference } = fromAssetId(assetId)
   const contractAddress = tokenOrUndefined(assetReference)
 
-  const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
+  const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
@@ -177,15 +177,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ])
 
   // Stop calls to debouncedSetEstimatedFormFees on unmount
-  useEffect(() => {
-    return () => {
-      debouncedSetEstimatedFormFees.cancel()
-    }
-  }, [debouncedSetEstimatedFormFees])
+  useEffect(() => () => debouncedSetEstimatedFormFees.cancel(), [debouncedSetEstimatedFormFees])
 
-  const handleNextClick = async () => {
-    history.push(SendRoutes.Confirm)
-  }
+  const handleNextClick = () => history.push(SendRoutes.Confirm)
 
   const handleSendMax = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })

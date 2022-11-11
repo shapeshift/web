@@ -132,7 +132,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
         // do *not* upsertOnFetch here - we need to check if the fetched account is empty
-        const accountPromises = accountIds.map(async accountId =>
+        const accountPromises = accountIds.map(accountId =>
           dispatch(getAccount.initiate({ accountId }, opts)),
         )
         const accountResults = await Promise.allSettled(accountPromises)

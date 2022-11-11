@@ -10,7 +10,7 @@ describe('validatorDataSlice', () => {
     clearState()
   })
 
-  it('returns uninitialized properties for initialState', async () => {
+  it('returns uninitialized properties for initialState', () => {
     expect(store.getState().validatorData).toEqual({
       byValidator: {},
       validatorIds: [],
@@ -19,7 +19,7 @@ describe('validatorDataSlice', () => {
 
   describe('reducers', () => {
     describe('upsertValidatorData', () => {
-      it('updates or inserts validator data in state', async () => {
+      it('updates or inserts validator data in state', () => {
         store.dispatch(
           validatorData.actions.upsertValidatorData({
             validators: MOCK_VALIDATORS,
@@ -30,7 +30,7 @@ describe('validatorDataSlice', () => {
     })
 
     describe('clear', () => {
-      it('clears state back to initial state', async () => {
+      it('clears state back to initial state', () => {
         store.dispatch(
           validatorData.actions.upsertValidatorData({
             validators: MOCK_VALIDATORS,
@@ -53,7 +53,7 @@ describe('validatorDataSlice', () => {
 
   describe('selectors', () => {
     describe('selectValidatorByAddress', () => {
-      it('returns null on initial state', async () => {
+      it('returns null on initial state', () => {
         const selected = selectValidatorByAddress(
           store.getState(),
           SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -70,7 +70,7 @@ describe('validatorDataSlice', () => {
           )
         })
 
-        it('returns null when validator data is not present in state', async () => {
+        it('returns null when validator data is not present in state', () => {
           store.dispatch(
             validatorData.actions.upsertValidatorData({
               validators: MOCK_VALIDATORS,
@@ -84,7 +84,7 @@ describe('validatorDataSlice', () => {
           expect(selected).toBeNull()
         })
 
-        it('returns validator info when validator data is present in state', async () => {
+        it('returns validator info when validator data is present in state', () => {
           store.dispatch(
             validatorData.actions.upsertValidatorData({
               validators: MOCK_VALIDATORS,

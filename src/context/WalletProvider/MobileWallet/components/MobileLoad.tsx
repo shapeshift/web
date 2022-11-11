@@ -109,9 +109,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
     }
   }
 
-  const handleRename = async (vault: RevocableWallet) => {
-    history.push('/mobile/rename', { vault })
-  }
+  const handleRename = (vault: RevocableWallet) => history.push('/mobile/rename', { vault })
 
   return (
     <>

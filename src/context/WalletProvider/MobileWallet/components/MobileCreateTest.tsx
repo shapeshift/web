@@ -40,7 +40,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
 
   const { vault } = location.state
 
-  const shuffleMnemonic = useCallback(async () => {
+  const shuffleMnemonic = useCallback(() => {
     moduleLogger.info('shuffleMnemonic')
     if (testCount >= TEST_COUNT_REQUIRED || !vault) return
     try {
@@ -74,9 +74,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
     }
   }, [revoker, shuffledNumbers, testCount, vault])
 
-  useEffect(() => {
-    shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
-  }, [shuffleMnemonic])
+  useEffect(() => shuffleMnemonic(), [shuffleMnemonic])
 
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed

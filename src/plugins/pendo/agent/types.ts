@@ -12,9 +12,9 @@ export interface PendoInitializeParams {
     deliverablesLoaded?(): void
     guidesFailed?(): void
     guidesLoaded?(): void
-    validateGuide?(signatureString: string): Promise<boolean>
-    validateLauncher?(signatureString: string): Promise<boolean>
-    validateGlobalScript?(data: string): Promise<boolean>
+    validateGuide?(signatureString: string): boolean
+    validateLauncher?(signatureString: string): boolean
+    validateGlobalScript?(data: string): boolean
   }
 }
 

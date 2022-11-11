@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react'
 import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -70,7 +69,7 @@ const FoxFarmCTA = () => {
       search: qs.stringify({
         provider: DefiProvider.FoxFarming,
         chainId: ethChainId,
-        contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
+        contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
         assetReference: fromAssetId(foxEthLpAssetId).assetReference,
         rewardId: FOX_TOKEN_CONTRACT_ADDRESS,
         modal: 'overview',

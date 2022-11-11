@@ -15,7 +15,6 @@ import {
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunitiesById,
-  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,17 +29,11 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   )
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
-  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],
     [lpOpportunitiesById],
   )
-  const defaultStakingOpportunityData = useMemo(
-    () => stakingOpportunitiesById[foxEthStakingAssetIdV4 as StakingId],
-    [stakingOpportunitiesById],
-  )
-
   const lpOpportunityId = foxEthLpAssetId
   const highestBalanceLpAccountIdFilter = useMemo(
     () => ({ lpId: lpOpportunityId as LpId }),
@@ -56,6 +49,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }),
   )
   const otherOpportunities = useMemo(() => {
+    // TODO: Normalize before opening this PR- this PR should be stripped away to just accessing selected data
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
         {
@@ -71,7 +65,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                     .plus(defaultLpOpportunityData?.apy ?? 0)
                     .toString()
                 : undefined,
-              icons: farmingv4EarnOpportunity?.underlyingAssetsIcons,
+              icons: farmingv4EarnOpportunity?.icons!,
               opportunityProvider: farmingv4EarnOpportunity?.provider,
               opportunityContractAddress: v4EarnFarmingOpportunity.contractAddress,
               highestBalanceAccountAddress: highestFarmingBalanceAccountId
@@ -139,7 +133,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   }, [
     assetId,
     defaultLpOpportunityData,
-    defaultStakingOpportunityData,
     farmingv4EarnOpportunity,
     highestBalanceLpAccountId,
     highestFarmingBalanceAccountId,

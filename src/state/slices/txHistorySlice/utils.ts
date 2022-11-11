@@ -59,3 +59,16 @@ export const serializeTxIndex = (
 
   return [accountId, txid, address.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
 }
+
+/**
+ * index insanity
+ * 1:n wallet:accountids
+ * 1:n accountid:txids
+ */
+
+/**
+ * change address problem - chain adapters has necessary and sufficient information to compose these together - may have to get into parser too
+ * accountType - a relic that can die
+ * memo can go away too as it's account specific so we won't stomp on other txs
+ *
+ */

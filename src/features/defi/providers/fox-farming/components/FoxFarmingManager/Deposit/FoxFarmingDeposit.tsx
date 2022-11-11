@@ -107,7 +107,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
         props: {
           contractAddress,
         },

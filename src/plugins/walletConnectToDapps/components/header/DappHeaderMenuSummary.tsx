@@ -1,7 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo } from 'react'
@@ -9,7 +8,6 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,7 +15,6 @@ import { useAppSelector } from 'state/store'
 import { DappAvatar } from './DappAvatar'
 
 export const DappHeaderMenuSummary = () => {
-  const { supportedEvmChainIds } = useEvm()
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
   const assets = useAppSelector(selectAssets)
@@ -25,17 +22,7 @@ export const DappHeaderMenuSummary = () => {
 
   const walletConnect = useWalletConnect()
   const connectedEvmChainId = walletConnect.bridge?.connector.chainId
-  const chainName = useMemo(() => {
-    const name = getChainAdapterManager()
-      .get(
-        supportedEvmChainIds.find(
-          chainId => chainId === `${CHAIN_NAMESPACE.Evm}:${connectedEvmChainId}`,
-        ) ?? '',
-      )
-      ?.getDisplayName()
 
-    return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
-  }, [connectedEvmChainId, supportedEvmChainIds, translate])
   const handleDisconnect = walletConnect.disconnect
 
   // 0x evm address
@@ -105,7 +92,7 @@ export const DappHeaderMenuSummary = () => {
         {!!connectedEvmChainId && (
           <HStack justifyContent='space-between' spacing={4}>
             <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
-            <RawText>{chainName}</RawText>
+            <RawText>{walletConnect.chainName}</RawText>
           </HStack>
         )}
       </VStack>

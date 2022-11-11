@@ -6,6 +6,7 @@ import type { IClientMeta } from '@walletconnect/types'
 import { createContext, useContext } from 'react'
 
 type WalletConnectBridgeContextValue = {
+  chainName: string
   bridge: HDWalletWCBridge | undefined
   dapp: IClientMeta | undefined
   callRequests: WalletConnectCallRequest[]
@@ -16,6 +17,7 @@ type WalletConnectBridgeContextValue = {
 }
 
 export const WalletConnectBridgeContext = createContext<WalletConnectBridgeContextValue>({
+  chainName: '',
   bridge: undefined,
   dapp: undefined,
   callRequests: [],

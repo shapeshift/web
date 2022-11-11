@@ -6,7 +6,7 @@ import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBrid
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
@@ -16,7 +16,7 @@ type WalletConnectModalProps = {
 }
 
 export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) => {
-  const { approveRequest, rejectRequest } = useWalletConnect()
+  const { approveRequest, rejectRequest, chainName } = useWalletConnect()
 
   const approve = useCallback(
     (data?: unknown) => !!callRequest && approveRequest(callRequest, data),
@@ -82,13 +82,9 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
           <HStack alignItems='center' spacing={2}>
             <WalletConnectIcon />
             <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <Text
-              rounded='lg'
-              fontSize='sm'
-              px='2'
-              bgColor='purple.600'
-              translation='plugins.walletConnectToDapps.modal.ethereum'
-            />
+            <RawText rounded='lg' fontSize='sm' px='2' bgColor='purple.600'>
+              {chainName}
+            </RawText>
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>

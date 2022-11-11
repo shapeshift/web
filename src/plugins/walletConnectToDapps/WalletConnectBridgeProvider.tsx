@@ -1,9 +1,11 @@
-import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { HDWalletWCBridge } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import type { FC, PropsWithChildren } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -11,9 +13,27 @@ import { CallRequestModal } from './components/modal/callRequest/CallRequestModa
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
+  const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<HDWalletWCBridge>()
-  const { connectedEvmChainId } = useEvm()
+  const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+  const chainName = useMemo(() => {
+    const name = getChainAdapterManager()
+      .get(
+        supportedEvmChainIds.find(
+          chainId =>
+            chainId ===
+            `${CHAIN_NAMESPACE.Evm}:${
+              connectedEvmChainId
+                ? fromChainId(connectedEvmChainId).chainReference
+                : CHAIN_REFERENCE.EthereumMainnet
+            }`,
+        ) ?? '',
+      )
+      ?.getDisplayName()
+
+    return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
+  }, [connectedEvmChainId, supportedEvmChainIds, translate])
 
   const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
   const onCallRequest = useCallback(
@@ -99,6 +119,13 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     setBridge(existingBridge)
   }, [bridge, wallet, connectedEvmChainId, onCallRequest, rerender, disconnect])
 
+  // if connectedEvmChainId changes, update the walletconnect session
+  useEffect(() => {
+    if (connectedEvmChainId && bridge && dapp)
+      bridge.updateSession({ chainId: fromChainId(connectedEvmChainId).chainReference })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedEvmChainId])
+
   // TODO(Q): fix the race condition between the following two hooks
   // if the wallet provider or connectedEvmChainId changes, disconnect the dapp
   // useEffect(() => {
@@ -114,7 +141,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   return (
     <WalletConnectBridgeContext.Provider
-      value={{ bridge, dapp, callRequests, connect, disconnect, approveRequest, rejectRequest }}
+      value={{
+        bridge,
+        dapp,
+        callRequests,
+        connect,
+        disconnect,
+        approveRequest,
+        rejectRequest,
+        chainName,
+      }}
     >
       {children}
       <CallRequestModal callRequest={callRequests[0]} />

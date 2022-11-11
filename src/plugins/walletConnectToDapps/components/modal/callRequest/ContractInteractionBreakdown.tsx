@@ -20,6 +20,19 @@ type Props = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
 }
 
+const EncodedText = ({ value }: { value: string }) => (
+  <Flex>
+    <RawText pr={2}>{new TextEncoder().encode(value).length} bytes</RawText>
+    <IconButton
+      size='small'
+      variant='ghost'
+      aria-label='Copy'
+      icon={<CopyIcon />}
+      onClick={() => navigator.clipboard.writeText(value)}
+    />
+  </Flex>
+)
+
 export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   // TODO(Q): this shouldn't be feeAsset, get the real asset from request
   const { feeAsset } = useCallRequestFees(request)
@@ -37,18 +50,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
     const inputValue = transaction!.args[index].toString()
     switch (input.type) {
       case 'bytes[]':
-        return (
-          <HStack>
-            <MiddleEllipsis fontWeight='medium' value={inputValue} fontSize='md' />
-            <IconButton
-              size='small'
-              variant='ghost'
-              aria-label='Copy'
-              icon={<CopyIcon />}
-              onClick={() => navigator.clipboard.writeText(inputValue)}
-            />
-          </HStack>
-        )
+        return <EncodedText value={inputValue} />
       case 'address':
         return (
           <HStack>
@@ -92,31 +94,41 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
       icon={<FaCode />}
     >
       <Box pl={6} pt={2}>
-        <Text
-          color='gray.500'
-          fontWeight='medium'
-          translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
-          fontSize='sm'
-        />
-        <RawText fontWeight='medium' fontSize='md'>
-          {feeAsset && (
-            <Amount.Crypto
-              value={bnOrZero(request.value).div(`1e+${feeAsset.precision}`).toString()}
-              symbol={feeAsset.symbol}
+        {request.value && (
+          <>
+            <Text
+              color='gray.500'
+              fontWeight='medium'
+              translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
+              fontSize='sm'
             />
-          )}
-        </RawText>
-        <Divider my={4} />
+            <RawText fontWeight='medium' fontSize='md'>
+              {feeAsset && (
+                <Amount.Crypto
+                  value={bnOrZero(request.value).div(`1e+${feeAsset.precision}`).toString()}
+                  symbol={feeAsset.symbol}
+                />
+              )}
+            </RawText>
+            <Divider my={4} />
+          </>
+        )}
         {!!transaction &&
-          transaction.functionFragment.inputs.map((input, index) => (
-            <Fragment key={index}>
-              <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
-                {startCase(input.name)} ({input.type})
-              </RawText>
-              {renderAbiInput(input, index)}
-              <Divider my={4} />
-            </Fragment>
-          ))}
+          transaction.functionFragment.inputs.map((input, index) => {
+            const Wrapper = input.type === 'bytes[]' ? Flex : Fragment
+            const wrapperProps = input.type === 'bytes[]' ? { justifyContent: 'space-between' } : {}
+            return (
+              <Fragment key={index}>
+                <Wrapper {...wrapperProps}>
+                  <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
+                    {startCase(input.name)} ({input.type})
+                  </RawText>
+                  {renderAbiInput(input, index)}
+                </Wrapper>
+                <Divider my={4} />
+              </Fragment>
+            )
+          })}
 
         <Flex justifyContent='space-between'>
           <Box>
@@ -127,16 +139,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
               translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'
             />
           </Box>
-          <Flex>
-            <RawText pr={2}>{new TextEncoder().encode(request.data).length} bytes</RawText>
-            <IconButton
-              size='small'
-              variant='ghost'
-              aria-label='Copy'
-              icon={<CopyIcon />}
-              onClick={() => navigator.clipboard.writeText(request.data)}
-            />
-          </Flex>
+          <EncodedText value={request.data} />
         </Flex>
       </Box>
     </ModalSection>

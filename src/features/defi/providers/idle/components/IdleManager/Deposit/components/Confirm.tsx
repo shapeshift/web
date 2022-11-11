@@ -95,7 +95,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         address: state.userAddress,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
-      console.log({ bip44Params })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,

@@ -43,7 +43,7 @@ export class WCService {
     this.subscribeToEvents()
   }
 
-  async disconnect() {
+  disconnect = async () => {
     await this.connector.killSession()
     this.connector.off('session_request')
     this.connector.off('session_update')
@@ -96,7 +96,6 @@ export class WCService {
 
   async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
     this.log('Call Request', { error, payload })
-
     this.options?.onCallRequest(payload)
   }
 
@@ -104,80 +103,63 @@ export class WCService {
   // ****************
   // ****************
   // TODO we need a dropdown to allow them to update session with a new chain id client side
-  async _onSwitchChain(error: Error | null, payload: any) {
+  async _onSwitchChain(_: Error | null, payload: any) {
+    this.connector.approveRequest({
+      id: payload.id,
+      result: 'success',
+    })
     this.connector.updateSession({
       chainId: payload.params[0].chainId,
       accounts: payload.params[0].accounts,
     })
   }
 
-  public async approveRequest(request: WalletConnectCallRequest, txData: TxData) {
-    let result: any
-    switch (request.method) {
-      // TODO
-      case 'eth_sign': {
-        break
+  public async approve(request: WalletConnectCallRequest, txData: TxData) {
+    if (request.method === 'personal_sign') {
+      const response = await this.wallet.ethSignMessage({
+        ...txData,
+        addressNList,
+        message: this.convertHexToUtf8IfPossible(request.params[0]),
+      })
+      const result = response?.signature
+      this.connector.approveRequest({ id: request.id, result })
+    } else if (request.method === 'eth_sendTransaction') {
+      const sendData: any = {
+        addressNList,
+        chainId: this.connector.chainId,
+        data: txData.data,
+        gasLimit: txData.gasLimit,
+        to: txData.to,
+        value: txData.value ?? '0x0',
+        nonce: txData.nonce,
+        maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
+        maxFeePerGas: txData.maxFeePerGas,
       }
-      // TODO
-      case 'eth_signTypedData': {
-        break
+
+      // if gasPrice was passed in it means we couldnt get maxPriorityFeePerGas & maxFeePerGas
+      if (txData.gasPrice) {
+        sendData['gasPrice'] = txData.gasPrice
+        delete sendData.maxPriorityFeePerGas
+        delete sendData.maxFeePerGas
       }
-      // TODO further testing that this works correctly
-      case 'personal_sign': {
-        const response = await this.wallet.ethSignMessage({
-          ...txData,
-          addressNList,
-          message: this.convertHexToUtf8IfPossible(request.params[0]),
-        })
-        result = response?.signature
-        break
-      }
-      case 'eth_sendTransaction': {
-        const sendData: any = {
-          addressNList,
-          chainId: this.connector.chainId,
-          data: txData.data,
-          gasLimit: txData.gasLimit,
-          to: txData.to,
-          value: txData.value ?? '0x0',
-          nonce: txData.nonce,
-          maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
-          maxFeePerGas: txData.maxFeePerGas,
-        }
 
-        if (txData.gasPrice) {
-          sendData['gasPrice'] = txData.gasPrice
-          delete sendData.maxPriorityFeePerGas
-          delete sendData.maxFeePerGas
-        }
+      const signedData = await this.wallet.ethSignTx?.(sendData)
 
-        const signedData = await this.wallet.ethSignTx?.(sendData)
-
-        const chainWeb3 = web3ByChainId(this.connector.chainId) as any
-        await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
-        result = await chainWeb3.utils.sha3(signedData?.serialized)
-        break
-      }
-      // TODO further testing that this works correctly
-      case 'eth_signTransaction':
-        {
-          const response = await this.wallet.ethSignTx({
-            addressNList,
-            chainId: this.connector.chainId,
-            data: txData.data,
-            gasLimit: txData.gasLimit,
-            nonce: txData.nonce,
-            to: txData.to,
-            value: txData.value,
-          })
-          result = response?.serialized
-        }
-        break
-      default:
-    }
-
-    if (result) {
-      this.log('Approve Request', { request, result })
+      const chainWeb3 = web3ByChainId(this.connector.chainId) as any
+      await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
+      const txid = await chainWeb3.utils.sha3(signedData?.serialized)
+      this.connector.approveRequest({ id: request.id, result: txid })
+    } else if (request.method === 'eth_signTransaction') {
+      const response = await this.wallet.ethSignTx({
+        addressNList,
+        chainId: this.connector.chainId,
+        data: txData.data,
+        gasLimit: txData.gasLimit,
+        nonce: txData.nonce,
+        to: txData.to,
+        value: txData.value,
+      })
+      const result = response?.serialized
       this.connector.approveRequest({ id: request.id, result })
     } else {
       const message = 'JSON RPC method not supported'
@@ -186,7 +168,7 @@ export class WCService {
     }
   }
 
-  public async rejectRequest(request: WalletConnectCallRequest) {
+  public async reject(request: WalletConnectCallRequest) {
     this.log('Reject Request', { request })
     this.connector.rejectRequest({ id: request.id, error: { message: 'Rejected by user' } })
   }

@@ -1,3 +1,5 @@
+import { useToast } from '@chakra-ui/react'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { WCService } from 'kkdesktop/walletconnect'
 import type { WalletConnectCallRequest } from 'kkdesktop/walletconnect/types'
 import type { FC, PropsWithChildren } from 'react'
@@ -5,65 +7,53 @@ import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
-import type { TxData } from './components/modal/callRequest/SendTransactionConfirmation'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<WCService>()
 
-  const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
-  const onCallRequest = useCallback(
-    (request: WalletConnectCallRequest) => setCallRequests(prev => [...prev, request]),
-    [],
+  const [requests, setRequests] = useState<WalletConnectCallRequest[]>([])
+  const addRequest = useCallback(
+    (req: WalletConnectCallRequest) => setRequests(requests.concat(req)),
+    [requests],
   )
-  const approveRequest = useCallback(
-    async (request: WalletConnectCallRequest, txData: TxData) => {
-      await bridge?.approveRequest(request, txData)
-      setCallRequests(prev => prev.filter(req => req.id !== request.id))
+  const removeRequest = useCallback(
+    (id: number) => {
+      const newRequests = requests.filter(request => request.id !== id)
+      delete newRequests[id]
+      setRequests(newRequests)
     },
-    [bridge],
-  )
-  const rejectRequest = useCallback(
-    async (request: WalletConnectCallRequest) => {
-      await bridge?.rejectRequest(request)
-      setCallRequests(prev => prev.filter(req => req.id !== request.id))
-    },
-    [bridge],
+    [requests],
   )
 
   const [, setTick] = useState(0)
   const rerender = useCallback(() => setTick(prev => prev + 1), [])
 
-  const disconnect = useCallback(async () => {
-    await bridge?.disconnect()
-    setBridge(undefined)
-  }, [bridge])
+  const toast = useToast()
 
   const connect = useCallback(
     async (uri: string) => {
-      if (!wallet) {
-        alert('TODO: No HDWallet connected')
-        return
-      }
-      if (!('_supportsETH' in wallet)) {
-        alert('TODO: No ETH HDWallet connected')
-        return
-      }
-
-      const newBridge = WCService.fromURI(uri, wallet, { onCallRequest })
+      const newBridge = WCService.fromURI(uri, wallet as ETHWallet, { onCallRequest: addRequest })
       newBridge.connector.on('connect', rerender)
-      newBridge.connector.on('wallet_switchEthereumChain', rerender)
-      newBridge.connector.on('disconnect', disconnect)
+      newBridge.connector.on('disconnect', rerender)
+      newBridge.connector.on('wallet_switchEthereumChain', () => {
+        toast({
+          title: 'Wallet Connect',
+          description: `Switched to chainId ${bridge?.connector.chainId}`,
+          isClosable: true,
+        })
+        rerender()
+      })
       await newBridge.connect()
       setBridge(newBridge)
     },
-    [wallet, disconnect, rerender, onCallRequest],
+    [wallet, addRequest, rerender, toast, bridge?.connector.chainId],
   )
 
-  const tryConnectingToExistingSession = useCallback(async () => {
+  // attempt to automatically connect to the last session on start
+  const tryLastConnection = useCallback(async () => {
     if (!!bridge) return
-    if (!wallet || !('_supportsETH' in wallet)) return
 
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) {
@@ -71,25 +61,33 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     }
 
     const session = JSON.parse(wcSessionJsonString)
-    const existingBridge = WCService.fromSession(session, wallet, { onCallRequest })
+    const existingBridge = WCService.fromSession(session, wallet as ETHWallet, {
+      onCallRequest: addRequest,
+    })
     existingBridge.connector.on('connect', rerender)
-    existingBridge.connector.on('disconnect', disconnect)
+    existingBridge.connector.on('disconnect', rerender)
+    existingBridge.connector.on('wallet_switchEthereumChain', (_, payload) => {
+      toast({
+        title: 'Wallet Connect',
+        description: `Switched to chainId ${payload.params[0].chainId}`,
+        isClosable: true,
+      })
+      rerender()
+    })
     await existingBridge.connect()
     setBridge(existingBridge)
-  }, [bridge, wallet, disconnect, rerender, onCallRequest])
+  }, [bridge, wallet, addRequest, rerender, toast])
 
   useEffect(() => {
-    tryConnectingToExistingSession()
-  }, [tryConnectingToExistingSession])
+    tryLastConnection()
+  }, [tryLastConnection])
 
   const dapp = bridge?.connector.peerMeta ?? undefined
 
   return (
-    <WalletConnectBridgeContext.Provider
-      value={{ bridge, dapp, callRequests, connect, disconnect, approveRequest, rejectRequest }}
-    >
+    <WalletConnectBridgeContext.Provider value={{ bridge, dapp, connect, removeRequest, requests }}>
       {children}
-      <CallRequestModal callRequest={callRequests[0]} />
+      {requests.length > 0 && <CallRequestModal />}
     </WalletConnectBridgeContext.Provider>
   )
 }

@@ -168,7 +168,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
         })
     } catch (e) {
       // 500k seemed reasonable
-      setEstimatedGas('500000')
+      setEstimatedGas('0x7A120')
     }
   }, [
     txInputNonce,

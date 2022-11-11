@@ -2,18 +2,28 @@ import { HStack } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { RawText } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import type { BN } from 'lib/bignumber/bignumber'
 
-export const GasFeeEstimateLabel: FC = () => {
+type GasFeeEstimateLabelType = {
+  symbol: string
+  fiatRate: BN
+}
+
+export const GasFeeEstimateLabel: FC<GasFeeEstimateLabelType> = ({ symbol, fiatRate }) => {
   const { control } = useFormContext<any>()
   const currentFeeAmount = useWatch({ control, name: 'currentFeeAmount' })
-
-  // TODO figure out how to convert rates
-  const currentFiatFee = '$4.20'
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
+  const currentFiatFee = fiatRate.times(currentFeeAmount)
 
   return (
     <HStack spacing={1}>
-      <RawText fontWeight='medium'>{currentFiatFee}</RawText>
-      <RawText color='gray.500'>≈ {currentFeeAmount} ETH</RawText>
+      <RawText fontWeight='medium'>{toFiat(currentFiatFee.toNumber()).toString()}</RawText>
+      <RawText color='gray.500'>
+        ≈ {currentFeeAmount} {symbol}
+      </RawText>
     </HStack>
   )
 }

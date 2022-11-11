@@ -1,16 +1,6 @@
 import { ModalContent } from '@chakra-ui/modal'
-import {
-  HStack,
-  Modal,
-  ModalCloseButton,
-  ModalHeader,
-  ModalOverlay,
-  useToast,
-} from '@chakra-ui/react'
-import { convertHexToUtf8 } from '@walletconnect/utils'
+import { HStack, Modal, ModalCloseButton, ModalHeader, ModalOverlay } from '@chakra-ui/react'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useCallback } from 'react'
-import { useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 
@@ -18,59 +8,18 @@ import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
 export const CallRequestModal = () => {
-  const { bridge, requests, removeRequest } = useWalletConnect()
-  const toast = useToast()
-
-  const currentRequest = requests[0]
-
-  const onConfirm = useCallback(
-    async (txData: any) => {
-      try {
-        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
-        removeRequest(currentRequest.id)
-      } catch (e) {
-        toast({
-          title: 'Error',
-          description: `Transaction error ${e}`,
-          isClosable: true,
-        })
-      }
-    },
-    [bridge, currentRequest.id, removeRequest, requests, toast],
-  )
-
-  const onReject = useCallback(async () => {
-    await bridge?.reject(currentRequest)
-    removeRequest(currentRequest.id)
-  }, [bridge, currentRequest, removeRequest])
-
-  const content = useMemo(() => {
-    switch (currentRequest.method) {
-      case 'personal_sign':
-        return (
-          <SignMessageConfirmation
-            message={convertHexToUtf8(currentRequest.params[0])}
-            onConfirm={onConfirm}
-            onReject={onReject}
-          />
-        )
-      case 'eth_sendTransaction':
-        return (
-          <SendTransactionConfirmation
-            request={currentRequest.params[0]}
-            onConfirm={onConfirm}
-            onReject={onReject}
-          />
-        )
-      default:
-        return null
-    }
-  }, [currentRequest, onConfirm, onReject])
+  const { bridge, requests } = useWalletConnect()
+  const currentRequest = requests[0] as any
 
   return (
     <Modal
       isOpen={!!currentRequest}
-      onClose={() => bridge?.reject(currentRequest)}
+      onClose={() =>
+        bridge?.connector.rejectRequest({
+          id: currentRequest.id,
+          error: { message: 'Rejected by user' },
+        })
+      }
       variant='header-nav'
     >
       <ModalOverlay />
@@ -88,7 +37,8 @@ export const CallRequestModal = () => {
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>
-        {content}
+        ({currentRequest.method === 'personal_sign'} && <SignMessageConfirmation />) (
+        {currentRequest.method === 'eth_sendTransaction'} && <SendTransactionConfirmation />)
       </ModalContent>
     </Modal>
   )

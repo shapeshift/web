@@ -1,40 +1,22 @@
-import { Logger } from '@keepkey/logger'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import WalletConnect from '@walletconnect/client'
-import type { IWalletConnectSession } from '@walletconnect/types'
+import type WalletConnect from '@walletconnect/client'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 
-import type { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from './types'
-
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0")
 
 type WCServiceOptions = {
-  onCallRequest(request: WalletConnectCallRequest): void
+  onCallRequest(request: any): void
 }
 
 export class WCService {
-  private logger = new Logger({ name: 'WCService', level: 'debug' })
-
   constructor(
     private readonly wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
     private readonly options?: WCServiceOptions,
   ) {}
-
-  static fromURI(uri: string, wallet: core.ETHWallet, options?: WCServiceOptions) {
-    return new WCService(wallet, new WalletConnect({ uri }), options)
-  }
-
-  static fromSession(
-    session: IWalletConnectSession,
-    wallet: core.ETHWallet,
-    options?: WCServiceOptions,
-  ) {
-    return new WCService(wallet, new WalletConnect({ session }), options)
-  }
 
   async connect() {
     if (!this.connector.connected) {
@@ -59,11 +41,8 @@ export class WCService {
     this.connector.on('wallet_switchEthereumChain', this._onSwitchChain.bind(this))
   }
 
-  async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
-    this.log('Session Request', { error, payload })
-
+  async _onSessionRequest(_: Error | null, payload: any) {
     const address = await this.wallet.ethGetAddress({ addressNList, showDisplay: false })
-
     if (address) {
       this.connector.approveSession({
         chainId: payload.params[0].chainId ?? 1,
@@ -72,7 +51,7 @@ export class WCService {
     }
   }
 
-  async _onConnect(error: Error | null, payload: any) {
+  async _onConnect() {
     if (this.connector.connected && this.connector.peerMeta) {
       ipcRenderer.send('@walletconnect/pairing', {
         serviceName: this.connector.peerMeta.name,
@@ -80,17 +59,12 @@ export class WCService {
         serviceHomePage: this.connector.peerMeta.url,
       })
     }
-    this.log('Connect', { error, payload })
   }
 
-  async _onCallRequest(_: Error | null, payload: WalletConnectCallRequest) {
+  async _onCallRequest(_: Error | null, payload: any) {
     this.options?.onCallRequest(payload)
   }
 
-  // ****************
-  // ****************
-  // ****************
-  // TODO we need a dropdown to allow them to update session with a new chain id client side
   async _onSwitchChain(_: Error | null, payload: any) {
     this.connector.approveRequest({
       id: payload.id,
@@ -102,7 +76,7 @@ export class WCService {
     })
   }
 
-  public async approve(request: WalletConnectCallRequest, txData: TxData) {
+  public async approve(request: any, txData: TxData) {
     if (request.method === 'personal_sign') {
       const response = await this.wallet.ethSignMessage({
         ...txData,
@@ -154,14 +128,6 @@ export class WCService {
       const message = 'JSON RPC method not supported'
       this.connector.rejectRequest({ id: request.id, error: { message } })
     }
-  }
-
-  public async reject(request: WalletConnectCallRequest) {
-    this.connector.rejectRequest({ id: request.id, error: { message: 'Rejected by user' } })
-  }
-
-  private log(eventName: string, properties: object) {
-    this.logger.debug(properties, eventName)
   }
 
   private convertHexToUtf8IfPossible(hex: string) {

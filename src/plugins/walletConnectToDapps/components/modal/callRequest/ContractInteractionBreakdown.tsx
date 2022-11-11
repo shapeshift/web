@@ -1,10 +1,7 @@
 import { CopyIcon } from '@chakra-ui/icons'
 import { Box, Divider, HStack, IconButton } from '@chakra-ui/react'
 import { CurrencyAmount } from '@uniswap/sdk'
-import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
-// import _ from 'lodash'
 import { useContract } from 'plugins/walletConnectToDapps/ContractABIContext'
-import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -13,11 +10,7 @@ import { RawText, Text } from 'components/Text'
 
 import { ModalSection } from './ModalSection'
 
-type Props = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
-}
-
-export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
+export const ContractInteractionBreakdown = ({ request }: { request: any }) => {
   const translate = useTranslate()
 
   const { contract } = useContract(request.to, request.chainId)

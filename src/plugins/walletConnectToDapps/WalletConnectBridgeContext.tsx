@@ -1,6 +1,5 @@
 import type { IClientMeta } from '@walletconnect/types'
 import type { WCService } from 'kkdesktop/walletconnect'
-import type { WalletConnectCallRequest } from 'kkdesktop/walletconnect/types'
 import { createContext, useContext } from 'react'
 
 type WalletConnectBridgeContextValue = {
@@ -8,7 +7,7 @@ type WalletConnectBridgeContextValue = {
   dapp: IClientMeta | undefined
   connect(uri: string): Promise<void>
   removeRequest: (id: number) => void
-  requests: WalletConnectCallRequest[]
+  requests: any[]
 }
 
 export const WalletConnectBridgeContext = createContext<WalletConnectBridgeContextValue>({

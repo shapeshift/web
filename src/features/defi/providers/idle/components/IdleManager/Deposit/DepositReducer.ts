@@ -2,9 +2,9 @@ import type { IdleDepositActions, IdleDepositState } from './DepositCommon'
 import { IdleDepositActionType } from './DepositCommon'
 
 export const initialState: IdleDepositState = {
-  txid: null,
-  opportunity: null,
-  userAddress: null,
+  txid: undefined,
+  opportunity: undefined,
+  userAddress: undefined,
   loading: false,
   approve: {},
   deposit: {

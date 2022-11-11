@@ -42,7 +42,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const form = useForm<ConfirmData>({
     defaultValues: {
       nonce: request.nonce,
-      gasLimit: request.gasLimit,
+      gasLimit: request.gas,
       speed: FeeDataKey.Average,
     },
   })

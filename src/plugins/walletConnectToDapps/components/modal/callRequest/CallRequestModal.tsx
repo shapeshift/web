@@ -30,6 +30,14 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
   const content = useMemo(() => {
     if (!callRequest) return null
     switch (callRequest.method) {
+      case 'eth_sign':
+        return (
+          <SignMessageConfirmation
+            message={convertHexToUtf8(callRequest.params[1])}
+            onConfirm={approve}
+            onReject={reject}
+          />
+        )
       case 'personal_sign':
         return (
           <SignMessageConfirmation
@@ -39,13 +47,6 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
           />
         )
       case 'eth_sendTransaction':
-        return (
-          <SendTransactionConfirmation
-            request={callRequest.params[0]}
-            onConfirm={approve}
-            onReject={reject}
-          />
-        )
       case 'eth_signTransaction':
         return (
           <SendTransactionConfirmation

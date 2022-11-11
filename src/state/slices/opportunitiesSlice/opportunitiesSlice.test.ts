@@ -20,7 +20,7 @@ describe('opportunitiesSlice', () => {
     clearState()
   })
 
-  it('returns uninitialized properties for initialState', async () => {
+  it('returns uninitialized properties for initialState', () => {
     expect(store.getState().opportunities).toEqual(initialState)
   })
 

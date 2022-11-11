@@ -34,16 +34,16 @@ const makeBasePendoInitializeParams = (pendoEnv: PendoEnv) => ({
     guidesLoaded: () => {
       pendoEventsLogger.trace('guidesLoaded')
     },
-    validateGuide: async (signatureString: string) => {
+    validateGuide: (signatureString: string): boolean => {
       pendoEventsLogger.trace({ signatureString }, 'validateGuide')
       // Guide validation is provided by the logic in pendo/filters.ts
       return true
     },
-    validateLauncher: async (signatureString: string) => {
+    validateLauncher: (signatureString: string): boolean => {
       pendoEventsLogger.trace({ signatureString }, 'validateLauncher')
       return !pendoEnv.sealed
     },
-    validateGlobalScript: async (data: unknown) => {
+    validateGlobalScript: (data: unknown): boolean => {
       pendoEventsLogger.trace({ data }, 'validateGlobalScript')
       return !pendoEnv.sealed
     },
@@ -75,7 +75,7 @@ export function makePendoLauncher(
   agentInitializerPromise
     .then(async initialize => {
       const idPrefix = await launchAuthorizationPromise
-      const id = await VisitorDataManager.getId()
+      const id = VisitorDataManager.getId()
       const visitorId = `${idPrefix ? `${idPrefix}_` : ''}${id}`
       moduleLogger.debug({ fn: 'makePendoLauncher' }, 'launching agent')
       initialize(visitorId)

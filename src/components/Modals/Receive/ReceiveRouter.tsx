@@ -18,7 +18,7 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
   const location = useLocation()
   const history = useHistory()
 
-  const handleAssetSelect = async (asset: Asset) => {
+  const handleAssetSelect = (asset: Asset) => {
     setSelectedAsset(asset)
     history.push(ReceiveRoutes.Info)
   }

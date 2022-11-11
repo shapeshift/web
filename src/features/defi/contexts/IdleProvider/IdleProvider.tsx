@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react'
-import { useMemo } from 'react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { logger } from 'lib/logger'
 

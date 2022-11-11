@@ -1,5 +1,4 @@
-import type * as native from '@shapeshiftoss/hdwallet-native'
-import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { crypto, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -13,6 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
+
 const moduleLogger = logger.child({ namespace: ['useNativeSuccess'] })
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
@@ -30,9 +30,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
 
         const deviceId = vault.id
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
-        const mnemonic = (await vault.get(
-          '#mnemonic',
-        )) as native.crypto.Isolation.Core.BIP39.Mnemonic
+        const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })
         const { name, icon } = NativeConfig

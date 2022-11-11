@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { earnLpOpportunity, foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 
 export const getOverrideNameFromAssetId = (assetId: AssetId): string | null => {
   const overrideAssetIdNames: Record<AssetId, string> = {
-    [foxEthLpAssetId]: foxEthLpOpportunityName,
+    [foxEthLpAssetId]: earnLpOpportunity.opportunityName!,
   }
   return overrideAssetIdNames[assetId] ?? null
 }

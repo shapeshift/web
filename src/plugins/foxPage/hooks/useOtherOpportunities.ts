@@ -38,7 +38,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
 
   const lpOpportunityId = foxEthLpAssetId
   const highestBalanceLpAccountIdFilter = useMemo(
-    () => ({ lpId: lpOpportunityId }),
+    () => ({ lpId: lpOpportunityId as LpId }),
     [lpOpportunityId],
   )
   const highestBalanceLpAccountId = useAppSelector(state =>

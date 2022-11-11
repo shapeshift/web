@@ -32,9 +32,21 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const toast = useToast()
 
+  // connects to given URI or attempts previous connection
   const connect = useCallback(
-    async (uri: string) => {
-      const newBridge = WCService.fromURI(uri, wallet as ETHWallet, { onCallRequest: addRequest })
+    async (uri?: string) => {
+      let newBridge
+      if (uri)
+        newBridge = WCService.fromURI(uri, wallet as ETHWallet, { onCallRequest: addRequest })
+      else {
+        const wcSessionJsonString = localStorage.getItem('walletconnect')
+        if (!wcSessionJsonString) return
+        const session = JSON.parse(wcSessionJsonString)
+        newBridge = WCService.fromSession(session, wallet as ETHWallet, {
+          onCallRequest: addRequest,
+        })
+      }
+
       newBridge.connector.on('connect', rerender)
       newBridge.connector.on('disconnect', rerender)
       newBridge.connector.on('wallet_switchEthereumChain', () => {
@@ -51,36 +63,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [wallet, addRequest, rerender, toast, bridge?.connector.chainId],
   )
 
-  // attempt to automatically connect to the last session on start
-  const tryLastConnection = useCallback(async () => {
-    if (!!bridge) return
-
-    const wcSessionJsonString = localStorage.getItem('walletconnect')
-    if (!wcSessionJsonString) {
-      return
-    }
-
-    const session = JSON.parse(wcSessionJsonString)
-    const existingBridge = WCService.fromSession(session, wallet as ETHWallet, {
-      onCallRequest: addRequest,
-    })
-    existingBridge.connector.on('connect', rerender)
-    existingBridge.connector.on('disconnect', rerender)
-    existingBridge.connector.on('wallet_switchEthereumChain', (_, payload) => {
-      toast({
-        title: 'Wallet Connect',
-        description: `Switched to chainId ${payload.params[0].chainId}`,
-        isClosable: true,
-      })
-      rerender()
-    })
-    await existingBridge.connect()
-    setBridge(existingBridge)
-  }, [bridge, wallet, addRequest, rerender, toast])
-
   useEffect(() => {
-    tryLastConnection()
-  }, [tryLastConnection])
+    connect()
+  }, [connect])
 
   const dapp = bridge?.connector.peerMeta ?? undefined
 

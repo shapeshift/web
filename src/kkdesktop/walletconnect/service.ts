@@ -48,16 +48,13 @@ export class WCService {
     this.connector.off('session_request')
     this.connector.off('session_update')
     this.connector.off('connect')
-    this.connector.off('disconnect')
     this.connector.off('call_request')
     this.connector.off('wallet_switchEthereumChain')
   }
 
   private subscribeToEvents() {
     this.connector.on('session_request', this._onSessionRequest.bind(this))
-    this.connector.on('session_update', this._onSessionUpdate.bind(this))
     this.connector.on('connect', this._onConnect.bind(this))
-    this.connector.on('disconnect', this._onDisconnect.bind(this))
     this.connector.on('call_request', this._onCallRequest.bind(this))
     this.connector.on('wallet_switchEthereumChain', this._onSwitchChain.bind(this))
   }
@@ -69,14 +66,10 @@ export class WCService {
 
     if (address) {
       this.connector.approveSession({
-        chainId: payload.params[0].chainId ?? 1,
+        chainId: 137,
         accounts: [address],
       })
     }
-  }
-
-  async _onSessionUpdate(error: Error | null, payload: any) {
-    this.log('Session Update', { error, payload })
   }
 
   async _onConnect(error: Error | null, payload: any) {
@@ -90,12 +83,7 @@ export class WCService {
     this.log('Connect', { error, payload })
   }
 
-  async _onDisconnect(error: Error | null, payload: any) {
-    this.log('Disconnect', { error, payload })
-  }
-
-  async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
-    this.log('Call Request', { error, payload })
+  async _onCallRequest(_: Error | null, payload: WalletConnectCallRequest) {
     this.options?.onCallRequest(payload)
   }
 
@@ -163,13 +151,11 @@ export class WCService {
       this.connector.approveRequest({ id: request.id, result })
     } else {
       const message = 'JSON RPC method not supported'
-      this.log('Reject Request (catch)', { request, message })
       this.connector.rejectRequest({ id: request.id, error: { message } })
     }
   }
 
   public async reject(request: WalletConnectCallRequest) {
-    this.log('Reject Request', { request })
     this.connector.rejectRequest({ id: request.id, error: { message: 'Rejected by user' } })
   }
 

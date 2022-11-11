@@ -45,13 +45,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           onCallRequest: addRequest,
         })
       }
-
+      newBridge.connector.off('connect')
+      newBridge.connector.off('disconnect')
+      newBridge.connector.off('wallet_switchEthereumChain')
       newBridge.connector.on('connect', rerender)
       newBridge.connector.on('disconnect', rerender)
-      newBridge.connector.on('wallet_switchEthereumChain', () => {
+      newBridge.connector.on('wallet_switchEthereumChain', (_, e) => {
         toast({
           title: 'Wallet Connect',
-          description: `Switched to chainId ${bridge?.connector.chainId}`,
+          description: `Switched to chainId ${e.params[0].chainId}`,
           isClosable: true,
         })
         rerender()
@@ -59,12 +61,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       await newBridge.connect()
       setBridge(newBridge)
     },
-    [wallet, addRequest, rerender, toast, bridge?.connector.chainId],
+    [wallet, addRequest, rerender, toast],
   )
 
   useEffect(() => {
+    // TODO figure out why this is being called twice
     connect()
-  }, [connect])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const dapp = bridge?.connector.peerMeta ?? undefined
 

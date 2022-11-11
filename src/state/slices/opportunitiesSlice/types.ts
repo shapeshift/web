@@ -1,5 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'

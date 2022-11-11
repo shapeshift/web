@@ -1,8 +1,12 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { useMediaQuery } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/react'
-import { keyframes } from '@chakra-ui/react'
-import { Box, IconButton, Tooltip } from '@chakra-ui/react'
+import {
+  Box,
+  IconButton,
+  keyframes,
+  Tooltip,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { WalletActions } from 'context/WalletProvider/actions'

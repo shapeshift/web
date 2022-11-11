@@ -82,7 +82,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                   dispatch(getValidatorData.initiate(accountId))
 
                 // refetch account on new tx
-                dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
+                dispatch(
+                  getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
+                )
                 // deal with incoming message
                 dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
               },

@@ -139,7 +139,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Withdraw,
+        component: ownProps => <Withdraw {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

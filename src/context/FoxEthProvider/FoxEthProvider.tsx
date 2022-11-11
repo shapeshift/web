@@ -121,15 +121,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
 
   useEffect(() => {
-    ;(async () => {
-      if (!readyToFetchLpData || !ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      ethAccountAddresses.forEach(accountAddress => {
-        dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
-      })
-    })()
+    if (!readyToFetchLpData || !ethAccountIds?.length) return
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    ethAccountAddresses.forEach(accountAddress =>
+      dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress })),
+    )
   }, [ethAccountIds, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
 
   useEffect(() => {
@@ -175,28 +171,26 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (!readyToFetchFarmingData) return
     // getting fox-eth lp token data
     const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
-    ;(async () => {
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-      // getting fox-eth lp token balances
-      farmingOpportunities.forEach(opportunity => {
-        const { contractAddress } = opportunity
-        // getting fox farm contract data
-        ethAccountAddresses.forEach(accountAddress => {
-          dispatch(
-            getFoxFarmingContractMetrics.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-          dispatch(
-            getFoxFarmingContractAccountData.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-        })
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    // getting fox-eth lp token balances
+    farmingOpportunities.forEach(opportunity => {
+      const { contractAddress } = opportunity
+      // getting fox farm contract data
+      ethAccountAddresses.forEach(accountAddress => {
+        dispatch(
+          getFoxFarmingContractMetrics.initiate({
+            contractAddress,
+            accountAddress,
+          }),
+        )
+        dispatch(
+          getFoxFarmingContractAccountData.initiate({
+            contractAddress,
+            accountAddress,
+          }),
+        )
       })
-    })()
+    })
   }, [ethAccountIds, dispatch, readyToFetchFarmingData])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
@@ -212,7 +206,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!farmingAccountAddress) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },

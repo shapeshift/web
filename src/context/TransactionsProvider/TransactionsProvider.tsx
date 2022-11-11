@@ -57,45 +57,41 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // something further up the tree from this provider is causing renders when the portfolio status changes,
     // even though it shouldn't
     if (portfolioLoadingStatus === 'loading') return
-    ;(async () => {
-      moduleLogger.debug({ accountIds }, 'subscribing txs')
-      await Promise.all(
-        accountIds.map(async accountId => {
-          const { chainId } = fromAccountId(accountId)
-          const adapter = getChainAdapterManager().get(chainId)
+    moduleLogger.debug({ accountIds }, 'subscribing txs')
+    ;(() =>
+      accountIds.forEach(accountId => {
+        const { chainId } = fromAccountId(accountId)
+        const adapter = getChainAdapterManager().get(chainId)
 
-          const accountMetadata = portfolioAccountMetadata[accountId]
-          if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
-          const { accountType, bip44Params } = accountMetadata
+        const accountMetadata = portfolioAccountMetadata[accountId]
+        if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
+        const { accountType, bip44Params } = accountMetadata
 
-          // subscribe to new transactions for all supported accounts
-          try {
-            return adapter?.subscribeTxs(
-              { wallet, accountType, bip44Params },
-              msg => {
-                const { getAccount } = portfolioApi.endpoints
-                const { getValidatorData } = validatorDataApi.endpoints
-                const { onMessage } = txHistory.actions
+        // subscribe to new transactions for all supported accounts
+        try {
+          return adapter?.subscribeTxs(
+            { wallet, accountType, bip44Params },
+            msg => {
+              const { getAccount } = portfolioApi.endpoints
+              const { getValidatorData } = validatorDataApi.endpoints
+              const { onMessage } = txHistory.actions
 
-                // refetch validator data on new txs in case TVL or APR has changed
-                if ([cosmosChainId, osmosisChainId].includes(msg.chainId))
-                  dispatch(getValidatorData.initiate(accountId))
+              // refetch validator data on new txs in case TVL or APR has changed
+              if ([cosmosChainId, osmosisChainId].includes(msg.chainId))
+                dispatch(getValidatorData.initiate(accountId))
 
-                // refetch account on new tx
-                dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
-                // deal with incoming message
-                dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
-              },
-              (err: any) => moduleLogger.error(err),
-            )
-          } catch (e: unknown) {
-            moduleLogger.error(e, { accountId }, 'error subscribing to txs')
-          }
-        }),
-      )
-
-      setIsSubscribed(true)
-    })()
+              // refetch account on new tx
+              dispatch(getAccount.initiate(accountId, { forceRefetch: true }))
+              // deal with incoming message
+              dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
+            },
+            (err: any) => moduleLogger.error(err),
+          )
+        } catch (e: unknown) {
+          moduleLogger.error(e, { accountId }, 'error subscribing to txs')
+        }
+      }))()
+    setIsSubscribed(true)
   }, [dispatch, isSubscribed, portfolioLoadingStatus, portfolioAccountMetadata, wallet])
 
   return <>{children}</>

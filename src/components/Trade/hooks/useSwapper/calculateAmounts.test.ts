@@ -12,7 +12,7 @@ describe('calculateAmounts', () => {
   const sellAssetUsdRate = '2'
   const selectedCurrencyToUsdRate = bn(1)
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', async () => {
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
     const action = TradeAmountInputField.SELL_CRYPTO
 
     const result = calculateAmounts({
@@ -35,7 +35,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', async () => {
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
     const action = TradeAmountInputField.BUY_CRYPTO
 
     const result = calculateAmounts({
@@ -58,7 +58,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', async () => {
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
     const action = TradeAmountInputField.SELL_FIAT
 
     const result = calculateAmounts({
@@ -81,7 +81,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', async () => {
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
     const action = TradeAmountInputField.BUY_FIAT
 
     const result = calculateAmounts({

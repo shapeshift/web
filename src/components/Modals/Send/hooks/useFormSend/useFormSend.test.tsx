@@ -190,7 +190,7 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
@@ -273,7 +273,7 @@ describe.each([
   it('handles successfully sending an ENS name tx without offline signing', async () => {
     const toaster = jest.fn()
     const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))

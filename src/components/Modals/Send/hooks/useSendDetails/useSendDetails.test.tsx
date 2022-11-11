@@ -142,7 +142,7 @@ describe('useSendDetails', () => {
           [KnownChainIds.EthereumMainnet, mockAdapter],
         ]),
     )
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
@@ -152,7 +152,7 @@ describe('useSendDetails', () => {
     jest.restoreAllMocks()
   })
 
-  it('returns the default useSendDetails state', async () => {
+  it('returns the default useSendDetails state', () => {
     const { result } = setup({
       assetBalance: balances[ethAssetId],
     })

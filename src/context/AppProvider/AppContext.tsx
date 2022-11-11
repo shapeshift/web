@@ -131,7 +131,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        const accountPromises = accountIds.map(id => dispatch(getAccount.initiate(id, opts)))
         const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate

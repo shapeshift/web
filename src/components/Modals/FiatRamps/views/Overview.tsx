@@ -12,6 +12,7 @@ import {
   Spinner,
   Stack,
   Text as RawText,
+  useColorMode,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -35,6 +36,7 @@ import {
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
+  selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,6 +67,8 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -155,14 +159,35 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
+            onClick={() =>
+              ramp.onSubmit({
+                action: fiatRampAction,
+                assetId,
+                address: passedAddress,
+                options: {
+                  language: selectedLocale,
+                  mode: colorMode,
+                  currentUrl: window.location.href,
+                },
+              })
+            }
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
           />
         )
       })
-  }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
+  }, [
+    accountFiatBalance,
+    address,
+    assetId,
+    colorMode,
+    fiatRampAction,
+    isDemoWallet,
+    isRampsLoading,
+    ramps,
+    selectedLocale,
+  ])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress

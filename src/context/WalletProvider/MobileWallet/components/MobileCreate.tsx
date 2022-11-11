@@ -152,7 +152,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
           size='lg'
           isLoading={isSaving}
           disabled={isSaving || !(words && revealedOnce.current && label)}
-          onClick={async () => {
+          onClick={() => {
             if (vault?.mnemonic && label) {
               try {
                 setIsSaving(true)

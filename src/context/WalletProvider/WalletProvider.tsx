@@ -768,7 +768,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [state.keyring])
 
-  const connect = useCallback(async (type: KeyManager) => {
+  const connect = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),
@@ -811,7 +811,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
   }, [state.keyring])
 
-  const create = useCallback(async (type: KeyManager) => {
+  const create = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('create'),

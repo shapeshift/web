@@ -38,7 +38,7 @@ describe('useModal', () => {
     modalNamesFromHook.forEach(modalName => expect(modalNamesFromSetup.includes(modalName)))
   })
 
-  it('can open and close', async () => {
+  it('can open and close', () => {
     const { result } = setup(modalSetup)
     expect(result.current.awwYeah.isOpen).toBeFalsy()
     act(() => result.current.awwYeah.open('baby'))

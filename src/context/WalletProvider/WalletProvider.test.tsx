@@ -57,7 +57,7 @@ const setup = async () => {
   // Since there is a dispatch doing async state changes
   // in a useEffect on mount we must wait for that state
   // to finish updating before doing anything else to avoid errors
-  await act(async () => void 0)
+  await act(() => void 0)
   return result
 }
 

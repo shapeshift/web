@@ -6,8 +6,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import isEqual from 'lodash/isEqual'
-import React, { createContext, useContext, useMemo } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -51,8 +50,8 @@ type IFoxEthContext = {
   setLpAccountId: (accountId: AccountId) => void
   lpAccountAddress: string
   farmingAccountAddress: string
-  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
-  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
+  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
+  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
@@ -62,8 +61,8 @@ const FoxEthContext = createContext<IFoxEthContext>({
   setFarmingAccountId: _accountId => {},
   lpAccountAddress: '',
   farmingAccountAddress: '',
-  onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
-  onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
+  onOngoingFarmingTxIdChange: (_txid: string) => undefined,
+  onOngoingLpTxIdChange: (_txid: string) => undefined,
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
@@ -203,7 +202,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
-    async (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+    (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
       const accountAddress = type === 'farming' ? farmingAccountAddress : lpAccountAddress
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
@@ -221,7 +220,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingLpTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!lpAccountAddress) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },

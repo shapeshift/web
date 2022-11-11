@@ -32,7 +32,7 @@ export const KeepKeyMenu = () => {
     disconnect,
     state: { isConnected, walletInfo, keepkeySdk, deviceId },
   } = useWallet()
-  const { keepKeyWipe } = useModal()
+  const { keepKeyWipe, hardwareError } = useModal()
 
   // Reset ephemeral device state properties when opening the KeepKey menu
   useEffect(() => {
@@ -81,7 +81,10 @@ export const KeepKeyMenu = () => {
   const RenderMenu = () => {
     const keepKeyStateLoading = (
       <>
-        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
+        <SubmenuHeader
+          title={translate('common.connectedWalletSettings')}
+          shouldShowBackClick={false}
+        />
         <MenuGroup>
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
@@ -102,7 +105,10 @@ export const KeepKeyMenu = () => {
 
     const keepKeyStateLoaded = (
       <>
-        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
+        <SubmenuHeader
+          title={translate('common.connectedWalletSettings')}
+          shouldShowBackClick={false}
+        />
         <MenuGroup>
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
@@ -168,7 +174,14 @@ export const KeepKeyMenu = () => {
           <MenuItem onClick={handleRemovePinClick} color='red.500' icon={<LockIcon />}>
             {translate('walletProvider.keepKey.settings.menuLabels.removePin')}
           </MenuItem>
-          <MenuItem onClick={disconnect} color='red.500' icon={<CloseIcon />}>
+          <MenuItem
+            onClick={() => {
+              hardwareError.open({})
+              disconnect()
+            }}
+            color='red.500'
+            icon={<CloseIcon />}
+          >
             {translate('connectWallet.menu.disconnect')}
           </MenuItem>
           <MenuItem onClick={handleWipeClick} color='red.500' icon={<CloseIcon />}>

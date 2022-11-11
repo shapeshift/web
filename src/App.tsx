@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/button'
 import type { ToastId } from '@chakra-ui/toast'
 import { useToast } from '@chakra-ui/toast'
 import { ipcRenderer } from 'electron'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
@@ -44,12 +44,40 @@ export const App = () => {
     sign.close()
   }
 
+  const [connected, setConnected] = useState<any>(null)
+
+  // open hardwareError modal on app start unless already connected
+  useEffect(() => {
+    if (connected !== null) {
+      if (!hardwareError.isOpen && !connected) {
+        hardwareError.open({})
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected])
+
+  // get whether or not bridge is connected for hardwareError modal
+  useEffect(() => {
+    if (connected === null) {
+      ipcRenderer.on('@bridge/connected', (_event, _connected: boolean) => {
+        setConnected(_connected)
+      })
+      ipcRenderer.send('@bridge/connected')
+    }
+  }, [hardwareError, connected, setConnected])
+
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
     state.wallet?.disconnect()
 
     ipcRenderer.on('plugin', () => {
       loading.open({ closing: false })
+      setConnected(true)
+      hardwareError.close()
+    })
+
+    ipcRenderer.on('connected', async (_event, _data) => {
+      setConnected(true)
       hardwareError.close()
     })
 
@@ -76,12 +104,14 @@ export const App = () => {
     ipcRenderer.on('needsInitialize', (_event, data) => {
       closeAllModals()
       openKeepKeyUpdater(data)
+      setConnected(null)
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
       if (!data.event?.bootloaderMode) {
         closeAllModals()
         setIsUpdatingKeepkey(true)
+        setConnected(true)
         requestBootloaderMode.open({})
       } else {
         closeAllModals()

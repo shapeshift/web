@@ -21,16 +21,18 @@ export const DappHeaderMenuSummary: FC = () => {
 
   const walletConnect = useWalletConnect()
   const connectedChainId = walletConnect.bridge?.connector.chainId
+
   const chainName = useMemo(() => {
-    const name = chainAdapterManager
+    let name = chainAdapterManager
       .get(supportedEvmChainIds.find(chainId => chainId === `eip155:${connectedChainId}`) ?? '')
       ?.getDisplayName()
 
+    if (!name) name = `ChainId ${connectedChainId}`
+
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
   }, [chainAdapterManager, connectedChainId, supportedEvmChainIds, translate])
-  const handleDisconnect = walletConnect.disconnect
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  if (!walletConnect || !walletConnect.bridge || !walletConnect.dapp) return null
 
   return (
     <>
@@ -66,9 +68,14 @@ export const DappHeaderMenuSummary: FC = () => {
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
-          <MiddleEllipsis value={walletConnect.bridge.connector.accounts[0]} color='blue.200' />
+          {!!walletConnect?.bridge?.connector?.accounts && (
+            <MiddleEllipsis
+              value={walletConnect?.bridge?.connector?.accounts[0]}
+              color='blue.200'
+            />
+          )}
         </HStack>
-        {!!connectedChainId && (
+        {walletConnect?.bridge?.connector?.connected && (
           <HStack justifyContent='space-between' spacing={4}>
             <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
             <RawText>{chainName}</RawText>
@@ -77,7 +84,12 @@ export const DappHeaderMenuSummary: FC = () => {
       </VStack>
 
       <MenuDivider />
-      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={handleDisconnect} color='red.500'>
+      <MenuItem
+        fontWeight='medium'
+        icon={<CloseIcon />}
+        onClick={walletConnect?.bridge?.disconnect}
+        color='red.500'
+      >
         {translate('plugins.walletConnectToDapps.header.menu.disconnect')}
       </MenuItem>
     </>

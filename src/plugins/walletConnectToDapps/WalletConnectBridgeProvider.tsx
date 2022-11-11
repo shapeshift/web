@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import WalletConnect from '@walletconnect/client'
 import { WCService } from 'kkdesktop/walletconnect'
-import type { WalletConnectCallRequest } from 'kkdesktop/walletconnect/types'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -13,11 +13,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<WCService>()
 
-  const [requests, setRequests] = useState<WalletConnectCallRequest[]>([])
-  const addRequest = useCallback(
-    (req: WalletConnectCallRequest) => setRequests(requests.concat(req)),
-    [requests],
-  )
+  const [requests, setRequests] = useState<any[]>([])
+  const addRequest = useCallback((req: any) => setRequests(requests.concat(req)), [requests])
   const removeRequest = useCallback(
     (id: number) => {
       const newRequests = requests.filter(request => request.id !== id)
@@ -37,22 +34,26 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     async (uri?: string) => {
       let newBridge
       if (uri)
-        newBridge = WCService.fromURI(uri, wallet as ETHWallet, { onCallRequest: addRequest })
+        newBridge = new WCService(wallet as ETHWallet, new WalletConnect({ uri }), {
+          onCallRequest: addRequest,
+        })
       else {
         const wcSessionJsonString = localStorage.getItem('walletconnect')
         if (!wcSessionJsonString) return
         const session = JSON.parse(wcSessionJsonString)
-        newBridge = WCService.fromSession(session, wallet as ETHWallet, {
+        newBridge = new WCService(wallet as ETHWallet, new WalletConnect({ session }), {
           onCallRequest: addRequest,
         })
       }
-
+      newBridge.connector.off('connect')
+      newBridge.connector.off('disconnect')
+      newBridge.connector.off('wallet_switchEthereumChain')
       newBridge.connector.on('connect', rerender)
       newBridge.connector.on('disconnect', rerender)
-      newBridge.connector.on('wallet_switchEthereumChain', () => {
+      newBridge.connector.on('wallet_switchEthereumChain', (_, e) => {
         toast({
           title: 'Wallet Connect',
-          description: `Switched to chainId ${bridge?.connector.chainId}`,
+          description: `Switched to chainId ${e.params[0].chainId}`,
           isClosable: true,
         })
         rerender()
@@ -60,7 +61,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       await newBridge.connect()
       setBridge(newBridge)
     },
-    [wallet, addRequest, rerender, toast, bridge?.connector.chainId],
+    [wallet, addRequest, rerender, toast],
   )
 
   useEffect(() => {

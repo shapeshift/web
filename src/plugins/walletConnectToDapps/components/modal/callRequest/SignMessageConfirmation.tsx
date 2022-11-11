@@ -8,10 +8,12 @@ import {
   Image,
   Link,
   useColorModeValue,
+  useToast,
   VStack,
 } from '@chakra-ui/react'
+import { convertHexToUtf8 } from '@walletconnect/utils'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import type { FC } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
@@ -19,19 +21,49 @@ import { RawText, Text } from 'components/Text'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
 
-type Props = {
-  message: any
-  onConfirm: any
-  onReject: any
-}
-
-export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onReject }) => {
+export const SignMessageConfirmation = () => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
 
   const walletConnect = useWalletConnect()
+
+  const [loading, setLoading] = useState(false)
+
+  const { bridge, requests, removeRequest } = useWalletConnect()
+  const toast = useToast()
+
+  const currentRequest = requests[0]
+  const message = convertHexToUtf8(currentRequest.payload.params[0])
+
+  const onConfirm = useCallback(
+    async (txData: any) => {
+      try {
+        setLoading(true)
+        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
+        removeRequest(currentRequest.id)
+      } catch (e) {
+        toast({
+          title: 'Error',
+          description: `Transaction error ${e}`,
+          isClosable: true,
+        })
+      } finally {
+        setLoading(false)
+      }
+    },
+    [bridge, currentRequest.id, removeRequest, requests, toast],
+  )
+
+  const onReject = useCallback(async () => {
+    await bridge?.connector.rejectRequest({
+      id: currentRequest.id,
+      error: { message: 'Rejected by user' },
+    })
+    removeRequest(currentRequest.id)
+    setLoading(false)
+  }, [bridge, currentRequest, removeRequest])
+
   if (!walletConnect.bridge || !walletConnect.dapp) return null
-  const address = walletConnect.bridge?.connector.accounts[0]
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
@@ -42,7 +74,7 @@ export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onRejec
           mb={4}
         />
         <AddressSummaryCard
-          address={address}
+          address={walletConnect.bridge?.connector.accounts[0]}
           name='My Wallet' // TODO: what string do we put here?
           icon={<KeepKeyIcon color='gray.500' w='full' h='full' />}
         />
@@ -90,7 +122,14 @@ export const SignMessageConfirmation: FC<Props> = ({ message, onConfirm, onRejec
       />
 
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
+        <Button
+          isLoading={loading}
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          type='submit'
+          onClick={onConfirm}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={onReject}>

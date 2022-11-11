@@ -1,10 +1,7 @@
 import { CopyIcon } from '@chakra-ui/icons'
 import { Box, Divider, HStack, IconButton } from '@chakra-ui/react'
 import { CurrencyAmount } from '@uniswap/sdk'
-import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
-// import _ from 'lodash'
 import { useContract } from 'plugins/walletConnectToDapps/ContractABIContext'
-import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -13,21 +10,22 @@ import { RawText, Text } from 'components/Text'
 
 import { ModalSection } from './ModalSection'
 
-type Props = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
-}
-
-export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
+export const ContractInteractionBreakdown = ({ request }: { request: any }) => {
   const translate = useTranslate()
 
-  const { contract } = useContract(request.to, request.chainId)
+  const { contract } = useContract(request.params[0].to)
+
   const transaction = useMemo(() => {
     try {
-      return contract?.parseTransaction({ data: request.data, value: request.value })
+      return contract?.parseTransaction({
+        data: request.params[0].data,
+        value: request.params[0].value,
+      })
     } catch (e) {
       return
     }
-  }, [contract, request.data, request.value])
+  }, [contract, request.params])
+
   if (!transaction) return null
   return (
     <ModalSection
@@ -47,7 +45,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
         />
         <RawText fontWeight='medium'>
           {/* TODO: what's the best way to format e.g. an ether amount with the appropriate amount of decimals? */}
-          {CurrencyAmount.ether(request?.value ?? '0x0').toFixed()}
+          {CurrencyAmount.ether(request.params[0].value ?? '0x0').toFixed()}
         </RawText>
 
         <Divider my={4} />
@@ -58,13 +56,13 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
           translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'
         />
         <HStack>
-          <MiddleEllipsis value={request.data} fontWeight='medium' />
+          <MiddleEllipsis value={request.params[0].data} fontWeight='medium' />
           <IconButton
             size='small'
             variant='ghost'
             aria-label='Copy'
             icon={<CopyIcon />}
-            onClick={() => navigator.clipboard.writeText(request.data)}
+            onClick={() => navigator.clipboard.writeText(request.params[0].data)}
           />
         </HStack>
 

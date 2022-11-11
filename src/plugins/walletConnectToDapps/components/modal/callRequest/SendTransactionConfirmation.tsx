@@ -1,11 +1,10 @@
-import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Image, useColorModeValue, useToast, VStack } from '@chakra-ui/react'
 import type { ethereum } from '@keepkey/chain-adapters'
 import { FeeDataKey } from '@keepkey/chain-adapters'
 import { KnownChainIds } from '@keepkey/types'
 import axios from 'axios'
-import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import type { FC } from 'react'
+import { useCallback } from 'react'
 import { useMemo } from 'react'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -16,7 +15,6 @@ import { Card } from 'components/Card/Card'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -29,7 +27,6 @@ import { GasInput } from './GasInput'
 import { ModalSection } from './ModalSection'
 import { TransactionAdvancedParameters } from './TransactionAdvancedParameters'
 
-type CallRequest = WalletConnectEthSendTransactionCallRequest
 export type TxData = {
   nonce: string
   gasLimit: string
@@ -41,13 +38,7 @@ export type TxData = {
   value: string
 }
 
-type Props = {
-  request: CallRequest['params'][number]
-  onConfirm(txData: TxData): void
-  onReject(): void
-}
-
-export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onReject }) => {
+export const SendTransactionConfirmation = () => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
   const { state: walletState } = useWallet()
@@ -64,6 +55,41 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     },
   })
 
+  const [loading, setLoading] = useState(false)
+
+  const { bridge, requests, removeRequest } = useWalletConnect()
+  const toast = useToast()
+
+  const currentRequest = requests[0]
+
+  const onConfirm = useCallback(
+    async (txData: any) => {
+      try {
+        setLoading(true)
+        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
+        removeRequest(currentRequest.id)
+      } catch (e) {
+        toast({
+          title: 'Error',
+          description: `Transaction error ${e}`,
+          isClosable: true,
+        })
+      } finally {
+        setLoading(false)
+      }
+    },
+    [bridge, currentRequest.id, removeRequest, requests, toast],
+  )
+
+  const onReject = useCallback(async () => {
+    await bridge?.connector.rejectRequest({
+      id: currentRequest.id,
+      error: { message: 'Rejected by user' },
+    })
+    removeRequest(currentRequest.id)
+    setLoading(false)
+  }, [bridge, currentRequest, removeRequest])
+
   const [gasFeeData, setGasFeeData] = useState(undefined as any)
   const [priceData, setPriceData] = useState(bn(0))
 
@@ -72,7 +98,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     useState<{ web3: Web3; symbol: string; name: string; coinGeckoId: string }>()
 
   // determine which gasLimit to use: user input > from the request > or estimate
-  const requestGas = parseInt(request.gas ?? '0x0', 16).toString(10)
+  const requestGas = parseInt(currentRequest.params[0].gas ?? '0x0', 16).toString(10)
   const inputGas = useWatch({ control: form.control, name: 'gasLimit' })
 
   const [estimatedGas, setEstimatedGas] = useState('0')
@@ -119,8 +145,8 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   }, [chainWeb3])
 
   // determine which gas fees to use: user input > from the request > Fast
-  const requestMaxPriorityFeePerGas = request.maxPriorityFeePerGas
-  const requestMaxFeePerGas = request.maxFeePerGas
+  const requestMaxPriorityFeePerGas = currentRequest.params[0].maxPriorityFeePerGas
+  const requestMaxFeePerGas = currentRequest.params[0].maxFeePerGas
 
   const inputMaxPriorityFeePerGas = useWatch({
     control: form.control,
@@ -158,7 +184,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   }, [form, inputMaxFeePerGas, txInputGas, txMaxFeePerGas])
 
   // determine which nonce to use: user input > from the request > true nonce
-  const requestNonce = request.nonce
+  const requestNonce = currentRequest.params[0].nonce
   const inputNonce = useWatch({ control: form.control, name: 'nonce' })
   const [trueNonce, setTrueNonce] = useState('0')
   useEffect(() => {
@@ -177,8 +203,8 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
         .estimateGas({
           from: walletConnect.bridge?.connector.accounts[0],
           nonce: txInputNonce,
-          to: request.to,
-          data: request.data,
+          to: currentRequest.params[0].to,
+          data: currentRequest.params[0].data,
         })
         .then((estimate: any) => {
           setEstimatedGas(estimate)
@@ -191,9 +217,8 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     txInputNonce,
     address,
     chainWeb3,
-    request.to,
-    request.data,
     walletConnect.bridge?.connector.accounts,
+    currentRequest.params,
   ])
 
   if (!walletConnect.bridge || !walletConnect.dapp) return null
@@ -201,9 +226,9 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const txInput: TxData = {
     nonce: txInputNonce,
     gasLimit: txInputGas,
-    data: request.data,
-    to: request.to,
-    value: request.value,
+    data: currentRequest.params[0].data,
+    to: currentRequest.params[0].to,
+    value: currentRequest.params[0].value,
     maxFeePerGas: txMaxFeePerGas,
     maxPriorityFeePerGas: txMaxPriorityFeePerGas,
   }
@@ -240,7 +265,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             mb={4}
           />
           <AddressSummaryCard
-            address={request.to}
+            address={currentRequest.params[0].to}
             icon={
               <Image
                 borderRadius='full'
@@ -259,7 +284,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             mb={4}
           />
           <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-            <ContractInteractionBreakdown request={request} />
+            <ContractInteractionBreakdown request={currentRequest} />
           </Card>
         </Box>
 
@@ -279,8 +304,8 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             <GasInput
               gasLimit={txInputGas}
               recommendedGasPriceData={{
-                maxPriorityFeePerGas: request.maxPriorityFeePerGas,
-                maxFeePerGas: request.maxFeePerGas,
+                maxPriorityFeePerGas: currentRequest.params[0].maxPriorityFeePerGas,
+                maxFeePerGas: currentRequest.params[0].maxFeePerGas,
               }}
             />
           </Box>
@@ -308,6 +333,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
             width='full'
             colorScheme='blue'
             type='submit'
+            isLoading={loading}
             onClick={() => onConfirm(txInput)}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

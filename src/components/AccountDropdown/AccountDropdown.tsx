@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { BoxProps } from '@chakra-ui/react'
-import { usePrevious } from '@chakra-ui/react'
 import {
   type ButtonProps,
   type MenuItemOptionProps,
@@ -13,6 +12,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
+  usePrevious,
 } from '@chakra-ui/react'
 import {
   type AccountId,

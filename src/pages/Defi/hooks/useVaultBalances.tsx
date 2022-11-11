@@ -72,7 +72,7 @@ async function getYearnVaults(balances: AssetBalancesById, yearn: YearnInvestor 
   return acc
 }
 
-async function getIdleVaults(balances: AssetBalancesById, idleInvestor: IdleInvestor | null) {
+async function getIdleVaults(balances: AssetBalancesById, idleInvestor: IdleInvestor | undefined) {
   if (!idleInvestor) return {}
   const opportunities = await idleInvestor.findAll()
 

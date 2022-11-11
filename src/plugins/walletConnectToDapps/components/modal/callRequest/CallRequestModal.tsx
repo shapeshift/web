@@ -1,71 +1,79 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
+import { ModalContent } from '@chakra-ui/modal'
+import {
+  HStack,
+  Modal,
+  ModalCloseButton,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react'
 import { convertHexToUtf8 } from '@walletconnect/utils'
-import type { WalletConnectCallRequest } from 'kkdesktop/walletconnect/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import type { FC } from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback } from 'react'
+import { useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 
-import type { TxData } from './SendTransactionConfirmation'
 import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
-type WalletConnectModalProps = {
-  callRequest: WalletConnectCallRequest | undefined
-}
+export const CallRequestModal = () => {
+  const { bridge, requests, removeRequest } = useWalletConnect()
+  const toast = useToast()
 
-export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) => {
-  const { approveRequest, rejectRequest } = useWalletConnect()
+  const currentRequest = requests[0]
 
-  const approve = useCallback(
-    (txData: TxData) => {
-      !!callRequest && approveRequest(callRequest, txData)
+  const onConfirm = useCallback(
+    async (txData: any) => {
+      try {
+        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
+        removeRequest(currentRequest.id)
+      } catch (e) {
+        toast({
+          title: 'Error',
+          description: `Transaction error ${e}`,
+          isClosable: true,
+        })
+      }
     },
-    [approveRequest, callRequest],
+    [bridge, currentRequest.id, removeRequest, requests, toast],
   )
-  const reject = useCallback(
-    () => !!callRequest && rejectRequest(callRequest),
-    [rejectRequest, callRequest],
-  )
+
+  const onReject = useCallback(async () => {
+    await bridge?.reject(currentRequest)
+    removeRequest(currentRequest.id)
+  }, [bridge, currentRequest, removeRequest])
 
   const content = useMemo(() => {
-    if (!callRequest) return null
-    switch (callRequest.method) {
+    switch (currentRequest.method) {
       case 'personal_sign':
         return (
           <SignMessageConfirmation
-            message={convertHexToUtf8(callRequest.params[0])}
-            onConfirm={approve}
-            onReject={reject}
+            message={convertHexToUtf8(currentRequest.params[0])}
+            onConfirm={onConfirm}
+            onReject={onReject}
           />
         )
       case 'eth_sendTransaction':
         return (
           <SendTransactionConfirmation
-            request={callRequest.params[0]}
-            onConfirm={approve}
-            onReject={reject}
+            request={currentRequest.params[0]}
+            onConfirm={onConfirm}
+            onReject={onReject}
           />
         )
       default:
         return null
     }
-  }, [callRequest, approve, reject])
-
-  const canRenderCallRequest = !!content
-  const rejectRequestIfCannotRender = useCallback(() => {
-    if (!!callRequest && !canRenderCallRequest) {
-      rejectRequest(callRequest)
-    }
-  }, [callRequest, rejectRequest, canRenderCallRequest])
-  useEffect(rejectRequestIfCannotRender, [rejectRequestIfCannotRender])
+  }, [currentRequest, onConfirm, onReject])
 
   return (
-    <Modal isOpen={!!callRequest} onClose={reject} variant='header-nav'>
+    <Modal
+      isOpen={!!currentRequest}
+      onClose={() => bridge?.reject(currentRequest)}
+      variant='header-nav'
+    >
       <ModalOverlay />
-
       <ModalContent
         width='full'
         borderRadius={{ base: 0, md: 'xl' }}

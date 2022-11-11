@@ -16,6 +16,7 @@ import { Card } from 'components/Card/Card'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -98,8 +99,8 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     })
 
     // for non mainnet chains we use the simple web3.getGasPrice()
-    const chainWeb3 = web3ByChainId(137) as any
-    chainWeb3.web3.eth.getGasPrice().then((p: any) => setweb3GasFeeData(p))
+    const chainWeb3 = web3ByChainId(walletConnect?.bridge?.connector?.chainId as any) as any
+    chainWeb3?.eth?.web3?.eth?.getGasPrice().then((p: any) => setweb3GasFeeData(p))
     setChainWeb3(chainWeb3)
   }, [form, txInputGas, walletConnect.bridge?.connector.chainId])
 
@@ -162,7 +163,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const [trueNonce, setTrueNonce] = useState('0')
   useEffect(() => {
     ;(async () => {
-      const count = await (chainWeb3 as any)?.web3.eth?.getTransactionCount(address)
+      const count = await chainWeb3?.web3.eth.getTransactionCount(address ?? '')
       setTrueNonce(`${count}`)
     })()
   }, [adapterManager, address, chainWeb3, walletState.wallet])

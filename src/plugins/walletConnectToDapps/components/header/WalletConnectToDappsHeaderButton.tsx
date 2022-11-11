@@ -16,7 +16,7 @@ export const WalletConnectToDappsHeaderButton = () => {
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
 
-  if (!walletConnect.bridge || !walletConnect.dapp) {
+  if (!walletConnect?.bridge?.connector.connected || !walletConnect || !walletConnect.dapp) {
     return (
       <>
         <Button

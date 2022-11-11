@@ -1,7 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   ethereum,

@@ -2,9 +2,9 @@ import type { IdleWithdrawActions, IdleWithdrawState } from './WithdrawCommon'
 import { IdleWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: IdleWithdrawState = {
-  txid: null,
-  opportunity: null,
-  userAddress: null,
+  txid: undefined,
+  opportunity: undefined,
+  userAddress: undefined,
   loading: false,
   approve: {},
   withdraw: {

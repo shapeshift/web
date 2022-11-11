@@ -23,7 +23,11 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
@@ -42,6 +46,9 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -101,6 +108,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     if (
       !(
         dispatch &&
+        bip44Params &&
         assetReference &&
         state?.userAddress &&
         walletState.wallet &&
@@ -116,7 +124,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareApprove(state.userAddress)
       await idleOpportunity.signAndBroadcast({
@@ -165,6 +172,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     idleInvestor,
+    bip44Params,
     getDepositGasEstimate,
     onNext,
     asset.precision,

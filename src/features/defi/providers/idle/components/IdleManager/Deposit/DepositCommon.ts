@@ -42,12 +42,12 @@ export type SerializableOpportunity = Omit<
 >
 
 export type IdleDepositState = {
-  opportunity: SerializableOpportunity | null
-  userAddress: string | null
+  opportunity: SerializableOpportunity | undefined
+  userAddress: string | undefined
   approve: EstimatedGas
   deposit: IdleDepositValues
   loading: boolean
-  txid: string | null
+  txid: string | undefined
 }
 
 export enum IdleDepositActionType {

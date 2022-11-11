@@ -74,6 +74,7 @@ export const startIpcListeners = () => {
     })
 
     ipcMain.on('@bridge/connected', (event, serviceKey) => {
+        console.log('isWalletBridgeRunning()', isWalletBridgeRunning())
         if (windows.mainWindow && !windows.mainWindow.isDestroyed())
           windows.mainWindow.webContents.send('@bridge/connected', isWalletBridgeRunning())
       })

@@ -17,6 +17,7 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { HardwareErrorModal } from 'components/Modals/UpdateKeepKey/HardwareError/HardwareError'
 
 const moduleLogger = logger.child({
   namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'Modals', 'Wipe'],
@@ -30,6 +31,7 @@ export const WipeModal = () => {
   const translate = useTranslate()
   const {
     keepKeyWipe: { close, isOpen },
+    hardwareError
   } = useModal()
   const {
     state: {
@@ -56,6 +58,7 @@ export const WipeModal = () => {
     moduleLogger.trace({ fn: 'wipeDevice' }, 'Wiping KeepKey...')
     try {
       await keepKeyWallet?.wipe()
+      hardwareError.open({})
       disconnect()
       onClose()
     } catch (e) {

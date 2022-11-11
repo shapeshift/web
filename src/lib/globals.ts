@@ -8,3 +8,5 @@ declare global {
 }
 
 export const isMobile = Boolean(window.isShapeShiftMobile)
+
+export const globalInit = { connected: false, initialized: false } as any

@@ -14,6 +14,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { globalInit } from 'lib/globals'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
@@ -23,23 +24,7 @@ export const ConnectWallet = () => {
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   const { hardwareError } = useModal()
-  const [initialized, setInitialized] = useState(false)
 
-  useEffect(() => {
-    if (!hardwareError.isOpen && !initialized) {
-      hardwareError.open({})
-    }
-    if (hardwareError.isOpen && !initialized) {
-      setInitialized(true)
-    }
-  }, [hardwareError, setInitialized, initialized])
-
-  useEffect(() => {
-    ipcRenderer.on('@bridge/connected', (_event, connected: boolean) => {
-      if (hardwareError.isOpen && connected) hardwareError.close()
-    })
-    ipcRenderer.send('@bridge/connected')
-  }, [hardwareError])
 
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.

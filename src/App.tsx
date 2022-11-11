@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/button'
 import type { ToastId } from '@chakra-ui/toast'
 import { useToast } from '@chakra-ui/toast'
 import { ipcRenderer } from 'electron'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
@@ -14,6 +14,7 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { globalInit } from 'lib/globals'
 
 export const App = () => {
   const {
@@ -44,12 +45,48 @@ export const App = () => {
     sign.close()
   }
 
+  const [connected, setConnected] = useState<any>(null)
+  const [init, setInit] = useState<any>(null)
+
+  // // // open on app start unless already connected
+  useEffect(() => {
+    if (connected !== null) {
+      console.log('pre init', globalInit)
+      console.log('pre global connected', connected)
+      console.log('pre hardwareError.isOpen', hardwareError.isOpen)
+      if (!hardwareError.isOpen && !connected) {
+        console.log('open')
+        hardwareError.open({})
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected])
+
+  // get whether or not bridge is connected
+  useEffect(() => {
+    if (connected === null) {
+      ipcRenderer.on('@bridge/connected', (_event, _connected: boolean) => {
+        console.log('bridgeconnected', _connected)
+        setConnected(_connected)
+      })
+      ipcRenderer.send('@bridge/connected')
+    }
+  }, [hardwareError, connected, setConnected])
+
   useEffect(() => {
     // This is necessary so when it re-opens the tcp connection everything is good
     state.wallet?.disconnect()
 
     ipcRenderer.on('plugin', () => {
       loading.open({ closing: false })
+      setConnected(true)
+      console.log('PLUGIN KLDSFJLSDKFJ')
+      hardwareError.close()
+    })
+
+    ipcRenderer.on('connected', async (_event, _data) => {
+      console.log('connected')
+      setConnected(true)
       hardwareError.close()
     })
 
@@ -76,12 +113,14 @@ export const App = () => {
     ipcRenderer.on('needsInitialize', (_event, data) => {
       closeAllModals()
       openKeepKeyUpdater(data)
+      setConnected(null)
     })
 
     ipcRenderer.on('updateBootloader', (_event, data) => {
       if (!data.event?.bootloaderMode) {
         closeAllModals()
         setIsUpdatingKeepkey(true)
+        setConnected(true)
         requestBootloaderMode.open({})
       } else {
         closeAllModals()

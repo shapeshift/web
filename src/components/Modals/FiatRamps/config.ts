@@ -109,10 +109,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isActive: () => true,
     minimumSellThreshold: 50,
     order: 3,
-    getBuyAndSellList: async () => {
+    getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
-      return [buyAssetIds, sellAssetIds]
+      return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     onSubmit: (action, assetId, address) => {
       try {

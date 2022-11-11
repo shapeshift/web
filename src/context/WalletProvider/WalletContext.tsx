@@ -8,8 +8,8 @@ import type { DeviceState, InitialState, KeyManagerWithProvider } from './Wallet
 export interface IWalletContext {
   state: InitialState
   dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: KeyManager) => Promise<void>
-  create: (adapter: KeyManager) => Promise<void>
+  connect: (adapter: KeyManager) => void
+  create: (adapter: KeyManager) => void
   disconnect: () => void
   load: () => void
   setDeviceState: (deviceState: Partial<DeviceState>) => void

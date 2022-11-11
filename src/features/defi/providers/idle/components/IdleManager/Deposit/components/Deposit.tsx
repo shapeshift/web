@@ -53,9 +53,10 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
+  const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
   // notify

@@ -70,9 +70,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const [opportunity, setOpportunity] = useState<IdleOpportunity | null>(null)
   const [claimableTokens, setClaimableTokens] = useState<ClaimableToken[]>([])
   const { chainId, contractAddress: vaultAddress, assetReference } = query
-  const [walletAddress, setWalletAddress] = useState<string>(
-    '0x0000000000000000000000000000000000000000',
-  )
+  const [walletAddress, setWalletAddress] = useState<string | undefined>()
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -86,8 +84,12 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
+  const balanceFilter = useMemo(
+    () => ({ accountId, assetId: vaultTokenId }),
+    [accountId, vaultTokenId],
+  )
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { accountId, assetId: vaultTokenId }),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${vault.precision}`)
@@ -112,7 +114,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   }, [chainAdapter, walletState, bip44Params])
 
   useEffect(() => {
-    if (!(vaultAddress && idleInvestor)) return
+    if (!(vaultAddress && idleInvestor && walletAddress)) return
     ;(async () => {
       try {
         const opportunity = await idleInvestor.findByOpportunityId(

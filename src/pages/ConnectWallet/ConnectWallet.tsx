@@ -36,10 +36,10 @@ export const ConnectWallet = () => {
 
   useEffect(() => {
     ipcRenderer.on('@bridge/connected', (_event, connected: boolean) => {
-      if (hardwareError.isOpen && connected && !initialized) hardwareError.close()
+      if (hardwareError.isOpen && connected) hardwareError.close()
     })
     ipcRenderer.send('@bridge/connected')
-  }, [hardwareError, initialized])
+  }, [hardwareError])
 
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.

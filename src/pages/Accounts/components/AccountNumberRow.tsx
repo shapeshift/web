@@ -1,7 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { MenuGroup } from '@chakra-ui/react'
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react'
 import {
   Avatar,
   Button,
@@ -9,6 +7,11 @@ import {
   Flex,
   IconButton,
   ListItem,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'

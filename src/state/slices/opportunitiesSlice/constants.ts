@@ -1,7 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 

@@ -1,6 +1,5 @@
 import { Text } from '@chakra-ui/react'
-import { render } from '@testing-library/react'
-import { renderHook } from '@testing-library/react'
+import { render, renderHook } from '@testing-library/react'
 
 import { useRefCallback } from './useRefCallback'
 

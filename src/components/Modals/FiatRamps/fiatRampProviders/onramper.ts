@@ -65,8 +65,7 @@ export const createOnRamperUrl = ({
   action,
   assetId,
   address,
-  currentUrl,
-  options: { language, mode },
+  options: { language, mode, currentUrl },
 }: CreateUrlProps): string => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')

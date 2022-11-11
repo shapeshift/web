@@ -89,7 +89,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     onSubmit: props => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(props)
+        const onRamperCheckoutUrl = createOnRamperUrl({
+          ...props,
+          options: { ...props.options, currentUrl: window.location.href },
+        })
         window.open(onRamperCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')

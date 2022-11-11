@@ -7,9 +7,9 @@ export type CreateUrlProps = {
   action: FiatRampAction
   assetId: AssetId | string
   address: string
-  currentUrl?: string
   options: {
     language: string
     mode: ColorMode
+    currentUrl?: string
   }
 }

@@ -50,7 +50,7 @@ export function armPendoAgent(
   const [initializePromise, initializeResolver] = deferred<string>()
 
   Promise.all([initializePromise, agentReadyPromise])
-    .then(async ([x]) =>
+    .then(([x]) =>
       pendo.initialize({
         ...(x ? { visitor: { id: x } } : {}),
         ...pendoInitializeParams,

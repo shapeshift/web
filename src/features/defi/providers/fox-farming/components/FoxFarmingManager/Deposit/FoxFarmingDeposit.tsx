@@ -72,20 +72,18 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(farmingAccountAddress && contractAddress && opportunity)) return
+    try {
+      if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({
-          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
-          payload: farmingAccountAddress,
-        })
-        dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingDeposit error')
-      }
-    })()
+      dispatch({
+        type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
+        payload: farmingAccountAddress,
+      })
+      dispatch({ type: FoxFarmingDepositActionType.SET_OPPORTUNITY, payload: opportunity })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'FoxFarmingDeposit error')
+    }
   }, [farmingAccountAddress, translate, toast, contractAddress, opportunity])
 
   const handleBack = () => {

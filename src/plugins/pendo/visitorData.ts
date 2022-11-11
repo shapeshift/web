@@ -26,9 +26,7 @@ export class VisitorDataManager {
       forEach(data.consent, (v, k) => VisitorDataManager.#consentMap.set(k, v))
 
       // Create a new ID if there isn't a stored ID or if it has expired
-      VisitorDataManager.getId().catch(e =>
-        moduleLogger.error(e, { fn: 'load' }, 'Error updating visitorId'),
-      )
+      VisitorDataManager.getId()
     } catch (e) {
       moduleLogger.error(e, { fn: 'load', raw }, 'parse error')
       window.localStorage.removeItem('visitorData')
@@ -52,7 +50,7 @@ export class VisitorDataManager {
   /**
    * Get the current visitorId, or set a new one and return it
    */
-  static async getId(): Promise<string> {
+  static getId(): string {
     const currentVisitorId = VisitorDataManager.#visitorId
     if (currentVisitorId.id) return currentVisitorId.id
 

@@ -1,7 +1,7 @@
 import { applyFixups, JSONWithRegex } from './utils'
 
 describe('JSONWithRegex', () => {
-  it('works', async () => {
+  it('works', () => {
     const regexCookie = 'deadbeef'
     const jsonWithRegex = new JSONWithRegex(regexCookie)
     const serialized = jsonWithRegex.stringify({
@@ -44,27 +44,27 @@ describe('JSONWithRegex', () => {
 })
 
 describe('applyFixups', () => {
-  it('works with a fixup in the middle', async () => {
+  it('works with a fixup in the middle', () => {
     const src = 'foobaz'
     const fixups = { 3: 'bar' }
     expect(applyFixups(src, fixups)).toMatchInlineSnapshot(`"foobarbaz"`)
   })
-  it('works with a fixup at the beginning', async () => {
+  it('works with a fixup at the beginning', () => {
     const src = 'barbaz'
     const fixups = { 0: 'foo' }
     expect(applyFixups(src, fixups)).toMatchInlineSnapshot(`"foobarbaz"`)
   })
-  it('works with a fixup at the end', async () => {
+  it('works with a fixup at the end', () => {
     const src = 'foobar'
     const fixups = { 6: 'baz' }
     expect(applyFixups(src, fixups)).toMatchInlineSnapshot(`"foobarbaz"`)
   })
-  it('works with multiple fixups', async () => {
+  it('works with multiple fixups', () => {
     const src = 'bar'
     const fixups = { 0: 'foo', 3: 'baz' }
     expect(applyFixups(src, fixups)).toMatchInlineSnapshot(`"foobarbaz"`)
   })
-  it('fails with out-of-range fixups', async () => {
+  it('fails with out-of-range fixups', () => {
     const src = 'bar'
     const fixups = { 0: 'foo', 4: 'baz' }
     expect(() => applyFixups(src, fixups)).toThrowErrorMatchingInlineSnapshot(

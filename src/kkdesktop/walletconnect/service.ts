@@ -134,8 +134,9 @@ export class WCService {
       const signedData = await this.wallet.ethSignTx?.(sendData)
 
       const chainWeb3 = web3ByChainId(this.connector.chainId) as any
-      await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
-      const txid = await chainWeb3.utils.sha3(signedData?.serialized)
+      await chainWeb3.web3.eth.sendSignedTransaction(signedData?.serialized)
+      const txid = await chainWeb3.web3.utils.sha3(signedData?.serialized)
+
       this.connector.approveRequest({ id: request.id, result: txid })
     } else if (request.method === 'eth_signTransaction') {
       const response = await this.wallet.ethSignTx({

@@ -30,6 +30,7 @@ export const WipeModal = () => {
   const translate = useTranslate()
   const {
     keepKeyWipe: { close, isOpen },
+    hardwareError,
   } = useModal()
   const {
     state: {
@@ -56,6 +57,7 @@ export const WipeModal = () => {
     moduleLogger.trace({ fn: 'wipeDevice' }, 'Wiping KeepKey...')
     try {
       await keepKeyWallet?.wipe()
+      hardwareError.open({})
       disconnect()
       onClose()
     } catch (e) {

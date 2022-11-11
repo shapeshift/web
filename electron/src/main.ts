@@ -54,7 +54,4 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('keepkey')
 }
 
-// send a plugin event if its not being unplugged
-if (kkStateController.lastState !== 'DISCONNECTED') queueIpcEvent(PLUGIN, {})
-
 watchForDeviceBusy()

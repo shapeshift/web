@@ -92,12 +92,11 @@ export const startIpcListeners = () => {
     ipcMain.on('renderListenersReady', async () => {
         log.info('renderListenersReady')
         setRenderListenersReady(true)
-        const newQueue = [...ipcQueue]
-        newQueue.forEach((item, idx) => {
+        ipcQueue.forEach((item) => {
             log.info('ipc event called from queue', item)
             if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send(item.eventName, item.args)
-            ipcQueue.splice(idx, 1);
         })
+        ipcQueue.length = 0
     })
 
     // send paired apps when requested

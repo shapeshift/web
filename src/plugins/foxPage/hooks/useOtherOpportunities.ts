@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   foxEthLpAssetId,

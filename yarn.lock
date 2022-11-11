@@ -4010,10 +4010,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.4.4":
-  version "8.4.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.4.tgz#5e119ed745daa78bc3848de034591031ad13869c"
-  integrity sha512-XWo9HrmMfEesw7I+VE0G/K53E6NKB299dQK5GN1ETiwsZRMSL1+ssWxg9O+KIarnVqDUkSBa5c4vzEKGQbXzhw==
+"@shapeshiftoss/caip@^8.4.5":
+  version "8.4.5"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.4.5.tgz#202afd70b3d3727eaf268bef58070f49b83084a9"
+  integrity sha512-PG2jR+l2cH2Zz2C/XSr5W0KKHAZiTddHqB6MOugEWSVALnXv1hDzL7Bq77f0g9BMHC3UJzMmn0uUx44znZzpug==
 
 "@shapeshiftoss/chain-adapters@^10.2.1":
   version "10.2.1"
@@ -11290,7 +11290,7 @@ eslint-plugin-flowtype@^8.0.3:
     lodash "^4.17.21"
     string-natural-compare "^3.0.1"
 
-eslint-plugin-import@^2.25.3, eslint-plugin-import@^2.25.4:
+eslint-plugin-import@^2.25.3, eslint-plugin-import@^2.25.4, eslint-plugin-import@^2.26.0:
   version "2.26.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.26.0.tgz#f812dc47be4f2b72b478a021605a59fc6fe8b88b"
   integrity sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==

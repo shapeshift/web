@@ -7,10 +7,10 @@ import { SEO } from 'components/Layout/Seo'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

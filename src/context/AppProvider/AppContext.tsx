@@ -204,7 +204,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
-      await fetchAllOpportunitiesMetadata().catch(e => moduleLogger.error(e))
+      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -215,7 +215,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId).catch(e => moduleLogger.error(e))
+            fetchAllOpportunitiesUserData(accountId)
 
             /**
              * fetch all rebase history for foxy

@@ -16,6 +16,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
@@ -25,7 +26,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { foxEthLpAssetId, foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
@@ -101,7 +101,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
   }, [foxEthLpOpportunity])
 
-  if (loading || !foxEthLpAsset || !marketData) {
+  if (loading || !foxEthLpAsset || !marketData || !foxEthLpOpportunity) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -113,7 +113,9 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     <DepositContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: foxEthLpOpportunityName })}
+          title={translate('modals.deposit.depositInto', {
+            opportunity: foxEthLpOpportunity.opportunityName!,
+          })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

@@ -1,5 +1,6 @@
+import { MaxUint256 } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   ethereum,
@@ -19,16 +20,14 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import {
+  foxEthLpAssetId,
+  uniswapV2Router02AssetId,
+} from 'state/slices/opportunitiesSlice/constants'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import IUniswapV2Router02ABI from '../../fox-eth-lp/abis/IUniswapV2Router02.json'
-import {
-  foxEthLpAssetId,
-  MAX_ALLOWANCE,
-  UNISWAP_V2_ROUTER_ADDRESS,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from '../../fox-eth-lp/constants'
 import farmAbi from '../abis/farmingAbi.json'
 const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
@@ -64,7 +63,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       skip
         ? null
         : new Contract(
-            UNISWAP_V2_ROUTER_ADDRESS,
+            uniswapV2Router02AssetId,
             IUniswapV2Router02ABI.abi,
             maybeEthersProvider(skip)!,
           ),
@@ -79,7 +78,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const uniV2LPContract = useMemo(
     () =>
       new Contract(
-        UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+        fromAssetId(foxEthLpAssetId).assetReference,
         IUniswapV2Pair.abi,
         maybeEthersProvider(skip)!,
       ),
@@ -287,7 +286,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
     if (adapter && farmingAccountId && uniV2LPContract) {
       const data = uniV2LPContract.interface.encodeFunctionData('approve', [
         contractAddress,
-        MAX_ALLOWANCE,
+        MaxUint256,
       ])
       const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: uniV2LPContract.address,
@@ -362,7 +361,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
     if (!wallet || !isNumber(accountNumber) || !uniV2LPContract) return
     const data = uniV2LPContract.interface.encodeFunctionData('approve', [
       contractAddress,
-      MAX_ALLOWANCE,
+      MaxUint256,
     ])
     const gasData = await getApproveGasData()
     if (!gasData) return

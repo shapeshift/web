@@ -1,13 +1,14 @@
 import { Contract } from '@ethersproject/contracts'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider, makeTotalLpApr, rewardRatePerToken } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 
 import { getLpTokenPrice } from '../fox-eth-lp/api'
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from '../fox-eth-lp/constants'
 import farmAbi from './abis/farmingAbi.json'
 
 export const getOpportunityData = async ({
@@ -30,7 +31,7 @@ export const getOpportunityData = async ({
   const ethersProvider = getEthersProvider()
   const foxFarmingContract = new Contract(contractAddress, farmAbi, ethersProvider)
   const uniV2LPContract = new Contract(
-    UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+    fromAssetId(uniswapV2Router02AssetId).assetReference,
     IUniswapV2Pair.abi,
     ethersProvider,
   )

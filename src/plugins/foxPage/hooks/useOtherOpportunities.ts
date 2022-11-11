@@ -1,15 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  foxEthLpAssetId,
-  foxEthLpOpportunityName,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectHighestBalanceAccountIdByLpId,
@@ -84,7 +79,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               type: DefiType.LiquidityPool,
-              title: foxEthLpOpportunityName,
+              title: defaultLpOpportunityData?.name!,
               isLoaded: Boolean(defaultLpOpportunityData),
               apy: defaultLpOpportunityData?.apy,
               icons: [
@@ -92,7 +87,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
-              opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+              opportunityContractAddress: fromAssetId(foxEthLpAssetId).assetReference,
               highestBalanceAccountAddress: highestBalanceLpAccountId
                 ? fromAccountId(highestBalanceLpAccountId).account
                 : undefined,

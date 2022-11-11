@@ -8,9 +8,8 @@ import {
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import qs from 'qs'
@@ -72,7 +71,7 @@ const FoxFarmCTA = () => {
         provider: DefiProvider.FoxFarming,
         chainId: ethChainId,
         contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-        assetReference: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+        assetReference: fromAssetId(foxEthLpAssetId).assetReference,
         rewardId: FOX_TOKEN_CONTRACT_ADDRESS,
         modal: 'overview',
       }),

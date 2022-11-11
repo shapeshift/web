@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.4...@shapeshiftoss/caip-v8.4.5) (2022-11-11)
+
+
+### Bug Fixes
+
+* add more coins to onramper mapping ([#1085](https://github.com/shapeshift/lib/issues/1085)) ([60db022](https://github.com/shapeshift/lib/commit/60db022ba2b8d3d2eb103607626f776e15a7e406))
+
 # [@shapeshiftoss/caip-v8.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.3...@shapeshiftoss/caip-v8.4.4) (2022-10-24)
 
 # [@shapeshiftoss/caip-v8.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.2...@shapeshiftoss/caip-v8.4.3) (2022-10-24)

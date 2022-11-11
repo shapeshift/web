@@ -14,7 +14,6 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -30,7 +29,7 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onBack: () => void
 }
 

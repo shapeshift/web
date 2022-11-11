@@ -27,7 +27,6 @@ import {
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -35,7 +34,7 @@ import { WithdrawContext } from '../WithdrawContext'
 const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 

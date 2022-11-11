@@ -29,7 +29,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -38,7 +37,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
+export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   onNext,
   accountId,
 }) => {

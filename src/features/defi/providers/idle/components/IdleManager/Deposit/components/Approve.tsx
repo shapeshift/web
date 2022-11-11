@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,21 +24,20 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type IdleApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
+type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
 export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -90,7 +89,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       opportunity,
       assetReference,
       idleInvestor,
-      asset?.precision,
+      asset.precision,
       toast,
       translate,
     ],
@@ -112,7 +111,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
 
     try {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })

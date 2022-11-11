@@ -26,14 +26,13 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
-type ApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
+type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { foxy: api } = useFoxy()

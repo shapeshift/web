@@ -43,7 +43,12 @@ export const UnderlyingAssetsTags = ({
 }: UnderlyingAssetsTagsProps) => (
   <>
     {underlyingAssets.map(asset => (
-      <UnderlyingAssetTag asset={asset} children={children} showPercentage={showPercentage} />
+      <UnderlyingAssetTag
+        key={asset.assetId}
+        asset={asset}
+        children={children}
+        showPercentage={showPercentage}
+      />
     ))}
   </>
 )

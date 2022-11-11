@@ -57,10 +57,10 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const farmContractsFiatBalance = useMemo(
     () =>
-      bnOrZero(farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision)
+      bnOrZero(farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision)
         .times(lpAssetMarketData.price)
         .toString(),
-    [farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision, lpAssetMarketData.price],
+    [farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision, lpAssetMarketData.price],
   )
 
   const lpAssetBalanceFilter = useMemo(
@@ -88,7 +88,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
     .plus(farmContractsFiatBalance)
-    .plus(foxEthLpFiatBalance)
+    .plus(foxEthLpFiatBalance ?? 0)
     .toString()
 
   return {

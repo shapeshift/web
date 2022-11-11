@@ -30,8 +30,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }),
   )
 
-  const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
-  const stakingOpportunitiesById = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
     () => lpOpportunitiesById[foxEthLpAssetId as LpId],
@@ -66,7 +66,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 ? bnOrZero(defaultStakingOpportunityData?.apy)
                     .plus(defaultLpOpportunityData?.apy ?? 0)
                     .toString()
-                : null,
+                : undefined,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',
@@ -87,7 +87,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               type: DefiProvider.FoxEthLP,
               title: foxEthLpOpportunityName,
               isLoaded: Boolean(defaultLpOpportunityData),
-              apy: defaultLpOpportunityData?.apy ?? null,
+              apy: defaultLpOpportunityData?.apy,
               icons: [
                 'https://assets.coincap.io/assets/icons/eth@2x.png',
                 'https://assets.coincap.io/assets/icons/256/fox.png',
@@ -96,7 +96,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
               opportunityContractAddress: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
               highestBalanceAccountAddress: highestBalanceLpAccountId
                 ? fromAccountId(highestBalanceLpAccountId).account
-                : '',
+                : undefined,
             },
           ],
         },

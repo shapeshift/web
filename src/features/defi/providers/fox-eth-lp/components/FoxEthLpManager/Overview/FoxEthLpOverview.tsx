@@ -18,10 +18,9 @@ import {
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type FoxEthLpOverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -37,7 +36,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   )
 
   const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
-  const opportunityId = foxEthLpAssetId
+  const opportunityId = foxEthLpAssetId as LpId
 
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ lpId: opportunityId as LpId }),
@@ -46,13 +45,10 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
-
   const opportunityMetadata = useMemo(
     () => lpOpportunitiesById[opportunityId as LpId],
     [lpOpportunitiesById, opportunityId],
   )
-
-  console.log({ opportunityMetadata })
 
   const lpAsset = useMemo(
     () => assets[opportunityMetadata?.underlyingAssetId ?? ''],
@@ -61,7 +57,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId ?? '',
+      assetId: opportunityId.toString() ?? '',
       accountId: accountId ?? '',
       lpId: opportunityId as LpId,
     }),
@@ -78,7 +74,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId ?? '',
+      assetId: opportunityId.toString() ?? '',
       accountId: accountId ?? '',
     }),
     [accountId, opportunityId],

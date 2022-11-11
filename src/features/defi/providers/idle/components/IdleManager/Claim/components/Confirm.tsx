@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +28,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -36,12 +35,12 @@ import { ClaimableAsset } from './ClaimableAsset'
 
 const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
-  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
@@ -93,7 +92,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
       }
     })()
-  }, [state.userAddress, dispatch, idleInvestor, assetId])
+  }, [state.userAddress, dispatch, assetId, idleInvestor])
 
   const claimableTokensTotalBalance = useMemo(() => {
     if (!state.claimableTokens) return bnOrZero(0)
@@ -141,7 +140,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       )
         return
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
       const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })

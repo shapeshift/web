@@ -25,14 +25,13 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
-type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)

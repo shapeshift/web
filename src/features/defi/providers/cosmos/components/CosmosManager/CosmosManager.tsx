@@ -8,7 +8,6 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { Nullable } from 'types/common'
 
 import { CosmosClaim } from './Claim/CosmosClaim'
 import { CosmosDeposit } from './Deposit/CosmosDeposit'
@@ -19,7 +18,7 @@ import { CosmosWithdraw } from './Withdraw/CosmosWithdraw'
 export const CosmosManager = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [accountId, setAccountId] = useState<AccountId | undefined>()
 
   const handleCancel = () => {
     browserHistory.goBack()

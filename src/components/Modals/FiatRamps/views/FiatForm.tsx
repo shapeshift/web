@@ -8,7 +8,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
-import type { Nullable } from 'types/common'
 
 import type { FiatRampAction } from '../FiatRampsCommon'
 import type { AddressesByAccountId } from './Manager'
@@ -31,7 +30,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [accountId, setAccountId] = useState<AccountId | undefined>()
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>({})
 
   const {

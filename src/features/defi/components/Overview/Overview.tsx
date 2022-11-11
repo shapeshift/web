@@ -19,7 +19,6 @@ import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTea
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import type { Nullable } from 'types/common'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
@@ -34,7 +33,7 @@ export type AssetWithBalance = {
 } & Asset
 
 type OverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange?: (accountId: AccountId) => void
   // The LP asset this opportunity represents
   lpAsset?: AssetWithBalance

@@ -1,5 +1,4 @@
-import { Button, Stack } from '@chakra-ui/react'
-import { Box, Flex, Heading } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
@@ -96,6 +95,7 @@ export const Buy = () => {
                 fontSize={{ base: '4xl', xl: '6xl' }}
                 lineHeight='1em'
                 letterSpacing='-0.05em'
+                color='whiteAlpha.900'
               >
                 {translate('buyPage.title.first')}{' '}
                 <Text
@@ -105,7 +105,7 @@ export const Buy = () => {
                   translation='buyPage.title.second'
                 />
               </Heading>
-              <Text fontSize='lg' translation='buyPage.body' />
+              <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
               <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>

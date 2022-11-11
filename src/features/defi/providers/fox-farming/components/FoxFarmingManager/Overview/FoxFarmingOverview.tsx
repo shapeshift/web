@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
@@ -26,18 +25,16 @@ import {
   selectAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
-  selectSelectedLocale,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type FoxFarmingOverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -129,12 +126,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountCryptoPrecision)
   const hasClaim = rewardAmountAvailable.gt(0)
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({
-    assetId: opportunityData?.underlyingAssetId ?? '',
-    selectedLocale,
-  })
-
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (
       <DefiModalContent>
@@ -206,11 +197,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
               },
             ]
       }
-      description={{
-        description: stakingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: stakingAsset.isTrustedDescription,
-      }}
       tvl={opportunityData.tvl}
       apy={opportunityData.apy}
       expired={opportunityData.expired}

@@ -29,11 +29,14 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
-export type UserEarnOpportunityType = OpportunityMetadata & {
+export type FoxFarmingEarnOpportunityType = OpportunityMetadata & {
+  /**
+   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
+   */
+  unclaimedRewards?: string
   stakedAmountCryptoPrecision?: string
   rewardsAmountCryptoPrecision?: string
   underlyingToken0Amount?: string
@@ -45,17 +48,17 @@ type FoxEthProviderProps = {
 }
 
 type IFoxEthContext = {
-  farmingAccountId: Nullable<AccountId>
+  farmingAccountId: AccountId | undefined
   setFarmingAccountId: (accountId: AccountId) => void
-  lpAccountId: Nullable<AccountId>
+  lpAccountId: AccountId | undefined
   setLpAccountId: (accountId: AccountId) => void
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
   onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
-  lpAccountId: null,
-  farmingAccountId: null,
+  lpAccountId: undefined,
+  farmingAccountId: undefined,
   setLpAccountId: _accountId => {},
   setFarmingAccountId: _accountId => {},
   onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
@@ -75,8 +78,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
-  const [farmingAccountId, setFarmingAccountId] = useState<Nullable<AccountId>>(null)
-  const [lpAccountId, setLpAccountId] = useState<Nullable<AccountId>>(null)
+  const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
+  const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(() => ({ assetId: ethAssetId }), [])
 

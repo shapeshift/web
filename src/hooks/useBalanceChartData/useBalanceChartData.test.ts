@@ -7,7 +7,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 import type { Bucket } from './useBalanceChartData'
 import {

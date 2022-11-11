@@ -38,12 +38,12 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
-              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,
                 string,
@@ -63,11 +63,11 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
-              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,
@@ -86,11 +86,11 @@ describe('opportunitiesSlice', () => {
             [mockLpContractTwo]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
-              underlyingAssetId: foxEthLpAssetId,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
               underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
                 string,

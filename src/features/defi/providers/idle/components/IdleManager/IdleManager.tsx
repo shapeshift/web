@@ -8,7 +8,6 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { Nullable } from 'types/common'
 
 import { IdleClaim } from './Claim/IdleClaim'
 import { IdleDeposit } from './Deposit/IdleDeposit'
@@ -16,7 +15,7 @@ import { IdleOverview } from './Overview/IdleOverview'
 import { IdleWithdraw } from './Withdraw/IdleWithdraw'
 
 export const IdleManager = () => {
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [accountId, setAccountId] = useState<AccountId | undefined>()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
 

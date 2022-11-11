@@ -34,6 +34,7 @@ import last from 'lodash/last'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import type {
@@ -126,8 +127,9 @@ export const accountIdToUtxoParams = (accountId: AccountId, accountIndex: number
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],
-  assetId: AssetId,
+  assetId?: AssetId,
 ): AccountId[] => {
+  if (!assetId) return []
   const result = Object.entries(portfolioAccounts).reduce<AccountId[]>(
     (acc, [accountId, account]) => {
       if (account.assetIds.includes(assetId)) acc.push(accountId)
@@ -246,7 +248,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
                 .map(undelegation => {
                   return undelegation?.validator?.address
                 })
-                .filter(Boolean),
+                .filter(isSome),
               cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
             ].flat(),
           ),

@@ -1,10 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useDefiOpportunity } from 'plugins/foxPage/hooks/useDefiOpportunity'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -14,6 +15,12 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import type { ExternalOpportunity } from '../../FoxCommon'
 
@@ -28,14 +35,35 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     state: { isDemoWallet, wallet },
     dispatch,
   } = useWallet()
+  const opportunityId = useMemo(
+    () =>
+      opportunity.opportunityContractAddress &&
+      (toAssetId({
+        assetReference: opportunity.opportunityContractAddress,
+        assetNamespace: 'erc20',
+        chainId: ethChainId,
+      }) as LpId | StakingId),
+    [opportunity.opportunityContractAddress],
+  )
+
+  const earnOpportunity = useAppSelector(state =>
+    opportunity.type === DefiType.LiquidityPool
+      ? selectAggregatedEarnUserLpOpportunity(state, {
+          assetId: opportunityId as AssetId | undefined,
+          lpId: opportunityId as LpId | undefined,
+        })
+      : selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
+          stakingId: opportunityId as StakingId,
+        }),
+  )
+
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
-  const { defiOpportunity } = useDefiOpportunity(opportunity)
-  const hasActivePosition = bnOrZero(defiOpportunity?.fiatAmount).gt(0) ?? false
+  const hasActivePosition = bnOrZero(earnOpportunity?.cryptoAmount).gt(0) ?? false
   const history = useHistory()
   const location = useLocation()
   const wrapperLinkProps = useMemo(
-    () => (defiOpportunity ? {} : { as: Link, isExternal: true, href: opportunity.link }),
-    [defiOpportunity, opportunity.link],
+    () => (earnOpportunity ? {} : { as: Link, isExternal: true, href: opportunity.link }),
+    [earnOpportunity, opportunity.link],
   )
 
   const handleClick = useCallback(() => {
@@ -49,17 +77,18 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       return
     }
 
-    if (defiOpportunity) {
-      const { chainId, contractAddress, assetId, rewardAddress } = defiOpportunity
-      const { assetReference } = fromAssetId(assetId)
+    if (earnOpportunity) {
+      const { chainId, contractAddress, rewardAddress } = earnOpportunity
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
           // TODO: This should be done in the source of truth?
-          provider: defiOpportunity.type === 'lp' ? DefiProvider.FoxEthLP : DefiProvider.FoxFarming,
+          provider: earnOpportunity.type === 'lp' ? DefiProvider.FoxEthLP : DefiProvider.FoxFarming,
           chainId,
           contractAddress,
-          assetReference,
+          assetReference: earnOpportunity.underlyingAssetId
+            ? fromAssetId(earnOpportunity.underlyingAssetId).assetReference
+            : undefined,
           highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,
           modal: 'overview',
@@ -71,7 +100,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   }, [
     opportunity.highestBalanceAccountAddress,
     isDemoWallet,
-    defiOpportunity,
+    earnOpportunity,
     dispatch,
     history,
     location,
@@ -87,8 +116,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   }, [isDemoWallet, opportunity.link, hasActivePosition, wallet])
 
   const isOpportunityButtonReady = useMemo(
-    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || defiOpportunity?.isLoaded),
-    [isDemoWallet, wallet, defiOpportunity],
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || earnOpportunity),
+    [isDemoWallet, wallet, earnOpportunity],
   )
 
   return (
@@ -117,10 +146,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           {opportunity.title}
         </CText>
       </Flex>
-      <Skeleton
-        isLoaded={opportunity.isLoaded ? true : false}
-        textAlign={{ base: 'right', md: 'center' }}
-      >
+      <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={{ base: 'right', md: 'center' }}>
         <Box>
           <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
           <Box
@@ -135,7 +161,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       </Skeleton>
       <Box alignSelf='center' display={{ base: 'none', md: 'block' }}>
         <Skeleton isLoaded={isOpportunityButtonReady} textAlign='center'>
-          {defiOpportunity ? (
+          {earnOpportunity ? (
             <Button colorScheme='blue' onClick={handleClick}>
               <Text translation={opportunityButtonTranslation} />
             </Button>

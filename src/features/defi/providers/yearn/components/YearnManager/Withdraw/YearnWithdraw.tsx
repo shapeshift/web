@@ -29,7 +29,6 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -44,7 +43,7 @@ const moduleLogger = logger.child({
 
 export const YearnWithdraw: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { yearn: api } = useYearn()
   const [state, dispatch] = useReducer(reducer, initialState)

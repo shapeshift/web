@@ -42,7 +42,7 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
+  onSubmit: (action: FiatRampAction, asset: AssetId, address: string, language: string) => void
   minimumSellThreshold?: number
 }
 
@@ -88,13 +88,14 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: (action, assetId, address, language = 'en') => {
       try {
         const onRamperCheckoutUrl = createOnRamperUrl(
           action,
           assetId,
           address,
           window.location.href,
+          language,
         )
         window.open(onRamperCheckoutUrl, '_blank')?.focus()
       } catch (err) {
@@ -163,9 +164,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId) => {
+    onSubmit: (action, assetId, address, language = 'en') => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId, address, language)
         window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')

@@ -35,6 +35,7 @@ import {
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
+  selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,6 +66,7 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -155,14 +157,23 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress)}
+            onClick={() => ramp.onSubmit(fiatRampAction, assetId, passedAddress, selectedLocale)}
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
           />
         )
       })
-  }, [accountFiatBalance, address, assetId, fiatRampAction, isDemoWallet, isRampsLoading, ramps])
+  }, [
+    accountFiatBalance,
+    address,
+    assetId,
+    fiatRampAction,
+    isDemoWallet,
+    isRampsLoading,
+    ramps,
+    selectedLocale,
+  ])
 
   const inputValue = useMemo(() => {
     if (vanityAddress) return vanityAddress

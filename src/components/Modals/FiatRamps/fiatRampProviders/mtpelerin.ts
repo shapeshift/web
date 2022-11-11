@@ -36,7 +36,12 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
   ).filter(isSome)
 }
 
-export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): string => {
+export const createMtPelerinUrl = (
+  action: FiatRampAction,
+  assetId: AssetId,
+  _address: string,
+  language: string,
+): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
   /**
@@ -79,6 +84,7 @@ export const createMtPelerinUrl = (action: FiatRampAction, assetId: AssetId): st
   //https://developers.mtpelerin.com/integration-guides/options
   // params.set('addr', address)
   // params.set('code', code)
+  params.set('lang', language)
 
   return `${baseUrl.toString()}?${params.toString()}`
 }

@@ -65,6 +65,7 @@ export const createOnRamperUrl = (
   assetId: AssetId,
   address: string,
   currentUrl: string,
+  language: string,
 ): string => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
   if (!onRamperSymbols) throw new Error('Asset not supported by OnRamper')
@@ -89,6 +90,7 @@ export const createOnRamperUrl = (
     params.set('supportSell', 'false')
     params.set('isAddressEditable', 'false')
   }
+  params.set('language', language)
 
   params.set('darkMode', 'true')
   params.set('redirectURL', currentUrl)

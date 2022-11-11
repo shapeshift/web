@@ -28,7 +28,6 @@ export class WCService {
   disconnect = async () => {
     await this.connector.killSession()
     this.connector.off('session_request')
-    this.connector.off('session_update')
     this.connector.off('connect')
     this.connector.off('call_request')
     this.connector.off('wallet_switchEthereumChain')

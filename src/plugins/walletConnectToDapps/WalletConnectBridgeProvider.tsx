@@ -65,10 +65,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   useEffect(() => {
-    // TODO figure out why this is being called twice
     connect()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [connect])
 
   const dapp = bridge?.connector.peerMeta ?? undefined
 

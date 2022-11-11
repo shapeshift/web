@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron"
-import { bridgeLogger, db, ipcQueue, kkStateController, setRenderListenersReady, windows } from "./globalState"
+import { bridgeLogger, db, ipcQueue, isWalletBridgeRunning, kkStateController, setRenderListenersReady, windows } from "./globalState"
 import isDev from 'electron-is-dev'
 import {
   downloadFirmware,
@@ -11,6 +11,7 @@ import { queueIpcEvent } from './helpers/utils'
 import log from 'electron-log'
 
 export const startIpcListeners = () => {
+    ipcMain.setMaxListeners(15)
     ipcMain.on('@app/get-asset-url', (event, data) => {
         const assetUrl = !isDev ? `file://${path.resolve(__dirname, "../../build/", data.assetPath)}` : data.assetPath
         event.sender.send(`@app/get-asset-url-${data.nonce}`, { nonce: data.nonce, assetUrl })
@@ -71,6 +72,11 @@ export const startIpcListeners = () => {
             })
         })
     })
+
+    ipcMain.on('@bridge/connected', (event, serviceKey) => {
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed())
+          windows.mainWindow.webContents.send('@bridge/connected', isWalletBridgeRunning())
+      })
 
     ipcMain.on("@bridge/service-name", (event, serviceKey) => {
         db.findOne({

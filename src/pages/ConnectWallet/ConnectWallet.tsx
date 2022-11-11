@@ -2,6 +2,7 @@ import { DarkMode } from '@chakra-ui/color-mode'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Link } from '@chakra-ui/layout'
 import { Button, Image } from '@chakra-ui/react'
+import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
@@ -32,6 +33,13 @@ export const ConnectWallet = () => {
       setInitialized(true)
     }
   }, [hardwareError, setInitialized, initialized])
+
+  useEffect(() => {
+    ipcRenderer.on('@bridge/connected', (_event, connected: boolean) => {
+      if (hardwareError.isOpen && connected) hardwareError.close()
+    })
+    ipcRenderer.send('@bridge/connected')
+  }, [hardwareError])
 
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.

@@ -2,6 +2,7 @@ import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-u
 import type { ethereum } from '@keepkey/chain-adapters'
 import { FeeDataKey } from '@keepkey/chain-adapters'
 import { KnownChainIds } from '@keepkey/types'
+import axios from 'axios'
 import type { WalletConnectEthSendTransactionCallRequest } from 'kkdesktop/walletconnect/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
@@ -17,7 +18,7 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
 import { AddressSummaryCard } from './AddressSummaryCard'
@@ -48,8 +49,8 @@ type Props = {
 export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onReject }) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
-
   const { state: walletState } = useWallet()
+
   const adapterManager = useMemo(() => getChainAdapterManager(), [])
 
   const form = useForm<any>({
@@ -63,9 +64,11 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   })
 
   const [gasFeeData, setGasFeeData] = useState(undefined as any)
+  const [priceData, setPriceData] = useState(bn(0))
 
   const [web3GasFeeData, setweb3GasFeeData] = useState('0')
-  const [chainWeb3, setChainWeb3] = useState()
+  const [chainWeb3, setChainWeb3] =
+    useState<{ web3: Web3; symbol: string; name: string; coinGeckoId: string }>()
 
   // determine which gasLimit to use: user input > from the request > or estimate
   const requestGas = parseInt(request.gas ?? '0x0', 16).toString(10)
@@ -81,7 +84,6 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
 
   useEffect(() => {
     const adapterManager = getChainAdapterManager()
-
     const adapter = adapterManager.get(
       KnownChainIds.EthereumMainnet,
     ) as unknown as ethereum.ChainAdapter
@@ -96,10 +98,24 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
     })
 
     // for non mainnet chains we use the simple web3.getGasPrice()
-    const chainWeb3 = web3ByChainId(walletConnect.bridge?.connector.chainId ?? 1) as any
-    chainWeb3.eth.getGasPrice().then((p: any) => setweb3GasFeeData(p))
+    const chainWeb3 = web3ByChainId(137) as any
+    chainWeb3.web3.eth.getGasPrice().then((p: any) => setweb3GasFeeData(p))
     setChainWeb3(chainWeb3)
   }, [form, txInputGas, walletConnect.bridge?.connector.chainId])
+
+  useEffect(() => {
+    ;(async () => {
+      if (chainWeb3?.coinGeckoId)
+        try {
+          const { data } = await axios.get(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${chainWeb3.coinGeckoId}&vs_currencies=usd`,
+          )
+          setPriceData(bnOrZero(data?.[chainWeb3.coinGeckoId]?.usd))
+        } catch (e) {
+          throw new Error('Failed to get price data')
+        }
+    })()
+  }, [chainWeb3])
 
   // determine which gas fees to use: user input > from the request > Fast
   const requestMaxPriorityFeePerGas = request.maxPriorityFeePerGas
@@ -146,7 +162,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
   const [trueNonce, setTrueNonce] = useState('0')
   useEffect(() => {
     ;(async () => {
-      const count = await (chainWeb3 as any)?.eth?.getTransactionCount(address)
+      const count = await (chainWeb3 as any)?.web3.eth?.getTransactionCount(address)
       setTrueNonce(`${count}`)
     })()
   }, [adapterManager, address, chainWeb3, walletState.wallet])
@@ -156,7 +172,7 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
 
   useEffect(() => {
     try {
-      ;(chainWeb3 as any).eth
+      ;(chainWeb3 as any).web3.eth
         .estimateGas({
           from: walletConnect.bridge?.connector.accounts[0],
           nonce: txInputNonce,
@@ -250,7 +266,9 @@ export const SendTransactionConfirmation: FC<Props> = ({ request, onConfirm, onR
           title={
             <HStack justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-              <GasFeeEstimateLabel />
+              {chainWeb3?.symbol && (
+                <GasFeeEstimateLabel symbol={chainWeb3.symbol} fiatRate={priceData} />
+              )}
             </HStack>
           }
           icon={<FaGasPump />}

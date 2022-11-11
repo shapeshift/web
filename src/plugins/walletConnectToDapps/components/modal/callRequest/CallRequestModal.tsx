@@ -76,13 +76,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
           <HStack alignItems='center' spacing={2}>
             <WalletConnectIcon />
             <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <Text
-              rounded='lg'
-              fontSize='sm'
-              px='2'
-              bgColor='purple.600'
-              translation='plugins.walletConnectToDapps.modal.ethereum'
-            />
+            <Text rounded='lg' fontSize='sm' px='2' bgColor='purple.600' translation='ethereum' />
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>

@@ -153,7 +153,7 @@ export class WCService {
 
         const signedData = await this.wallet.ethSignTx?.(sendData)
 
-        const chainWeb3 = web3ByChainId(this.connector.chainId) as any
+        const { web3: chainWeb3 } = web3ByChainId(this.connector.chainId) as any
         await chainWeb3.eth.sendSignedTransaction(signedData?.serialized)
         result = await chainWeb3.utils.sha3(signedData?.serialized)
         break

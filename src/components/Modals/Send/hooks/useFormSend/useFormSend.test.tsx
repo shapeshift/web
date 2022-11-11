@@ -190,7 +190,7 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => Promise.resolve({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))

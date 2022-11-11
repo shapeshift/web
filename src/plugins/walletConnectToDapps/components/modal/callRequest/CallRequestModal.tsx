@@ -37,8 +37,11 @@ export const CallRequestModal = () => {
             <ModalCloseButton position='static' />
           </HStack>
         </ModalHeader>
-        ({currentRequest.method === 'personal_sign'} && <SignMessageConfirmation />) (
-        {currentRequest.method === 'eth_sendTransaction'} && <SendTransactionConfirmation />)
+        {currentRequest.method === 'personal_sign' ? (
+          <SignMessageConfirmation />
+        ) : (
+          <SendTransactionConfirmation />
+        )}
       </ModalContent>
     </Modal>
   )

@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 
 type ContractABIContextValue = {
   contracts: Record<string, ethers.utils.Interface | null>
-  loadContract(address: string, chainId: number): Promise<ethers.utils.Interface>
+  loadContract(address: string): Promise<ethers.utils.Interface>
 }
 
 const ContractABIContext = createContext<ContractABIContextValue>({
@@ -40,10 +40,10 @@ export const ContractABIProvider: FC<PropsWithChildren> = ({ children }) => {
   )
 }
 
-export function useContract(
-  address: string,
-  chainId: number,
-): { contract: ethers.utils.Interface | null; loading: boolean } {
+export function useContract(address: string): {
+  contract: ethers.utils.Interface | null
+  loading: boolean
+} {
   const { contracts, loadContract } = useContext(ContractABIContext)
   const [loading, setLoading] = useState(false)
   const contract = contracts[address]
@@ -51,8 +51,8 @@ export function useContract(
   useEffect(() => {
     if (!loaded) {
       setLoading(true)
-      loadContract(address, chainId).finally(() => setLoading(false))
+      loadContract(address).finally(() => setLoading(false))
     }
-  }, [address, loaded, loadContract, chainId])
+  }, [address, loaded, loadContract])
   return { contract, loading }
 }

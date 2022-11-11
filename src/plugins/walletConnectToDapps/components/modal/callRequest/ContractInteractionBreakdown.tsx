@@ -13,14 +13,19 @@ import { ModalSection } from './ModalSection'
 export const ContractInteractionBreakdown = ({ request }: { request: any }) => {
   const translate = useTranslate()
 
-  const { contract } = useContract(request.to, request.chainId)
+  const { contract } = useContract(request.params[0].to)
+
   const transaction = useMemo(() => {
     try {
-      return contract?.parseTransaction({ data: request.data, value: request.value })
+      return contract?.parseTransaction({
+        data: request.params[0].data,
+        value: request.params[0].value,
+      })
     } catch (e) {
       return
     }
-  }, [contract, request.data, request.value])
+  }, [contract, request.params])
+
   if (!transaction) return null
   return (
     <ModalSection

@@ -14,7 +14,6 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { globalInit } from 'lib/globals'
 
 export const App = () => {
   const {
@@ -46,27 +45,21 @@ export const App = () => {
   }
 
   const [connected, setConnected] = useState<any>(null)
-  const [init, setInit] = useState<any>(null)
 
-  // // // open on app start unless already connected
+  // open hardwareError modal on app start unless already connected
   useEffect(() => {
     if (connected !== null) {
-      console.log('pre init', globalInit)
-      console.log('pre global connected', connected)
-      console.log('pre hardwareError.isOpen', hardwareError.isOpen)
       if (!hardwareError.isOpen && !connected) {
-        console.log('open')
         hardwareError.open({})
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected])
 
-  // get whether or not bridge is connected
+  // get whether or not bridge is connected for hardwareError modal
   useEffect(() => {
     if (connected === null) {
       ipcRenderer.on('@bridge/connected', (_event, _connected: boolean) => {
-        console.log('bridgeconnected', _connected)
         setConnected(_connected)
       })
       ipcRenderer.send('@bridge/connected')
@@ -80,12 +73,10 @@ export const App = () => {
     ipcRenderer.on('plugin', () => {
       loading.open({ closing: false })
       setConnected(true)
-      console.log('PLUGIN KLDSFJLSDKFJ')
       hardwareError.close()
     })
 
     ipcRenderer.on('connected', async (_event, _data) => {
-      console.log('connected')
       setConnected(true)
       hardwareError.close()
     })

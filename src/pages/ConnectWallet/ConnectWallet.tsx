@@ -2,8 +2,7 @@ import { DarkMode } from '@chakra-ui/color-mode'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Flex, Link } from '@chakra-ui/layout'
 import { Button, Image } from '@chakra-ui/react'
-import { ipcRenderer } from 'electron'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import logo from 'assets/kk-icon-gold.png'
@@ -11,10 +10,8 @@ import heroBgImage from 'assets/splash-bg.png'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { globalInit } from 'lib/globals'
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
@@ -23,8 +20,6 @@ export const ConnectWallet = () => {
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
-  const { hardwareError } = useModal()
-
 
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.

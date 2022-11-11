@@ -29,7 +29,6 @@ import { clearLocalWallet, setLocalWalletTypeAndDeviceId } from './local-wallet'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-import { HardwareErrorModal } from 'components/Modals/UpdateKeepKey/HardwareError/HardwareError'
 
 const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 

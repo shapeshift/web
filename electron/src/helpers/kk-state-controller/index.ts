@@ -4,7 +4,6 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
 import { usb } from 'usb';
-import { queueIpcEvent } from '../utils';
 
 // possible states
 export const UPDATE_BOOTLOADER = 'updateBootloader'

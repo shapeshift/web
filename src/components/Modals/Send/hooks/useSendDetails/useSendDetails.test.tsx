@@ -201,13 +201,13 @@ describe('useSendDetails', () => {
 
     // Set fiat amount
     await act(async () => {
-      result.current.handleInputChange('1')
+      await result.current.handleInputChange('1')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
 
       setValue.mockClear()
 
-      result.current.handleInputChange('0')
+      await result.current.handleInputChange('0')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
@@ -234,7 +234,7 @@ describe('useSendDetails', () => {
 
     // Set crypto amount
     await act(async () => {
-      result.current.handleInputChange('3500')
+      await result.current.handleInputChange('3500')
       jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
       setValue.mockClear()

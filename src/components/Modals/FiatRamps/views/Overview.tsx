@@ -167,6 +167,7 @@ export const Overview: React.FC<OverviewProps> = ({
                 options: {
                   language: selectedLocale,
                   mode: colorMode,
+                  currentUrl: window.location.href,
                 },
               })
             }

@@ -1,8 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
@@ -126,6 +123,7 @@ export const foxFarmingLpMetadataResolver = async ({
         provider: DefiProvider.FoxEthLP,
         tvl,
         type: DefiType.LiquidityPool,
+        underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
@@ -223,6 +221,7 @@ export const foxFarmingStakingMetadataResolver = async ({
         provider: DefiProvider.FoxEthLP,
         tvl,
         type: DefiType.Farming,
+        underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),

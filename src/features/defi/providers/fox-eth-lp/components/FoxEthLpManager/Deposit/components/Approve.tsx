@@ -109,14 +109,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-<<<<<<< HEAD
-      canCoverTxFees({
-        feeAsset,
-        estimatedGasCrypto: state?.approve.estimatedGasCrypto,
-        accountId,
-      }),
-    [feeAsset, state?.approve.estimatedGasCrypto],
-=======
       isSome(estimatedGasCrypto) &&
       isSome(accountId) &&
       canCoverTxFees({
@@ -125,7 +117,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         accountId,
       }),
     [estimatedGasCrypto, accountId, feeAsset],
->>>>>>> feat_hasEnoughBalanceForGas_accountId_granularity
   )
 
   const preFooter = useMemo(

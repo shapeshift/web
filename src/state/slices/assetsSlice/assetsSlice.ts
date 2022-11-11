@@ -90,8 +90,14 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       },
     }),
-    getAssetDescription: build.query<AssetsState, { assetId: AssetId; selectedLocale: string }>({
+    getAssetDescription: build.query<
+      AssetsState,
+      { assetId: AssetId | undefined; selectedLocale: string }
+    >({
       queryFn: async ({ assetId, selectedLocale }, { getState }) => {
+        if (!assetId) {
+          throw new Error('assetId not provided')
+        }
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState

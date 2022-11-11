@@ -23,7 +23,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
@@ -406,7 +406,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
+    const hasNoPriceHistoryData =
+      isEmpty(cryptoPriceHistoryData) || !cryptoPriceHistoryData || !fiatPriceHistoryData
     const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
     if (
       hasNoDeviceId ||

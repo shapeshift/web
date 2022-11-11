@@ -642,7 +642,6 @@
           "pin": "PIN adalah kombinasi hingga 9 nomor yang Anda pilih setelah menginisialisasi KeepKey Anda. PIN melindungi perangkat Anda dari penggunaan yang tidak sah jika KeepKey Anda jatuh ke tangan yang salah.",
           "passphrase": "Aktifkan kemampuan untuk memiliki banyak dompet, dapat diakses dengan menggunakan frasa sandi unik untuk setiap dompet.",
           "label": "Memberi label pada masing-masing perangkat memungkinkan Anda membedakan satu perangkat dengan perangkat lainnya dengan mudah.",
-          "timeout": "Perangkat Anda masuk ke mode tidur setelah 10 menit aktivitas secara default. Namun, Anda dapat mengubah ini.",
           "buttonPrompt": "Tekan dan tahan tombol di KeepKey Anda untuk mengubah perangkat %{setting}.",
           "updateSuccess": "%{setting} berhasil diperbarui!",
           "updateFailed": "Terjadi kesalahan saat memperbarui %{setting}.",

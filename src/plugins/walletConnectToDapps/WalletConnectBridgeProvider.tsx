@@ -119,19 +119,13 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     setBridge(existingBridge)
   }, [bridge, wallet, connectedEvmChainId, onCallRequest, rerender, disconnect])
 
-  // if connectedEvmChainId changes, update the walletconnect session
+  // if connectedEvmChainId or wallet changes, update the walletconnect session
   useEffect(() => {
-    if (connectedEvmChainId && bridge && dapp)
-      bridge.updateSession({ chainId: fromChainId(connectedEvmChainId).chainReference })
+    if (connectedEvmChainId && bridge && dapp && wallet && supportsETH(wallet))
+      bridge.updateSession({ chainId: fromChainId(connectedEvmChainId).chainReference, wallet })
+    // we want to only look for chainId or wallet changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedEvmChainId])
-
-  // TODO(Q): fix the race condition between the following two hooks
-  // if the wallet provider or connectedEvmChainId changes, disconnect the dapp
-  // useEffect(() => {
-  //   disconnect()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [wallet, connectedEvmChainId])
+  }, [connectedEvmChainId, wallet])
 
   useEffect(() => {
     tryConnectingToExistingSession()

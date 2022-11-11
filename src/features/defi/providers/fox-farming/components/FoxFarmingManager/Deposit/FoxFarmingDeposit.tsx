@@ -66,6 +66,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
   const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
+  // TODO: Use purpose-built earn selector
   const opportunity = useMemo(
     () =>
       stakingOpportunitiesById[
@@ -74,12 +75,13 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     [contractAddress, stakingOpportunitiesById],
   )
 
-  const foxFarmingOpportunity: EarnOpportunityType = useMemo(
-    () => ({
-      ...LP_EARN_OPPORTUNITIES[opportunity.assetId],
-      ...opportunity,
-      chainId: fromAssetId(opportunity.assetId).chainId,
-    }),
+  const foxFarmingOpportunity: EarnOpportunityType | undefined = useMemo(
+    () =>
+      opportunity && {
+        ...LP_EARN_OPPORTUNITIES[opportunity.assetId],
+        ...opportunity,
+        chainId: fromAssetId(opportunity.assetId).chainId,
+      },
     [opportunity],
   )
 
@@ -88,7 +90,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(farmingAccountId && contractAddress && opportunity)) return
+        if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
 
         dispatch({
           type: FoxFarmingDepositActionType.SET_USER_ADDRESS,

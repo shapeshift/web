@@ -27,7 +27,6 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import erc20abi from '../abis/erc20abi.json'
 import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
@@ -59,7 +58,7 @@ type UseFoxEthLiquidityPoolOptions = {
 }
 
 export const useFoxEthLiquidityPool = (
-  accountId: Nullable<AccountId>,
+  accountId: AccountId | undefined,
   { skip }: UseFoxEthLiquidityPoolOptions = {},
 ) => {
   const { supportedEvmChainIds } = useEvm()

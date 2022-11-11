@@ -82,13 +82,18 @@
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found"
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "buyPage": {
     "title": {
       "first": "Buy Crypto",
       "second": "in Seconds"
     },
     "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
-    "disclaimer": "*You can also sell crypto directly for cash into your bank account.", 
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",

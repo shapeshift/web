@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
+import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import {
@@ -36,6 +37,8 @@ export const initialState: OpportunitiesState = {
     ids: [],
   },
 }
+
+const moduleLogger = logger.child({ namespace: ['opportunitiesSlice'] })
 
 export const opportunities = createSlice({
   name: 'opportunitiesData',
@@ -81,19 +84,32 @@ export const opportunitiesApi = createApi({
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
-        const resolver = getMetadataResolversByDefiProviderAndDefiType(
-          DefiProvider.FoxFarming,
-          defiType,
-        )
-        const resolved = await resolver({
-          opportunityId,
-          opportunityType,
-          reduxApi: { dispatch, getState },
-        })
+        try {
+          const resolver = getMetadataResolversByDefiProviderAndDefiType(
+            DefiProvider.FoxFarming,
+            defiType,
+          )
+          const resolved = await resolver({
+            opportunityId,
+            opportunityType,
+            reduxApi: { dispatch, getState },
+          })
 
-        dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
+          dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
 
-        return { data: resolved.data }
+          return { data: resolved.data }
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
+
+          moduleLogger.debug(message)
+
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
       },
     }),
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
@@ -137,6 +153,8 @@ export const opportunitiesApi = createApi({
           return { data }
         } catch (e) {
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
+
+          moduleLogger.debug(message)
 
           return {
             error: {

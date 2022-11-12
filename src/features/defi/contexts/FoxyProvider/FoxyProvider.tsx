@@ -26,17 +26,15 @@ export const FoxyProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const chainAdapterManager = getChainAdapterManager()
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        setLoading(true)
-        const api = getFoxyApi()
-        setFoxy(api)
-      } catch (error) {
-        moduleLogger.error(error, 'FoxyManager: error')
-      } finally {
-        setLoading(false)
-      }
-    })()
+    try {
+      setLoading(true)
+      const api = getFoxyApi()
+      setFoxy(api)
+    } catch (error) {
+      moduleLogger.error(error, 'FoxyManager: error')
+    } finally {
+      setLoading(false)
+    }
   }, [chainAdapterManager])
 
   return <FoxyContext.Provider value={{ foxy, loading }}>{children}</FoxyContext.Provider>

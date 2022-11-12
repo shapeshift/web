@@ -131,7 +131,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, opts)),
+        )
         const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate
@@ -204,7 +207,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
-      await fetchAllOpportunitiesMetadata().catch(e => moduleLogger.error(e))
+      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -215,7 +218,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId).catch(e => moduleLogger.error(e))
+            fetchAllOpportunitiesUserData(accountId)
 
             /**
              * fetch all rebase history for foxy
@@ -285,7 +288,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const handleRetry = () => {
       handleAccountErrorToastClose()
       erroredAccountIds.forEach(accountId =>
-        dispatch(portfolioApi.endpoints.getAccount.initiate(accountId, { forceRefetch: true })),
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountId, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        ),
       )
     }
     const toastOptions = {

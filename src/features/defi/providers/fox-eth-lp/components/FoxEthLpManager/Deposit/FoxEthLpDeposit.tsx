@@ -24,7 +24,6 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
@@ -37,7 +36,7 @@ import { initialState, reducer } from './DepositReducer'
 
 type FoxEthLpDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 
 export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
@@ -87,7 +86,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

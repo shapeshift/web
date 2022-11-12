@@ -23,7 +23,6 @@ import {
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -39,7 +38,7 @@ const moduleLogger = logger.child({
 })
 
 type FoxFarmingWithdrawProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
@@ -65,20 +64,18 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(farmingAccountAddress && contractAddress && opportunity)) return
+    try {
+      if (!(farmingAccountAddress && contractAddress && opportunity)) return
 
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
-          payload: farmingAccountAddress,
-        })
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingWithdraw error')
-      }
-    })()
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
+        payload: farmingAccountAddress,
+      })
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'FoxFarmingWithdraw error')
+    }
   }, [farmingAccountAddress, translate, contractAddress, opportunity])
 
   const handleBack = () => {
@@ -114,7 +111,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
           },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

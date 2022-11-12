@@ -14,7 +14,7 @@ let service: AssetService | undefined = undefined
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = async () => {
+const getAssetService = () => {
   if (!service) {
     service = new AssetService()
   }
@@ -65,10 +65,10 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async (_, { getState }) => {
+      queryFn: (_, { getState }) => {
         const { Osmosis, Thorchain } = selectFeatureFlags(getState() as ReduxState)
 
-        const service = await getAssetService()
+        const service = getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!Osmosis && asset.chainId === osmosisChainId) return prev
@@ -90,9 +90,15 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       },
     }),
-    getAssetDescription: build.query<AssetsState, { assetId: AssetId; selectedLocale: string }>({
+    getAssetDescription: build.query<
+      AssetsState,
+      { assetId: AssetId | undefined; selectedLocale: string }
+    >({
       queryFn: async ({ assetId, selectedLocale }, { getState }) => {
-        const service = await getAssetService()
+        if (!assetId) {
+          throw new Error('assetId not provided')
+        }
+        const service = getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)

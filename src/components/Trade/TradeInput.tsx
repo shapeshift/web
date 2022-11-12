@@ -12,7 +12,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
@@ -154,7 +154,7 @@ export const TradeInput = () => {
     ],
   )
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(() => {
     try {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset

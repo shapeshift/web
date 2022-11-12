@@ -11,6 +11,9 @@ export type OpportunityMetadata = {
   provider: DefiProvider
   tvl: string
   type: DefiType
+  // For LP opportunities, this is the same as the AssetId
+  // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
+  underlyingAssetId: AssetId
   underlyingAssetIds: readonly [AssetId, AssetId]
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]

@@ -632,7 +632,6 @@
           "pin": "PIN是一个多达9个数字的组合，你在初始化你的KeepKey后选择。在你的KeepKey落入坏人之手之时，PIN保护你的设备不被未经授权的使用。",
           "passphrase": "启用多个钱包的功能，可通过为每个钱包使用唯一的密码短语进行访问。",
           "label": "给每个设备贴上标签可以让你很容易地将它们区分开来。",
-          "timeout": "你的设备默认在活动10分钟后进入睡眠状态。但是，你可以更改这一设置。",
           "buttonPrompt": "按住KeepKey上的按钮来改变设备%{setting}。",
           "updateSuccess": "%{setting}更新成功!",
           "updateFailed": "更新%{setting}时发生错误。",

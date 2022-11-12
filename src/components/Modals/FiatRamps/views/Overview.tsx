@@ -12,6 +12,7 @@ import {
   Spinner,
   Stack,
   Text as RawText,
+  useColorMode,
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -28,8 +29,6 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -37,19 +36,18 @@ import {
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
+  selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
 type OverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   address: string
   vanityAddress: string
   assetId: AssetId
@@ -69,14 +67,14 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
-  const isIframeEnabled = useFeatureFlag('FiatIframe')
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
   const {
     state: { wallet, isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-  const { iframe } = useModal()
 
   const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
   useEffect(() => setShownOnDisplay(null), [accountId])
@@ -137,19 +135,6 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
-  const handleIframeClick = useCallback(
-    ({ rampId, assetId, address }: { rampId: FiatRamp; assetId: AssetId; address: string }) => {
-      const ramp = supportedFiatRamps[rampId]
-      const url = ramp.onSubmit(fiatRampAction, assetId, address)
-      if (ramp.iframe && url && isIframeEnabled) {
-        iframe.open({ url, title: 'Buy' })
-      } else {
-        window.open(url, '_blank')?.focus()
-      }
-    },
-    [fiatRampAction, iframe, isIframeEnabled],
-  )
-
   const renderProviders = useMemo(() => {
     if (!assetId) return null
     if (isRampsLoading) return null
@@ -174,7 +159,18 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => handleIframeClick({ rampId, assetId, address: passedAddress })}
+            onClick={() =>
+              ramp.onSubmit({
+                action: fiatRampAction,
+                assetId,
+                address: passedAddress,
+                options: {
+                  language: selectedLocale,
+                  mode: colorMode,
+                  currentUrl: window.location.href,
+                },
+              })
+            }
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
@@ -185,11 +181,12 @@ export const Overview: React.FC<OverviewProps> = ({
     accountFiatBalance,
     address,
     assetId,
+    colorMode,
     fiatRampAction,
-    handleIframeClick,
     isDemoWallet,
     isRampsLoading,
     ramps,
+    selectedLocale,
   ])
 
   const inputValue = useMemo(() => {

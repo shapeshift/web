@@ -1,8 +1,7 @@
 import type { AxisScale } from '@visx/axis'
 import { Text } from '@visx/text'
 import type { ReactNode } from 'react'
-import { useCallback } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 export interface LineChartProps {
   xScale: AxisScale<number>

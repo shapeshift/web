@@ -25,7 +25,6 @@ import {
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -39,7 +38,7 @@ const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
 
 export const Withdraw: React.FC<
   StepComponentProps & {
-    accountId: Nullable<AccountId>
+    accountId: AccountId | undefined
     onAccountIdChange: AccountDropdownProps['onChange']
   }
 > = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {

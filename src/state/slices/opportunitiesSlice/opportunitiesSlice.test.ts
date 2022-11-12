@@ -20,7 +20,7 @@ describe('opportunitiesSlice', () => {
     clearState()
   })
 
-  it('returns uninitialized properties for initialState', async () => {
+  it('returns uninitialized properties for initialState', () => {
     expect(store.getState().opportunities).toEqual(initialState)
   })
 
@@ -38,6 +38,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
@@ -62,6 +63,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
@@ -84,6 +86,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractTwo]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',

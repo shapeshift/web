@@ -2,9 +2,9 @@ import type { IdleClaimActions, IdleClaimState } from './ClaimCommon'
 import { IdleClaimActionType } from './ClaimCommon'
 
 export const initialState: IdleClaimState = {
-  txid: null,
-  opportunity: null,
-  userAddress: null,
+  txid: undefined,
+  opportunity: undefined,
+  userAddress: undefined,
   loading: false,
   approve: {},
   claimableTokens: [],

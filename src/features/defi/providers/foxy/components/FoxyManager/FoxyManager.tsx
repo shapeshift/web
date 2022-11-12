@@ -8,7 +8,6 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { Nullable } from 'types/common'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyClaim } from './Overview/Claim/Claim'
@@ -18,7 +17,7 @@ import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
 export const FoxyManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
-  const [accountId, setAccountId] = useState<Nullable<AccountId>>(null)
+  const [accountId, setAccountId] = useState<AccountId | undefined>()
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

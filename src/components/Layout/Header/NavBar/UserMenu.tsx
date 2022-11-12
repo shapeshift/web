@@ -82,25 +82,23 @@ const WalletButton: FC<WalletButtonProps> = ({
   })
 
   useEffect(() => {
-    ;(async () => {
-      setWalletLabel('')
-      setShouldShorten(true)
-      if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
-      // Wallet has a native label, we don't care about ENS name here
-      if (!walletInfo?.meta?.address && walletInfo.meta.label) {
-        setShouldShorten(false)
-        return setWalletLabel(walletInfo.meta.label)
-      }
+    setWalletLabel('')
+    setShouldShorten(true)
+    if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
+    // Wallet has a native label, we don't care about ENS name here
+    if (!walletInfo?.meta?.address && walletInfo.meta.label) {
+      setShouldShorten(false)
+      return setWalletLabel(walletInfo.meta.label)
+    }
 
-      // ENS successfully fetched. Set ENS name as label
-      if (isEnsNameLoaded && ensName) {
-        setShouldShorten(false)
-        return setWalletLabel(ensName!)
-      }
+    // ENS successfully fetched. Set ENS name as label
+    if (isEnsNameLoaded && ensName) {
+      setShouldShorten(false)
+      return setWalletLabel(ensName!)
+    }
 
-      // No label or ENS name, set regular wallet address as label
-      return setWalletLabel(walletInfo?.meta?.address ?? '')
-    })()
+    // No label or ENS name, set regular wallet address as label
+    return setWalletLabel(walletInfo?.meta?.address ?? '')
   }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (

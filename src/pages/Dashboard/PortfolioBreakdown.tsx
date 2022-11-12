@@ -68,7 +68,7 @@ export const PortfolioBreakdown = () => {
 
   const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
   // Portfolio including Staking
-  const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state))
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpUnderlyingToken1Balance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null

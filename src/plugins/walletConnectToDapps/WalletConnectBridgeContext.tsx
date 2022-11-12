@@ -10,7 +10,7 @@ type WalletConnectBridgeContextValue = {
   bridge: HDWalletWCBridge | undefined
   dapp: IClientMeta | undefined
   callRequests: WalletConnectCallRequest[]
-  connect(uri: string): Promise<void>
+  connect(uri: string, account: string | null): Promise<void>
   disconnect(): Promise<void>
   approveRequest(callRequest: WalletConnectCallRequest, approveData?: unknown): Promise<void>
   rejectRequest(callRequest: WalletConnectCallRequest): Promise<void>

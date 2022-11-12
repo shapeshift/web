@@ -6,13 +6,19 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 
-import { ConnectModal } from '../modal/connect/ConnectModal'
+import { ConnectModal } from '../modal/connect/Connect'
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
+  const {
+    state: { isConnected },
+    dispatch,
+  } = useWallet()
   const [isOpen, setOpen] = useState(false)
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
@@ -23,7 +29,11 @@ export const WalletConnectToDappsHeaderButton = () => {
         <Button
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
-          onClick={() => setOpen(true)}
+          onClick={() =>
+            isConnected
+              ? setOpen(true)
+              : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          }
           isLoading={!!walletConnect.bridge}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}

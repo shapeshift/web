@@ -64,16 +64,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   }, [bridge])
 
   const connect = useCallback(
-    async (uri: string) => {
-      if (!wallet) {
-        alert('TODO: No HDWallet connected')
-        return
-      }
-
-      if (!supportsETH(wallet)) {
-        alert('TODO: No ETH HDWallet connected')
-        return
-      }
+    async (uri: string, account: string | null) => {
+      if (!wallet || !supportsETH(wallet)) return
 
       const newBridge = HDWalletWCBridge.fromURI(
         uri,
@@ -81,6 +73,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         connectedEvmChainId
           ? fromChainId(connectedEvmChainId).chainReference
           : CHAIN_REFERENCE.EthereumMainnet,
+        account,
         {
           onCallRequest,
         },
@@ -103,12 +96,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!wcSessionJsonString) return
 
     const session = JSON.parse(wcSessionJsonString)
+    console.info(session)
     const existingBridge = HDWalletWCBridge.fromSession(
       session,
       wallet,
       connectedEvmChainId
         ? fromChainId(connectedEvmChainId).chainReference
         : CHAIN_REFERENCE.EthereumMainnet,
+      null,
       {
         onCallRequest,
       },

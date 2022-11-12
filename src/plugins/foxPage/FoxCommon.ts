@@ -19,7 +19,7 @@ export type ExternalOpportunity = {
   isLoaded?: boolean
   isDisabled?: boolean
   contractAddress?: string
-  opportunityProvider?: DefiProvider
+  provider?: DefiProvider
   highestBalanceAccountAddress?: string
 }
 

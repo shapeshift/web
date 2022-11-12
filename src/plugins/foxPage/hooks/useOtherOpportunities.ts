@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -10,6 +10,7 @@ import {
 } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
@@ -47,6 +48,14 @@ export const useOtherOpportunities = (assetId: AssetId) => {
       stakingId: foxEthStakingAssetIdV4 as StakingId,
     }),
   )
+
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId ?? '',
+    }),
+  )
+
   const otherOpportunities = useMemo(() => {
     // TODO: Normalize before opening this PR- this PR should be stripped away to just accessing selected data
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
@@ -65,11 +74,10 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                           .plus(defaultLpOpportunityData?.apy ?? 0)
                           .toString()
                       : undefined,
-                    opportunityProvider: farmingv4EarnOpportunity?.provider,
                     contractAddress: v4EarnFarmingOpportunity.contractAddress,
-                    highestBalanceAccountAddress: highestFarmingBalanceAccountId
-                      ? fromAccountId(highestFarmingBalanceAccountId).account
-                      : undefined,
+                    highestBalanceAccountAddress:
+                      highestFarmingBalanceAccountId &&
+                      fromAccountId(highestFarmingBalanceAccountId).account,
                   },
                 ]
               : []),
@@ -79,21 +87,18 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           type: OpportunityTypes.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
-            {
-              type: DefiType.LiquidityPool,
-              opportunityName: defaultLpOpportunityData?.name!,
-              isLoaded: Boolean(defaultLpOpportunityData),
-              apy: defaultLpOpportunityData?.apy,
-              icons: [
-                'https://assets.coincap.io/assets/icons/eth@2x.png',
-                'https://assets.coincap.io/assets/icons/256/fox.png',
-              ],
-              opportunityProvider: DefiProvider.FoxEthLP,
-              contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
-              highestBalanceAccountAddress: highestBalanceLpAccountId
-                ? fromAccountId(highestBalanceLpAccountId).account
-                : undefined,
-            },
+            ...(foxEthLpOpportunity
+              ? [
+                  {
+                    ...foxEthLpOpportunity,
+                    type: DefiType.LiquidityPool,
+                    isLoaded: true,
+                    contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
+                    highestBalanceAccountAddress:
+                      highestBalanceLpAccountId && fromAccountId(highestBalanceLpAccountId).account,
+                  },
+                ]
+              : []),
           ],
         },
         {
@@ -135,6 +140,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     assetId,
     defaultLpOpportunityData,
     farmingv4EarnOpportunity,
+    foxEthLpOpportunity,
     highestBalanceLpAccountId,
     highestFarmingBalanceAccountId,
   ])

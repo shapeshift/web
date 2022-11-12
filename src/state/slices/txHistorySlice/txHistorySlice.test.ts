@@ -212,6 +212,7 @@ describe('txHistorySlice', () => {
         byId: {},
         byAssetId: {},
         byAccountId: {},
+        byAccountIdAssetId: {},
         ids: ['a', 'b'],
         status: 'loading',
       }

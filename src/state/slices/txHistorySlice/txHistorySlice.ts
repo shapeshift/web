@@ -47,6 +47,7 @@ export type TxHistoryById = {
 export type TxIdByAssetId = PartialRecord<AssetId, TxId[]>
 
 export type TxIdByAccountId = PartialRecord<AccountId, TxId[]>
+export type TxIdByAccountIdAssetId = PartialRecord<AccountId, TxIdByAssetId>
 
 // status is loading until all tx history is fetched
 export type TxHistoryStatus = 'loading' | 'loaded'
@@ -60,8 +61,9 @@ type RebaseByAccountId = PartialRecord<AccountId, RebaseId[]>
 
 export type TxsState = {
   byId: TxHistoryById
-  byAssetId: TxIdByAssetId
+  byAssetId: TxIdByAssetId // TODO(0xdef1cafe): remove this! we can't pull eggs out of cake
   byAccountId: TxIdByAccountId
+  byAccountIdAssetId: TxIdByAccountIdAssetId
   ids: TxId[]
   status: TxHistoryStatus
 }
@@ -90,7 +92,8 @@ const initialState: TxHistory = {
     ids: [], // sorted, newest first
     byAssetId: {},
     byAccountId: {},
-    status: 'loading',
+    byAccountIdAssetId: {},
+    status: 'loading', // TODO(0xdef1cafe): remove this
   },
   rebases: {
     byAssetId: {},

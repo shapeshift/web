@@ -22,6 +22,7 @@ const farmingOpportunitiesReducer = (
 ) => {
   if (!acc[opportunity.contractAddress]) {
     acc[opportunity.contractAddress] = opportunity
+    return acc
   }
   acc[opportunity.contractAddress] = {
     ...(acc[opportunity.contractAddress] ?? {}),

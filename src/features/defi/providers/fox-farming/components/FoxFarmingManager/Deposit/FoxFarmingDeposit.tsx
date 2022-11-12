@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -8,7 +8,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,13 +19,12 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
-import { LP_EARN_OPPORTUNITIES } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
-  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,27 +61,11 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
   const { farmingAccountId } = useFoxEth()
 
-  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
-
-  // TODO: Use purpose-built earn selector
-  const opportunity = useMemo(
-    () =>
-      stakingOpportunitiesById[
-        toAccountId({ account: contractAddress, chainId: ethChainId }) as StakingId
-      ],
-    [contractAddress, stakingOpportunitiesById],
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
+      stakingId: toAccountId({ account: contractAddress, chainId: ethChainId }) as StakingId,
+    }),
   )
-
-  const foxFarmingOpportunity: EarnOpportunityType | undefined = useMemo(
-    () =>
-      opportunity && {
-        ...LP_EARN_OPPORTUNITIES[opportunity.assetId],
-        ...opportunity,
-        chainId: fromAssetId(opportunity.assetId).chainId,
-      },
-    [opportunity],
-  )
-
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
@@ -104,7 +86,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
         moduleLogger.error(error, 'FoxFarmingDeposit error')
       }
     })()
-  }, [farmingAccountId, translate, toast, contractAddress, opportunity, foxFarmingOpportunity])
+  }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])
 
   const handleBack = () => {
     history.push({
@@ -143,7 +125,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     }
   }, [accountId, handleAccountIdChange, translate, asset.symbol, contractAddress])
 
-  if (loading || !asset || !marketData || !opportunity) {
+  if (loading || !asset || !marketData || !foxFarmingOpportunity) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -156,7 +138,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', {
-            opportunity: opportunity.name,
+            opportunity: foxFarmingOpportunity.name,
           })}
           onBack={handleBack}
         />

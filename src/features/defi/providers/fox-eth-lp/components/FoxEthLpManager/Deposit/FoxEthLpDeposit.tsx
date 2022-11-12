@@ -50,12 +50,16 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   const foxEthLpOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserLpOpportunity(state, {
       lpId: foxEthLpAssetId as LpId,
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
   )
 
-  const foxEthLpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+  const foxEthLpAsset = useAppSelector(state =>
+    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+  )
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+  )
 
   const loading = useSelector(selectPortfolioLoading)
 

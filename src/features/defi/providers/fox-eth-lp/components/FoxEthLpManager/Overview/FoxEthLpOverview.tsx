@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -11,8 +11,8 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectEarnUserLpOpportunity,
   selectHighestBalanceAccountIdByLpId,
-  selectLpOpportunitiesById,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
@@ -35,7 +35,6 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [accountId],
   )
 
-  const lpOpportunitiesById = useAppSelector(state => selectLpOpportunitiesById(state))
   const opportunityId = foxEthLpAssetId as LpId
 
   const highestBalanceAccountIdFilter = useMemo(
@@ -45,31 +44,25 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
-  const opportunityMetadata = useMemo(
-    () => lpOpportunitiesById[opportunityId as LpId],
-    [lpOpportunitiesById, opportunityId],
-  )
-
-  const lpAsset = useMemo(
-    () => assets[opportunityMetadata?.underlyingAssetId ?? ''],
-    [assets, opportunityMetadata?.underlyingAssetId],
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, { lpId: opportunityId as LpId }),
   )
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId.toString() ?? '',
-      accountId: accountId ?? '',
+      assetId: opportunityId as AssetId,
+      accountId,
       lpId: opportunityId as LpId,
     }),
     [accountId, opportunityId],
   )
-  const underlyingAssetsIcons = useMemo(
-    () => opportunityMetadata?.underlyingAssetIds.map(assetId => assets[assetId].icon),
-    [assets, opportunityMetadata?.underlyingAssetIds],
-  )
-
   const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
     selectUnderlyingLpAssetsWithBalancesAndIcons(state, lpAssetBalanceFilter),
+  )
+
+  const lpAsset = useMemo(
+    () => foxEthLpOpportunity?.underlyingAssetId && assets[foxEthLpOpportunity?.underlyingAssetId],
+    [assets, foxEthLpOpportunity?.underlyingAssetId],
   )
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
@@ -103,7 +96,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     selectedLocale,
   })
 
-  if (!opportunityMetadata || !underlyingAssetsWithBalancesAndIcons) {
+  if (!lpAsset || !foxEthLpOpportunity || !underlyingAssetsWithBalancesAndIcons) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -118,18 +111,18 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
-      icons={underlyingAssetsIcons}
-      name={opportunityMetadata.name ?? ''}
+      icons={foxEthLpOpportunity.icons}
+      name={foxEthLpOpportunity.opportunityName ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       underlyingAssets={underlyingAssetsWithBalancesAndIcons}
-      provider={opportunityMetadata.provider}
+      provider={foxEthLpOpportunity.provider}
       description={{
         description: lpAsset?.description,
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: lpAsset?.isTrustedDescription,
       }}
-      tvl={opportunityMetadata.tvl}
-      apy={opportunityMetadata.apy}
+      tvl={foxEthLpOpportunity.tvl}
+      apy={foxEthLpOpportunity.apy}
       menu={[
         {
           label: 'common.deposit',

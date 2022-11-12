@@ -1,15 +1,17 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import intersection from 'lodash/intersection'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectChainIdParamFromFilter } from 'state/selectors'
 
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
-import type { Tx, TxId } from './txHistorySlice'
+import type { RebaseId, Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,
@@ -141,7 +143,10 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
     // because the same tx can be related to multiple assets, e.g.
     // a FOX airdrop claim has an eth fee, after we combine the ids we need to dedupe them
     if (!accountIds.length) return Array.from(new Set([...assetTxIds]))
-    const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
+    const accountsTxIds = accountIds
+      .map(accountId => txsByAccountId[accountId])
+      .flat()
+      .filter(isSome)
     return intersection(accountsTxIds, assetTxIds)
   },
 )
@@ -166,20 +171,21 @@ export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
   selectRebaseIdsByAccountId,
   selectAssetIdsParamFromFilter,
   selectAccountIdsParamFromFilter,
-  (rebasesByAssetId, rebaseIdsByAccountId, assetIds, accountIds) => {
+  (rebasesByAssetId, rebaseIdsByAccountId, assetIds, accountIds): RebaseId[] => {
     // all rebase ids by accountId, may include dupes
     const rebaseIds = assetIds.map(assetId => rebasesByAssetId[assetId] ?? []).flat()
     // if we're not filtering on account, return deduped rebase ids for given assets
     if (!accountIds.length) return Array.from(new Set([...rebaseIds]))
     const accountRebaseIds = accountIds.map(accountId => rebaseIdsByAccountId[accountId]).flat()
-    return intersection(accountRebaseIds, rebaseIds)
+    return intersection(accountRebaseIds, rebaseIds).filter(isSome)
   },
 )
 
 export const selectRebasesByFilter = createSelector(
   selectRebasesById,
   selectRebaseIdsByFilter,
-  (rebasesById, rebaseIds) => rebaseIds.map(rebaseId => rebasesById[rebaseId]),
+  (rebasesById, rebaseIds): RebaseHistory[] =>
+    rebaseIds.map(rebaseId => rebasesById[rebaseId]).filter(isSome),
 )
 
 /**

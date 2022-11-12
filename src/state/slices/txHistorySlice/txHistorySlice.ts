@@ -10,8 +10,11 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import type { Nominal } from 'types/common'
 
 import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
 
@@ -41,29 +44,19 @@ export type TxHistoryById = {
  * this allows us to O(1) select all related transactions to a given asset
  */
 
-export type TxIdByAssetId = {
-  [k: AssetId]: TxId[]
-}
+export type TxIdByAssetId = PartialRecord<AssetId, TxId[]>
 
-export type TxIdByAccountId = {
-  [k: AccountId]: TxId[]
-}
+export type TxIdByAccountId = PartialRecord<AccountId, TxId[]>
 
 // status is loading until all tx history is fetched
 export type TxHistoryStatus = 'loading' | 'loaded'
 
-type RebaseId = string
-type RebaseById = {
-  [k: RebaseId]: RebaseHistory
-}
+export type RebaseId = Nominal<string, 'RebaseId'>
+type RebaseById = PartialRecord<RebaseId, RebaseHistory>
 
-type RebaseByAssetId = {
-  [k: AssetId]: RebaseId[]
-}
+type RebaseByAssetId = PartialRecord<AssetId, RebaseId[]>
 
-type RebaseByAccountId = {
-  [k: AccountId]: RebaseId[]
-}
+type RebaseByAccountId = PartialRecord<AccountId, RebaseId[]>
 
 export type TxsState = {
   byId: TxHistoryById
@@ -136,7 +129,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   getRelatedAssetIds(tx).forEach(relatedAssetId => {
     txs.byAssetId[relatedAssetId] = addToIndex(
       txs.ids,
-      txs.byAssetId[relatedAssetId],
+      txs.byAssetId[relatedAssetId] ?? [],
       serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
     )
   })
@@ -144,7 +137,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   // index the tx by the account that it belongs to
   txs.byAccountId[accountId] = addToIndex(
     txs.ids,
-    txs.byAccountId[accountId],
+    txs.byAccountId[accountId] ?? [],
     serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
   )
 
@@ -165,7 +158,7 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     rebases.byId[rebaseId] = rebase
 
     if (isNew) {
-      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc'])
+      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc']).filter(isSome)
       const index = orderedRebases.findIndex(
         rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
       )
@@ -174,14 +167,14 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
 
     rebases.byAssetId[assetId] = addToIndex(
       rebases.ids,
-      rebases.byAssetId[assetId],
+      rebases.byAssetId[assetId] ?? [],
       makeRebaseId({ accountId, assetId, rebase }),
     )
 
     // index the tx by the account that it belongs to
     rebases.byAccountId[accountId] = addToIndex(
       rebases.ids,
-      rebases.byAccountId[accountId],
+      rebases.byAccountId[accountId] ?? [],
       makeRebaseId({ accountId, assetId, rebase }),
     )
   })

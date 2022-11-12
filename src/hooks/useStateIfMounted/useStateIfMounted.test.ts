@@ -11,7 +11,7 @@ describe('useStateIfMounted hook tied to component', () => {
     jest.clearAllTimers()
   })
 
-  it('sets state if component is mounted', async () => {
+  it('sets state if component is mounted', () => {
     // the intention of useStateIfMounted hook is to avoid
     // the update to state if the component is unmounted and there is
     // a pending change to the state due to an effect or asynchronous call
@@ -34,7 +34,7 @@ describe('useStateIfMounted hook tied to component', () => {
     expect(result.current[0]).toBe(1)
   })
 
-  it('does not set state if component is unmounted', async () => {
+  it('does not set state if component is unmounted', () => {
     const { result, unmount } = renderHook(() => useStateIfMounted(0))
     const [state, setState] = result.current
 

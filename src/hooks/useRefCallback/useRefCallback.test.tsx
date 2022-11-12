@@ -23,7 +23,7 @@ describe('useRefCallback', () => {
     expect(result.current[0]).toBeTruthy()
   })
 
-  it('calls onDestroy and onInit twice', async () => {
+  it('calls onDestroy and onInit twice', () => {
     const { result, onInit, onDestroy, rerender } = setup<HTMLParagraphElement>()
     const [tokenListRef, setTokenListRef] = result.current
     expect(tokenListRef).toBe(null)

@@ -1,8 +1,11 @@
 import { adapters } from '@shapeshiftoss/caip'
 
 import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
-export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
+export const createBanxaUrl = ({ assetId, address, action }: CreateUrlProps): string => {
+  const asset = adapters.assetIdToBanxaTicker(assetId)
+  if (!asset) throw new Error('Asset not supported by Banxa')
   const BANXA_BASE_URL = new URL('https://shapeshift.banxa.com/')
 
   const params = new URLSearchParams()

@@ -116,7 +116,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
   )
 }
 
-export const fetchAllOpportunitiesUserData = async (
+export const fetchAllOpportunitiesUserData = (
   accountId: AccountId,
   queryOptions?: StartQueryActionCreatorOptions,
 ) =>

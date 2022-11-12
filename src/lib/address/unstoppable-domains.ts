@@ -37,12 +37,12 @@ const getResolution = (): Resolution => {
 }
 
 // validate
-export const validateUnstoppableDomain: ValidateVanityAddress = async ({ value }) => {
+export const validateUnstoppableDomain: ValidateVanityAddress = ({ value }) => {
   try {
     return getResolution().isSupportedDomain(value)
   } catch (e) {
     moduleLogger.trace(e, 'cannot validate unstoppable domain')
-    return false
+    return Promise.resolve(false)
   }
 }
 
@@ -52,18 +52,18 @@ const chainIdToUDTicker: Record<string, string> = {
 }
 
 // resolve
-export const resolveUnstoppableDomain: ResolveVanityAddress = async args => {
+export const resolveUnstoppableDomain: ResolveVanityAddress = args => {
   const { chainId, value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     moduleLogger.error({ args }, 'cannot resolve: unsupported chainId')
-    return ''
+    return Promise.resolve('')
   }
   try {
     return getResolution().addr(value, ticker)
   } catch (e) {
     moduleLogger.trace(e, 'cannot resolve')
-    return ''
+    return Promise.resolve('')
   }
 }
 

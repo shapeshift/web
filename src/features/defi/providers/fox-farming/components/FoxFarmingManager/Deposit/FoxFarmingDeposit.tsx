@@ -87,7 +87,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    ;(async () => {
+    ;(() => {
       try {
         if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
 

@@ -51,8 +51,8 @@ type IFoxEthContext = {
   setFarmingAccountId: (accountId: AccountId) => void
   lpAccountId: AccountId | undefined
   setLpAccountId: (accountId: AccountId) => void
-  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
-  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
+  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
+  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
@@ -130,16 +130,14 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       // getting fox-eth lp token balances
       await fetchAllStakingOpportunitiesMetadata()
       // getting fox farm contract data
-      await ethAccountIds.map(
-        async accountId => await fetchAllStakingOpportunitiesUserData(accountId),
-      )
+      ethAccountIds.forEach(accountId => fetchAllStakingOpportunitiesUserData(accountId))
     })()
   }, [ethAccountIds, dispatch])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
-    async (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+    (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
       const accountAddress = fromAccountId(
         type === 'farming' ? farmingAccountId ?? '' : lpAccountId ?? '',
@@ -151,7 +149,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!farmingAccountId) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
@@ -159,7 +157,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingLpTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!lpAccountId) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },

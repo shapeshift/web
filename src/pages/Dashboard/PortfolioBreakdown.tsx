@@ -66,11 +66,10 @@ export const PortfolioBreakdown = () => {
     }),
   )
 
-  // TODO: This seems wrong?
-  const lpBalance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
+  const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
   // Portfolio including Staking
   const netWorth = useAppSelector(state => selectPortfolioTotalFiatBalanceWithStakingData(state))
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
+  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpUnderlyingToken1Balance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null
   return (

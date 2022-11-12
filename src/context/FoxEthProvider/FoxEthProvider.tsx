@@ -138,9 +138,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const handleOngoingTxIdChange = useCallback(
     (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+      if (!(farmingAccountId || lpAccountId)) return
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
       const accountAddress = fromAccountId(
-        type === 'farming' ? farmingAccountId ?? '' : lpAccountId ?? '',
+        type === 'farming' ? farmingAccountId! : lpAccountId!,
       ).account
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)

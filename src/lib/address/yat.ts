@@ -25,8 +25,8 @@ type YatResponse = {
   error: string | null
 }
 
-export const validateYat: ValidateYat = async ({ value }) =>
-  /^\p{Extended_Pictographic}{1,5}$/u.test(value)
+export const validateYat: ValidateYat = ({ value }) =>
+  Promise.resolve(/^\p{Extended_Pictographic}{1,5}$/u.test(value))
 
 export const resolveYat: ResolveYat = async args => {
   try {

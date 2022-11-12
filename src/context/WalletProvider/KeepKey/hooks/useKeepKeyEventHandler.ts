@@ -249,7 +249,7 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    const handleDisconnect = async (deviceId: string) => {
+    const handleDisconnect = (deviceId: string) => {
       moduleLogger.info({ deviceId, fn: 'handleDisconnect' }, 'Device Disconnected')
       try {
         const id = keyring.getAlias(deviceId)

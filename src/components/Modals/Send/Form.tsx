@@ -63,7 +63,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
   })
 
   const handleAssetSelect = useCallback(
-    async (asset: Asset) => {
+    (asset: Asset) => {
       methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
       methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')

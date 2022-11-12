@@ -30,8 +30,8 @@ REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL=https://api.osmosis.shapeshift.com
 REACT_APP_UNCHAINED_OSMOSIS_WS_URL=wss://api.osmosis.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.thorchain.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://dev-api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://dev-api.thorchain.shapeshift.com
 
 # nodes
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com

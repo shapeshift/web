@@ -15,13 +15,13 @@ export const KeepKeyFactoryState = () => {
     setDeviceState({ disposition: undefined })
   }, [setDeviceState])
 
-  const handleCreateWalletPress = async () => {
+  const handleCreateWalletPress = () => {
     setLoading(true)
     setDeviceState({ disposition: 'initializing' })
     history.push(KeepKeyRoutes.NewLabel)
   }
 
-  const handleRecoverWalletPress = async () => {
+  const handleRecoverWalletPress = () => {
     setLoading(true)
     setDeviceState({ disposition: 'recovering' })
     history.push(KeepKeyRoutes.RecoverySettings)

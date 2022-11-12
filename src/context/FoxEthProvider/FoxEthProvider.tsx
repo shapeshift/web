@@ -50,8 +50,8 @@ type IFoxEthContext = {
   setLpAccountId: (accountId: AccountId) => void
   lpAccountAddress: string
   farmingAccountAddress: string
-  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
-  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => Promise<void>
+  onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
+  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
@@ -61,8 +61,8 @@ const FoxEthContext = createContext<IFoxEthContext>({
   setFarmingAccountId: _accountId => {},
   lpAccountAddress: '',
   farmingAccountAddress: '',
-  onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
-  onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
+  onOngoingFarmingTxIdChange: (_txid: string) => undefined,
+  onOngoingLpTxIdChange: (_txid: string) => undefined,
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
@@ -121,15 +121,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
 
   useEffect(() => {
-    ;(async () => {
-      if (!readyToFetchLpData || !ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      ethAccountAddresses.forEach(accountAddress => {
-        dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress }))
-      })
-    })()
+    if (!readyToFetchLpData || !ethAccountIds?.length) return
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    ethAccountAddresses.forEach(accountAddress =>
+      dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress })),
+    )
   }, [ethAccountIds, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
 
   useEffect(() => {
@@ -175,34 +171,32 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (!readyToFetchFarmingData) return
     // getting fox-eth lp token data
     const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
-    ;(async () => {
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-      // getting fox-eth lp token balances
-      farmingOpportunities.forEach(opportunity => {
-        const { contractAddress } = opportunity
-        // getting fox farm contract data
-        ethAccountAddresses.forEach(accountAddress => {
-          dispatch(
-            getFoxFarmingContractMetrics.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-          dispatch(
-            getFoxFarmingContractAccountData.initiate({
-              contractAddress,
-              accountAddress,
-            }),
-          )
-        })
+    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
+    // getting fox-eth lp token balances
+    farmingOpportunities.forEach(opportunity => {
+      const { contractAddress } = opportunity
+      // getting fox farm contract data
+      ethAccountAddresses.forEach(accountAddress => {
+        dispatch(
+          getFoxFarmingContractMetrics.initiate({
+            contractAddress,
+            accountAddress,
+          }),
+        )
+        dispatch(
+          getFoxFarmingContractAccountData.initiate({
+            contractAddress,
+            accountAddress,
+          }),
+        )
       })
-    })()
+    })
   }, [ethAccountIds, dispatch, readyToFetchFarmingData])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
-    async (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+    (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
       const accountAddress = type === 'farming' ? farmingAccountAddress : lpAccountAddress
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
@@ -212,7 +206,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!farmingAccountAddress) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
@@ -220,7 +214,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   )
 
   const handleOngoingLpTxIdChange = useCallback(
-    async (txid: string, contractAddress?: string) => {
+    (txid: string, contractAddress?: string) => {
       if (!lpAccountAddress) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },

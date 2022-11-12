@@ -118,7 +118,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ;(async () => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet, bip44Params: lpBip44Params })
-        // eth.getAddress and similar return a checksummed address, but state opportunities aren't
+        // eth.getAddress and similar return a checksummed address, but the account part of state opportunities' AccountId isn't checksummed
+        // using the checksum version would make us unable to do Txid lookup
         setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))
       })()
     }

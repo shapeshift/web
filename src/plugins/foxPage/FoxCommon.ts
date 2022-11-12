@@ -11,14 +11,14 @@ export enum OpportunityTypes {
 }
 
 export type ExternalOpportunity = {
-  title: string
+  opportunityName: string | undefined
   type?: DefiType
   apy?: string | null
   link?: string
-  icons: string[]
+  icons?: string[] | undefined
   isLoaded?: boolean
   isDisabled?: boolean
-  opportunityContractAddress?: string
+  contractAddress?: string
   opportunityProvider?: DefiProvider
   highestBalanceAccountAddress?: string
 }

@@ -6,7 +6,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   foxEthLpAssetId,
   foxEthStakingAssetIdV4,
-  STAKING_ID_TO_NAME,
   v4EarnFarmingOpportunity,
 } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
@@ -56,22 +55,24 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
           opportunities: [
-            {
-              ...farmingv4EarnOpportunity,
-              isLoaded: Boolean(farmingv4EarnOpportunity),
-              title: STAKING_ID_TO_NAME[foxEthStakingAssetIdV4],
-              apy: Boolean(defaultLpOpportunityData && farmingv4EarnOpportunity)
-                ? bnOrZero(farmingv4EarnOpportunity?.apy)
-                    .plus(defaultLpOpportunityData?.apy ?? 0)
-                    .toString()
-                : undefined,
-              icons: farmingv4EarnOpportunity?.icons!,
-              opportunityProvider: farmingv4EarnOpportunity?.provider,
-              opportunityContractAddress: v4EarnFarmingOpportunity.contractAddress,
-              highestBalanceAccountAddress: highestFarmingBalanceAccountId
-                ? fromAccountId(highestFarmingBalanceAccountId).account
-                : undefined,
-            },
+            ...(farmingv4EarnOpportunity
+              ? [
+                  {
+                    ...farmingv4EarnOpportunity,
+                    isLoaded: true,
+                    apy: Boolean(defaultLpOpportunityData && farmingv4EarnOpportunity)
+                      ? bnOrZero(farmingv4EarnOpportunity?.apy)
+                          .plus(defaultLpOpportunityData?.apy ?? 0)
+                          .toString()
+                      : undefined,
+                    opportunityProvider: farmingv4EarnOpportunity?.provider,
+                    contractAddress: v4EarnFarmingOpportunity.contractAddress,
+                    highestBalanceAccountAddress: highestFarmingBalanceAccountId
+                      ? fromAccountId(highestFarmingBalanceAccountId).account
+                      : undefined,
+                  },
+                ]
+              : []),
           ],
         },
         {
@@ -80,7 +81,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           opportunities: [
             {
               type: DefiType.LiquidityPool,
-              title: defaultLpOpportunityData?.name!,
+              opportunityName: defaultLpOpportunityData?.name!,
               isLoaded: Boolean(defaultLpOpportunityData),
               apy: defaultLpOpportunityData?.apy,
               icons: [
@@ -88,7 +89,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                 'https://assets.coincap.io/assets/icons/256/fox.png',
               ],
               opportunityProvider: DefiProvider.FoxEthLP,
-              opportunityContractAddress: fromAssetId(foxEthLpAssetId).assetReference,
+              contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
               highestBalanceAccountAddress: highestBalanceLpAccountId
                 ? fromAccountId(highestBalanceLpAccountId).account
                 : undefined,
@@ -100,7 +101,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.borrowingAndLending',
           opportunities: [
             {
-              title: 'FOX',
+              opportunityName: 'FOX',
               isLoaded: true,
               apy: null,
               link: 'https://app.rari.capital/fuse/pool/79',
@@ -116,7 +117,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              title: 'ElasticSwap',
+              opportunityName: 'ElasticSwap',
               isLoaded: true, // No network request here
               apy: null,
               link: 'https://elasticswap.org/#/liquidity',

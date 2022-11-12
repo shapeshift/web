@@ -49,10 +49,10 @@ export const getUserDataResolversByDefiProviderAndDefiType = (
 export const ethersProvider = getEthersProvider()
 
 export const fetchPairData = memoize(
-  async (
+  (
     tokenA: Token,
     tokenB: Token,
     fetchPairData: typeof Fetcher['fetchPairData'],
     provider: providers.Web3Provider,
-  ) => await fetchPairData(tokenA, tokenB, provider),
+  ) => fetchPairData(tokenA, tokenB, provider),
 )

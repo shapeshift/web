@@ -36,13 +36,13 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   } = useWallet()
   const opportunityId = useMemo(
     () =>
-      opportunity.opportunityContractAddress &&
+      opportunity.contractAddress &&
       (toAssetId({
-        assetReference: opportunity.opportunityContractAddress,
+        assetReference: opportunity.contractAddress,
         assetNamespace: 'erc20',
         chainId: ethChainId,
       }) as LpId | StakingId),
-    [opportunity.opportunityContractAddress],
+    [opportunity.contractAddress],
   )
 
   const earnOpportunity = useAppSelector(state =>
@@ -110,6 +110,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     [isDemoWallet, wallet, earnOpportunity],
   )
 
+  if (!opportunity) return null
+
   return (
     <Flex
       justifyContent='space-between'
@@ -123,17 +125,17 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       {...wrapperLinkProps}
     >
       <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-        {opportunity.icons.map((iconSrc, i) => (
+        {opportunity.icons?.map((iconSrc, i, icons) => (
           <AssetIcon
             key={iconSrc}
             src={iconSrc}
             boxSize={{ base: 6, md: 8 }}
-            mr={i === opportunity.icons.length - 1 ? 2 : 0}
+            mr={i === icons.length - 1 ? 2 : 0}
             ml={i === 0 ? 0 : '-3.5'}
           />
         ))}
         <CText color='inherit' fontWeight='semibold'>
-          {opportunity.title}
+          {opportunity.opportunityName}
         </CText>
       </Flex>
       <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={{ base: 'right', md: 'center' }}>

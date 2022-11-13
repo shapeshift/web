@@ -48,6 +48,7 @@ const Settings = () => {
           <Switch>
             <Route path='/'>
               <SettingsRouter appHistory={appHistory} />
+              <small>you can press Cmd + Opt + I on macOS or Ctrl + Shift + I on Windows or Linux. In addition, you can also trigger the Developer Tools programmatically.</small>
             </Route>
           </Switch>
         </MemoryRouter>

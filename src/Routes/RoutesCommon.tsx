@@ -23,7 +23,7 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
-import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
+// import { Leaderboard } from 'pages/Leaderboard/Leaderboard'
 import { PairingDetails } from 'pages/Pairings/PairingDetails'
 import { Pairings } from 'pages/Pairings/Pairings'
 import { Trade } from 'pages/Trade/Trade'
@@ -63,13 +63,14 @@ export const routes: NestedRoute[] = [
       },
     ],
   },
-  {
-    path: '/leaderboard',
-    label: 'Leaderboard',
-    icon: <IoSwapVertical />,
-    main: Leaderboard,
-    category: RouteCategory.Wallet,
-  },
+  //@TODO move to flag
+  // {
+  //   path: '/leaderboard',
+  //   label: 'Leaderboard',
+  //   icon: <IoSwapVertical />,
+  //   main: Leaderboard,
+  //   category: RouteCategory.Wallet,
+  // },
   {
     path: '/browser',
     label: 'navBar.browser',

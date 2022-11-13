@@ -185,18 +185,12 @@ export const foxFarmingStakingMetadataResolver = async ({
   )
 
   // Getting the ratio of the LP token for each asset
-  // fetchPairData().reserve0 and reserve1 somehow return crypto human amounts as opposed to getReserves() using full precision notation
-  const foxReserves = toBaseUnit(
-    bnOrZero(bnOrZero(pair.reserve1.toFixed()).toString()).toString(),
-    pair.token1.decimals,
-  )
-
-  const ethReserves = toBaseUnit(
-    bnOrZero(bnOrZero(pair.reserve0.toFixed()).toString()).toString(),
-    pair.token0.decimals,
-  )
-  const ethPoolRatio = bnOrZero(ethReserves).div(totalSupply.toString()).toString()
-  const foxPoolRatio = bnOrZero(foxReserves).div(totalSupply.toString()).toString()
+  const reserves = await uniV2LPContract.getReserves()
+  const lpTotalSupply = (await uniV2LPContract.totalSupply()).toString()
+  const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
+  const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
+  const ethPoolRatio = ethReserves.div(lpTotalSupply).toString()
+  const foxPoolRatio = foxReserves.div(lpTotalSupply).toString()
 
   const totalSupplyV2 = await uniV2LPContract.totalSupply()
 

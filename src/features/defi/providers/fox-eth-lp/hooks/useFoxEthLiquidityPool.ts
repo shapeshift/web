@@ -357,10 +357,9 @@ export const useFoxEthLiquidityPool = (
       if (skip) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       if (!accountId || !contract) return
-      const _allowance = await contract.allowance(
-        fromAccountId(accountId).account,
-        uniswapV2Router02AssetId,
-      )
+      const accountAddress = fromAccountId(accountId).account
+      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
+      const _allowance = await contract.allowance(accountAddress, contractAddress)
       return _allowance.toString()
     },
     [skip, uniV2LPContract, foxContract, accountId],
@@ -394,20 +393,22 @@ export const useFoxEthLiquidityPool = (
     async (foxAmount: string, ethAmount: string) => {
       if (skip || !accountId || !uniswapRouterContract) return
       const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
+      const accountAddress = fromAccountId(accountId).account
+      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         fromAssetId(foxAssetId).assetReference,
         bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
         calculateSlippageMargin(foxAmount, foxAsset.precision),
         calculateSlippageMargin(ethAmount, ethAsset.precision),
-        accountId,
+        accountAddress,
         Date.now() + 1200000,
       ])
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-        to: uniswapV2Router02AssetId,
+        to: contractAddress,
         value,
         chainSpecific: {
           contractData: data,
-          from: fromAccountId(accountId).account,
+          from: accountAddress,
         },
       })
       return estimatedFees

@@ -57,7 +57,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   )
 
   const otherOpportunities = useMemo(() => {
-    // TODO: Normalize before opening this PR- this PR should be stripped away to just accessing selected data
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
         {

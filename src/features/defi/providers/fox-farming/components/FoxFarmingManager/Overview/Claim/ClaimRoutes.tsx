@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -8,7 +8,6 @@ import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
@@ -37,11 +36,16 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
 
-  const { farmingAccountId } = useFoxEth()
-
   const opportunity = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, {
-      userStakingId: serializeUserStakingId(accountId ?? '', (farmingAccountId ?? '') as StakingId),
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toAssetId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }) as StakingId,
+      ),
     }),
   )
 

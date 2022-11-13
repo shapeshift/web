@@ -125,8 +125,9 @@ export const useFoxEthLiquidityPool = (
           Date.now() + 1200000,
         ])
         const adapterType = adapter.getChainId()
+        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
         const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-          to: uniswapV2Router02AssetId,
+          to: contractAddress,
           value,
           chainSpecific: {
             contractData: data,
@@ -148,8 +149,9 @@ export const useFoxEthLiquidityPool = (
             if (!shouldUseEIP1559Fees && gasPrice === undefined) {
               throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
             }
+            const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
-              to: uniswapV2Router02AssetId,
+              to: contractAddress,
               // the eth value need to be starting with 0x and be base 16
               value: '0x' + bnOrZero(value).toString(16),
               wallet,
@@ -227,8 +229,9 @@ export const useFoxEthLiquidityPool = (
           Date.now() + 1200000,
         ])
         const adapterType = adapter.getChainId()
+        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
         const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-          to: uniswapV2Router02AssetId,
+          to: contractAddress,
           value: '0',
           chainSpecific: {
             contractData: data,
@@ -250,8 +253,9 @@ export const useFoxEthLiquidityPool = (
             if (!shouldUseEIP1559Fees && gasPrice === undefined) {
               throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
             }
+            const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
-              to: uniswapV2Router02AssetId,
+              to: contractAddress,
               value: '0x00',
               wallet,
               data,
@@ -371,7 +375,7 @@ export const useFoxEthLiquidityPool = (
       const contract = forWithdrawal ? uniV2LPContract : foxContract
       if (adapter && accountId && contract) {
         const data = contract.interface.encodeFunctionData('approve', [
-          uniswapV2Router02AssetId,
+          fromAssetId(uniswapV2Router02AssetId).assetReference,
           MaxUint256,
         ])
         const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
@@ -427,8 +431,9 @@ export const useFoxEthLiquidityPool = (
         fromAccountId(accountId).account,
         Date.now() + 1200000,
       ])
+      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-        to: uniswapV2Router02AssetId,
+        to: contractAddress,
         value: '0',
         chainSpecific: {
           contractData: data,
@@ -452,10 +457,8 @@ export const useFoxEthLiquidityPool = (
     async (forWithdrawal?: boolean) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
-      const data = contract!.interface.encodeFunctionData('approve', [
-        uniswapV2Router02AssetId,
-        MaxUint256,
-      ])
+      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
+      const data = contract!.interface.encodeFunctionData('approve', [contractAddress, MaxUint256])
       const gasData = await getApproveGasData(forWithdrawal)
       if (!gasData) return
       const fees = gasData.average as FeeData<EvmChainId>

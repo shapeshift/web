@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -22,7 +22,6 @@ import { logger } from 'lib/logger'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
-  selectAssetById,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -56,15 +55,22 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const { farmingAccountId } = useFoxEth()
 
-  const foxFarmingOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
-      stakingId: toAccountId({ account: contractAddress, chainId: ethChainId }) as StakingId,
+  const foxFarmingOpportunityFilter = useMemo(
+    () => ({
+      stakingId: toAssetId({
+        assetNamespace: 'erc20',
+        assetReference: contractAddress,
+        chainId: ethChainId,
+      }) as StakingId,
     }),
+    [contractAddress],
+  )
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
   const loading = useSelector(selectPortfolioLoading)
 
@@ -102,7 +108,6 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -123,9 +128,9 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, translate, asset.symbol, contractAddress])
+  }, [translate, contractAddress, accountId, handleAccountIdChange])
 
-  if (loading || !asset || !marketData || !foxFarmingOpportunity) {
+  if (loading || !marketData || !foxFarmingOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

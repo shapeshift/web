@@ -47,7 +47,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
-  const filter = useMemo(() => ({ accountId: farmingAccountId ?? '' }), [farmingAccountId])
+  const filter = useMemo(() => ({ accountId: farmingAccountId }), [farmingAccountId])
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 
@@ -289,12 +289,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
         contractAddress,
         MaxUint256,
       ])
+      const farmingAccountAddress = fromAccountId(farmingAccountId).account
       const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: uniV2LPContract.address,
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountId,
+          from: farmingAccountAddress,
           contractAddress: uniV2LPContract.address,
         },
       })
@@ -308,12 +309,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
       const data = foxFarmingContract!.interface.encodeFunctionData('stake', [
         bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
       ])
+      const farmingAccountAddress = fromAccountId(farmingAccountId).account
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountId,
+          from: farmingAccountAddress,
         },
       })
       return estimatedFees
@@ -337,12 +339,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
         : foxFarmingContract!.interface.encodeFunctionData('withdraw', [
             bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
           ])
+      const farmingAccountAddress = fromAccountId(farmingAccountId).account
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
           contractData: data,
-          from: farmingAccountId,
+          from: farmingAccountAddress,
         },
       })
       return estimatedFees
@@ -430,12 +433,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
     if (skip || !wallet || !isNumber(accountNumber) || !foxFarmingContract || !farmingAccountId)
       return
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+    const farmingAccountAddress = fromAccountId(farmingAccountId).account
     const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
       to: contractAddress,
       value: '0',
       chainSpecific: {
         contractData: data,
-        from: farmingAccountId,
+        from: farmingAccountAddress,
       },
     })
     const fees = estimatedFees.average as FeeData<EvmChainId>

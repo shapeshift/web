@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -43,27 +43,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const assets = useAppSelector(selectorState => selectorState.assets.byId)
   const marketData = useAppSelector(selectMarketData)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId ?? '',
     }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
-  const underlyingAssetsIcons = useMemo(
-    () => foxEthLpOpportunity?.underlyingAssetIds.map(assetId => assets[assetId].icon),
-    [assets, foxEthLpOpportunity?.underlyingAssetIds],
-  )
-
-  const { allowance, getApproveGasData, getWithdrawGasData } =
-    useFoxEthLiquidityPool(accountAddress)
+  const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool(accountId)
   const [foxAmount, setFoxAmount] = useState('0')
   const [ethAmount, setEthAmount] = useState('0')
 
@@ -90,7 +85,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !foxEthLpOpportunity?.icons) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     try {
@@ -195,7 +190,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <ReusableWithdraw
         accountId={accountId}
         asset={asset}
-        icons={underlyingAssetsIcons}
+        icons={foxEthLpOpportunity.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,

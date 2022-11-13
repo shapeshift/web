@@ -151,11 +151,7 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
         const opportunityData = userStakingOpportunities[userStakingId]
         const opportunityMetadata = stakingOpportunities[stakingId]
         if (!opportunityData || !opportunityMetadata) return undefined
-        return {
-          ...opportunityMetadata,
-          ...opportunityData,
-          userStakingId,
-        }
+        return Object.assign({}, opportunityMetadata, opportunityData, { userStakingId })
       })
       .filter(isSome)
   },
@@ -192,9 +188,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
   selectAssets,
   (opportunity, marketData, assets): FoxFarmingEarnOpportunityType | undefined =>
     opportunity &&
-    Object.assign({}, opportunity, {
-      ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
-      ...opportunity,
+    Object.assign({}, STAKING_EARN_OPPORTUNITIES[opportunity.assetId], opportunity, {
       chainId: fromAssetId(opportunity.assetId).chainId,
       cryptoAmount: opportunity.stakedAmountCryptoPrecision,
       fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
@@ -350,15 +344,25 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 // TODO: testme
 export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
-  (userStakingOpportunity): FoxFarmingEarnOpportunityType | undefined => {
-    if (!userStakingOpportunity) return
+  selectMarketData,
+  selectAssets,
+  (userStakingOpportunity, marketData, assets): FoxFarmingEarnOpportunityType | undefined => {
+    if (!userStakingOpportunity || !marketData) return
+
+    const marketDataPrice = marketData[userStakingOpportunity.underlyingAssetId]?.price
 
     return {
       ...LP_EARN_OPPORTUNITIES[userStakingOpportunity.assetId ?? ''],
       ...userStakingOpportunity,
-      chainId: fromAssetId(userStakingOpportunity.assetId ?? '').chainId,
-      rewardsAmountCryptoPrecision: userStakingOpportunity.rewardsAmountCryptoPrecision ?? '',
+      chainId: fromAssetId(userStakingOpportunity.assetId).chainId,
+      cryptoAmount: userStakingOpportunity.stakedAmountCryptoPrecision ?? '0',
+      fiatAmount: bnOrZero(userStakingOpportunity.stakedAmountCryptoPrecision)
+        .times(marketDataPrice ?? '0')
+        .toString(),
+      stakedAmountCryptoPrecision: userStakingOpportunity.stakedAmountCryptoPrecision ?? '0',
+      rewardsAmountCryptoPrecision: userStakingOpportunity.rewardsAmountCryptoPrecision ?? '0',
       opportunityName: userStakingOpportunity.name,
+      icons: userStakingOpportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
   },
 )

@@ -34,9 +34,9 @@ REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://dev-api.thorchain.shapeshift.com
 REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://dev-api.thorchain.shapeshift.com
 
 # nodes
-REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
-REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com
+REACT_APP_THORCHAIN_NODE_URL=https://dev-daemon.thorchain.shapeshift.com
+REACT_APP_ETHEREUM_NODE_URL=https://dev-daemon.ethereum.shapeshift.com
 REACT_APP_ETHEREUM_INFURA_URL=https://mainnet.infura.io/v3/6e2f28ff4f5340fdb0db5da3baec0af2
 
 # thorchain
-REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
+REACT_APP_MIDGARD_URL=https://dev-indexer.thorchain.shapeshift.com/v2

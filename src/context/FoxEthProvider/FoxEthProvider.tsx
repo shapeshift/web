@@ -102,7 +102,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     })()
   }, [refetchFoxEthLpAccountData])
 
-  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId ?? '' }), [lpAccountId])
+  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId }), [lpAccountId])
   const lpBip44Params = useAppSelector(state =>
     selectBIP44ParamsByAccountId(state, lpAccountFilter),
   )

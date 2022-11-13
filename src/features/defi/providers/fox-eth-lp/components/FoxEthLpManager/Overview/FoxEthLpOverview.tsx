@@ -31,7 +31,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 
   const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId ?? '').account : ''),
+    () => (accountId ? fromAccountId(accountId).account : ''),
     [accountId],
   )
 
@@ -76,8 +76,8 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId.toString() ?? '',
-      accountId: accountId ?? '',
+      assetId: opportunityId as AssetId,
+      accountId,
     }),
     [accountId, opportunityId],
   )
@@ -105,7 +105,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     selectedLocale,
   })
 
-  if (!lpAsset || !foxEthLpOpportunity || !underlyingAssetsWithBalancesAndIcons) {
+  if (!lpAsset || !foxEthLpOpportunity?.opportunityName || !underlyingAssetsWithBalancesAndIcons) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -121,7 +121,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
       icons={foxEthLpOpportunity.icons}
-      name={foxEthLpOpportunity.opportunityName ?? ''}
+      name={foxEthLpOpportunity.opportunityName}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       underlyingAssets={underlyingAssetsWithBalancesAndIcons}
       provider={foxEthLpOpportunity.provider}

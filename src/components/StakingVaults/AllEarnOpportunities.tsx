@@ -40,7 +40,7 @@ export const AllEarnOpportunities = () => {
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
       lpId: foxEthLpAssetId as LpId,
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
     [],
   )

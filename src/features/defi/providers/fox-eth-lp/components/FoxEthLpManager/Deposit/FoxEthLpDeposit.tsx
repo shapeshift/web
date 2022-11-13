@@ -58,11 +58,15 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
-  const foxEthLpAsset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+  const foxEthLpAsset = useAppSelector(
+    state =>
+      foxEthLpOpportunity?.underlyingAssetId &&
+      selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId),
   )
-  const marketData = useAppSelector(state =>
-    selectMarketDataById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+  const marketData = useAppSelector(
+    state =>
+      foxEthLpOpportunity?.underlyingAssetId &&
+      selectMarketDataById(state, foxEthLpOpportunity?.underlyingAssetId),
   )
 
   const loading = useSelector(selectPortfolioLoading)
@@ -77,7 +81,9 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     })
   }
 
-  const StepConfig: DefiStepProps = useMemo(() => {
+  const StepConfig: DefiStepProps | undefined = useMemo(() => {
+    if (!foxEthLpAsset) return
+
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
@@ -101,7 +107,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, foxEthLpAsset.symbol, handleAccountIdChange, translate])
+  }, [accountId, foxEthLpAsset, handleAccountIdChange, translate])
 
   useEffect(() => {
     if (!foxEthLpOpportunity) return
@@ -109,7 +115,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
   }, [foxEthLpOpportunity])
 
-  if (loading || !foxEthLpAsset || !marketData || !foxEthLpOpportunity) {
+  if (loading || !foxEthLpAsset || !marketData || !foxEthLpOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

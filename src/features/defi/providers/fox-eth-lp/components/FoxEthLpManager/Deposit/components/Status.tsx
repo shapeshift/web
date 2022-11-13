@@ -54,7 +54,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
-      accountId: accountId ?? '',
+      accountId,
     }),
     [accountId],
   )

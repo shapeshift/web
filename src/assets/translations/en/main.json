@@ -893,6 +893,7 @@
     },
     "settings": {
       "settings": "Settings",
+      "devTools": "you can press \n\n Cmd + Opt + I \n\n on macOS, or \n\n Ctrl + Shift + I \n\n on Windows or Linux, to trigger Developer Tools.",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",
       "deleteAccountsConfirm": "Are you sure?\n\nThis will remove all personal data including wallets, accounts, balances.\n\nVerify that you have backed up your wallets before continuing.",

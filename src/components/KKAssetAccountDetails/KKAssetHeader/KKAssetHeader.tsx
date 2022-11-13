@@ -1,5 +1,5 @@
 import { Box, Flex, Heading } from '@chakra-ui/react'
-import { Button } from '@chakra-ui/react'
+// import { Button } from '@chakra-ui/react'
 import type { Asset } from '@keepkey/asset-service'
 
 import { AssetIcon } from './AssetIcon'
@@ -9,7 +9,7 @@ type AssetHeaderProps = {
   onVoteClick: any
 }
 
-export const KKAssetHeader: React.FC<AssetHeaderProps> = ({ asset, onVoteClick }) => {
+export const KKAssetHeader: React.FC<AssetHeaderProps> = ({ asset }) => {
   const chainId = asset.chainId
   const { name, symbol } = asset || {}
 
@@ -26,7 +26,7 @@ export const KKAssetHeader: React.FC<AssetHeaderProps> = ({ asset, onVoteClick }
             </Heading>
           </Box>
         </Flex>
-        <Button mt={2} onClick={onVoteClick}>VOTE</Button>
+        {/*<Button mt={2} onClick={onVoteClick}>VOTE</Button>*/}
       </Flex>
     </Flex>
   )

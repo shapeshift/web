@@ -6,6 +6,7 @@ import { useModal } from 'hooks/useModal/useModal'
 
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
+import { Text } from 'components/Text'
 
 export const entries = [
   SettingsRoutes.Index,
@@ -48,7 +49,17 @@ const Settings = () => {
           <Switch>
             <Route path='/'>
               <SettingsRouter appHistory={appHistory} />
-              <small>you can press Cmd + Opt + I on macOS or Ctrl + Shift + I on Windows or Linux. In addition, you can also trigger the Developer Tools programmatically.</small>
+
+              <div>
+                <Text
+                    userSelect={'none'}
+                    color='white'
+                    fontSize='lg'
+                    mb={12}
+                    textAlign='left'
+                    translation='settings.devTools'
+                />
+              </div>
             </Route>
           </Switch>
         </MemoryRouter>

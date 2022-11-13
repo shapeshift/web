@@ -6,7 +6,6 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import isEqual from 'lodash/isEqual'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -20,9 +19,10 @@ import {
 } from 'state/slices/opportunitiesSlice/thunks'
 import type { LpId, OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByAssetId,
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectLpAccountIds,
+  selectStakingAccountIds,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -79,25 +79,22 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
-  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
-
-  // TODO(gomes): deepEqualOutputFn should happen on the selector itself and give us the same reference every call but it somehow doesn't
-  // Remove the equalityFn second arg here after we figure out why
-  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
+  const lpAccountIds = useAppSelector(selectLpAccountIds)
+  const stakingAccountIds = useAppSelector(selectStakingAccountIds)
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
     await Promise.all(
-      ethAccountIds.map(
+      lpAccountIds.map(
         async accountId => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }),
       ),
     )
-  }, [ethAccountIds])
+  }, [lpAccountIds])
 
   useEffect(() => {
     ;(async () => {
       await fetchAllOpportunitiesMetadata()
     })()
-  }, [ethAccountIds, dispatch, refetchFoxEthLpAccountData])
+  }, [lpAccountIds, stakingAccountIds, dispatch, refetchFoxEthLpAccountData])
 
   useEffect(() => {
     ;(async () => {
@@ -106,10 +103,9 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   }, [refetchFoxEthLpAccountData])
 
   const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId ?? '' }), [lpAccountId])
-  // Use the account number of the consumer if we have it, else use account 0
-  const lpBip44Params =
-    useAppSelector(state => selectBIP44ParamsByAccountId(state, lpAccountFilter)) ??
-    adapter.getBIP44Params({ accountNumber: 0 })
+  const lpBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, lpAccountFilter),
+  )
 
   useEffect(() => {
     // Get initial account 0 address from wallet, TODO: nuke it?
@@ -130,9 +126,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       // getting fox-eth lp token balances
       await fetchAllStakingOpportunitiesMetadata()
       // getting fox farm contract data
-      ethAccountIds.forEach(accountId => fetchAllStakingOpportunitiesUserData(accountId))
+      ;[...stakingAccountIds, ...lpAccountIds].forEach(accountId =>
+        fetchAllStakingOpportunitiesUserData(accountId),
+      )
     })()
-  }, [ethAccountIds, dispatch])
+  }, [dispatch, stakingAccountIds, lpAccountIds])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

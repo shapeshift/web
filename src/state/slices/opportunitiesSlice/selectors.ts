@@ -57,6 +57,16 @@ export const selectUserStakingOpportunitiesById = (state: ReduxState) =>
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
+export const selectLpAccountIds = createDeepEqualOutputSelector(
+  selectLpOpportunitiesByAccountId,
+  (byAccoundId): AccountId[] => Object.keys(byAccoundId),
+)
+
+export const selectStakingAccountIds = createDeepEqualOutputSelector(
+  selectStakingOpportunitiesByAccountId,
+  (byAccoundId): AccountId[] => Object.keys(byAccoundId),
+)
+
 // "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
 export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,

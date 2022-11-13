@@ -89,15 +89,12 @@ export const mockStore: ReduxState = {
   txHistory: {
     txs: {
       byId: {},
-      byAssetId: {},
-      byAccountId: {},
       byAccountIdAssetId: {},
       ids: [],
       status: 'loading',
     },
     rebases: {
-      byAssetId: {},
-      byAccountId: {},
+      byAccountIdAssetId: {},
       ids: [],
       byId: {},
     },

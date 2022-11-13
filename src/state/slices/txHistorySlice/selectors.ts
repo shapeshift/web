@@ -1,16 +1,23 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import entries from 'lodash/entries'
 import intersection from 'lodash/intersection'
+import pickBy from 'lodash/pickBy'
+import values from 'lodash/values'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectChainIdParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectChainIdParamFromFilter,
+} from 'state/selectors'
 
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
-import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
+import { selectPortfolioAccountMetadata, selectWalletAccountIds } from '../portfolioSlice/selectors'
 import type { RebaseId, Tx, TxId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
@@ -121,33 +128,36 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
   },
 )
 
-export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
+const selectWalletTxsByAccountIdAssetId = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
+  (accountIds, txsByAccountIdAssetId) =>
+    pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
+)
 
-type TxHistoryFilter = {
-  assetIds: AssetId[]
-  accountIds?: AccountId[]
-}
-
-const selectAssetIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>
-  filter?.assetIds ?? []
-const selectAccountIdsParamFromFilter = (_state: ReduxState, filter: TxHistoryFilter) =>
-  filter?.accountIds ?? []
+const selectWalletRebasesByAccountIdAssetId = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.txHistory.rebases.byAccountIdAssetId,
+  (accountIds, rebasesByAccountIdAssetId) =>
+    pickBy(rebasesByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
+  // TODO(0xdef1cafe): abstract this to common logic for txs and rebases
+)
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
-  selectTxsByAssetId,
-  selectTxIdsByAccountId,
-  selectAssetIdsParamFromFilter,
-  selectAccountIdsParamFromFilter,
-  (txsByAssetId, txsByAccountId, assetIds, accountIds): TxId[] => {
-    const assetTxIds = assetIds.map(assetId => txsByAssetId[assetId] ?? []).flat()
-    // because the same tx can be related to multiple assets, e.g.
-    // a FOX airdrop claim has an eth fee, after we combine the ids we need to dedupe them
-    if (!accountIds.length) return Array.from(new Set([...assetTxIds]))
-    const accountsTxIds = accountIds
-      .map(accountId => txsByAccountId[accountId])
-      .flat()
+  selectWalletTxsByAccountIdAssetId,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (txsByAccountIdAssetId, assetIdFilter, accountIdFilter): TxId[] => {
+    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
+    const data = pickBy(txsByAccountIdAssetId, (_, accountId) =>
+      accountIdFilter ? accountId === accountIdFilter : true,
+    )
+    const result = entries(data)
+      .flatMap(([, txsByAssetId]) =>
+        assetIdFilter ? txsByAssetId?.[assetIdFilter] : values(txsByAssetId).flat(),
+      )
       .filter(isSome)
-    return intersection(accountsTxIds, assetTxIds)
+    return result
   },
 )
 
@@ -163,21 +173,19 @@ export const selectTxStatusById = createCachedSelector(
 )((_state: ReduxState, txId: TxId) => txId ?? 'undefined')
 
 const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
-export const selectRebasesByAssetId = (state: ReduxState) => state.txHistory.rebases.byAssetId
-export const selectRebaseIdsByAccountId = (state: ReduxState) => state.txHistory.rebases.byAccountId
+export const selectWalletRebaseIdsByAccountIdAssetId = (state: ReduxState) =>
+  state.txHistory.rebases.byAccountIdAssetId
 
 export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
-  selectRebasesByAssetId,
-  selectRebaseIdsByAccountId,
-  selectAssetIdsParamFromFilter,
-  selectAccountIdsParamFromFilter,
-  (rebasesByAssetId, rebaseIdsByAccountId, assetIds, accountIds): RebaseId[] => {
-    // all rebase ids by accountId, may include dupes
-    const rebaseIds = assetIds.map(assetId => rebasesByAssetId[assetId] ?? []).flat()
-    // if we're not filtering on account, return deduped rebase ids for given assets
-    if (!accountIds.length) return Array.from(new Set([...rebaseIds]))
-    const accountRebaseIds = accountIds.map(accountId => rebaseIdsByAccountId[accountId]).flat()
-    return intersection(accountRebaseIds, rebaseIds).filter(isSome)
+  selectWalletRebasesByAccountIdAssetId,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (rebasesByAccountIdAssetId, accountIdFilter, assetIdFilter): RebaseId[] => {
+    if (!assetIdFilter) return [] // requires an assetId
+    if (accountIdFilter) return rebasesByAccountIdAssetId?.[accountIdFilter]?.[assetIdFilter] ?? []
+    return entries(rebasesByAccountIdAssetId)
+      .flatMap(([, rebasesByAssetId]) => rebasesByAssetId?.[assetIdFilter])
+      .filter(isSome)
   },
 )
 

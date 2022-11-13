@@ -86,7 +86,6 @@ export const Portfolio = () => {
           )}
         </Flex>
         <BalanceChart
-          assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}

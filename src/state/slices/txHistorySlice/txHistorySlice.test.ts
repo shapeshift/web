@@ -61,8 +61,6 @@ describe('txHistorySlice', () => {
 
       // The full list of transactions should be sorted by time
       expect(history.ids).toStrictEqual(expected)
-      // The byAsset list should be sorted by time
-      expect(history.byAssetId['eip155:1/slip44:60']).toStrictEqual(expected)
       // The byAccount list should be sorted by time
       expect(history.byAccountId['eip155:1:0xdef1cafe']).toStrictEqual(expected)
     })
@@ -210,15 +208,14 @@ describe('txHistorySlice', () => {
     it('should memoize', () => {
       const txs: TxsState = {
         byId: {},
-        byAssetId: {},
         byAccountId: {},
         byAccountIdAssetId: {},
         ids: ['a', 'b'],
         status: 'loading',
       }
       const rebases: RebasesState = {
-        byAssetId: {},
         byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       }

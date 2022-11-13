@@ -18,7 +18,7 @@ import {
 
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata, selectWalletAccountIds } from '../portfolioSlice/selectors'
-import type { RebaseId, Tx, TxId } from './txHistorySlice'
+import type { RebaseId, Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,
@@ -29,7 +29,6 @@ export const selectTxIds = createDeepEqualOutputSelector(
   ids => ids,
 )
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
-export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
 
 export const selectIsTxHistoryLoading = createSelector(
   selectTxHistoryStatus,
@@ -128,10 +127,10 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
   },
 )
 
-const selectWalletTxsByAccountIdAssetId = createSelector(
+const selectWalletTxIdsByAccountIdAssetId = createSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
-  (accountIds, txsByAccountIdAssetId) =>
+  (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
@@ -144,10 +143,10 @@ const selectWalletRebasesByAccountIdAssetId = createSelector(
 )
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
-  selectWalletTxsByAccountIdAssetId,
-  selectAssetIdParamFromFilter,
+  selectWalletTxIdsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
-  (txsByAccountIdAssetId, assetIdFilter, accountIdFilter): TxId[] => {
+  selectAssetIdParamFromFilter,
+  (txsByAccountIdAssetId, accountIdFilter, assetIdFilter): TxId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
     const data = pickBy(txsByAccountIdAssetId, (_, accountId) =>
       accountIdFilter ? accountId === accountIdFilter : true,
@@ -203,8 +202,9 @@ export const selectRebasesByFilter = createSelector(
  * note - there can be multiple accountIds sharing the same accountNumber - e.g. BTC legacy/segwit/segwit native
  * are all separate accounts that share the same account number
  */
+// TODO(0xdef1cafe): broken, fix
 export const selectMaybeNextAccountNumberByChainId = createSelector(
-  selectTxIdsByAccountId,
+  selectWalletTxIdsByAccountIdAssetId,
   selectTxHistoryStatus,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,

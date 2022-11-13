@@ -371,15 +371,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  console.log({ assetIds })
-
   const walletInfo = useWallet().state.walletInfo
 
   const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
-
-  console.log({ txFilter })
   console.log({ txs })
 
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
@@ -387,7 +383,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
   const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
-  console.log({ rebases })
 
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })

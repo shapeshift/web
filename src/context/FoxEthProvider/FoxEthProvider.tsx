@@ -40,7 +40,7 @@ export type FoxFarmingEarnOpportunityType = OpportunityMetadata & {
   underlyingToken0Amount?: string
   underlyingToken1Amount?: string
   isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional icons property
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 type FoxEthProviderProps = {
   children: React.ReactNode
 }

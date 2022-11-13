@@ -42,7 +42,9 @@ export const parseGovernanceData = (
       choices,
       results: choices.map((_, i) => ({
         absolute: bnOrZero(indexedResult[i]?.total).toString(),
-        percent: indexedResult[i] ? bnOrZero(indexedResult[i].total).div(totalResults).toString() : '0',
+        percent: indexedResult[i]
+          ? bnOrZero(indexedResult[i].total).div(totalResults).toString()
+          : '0',
       })),
     }
   })

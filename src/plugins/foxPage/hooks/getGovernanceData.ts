@@ -8,7 +8,7 @@ export type BoardroomGovernanceResult = {
   currentState: string
   title: string
   choices: string[]
-  results: { total: number; choice: number }[]
+  indexedResult: { total: number; choice: number }[]
   refId: string
 }
 
@@ -30,8 +30,8 @@ export const parseGovernanceData = (
   const activeProposals = governanceData.filter(data => data.currentState === 'active')
   const proposals = activeProposals.length ? activeProposals : [governanceData[0]]
 
-  return proposals.map(({ title, choices, results, refId }) => {
-    const totalResults = results.reduce((acc, currentResult) => {
+  return proposals.map(({ title, choices, indexedResult, refId }) => {
+    const totalResults = indexedResult.reduce((acc, currentResult) => {
       acc = acc.plus(currentResult.total)
       return acc
     }, bnOrZero('0'))
@@ -41,8 +41,8 @@ export const parseGovernanceData = (
       title,
       choices,
       results: choices.map((_, i) => ({
-        absolute: bnOrZero(results[i]?.total).toString(),
-        percent: results[i] ? bnOrZero(results[i].total).div(totalResults).toString() : '0',
+        absolute: bnOrZero(indexedResult[i]?.total).toString(),
+        percent: indexedResult[i] ? bnOrZero(indexedResult[i].total).div(totalResults).toString() : '0',
       })),
     }
   })

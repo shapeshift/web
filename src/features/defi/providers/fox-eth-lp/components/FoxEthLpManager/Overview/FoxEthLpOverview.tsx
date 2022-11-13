@@ -44,8 +44,17 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      accountId,
+      assetId: opportunityId as AssetId,
+      lpId: opportunityId as LpId,
+    }),
+    [accountId, opportunityId],
+  )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, { lpId: opportunityId as LpId }),
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const lpAssetBalanceFilter = useMemo(

@@ -37,11 +37,15 @@ export const AllEarnOpportunities = () => {
 
   const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId ?? '',
     }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {

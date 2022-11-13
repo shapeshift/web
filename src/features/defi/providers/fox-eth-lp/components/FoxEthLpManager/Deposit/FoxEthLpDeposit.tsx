@@ -47,11 +47,15 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
     }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const foxEthLpAsset = useAppSelector(state =>

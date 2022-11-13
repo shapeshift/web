@@ -50,12 +50,16 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [accountId],
   )
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
       accountId: accountId ?? '',
     }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const feeAssetId = toAssetId({

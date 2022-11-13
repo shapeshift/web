@@ -17,23 +17,23 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<HDWalletWCBridge>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+  const ethChainId = useMemo(
+    () =>
+      connectedEvmChainId
+        ? fromChainId(connectedEvmChainId).chainReference
+        : CHAIN_REFERENCE.EthereumMainnet,
+    [connectedEvmChainId],
+  )
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
       .get(
-        supportedEvmChainIds.find(
-          chainId =>
-            chainId ===
-            `${CHAIN_NAMESPACE.Evm}:${
-              connectedEvmChainId
-                ? fromChainId(connectedEvmChainId).chainReference
-                : CHAIN_REFERENCE.EthereumMainnet
-            }`,
-        ) ?? '',
+        supportedEvmChainIds.find(chainId => chainId === `${CHAIN_NAMESPACE.Evm}:${ethChainId}`) ??
+          '',
       )
       ?.getDisplayName()
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
-  }, [connectedEvmChainId, supportedEvmChainIds, translate])
+  }, [ethChainId, supportedEvmChainIds, translate])
 
   const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
   const onCallRequest = useCallback(
@@ -96,7 +96,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!wcSessionJsonString) return
 
     const session = JSON.parse(wcSessionJsonString)
-    console.info(session)
     const existingBridge = HDWalletWCBridge.fromSession(
       session,
       wallet,
@@ -139,6 +138,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         approveRequest,
         rejectRequest,
         chainName,
+        ethChainId,
       }}
     >
       {children}

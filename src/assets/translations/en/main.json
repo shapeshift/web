@@ -1479,11 +1479,12 @@
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",
+          "sendingTo": "Sending To",
           "interactingWith": "Interacting With",
+          "amount": "Amount",
           "contractInteraction": {
             "title": "Contract Interaction",
             "sendingEth": "Sending ETH",
-            "amount": "Amount",
             "data": "Raw Data (hex encoded)"
           },
           "advancedParameters": {

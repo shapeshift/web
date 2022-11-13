@@ -4,8 +4,11 @@ import {
   Divider,
   FormControl,
   HStack,
+  NumberInput,
+  NumberInputField,
   Radio,
   RadioGroup,
+  SimpleGrid,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -50,21 +53,21 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
             {
               value: FeeDataKey.Slow,
               label: translate(getFeeTranslation(FeeDataKey.Slow)),
-              duration: '~ 10 mins',
+              duration: translate('gasInput.duration.slow'),
               amount: fees.slow.txFee,
               color: 'green.200',
             },
             {
               value: FeeDataKey.Average,
               label: translate(getFeeTranslation(FeeDataKey.Average)),
-              duration: '~ 3 mins',
+              duration: translate('gasInput.duration.average'),
               amount: fees.average.txFee,
               color: 'blue.200',
             },
             {
               value: FeeDataKey.Fast,
               label: translate(getFeeTranslation(FeeDataKey.Fast)),
-              duration: '~ 30 seconds',
+              duration: translate('gasInput.duration.fast'),
               amount: fees.fast.txFee,
               color: 'red.400',
             },
@@ -126,9 +129,9 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                 <Divider />
               </Fragment>
             ))}
-            {/* <Box px={4} py={2} width='full'>
+            <Box px={4} py={2} width='full'>
               <HStack width='full'>
-                <Radio color='blue'>
+                <Radio color='blue' value='custom'>
                   <Text translation='gasInput.custom' />
                 </Radio>
               </HStack>
@@ -142,7 +145,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                     <Text translation='gasInput.base.label' color='gray.500' fontWeight='medium' />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='Number...' />
+                    <NumberInputField placeholder='0 gwei' />
                   </NumberInput>
                 </Box>
                 <Box>
@@ -154,11 +157,11 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                     />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='Number...' />
+                    <NumberInputField placeholder='0 gwei' />
                   </NumberInput>
                 </Box>
               </SimpleGrid>
-            </Box> */}
+            </Box>
           </VStack>
         </RadioGroup>
       </Box>

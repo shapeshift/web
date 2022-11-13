@@ -99,7 +99,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
             <Text
               color='gray.500'
               fontWeight='medium'
-              translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.amount'
+              translation='plugins.walletConnectToDapps.modal.sendTransaction.amount'
               fontSize='sm'
             />
             <RawText fontWeight='medium' fontSize='md'>

@@ -1,3 +1,4 @@
+import type { ChainReference } from '@shapeshiftoss/caip'
 import type {
   HDWalletWCBridge,
   WalletConnectCallRequest,
@@ -7,6 +8,7 @@ import { createContext, useContext } from 'react'
 
 type WalletConnectBridgeContextValue = {
   chainName: string
+  ethChainId: ChainReference
   bridge: HDWalletWCBridge | undefined
   dapp: IClientMeta | undefined
   callRequests: WalletConnectCallRequest[]
@@ -18,6 +20,7 @@ type WalletConnectBridgeContextValue = {
 
 export const WalletConnectBridgeContext = createContext<WalletConnectBridgeContextValue>({
   chainName: '',
+  ethChainId: '1',
   bridge: undefined,
   dapp: undefined,
   callRequests: [],

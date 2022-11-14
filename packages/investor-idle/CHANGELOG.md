@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.5...@shapeshiftoss/investor-idle-v2.2.0) (2022-11-14)
+
+
+### Features
+
+* **investor-idle:** getRewardAssetIds ([#1086](https://github.com/shapeshift/lib/issues/1086)) ([ca87ff2](https://github.com/shapeshift/lib/commit/ca87ff223b061d570d2c480d0a79f7ac306c1f04))
+
 # [@shapeshiftoss/investor-idle-v2.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.4...@shapeshiftoss/investor-idle-v2.1.5) (2022-10-19)
 
 # [@shapeshiftoss/investor-idle-v2.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.3...@shapeshiftoss/investor-idle-v2.1.4) (2022-10-13)

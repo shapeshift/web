@@ -17,7 +17,7 @@ export const initialState: IdleClaimState = {
 export const reducer = (state: IdleClaimState, action: IdleClaimActions): IdleClaimState => {
   switch (action.type) {
     case IdleClaimActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
+      return { ...state, opportunity: action.payload }
     case IdleClaimActionType.SET_CLAIMABLE_TOKENS:
       return { ...state, claimableTokens: action.payload }
     case IdleClaimActionType.SET_CLAIM:

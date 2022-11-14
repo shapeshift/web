@@ -29,6 +29,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
@@ -71,6 +72,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
+  const isIframeEnabled = useFeatureFlag('FiatIframe')
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -151,9 +153,11 @@ export const Overview: React.FC<OverviewProps> = ({
           currentUrl: window.location.href,
         },
       })
-      if (url) popup.open({ url, title: 'Buy' })
+      if (url) {
+        isIframeEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
+      }
     },
-    [assetId, colorMode, fiatRampAction, popup, selectedLocale],
+    [assetId, colorMode, fiatRampAction, isIframeEnabled, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {

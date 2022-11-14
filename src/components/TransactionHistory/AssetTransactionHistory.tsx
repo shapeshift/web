@@ -1,7 +1,11 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button } from '@chakra-ui/react'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -19,6 +23,10 @@ type AssetTransactionHistoryProps = {
   useCompactMode?: boolean
   limit?: number
 }
+export type MatchParams = {
+  chainId: ChainId
+  assetSubId: string
+}
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
@@ -27,6 +35,8 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   limit,
 }) => {
   const translate = useTranslate()
+  const location = useLocation()
+  const generatedPath = `${location.pathname}/transactions`
   const {
     state: { wallet },
   } = useWallet()
@@ -53,7 +63,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
         <Card.Heading>
           {translate(
             useCompactMode
@@ -61,6 +71,18 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
               : 'transactionHistory.transactionHistory',
           )}
         </Card.Heading>
+        {limit && txIds.length > limit && (
+          <Button
+            variant='link'
+            size='sm'
+            colorScheme='blue'
+            as={NavLink}
+            to={generatedPath}
+            rightIcon={<ArrowForwardIcon />}
+          >
+            {translate('common.seeAll')}
+          </Button>
+        )}
       </Card.Header>
       <TransactionHistoryList
         txIds={limit ? txIds.slice(0, limit) : txIds}

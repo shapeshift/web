@@ -51,12 +51,6 @@ const selectTxIdsParam = createDeepEqualOutputSelector(
   txIds => txIds,
 )
 
-export const selectLastNTxIds = createDeepEqualOutputSelector(
-  selectTxIds,
-  (_state: ReduxState, count: number) => count,
-  (ids, count) => ids.slice(0, count),
-)
-
 export const selectTxById = createCachedSelector(
   selectTxs,
   selectTxIdParam,
@@ -162,6 +156,12 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
       .filter(isSome)
     return uniq(flattened)
   },
+)
+
+export const selectLastNTxIds = createDeepEqualOutputSelector(
+  selectTxIdsByFilter,
+  (_state: ReduxState, count: number) => count,
+  (ids, count) => ids.slice(0, count),
 )
 
 export const selectTxsByFilter = createDeepEqualOutputSelector(

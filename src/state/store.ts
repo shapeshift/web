@@ -21,7 +21,7 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: [''],
+  whitelist: ['txHistory'],
   storage: localforage,
 }
 
@@ -43,7 +43,6 @@ const persistedReducer = persistReducer(persistConfig, reducer)
 export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
-  store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
 

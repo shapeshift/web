@@ -54,12 +54,13 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   useEffect(() => {
     if (!isOpen) return
     popupRef.current = popupCenterWindow(url, title, width, height)
-    var loop = setInterval(function () {
+    const interval = setInterval(() => {
       if (popupRef.current && popupRef.current.closed) {
-        clearInterval(loop)
+        clearInterval(interval)
         popup.close()
       }
     }, 1000)
+    return () => clearInterval(interval)
   }, [popup, isOpen, title, url, width, height])
   return (
     <Modal isOpen={isOpen} onClose={onClose} size='full'>

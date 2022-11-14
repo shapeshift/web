@@ -152,7 +152,6 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
   selectWalletTxIdsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  // TODO(0xdef1cafe): abstract to commonEventCombiner
   (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
     const filtered = pickBy(data, (_, accountId) =>
@@ -193,7 +192,6 @@ export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
   selectWalletRebasesByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  // TODO(0xdef1cafe): abstract to commonEventCombiner
   (rebaseIds, data, accountIdFilter, assetIdFilter): RebaseId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
     const filtered = pickBy(data, (_, accountId) =>

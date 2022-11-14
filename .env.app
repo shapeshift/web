@@ -26,14 +26,15 @@ REACT_APP_UNCHAINED_LITECOIN_WS_URL=wss://api.litecoin.shapeshift.com
 REACT_APP_UNCHAINED_LITECOIN_HTTP_URL=https://api.litecoin.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL=https://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_WS_URL=wss://api.bitcoincash.shapeshift.com
-REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
-REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
+REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://dev-api.cosmos.shapeshift.com
+REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://dev-api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL=https://api.osmosis.shapeshift.com
 REACT_APP_UNCHAINED_OSMOSIS_WS_URL=wss://api.osmosis.shapeshift.com
 REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.thorchain.shapeshift.com
 REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
 
 # nodes
+REACT_APP_COSMOS_NODE_URL=https://dev-daemon.cosmos.shapeshift.com/lcd
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com
 REACT_APP_ETHEREUM_INFURA_URL=https://mainnet.infura.io/v3/6e2f28ff4f5340fdb0db5da3baec0af2

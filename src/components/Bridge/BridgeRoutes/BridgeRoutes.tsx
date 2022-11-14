@@ -38,9 +38,15 @@ export const BridgeRoutes = () => {
             <SelectChain onClick={handleToChainClick} {...props} />
           )}
         />
-        <Route path={BridgeRoutePaths.Input} component={BridgeInput} />
-        <Route path={BridgeRoutePaths.Confirm} component={Confirm} />
-        <Route path={BridgeRoutePaths.Status} component={Status} />
+        <Route path={BridgeRoutePaths.Input}>
+          <BridgeInput />
+        </Route>
+        <Route path={BridgeRoutePaths.Confirm}>
+          <Confirm />
+        </Route>
+        <Route path={BridgeRoutePaths.Status}>
+          <Status />
+        </Route>
         <Redirect from='/' to={BridgeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>

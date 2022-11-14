@@ -22,10 +22,14 @@ import type { OpportunitiesBucket } from '../FoxCommon'
 import { OpportunityTypes } from '../FoxCommon'
 
 export const useOtherOpportunities = (assetId: AssetId) => {
-  const highestFarmingBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, {
+  const highestFarmingBalanceAccountIdFilter = useMemo(
+    () => ({
       stakingId: foxEthStakingAssetIdV4 as StakingId,
     }),
+    [],
+  )
+  const highestFarmingBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestFarmingBalanceAccountIdFilter),
   )
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
@@ -49,11 +53,15 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     }),
   )
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const otherOpportunities = useMemo(() => {

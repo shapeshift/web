@@ -1,4 +1,5 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -59,11 +60,15 @@ export const PortfolioBreakdown = () => {
   const balances = useEarnBalances()
   //FOX/ETH LP Balance
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
       lpId: foxEthLpAssetId as LpId,
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0

@@ -164,13 +164,13 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const cryptoAmountAvailable = useMemo(
+  const cryptoHumanAmountAvailable = useMemo(
     () => bnOrZero(balance).div(bn(10).pow(asset?.precision)),
     [asset?.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData?.price),
-    [cryptoAmountAvailable, marketData?.price],
+    () => bnOrZero(cryptoHumanAmountAvailable).times(marketData?.price),
+    [cryptoHumanAmountAvailable, marketData?.price],
   )
 
   const validateCryptoAmount = useCallback(
@@ -219,7 +219,7 @@ export const Deposit: React.FC<DepositProps> = ({
       rewardAsset={rewardAsset}
       inputIcons={opportunity?.icons}
       apy={String(opportunity?.apy)}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

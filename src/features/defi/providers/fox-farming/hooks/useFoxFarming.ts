@@ -1,17 +1,9 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  ChainAdapter,
-  ethereum,
-  EvmBaseAdapter,
-  EvmChainId,
-  FeeData,
-} from '@shapeshiftoss/chain-adapters'
+import type { ethereum, EvmBaseAdapter, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import isNumber from 'lodash/isNumber'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -20,6 +12,7 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { isValidAccountNumber } from 'lib/utils'
 import {
   foxEthLpAssetId,
   uniswapV2Router02AssetId,
@@ -56,7 +49,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   } = useWallet()
 
   const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+  const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as ethereum.ChainAdapter
 
   const uniswapRouterContract = useMemo(
     () =>
@@ -88,7 +81,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
-        if (skip || !farmingAccountId || !isNumber(accountNumber) || !foxFarmingContract || !wallet)
+        if (
+          skip ||
+          !farmingAccountId ||
+          !isValidAccountNumber(accountNumber) ||
+          !foxFarmingContract ||
+          !wallet
+        )
           return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
@@ -119,7 +118,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
             if (!shouldUseEIP1559Fees && gasPrice === undefined) {
               throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
             }
-            return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
+            return await adapter.buildCustomTx({
               to: contractAddress,
               value: '0x00',
               wallet,
@@ -182,10 +181,18 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
       try {
-        if (skip || !farmingAccountId || !isNumber(accountNumber) || !foxFarmingContract || !wallet)
+        if (
+          skip ||
+          !farmingAccountId ||
+          !isValidAccountNumber(accountNumber) ||
+          !foxFarmingContract ||
+          !wallet
+        )
           return
         const chainAdapterManager = getChainAdapterManager()
-        const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+        const adapter = chainAdapterManager.get(
+          ethAsset.chainId,
+        ) as unknown as ethereum.ChainAdapter
         if (!adapter)
           throw new Error(`foxFarmingUnstake: no adapter available for ${ethAsset.chainId}`)
         const data = isExiting
@@ -194,7 +201,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
               bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
             ])
         const adapterType = adapter.getChainId()
-        const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -362,7 +369,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   )
 
   const approve = useCallback(async () => {
-    if (!wallet || !isNumber(accountNumber) || !uniV2LPContract) return
+    if (!wallet || !isValidAccountNumber(accountNumber) || !uniV2LPContract) return
     const data = uniV2LPContract.interface.encodeFunctionData('approve', [
       contractAddress,
       MaxUint256,
@@ -430,7 +437,13 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   )
 
   const claimRewards = useCallback(async () => {
-    if (skip || !wallet || !isNumber(accountNumber) || !foxFarmingContract || !farmingAccountId)
+    if (
+      skip ||
+      !wallet ||
+      !isValidAccountNumber(accountNumber) ||
+      !foxFarmingContract ||
+      !farmingAccountId
+    )
       return
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
     const farmingAccountAddress = fromAccountId(farmingAccountId).account

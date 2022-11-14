@@ -47,7 +47,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   const foxEthLpOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserLpOpportunity(state, {
       lpId: foxEthLpAssetId as LpId,
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
   )
 
@@ -65,7 +65,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
-      assetId: foxEthLpAssetId ?? '',
+      assetId: foxEthLpAssetId,
     }),
     [],
   )

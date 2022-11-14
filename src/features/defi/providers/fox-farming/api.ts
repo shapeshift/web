@@ -18,7 +18,7 @@ export const getOpportunityData = async ({
   lpAssetPrecision,
   foxAssetPrecision,
   foxPrice,
-  address,
+  userAddress,
 }: {
   contractAddress: string
   ethAssetPrecision: number
@@ -26,7 +26,7 @@ export const getOpportunityData = async ({
   lpAssetPrecision: number
   foxAssetPrecision: number
   foxPrice: string
-  address: string
+  userAddress: string
 }) => {
   const ethersProvider = getEthersProvider()
   const foxFarmingContract = new Contract(contractAddress, farmAbi, ethersProvider)
@@ -68,8 +68,8 @@ export const getOpportunityData = async ({
     .toString()
 
   // balances
-  const stakedBalance = await foxFarmingContract.balanceOf(address)
-  const rewardsAmountCryptoPrecision = await foxFarmingContract.earned(address)
+  const stakedBalance = await foxFarmingContract.balanceOf(userAddress)
+  const rewardsAmountCryptoPrecision = await foxFarmingContract.earned(userAddress)
   const stakedAmount = bnOrZero(stakedBalance.toString()).div(`1e${lpAssetPrecision}`)
   const stakeFiatBalance = stakedAmount.times(lpTokenPrice)
   const rewardsAmountCryptoPrecisionCryptoAmount = bnOrZero(

@@ -346,7 +346,7 @@ export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
             )
           : 0,
       )
-      .toString()
+      .toFixed()
   },
 )
 
@@ -491,7 +491,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       // TODO: add LP portfolio amount to this
       totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] = bnOrZero(
         aggregatedUserStakingOpportunity?.stakedAmountCryptoPrecision,
-      ).toString()
+      ).toFixed()
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {

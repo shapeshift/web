@@ -1,16 +1,9 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  ChainAdapter,
-  ethereum,
-  EvmBaseAdapter,
-  EvmChainId,
-  FeeData,
-} from '@shapeshiftoss/chain-adapters'
+import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { ethereum, EvmBaseAdapter, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import isNumber from 'lodash/isNumber'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
@@ -64,7 +57,7 @@ export const useFoxEthLiquidityPool = (
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
-  const filter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const filter = useMemo(() => ({ accountId }), [accountId])
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 
@@ -74,8 +67,7 @@ export const useFoxEthLiquidityPool = (
   const ethPrice = useAppSelector(state => selectMarketDataById(state, ethAssetId)).price
 
   const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
-
+  const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
   const uniswapRouterContract = useMemo(
     () =>
       skip
@@ -150,7 +142,7 @@ export const useFoxEthLiquidityPool = (
               throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
             }
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-            return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
+            return await adapter.buildCustomTx({
               to: contractAddress,
               // the eth value need to be starting with 0x and be base 16
               value: '0x' + bnOrZero(value).toString(16),
@@ -217,7 +209,9 @@ export const useFoxEthLiquidityPool = (
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
         const chainAdapterManager = getChainAdapterManager()
-        const adapter = chainAdapterManager.get(ethAsset.chainId) as ChainAdapter<KnownChainIds>
+        const adapter = chainAdapterManager.get(
+          ethAsset.chainId,
+        ) as unknown as ethereum.ChainAdapter
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const data = uniswapRouterContract?.interface.encodeFunctionData('removeLiquidityETH', [
@@ -254,7 +248,7 @@ export const useFoxEthLiquidityPool = (
               throw new Error(`addLiquidityEthFox: missing gasPrice for non-EIP-1559 tx`)
             }
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-            return await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
+            return await adapter.buildCustomTx({
               to: contractAddress,
               value: '0x00',
               wallet,
@@ -457,8 +451,11 @@ export const useFoxEthLiquidityPool = (
     async (forWithdrawal?: boolean) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
       const contract = forWithdrawal ? uniV2LPContract : foxContract
+
+      if (!contract) return
+
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      const data = contract!.interface.encodeFunctionData('approve', [contractAddress, MaxUint256])
+      const data = contract.interface.encodeFunctionData('approve', [contractAddress, MaxUint256])
       const gasData = await getApproveGasData(forWithdrawal)
       if (!gasData) return
       const fees = gasData.average as FeeData<EvmChainId>
@@ -468,7 +465,7 @@ export const useFoxEthLiquidityPool = (
       if (gasPrice === undefined) {
         throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
       }
-      const result = await (adapter as unknown as ethereum.ChainAdapter).buildCustomTx({
+      const result = await adapter.buildCustomTx({
         to: contract!.address,
         value: '0x00',
         wallet,

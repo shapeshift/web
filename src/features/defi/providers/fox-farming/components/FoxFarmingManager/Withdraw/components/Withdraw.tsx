@@ -127,8 +127,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
       // exit if max button was clicked
-      if (percent === 1) setIsExiting(true)
-      else setIsExiting(false)
+      setIsExiting(percent === 1)
     },
     [opportunity?.cryptoAmount, opportunity?.fiatAmount, setValue],
   )
@@ -139,8 +138,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         bnOrZero(isFiat ? opportunity?.fiatAmount : opportunity?.cryptoAmount),
       )
       // exit if withdrawing total balance
-      if (percentage.eq(1)) setIsExiting(true)
-      else setIsExiting(false)
+      setIsExiting(percentage.eq(1))
     },
     [opportunity?.cryptoAmount, opportunity?.fiatAmount],
   )

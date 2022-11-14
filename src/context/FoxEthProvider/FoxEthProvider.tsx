@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -91,15 +91,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   }, [lpAccountIds])
 
   useEffect(() => {
-    ;(async () => {
-      await fetchAllOpportunitiesMetadata()
-    })()
+    fetchAllOpportunitiesMetadata()
   }, [lpAccountIds, stakingAccountIds, dispatch, refetchFoxEthLpAccountData])
 
   useEffect(() => {
-    ;(async () => {
-      await refetchFoxEthLpAccountData()
-    })()
+    refetchFoxEthLpAccountData()
   }, [refetchFoxEthLpAccountData])
 
   const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId }), [lpAccountId])
@@ -138,9 +134,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
       if (!(farmingAccountId || lpAccountId)) return
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
-      const accountAddress = fromAccountId(
-        type === 'farming' ? farmingAccountId! : lpAccountId!,
-      ).account
+      if (!accountId) return
+      const accountAddress = fromAccountId(accountId).account
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
@@ -149,18 +144,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const handleOngoingFarmingTxIdChange = useCallback(
     (txid: string, contractAddress?: string) => {
-      if (!farmingAccountId) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
-    [farmingAccountId, handleOngoingTxIdChange],
+    [handleOngoingTxIdChange],
   )
 
   const handleOngoingLpTxIdChange = useCallback(
     (txid: string, contractAddress?: string) => {
-      if (!lpAccountId) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },
-    [handleOngoingTxIdChange, lpAccountId],
+    [handleOngoingTxIdChange],
   )
 
   useEffect(() => {
@@ -173,7 +166,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             opportunitiesApi.endpoints.getOpportunityUserData.initiate(
               {
                 accountId: farmingAccountId ?? '',
-                opportunityId: ongoingTxContractAddress as LpId,
+                opportunityId: toAssetId({
+                  assetNamespace: 'erc20',
+                  chainId: ethChainId,
+                  assetReference: ongoingTxContractAddress,
+                }) as LpId,
                 opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
               },

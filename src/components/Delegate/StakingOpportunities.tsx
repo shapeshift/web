@@ -233,8 +233,15 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
             <Text translation='staking.staking' />
           </Card.Heading>
 
-          <Button size='sm' variant='link' colorScheme='blue' as={NavLink} to='/defi/earn'>
-            <Text translation='common.seeAll' /> <ArrowForwardIcon />
+          <Button
+            size='sm'
+            variant='link'
+            colorScheme='blue'
+            as={NavLink}
+            to='/defi/earn'
+            rightIcon={<ArrowForwardIcon />}
+          >
+            <Text translation='common.seeAll' />
           </Button>
         </HStack>
       </Card.Header>

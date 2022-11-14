@@ -123,8 +123,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
               ml='auto'
               as={NavLink}
               to='/defi/earn'
+              rightIcon={<ArrowForwardIcon />}
             >
-              <Text translation='common.seeAll' /> <ArrowForwardIcon />
+              <Text translation='common.seeAll' />
             </Button>
           </Box>
         </HStack>

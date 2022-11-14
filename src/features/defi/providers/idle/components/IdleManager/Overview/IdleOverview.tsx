@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -28,6 +28,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
@@ -61,7 +62,17 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const accountBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, accountFilter),
+  )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  const defaultBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, { accountId: defaultAccountId }),
+  )
+  const bip44Params = useMemo(
+    () => accountBip44Params ?? defaultBip44Params,
+    [accountBip44Params, defaultBip44Params],
+  )
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const toast = useToast()

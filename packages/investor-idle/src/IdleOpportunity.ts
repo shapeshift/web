@@ -1,4 +1,4 @@
-import { toAssetId } from '@shapeshiftoss/caip'
+import { AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -213,27 +213,15 @@ export class IdleOpportunity
       methodName = `redeemIdleToken`
     }
 
-    // console.log('prepareWithdrawal', methodName, address, amount.toFixed())
-
     const preWithdraw = await vaultContract.methods[methodName](amount.toFixed())
-
-    // console.log('prepareWithdrawal - preWithdraw', preWithdraw)
 
     const data = await preWithdraw.encodeABI({ from: address })
 
-    // console.log('prepareWithdrawal - data', data)
-
     const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
-
-    // console.log('prepareWithdrawal - estimatedGas', estimatedGas)
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    // console.log('prepareWithdrawal - nonce', nonce)
-
     const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
-
-    // console.log('prepareWithdrawal - gasPrice', gasPrice)
 
     return {
       chainId: 1,
@@ -249,27 +237,15 @@ export class IdleOpportunity
   public async prepareClaimTokens(address: string): Promise<PreparedTransaction> {
     const vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
 
-    // console.log('prepareWithdrawal', address)
-
     const preWithdraw = await vaultContract.methods.redeemIdleToken(0)
-
-    // console.log('prepareWithdrawal - preWithdraw', preWithdraw)
 
     const data = await preWithdraw.encodeABI({ from: address })
 
-    // console.log('prepareWithdrawal - data', data)
-
     const estimatedGas = bnOrZero(await preWithdraw.estimateGas({ from: address }))
-
-    // console.log('prepareWithdrawal - estimatedGas', estimatedGas)
 
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    // console.log('prepareWithdrawal - nonce', nonce)
-
     const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
-
-    // console.log('prepareWithdrawal - gasPrice', gasPrice)
 
     return {
       chainId: 1,
@@ -313,23 +289,13 @@ export class IdleOpportunity
 
     const preDeposit = await vaultContract.methods[methodName](...methodParams)
 
-    // console.log('prepareDeposit - routerContract.deposit', preDeposit)
-
     const data = await preDeposit.encodeABI({ from: address })
-
-    // console.log('prepareDeposit - data', data)
 
     const estimatedGas = bnOrZero(await preDeposit.estimateGas({ from: address }))
 
-    // console.log('prepareDeposit - estimatedGas', estimatedGas)
-
     const nonce = await this.#internals.web3.eth.getTransactionCount(address)
 
-    // console.log('prepareDeposit - nonce', nonce)
-
     const gasPrice = bnOrZero(await this.#internals.web3.eth.getGasPrice())
-
-    // console.log('prepareDeposit - gasPrice', gasPrice)
 
     return {
       chainId: 1,
@@ -342,6 +308,21 @@ export class IdleOpportunity
     }
   }
 
+  async getRewardAssetIds(): Promise<AssetId[]> {
+    const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+    const govTokens = await vaultContract.methods.getGovTokens().call()
+
+    const rewardAssetIds = govTokens.map((token: string) =>
+      toAssetId({
+        assetNamespace: 'erc20',
+        assetReference: token,
+        chainId: ethChainId,
+      }),
+    )
+
+    return rewardAssetIds
+  }
+
   /**
    * Prepare an unsigned deposit transaction
    *
@@ -352,19 +333,12 @@ export class IdleOpportunity
       return []
     }
 
-    // console.log('getClaimableTokens - address', address)
-    // console.log('getClaimableTokens - vaultId', this.id)
-
     const claimableTokens: ClaimableToken[] = []
     const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
     const govTokensAmounts = await vaultContract.methods.getGovTokensAmounts(address).call()
 
-    // console.log('getClaimableTokens - govTokensAmounts', govTokensAmounts)
-
     for (let i = 0; i < govTokensAmounts.length; i++) {
       const govTokenAddress = await vaultContract.methods.govTokens(i).call()
-
-      // console.log(`getClaimableTokens - govTokenAddress(${i})`, govTokenAddress)
 
       if (govTokenAddress) {
         claimableTokens.push({
@@ -378,8 +352,6 @@ export class IdleOpportunity
         })
       }
     }
-
-    // console.log('getClaimableTokens - claimableTokens', claimableTokens)
 
     return claimableTokens
   }
@@ -465,8 +437,6 @@ export class IdleOpportunity
       value: numberToHex(tx.value),
       addressNList: toAddressNList(bip44Params),
     }
-
-    // console.log('signAndBroadcast', txToSign)
 
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await chainAdapter.signTransaction({ txToSign, wallet })

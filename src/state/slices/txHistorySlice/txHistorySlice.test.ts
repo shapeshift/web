@@ -22,14 +22,12 @@ describe('txHistorySlice', () => {
     expect(store.getState().txHistory).toEqual({
       txs: {
         byId: {},
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         status: 'loading',
       },
       rebases: {
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       },
@@ -161,7 +159,7 @@ describe('txHistorySlice', () => {
       ).toBe(TxStatus.Confirmed)
     })
 
-    fit('should add txids by accountIdAssetId', () => {
+    it('should add txids by accountIdAssetId', () => {
       const ethAccountId = `${EthSend.chainId}:0xdef1cafe`
       const segwitNativeAccountId = `${BtcSend.chainId}:zpub`
       const segwitAccountId = `${BtcSend.chainId}:ypub`

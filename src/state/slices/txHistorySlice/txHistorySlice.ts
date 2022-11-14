@@ -27,21 +27,26 @@ export type TxHistoryById = {
   [k: TxId]: Tx
 }
 
-/* this is a one to many relationship of asset id to tx id
+/* this is a one to many relationship of an account and asset id to tx id
  *
  * e.g. an account with a single trade of FOX to USDC will produce the following
  * three related assets
  *
  * {
- *   foxAssetId: [txid] // sell asset
- *   usdcAssetId: [txid] // buy asset
- *   ethAssetId: [txid] // fee asset
+ *   0xfoobaraccount: {
+ *     foxAssetId: [txid] // sell asset
+ *     usdcAssetId: [txid] // buy asset
+ *     ethAssetId: [txid] // fee asset
+ *   }
  * }
  *
  * where txid is the same txid related to all the above assets, as the
  * sell asset, buy asset, and fee asset respectively
  *
  * this allows us to O(1) select all related transactions to a given asset
+ *
+ * note - we persist this data structure to disk across page refresh, and wallet disconnections
+ * and use the accountIds from the connected wallet to index into it
  */
 
 export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
@@ -84,7 +89,7 @@ const initialState: TxHistory = {
     byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-    status: 'loaded', // TODO(0xdef1cafe): remove this
+    status: 'loading', // TODO(0xdef1cafe): remove this
   },
   rebases: {
     byAccountIdAssetId: {},

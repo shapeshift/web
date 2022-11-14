@@ -54,7 +54,7 @@ export type RebaseId = Nominal<string, 'RebaseId'>
 type RebaseById = PartialRecord<RebaseId, RebaseHistory>
 
 type RebaseIdsByAssetId = PartialRecord<AssetId, RebaseId[]>
-type RebaseIdsByAccountIdAssetId = PartialRecord<AccountId, RebaseIdsByAssetId>
+export type RebaseIdsByAccountIdAssetId = PartialRecord<AccountId, RebaseIdsByAssetId>
 
 export type TxsState = {
   byId: TxHistoryById

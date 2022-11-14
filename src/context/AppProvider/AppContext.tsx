@@ -1,7 +1,6 @@
 import { AlertDescription, Button, Flex, useToast } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { entries } from 'lodash'
@@ -120,9 +119,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      const chainIds = Array.from(evmChainIds).filter(chainId =>
-        walletSupportsChain({ chainId, wallet }),
-      )
+      const chainIds = supportedChains.filter(chainId => walletSupportsChain({ chainId, wallet }))
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
         // only some wallets support multi account

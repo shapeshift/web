@@ -6,7 +6,7 @@ import {
   ModalOverlay,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
@@ -39,13 +39,13 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const { popup } = useModal()
   const translate = useTranslate()
   const { close: onClose, isOpen } = popup
-  const popupRef = useRef<Window | null | void>(null)
+  const [popupWindow, setPopupWindow] = useState<Window | null | void>(null)
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
 
-  const handleFocusWindow = useCallback(() => popupRef.current?.focus?.(), [])
+  const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 
-  const handleCloseWindow = useCallback(() => popupRef.current?.close?.(), [])
+  const handleCloseWindow = useCallback(() => popupWindow?.close?.(), [popupWindow])
 
   const handleContinue = useCallback(() => {
     window.open(url, '_blank')?.focus()
@@ -53,15 +53,20 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) return
-    popupRef.current = popupCenterWindow(url, title, width, height)
+    const newWindow = popupCenterWindow(url, title, width, height)
+    setPopupWindow(newWindow)
     const interval = setInterval(() => {
-      if (popupRef.current && popupRef.current.closed) {
+      if (popupWindow && popupWindow.closed) {
         clearInterval(interval)
         popup.close()
       }
     }, 1000)
-    return () => clearInterval(interval)
-  }, [popup, isOpen, title, url, width, height])
+    return () => {
+      clearInterval(interval)
+      setPopupWindow(null)
+    }
+  }, [popup, isOpen, title, url, width, height, popupWindow])
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size='full'>
       <ModalOverlay
@@ -80,10 +85,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
         >
           <CircularProgress />
           <Text
-            translation={popupRef.current ? 'modals.popup.body' : 'modals.popup.body2'}
+            translation={popupWindow ? 'modals.popup.body' : 'modals.popup.body2'}
             fontSize='xl'
           />
-          {popupRef?.current ? (
+          {popupWindow ? (
             <Button colorScheme='blue' onClick={handleFocusWindow}>
               {translate('modals.popup.showWindow')}
             </Button>

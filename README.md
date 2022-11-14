@@ -47,25 +47,26 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-If you are using Linux and MacOS it works out of the box following the steps.<br/>
-⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
+If you are using Linux and MacOS it works out of the box following the steps.
 
-- Clone the repo
+> ⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL) and make sure to use the WSL filesystem to store your clone of the repository in order to avoid issues with line endings and enjoy better performance.
 
-- (optional) Make sure you're using the right Node.js version.
+1. Clone the repo
+
+2. (optional) Make sure you're using the right Node.js version.
 
   ```sh
   nvm use
   ```
 
-- Install Dependencies:
+3. Install Dependencies:
 
   ```sh
   # This is short for `yarn install`; be sure to use `yarn install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
   yarn
   ```
 
-- Run `yarn env dev` to generate a `.env` file
+4. Run `yarn env dev` to generate a `.env` file
 
 ### Commands
 

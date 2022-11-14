@@ -42,7 +42,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <AssetAccounts assetId={assetId} accountId={accountId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />
-          <AssetTransactionHistory /* limit={3} */ assetId={assetId} accountId={accountId} />
+          <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>
         <Flex
           flexDir='column'

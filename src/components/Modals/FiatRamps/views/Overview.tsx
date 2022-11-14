@@ -29,6 +29,8 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -42,6 +44,7 @@ import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
+import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
@@ -67,7 +70,9 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const assetsById = useSelector(selectAssets)
+  const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
+  const isPopupEnabled = useFeatureFlag('FiatPopup')
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -135,6 +140,26 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
+  const handlePopupClick = useCallback(
+    ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
+      const ramp = supportedFiatRamps[rampId]
+      const url = ramp.onSubmit({
+        action: fiatRampAction,
+        assetId,
+        address,
+        options: {
+          language: selectedLocale,
+          mode: colorMode,
+          currentUrl: window.location.href,
+        },
+      })
+      if (url) {
+        isPopupEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
+      }
+    },
+    [assetId, colorMode, fiatRampAction, isPopupEnabled, popup, selectedLocale],
+  )
+
   const renderProviders = useMemo(() => {
     if (!assetId) return null
     if (isRampsLoading) return null
@@ -159,18 +184,7 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() =>
-              ramp.onSubmit({
-                action: fiatRampAction,
-                assetId,
-                address: passedAddress,
-                options: {
-                  language: selectedLocale,
-                  mode: colorMode,
-                  currentUrl: window.location.href,
-                },
-              })
-            }
+            onClick={() => handlePopupClick({ rampId, address: passedAddress })}
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
@@ -181,12 +195,11 @@ export const Overview: React.FC<OverviewProps> = ({
     accountFiatBalance,
     address,
     assetId,
-    colorMode,
     fiatRampAction,
+    handlePopupClick,
     isDemoWallet,
     isRampsLoading,
     ramps,
-    selectedLocale,
   ])
 
   const inputValue = useMemo(() => {

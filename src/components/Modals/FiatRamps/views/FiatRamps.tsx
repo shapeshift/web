@@ -23,11 +23,7 @@ type FiatFormProps = {
   fiatRampAction?: FiatRampAction
 }
 
-export const FiatForm: React.FC<FiatFormProps> = ({
-  handleIsSelectingAsset,
-  assetId = ethAssetId,
-  fiatRampAction,
-}) => {
+export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRampAction }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const [accountId, setAccountId] = useState<AccountId | undefined>()

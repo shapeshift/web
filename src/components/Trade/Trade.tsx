@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
-import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
+import { TradeRoutes } from './TradeRoutes/TradeRoutes'
 import type { TS } from './types'
 import { TradeAmountInputField } from './types'
 
@@ -79,12 +79,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
 
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={entries}>
-        <Switch>
-          <Route path='/'>
-            <TradeRoutes />
-          </Route>
-        </Switch>
+      <MemoryRouter>
+        <TradeRoutes />
       </MemoryRouter>
     </FormProvider>
   )

@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 
 import { useBridgeRoutes } from '../hooks/useBridgeRoutes'
 import { BridgeRoutePaths } from '../types'
@@ -10,7 +11,7 @@ import { SelectAsset } from './SelectAsset'
 import { SelectChain } from './SelectChain'
 import { Status } from './Status'
 
-export const entries = ['/send/details', '/send/confirm']
+export const entries = [SendRoutes.Confirm, SendRoutes.Details]
 
 export const BridgeRoutes = () => {
   const location = useLocation()

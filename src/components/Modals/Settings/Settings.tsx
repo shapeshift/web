@@ -1,18 +1,13 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { MobileMessageEvent } from 'plugins/mobile'
 import { useEffect } from 'react'
-import { MemoryRouter, Route, Switch, useHistory } from 'react-router-dom'
+import { MemoryRouter, useHistory } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
 
-export const entries = [
-  SettingsRoutes.Index,
-  SettingsRoutes.Languages,
-  SettingsRoutes.FiatCurrencies,
-  SettingsRoutes.CurrencyFormat,
-]
+export const entries = Object.values(SettingsRoutes)
 
 const Settings = () => {
   /**
@@ -45,11 +40,7 @@ const Settings = () => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route path='/'>
-              <SettingsRouter appHistory={appHistory} />
-            </Route>
-          </Switch>
+          <SettingsRouter appHistory={appHistory} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

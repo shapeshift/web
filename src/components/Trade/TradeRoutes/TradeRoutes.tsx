@@ -12,8 +12,6 @@ import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput as TradeInputV2 } from '../TradeInput'
 import { TradeRoutePaths } from '../types'
 
-export const entries = ['/send/details', '/send/confirm']
-
 export const TradeRoutes = () => {
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const location = useLocation()

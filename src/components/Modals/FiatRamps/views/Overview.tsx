@@ -72,7 +72,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const isIframeEnabled = useFeatureFlag('FiatIframe')
+  const isIframeEnabled = useFeatureFlag('FiatPopup')
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -140,7 +140,7 @@ export const Overview: React.FC<OverviewProps> = ({
     setShownOnDisplay(shownOnDisplay)
   }, [accountId, accountMetadata, address, wallet])
 
-  const handleIframeClick = useCallback(
+  const handlePopupClick = useCallback(
     ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
       const url = ramp.onSubmit({
@@ -184,7 +184,7 @@ export const Overview: React.FC<OverviewProps> = ({
         return (
           <FiatRampButton
             key={rampId}
-            onClick={() => handleIframeClick({ rampId, address: passedAddress })}
+            onClick={() => handlePopupClick({ rampId, address: passedAddress })}
             accountFiatBalance={accountFiatBalance}
             action={fiatRampAction}
             {...ramp}
@@ -196,7 +196,7 @@ export const Overview: React.FC<OverviewProps> = ({
     address,
     assetId,
     fiatRampAction,
-    handleIframeClick,
+    handlePopupClick,
     isDemoWallet,
     isRampsLoading,
     ramps,

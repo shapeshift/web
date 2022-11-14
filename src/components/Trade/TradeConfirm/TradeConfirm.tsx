@@ -263,6 +263,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               <AssetToAsset
                 buyIcon={trade.buyAsset.icon}
                 sellIcon={trade.sellAsset.icon}
+                buyColor={trade.buyAsset.color}
+                sellColor={trade.sellAsset.color}
                 status={sellTxid || isSubmitting ? status : undefined}
               />
               <Flex direction='column' gap={2}>

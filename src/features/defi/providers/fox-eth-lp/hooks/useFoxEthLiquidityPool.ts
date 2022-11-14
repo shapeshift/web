@@ -2,7 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { ethereum, EvmBaseAdapter, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
+import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import isNumber from 'lodash/isNumber'
@@ -118,7 +118,7 @@ export const useFoxEthLiquidityPool = (
         ])
         const adapterType = adapter.getChainId()
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-        const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
           value,
           chainSpecific: {
@@ -224,7 +224,7 @@ export const useFoxEthLiquidityPool = (
         ])
         const adapterType = adapter.getChainId()
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-        const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -372,7 +372,7 @@ export const useFoxEthLiquidityPool = (
           fromAssetId(uniswapV2Router02AssetId).assetReference,
           MaxUint256,
         ])
-        const fees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        const fees = await adapter.getFeeData({
           to: contract.address,
           value: '0',
           chainSpecific: {
@@ -401,7 +401,7 @@ export const useFoxEthLiquidityPool = (
         accountAddress,
         Date.now() + 1200000,
       ])
-      const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+      const estimatedFees = await adapter.getFeeData({
         to: contractAddress,
         value,
         chainSpecific: {
@@ -426,7 +426,7 @@ export const useFoxEthLiquidityPool = (
         Date.now() + 1200000,
       ])
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+      const estimatedFees = await adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {

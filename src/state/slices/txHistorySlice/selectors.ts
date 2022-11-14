@@ -250,7 +250,7 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
 
     // at least one of the account ids with the highest account number must have some tx history
     const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(accountId =>
-      Boolean((txIdsByAccountId[accountId] ?? []).length),
+      Boolean(Object.values(txIdsByAccountId?.[accountId] ?? {}).flat().length),
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]

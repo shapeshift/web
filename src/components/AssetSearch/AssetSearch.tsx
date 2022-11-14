@@ -16,8 +16,8 @@ const moduleLogger = logger.child({
   namespace: ['AssetSearch'],
 })
 
-type AssetSearchProps = {
-  onClick: (asset: any) => void
+export type AssetSearchProps = {
+  onClick: (asset: Asset) => void
   filterBy?: (asset: Asset[]) => Asset[] | undefined
   disableUnsupported?: boolean
 }

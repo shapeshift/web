@@ -1,9 +1,19 @@
-import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import {
+  cosmosChainId,
+  ethChainId,
+  foxAssetId,
+  fromAccountId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { fetchAllOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -19,6 +29,20 @@ const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
 type TransactionsProviderProps = {
   children: React.ReactNode
+}
+
+const maybeRefetchOpportunities = ({ chainId, transfers }: Transaction, accountId: AccountId) => {
+  if (
+    !(
+      chainId === ethChainId &&
+      // We don't parse FOX farming Txs with any specific parser, hence we're unable to discriminate by parser type
+      // This will refetch opportunities user data on any FOX/ FOX LP token transfer Tx
+      // But this is the best we can do at the moment to be reactive
+      transfers.some(({ assetId }) => [foxAssetId, foxEthLpAssetId].includes(assetId))
+    )
+  )
+    return
+  ;(async () => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }))()
 }
 
 export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ children }) => {
@@ -84,6 +108,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               dispatch(
                 getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
               )
+
+              maybeRefetchOpportunities(msg, accountId)
+
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
             },

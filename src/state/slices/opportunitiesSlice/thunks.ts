@@ -7,9 +7,7 @@ import { foxEthLpAssetIds, foxEthStakingIds } from '../opportunitiesSlice/consta
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 import type { LpId } from '../opportunitiesSlice/types'
 
-export const fetchAllLpOpportunitiesMetadata = async (
-  queryOptions?: StartQueryActionCreatorOptions,
-) => {
+export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
   await Promise.all(
@@ -22,9 +20,8 @@ export const fetchAllLpOpportunitiesMetadata = async (
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
             },
-            // Any previous query without portfolio loaded will be rejected
-            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
-            { forceRefetch: false, ...queryOptions },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
           ),
         ),
     ),
@@ -32,7 +29,7 @@ export const fetchAllLpOpportunitiesMetadata = async (
 }
 
 export const fetchAllStakingOpportunitiesMetadata = async (
-  queryOptions?: StartQueryActionCreatorOptions,
+  options?: StartQueryActionCreatorOptions,
 ) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
@@ -46,27 +43,24 @@ export const fetchAllStakingOpportunitiesMetadata = async (
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
             },
-            // Any previous query without portfolio loaded will be rejected
-            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
-            { forceRefetch: false, ...queryOptions },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
           ),
         ),
     ),
   )
 }
 
-export const fetchAllOpportunitiesMetadata = async (
-  queryOptions?: StartQueryActionCreatorOptions,
-) => {
+export const fetchAllOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
   // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming
-  await fetchAllLpOpportunitiesMetadata(queryOptions)
-  await fetchAllStakingOpportunitiesMetadata(queryOptions)
+  await fetchAllLpOpportunitiesMetadata(options)
+  await fetchAllStakingOpportunitiesMetadata(options)
 }
 
 export const fetchAllStakingOpportunitiesUserData = async (
   accountId: AccountId,
-  queryOptions?: StartQueryActionCreatorOptions,
+  options?: StartQueryActionCreatorOptions,
 ) => {
   const { getOpportunityUserData } = opportunitiesApi.endpoints
 
@@ -81,9 +75,8 @@ export const fetchAllStakingOpportunitiesUserData = async (
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
             },
-            // Any previous query without portfolio loaded will be rejected
-            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
-            { forceRefetch: false, ...queryOptions },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
           ),
         ),
     ),
@@ -92,7 +85,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
 
 export const fetchAllLpOpportunitiesUserdata = async (
   accountId: AccountId,
-  queryOptions?: StartQueryActionCreatorOptions,
+  options?: StartQueryActionCreatorOptions,
 ) => {
   const { getOpportunityUserData } = opportunitiesApi.endpoints
 
@@ -107,9 +100,8 @@ export const fetchAllLpOpportunitiesUserdata = async (
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
             },
-            // Any previous query without portfolio loaded will be rejected
-            // The first successful one will be cached unless forceRefetch is overriden with queryOptions
-            { forceRefetch: false, ...queryOptions },
+            // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
+            { forceRefetch: false, ...options },
           ),
         ),
     ),
@@ -118,9 +110,9 @@ export const fetchAllLpOpportunitiesUserdata = async (
 
 export const fetchAllOpportunitiesUserData = (
   accountId: AccountId,
-  queryOptions?: StartQueryActionCreatorOptions,
+  options?: StartQueryActionCreatorOptions,
 ) =>
   Promise.allSettled([
-    fetchAllLpOpportunitiesUserdata(accountId, queryOptions),
-    fetchAllStakingOpportunitiesUserData(accountId, queryOptions),
+    fetchAllLpOpportunitiesUserdata(accountId, options),
+    fetchAllStakingOpportunitiesUserData(accountId, options),
   ])

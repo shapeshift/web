@@ -1,4 +1,11 @@
-import { Button, Center, Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import {
+  Button,
+  Center,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -33,6 +40,8 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const translate = useTranslate()
   const { close: onClose, isOpen } = popup
   const popupRef = useRef<Window | null | void>(null)
+  const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+  const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
 
   const handleFocusWindow = useCallback(() => {
     if (popupRef.current) {
@@ -65,7 +74,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
       <ModalOverlay
         backdropFilter='blur(10px)'
         bgColor='blackAlpha.100'
-        bgImage='radial-gradient(ellipse at center, rgba(0,0,0,1) 0%,rgba(0,0,0,1) 1%,rgba(0,0,0,0) 100%);'
+        bgImage={`radial-gradient(ellipse at center, ${overlayBgOne} 0%,${overlayBgOne} 1%,${overlayBgTwo} 100%);`}
       />
       <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
         <Center
@@ -82,9 +91,13 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
             fontSize='xl'
           />
           {popupRef?.current ? (
-            <Button onClick={handleFocusWindow}>{translate('modals.popup.showWindow')}</Button>
+            <Button colorScheme='blue' onClick={handleFocusWindow}>
+              {translate('modals.popup.showWindow')}
+            </Button>
           ) : (
-            <Button onClick={handleContinue}>{translate('modals.popup.continue')}</Button>
+            <Button colorScheme='blue' onClick={handleContinue}>
+              {translate('modals.popup.continue')}
+            </Button>
           )}
           <Button onClick={handleCloseWindow} variant='ghost'>
             {translate('modals.popup.cancel')}

@@ -12,7 +12,7 @@ type FiatRampsModalProps = {
   fiatRampAction: FiatRampAction
 }
 
-export const FiatRampsModal: React.FC<FiatRampsModalProps> = props => {
+export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({ fiatRampAction, assetId }) => {
   const { fiatRamps } = useModal()
   const { close, isOpen } = fiatRamps
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -33,7 +33,7 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = props => {
         minWidth={{ base: '100%', md: '500px' }}
         maxWidth={{ base: 'full', md: '500px' }}
       >
-        <FiatForm assetId={props.assetId} fiatRampAction={props.fiatRampAction} />
+        <FiatForm assetId={assetId} fiatRampAction={fiatRampAction} />
       </ModalContent>
     </Modal>
   )

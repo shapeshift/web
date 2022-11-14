@@ -51,7 +51,7 @@ type OverviewProps = {
   address: string
   vanityAddress: string
   assetId: AssetId
-  defaultAction?: FiatRampAction
+  defaultAction: FiatRampAction
   handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }

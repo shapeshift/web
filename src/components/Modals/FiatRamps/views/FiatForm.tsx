@@ -28,7 +28,7 @@ type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputRe
 
 type FiatFormProps = {
   assetId: AssetId
-  fiatRampAction?: FiatRampAction
+  fiatRampAction: FiatRampAction
 }
 
 export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRampAction }) => {

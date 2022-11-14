@@ -286,6 +286,8 @@ export const txHistoryApi = createApi({
 
                 currentCursor = cursor
 
+                // TODO(0xdef1cafe): check if data exists in store and stop paginating before upserting
+                // to reduce load on backend
                 dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
               } while (currentCursor)
             } catch (err) {

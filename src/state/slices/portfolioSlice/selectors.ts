@@ -1100,17 +1100,19 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
     assetId,
     defaultStakingData,
   ): OpportunitiesDataFull[] => {
-    if (!defaultStakingData) return []
-    const dummy: OpportunitiesDataFull[] = [
-      {
-        isLoaded: true,
-        rewards: '0',
-        totalDelegations: '0',
-        ...defaultStakingData,
-      },
-    ]
-    if (defaultStakingData && !portfolioValidatorIds.length) return dummy
-    if (!assetId) return dummy
+    if (defaultStakingData) {
+      const dummy: OpportunitiesDataFull[] = [
+        {
+          isLoaded: true,
+          rewards: '0',
+          totalDelegations: '0',
+          ...defaultStakingData,
+        },
+      ]
+      if (!portfolioValidatorIds.length) return dummy
+      if (!assetId) return dummy
+    }
+    if (!assetId) return []
     return portfolioValidatorIds.map(validatorId => {
       const delegatedAmount = stakingDataByValidator
         .reduce((acc, currentStakingDataByValidator) => {

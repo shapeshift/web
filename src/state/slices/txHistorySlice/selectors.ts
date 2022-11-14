@@ -34,6 +34,12 @@ export const selectTxIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.ids,
   ids => ids,
 )
+
+export const selectRebaseIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.txHistory.rebases.ids,
+  ids => ids,
+)
+
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 
 export const selectIsTxHistoryLoading = createSelector(
@@ -142,11 +148,12 @@ const selectWalletRebasesByAccountIdAssetId = createSelector(
 )
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
+  selectTxIds,
   selectWalletTxIdsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   // TODO(0xdef1cafe): abstract to commonEventCombiner
-  (data, accountIdFilter, assetIdFilter): TxId[] => {
+  (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
     const filtered = pickBy(data, (_, accountId) =>
       accountIdFilter ? accountId === accountIdFilter : true,
@@ -154,7 +161,9 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
     const flattened = values(filtered)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
-    return uniq(flattened)
+    const uniqueIds = uniq(flattened)
+    const sortedIds = uniqueIds.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+    return sortedIds
   },
 )
 
@@ -180,11 +189,12 @@ export const selectWalletRebaseIdsByAccountIdAssetId = (state: ReduxState) =>
   state.txHistory.rebases.byAccountIdAssetId
 
 export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
+  selectRebaseIds,
   selectWalletRebasesByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   // TODO(0xdef1cafe): abstract to commonEventCombiner
-  (data, accountIdFilter, assetIdFilter): RebaseId[] => {
+  (rebaseIds, data, accountIdFilter, assetIdFilter): RebaseId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
     const filtered = pickBy(data, (_, accountId) =>
       accountIdFilter ? accountId === accountIdFilter : true,
@@ -192,7 +202,9 @@ export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
     const flattened = values(filtered)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
-    return uniq(flattened)
+    const uniqueIds = uniq(flattened)
+    const sortedIds = uniqueIds.sort((a, b) => rebaseIds.indexOf(a) - rebaseIds.indexOf(b))
+    return sortedIds
   },
 )
 

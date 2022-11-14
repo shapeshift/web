@@ -47,9 +47,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
 
   const handleCloseWindow = useCallback(() => popupWindow?.close?.(), [popupWindow])
 
-  const handleContinue = useCallback(() => {
-    window.open(url, '_blank')?.focus()
-  }, [url])
+  const handleContinue = useCallback(() => window.open(url, '_blank')?.focus(), [url])
 
   useEffect(() => {
     if (!isOpen) return

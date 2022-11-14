@@ -72,7 +72,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const isIframeEnabled = useFeatureFlag('FiatPopup')
+  const isPopupEnabled = useFeatureFlag('FiatPopup')
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -154,10 +154,10 @@ export const Overview: React.FC<OverviewProps> = ({
         },
       })
       if (url) {
-        isIframeEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
+        isPopupEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
       }
     },
-    [assetId, colorMode, fiatRampAction, isIframeEnabled, popup, selectedLocale],
+    [assetId, colorMode, fiatRampAction, isPopupEnabled, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {

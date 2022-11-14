@@ -16,7 +16,11 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import { breakpoints } from 'theme/theme'
 
-export const AssetSearchModal: React.FC<AssetSearchProps> = ({ onClick, filterBy, disableUnsupported }) => {
+export const AssetSearchModal: React.FC<AssetSearchProps> = ({
+  onClick,
+  filterBy,
+  disableUnsupported,
+}) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()

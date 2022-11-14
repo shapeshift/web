@@ -31,6 +31,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
+  console.log({ txIds, limit })
 
   if (!walletSupportsChain) return null
 

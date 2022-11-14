@@ -4,6 +4,7 @@ import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import entries from 'lodash/entries'
 import intersection from 'lodash/intersection'
 import pickBy from 'lodash/pickBy'
+import uniq from 'lodash/uniq'
 import values from 'lodash/values'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
@@ -151,11 +152,13 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
     const data = pickBy(txsByAccountIdAssetId, (_, accountId) =>
       accountIdFilter ? accountId === accountIdFilter : true,
     )
-    const result = entries(data)
-      .flatMap(([, txsByAssetId]) =>
-        assetIdFilter ? txsByAssetId?.[assetIdFilter] : values(txsByAssetId).flat(),
-      )
-      .filter(isSome)
+    const result = uniq(
+      entries(data)
+        .flatMap(([, txsByAssetId]) =>
+          assetIdFilter ? txsByAssetId?.[assetIdFilter] : values(txsByAssetId).flat(),
+        )
+        .filter(isSome),
+    )
     return result
   },
 )

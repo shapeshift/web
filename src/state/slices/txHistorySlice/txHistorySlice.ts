@@ -120,12 +120,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
   getRelatedAssetIds(tx).forEach(relatedAssetId =>
-    deepUpsertArray(
-      txs.byAccountIdAssetId,
-      accountId,
-      relatedAssetId,
-      serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-    ),
+    deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
   )
 }
 

@@ -88,7 +88,7 @@ export const walletCanEditMemo = (wallet: HDWallet): boolean => {
 export type NestedArray = PartialRecord<string, PartialRecord<string, string[]>>
 
 /**
- * @param data - Nested array of strings
+ * @param data - Partial, two level nested object with array of strings at leaf
  * @param level1Id - The id into the first level of the nested object
  * @param level2Id - The id into the second level of the nested object
  * @param value - The id to union into the deep array

@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
@@ -23,12 +23,19 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
-
-const registryItems: RegistryItem[] = require('../registry.json')
+// @ts-ignore
+import client from '@pioneer-platform/pioneer-client'
 
 const PAGE_SIZE = 20
 
 export const DappRegistryGrid: FC = () => {
+  const [registryItems, setRegistryItems] = useState([  {
+    "category": "dapp",
+    "id": "a85fb60f37b9971969e00caa241ed2b6ccd8fce369f59d3a965202595a4a9462",
+    "homepage": "https://gnosis-safe.io/",
+    "name": "Gnosis Safe Multisig",
+    "image": "https://explorer-api.walletconnect.com/v3/logo/md/0b7e0f05-0a5b-4f3c-315d-59c1c4c22c00?projectId=2f05ae7f1116030fde2d36508f472bfb"
+  }])
   const { register, setValue, control } = useForm<{ search: string; page: number }>({
     mode: 'onChange',
     defaultValues: { search: '', page: 0 },
@@ -40,13 +47,38 @@ export const DappRegistryGrid: FC = () => {
   const history = useHistory()
   const { dispatch } = useWallet()
 
+
+
   const filteredListings = useMemo(
     () =>
       registryItems.filter(
         registryItem => !search || registryItem.name.toLowerCase().includes(search.toLowerCase()),
       ),
-    [search],
+    [search,registryItems],
   )
+
+
+  let findLatestReleaseLinks = async function (){
+    try{
+      let spec = "https://pioneers.dev/spec/swagger.json"
+      let config = {
+        queryKey:'key:public',
+        username:"user:public",
+        spec
+      }
+      let pioneer = new client(spec,config)
+      pioneer = await pioneer.init()
+
+      let dapps = await pioneer.instance.ListApps()
+      console.log("apps: ",dapps.data)
+      setRegistryItems(dapps.data)
+    }catch(e){
+      console.error(' e: ',e)
+    }
+  }
+  useEffect(() => {
+    findLatestReleaseLinks()
+  }, []);
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 

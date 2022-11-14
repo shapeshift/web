@@ -9,7 +9,7 @@ import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { AssetClickAction, useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
-import { TradeInput as TradeInputV2 } from '../TradeInput'
+import { TradeInput } from '../TradeInput'
 import { TradeRoutePaths } from '../types'
 
 export const TradeRoutes = () => {
@@ -43,10 +43,18 @@ export const TradeRoutes = () => {
             />
           )}
         />
-        <Route path={TradeRoutePaths.Input} component={TradeInputV2} />
-        <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
-        <Route path={TradeRoutePaths.Approval} component={Approval} />
-        <Route path={TradeRoutePaths.AccountSelect} component={SelectAccount} />
+        <Route path={TradeRoutePaths.Input}>
+          <TradeInput />
+        </Route>
+        <Route path={TradeRoutePaths.Confirm}>
+          <TradeConfirm />
+        </Route>
+        <Route path={TradeRoutePaths.Approval}>
+          <Approval />
+        </Route>
+        <Route path={TradeRoutePaths.AccountSelect}>
+          <SelectAccount />
+        </Route>
         <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>

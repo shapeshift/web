@@ -1,6 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { useEffect } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
@@ -30,12 +29,9 @@ export const SelectAssetView = ({
 
   return (
     <Switch location={location} key={location.key}>
-      <Route
-        path={SelectAssetRoutes.Search}
-        component={(props: RouteComponentProps) => (
-          <SelectAssets onBack={handleBack} onClick={onClick} {...props} />
-        )}
-      />
+      <Route path={SelectAssetRoutes.Search}>
+        <SelectAssets onBack={handleBack} onClick={onClick} />
+      </Route>
       <Redirect from='/' to={SelectAssetRoutes.Search} />
     </Switch>
   )

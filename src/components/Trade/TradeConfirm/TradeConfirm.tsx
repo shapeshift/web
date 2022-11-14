@@ -22,7 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { type RouterProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -54,7 +54,8 @@ import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
 
-export const TradeConfirm = ({ history }: RouterProps) => {
+export const TradeConfirm = () => {
+  const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')

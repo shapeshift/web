@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -36,7 +37,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   useEffect(() => {
     // Temporary feature flag to disable Osmosis Sends
     const isValid =
-      asset.chainId === 'cosmos:osmosis-1' && !isOsmosisSendEnabled
+      asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
         ? false
         : chainAdapterManager.has(asset.chainId)
     setIsValidChainId(isValid)

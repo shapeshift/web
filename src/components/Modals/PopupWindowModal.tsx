@@ -43,17 +43,9 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
 
-  const handleFocusWindow = useCallback(() => {
-    if (popupRef.current) {
-      popupRef.current.focus()
-    }
-  }, [])
+  const handleFocusWindow = useCallback(() => popupRef.current?.focus?.(), [])
 
-  const handleCloseWindow = useCallback(() => {
-    if (popupRef.current) {
-      popupRef.current.close()
-    }
-  }, [])
+  const handleCloseWindow = useCallback(() => popupRef.current?.close?.(), [])
 
   const handleContinue = useCallback(() => {
     window.open(url, '_blank')?.focus()

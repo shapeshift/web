@@ -10,8 +10,7 @@ import { SelectAssets } from './SelectAssets'
 type SelectAssetViewProps = {
   onClick: (asset: Asset) => void
   onBack?: () => void
-} & SelectAssetLocation &
-  RouteComponentProps
+} & SelectAssetLocation
 
 export const SelectAssetView = ({
   onClick,

@@ -7,7 +7,7 @@ import {
 } from './utils'
 
 describe('lib/utils', () => {
-  describe.only('deepUpsertArray', () => {
+  describe('deepUpsertArray', () => {
     const l1Key = 'l1Key'
     const l2Key = 'l2Key'
     it('should add value that does not exist', () => {

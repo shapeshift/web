@@ -42,7 +42,7 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (args: CreateUrlProps) => void
+  onSubmit: (args: CreateUrlProps) => string | undefined
   minimumSellThreshold?: number
 }
 
@@ -67,7 +67,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const gemPartnerUrl = makeGemPartnerUrl(props)
-        window.open(gemPartnerUrl, '_blank')?.focus()
+        return gemPartnerUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
@@ -90,7 +90,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const onRamperCheckoutUrl = createOnRamperUrl(props)
-        window.open(onRamperCheckoutUrl, '_blank')?.focus()
+        return onRamperCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
@@ -111,7 +111,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)
-        window.open(banxaCheckoutUrl, '_blank')?.focus()
+        return banxaCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
       }
@@ -132,7 +132,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const junoPayCheckoutUrl = createJunoPayUrl(props)
-        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+        return junoPayCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
       }
@@ -156,7 +156,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     onSubmit: props => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)
-        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+        return mtPelerinCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
       }

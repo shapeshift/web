@@ -285,8 +285,8 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
 
   const allowance = useCallback(async () => {
     if (skip || !farmingAccountId || !uniV2LPContract) return
-    const address = fromAccountId(farmingAccountId).account
-    const _allowance = await uniV2LPContract.allowance(address, contractAddress)
+    const userAddress = fromAccountId(farmingAccountId).account
+    const _allowance = await uniV2LPContract.allowance(userAddress, contractAddress)
     return _allowance.toString()
   }, [farmingAccountId, contractAddress, uniV2LPContract, skip])
 

@@ -47,10 +47,14 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
-  const farmingv4EarnOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
+  const farmingv4EarnOpportunityFilter = useMemo(
+    () => ({
       stakingId: foxEthStakingAssetIdV4 as StakingId,
     }),
+    [],
+  )
+  const farmingv4EarnOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, farmingv4EarnOpportunityFilter),
   )
 
   const foxEthLpOpportunityFilter = useMemo(

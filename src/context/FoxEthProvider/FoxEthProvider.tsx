@@ -165,7 +165,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
           dispatch(
             opportunitiesApi.endpoints.getOpportunityUserData.initiate(
               {
-                accountId: farmingAccountId ?? '',
+                accountId: farmingAccountId,
                 opportunityId: toAssetId({
                   assetNamespace: 'erc20',
                   chainId: ethChainId,

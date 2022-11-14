@@ -600,6 +600,13 @@
     "recentTrades": "Recent Trades"
   },
   "modals": {
+    "popup": {
+      "body": "We've launched a secure window to complete your order.",
+      "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
+      "continue": "Click to Continue",
+      "showWindow": "Show Window",
+      "cancel": "Cancel"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

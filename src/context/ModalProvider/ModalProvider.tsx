@@ -6,8 +6,8 @@ import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearch'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
-import { IframeModal } from 'components/Modals/IframeModal'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
+import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
@@ -29,7 +29,7 @@ const MODALS = {
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
-  iframe: IframeModal,
+  popup: PopupWindowModal,
 }
 
 // state

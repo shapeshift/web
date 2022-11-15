@@ -187,14 +187,14 @@ describe('txHistorySlice', () => {
       )
 
       expect(
-        store.getState().txHistory.txs.byAccountIdAssetId?.[ethAccountId]?.[ethAssetId],
+        store.getState().txHistory.txs.byAccountIdAssetId[ethAccountId]?.[ethAssetId],
       ).toStrictEqual([
         serializeTxIndex(ethAccountId, EthSend.txid, EthSend.address),
         serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address),
       ])
 
       expect(
-        store.getState().txHistory.txs.byAccountIdAssetId?.[segwitNativeAccountId]?.[btcAssetId],
+        store.getState().txHistory.txs.byAccountIdAssetId[segwitNativeAccountId]?.[btcAssetId],
       ).toStrictEqual([serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address)])
 
       expect(

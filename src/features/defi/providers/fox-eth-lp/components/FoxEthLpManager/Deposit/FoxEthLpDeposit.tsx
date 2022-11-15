@@ -19,8 +19,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -51,11 +51,12 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
+      accountId,
     }),
-    [],
+    [accountId],
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const underlyingAsset = useAppSelector(

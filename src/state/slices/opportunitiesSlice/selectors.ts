@@ -393,6 +393,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       fiatAmount: bnOrZero(lpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),
+      icons: opportunityMetadata.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
 
     return opportunity

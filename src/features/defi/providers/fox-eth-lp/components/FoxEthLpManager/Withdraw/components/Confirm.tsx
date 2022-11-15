@@ -7,7 +7,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,11 +58,18 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  const hasEnoughBalanceForGas = useMemo(
+    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+  )
 
-  const handleConfirm = async () => {
+  const handleCancel = useCallback(() => {
+    onNext(DefiStep.Info)
+  }, [onNext])
+
+  const handleConfirm = useCallback(async () => {
+    if (!(dispatch && walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
     try {
-      if (!(walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
 
       const txid = await removeLiquidity(
@@ -79,15 +86,19 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     } finally {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    dispatch,
+    onNext,
+    onOngoingLpTxIdChange,
+    opportunity,
+    removeLiquidity,
+    state?.withdraw.ethAmount,
+    state?.withdraw.foxAmount,
+    state?.withdraw.lpAmount,
+    walletState.wallet,
+  ])
 
-  const handleCancel = () => {
-    onNext(DefiStep.Info)
-  }
-
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto))
-    .gte(0)
+  if (!state || !dispatch || !opportunity) return null
 
   return (
     <ReusableConfirm

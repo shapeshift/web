@@ -21,8 +21,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -68,11 +68,12 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
     () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
+      accountId,
     }),
-    [],
+    [accountId],
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   // user info

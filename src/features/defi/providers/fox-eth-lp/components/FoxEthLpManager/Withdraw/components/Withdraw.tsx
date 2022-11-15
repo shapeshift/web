@@ -20,8 +20,8 @@ import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnUserLpOpportunity,
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketData,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
@@ -51,11 +51,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () => ({
       lpId: foxEthLpAssetId as LpId,
       assetId: foxEthLpAssetId,
+      accountId,
     }),
-    [],
+    [accountId],
   )
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const { allowance, getApproveGasData, getWithdrawGasData } = useFoxEthLiquidityPool(accountId)

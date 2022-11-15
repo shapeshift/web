@@ -30,6 +30,7 @@ import {
   fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -43,7 +44,7 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
   EMPTY_COSMOS_ADDRESS,
   EMPTY_OSMOSIS_ADDRESS,
@@ -69,7 +70,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const {
-    state: { wallet },
+    state: { wallet, walletInfo },
   } = useWallet()
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
@@ -101,20 +102,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * handle wallet disconnect/switch logic
    */
   useEffect(() => {
-    // if we have a wallet and changed account ids, we have switched wallets
-    // NOTE! - the wallet will change before the account ids do, so clearing here is valid
-    // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && requestedAccountIds.length)
-    const disconnected = !wallet
+    const walletId: WalletId | undefined = walletInfo?.deviceId
+    const switched = Boolean(walletId)
+    const disconnected = !walletId
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')
-    if (switched || disconnected) {
-      dispatch(portfolio.actions.clear())
-      dispatch(txHistory.actions.clear())
-    }
-    // requestedAccountIds is changed by this effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, wallet])
+    dispatch(portfolio.actions.setWalletId(walletId))
+  }, [dispatch, walletInfo?.deviceId])
 
   useEffect(() => {
     if (!wallet) return

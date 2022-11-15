@@ -90,7 +90,11 @@ const FEE_ASSET_IDS = [
 /**
  * the accountIds from the wallet, not necessarily loaded
  */
-export const selectWalletAccountIds = (state: ReduxState) => state.portfolio.accountMetadata.ids
+export const selectWalletAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.portfolio.walletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,
@@ -128,7 +132,9 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
-  accountMetadata => accountMetadata,
+  selectWalletAccountIds,
+  (accountMetadata, walletAccountIds): AccountMetadataById =>
+    pickBy(accountMetadata, (_, accountId: AccountId) => walletAccountIds.includes(accountId)),
 )
 
 export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(

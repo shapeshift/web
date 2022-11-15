@@ -8,7 +8,7 @@ import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
-import type { AccountMetadataById, Portfolio } from './portfolioSliceCommon'
+import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
@@ -22,15 +22,27 @@ export const portfolio = createSlice({
       moduleLogger.info('clearing portfolio')
       return initialState
     },
+    setWalletId: (state, { payload }: { payload: WalletId | undefined }) => {
+      moduleLogger.info('setting wallet id')
+      state.walletId = payload
+      if (!payload) return
+      state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
+    },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')
       state.accountMetadata.byId = {
         ...state.accountMetadata.byId,
         ...payload,
       }
-      state.accountMetadata.ids = Array.from(
-        new Set([...state.accountMetadata.ids, ...Object.keys(payload)]),
-      )
+      const accountIds = Object.keys(payload)
+      state.accountMetadata.ids = Array.from(new Set([...state.accountMetadata.ids, ...accountIds]))
+
+      if (!state.walletId) return // satisfy compiler - we'll always have it at runtime here
+      const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
+      state.wallet.byId = {
+        ...state.wallet.byId,
+        [state.walletId]: Array.from(new Set([...existingWalletAccountIds, ...accountIds])),
+      }
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.debug('upserting portfolio')

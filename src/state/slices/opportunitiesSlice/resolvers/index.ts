@@ -5,7 +5,7 @@ import {
   foxFarmingLpUserDataResolver,
   foxFarmingStakingMetadataResolver,
   foxFarmingStakingUserDataResolver,
-} from './foxfarming'
+} from './foxFarming'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.FoxFarming}`]: {

@@ -170,7 +170,7 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
 export const selectLastNTxIds = createDeepEqualOutputSelector(
   selectTxIdsByFilter,
   (_state: ReduxState, count: number) => count,
-  (ids, count) => ids.slice(0, count),
+  (ids, count): TxId[] => ids.slice(0, count),
 )
 
 export const selectTxsByFilter = createDeepEqualOutputSelector(

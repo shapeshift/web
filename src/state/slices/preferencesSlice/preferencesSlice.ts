@@ -10,6 +10,7 @@ dayjs.extend(localizedFormat)
 export type FeatureFlags = {
   Osmosis: boolean
   OsmosisSend: boolean
+  OsmosisStaking: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -45,6 +46,7 @@ const initialState: Preferences = {
   featureFlags: {
     Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
+    OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

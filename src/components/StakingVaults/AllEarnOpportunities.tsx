@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
@@ -27,6 +28,7 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
+  const isOsmosisStakingEnabled = useFeatureFlag('OsmosisStaking')
 
   const sortedVaults = useSortedVaults()
 
@@ -51,8 +53,11 @@ export const AllEarnOpportunities = () => {
     vaultArray: sortedVaults,
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
-      () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
-      [cosmosStakingOpportunities, osmosisStakingOpportunities],
+      () =>
+        cosmosStakingOpportunities.concat(
+          isOsmosisStakingEnabled ? osmosisStakingOpportunities : [],
+        ),
+      [cosmosStakingOpportunities, osmosisStakingOpportunities, isOsmosisStakingEnabled],
     ),
     foxEthLpOpportunity,
     foxFarmingOpportunities: visibleFoxFarmingOpportunities,

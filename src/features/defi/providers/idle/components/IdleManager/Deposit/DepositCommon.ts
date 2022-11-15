@@ -39,6 +39,7 @@ export type SerializableOpportunity = Omit<
   | 'prepareWithdrawal'
   | 'prepareClaimTokens'
   | 'getClaimableTokens'
+  | 'getRewardAssetIds'
 >
 
 export type IdleDepositState = {

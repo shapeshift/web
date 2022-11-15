@@ -46,7 +46,11 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       Osmosis: false,
+<<<<<<< HEAD
       OsmosisSend: false,
+=======
+      OsmosisStaking: false,
+>>>>>>> osmosisStakingFlag
       Thorchain: false,
       ThorSwap: false,
       CowSwap: false,

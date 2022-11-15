@@ -21,6 +21,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpOpportunityIdsResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingOpportunityIdsResolver,
   },
+  [`${DefiProvider.Idle}`]: {
+    [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
+  },
 }
 
 export const DefiProviderToUserDataResolverByDeFiType = {

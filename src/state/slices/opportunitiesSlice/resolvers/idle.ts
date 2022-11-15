@@ -59,7 +59,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
         assetId,
         provider: DefiProvider.Idle,
         tvl: opportunity.tvl.balance.toString(),
-        type: DefiType.LiquidityPool,
+        type: DefiType.Staking,
         underlyingAssetId: assetId,
         underlyingAssetIds: [opportunity.underlyingAsset.assetId],
         ...{ rewardAssetIds },

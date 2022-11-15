@@ -13,10 +13,14 @@ export type OpportunityMetadata = {
   type: DefiType
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
+  // Which or might be the same as the AssetId, e.g
+  // - with LP staking, you stake an LP token
+  // - with Idle, you stake a yield-bearing token, so the underlyingAssetId *is* the AssetId
+  // - with Cosmos SDK, you stake the underlying asset directly, so the underlyingAssetId *is* the AssetId
   underlyingAssetId: AssetId
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
-  // For opportunities a la Idle, that's a single Asset wrapped into a yield-bearing token
+  // For opportunities a la Idle, that's the asset the opportunity wraps
   underlyingAssetIds: readonly [AssetId, AssetId] | readonly [AssetId]
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string] | readonly [string]

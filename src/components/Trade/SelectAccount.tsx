@@ -4,7 +4,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
@@ -15,7 +15,8 @@ import { WithBackButton } from 'components/Trade/WithBackButton'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const SelectAccount = ({ history }: RouteComponentProps) => {
+export const SelectAccount = () => {
+  const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
   const assetId = getValues('sellTradeAsset')?.asset?.assetId
   const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])

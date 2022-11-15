@@ -49,8 +49,6 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 If you are using Linux and MacOS it works out of the box following the steps.
 
-> ⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL) and make sure to use the WSL filesystem to store your clone of the repository in order to avoid issues with line endings and enjoy better performance.
-
 1. Clone the repo
 
 2. (optional) Make sure you're using the right Node.js version.
@@ -68,6 +66,11 @@ If you are using Linux and MacOS it works out of the box following the steps.
 
 4. Run `yarn env dev` to generate a `.env` file
 
+> ⚠️ On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required but **WE DO NOT SUPPORT THIS ENVIRONMENT, SO USE IT AT YOUR OWN RISK**.
+>
+> If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
+>
+> **Please do NOT ask our Engineering team for further help with WSL.**
 ### Commands
 
 ```sh

@@ -64,6 +64,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
 
     try {
+      if (!asset) return
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       await approve()
       await poll({
@@ -101,7 +102,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   }, [
     allowance,
     approve,
-    asset.precision,
+    asset,
     dispatch,
     feeAsset.precision,
     getStakeGasData,
@@ -136,7 +137,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     ),
     [accountId, feeAsset, estimatedGasCrypto],
   )
-  if (!state || !dispatch || !opportunity) return null
+  if (!state || !dispatch || !opportunity || !asset) return null
 
   return (
     <ReusableApprove

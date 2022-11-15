@@ -21,7 +21,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunityIdsByAccountId,
   selectStakingOpportunityIdsByAccountId,
-  selectUserStakingOpportunitiesByStakingId,
+  selectUserStakingOpportunitiesFromStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from './selectors'
 import { serializeUserStakingId } from './utils'
@@ -245,6 +245,7 @@ describe('opportunitiesSlice selectors', () => {
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
         },
       },
+      ids: [mockStakingContractTwo],
     }
     const userStaking = {
       ...initialState.staking,
@@ -279,7 +280,7 @@ describe('opportunitiesSlice selectors', () => {
     }
     describe('selectUserStakingOpportunitiesByStakingId', () => {
       it('can get the staking data for a given StakingId', () => {
-        const result = selectUserStakingOpportunitiesByStakingId(mockState, {
+        const result = selectUserStakingOpportunitiesFromStakingId(mockState, {
           stakingId: mockStakingContractTwo,
         })
         expect(result).toEqual([

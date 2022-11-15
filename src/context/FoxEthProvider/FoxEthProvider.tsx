@@ -1,24 +1,28 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import isEqual from 'lodash/isEqual'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
-import { farmingOpportunities } from 'state/slices/foxEthSlice/foxEthCommon'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
-  selectAccountIdsByAssetId,
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+  fetchAllStakingOpportunitiesMetadata,
+  fetchAllStakingOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
+import type { LpId, OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
+import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-  selectPortfolioLoading,
+  selectLpAccountIds,
+  selectStakingAccountIds,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -26,7 +30,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
-export type FoxFarmingEarnOpportunityType = {
+export type FoxFarmingEarnOpportunityType = OpportunityMetadata & {
   /**
    * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
    */
@@ -36,9 +40,7 @@ export type FoxFarmingEarnOpportunityType = {
   underlyingToken0Amount?: string
   underlyingToken1Amount?: string
   isVisible?: boolean
-  underlyingAssetId?: AssetId
-} & EarnOpportunityType
-
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 type FoxEthProviderProps = {
   children: React.ReactNode
 }
@@ -48,8 +50,6 @@ type IFoxEthContext = {
   setFarmingAccountId: (accountId: AccountId) => void
   lpAccountId: AccountId | undefined
   setLpAccountId: (accountId: AccountId) => void
-  lpAccountAddress: string
-  farmingAccountAddress: string
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
   onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }
@@ -59,19 +59,15 @@ const FoxEthContext = createContext<IFoxEthContext>({
   farmingAccountId: undefined,
   setLpAccountId: _accountId => {},
   setFarmingAccountId: _accountId => {},
-  lpAccountAddress: '',
-  farmingAccountAddress: '',
-  onOngoingFarmingTxIdChange: (_txid: string) => undefined,
-  onOngoingLpTxIdChange: (_txid: string) => undefined,
+  onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
+  onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -80,67 +76,32 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
-  const [lpAccountAddress, setLpAccountAddress] = useState<string>('')
-  const [farmingAccountAddress, setFarmingAccountAddress] = useState<string>('')
   const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
-  const readyToFetchLpData = useMemo(
-    () => !isPortfolioLoading && wallet && supportsETH(wallet),
-    [isPortfolioLoading, wallet],
-  )
-  const readyToFetchFarmingData = useMemo(
-    () => Boolean(readyToFetchLpData && foxEthLpMarketData.price !== '0'),
-    [foxEthLpMarketData.price, readyToFetchLpData],
-  )
-  const readyToFetchLpAccountData = useMemo(
-    () => Boolean(readyToFetchLpData && lpAccountAddress && foxEthLpMarketData.price !== '0'),
-    [readyToFetchLpData, lpAccountAddress, foxEthLpMarketData.price],
-  )
 
-  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
-
-  // TODO(gomes): deepEqualOutputFn should happen on the selector itself and give us the same reference every call but it somehow doesn't
-  // Remove the equalityFn second arg here after we figure out why
-  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
+  const lpAccountIds = useAppSelector(selectLpAccountIds)
+  const stakingAccountIds = useAppSelector(selectStakingAccountIds)
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
-    if (!ethAccountIds?.length || !readyToFetchLpAccountData) return
-
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
     await Promise.all(
-      ethAccountAddresses.map(async accountAddress => {
-        await dispatch(
-          foxEthApi.endpoints.getFoxEthLpAccountData.initiate(
-            { accountAddress },
-            { forceRefetch: true },
-          ),
-        )
-      }),
+      lpAccountIds.map(
+        async accountId => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }),
+      ),
     )
-  }, [dispatch, ethAccountIds, readyToFetchLpAccountData])
+  }, [lpAccountIds])
 
   useEffect(() => {
-    if (!readyToFetchLpData || !ethAccountIds?.length) return
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    ethAccountAddresses.forEach(accountAddress =>
-      dispatch(foxEthApi.endpoints.getFoxEthLpMetrics.initiate({ accountAddress })),
-    )
-  }, [ethAccountIds, dispatch, readyToFetchLpData, refetchFoxEthLpAccountData])
+    fetchAllOpportunitiesMetadata()
+  }, [lpAccountIds, stakingAccountIds, dispatch, refetchFoxEthLpAccountData])
 
   useEffect(() => {
-    ;(async () => {
-      if (!readyToFetchLpData) return
+    refetchFoxEthLpAccountData()
+  }, [refetchFoxEthLpAccountData])
 
-      await refetchFoxEthLpAccountData()
-    })()
-  }, [refetchFoxEthLpAccountData, readyToFetchLpData])
-
-  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId ?? '' }), [lpAccountId])
-  // Use the account number of the consumer if we have it, else use account 0
-  const lpBip44Params =
-    useAppSelector(state => selectBIP44ParamsByAccountId(state, lpAccountFilter)) ??
-    adapter.getBIP44Params({ accountNumber: 0 })
+  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId }), [lpAccountId])
+  const lpBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, lpAccountFilter),
+  )
 
   useEffect(() => {
     // Get initial account 0 address from wallet, TODO: nuke it?
@@ -148,88 +109,73 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       ;(async () => {
         if (!supportsETH(wallet)) return
         const address = await adapter.getAddress({ wallet, bip44Params: lpBip44Params })
-        // eth.getAddress and similar return a checksummed address, but state opportunities aren't
-        setLpAccountAddress(address.toLowerCase())
+        // eth.getAddress and similar return a checksummed address, but the account part of state opportunities' AccountId isn't checksummed
+        // using the checksum version would make us unable to do Txid lookup
+        setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))
       })()
     }
   }, [adapter, wallet, lpBip44Params])
 
   useEffect(() => {
-    if (!lpAccountId) return
-    const lpAccountAddress = fromAccountId(lpAccountId).account
-    setLpAccountAddress(lpAccountAddress)
-  }, [lpAccountId])
-
-  useEffect(() => {
-    if (!farmingAccountId) return
-    const farmingAccountAddress = fromAccountId(farmingAccountId).account
-    setFarmingAccountAddress(farmingAccountAddress)
-  }, [farmingAccountId])
-
-  // this hook handles the data we need from the farming opportunities
-  useEffect(() => {
-    if (!readyToFetchFarmingData) return
     // getting fox-eth lp token data
-    const { getFoxFarmingContractMetrics, getFoxFarmingContractAccountData } = foxEthApi.endpoints
-    const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-    // getting fox-eth lp token balances
-    farmingOpportunities.forEach(opportunity => {
-      const { contractAddress } = opportunity
+    ;(async () => {
+      // getting fox-eth lp token balances
+      await fetchAllStakingOpportunitiesMetadata()
       // getting fox farm contract data
-      ethAccountAddresses.forEach(accountAddress => {
-        dispatch(
-          getFoxFarmingContractMetrics.initiate({
-            contractAddress,
-            accountAddress,
-          }),
-        )
-        dispatch(
-          getFoxFarmingContractAccountData.initiate({
-            contractAddress,
-            accountAddress,
-          }),
-        )
-      })
-    })
-  }, [ethAccountIds, dispatch, readyToFetchFarmingData])
+      ;[...stakingAccountIds, ...lpAccountIds].forEach(accountId =>
+        fetchAllStakingOpportunitiesUserData(accountId),
+      )
+    })()
+  }, [dispatch, stakingAccountIds, lpAccountIds])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
     (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
+      if (!(farmingAccountId || lpAccountId)) return
       const accountId = type === 'farming' ? farmingAccountId : lpAccountId
-      const accountAddress = type === 'farming' ? farmingAccountAddress : lpAccountAddress
+      if (!accountId) return
+      const accountAddress = fromAccountId(accountId).account
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
-    [lpAccountId, lpAccountAddress, farmingAccountId, farmingAccountAddress],
+    [lpAccountId, farmingAccountId],
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
     (txid: string, contractAddress?: string) => {
-      if (!farmingAccountAddress) return
       handleOngoingTxIdChange('farming', txid, contractAddress)
     },
-    [farmingAccountAddress, handleOngoingTxIdChange],
+    [handleOngoingTxIdChange],
   )
 
   const handleOngoingLpTxIdChange = useCallback(
     (txid: string, contractAddress?: string) => {
-      if (!lpAccountAddress) return
       handleOngoingTxIdChange('lp', txid, contractAddress)
     },
-    [lpAccountAddress, handleOngoingTxIdChange],
+    [handleOngoingTxIdChange],
   )
 
   useEffect(() => {
-    if (farmingAccountAddress && transaction && transaction.status !== TxStatus.Pending) {
+    if (farmingAccountId && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
         moduleLogger.info('Refetching fox lp/farming opportunities')
         refetchFoxEthLpAccountData()
         if (ongoingTxContractAddress)
           dispatch(
-            foxEthApi.endpoints.getFoxFarmingContractAccountData.initiate(
-              { accountAddress: farmingAccountAddress, contractAddress: ongoingTxContractAddress },
+            opportunitiesApi.endpoints.getOpportunityUserData.initiate(
+              {
+                accountId: farmingAccountId,
+                opportunityId: toAssetId({
+                  assetNamespace: 'erc20',
+                  chainId: ethChainId,
+                  assetReference: ongoingTxContractAddress,
+                }) as LpId,
+                opportunityType: DefiType.Staking,
+                defiType: DefiType.Staking,
+              },
+              // Any previous query without portfolio loaded will be rejected
+              // The first successful one will be cached unless forceRefetch is overriden with queryOptions
               { forceRefetch: true },
             ),
           )
@@ -239,7 +185,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     }
   }, [
     dispatch,
-    farmingAccountAddress,
+    farmingAccountId,
     ongoingTxContractAddress,
     refetchFoxEthLpAccountData,
     transaction,
@@ -247,24 +193,18 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
 
   const value = useMemo(
     () => ({
-      farmingAccountAddress,
       farmingAccountId,
-      lpAccountAddress,
       lpAccountId,
       onOngoingLpTxIdChange: handleOngoingLpTxIdChange,
       onOngoingFarmingTxIdChange: handleOngoingFarmingTxIdChange,
       setFarmingAccountId,
       setLpAccountId,
-      setLpAccountAddress,
     }),
     [
-      farmingAccountAddress,
       farmingAccountId,
       handleOngoingFarmingTxIdChange,
       handleOngoingLpTxIdChange,
-      lpAccountAddress,
       lpAccountId,
-      setLpAccountAddress,
       setLpAccountId,
     ],
   )

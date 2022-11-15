@@ -31,7 +31,7 @@ export const getMetadataResolversByDefiProviderAndDefiType = (
     getDefiTypeMetadataResolvers.bind(this, defiType),
   )(defiProvider)
 
-// mMany opportunity metadata resolvers
+// Many opportunity metadata resolvers
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderOpportunitiesMetadataResolvers = (defiProvider: DefiProvider) =>
   DefiProviderToOpportunitiesMetadataResolverByDeFiType[defiProvider]

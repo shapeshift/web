@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import intersection from 'lodash/intersection'
+import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
@@ -245,8 +246,8 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
       .map(([accountId]) => accountId)
 
     // at least one of the account ids with the highest account number must have some tx history
-    const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(accountId =>
-      Boolean(Object.values(txIdsByAccountId?.[accountId] ?? {}).flat().length),
+    const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(
+      accountId => !isEmpty(txIdsByAccountId[accountId]),
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]

@@ -35,6 +35,7 @@ export const selectTxIds = createDeepEqualOutputSelector(
   ids => ids,
 )
 
+const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
 export const selectRebaseIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.rebases.ids,
   ids => ids,
@@ -182,10 +183,6 @@ export const selectTxStatusById = createCachedSelector(
   selectTxById,
   (tx): Tx['status'] | undefined => tx?.status,
 )((_state: ReduxState, txId: TxId) => txId ?? 'undefined')
-
-const selectRebasesById = (state: ReduxState) => state.txHistory.rebases.byId
-export const selectWalletRebaseIdsByAccountIdAssetId = (state: ReduxState) =>
-  state.txHistory.rebases.byAccountIdAssetId
 
 export const selectRebaseIdsByFilter = createDeepEqualOutputSelector(
   selectRebaseIds,

@@ -8,11 +8,18 @@ import {
   foxFarmingStakingOpportunityIdsResolver,
   foxFarmingStakingUserDataResolver,
 } from './foxFarming'
+import { idleStakingOpportunitiesMetadataResolver, idleStakingOpportunityIdsResolver } from './idle'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.FoxFarming}`]: {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpMetadataResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingMetadataResolver,
+  },
+}
+
+export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
+  [`${DefiProvider.Idle}`]: {
+    [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
   },
 }
 

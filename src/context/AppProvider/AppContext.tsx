@@ -26,6 +26,7 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
@@ -210,7 +211,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       await fetchAllOpportunitiesMetadata()
 
-      requestedAccountIds.forEach(accountId => {
+      requestedAccountIds.forEach(async accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {
           case cosmosChainId:
@@ -218,6 +219,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             dispatch(getValidatorData.initiate(accountId, options))
             break
           case ethChainId:
+            await dispatch(
+              opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
+                defiType: DefiType.Staking,
+                defiProvider: DefiProvider.Idle,
+                opportunityType: DefiType.Staking,
+              }),
+            )
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
 

@@ -14,9 +14,15 @@ export type OpportunityMetadata = {
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   underlyingAssetId: AssetId
-  underlyingAssetIds: readonly [AssetId, AssetId]
-  // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
-  underlyingAssetRatios: readonly [string, string]
+  // The AssetId or AssetIds this opportunity represents
+  // For LP tokens, that's an asset pair
+  // For opportunities a la Idle, that's a single Asset wrapped into a yield-bearing token
+  underlyingAssetIds: readonly [AssetId, AssetId] | readonly [AssetId]
+  // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
+  underlyingAssetRatios: readonly [string, string] | readonly [string]
+  // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
+  // TODO: Optional for backwards compatibility, but it should always be present
+  rewardAssetIds?: readonly [string, string, string] | readonly [string, string] | readonly [string]
   expired?: boolean
   name?: string
 }

@@ -220,7 +220,6 @@ export const selectRebasesByFilter = createSelector(
  * note - there can be multiple accountIds sharing the same accountNumber - e.g. BTC legacy/segwit/segwit native
  * are all separate accounts that share the same account number
  */
-// TODO(0xdef1cafe): broken, fix
 export const selectMaybeNextAccountNumberByChainId = createSelector(
   selectWalletTxIdsByAccountIdAssetId,
   selectTxHistoryStatus,

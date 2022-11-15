@@ -8,7 +8,6 @@ import { simpleLocale } from 'lib/browserLocale'
 dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
-  Osmosis: boolean
   OsmosisSend: boolean
   OsmosisStaking: boolean
   OsmosisSwap: boolean
@@ -45,7 +44,6 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
     OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
     OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,

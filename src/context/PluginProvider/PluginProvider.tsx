@@ -116,7 +116,13 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     setRoutes(pluginRoutes)
 
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
-      if (!featureFlags.Osmosis && chainId === KnownChainIds.OsmosisMainnet) return false
+      if (
+        !featureFlags.OsmosisSend &&
+        !featureFlags.OsmosisStaking &&
+        !featureFlags.OsmosisSwap &&
+        chainId === KnownChainIds.OsmosisMainnet
+      )
+        return false
       if (!featureFlags.Thorchain && chainId === KnownChainIds.ThorchainMainnet) return false
       return true
     })

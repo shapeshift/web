@@ -107,7 +107,9 @@ export const Routes = () => {
         </Layout>
       </Route>
       <Redirect from='/' to='/dashboard' />
-      <Route component={NotFound} />
+      <Route>
+        <NotFound />
+      </Route>
     </Switch>
   )
 }

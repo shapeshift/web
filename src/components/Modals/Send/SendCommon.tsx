@@ -1,8 +1,8 @@
 export enum SendRoutes {
-  Select = '/send/select',
   Address = '/send/address',
   Details = '/send/details',
   Confirm = '/send/confirm',
+  Select = '/send/select',
   Scan = '/send/scan',
 }
 

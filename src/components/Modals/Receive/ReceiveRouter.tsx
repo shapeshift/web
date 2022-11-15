@@ -2,12 +2,11 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { ReceiveInfo } from 'components/Modals/Receive/ReceiveInfo'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 
 import { ReceiveRoutes } from './ReceiveCommon'
-import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
   asset: Asset
@@ -39,20 +38,12 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
-        <Route
-          path={ReceiveRoutes.Info}
-          component={(props: RouteComponentProps) =>
-            selectedAsset ? (
-              <ReceiveInfo asset={selectedAsset} accountId={accountId} {...props} />
-            ) : null
-          }
-        />
-        <Route
-          path={ReceiveRoutes.Select}
-          component={(props: RouteComponentProps) => (
-            <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} {...props} />
-          )}
-        />
+        <Route path={ReceiveRoutes.Info}>
+          {selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null}
+        </Route>
+        <Route path={ReceiveRoutes.Select}>
+          <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} />
+        </Route>
       </Switch>
     </AnimatePresence>
   )

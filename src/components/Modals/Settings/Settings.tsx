@@ -10,11 +10,7 @@ import { SettingsRouter } from './SettingsRouter'
 export const entries = Object.values(SettingsRoutes)
 
 const Settings = () => {
-  /**
-   * Since inner routes require app history to be able to navigate
-   * to other pages, we need to pass outer-history down to the router
-   */
-  const appHistory = useHistory()
+  const history = useHistory()
   const { settings } = useModal()
   const { close, isOpen } = settings
 
@@ -28,19 +24,19 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
-      if (e.data?.cmd === 'shakeEvent' && isOpen) void appHistory.push('/flags') || close()
+      if (e.data?.cmd === 'shakeEvent' && isOpen) void history.push('/flags') || close()
     }
 
     window.addEventListener('message', shakeEventListener)
     return () => window.removeEventListener('message', shakeEventListener)
-  }, [appHistory, close, isOpen])
+  }, [history, close, isOpen])
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <SettingsRouter appHistory={appHistory} />
+          <SettingsRouter />
         </MemoryRouter>
       </ModalContent>
     </Modal>

@@ -5,7 +5,6 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
@@ -91,16 +90,9 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
       <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
-            <Route
-              path={SendRoutes.Select}
-              component={(props: RouteComponentProps) => (
-                <SelectAssetRouter
-                  onBack={handleSelectBack}
-                  onClick={handleAssetSelect}
-                  {...props}
-                />
-              )}
-            />
+            <Route path={SendRoutes.Select}>
+              <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} />
+            </Route>
             <Route path={SendRoutes.Address}>
               <Address />
             </Route>

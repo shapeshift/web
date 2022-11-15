@@ -16,7 +16,8 @@ import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { mobileLogger } from 'context/WalletProvider/MobileWallet/config'
@@ -31,16 +32,12 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
 
-type SettingsListProps = {
-  appHistory: RouteComponentProps['history']
-} & RouteComponentProps
-
-export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) => {
+export const SettingsList = () => {
+  const history = useHistory()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const { settings } = useModal()
@@ -61,15 +58,15 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      appHistory.push('/flags')
+      history.push('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [appHistory, clickCount, setClickCount, settings])
+  }, [history, clickCount, setClickCount, settings])
 
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
-    appHistory.push(linkHref)
+    history.push(linkHref)
   }
 
   const handleDeleteAccountsClick = async () => {
@@ -104,7 +101,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
           <>
             <SettingsListItem
               label='modals.settings.currency'
-              onClick={() => routeProps.history.push(SettingsRoutes.FiatCurrencies)}
+              onClick={() => history.push(SettingsRoutes.FiatCurrencies)}
               icon={<Icon as={FaCoins} color='gray.500' />}
             >
               <Flex alignItems='center'>
@@ -117,7 +114,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <Divider my={1} />
             <SettingsListItem
               label='modals.settings.currencyFormat'
-              onClick={() => routeProps.history.push(SettingsRoutes.CurrencyFormat)}
+              onClick={() => history.push(SettingsRoutes.CurrencyFormat)}
               icon={<Icon as={FaDollarSign} color='gray.500' />}
             >
               <Flex alignItems='center'>
@@ -131,7 +128,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
           </>
           <SettingsListItem
             label='modals.settings.language'
-            onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
+            onClick={() => history.push(SettingsRoutes.Languages)}
             icon={<Icon as={MdLanguage} color='gray.500' />}
           >
             <Flex alignItems='center'>

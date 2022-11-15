@@ -11,6 +11,7 @@ export const entries = Object.values(SettingsRoutes)
 
 const Settings = () => {
   // Settings requires a separate "outer" level history context to be passed down to the SettingsRouter
+  // for the secret flags menu to work on mobile
   const appHistory = useHistory()
 
   const { settings } = useModal()

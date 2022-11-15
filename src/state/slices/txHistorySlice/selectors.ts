@@ -134,7 +134,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
   },
 )
 
-const selectWalletTxIdsByAccountIdAssetId = createSelector(
+const selectWalletTxsByAccountIdAssetId = createSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
@@ -150,7 +150,7 @@ const selectWalletRebasesByAccountIdAssetId = createSelector(
 
 export const selectTxIdsByFilter = createDeepEqualOutputSelector(
   selectTxIds,
-  selectWalletTxIdsByAccountIdAssetId,
+  selectWalletTxsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
@@ -218,7 +218,7 @@ export const selectRebasesByFilter = createSelector(
  * are all separate accounts that share the same account number
  */
 export const selectMaybeNextAccountNumberByChainId = createSelector(
-  selectWalletTxIdsByAccountIdAssetId,
+  selectWalletTxsByAccountIdAssetId,
   selectTxHistoryStatus,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,

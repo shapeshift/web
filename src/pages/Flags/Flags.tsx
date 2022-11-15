@@ -15,6 +15,7 @@ import type { AppDispatch } from 'state/store'
 import { clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
+
 const moduleLogger = logger.child({ namespace: ['Flags'] })
 
 const FlagHeader = () => {
@@ -40,7 +41,7 @@ export const Flags = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
 
-  const handleApply = async () => {
+  const handleApply = () => {
     try {
       // Delete persisted state
       clearState()
@@ -52,12 +53,12 @@ export const Flags = () => {
     }
   }
 
-  const handleResetPrefs = async () => {
+  const handleResetPreferences = () => {
     try {
       dispatch(slices.preferences.actions.clearFeatureFlags())
       setError(null)
     } catch (e) {
-      moduleLogger.error(e, 'handleResetPrefs: ')
+      moduleLogger.error(e, 'handleResetPreferences: ')
       setError(String((e as Error)?.message))
     }
   }
@@ -84,7 +85,7 @@ export const Flags = () => {
               <Button onClick={handleApply} colorScheme='blue'>
                 Apply
               </Button>
-              <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
+              <Button onClick={handleResetPreferences}>Reset Flags to Default</Button>
             </HStack>
           </Card.Footer>
         </Card>

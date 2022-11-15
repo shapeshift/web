@@ -8,7 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
 import { logger } from 'lib/logger'
 
-import type { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
 enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',
@@ -99,32 +99,30 @@ const parseGemAssets = (filteredList: GemCurrency[][]): AssetId[] => {
 
 const memoizeAllArgsResolver = (...args: any) => JSON.stringify(args)
 
-export const makeGemPartnerUrl = memoize(
-  (intent: FiatRampAction, selectedAssetTicker: string | undefined, address: string) => {
-    if (!selectedAssetTicker) return
+export const makeGemPartnerUrl = memoize(({ action: intent, assetId, address }: CreateUrlProps) => {
+  if (!assetId) return
+  const selectedAssetTicker = adapters.assetIdToGemTicker(assetId)
+  if (!selectedAssetTicker) return
+  const GEM_URL = 'https://onramp.gem.co'
+  const partnerName = 'ShapeShift'
+  const environment = getConfig().REACT_APP_GEM_ENV
+  // TODO(0xdef1cafe): this doesn't resolve to anything
+  const partnerIconUrl =
+    'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png'
+  const apiKey = getConfig().REACT_APP_GEM_API_KEY
+  const onrampConfig = {
+    partnerName,
+    environment,
+    partnerIconUrl,
+    apiKey,
+  }
+  const queryConfig = queryString.stringify({
+    ...onrampConfig,
+    intent,
+    wallets: JSON.stringify([{ address, asset: selectedAssetTicker }]),
+  })
 
-    const GEM_URL = 'https://onramp.gem.co'
-    const partnerName = 'ShapeShift'
-    const environment = getConfig().REACT_APP_GEM_ENV
-    // TODO(0xdef1cafe): this doesn't resolve to anything
-    const partnerIconUrl =
-      'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png'
-    const apiKey = getConfig().REACT_APP_GEM_API_KEY
-    const onrampConfig = {
-      partnerName,
-      environment,
-      partnerIconUrl,
-      apiKey,
-    }
-    const queryConfig = queryString.stringify({
-      ...onrampConfig,
-      intent,
-      wallets: JSON.stringify([{ address, asset: selectedAssetTicker }]),
-    })
-
-    const url = `${GEM_URL}?${queryConfig}`
-    moduleLogger.trace({ fn: 'makeGemPartnerUrl', url }, 'Gem Partner URL')
-    return url
-  },
-  memoizeAllArgsResolver,
-)
+  const url = `${GEM_URL}?${queryConfig}`
+  moduleLogger.trace({ fn: 'makeGemPartnerUrl', url }, 'Gem Partner URL')
+  return url
+}, memoizeAllArgsResolver)

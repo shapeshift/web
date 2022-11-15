@@ -12,9 +12,9 @@ import { AxelarChainNames, BridgeRoutePaths } from '../types'
 const moduleLogger = logger.child({ namespace: ['useBridgeRoutes'] })
 
 export const useBridgeRoutes = (): {
-  handleAssetClick: (asset: BridgeAsset) => Promise<void>
-  handleFromChainClick: (asset: BridgeChain) => Promise<void>
-  handleToChainClick: (asset: BridgeChain) => Promise<void>
+  handleAssetClick: (asset: BridgeAsset) => void
+  handleFromChainClick: (asset: BridgeChain) => void
+  handleToChainClick: (asset: BridgeChain) => void
 } => {
   const history = useHistory()
   const { setValue } = useFormContext<BridgeState>()
@@ -73,7 +73,7 @@ export const useBridgeRoutes = (): {
   )
 
   const handleFromChainClick = useCallback(
-    async (chain: BridgeChain) => {
+    (chain: BridgeChain) => {
       try {
         setValue('fromChain', chain, { shouldValidate: true })
       } catch (e) {
@@ -86,7 +86,7 @@ export const useBridgeRoutes = (): {
   )
 
   const handleToChainClick = useCallback(
-    async (chain: BridgeChain) => {
+    (chain: BridgeChain) => {
       try {
         setValue('toChain', chain, { shouldValidate: true })
       } catch (e) {

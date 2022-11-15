@@ -24,6 +24,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -57,6 +58,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const { state: walletState } = useWallet()
@@ -135,7 +139,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
-          opportunity
+          opportunity &&
+          bip44Params
         )
       )
         return
@@ -143,7 +148,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       const idleOpportunity = await idleInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareClaimTokens(state.userAddress)
       const txid = await idleOpportunity.signAndBroadcast({
@@ -169,6 +173,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     walletState.wallet,
     opportunity,
     idleInvestor,
+    bip44Params,
     onNext,
   ])
 

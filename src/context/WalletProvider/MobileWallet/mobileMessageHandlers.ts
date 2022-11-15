@@ -68,7 +68,7 @@ const moduleLogger = mobileLogger.child({ namespace: ['lib', 'mobileWallet'] })
  *
  * A 10 second timeout is included to avoid the Promise hanging
  */
-const postMessage = async <T>(msg: Message): Promise<T> => {
+const postMessage = <T>(msg: Message): Promise<T> => {
   return new Promise((resolve, reject) => {
     const id = Date.now()
     try {

@@ -154,7 +154,7 @@ export const TradeInput = () => {
     ],
   )
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(() => {
     try {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset

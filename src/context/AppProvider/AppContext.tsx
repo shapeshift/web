@@ -131,7 +131,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, opts)),
+        )
         const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate
@@ -285,7 +288,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const handleRetry = () => {
       handleAccountErrorToastClose()
       erroredAccountIds.forEach(accountId =>
-        dispatch(portfolioApi.endpoints.getAccount.initiate(accountId, { forceRefetch: true })),
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountId, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        ),
       )
     }
     const toastOptions = {

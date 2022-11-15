@@ -24,6 +24,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -53,6 +54,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -68,7 +72,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch) return
+    if (!dispatch || !bip44Params) return
     try {
       if (
         !(
@@ -86,7 +90,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const idleOpportunity = await idleInvestor.findByOpportunityId(
         state.opportunity?.positionAsset.assetId ?? '',
       )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareDeposit({
         address: state.userAddress,
@@ -114,6 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
+    bip44Params,
     state?.userAddress,
     state?.opportunity?.positionAsset.assetId,
     state?.deposit.cryptoAmount,

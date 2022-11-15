@@ -281,7 +281,7 @@
     },
     "memoNote": {
       "title": "Please don't edit the transaction memo",
-      "body": "Transactions originating from ShapeShit help support the DAO."
+      "body": "Transactions originating from ShapeShift help support the DAO."
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
@@ -605,6 +605,13 @@
     "recentTrades": "Recent Trades"
   },
   "modals": {
+    "popup": {
+      "body": "We've launched a secure window to complete your order.",
+      "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
+      "continue": "Click to Continue",
+      "showWindow": "Show Window",
+      "cancel": "Cancel"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

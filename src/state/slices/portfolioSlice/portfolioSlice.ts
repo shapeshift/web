@@ -51,12 +51,17 @@ export const portfolio = createSlice({
   },
 })
 
+type GetAccountArgs = {
+  accountId: AccountId
+  upsertOnFetch?: boolean
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
   endpoints: build => ({
-    getAccount: build.query<Portfolio, AccountId>({
-      queryFn: async (accountId, { dispatch, getState }) => {
+    getAccount: build.query<Portfolio, GetAccountArgs>({
+      queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         // 0xdef1cafe: be careful with this, RTK query can't type this correctly
         const untypedState = getState()
@@ -68,6 +73,7 @@ export const portfolioApi = createApi({
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
+          upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           moduleLogger.error(e, `error fetching account ${accountId}`)

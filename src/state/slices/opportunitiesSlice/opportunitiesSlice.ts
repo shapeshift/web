@@ -127,7 +127,7 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
-          const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
+          const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
 
           moduleLogger.debug(message)
 

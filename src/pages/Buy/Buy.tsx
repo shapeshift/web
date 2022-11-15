@@ -14,7 +14,7 @@ import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/selectors'
+import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'

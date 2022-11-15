@@ -7,6 +7,7 @@ import { getEthersProvider } from 'plugins/foxPage/utils'
 
 import {
   DefiProviderToMetadataResolverByDeFiType,
+  DefiProviderToOpportunityIdsResolverByDeFiType,
   DefiProviderToUserDataResolverByDeFiType,
 } from '.'
 

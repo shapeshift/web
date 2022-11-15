@@ -8,9 +8,12 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import {
   getMetadataResolversByDefiProviderAndDefiType,
+  getOpportunityIdsResolversByDefiProviderAndDefiType,
   getUserDataResolversByDefiProviderAndDefiType,
 } from './resolvers/utils'
 import type {
+  GetOpportunityIdsInput,
+  GetOpportunityIdsOutput,
   GetOpportunityMetadataInput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataInput,

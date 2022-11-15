@@ -43,7 +43,7 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
   EMPTY_COSMOS_ADDRESS,
   EMPTY_OSMOSIS_ADDRESS,
@@ -108,7 +108,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const disconnected = !wallet
     switched && moduleLogger.info('Wallet switched')
     disconnected && moduleLogger.info('Wallet disconnected')
-    if (switched || disconnected) dispatch(portfolio.actions.clear())
+    if (switched || disconnected) {
+      dispatch(portfolio.actions.clear())
+      dispatch(txHistory.actions.clear())
+    }
     // requestedAccountIds is changed by this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, wallet])
@@ -116,7 +119,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      const chainIds = supportedChains.filter(chainId => walletSupportsChain({ chainId, wallet }))
+      const chainIds = Array.from(supportedChains).filter(chainId =>
+        walletSupportsChain({ chainId, wallet }),
+      )
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
         // only some wallets support multi account

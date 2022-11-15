@@ -736,7 +736,9 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
     }>((acc, [accountId, account]) => {
       const entries: [AssetId, BigNumber][] = Object.entries(account).map(
         ([assetId, cryptoBalance]) => {
-          const { precision } = assets[assetId]
+          const asset = assets[assetId]
+          if (!asset) return [assetId, bn(0)]
+          const { precision } = asset
           const price = marketData[assetId]?.price ?? 0
           return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
         },

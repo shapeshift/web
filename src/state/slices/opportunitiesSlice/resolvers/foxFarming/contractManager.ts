@@ -1,7 +1,9 @@
 import type { ContractInterface } from '@ethersproject/contracts'
 import { Contract } from '@ethersproject/contracts'
-
-import { ethersProvider } from './utils'
+import type { Fetcher, Token } from '@uniswap/sdk'
+import type { providers } from 'ethers'
+import memoize from 'lodash/memoize'
+import { getEthersProvider } from 'plugins/foxPage/utils'
 
 type DefinedContract = {
   contract: Contract
@@ -18,3 +20,13 @@ export const getOrCreateContract = (address: string, abi: ContractInterface): Co
   definedContracts.push({ contract, address })
   return contract
 }
+export const ethersProvider = getEthersProvider()
+
+export const fetchPairData = memoize(
+  async (
+    tokenA: Token,
+    tokenB: Token,
+    fetchPairData: typeof Fetcher['fetchPairData'],
+    provider: providers.Web3Provider,
+  ) => await fetchPairData(tokenA, tokenB, provider),
+)

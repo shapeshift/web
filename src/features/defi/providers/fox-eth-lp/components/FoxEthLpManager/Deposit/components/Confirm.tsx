@@ -39,9 +39,9 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()
+  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { addLiquidity } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 

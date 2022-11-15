@@ -42,18 +42,15 @@ import {
   selectValidatorAddressParamFromFilter,
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import {
-  selectFarmContractsFiatBalance,
-  selectLpPlusFarmContractsBaseUnitBalance,
-} from 'state/slices/foxEthSlice/selectors'
 import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+import { selectAggregatedUserStakingOpportunity } from 'state/slices/opportunitiesSlice/selectors'
 import {
   accountIdToFeeAssetId,
   genericBalanceIncludingStakingByFilter,
 } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
-import { foxEthLpAssetId } from '../foxEthSlice/constants'
+import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -330,18 +327,26 @@ export const selectPortfolioTotalFiatBalanceWithStakingData = createSelector(
   selectPortfolioTotalFiatBalance,
   selectTotalStakingDelegationFiat,
   selectTotalStakingUndelegationFiat,
-  selectFarmContractsFiatBalance,
+  selectAggregatedUserStakingOpportunity,
+  selectMarketData,
   (
     portfolioFiatBalance,
     delegationFiatBalance,
     undelegationFiatBalance,
-    foxFarmingFiatBalance,
+    farmContractsAggregatedOpportunity,
+    marketData,
   ): string => {
     return bnOrZero(portfolioFiatBalance)
       .plus(delegationFiatBalance)
       .plus(undelegationFiatBalance)
-      .plus(foxFarmingFiatBalance)
-      .toString()
+      .plus(
+        farmContractsAggregatedOpportunity?.assetId
+          ? bnOrZero(farmContractsAggregatedOpportunity.stakedAmountCryptoPrecision).times(
+              marketData?.[farmContractsAggregatedOpportunity.assetId]?.price ?? '0',
+            )
+          : 0,
+      )
+      .toFixed()
   },
 )
 
@@ -451,7 +456,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectMarketData,
     selectBalanceThreshold,
     selectPortfolioAccounts,
-    selectLpPlusFarmContractsBaseUnitBalance,
+    selectAggregatedUserStakingOpportunity,
     selectAccountIdParamFromFilter, // TODO(gomes): selector
     (
       assetsById,
@@ -460,7 +465,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       marketData,
       balanceThreshold,
       portfolioAccounts,
-      lpPlusFarmContractsBaseUnitBalance,
+      aggregatedUserStakingOpportunity,
       accountId,
     ): AssetBalancesById => {
       const rawBalances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
@@ -483,8 +488,10 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         })
         return acc
       }, cloneDeep(rawBalances))
-      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] =
-        lpPlusFarmContractsBaseUnitBalance
+      // TODO: add LP portfolio amount to this
+      totalBalancesIncludingAllDelegationStates[foxEthLpAssetId] = bnOrZero(
+        aggregatedUserStakingOpportunity?.stakedAmountCryptoPrecision,
+      ).toFixed()
       const aboveThresholdBalances = Object.entries(
         totalBalancesIncludingAllDelegationStates,
       ).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {

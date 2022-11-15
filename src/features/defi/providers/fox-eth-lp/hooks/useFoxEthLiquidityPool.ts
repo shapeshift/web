@@ -35,11 +35,11 @@ const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider
 
 function calculateSlippageMargin(amount: string | null, precision: number) {
   if (!amount) throw new Error('Amount not given for slippage')
-  const percentage = 3
-  const remainingPercentage = (100 - percentage) / 100
+  const percentage = '4'
+  const remainingPercentage = bn(100).minus(percentage).div(100)
   return bnOrZero(amount)
     .times(bn(10).exponentiatedBy(precision))
-    .times(bnOrZero(remainingPercentage))
+    .times(remainingPercentage)
     .decimalPlaces(0)
     .toFixed()
 }
@@ -417,14 +417,18 @@ export const useFoxEthLiquidityPool = (
   const getWithdrawGasData = useCallback(
     async (lpAmount: string, foxAmount: string, ethAmount: string) => {
       if (skip || !accountId || !uniswapRouterContract) return
-      const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
-        FOX_TOKEN_CONTRACT_ADDRESS,
-        bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-        calculateSlippageMargin(foxAmount, foxAsset.precision),
-        calculateSlippageMargin(ethAmount, ethAsset.precision),
-        fromAccountId(accountId).account,
-        Date.now() + 1200000,
-      ])
+      const token = FOX_TOKEN_CONTRACT_ADDRESS
+      const liquidity = bnOrZero(lpAmount)
+        .times(bn(10).exponentiatedBy(lpAsset.precision))
+        .toFixed(0)
+      const amountTokenMin = calculateSlippageMargin(foxAmount, foxAsset.precision)
+      const amountEthMin = calculateSlippageMargin(ethAmount, ethAsset.precision)
+      const to = fromAccountId(accountId).account
+      const deadline = Date.now() + 1200000
+
+      // https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-01#removeliquidityeth
+      const params = [token, liquidity, amountTokenMin, amountEthMin, to, deadline]
+      const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', params)
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const estimatedFees = await adapter.getFeeData({
         to: contractAddress,

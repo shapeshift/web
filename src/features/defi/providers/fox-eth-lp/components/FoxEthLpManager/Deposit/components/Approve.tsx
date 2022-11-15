@@ -34,8 +34,8 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
-  const { lpAccountAddress } = useFoxEth()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { lpAccountId } = useFoxEth()
+  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))

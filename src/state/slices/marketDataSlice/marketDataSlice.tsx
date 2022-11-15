@@ -17,7 +17,7 @@ import type {
   MarketDataState,
 } from 'state/slices/marketDataSlice/types'
 
-import { foxEthLpAssetId } from '../foxEthSlice/constants'
+import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 

@@ -36,7 +36,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ row }: { row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
-              assetId={row.original.assetId}
+              assetId={row.original.underlyingAssetId ?? row.original.assetId}
               subText={makeProviderName(row.original.provider)}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}

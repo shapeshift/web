@@ -1,4 +1,5 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -7,8 +8,10 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectFoxEthLpAccountsOpportunitiesAggregated,
+  selectAggregatedEarnUserLpOpportunity,
   selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -56,11 +59,22 @@ export const PortfolioBreakdown = () => {
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
   //FOX/ETH LP Balance
-  const opportunity = useAppSelector(s => selectFoxEthLpAccountsOpportunitiesAggregated(s, null))
-  const lpBalance = opportunity?.underlyingFoxAmount ?? 0
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId,
+    }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
+
+  const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
   // Portfolio including Staking
-  const netWorth = useAppSelector(s => selectPortfolioTotalFiatBalanceWithStakingData(s, null))
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpUnderlyingToken1Balance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null
   return (

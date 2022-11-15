@@ -155,7 +155,10 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
             />
             <Stack direction='row'>
               <AssetIcon assetId={foxAssetId} size='xs' />
-              <Amount.Crypto value={opportunity.unclaimedRewards ?? '0'} symbol={foxAsset.symbol} />
+              <Amount.Crypto
+                value={opportunity.rewardsAmountCryptoPrecision ?? '0'}
+                symbol={foxAsset.symbol}
+              />
             </Stack>
           </Stack>
         }

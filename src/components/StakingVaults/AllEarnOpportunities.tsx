@@ -11,11 +11,14 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
+  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserStakingOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,11 +36,17 @@ export const AllEarnOpportunities = () => {
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const visibleFoxFarmingOpportunities = useAppSelector(s =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(s, null),
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId,
+    }),
+    [],
   )
-  const foxEthLpOpportunity = useAppSelector(s =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(s, null),
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
@@ -56,7 +65,10 @@ export const AllEarnOpportunities = () => {
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
+    foxFarmingOpportunities: foxFarmingOpportunities.filter(
+      opportunity =>
+        !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+    ),
   })
 
   const filterRows = useMemo(() => {

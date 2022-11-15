@@ -114,7 +114,7 @@ export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
     Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAccountId) => {
       Object.entries(byAccountId).forEach(
         ([assetId, balance]) =>
-          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance).toString()).toString()),
+          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()),
       )
       return acc
     }, {}),
@@ -477,7 +477,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
             const combined = [...delegations, ...redelegationEntries, ...undelegations]
             combined.forEach(entry => {
               const { assetId, amount } = entry
-              acc[assetId] = bnOrZero(acc[assetId]).plus(amount).toString()
+              acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(amount)).toString()
             })
           })
         })

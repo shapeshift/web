@@ -1,7 +1,7 @@
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
 
-import { addToIndex, getRelatedAssetIds } from './utils'
+import { getRelatedAssetIds } from './utils'
 
 describe('txHistorySlice:utils', () => {
   describe('getRelatedAssetIds', () => {
@@ -39,24 +39,6 @@ describe('txHistorySlice:utils', () => {
       expect(relatedAssetIds.includes(ethAssetId)).toBeTruthy()
       expect(relatedAssetIds.includes(usdcAssetId)).toBeTruthy()
       expect(relatedAssetIds.includes(yvusdcAssetId)).toBeTruthy()
-    })
-  })
-
-  describe('addToIndex', () => {
-    it('should add a new item to an empty index', () => {
-      expect(addToIndex([1, 2], [], 2)).toStrictEqual([2])
-    })
-
-    it('should add a new item to an existing index', () => {
-      expect(addToIndex([1, 2], [1], 2)).toStrictEqual([1, 2])
-    })
-
-    it('should not add a new item if it does not exist in the parent', () => {
-      expect(addToIndex([1, 2], [1], 3)).toStrictEqual([1])
-    })
-
-    it('should maintain the sort order from the parent', () => {
-      expect(addToIndex([2, 1, 3], [3], 1)).toStrictEqual([1, 3])
     })
   })
 })

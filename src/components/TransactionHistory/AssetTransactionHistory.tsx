@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -10,11 +9,7 @@ import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import {
-  selectAccountIdsByAssetId,
-  selectAssetById,
-  selectTxIdsByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
@@ -43,20 +38,8 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const chainId = asset.chainId
-  const accountIdsFilter = useMemo(() => ({ assetId }), [assetId])
-  const accountIds = useAppSelector(
-    state => selectAccountIdsByAssetId(state, accountIdsFilter),
-    isEqual,
-  )
-  const filter = useMemo(
-    // if we are passed an accountId, we're on an asset account page, use that specifically.
-    // otherwise, we're on an asset page, use all accountIds related to this asset
-    () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
-    [assetId, accountId, accountIds],
-  )
-
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
-
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
   if (!walletSupportsChain) return null

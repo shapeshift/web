@@ -177,7 +177,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         <Box>
           <BalanceChart
             accountId={accountId}
-            assetIds={assetIds}
+            assetId={assetId}
             timeframe={timeframe}
             percentChange={percentChange}
             setPercentChange={setPercentChange}

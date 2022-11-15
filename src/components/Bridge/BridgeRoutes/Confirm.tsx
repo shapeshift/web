@@ -6,7 +6,7 @@ import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
 import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
@@ -34,16 +34,14 @@ import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EditableAddress } from '../components/EditableAddress'
-import type { BridgeAsset, BridgeState } from '../types'
+import type { BridgeState } from '../types'
 import { BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
+
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
-type SelectAssetProps = {
-  onClick: (asset: BridgeAsset) => void
-} & RouteComponentProps
-
-export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
+export const Confirm: React.FC = () => {
+  const history = useHistory()
   const [isLoadingRelayerFee, setIsLoadingRelayerFee] = useState(true)
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)

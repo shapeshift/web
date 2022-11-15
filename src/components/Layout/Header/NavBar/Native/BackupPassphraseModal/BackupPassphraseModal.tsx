@@ -1,18 +1,12 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React from 'react'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 import { BackupPassphraseRouter } from './BackupPassphraseRouter'
 
-export const entries = [
-  BackupPassphraseRoutes.Start,
-  BackupPassphraseRoutes.Password,
-  BackupPassphraseRoutes.Info,
-  BackupPassphraseRoutes.Test,
-  BackupPassphraseRoutes.Success,
-]
+export const entries = Object.values(BackupPassphraseRoutes)
 
 type BackupPassphraseModalProps = {
   preventClose?: boolean
@@ -33,11 +27,7 @@ export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ pr
       <ModalOverlay />
       <ModalContent justifyContent='center' px={{ base: 0, md: 4 }} pt={3} pb={6}>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route path='/'>
-              <BackupPassphraseRouter />
-            </Route>
-          </Switch>
+          <BackupPassphraseRouter />
         </MemoryRouter>
       </ModalContent>
     </Modal>

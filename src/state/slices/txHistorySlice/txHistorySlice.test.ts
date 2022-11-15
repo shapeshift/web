@@ -1,3 +1,4 @@
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
@@ -21,14 +22,12 @@ describe('txHistorySlice', () => {
     expect(store.getState().txHistory).toEqual({
       txs: {
         byId: {},
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         status: 'loading',
       },
       rebases: {
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       },
@@ -61,10 +60,6 @@ describe('txHistorySlice', () => {
 
       // The full list of transactions should be sorted by time
       expect(history.ids).toStrictEqual(expected)
-      // The byAsset list should be sorted by time
-      expect(history.byAssetId['eip155:1/slip44:60']).toStrictEqual(expected)
-      // The byAccount list should be sorted by time
-      expect(history.byAccountId['eip155:1:0xdef1cafe']).toStrictEqual(expected)
     })
 
     it('should add new transactions', () => {
@@ -164,7 +159,7 @@ describe('txHistorySlice', () => {
       ).toBe(TxStatus.Confirmed)
     })
 
-    it('should add txids by accountId', () => {
+    it('should add txids by accountIdAssetId', () => {
       const ethAccountId = `${EthSend.chainId}:0xdef1cafe`
       const segwitNativeAccountId = `${BtcSend.chainId}:zpub`
       const segwitAccountId = `${BtcSend.chainId}:ypub`
@@ -191,16 +186,20 @@ describe('txHistorySlice', () => {
         }),
       )
 
-      expect(store.getState().txHistory.txs.byAccountId[ethAccountId]).toStrictEqual([
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId[ethAccountId]?.[ethAssetId],
+      ).toStrictEqual([
         serializeTxIndex(ethAccountId, EthSend.txid, EthSend.address),
         serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address),
       ])
 
-      expect(store.getState().txHistory.txs.byAccountId[segwitNativeAccountId]).toStrictEqual([
-        serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address),
-      ])
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId[segwitNativeAccountId]?.[btcAssetId],
+      ).toStrictEqual([serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address)])
 
-      expect(store.getState().txHistory.txs.byAccountId[segwitAccountId]).toStrictEqual([
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId?.[segwitAccountId]?.[btcAssetId],
+      ).toStrictEqual([
         serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.address),
       ])
     })
@@ -210,14 +209,12 @@ describe('txHistorySlice', () => {
     it('should memoize', () => {
       const txs: TxsState = {
         byId: {},
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: ['a', 'b'],
         status: 'loading',
       }
       const rebases: RebasesState = {
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       }

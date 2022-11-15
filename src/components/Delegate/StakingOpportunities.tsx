@@ -84,7 +84,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
-  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   // this is returning data grouped by validator, not by account
   const stakingOpportunitiesData = useAppSelector(s =>

@@ -8,7 +8,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -43,105 +43,129 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
+  )
 
-  // user info
-  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
-  const totalFiatBalance = bnOrZero(opportunity?.fiatAmount)
-
-  if (!state || !dispatch || !opportunity) return null
-
-  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    try {
-      const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
-      if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
-    } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
-      moduleLogger.error(error, 'FoxFarmingWithdraw:getWithdrawGasEstimate error:')
-    }
-  }
-
-  const handleContinue = async (formValues: WithdrawValues) => {
-    if (!opportunity) return
-    // set withdraw state for future use
-    dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
-    dispatch({
-      type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      payload: { lpAmount: formValues.cryptoAmount, isExiting },
-    })
-    const lpAllowance = await allowance()
-    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
-
-    // Skip approval step if user allowance is greater than or equal requested deposit amount
-    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
-      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-      if (!estimatedGasCrypto) {
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-        return
+  const getWithdrawGasEstimate = useCallback(
+    async (withdraw: WithdrawValues) => {
+      try {
+        const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
+        if (!fee) return
+        return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
+      } catch (error) {
+        // TODO: handle client side errors maybe add a toast?
+        moduleLogger.error(error, 'FoxFarmingWithdraw:getWithdrawGasEstimate error:')
       }
+    },
+    [ethAsset.precision, getUnstakeGasData, isExiting],
+  )
+
+  const handleContinue = useCallback(
+    async (formValues: WithdrawValues) => {
+      if (!opportunity || !dispatch || !asset) return
+      // set withdraw state for future use
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { lpAmount: formValues.cryptoAmount, isExiting },
       })
-      onNext(DefiStep.Confirm)
-      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-    } else {
-      const estimatedGasCrypto = await getApproveGasData()
-      if (!estimatedGasCrypto) return
-      dispatch({
-        type: FoxFarmingWithdrawActionType.SET_APPROVE,
-        payload: {
-          estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(bn(10).pow(ethAsset.precision))
-            .toPrecision(),
-        },
-      })
-      onNext(DefiStep.Approve)
-      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-    }
-  }
+      const lpAllowance = await allowance()
+      const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+      // Skip approval step if user allowance is greater than or equal requested deposit amount
+      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
+        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+        if (!estimatedGasCrypto) {
+          dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+          return
+        }
+        dispatch({
+          type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedGasCrypto },
+        })
+        onNext(DefiStep.Confirm)
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      } else {
+        const estimatedGasCrypto = await getApproveGasData()
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: FoxFarmingWithdrawActionType.SET_APPROVE,
+          payload: {
+            estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+              .div(bn(10).pow(ethAsset.precision))
+              .toPrecision(),
+          },
+        })
+        onNext(DefiStep.Approve)
+        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      }
+    },
+    [
+      allowance,
+      asset,
+      dispatch,
+      ethAsset.precision,
+      getApproveGasData,
+      getWithdrawGasEstimate,
+      isExiting,
+      onNext,
+      opportunity,
+    ],
+  )
 
-  const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-    const fiatAmount = bnOrZero(totalFiatBalance).times(percent).toString()
-    setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
-    // exit if max button was clicked
-    if (percent === 1) setIsExiting(true)
-    else setIsExiting(false)
-  }
+  const handleCancel = browserHistory.goBack
 
-  const handleInputChange = (value: string, isFiat?: boolean) => {
-    const percentage = bnOrZero(value).div(
-      bnOrZero(isFiat ? totalFiatBalance : cryptoAmountAvailable),
-    )
-    // exit if withdrawing total balance
-    if (percentage.eq(1)) setIsExiting(true)
-    else setIsExiting(false)
-  }
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(opportunity?.cryptoAmount).times(percent)
+      const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      // exit if max button was clicked
+      setIsExiting(percent === 1)
+    },
+    [opportunity?.cryptoAmount, opportunity?.fiatAmount, setValue],
+  )
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(cryptoAmountAvailable)
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const handleInputChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      const percentage = bnOrZero(value).div(
+        bnOrZero(isFiat ? opportunity?.fiatAmount : opportunity?.cryptoAmount),
+      )
+      // exit if withdrawing total balance
+      setIsExiting(percentage.eq(1))
+    },
+    [opportunity?.cryptoAmount, opportunity?.fiatAmount],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const _value = bnOrZero(value)
-    const fiat = bnOrZero(totalFiatBalance)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(_value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      const crypto = bnOrZero(opportunity?.cryptoAmount)
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [opportunity?.cryptoAmount],
+  )
+
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      const _value = bnOrZero(value)
+      const fiat = bnOrZero(opportunity?.fiatAmount)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(_value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [opportunity?.fiatAmount],
+  )
+
+  if (!asset || !state || !dispatch || !opportunity) return null
 
   return (
     <FormProvider {...methods}>
@@ -149,12 +173,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={asset}
         icons={opportunity?.icons}
-        cryptoAmountAvailable={cryptoAmountAvailable.toString()}
+        cryptoAmountAvailable={opportunity?.cryptoAmount}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },
         }}
-        fiatAmountAvailable={totalFiatBalance?.toString() ?? '0'}
+        fiatAmountAvailable={opportunity?.fiatAmount?.toString() ?? '0'}
         fiatInputValidation={{
           required: true,
           validate: { validateFiatAmount },
@@ -163,7 +187,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
-        isLoading={state.loading || !totalFiatBalance}
+        isLoading={state.loading || !opportunity?.fiatAmount}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}

@@ -1,9 +1,9 @@
 import { Contract } from '@ethersproject/contracts'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from './constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 
 export const getLpTokenPrice = async (
   ethPrecision: number,
@@ -12,7 +12,7 @@ export const getLpTokenPrice = async (
 ) => {
   const ethersProvider = getEthersProvider()
   const uniV2LPContract = new Contract(
-    UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+    fromAssetId(foxEthLpAssetId).assetReference,
     IUniswapV2Pair.abi,
     ethersProvider,
   )

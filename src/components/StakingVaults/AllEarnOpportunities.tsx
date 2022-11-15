@@ -70,7 +70,7 @@ export const AllEarnOpportunities = () => {
     ),
   })
 
-  const filterRows = useMemo(() => {
+  const filteredRows = useMemo(() => {
     return allRows.filter(e => bnOrZero(e.tvl).gte(50000))
   }, [allRows])
 
@@ -112,7 +112,7 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <StakingTable data={filterRows} onClick={handleClick} />
+        <StakingTable data={filteredRows} onClick={handleClick} />
       </Card.Body>
     </Card>
   )

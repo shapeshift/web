@@ -10,72 +10,66 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import type { PartialRecord } from 'lib/utils'
+import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import type { Nominal } from 'types/common'
 
-import { addToIndex, getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
+import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
-export type TxId = string
+export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
 
 export type TxHistoryById = {
   [k: TxId]: Tx
 }
 
-/* this is a one to many relationship of asset id to tx id
+/* this is a one to many relationship of an account and asset id to tx id
  *
  * e.g. an account with a single trade of FOX to USDC will produce the following
  * three related assets
  *
  * {
- *   foxAssetId: [txid] // sell asset
- *   usdcAssetId: [txid] // buy asset
- *   ethAssetId: [txid] // fee asset
+ *   0xfoobaraccount: {
+ *     foxAssetId: [txid] // sell asset
+ *     usdcAssetId: [txid] // buy asset
+ *     ethAssetId: [txid] // fee asset
+ *   }
  * }
  *
  * where txid is the same txid related to all the above assets, as the
  * sell asset, buy asset, and fee asset respectively
  *
  * this allows us to O(1) select all related transactions to a given asset
+ *
+ * note - we persist this data structure to disk across page refresh, and wallet disconnections
+ * and use the accountIds from the connected wallet to index into it
  */
 
-export type TxIdByAssetId = {
-  [k: AssetId]: TxId[]
-}
-
-export type TxIdByAccountId = {
-  [k: AccountId]: TxId[]
-}
+export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
+export type TxIdsByAccountIdAssetId = PartialRecord<AccountId, TxIdsByAssetId>
 
 // status is loading until all tx history is fetched
 export type TxHistoryStatus = 'loading' | 'loaded'
 
-type RebaseId = string
-type RebaseById = {
-  [k: RebaseId]: RebaseHistory
-}
+export type RebaseId = Nominal<string, 'RebaseId'>
+type RebaseById = PartialRecord<RebaseId, RebaseHistory>
 
-type RebaseByAssetId = {
-  [k: AssetId]: RebaseId[]
-}
-
-type RebaseByAccountId = {
-  [k: AccountId]: RebaseId[]
-}
+type RebaseIdsByAssetId = PartialRecord<AssetId, RebaseId[]>
+export type RebaseIdsByAccountIdAssetId = PartialRecord<AccountId, RebaseIdsByAssetId>
 
 export type TxsState = {
   byId: TxHistoryById
-  byAssetId: TxIdByAssetId
-  byAccountId: TxIdByAccountId
+  byAccountIdAssetId: TxIdsByAccountIdAssetId
   ids: TxId[]
   status: TxHistoryStatus
 }
 
 export type RebasesState = {
-  byAssetId: RebaseByAssetId
-  byAccountId: RebaseByAccountId
+  byAccountIdAssetId: RebaseIdsByAccountIdAssetId
   ids: RebaseId[]
   byId: RebaseById
 }
@@ -90,18 +84,15 @@ export type TxsMessage = {
   payload: { txs: Transaction[]; accountId: AccountId }
 }
 
-// https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
   txs: {
+    byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-    byAssetId: {},
-    byAccountId: {},
-    status: 'loading',
+    status: 'loading', // TODO(0xdef1cafe): remove this
   },
   rebases: {
-    byAssetId: {},
-    byAccountId: {},
+    byAccountIdAssetId: {},
     ids: [],
     byId: {},
   },
@@ -133,24 +124,9 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
 
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
-  getRelatedAssetIds(tx).forEach(relatedAssetId => {
-    txs.byAssetId[relatedAssetId] = addToIndex(
-      txs.ids,
-      txs.byAssetId[relatedAssetId],
-      serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-    )
-  })
-
-  // index the tx by the account that it belongs to
-  txs.byAccountId[accountId] = addToIndex(
-    txs.ids,
-    txs.byAccountId[accountId],
-    serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+  getRelatedAssetIds(tx).forEach(relatedAssetId =>
+    deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
   )
-
-  // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
-  // this looks like it's not doing anything, but changes written to the proxy
-  // get applied to state when it goes out of scope
 }
 
 type UpdateOrInsertRebase = (txState: TxHistory, data: RebaseHistoryPayload['payload']) => void
@@ -165,30 +141,15 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
     rebases.byId[rebaseId] = rebase
 
     if (isNew) {
-      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc'])
+      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc']).filter(isSome)
       const index = orderedRebases.findIndex(
         rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId,
       )
       rebases.ids.splice(index, 0, rebaseId)
     }
 
-    rebases.byAssetId[assetId] = addToIndex(
-      rebases.ids,
-      rebases.byAssetId[assetId],
-      makeRebaseId({ accountId, assetId, rebase }),
-    )
-
-    // index the tx by the account that it belongs to
-    rebases.byAccountId[accountId] = addToIndex(
-      rebases.ids,
-      rebases.byAccountId[accountId],
-      makeRebaseId({ accountId, assetId, rebase }),
-    )
+    deepUpsertArray(rebases.byAccountIdAssetId, accountId, assetId, rebaseId)
   })
-
-  // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
-  // this looks like it's not doing anything, but changes written to the proxy
-  // get applied to state when it goes out of scope
 }
 
 type MakeRebaseIdArgs = {
@@ -225,10 +186,7 @@ export const txHistory = createSlice({
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsertTx(txState, payload.message, payload.accountId),
     upsertTxs: (txState, { payload }: TxsMessage) => {
-      // TODO(0xdef1cafe): bulk upsert to avoid thousands of renders 🤦‍♂️
-      for (const tx of payload.txs) {
-        updateOrInsertTx(txState, tx, payload.accountId)
-      }
+      for (const tx of payload.txs) updateOrInsertTx(txState, tx, payload.accountId)
     },
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
       updateOrInsertRebase(txState, payload),
@@ -328,6 +286,8 @@ export const txHistoryApi = createApi({
 
                 currentCursor = cursor
 
+                // TODO(0xdef1cafe): check if data exists in store and stop paginating before upserting
+                // to reduce load on backend
                 dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
               } while (currentCursor)
             } catch (err) {

@@ -8,6 +8,7 @@ import { isNull } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
+import union from 'lodash/union'
 
 // we don't want utils to mutate by default, so spreading here is ok
 export const upsertArray = <T extends unknown>(arr: T[], item: T): T[] =>
@@ -82,4 +83,25 @@ export const walletCanEditMemo = (wallet: HDWallet): boolean => {
     default:
       return true
   }
+}
+
+export type NestedArray<T> = PartialRecord<keyof any, PartialRecord<keyof any, T[]>>
+
+/**
+ * @param data - Partial, two level nested object with array of strings at leaf
+ * @param level1Key - The key into the first level of the nested object
+ * @param level2Key - The key into the second level of the nested object
+ * @param value - The value to union into the deep array
+ *
+ * @returns void - this function mutates data!
+ */
+export const deepUpsertArray = <T>(
+  data: NestedArray<T>,
+  level1Key: keyof any,
+  level2Key: keyof any,
+  value: T,
+): void => {
+  let level1 = data[level1Key]
+  if (!level1) level1 = data[level1Key] = {}
+  level1[level2Key] = union(level1[level2Key] ?? [], [value])
 }

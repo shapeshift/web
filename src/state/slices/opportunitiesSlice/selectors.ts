@@ -129,6 +129,51 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
 // "Give me the staking values of all my accounts for that specific opportunity"
 export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesById,
+  selectUserStakingIds,
+  selectStakingOpportunitiesById,
+  selectStakingIds,
+  (
+    userStakingOpportunities,
+    userStakingOpportunityIds,
+    stakingOpportunities,
+    stakingIds,
+  ): Record<
+    StakingId,
+    (OpportunityMetadata & UserStakingOpportunity & { userStakingId: `${string}*${string}` })[]
+  > =>
+    stakingIds.reduce<
+      Record<
+        StakingId,
+        (OpportunityMetadata & UserStakingOpportunity & { userStakingId: `${string}*${string}` })[]
+      >
+    >((acc, stakingId) => {
+      if (!stakingId) return acc
+      // Filter out only the user data for this specific opportunity
+      const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
+        filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
+      )
+
+      if (!userStakingOpportunityIds.length) {
+        acc[stakingId] = []
+        return acc
+      }
+
+      acc[stakingId] = filteredUserStakingOpportunityIds
+        .map(userStakingId => {
+          const opportunityData = userStakingOpportunities[userStakingId]
+          const opportunityMetadata = stakingOpportunities[stakingId]
+          if (!opportunityData || !opportunityMetadata) return undefined
+          return Object.assign({}, opportunityMetadata, opportunityData, { userStakingId })
+        })
+        .filter(isSome)
+
+      return acc
+    }, {}),
+)
+
+// "Give me the staking values of all my accounts for that specific opportunity"
+export const selectUserStakingOpportunitiesFromStakingId = createDeepEqualOutputSelector(
+  selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
   selectUserStakingIds,
   selectStakingOpportunitiesById,
@@ -157,28 +202,42 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
   },
 )
 
+const getAggregatedUserStakingOpportunityByStakingId = (
+  userStakingOpportunities: (UserStakingOpportunity &
+    OpportunityMetadata & { userStakingId: UserStakingId })[],
+): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+  if (!userStakingOpportunities?.length) return
+
+  return userStakingOpportunities.reduce<
+    (UserStakingOpportunity & OpportunityMetadata) | undefined
+  >((acc, userStakingOpportunity) => {
+    const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } = userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+
+    return {
+      ...userStakingOpportunityWithoutUserStakingId,
+      stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
+        .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+        .toString(),
+      rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
+        .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
+        .toString(),
+    }
+  }, undefined)
+}
+
 // "Give me the total values over all my accounts aggregated into one for that specific opportunity"
 export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
-    if (!userStakingOpportunities?.length) return
+  selectStakingIdParamFromFilter,
+  (
+    userStakingOpportunitiesById,
+    stakingId,
+  ): (UserStakingOpportunity & OpportunityMetadata) | undefined => {
+    if (!stakingId) return
 
-    return userStakingOpportunities.reduce<
-      (UserStakingOpportunity & OpportunityMetadata) | undefined
-    >((acc, userStakingOpportunity) => {
-      const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+    const userStakingOpportunities = userStakingOpportunitiesById[stakingId]
 
-      return {
-        ...userStakingOpportunityWithoutUserStakingId,
-        stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
-          .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
-          .toString(),
-        rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
-          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-          .toString(),
-      }
-    }, undefined)
+    return getAggregatedUserStakingOpportunityByStakingId(userStakingOpportunities)
   },
 )
 
@@ -204,11 +263,11 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
 // "Give me the total values over all my accounts aggregated into one for each opportunity"
 // TODO: testme
 export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
-  selectStakingIds,
-  (state: ReduxState) => state,
-  (stakingIds, state): (UserStakingOpportunity & OpportunityMetadata)[] =>
-    stakingIds
-      .map(stakingId => selectAggregatedUserStakingOpportunityByStakingId(state, { stakingId }))
+  selectUserStakingOpportunitiesByStakingId,
+  (userStakingOpportunitiesByStakingId): (UserStakingOpportunity & OpportunityMetadata)[] =>
+    Object.values(userStakingOpportunitiesByStakingId)
+      .filter(isSome)
+      .map(getAggregatedUserStakingOpportunityByStakingId)
       .filter(isSome),
 )
 

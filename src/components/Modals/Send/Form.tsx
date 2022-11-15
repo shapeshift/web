@@ -101,10 +101,18 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
                 />
               )}
             />
-            <Route path={SendRoutes.Address} component={Address} />
-            <Route path={SendRoutes.Details} component={Details} />
-            <Route path={SendRoutes.Scan} component={QrCodeScanner} />
-            <Route path={SendRoutes.Confirm} component={Confirm} />
+            <Route path={SendRoutes.Address}>
+              <Address />
+            </Route>
+            <Route path={SendRoutes.Details}>
+              <Details />
+            </Route>
+            <Route path={SendRoutes.Scan}>
+              <QrCodeScanner />
+            </Route>
+            <Route path={SendRoutes.Confirm}>
+              <Confirm />
+            </Route>
             <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>
         </AnimatePresence>

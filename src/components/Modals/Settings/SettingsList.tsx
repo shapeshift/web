@@ -11,11 +11,13 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
+import type { RouteComponentProps } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
@@ -36,7 +38,11 @@ import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
 
-export const SettingsList = () => {
+type SettingsListProps = {
+  appHistory: RouteComponentProps['history']
+}
+
+export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const history = useHistory()
   const { disconnect } = useWallet()
   const translate = useTranslate()
@@ -58,15 +64,15 @@ export const SettingsList = () => {
     if (clickCount === 4) {
       setClickCount(0)
       settings.close()
-      history.push('/flags')
+      appHistory.push('/flags')
     } else {
       setClickCount(clickCount + 1)
     }
-  }, [history, clickCount, setClickCount, settings])
+  }, [appHistory, clickCount, setClickCount, settings])
 
   const closeModalAndNavigateTo = (linkHref: string) => {
     settings.close()
-    history.push(linkHref)
+    appHistory.push(linkHref)
   }
 
   const handleDeleteAccountsClick = async () => {

@@ -10,7 +10,9 @@ import { SettingsRouter } from './SettingsRouter'
 export const entries = Object.values(SettingsRoutes)
 
 const Settings = () => {
-  const history = useHistory()
+  // Settings requires a separate "outer" level history context to be passed down to the SettingsRouter
+  const appHistory = useHistory()
+
   const { settings } = useModal()
   const { close, isOpen } = settings
 
@@ -24,19 +26,19 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
-      if (e.data?.cmd === 'shakeEvent' && isOpen) void history.push('/flags') || close()
+      if (e.data?.cmd === 'shakeEvent' && isOpen) void appHistory.push('/flags') || close()
     }
 
     window.addEventListener('message', shakeEventListener)
     return () => window.removeEventListener('message', shakeEventListener)
-  }, [history, close, isOpen])
+  }, [appHistory, close, isOpen])
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <SettingsRouter />
+          <SettingsRouter appHistory={appHistory} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

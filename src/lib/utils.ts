@@ -85,23 +85,23 @@ export const walletCanEditMemo = (wallet: HDWallet): boolean => {
   }
 }
 
-export type NestedArray = PartialRecord<string, PartialRecord<string, string[]>>
+export type NestedArray<T> = PartialRecord<keyof any, PartialRecord<keyof any, T[]>>
 
 /**
  * @param data - Partial, two level nested object with array of strings at leaf
- * @param level1Id - The id into the first level of the nested object
- * @param level2Id - The id into the second level of the nested object
- * @param value - The id to union into the deep array
+ * @param level1Key - The key into the first level of the nested object
+ * @param level2Key - The key into the second level of the nested object
+ * @param value - The value to union into the deep array
  *
  * @returns void - this function mutates data!
  */
-export const deepUpsertArray = (
-  data: NestedArray,
-  level1Id: string,
-  level2Id: string,
-  value: string,
+export const deepUpsertArray = <T>(
+  data: NestedArray<T>,
+  level1Key: keyof any,
+  level2Key: keyof any,
+  value: T,
 ): void => {
-  let level1 = data[level1Id]
-  if (!level1) level1 = data[level1Id] = {}
-  level1[level2Id] = union(level1[level2Id] ?? [], [value])
+  let level1 = data[level1Key]
+  if (!level1) level1 = data[level1Key] = {}
+  level1[level2Key] = union(level1[level2Key] ?? [], [value])
 }

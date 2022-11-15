@@ -70,6 +70,10 @@ export const AllEarnOpportunities = () => {
     ),
   })
 
+  const filteredRows = useMemo(() => {
+    return allRows.filter(e => bnOrZero(e.tvl).gte(50000))
+  }, [allRows])
+
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
       const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
@@ -108,7 +112,7 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <StakingTable data={allRows} onClick={handleClick} />
+        <StakingTable data={filteredRows} onClick={handleClick} />
       </Card.Body>
     </Card>
   )

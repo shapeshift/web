@@ -82,6 +82,30 @@ export const opportunitiesApi = createApi({
   reducerPath: 'opportunitiesApi',
   keepUnusedDataFor: 300,
   endpoints: build => ({
+    getOpportunityIds: build.query<GetOpportunityIdsOutput, GetOpportunityIdsInput>({
+      queryFn: async ({ defiType, defiProvider }) => {
+        try {
+          const resolver = getOpportunityIdsResolversByDefiProviderAndDefiType(
+            defiProvider,
+            defiType,
+          )
+          const resolved = await resolver()
+
+          return { data: resolved.data }
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error getting opportunityIds'
+
+          moduleLogger.debug(message)
+
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
       queryFn: async (
         { opportunityId, opportunityType, defiType, defiProvider },

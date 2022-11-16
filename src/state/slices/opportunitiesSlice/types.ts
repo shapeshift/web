@@ -75,6 +75,12 @@ export type GetOpportunityUserDataInput = {
   defiProvider: DefiProvider
 }
 
+export type GetOpportunityIdsInput = {
+  opportunityId: LpId | StakingId
+  defiType: DefiType
+  defiProvider: DefiProvider
+}
+
 export type GetOpportunityMetadataOutput = {
   byId: OpportunitiesState[OpportunityDefiType]['byId']
   type: OpportunityDefiType
@@ -87,3 +93,5 @@ export type GetOpportunityUserDataOutput = {
 export type GetOpportunityUserStakingDataOutput = {
   byId: OpportunitiesState['userStaking']['byId']
 }
+
+export type GetOpportunityIdsOutput = (LpId | StakingId)[]

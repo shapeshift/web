@@ -37,7 +37,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
         chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
       })
 
-      let accResolved = await acc
+      const accResolved = await acc
       if (!accResolved) accResolved = {}
 
       const asset = selectAssetById(state, assetId)

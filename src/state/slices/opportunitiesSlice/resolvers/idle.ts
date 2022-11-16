@@ -73,7 +73,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   )
 
   const data = {
-    byId: byId as OpportunitiesState[DefiType.LiquidityPool]['byId'],
+    byId,
     type: opportunityType,
   }
 

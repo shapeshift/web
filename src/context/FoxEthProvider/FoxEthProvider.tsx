@@ -4,7 +4,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -173,6 +173,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
                 }) as LpId,
                 opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
+                defiProvider: DefiProvider.FoxFarming,
               },
               // Any previous query without portfolio loaded will be rejected
               // The first successful one will be cached unless forceRefetch is overriden with queryOptions

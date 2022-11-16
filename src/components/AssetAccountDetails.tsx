@@ -27,7 +27,6 @@ type AssetDetailsProps = {
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
-
   return (
     <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack

@@ -111,8 +111,8 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
   selectTimeframeParam,
-  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] | undefined =>
-    fiatPriceHistory?.[timeframe]?.[selectedCurrency],
+  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] =>
+    fiatPriceHistory?.[timeframe]?.[selectedCurrency] ?? [],
 )
 
 export const selectFiatPriceHistoriesLoadingByTimeframe = createSelector(

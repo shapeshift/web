@@ -26,7 +26,10 @@ export type OpportunityMetadata = {
   underlyingAssetRatios: readonly [string, string] | readonly [string]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // TODO: Optional for backwards compatibility, but it should always be present
-  rewardAssetIds?: readonly [string, string, string] | readonly [string, string] | readonly [string]
+  rewardAssetIds?:
+    | readonly [AssetId, AssetId, AssetId]
+    | readonly [AssetId, AssetId]
+    | readonly [AssetId]
   expired?: boolean
   name?: string
 }

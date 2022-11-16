@@ -1,7 +1,10 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { mockStore } from 'test/mocks/store'
+import type { OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
 
-import { foxEthPair } from './constants'
+import { foxEthLpAssetId, foxEthPair } from './constants'
 import {
   catpuccinoAccountId,
   fauxmesAccountId,
@@ -18,7 +21,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunityIdsByAccountId,
   selectStakingOpportunityIdsByAccountId,
-  selectUserStakingOpportunitiesByStakingId,
+  selectUserStakingOpportunitiesFromStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from './selectors'
 import { serializeUserStakingId } from './utils'
@@ -29,6 +32,10 @@ describe('opportunitiesSlice selectors', () => {
     opportunities: initialState,
   }
   describe('selects ID/s', () => {
+    const accountMetadata = {
+      byId: {},
+      ids: [gomesAccountId, fauxmesAccountId],
+    }
     const accountBalances = {
       byId: {
         [gomesAccountId]: {
@@ -84,6 +91,7 @@ describe('opportunitiesSlice selectors', () => {
       portfolio: {
         ...mockBaseState.portfolio,
         accountBalances,
+        accountMetadata,
       },
       opportunities: {
         ...initialState,
@@ -130,11 +138,31 @@ describe('opportunitiesSlice selectors', () => {
     })
   })
   describe('selectUserStakingOpportunityByUserStakingId', () => {
+    const mockOpportunityMetadata: OpportunityMetadata = {
+      // The LP token AssetId
+      assetId: foxEthLpAssetId,
+      provider: DefiProvider.FoxEthLP,
+      tvl: '424242',
+      apy: '0.42',
+      type: DefiType.LiquidityPool,
+      underlyingAssetId: foxEthLpAssetId,
+      underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+      underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
+    }
     const staking = {
       ...initialState.staking,
+      ids: [
+        serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
+        serializeUserStakingId(gomesAccountId, mockStakingContractOne),
+        serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
+      ],
+      byId: {
+        [mockStakingContractOne]: mockOpportunityMetadata,
+        [mockStakingContractTwo]: mockOpportunityMetadata,
+      },
     }
     const userStaking = {
-      ...initialState.staking,
+      ...initialState.userStaking,
       ids: [
         serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
         serializeUserStakingId(gomesAccountId, mockStakingContractOne),
@@ -167,16 +195,38 @@ describe('opportunitiesSlice selectors', () => {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
         }),
       ).toEqual({
-        stakedAmountCryptoPrecision: '1337',
+        apy: '0.42',
+        assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        provider: 'UNI V2',
         rewardsAmountCryptoPrecision: '420',
+        stakedAmountCryptoPrecision: '1337',
+        tvl: '424242',
+        type: 'lp',
+        underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        underlyingAssetIds: [
+          'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          'eip155:1/slip44:60',
+        ],
+        underlyingAssetRatios: ['5000000000000000', '202200000000000000000'],
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
         }),
       ).toEqual({
+        apy: '0.42',
+        assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        provider: 'UNI V2',
         stakedAmountCryptoPrecision: '4',
         rewardsAmountCryptoPrecision: '3',
+        tvl: '424242',
+        type: 'lp',
+        underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        underlyingAssetIds: [
+          'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          'eip155:1/slip44:60',
+        ],
+        underlyingAssetRatios: ['5000000000000000', '202200000000000000000'],
       })
     })
   })
@@ -191,9 +241,11 @@ describe('opportunitiesSlice selectors', () => {
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
         },
       },
+      ids: [mockStakingContractTwo],
     }
     const userStaking = {
       ...initialState.staking,
@@ -228,7 +280,7 @@ describe('opportunitiesSlice selectors', () => {
     }
     describe('selectUserStakingOpportunitiesByStakingId', () => {
       it('can get the staking data for a given StakingId', () => {
-        const result = selectUserStakingOpportunitiesByStakingId(mockState, {
+        const result = selectUserStakingOpportunitiesFromStakingId(mockState, {
           stakingId: mockStakingContractTwo,
         })
         expect(result).toEqual([
@@ -240,6 +292,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -255,6 +308,7 @@ describe('opportunitiesSlice selectors', () => {
             stakedAmountCryptoPrecision: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
+            underlyingAssetId: foxEthLpAssetId,
             underlyingAssetIds: foxEthPair,
             underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
               string,
@@ -276,6 +330,7 @@ describe('opportunitiesSlice selectors', () => {
           provider: DefiProvider.FoxEthLP,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
+          underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
           rewardsAmountCryptoPrecision: '430',

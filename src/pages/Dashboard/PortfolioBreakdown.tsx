@@ -8,8 +8,10 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectFoxEthLpAccountsOpportunitiesAggregated,
+  selectAggregatedEarnUserLpOpportunity,
   selectPortfolioTotalFiatBalanceWithStakingData,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -56,17 +58,23 @@ export const PortfolioBreakdown = () => {
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  const emptyFilter = useMemo(() => ({}), [])
   //FOX/ETH LP Balance
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId,
+    }),
+    [],
   )
-  const lpBalance = opportunity?.underlyingFoxAmount ?? 0
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
+
+  const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
   // Portfolio including Staking
-  const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, emptyFilter),
-  )
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpUnderlyingToken1Balance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
   if (!isDashboardBreakdownEnabled) return null
   return (

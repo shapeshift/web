@@ -16,8 +16,7 @@ import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { getLogLevel, saveLogLevel } from 'lib/logger'
-import { logger } from 'lib/logger'
+import { getLogLevel, logger, saveLogLevel } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['FeatureFlags'] })
 

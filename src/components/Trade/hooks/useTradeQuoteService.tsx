@@ -7,7 +7,7 @@ import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshift
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -93,6 +93,7 @@ export const useTradeQuoteService = () => {
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
+  const quote = useWatch({ control, name: 'quote' })
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -175,10 +176,14 @@ export const useTradeQuoteService = () => {
     isSendMax,
   ])
 
-  // Set trade quote
+  // Update trade quote
+  useEffect(() => setValue('quote', tradeQuote), [tradeQuote, setValue])
+
+  // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
-    setValue('quote', tradeQuote)
-  }, [tradeQuote, setValue])
+    // Checking that no quote has been set and tradeQuote exists prevents an infinite render
+    !quote && tradeQuote && setValue('quote', tradeQuote)
+  }, [quote, setValue, tradeQuote])
 
   return { isLoadingTradeQuote }
 }

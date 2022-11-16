@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -8,7 +8,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,10 +21,9 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -32,7 +31,7 @@ import { DepositContext } from '../DepositContext'
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 } & StepComponentProps
 
@@ -41,11 +40,11 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
 
@@ -54,15 +53,19 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
+  const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  )
 
   // notify
   const toast = useToast()
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(state?.userAddress && opportunity && assetReference && idleInvestor)) return
+      if (!(state?.userAddress && opportunity && assetReference && idleInvestor && accountId))
+        return
       try {
         const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity.positionAsset.assetId ?? '',
@@ -70,7 +73,7 @@ export const Deposit: React.FC<DepositProps> = ({
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
           amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-          address: state.userAddress,
+          address: fromAccountId(accountId).account,
         })
         // TODO(theobold): Figure out a better way for the safety factor
         return bnOrZero(preparedTx.gasPrice)
@@ -95,16 +98,17 @@ export const Deposit: React.FC<DepositProps> = ({
       opportunity,
       assetReference,
       idleInvestor,
-      asset?.precision,
-      translate,
+      accountId,
+      asset.precision,
       toast,
+      translate,
     ],
   )
 
   const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
     if (!(state?.userAddress && assetReference && opportunity)) return
     try {
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
       if (!idleOpportunity) throw new Error('No opportunity')
@@ -135,7 +139,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       try {
         // Check is approval is required for user address
-        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity.positionAsset.assetId ?? '',
         )
         if (!idleOpportunity) throw new Error('No opportunity')
@@ -176,14 +180,14 @@ export const Deposit: React.FC<DepositProps> = ({
     [
       state?.userAddress,
       opportunity,
-      idleInvestor,
-      asset?.precision,
-      translate,
       dispatch,
-      toast,
+      idleInvestor,
+      asset.precision,
+      getDepositGasEstimate,
       onNext,
       getApproveGasEstimate,
-      getDepositGasEstimate,
+      toast,
+      translate,
     ],
   )
 

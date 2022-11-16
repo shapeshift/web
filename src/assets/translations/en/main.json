@@ -274,6 +274,10 @@
         "claimYour": "Claim your %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Please don't edit the transaction memo",
+      "body": "Transactions originating from ShapeShift help support the DAO."
+    },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
@@ -596,6 +600,13 @@
     "recentTrades": "Recent Trades"
   },
   "modals": {
+    "popup": {
+      "body": "We've launched a secure window to complete your order.",
+      "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
+      "continue": "Click to Continue",
+      "showWindow": "Show Window",
+      "cancel": "Cancel"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -987,7 +998,7 @@
           "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
           "passphrase": "Enable the ability to have multiple wallets, accessible by using a unique passphrase for each wallet.",
           "label": "Labelling each of devices allows you to easily distinguish one from the other.",
-          "timeout": "Your device goes to sleep after 10 minutes of activity by default. However, you can change this.",
+          "timeout": "Your device goes to sleep after 10 minutes of inactivity by default. However, you can change this.",
           "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
           "updateSuccess": "%{setting} successfully updated!",
           "updateFailed": "An error occurred whilst updating the %{setting}.",
@@ -1339,7 +1350,10 @@
     "selectChain": "Select the chain you would like to create an account for.",
     "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
     "newAccountAdded": "New %{name} Account added",
-    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}"
+    "youCanNowUse": "You can now use %{name} Account #%{accountNumber}",
+    "showAssets": "Show assets",
+    "hideAssets": "Hide assets",
+    "viewAccount": "View account"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

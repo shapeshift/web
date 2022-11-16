@@ -15,10 +15,9 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { Nullable } from 'types/common'
 
 type DepositProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   asset: Asset
   rewardAsset?: Asset
   // Estimated apy (Deposit Only)

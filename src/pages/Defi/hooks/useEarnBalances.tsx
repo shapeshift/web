@@ -4,11 +4,14 @@ import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpport
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectFarmContractsFiatBalance,
-  selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectFoxEthLpFiatBalance,
-  selectVisibleFoxFarmingAccountOpportunitiesAggregated,
+  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedUserStakingOpportunity,
+  selectMarketDataById,
+  selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,18 +42,36 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunitiesAggregated(state, emptyFilter),
-  )
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
+    selectAggregatedEarnUserLpOpportunity(state, {
+      lpId: foxEthLpAssetId as LpId,
+      assetId: foxEthLpAssetId,
+    }),
   )
-  const farmContractsFiatBalance = useAppSelector(state =>
-    selectFarmContractsFiatBalance(state, emptyFilter),
+
+  const farmContractsAggregatedOpportunity = useAppSelector(selectAggregatedUserStakingOpportunity)
+
+  const lpAssetMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+
+  const farmContractsFiatBalance = useMemo(
+    () =>
+      bnOrZero(farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision)
+        .times(lpAssetMarketData.price)
+        .toString(),
+    [farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision, lpAssetMarketData.price],
   )
-  const foxEthLpFiatBalance = useAppSelector(state => selectFoxEthLpFiatBalance(state))
+
+  const lpAssetBalanceFilter = useMemo(
+    () => ({
+      assetId: foxEthLpAssetId,
+    }),
+    [],
+  )
+  const foxEthLpFiatBalance = useAppSelector(state =>
+    selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
+  )
 
   const opportunities = useNormalizeOpportunities({
     vaultArray,
@@ -59,7 +80,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
       osmosisStakingOpportunities,
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
+    foxFarmingOpportunities,
   })
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
@@ -67,7 +88,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
     .plus(farmContractsFiatBalance)
-    .plus(foxEthLpFiatBalance)
+    .plus(foxEthLpFiatBalance ?? 0)
     .toString()
 
   return {

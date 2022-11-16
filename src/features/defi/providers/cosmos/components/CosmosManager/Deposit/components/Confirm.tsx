@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -16,12 +16,14 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { walletCanEditMemo } from 'lib/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -29,7 +31,6 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -38,7 +39,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Deposit', 'Confirm'],
 })
 
-type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
+type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
@@ -52,6 +53,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Cosmos,
   })
+
+  const wallet = useWallet().state.wallet
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
@@ -194,6 +197,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           </Row.Value>
         </Row>
       </Summary>
+      {wallet && walletCanEditMemo(wallet) && (
+        <Alert status='info' size='sm' gap={2}>
+          <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
+          <HelperTooltip
+            label={translate('defi.memoNote.body')}
+            iconProps={{ color: 'currentColor' }}
+          />
+        </Alert>
+      )}
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />

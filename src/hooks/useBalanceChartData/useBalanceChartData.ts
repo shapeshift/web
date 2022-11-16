@@ -23,8 +23,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
@@ -75,7 +75,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assetIds: AssetId[]
-  balances: PortfolioBalancesById
+  balances: AssetBalancesById
 }
 
 // adjust this to give charts more or less granularity
@@ -329,7 +329,7 @@ type UseBalanceChartDataReturn = {
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: AssetId[]
+  assetId?: AssetId
   accountId?: AccountId
   timeframe: HistoryTimeframe
 }
@@ -341,15 +341,14 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   balances and fiat prices for each time interval (bucket) of the chart
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds: inputAssetIds, accountId, timeframe } = args
+  const { assetId, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
-  const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
-  const emptyFilter = useMemo(() => ({}), [])
-  const balances = useAppSelector(state =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, emptyFilter),
+  const filter = useMemo(() => ({ accountId }), [accountId])
+  const balances = useAppSelector(s =>
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(s, filter),
   )
 
   const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])
@@ -360,8 +359,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
    * for assets with a current balance that falls below the user's specified balance threshold
    */
   const intersectedAssetIds = useMemo(
-    () => intersection(assetIdsWithBalancesAboveThreshold, inputAssetIds),
-    [assetIdsWithBalancesAboveThreshold, inputAssetIds],
+    () =>
+      assetId
+        ? intersection(assetIdsWithBalancesAboveThreshold, [assetId])
+        : assetIdsWithBalancesAboveThreshold,
+    [assetIdsWithBalancesAboveThreshold, assetId],
   )
 
   // remove blacklisted assets that we can't obtain exhaustive tx data for
@@ -370,13 +372,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const walletInfo = useWallet().state.walletInfo
 
-  const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
+  const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
+
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
@@ -407,7 +408,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const hasNoDeviceId = isNil(walletInfo?.deviceId)
     const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
+    const hasNoPriceHistoryData =
+      isEmpty(cryptoPriceHistoryData) || !cryptoPriceHistoryData || !fiatPriceHistoryData
     const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
     if (
       hasNoDeviceId ||
@@ -446,7 +448,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [
     assets,
     assetIds,
-    accountIds,
+    accountId,
     cryptoPriceHistoryData,
     cryptoPriceHistoryDataLoading,
     fiatPriceHistoryData,

@@ -112,13 +112,10 @@ export const useSwapper = () => {
   }, [bestTradeSwapper])
 
   const getReceiveAddressFromBuyAsset = useCallback(
-    async (buyAsset: Asset) => {
-      return getReceiveAddress({
-        asset: buyAsset,
-        wallet,
-        bip44Params: buyAccountMetadata.bip44Params,
-        accountType: buyAccountMetadata.accountType,
-      })
+    (buyAsset: Asset) => {
+      if (!buyAccountMetadata) return
+      const { accountType, bip44Params } = buyAccountMetadata
+      return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
     },
     [buyAccountMetadata, wallet],
   )

@@ -82,10 +82,7 @@ export const TopAssets: React.FC = () => {
   )
 
   const handleClick = useCallback(
-    (assetId: AssetId) => {
-      // Open fiat modal
-      fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy })
-    },
+    (assetId: AssetId) => fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy }),
     [fiatRamps],
   )
 

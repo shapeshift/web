@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -6,7 +7,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -16,7 +17,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,10 +28,12 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
 })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
+
+export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
   const opportunity = state?.opportunity
 
@@ -53,8 +56,11 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
+  const balanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   // user info
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, { assetId }))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  )
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
   const pricePerShare = useMemo(() => {
@@ -71,7 +77,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     async (withdraw: WithdrawValues) => {
       if (!(state?.userAddress && opportunity && assetReference)) return
       try {
-        const idleOpportunity = await idleInvestor?.findByOpportunityId(
+        const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity?.positionAsset.assetId,
         )
         if (!idleOpportunity) throw new Error('No opportunity')
@@ -88,7 +94,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
-    [state?.userAddress, opportunity, assetReference, idleInvestor, asset],
+    [state?.userAddress, opportunity, assetReference, idleInvestor, asset.precision],
   )
 
   const handleContinue = useCallback(

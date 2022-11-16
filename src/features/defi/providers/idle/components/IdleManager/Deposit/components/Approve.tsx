@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,25 +22,33 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type IdleApproveProps = StepComponentProps & { accountId: Nullable<AccountId> }
+type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
-export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -90,7 +98,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
       opportunity,
       assetReference,
       idleInvestor,
-      asset?.precision,
+      asset.precision,
       toast,
       translate,
     ],
@@ -100,6 +108,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     if (
       !(
         dispatch &&
+        bip44Params &&
         assetReference &&
         state?.userAddress &&
         walletState.wallet &&
@@ -112,10 +121,9 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
 
     try {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
+      const idleOpportunity = await idleInvestor.findByOpportunityId(
         opportunity.positionAsset.assetId ?? '',
       )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareApprove(state.userAddress)
       await idleOpportunity.signAndBroadcast({
@@ -164,6 +172,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     opportunity,
     chainAdapter,
     idleInvestor,
+    bip44Params,
     getDepositGasEstimate,
     onNext,
     asset.precision,
@@ -172,22 +181,30 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(accountId) &&
+      isSome(estimatedGasCrypto) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !estimatedGasCrypto) return null
 
   return (
     <ReusableApprove

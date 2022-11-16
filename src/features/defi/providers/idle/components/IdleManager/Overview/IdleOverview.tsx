@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -13,7 +13,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -27,12 +27,13 @@ import { logger } from 'lib/logger'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectFirstAccountIdByChainId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Overview', 'IdleOverview'],
@@ -52,7 +53,7 @@ const defaultMenu: DefiButtonProps[] = [
 ]
 
 type IdleOverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -60,17 +61,27 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { idleInvestor } = useIdle()
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, accountFilter),
+  )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  const defaultBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, { accountId: defaultAccountId }),
+  )
+  const bip44Params = useMemo(
+    () => accountBip44Params ?? defaultBip44Params,
+    [accountBip44Params, defaultBip44Params],
+  )
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const toast = useToast()
   const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const [opportunity, setOpportunity] = useState<IdleOpportunity | null>(null)
+  const [opportunity, setOpportunity] = useState<IdleOpportunity | undefined>()
   const [claimableTokens, setClaimableTokens] = useState<ClaimableToken[]>([])
   const { chainId, contractAddress: vaultAddress, assetReference } = query
-  const [walletAddress, setWalletAddress] = useState<string>(
-    '0x0000000000000000000000000000000000000000',
-  )
+  const [walletAddress, setWalletAddress] = useState<string | undefined>()
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -84,8 +95,12 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
+  const balanceFilter = useMemo(
+    () => ({ accountId, assetId: vaultTokenId }),
+    [accountId, vaultTokenId],
+  )
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, { assetId: vaultTokenId }),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${vault.precision}`)
@@ -97,7 +112,6 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
-  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
 
   useEffect(() => {
     ;(async () => {
@@ -111,7 +125,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   }, [chainAdapter, walletState, bip44Params])
 
   useEffect(() => {
-    if (!(vaultAddress && idleInvestor)) return
+    if (!(vaultAddress && idleInvestor && walletAddress)) return
     ;(async () => {
       try {
         const opportunity = await idleInvestor.findByOpportunityId(
@@ -157,7 +171,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         moduleLogger.error(error, 'IdleOverview:useEffect error')
       }
     })()
-  }, [idleInvestor, vaultAddress, chainId, toast, translate, walletAddress])
+  }, [vaultAddress, chainId, toast, translate, walletAddress, idleInvestor])
 
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
 

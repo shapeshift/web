@@ -5,7 +5,6 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
@@ -63,7 +62,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
   })
 
   const handleAssetSelect = useCallback(
-    async (asset: Asset) => {
+    (asset: Asset) => {
       methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
       methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')
@@ -91,20 +90,21 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
       <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
-            <Route
-              path={SendRoutes.Select}
-              component={(props: RouteComponentProps) => (
-                <SelectAssetRouter
-                  onBack={handleSelectBack}
-                  onClick={handleAssetSelect}
-                  {...props}
-                />
-              )}
-            />
-            <Route path={SendRoutes.Address} component={Address} />
-            <Route path={SendRoutes.Details} component={Details} />
-            <Route path={SendRoutes.Scan} component={QrCodeScanner} />
-            <Route path={SendRoutes.Confirm} component={Confirm} />
+            <Route path={SendRoutes.Select}>
+              <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} />
+            </Route>
+            <Route path={SendRoutes.Address}>
+              <Address />
+            </Route>
+            <Route path={SendRoutes.Details}>
+              <Details />
+            </Route>
+            <Route path={SendRoutes.Scan}>
+              <QrCodeScanner />
+            </Route>
+            <Route path={SendRoutes.Confirm}>
+              <Confirm />
+            </Route>
             <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>
         </AnimatePresence>

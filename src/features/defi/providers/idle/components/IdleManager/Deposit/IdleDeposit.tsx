@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,11 +24,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
@@ -43,7 +43,7 @@ const moduleLogger = logger.child({
 })
 
 type IdleDepositProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -51,7 +51,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { idleInvestor } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const toast = useToast()
@@ -68,19 +68,22 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
-  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
     ;(async () => {
       try {
+        const userAddress = accountId && fromAccountId(accountId).account
+        if (userAddress && userAddress !== state.userAddress) {
+          dispatch({ type: IdleDepositActionType.SET_USER_ADDRESS, payload: userAddress })
+        }
+        if (state.opportunity) return
         if (!(walletState.wallet && vaultAddress && chainAdapter && idleInvestor && bip44Params))
           return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          idleInvestor.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
+        const opportunity = await idleInvestor.findByOpportunityId(
+          toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+        )
         if (!opportunity) {
           return toast({
             position: 'top-right',
@@ -90,7 +93,6 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
           })
         }
 
-        dispatch({ type: IdleDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: IdleDepositActionType.SET_OPPORTUNITY, payload: opportunity })
       } catch (error) {
         // TODO: handle client side errors
@@ -98,7 +100,6 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -106,6 +107,10 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
+    state.userAddress,
+    state.opportunity,
+    accountId,
   ])
 
   const handleBack = useCallback(() => {
@@ -142,6 +147,8 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     }
   }, [translate, asset.symbol, accountId, handleAccountIdChange])
 
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
   if (loading || !asset || !marketData || !idleInvestor) {
     return (
       <Center minW='350px' minH='350px'>
@@ -151,7 +158,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   }
 
   return (
-    <DepositContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}

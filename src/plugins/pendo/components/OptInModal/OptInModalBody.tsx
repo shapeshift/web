@@ -50,7 +50,7 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
     }
   }, [CONSENT_TAG, consent, enabled, onContinue])
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
     VisitorDataManager.recordConsent(CONSENT_TAG, true)
     // Duplicate logic as in the useEffect above but DON'T remove it

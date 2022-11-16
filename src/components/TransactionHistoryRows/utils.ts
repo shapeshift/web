@@ -6,7 +6,7 @@ import { memoize } from 'lodash'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
   if (txMetadata && 'assetId' in txMetadata) return txMetadata
@@ -27,7 +27,7 @@ type GetTradeFeesInput = {
   buy: Transfer
   sell: Transfer
   blockTime: number
-  cryptoPriceHistoryData: PriceHistoryData
+  cryptoPriceHistoryData?: PriceHistoryData
 }
 
 export type TradeFees = {
@@ -37,8 +37,8 @@ export type TradeFees = {
 
 export const getTradeFees = memoize(
   ({ sell, buy, blockTime, cryptoPriceHistoryData }: GetTradeFeesInput): TradeFees | undefined => {
-    const sellAssetPriceHistoryData = cryptoPriceHistoryData[sell.asset.assetId]
-    const buyAssetPriceHistoryData = cryptoPriceHistoryData[buy.asset.assetId]
+    const sellAssetPriceHistoryData = cryptoPriceHistoryData?.[sell.asset.assetId]
+    const buyAssetPriceHistoryData = cryptoPriceHistoryData?.[buy.asset.assetId]
 
     if (!sellAssetPriceHistoryData || !buyAssetPriceHistoryData) return
 

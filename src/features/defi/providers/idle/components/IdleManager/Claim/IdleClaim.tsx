@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,9 +20,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -34,11 +37,11 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Idle', 'IdleClaim'],
 })
 
-type IdleClaimProps = { accountId: Nullable<AccountId> }
+type IdleClaimProps = { accountId: AccountId | undefined }
 
 export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
-  const { idleInvestor } = useIdle()
   const [state, dispatch] = useReducer(reducer, initialState)
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -64,7 +67,8 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
-  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
     ;(async () => {
@@ -97,7 +101,6 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
       }
     })()
   }, [
-    idleInvestor,
     chainAdapter,
     vaultAddress,
     walletState.wallet,
@@ -105,6 +108,7 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
     toast,
     chainId,
     bip44Params,
+    idleInvestor,
   ])
 
   const handleBack = useCallback(() => {

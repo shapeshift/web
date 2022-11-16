@@ -3,7 +3,6 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
 import pull from 'lodash/pull'
 import uniq from 'lodash/uniq'
@@ -20,14 +19,16 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { foxEthLpAssetId } from 'state/slices/foxEthSlice/constants'
 import {
   marketApi,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import {
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -38,9 +39,9 @@ import {
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectPortfolioLoadingStatusGranular,
-  selectPortfolioRequestedAccountIds,
   selectSelectedCurrency,
   selectSelectedLocale,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
@@ -72,7 +73,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   } = useWallet()
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
-  const requestedAccountIds = useSelector(selectPortfolioRequestedAccountIds)
+  const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
@@ -130,7 +131,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, opts)),
+        )
         const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate
@@ -142,8 +146,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           if (!account) return acc
           const accountId = accountIds[idx]
           const { chainId } = fromAccountId(accountId)
-          const accountBalance = Object.values(account.assetBalances.byId).reduce(
-            (acc, balance) => acc.plus(bnOrZero(balance)),
+          const accountBalance = Object.values(account.accountBalances.byId).reduce<BN>(
+            (acc, byAssetId) => {
+              Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
+              return acc
+            },
             bnOrZero(0),
           )
           acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
@@ -178,80 +185,60 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    if (portfolioLoadingStatus === 'loading') return
+    ;(async () => {
+      if (portfolioLoadingStatus === 'loading') return
 
-    const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-    const { getValidatorData } = validatorDataApi.endpoints
-    const { getOpportunityMetadata, getOpportunityUserData } = opportunitiesApi.endpoints
+      const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+      const { getValidatorData } = validatorDataApi.endpoints
 
-    // forceRefetch is enabled here to make sure that we always have the latest state from chain
-    // and ensure the queryFn runs resulting in dispatches occuring to update client state
-    const options = { forceRefetch: true }
+      // forceRefetch is enabled here to make sure that we always have the latest state from chain
+      // and ensure the queryFn runs resulting in dispatches occuring to update client state
+      const options = { forceRefetch: true }
 
-    // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
-    // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountId].stakingDataByValidatorId
-    // Since the accountId is an empty address (generated and private keys burned) and isn't actually in state
-    if (wallet && !supportsCosmos(wallet)) {
-      const accountId = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
-      dispatch(getValidatorData.initiate(accountId, options))
-    }
-    if (wallet && !supportsOsmosis(wallet)) {
-      const accountId = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
-      dispatch(getValidatorData.initiate(accountId, options))
-    }
-
-    dispatch(
-      getOpportunityMetadata.initiate(
-        {
-          // TODO: abstract me, we want to fire "everything we need to fire" not an arbitrary opportunity data
-          opportunityId: foxEthLpAssetId,
-          opportunityType: DefiType.LiquidityPool,
-          defiType: DefiType.LiquidityPool,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false },
-      ),
-    )
-
-    requestedAccountIds.forEach(accountId => {
-      const { chainId } = fromAccountId(accountId)
-      switch (chainId) {
-        case cosmosChainId:
-        case osmosisChainId:
-          dispatch(getValidatorData.initiate(accountId, options))
-          break
-        case ethChainId:
-          dispatch(
-            getOpportunityUserData.initiate(
-              {
-                accountId,
-                opportunityId: foxEthLpAssetId,
-                opportunityType: DefiType.LiquidityPool,
-                defiType: DefiType.LiquidityPool,
-              },
-              // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
-              { forceRefetch: false },
-            ),
-          )
-
-          /**
-           * fetch all rebase history for foxy
-           *
-           * foxy rebase history is most closely linked to transactions.
-           * unfortunately, we have to call this for a specific asset here
-           * because we need it for the dashboard balance chart
-           *
-           * if you're reading this and are about to add another rebase token here,
-           * stop, and make a getRebaseHistoryByAccountId that takes
-           * an accountId and assetId[] in the txHistoryApi
-           */
-          dispatch(
-            getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-          )
-          break
-        default:
+      // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
+      // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountId].stakingDataByValidatorId
+      // Since the accountId is an empty address (generated and private keys burned) and isn't actually in state
+      if (wallet && !supportsCosmos(wallet)) {
+        const accountId = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+        dispatch(getValidatorData.initiate(accountId, options))
       }
-    })
+      if (wallet && !supportsOsmosis(wallet)) {
+        const accountId = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
+        dispatch(getValidatorData.initiate(accountId, options))
+      }
+
+      await fetchAllOpportunitiesMetadata()
+
+      requestedAccountIds.forEach(accountId => {
+        const { chainId } = fromAccountId(accountId)
+        switch (chainId) {
+          case cosmosChainId:
+          case osmosisChainId:
+            dispatch(getValidatorData.initiate(accountId, options))
+            break
+          case ethChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
+
+            /**
+             * fetch all rebase history for foxy
+             *
+             * foxy rebase history is most closely linked to transactions.
+             * unfortunately, we have to call this for a specific asset here
+             * because we need it for the dashboard balance chart
+             *
+             * if you're reading this and are about to add another rebase token here,
+             * stop, and make a getRebaseHistoryByAccountId that takes
+             * an accountId and assetId[] in the txHistoryApi
+             */
+            dispatch(
+              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
+            )
+            break
+          default:
+        }
+      })
+    })()
     // this effect cares specifically about changes to portfolio accounts or assets
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, portfolioLoadingStatus, portfolioAccounts, portfolioAssetIds])
@@ -301,7 +288,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const handleRetry = () => {
       handleAccountErrorToastClose()
       erroredAccountIds.forEach(accountId =>
-        dispatch(portfolioApi.endpoints.getAccount.initiate(accountId, { forceRefetch: true })),
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountId, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        ),
       )
     }
     const toastOptions = {

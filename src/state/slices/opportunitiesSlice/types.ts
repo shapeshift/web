@@ -1,6 +1,6 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -11,9 +11,14 @@ export type OpportunityMetadata = {
   provider: DefiProvider
   tvl: string
   type: DefiType
+  // For LP opportunities, this is the same as the AssetId
+  // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
+  underlyingAssetId: AssetId
   underlyingAssetIds: readonly [AssetId, AssetId]
   // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string]
+  expired?: boolean
+  name?: string
 }
 
 // User-specific values for this opportunity
@@ -33,21 +38,21 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 
 export type OpportunitiesState = {
   lp: {
-    byAccountId: Record<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: Record<LpId, OpportunityMetadata>
+    byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
+    byId: PartialRecord<LpId, OpportunityMetadata>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
   // Which means we can't just derive the data from portfolio, marketData and other slices but have to actually store the amount in the slice
   userStaking: {
-    byId: Record<UserStakingId, UserStakingOpportunity>
+    byId: PartialRecord<UserStakingId, UserStakingOpportunity>
     ids: UserStakingId[]
   }
 
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
-    byAccountId: Record<AccountId, StakingId[]>
-    byId: Record<StakingId, OpportunityMetadata>
+    byAccountId: PartialRecord<AccountId, StakingId[]>
+    byId: PartialRecord<StakingId, OpportunityMetadata>
     ids: StakingId[]
   }
 }
@@ -75,4 +80,8 @@ export type GetOpportunityMetadataOutput = {
 export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[OpportunityDefiType]['byAccountId']
   type: OpportunityDefiType
+}
+
+export type GetOpportunityUserStakingDataOutput = {
+  byId: OpportunitiesState['userStaking']['byId']
 }

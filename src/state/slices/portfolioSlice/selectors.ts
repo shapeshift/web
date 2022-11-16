@@ -1107,19 +1107,17 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
       if (assetId === osmosisAssetId && !featureFlags.OsmosisStaking) return false
       return true
     }
-    if (defaultStakingData) {
-      if (featureFlagFilter()) {
-        const dummy: OpportunitiesDataFull[] = [
-          {
-            isLoaded: true,
-            rewards: '0',
-            totalDelegations: '0',
-            ...defaultStakingData,
-          },
-        ]
-        if (!portfolioValidatorIds.length) return dummy
-        if (!assetId) return dummy
-      }
+    if (defaultStakingData && featureFlagFilter()) {
+      const dummy: OpportunitiesDataFull[] = [
+        {
+          isLoaded: true,
+          rewards: '0',
+          totalDelegations: '0',
+          ...defaultStakingData,
+        },
+      ]
+      if (!portfolioValidatorIds.length) return dummy
+      if (!assetId) return dummy
     }
     if (!assetId) return []
 

@@ -30,7 +30,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
 
   const byId = await opportunities.reduce(
-    async (acc: Promise<OpportunitiesState[DefiType.Staking]['byId'] | undefined>, opportunity) => {
+    async (acc: Promise<OpportunitiesState[DefiType.Staking]['byId']>, opportunity) => {
       const assetId = toAssetId({
         assetNamespace: 'erc20',
         assetReference: opportunity.id,
@@ -38,7 +38,6 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       })
 
       const accResolved = await acc
-      if (!accResolved) accResolved = {}
 
       const asset = selectAssetById(state, assetId)
 
@@ -70,7 +69,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 
       return accResolved
     },
-    Promise.resolve(undefined),
+    Promise.resolve({}),
   )
 
   const data = {

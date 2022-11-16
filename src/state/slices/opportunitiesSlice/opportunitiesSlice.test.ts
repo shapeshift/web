@@ -196,7 +196,7 @@ describe('opportunitiesSlice', () => {
           byId: {
             [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
               stakedAmountCryptoPrecision: '42000',
-              rewardsAmountCryptoPrecision: '42',
+              rewardsAmountCryptoPrecision: ['42'] as [string],
             },
           },
         }
@@ -209,7 +209,7 @@ describe('opportunitiesSlice', () => {
           byId: {
             [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
               stakedAmountCryptoPrecision: '42000',
-              rewardsAmountCryptoPrecision: '42',
+              rewardsAmountCryptoPrecision: ['42'] as [string],
             },
           },
         }
@@ -223,7 +223,7 @@ describe('opportunitiesSlice', () => {
           byId: {
             [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
               stakedAmountCryptoPrecision: '42000',
-              rewardsAmountCryptoPrecision: '42',
+              rewardsAmountCryptoPrecision: ['42'] as [string],
             },
           },
         }

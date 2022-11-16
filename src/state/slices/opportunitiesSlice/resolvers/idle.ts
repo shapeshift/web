@@ -137,7 +137,7 @@ export const idleStakingOpportunitiesUserDataResolver = ({
       stakedAmountCryptoPrecision: bnOrZero(balance.toString())
         .div(bn(10).pow(asset.precision))
         .toString(),
-      rewardsAmountCryptoPrecision: '0', // TODO: Not implemented
+      rewardsAmountCryptoPrecision: ['0'], // TODO: Not implemented
     }
   })
 

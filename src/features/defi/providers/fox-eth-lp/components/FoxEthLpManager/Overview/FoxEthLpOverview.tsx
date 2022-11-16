@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -44,7 +44,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
       accountId,
-      assetId: opportunityId as AssetId,
+      assetId: opportunityId,
       lpId: opportunityId,
     }),
     [accountId, opportunityId],
@@ -55,7 +55,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId as AssetId,
+      assetId: opportunityId,
       accountId,
       lpId: opportunityId,
     }),
@@ -72,7 +72,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId as AssetId,
+      assetId: opportunityId,
       accountId,
     }),
     [accountId, opportunityId],

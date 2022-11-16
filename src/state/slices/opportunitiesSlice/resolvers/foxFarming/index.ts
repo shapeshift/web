@@ -1,4 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -47,7 +46,7 @@ export const foxFarmingLpMetadataResolver = async ({
   reduxApi,
 }: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { dispatch, getState } = reduxApi
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
@@ -148,7 +147,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
@@ -243,7 +242,7 @@ export const foxFarmingLpUserDataResolver = ({
 
   const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
 
-  const hasPortfolioData = Boolean(balances[accountId][opportunityId as AssetId])
+  const hasPortfolioData = Boolean(balances[accountId][opportunityId])
 
   // Reject RTK query if there's no account portfolio data for this LP token
   if (!hasPortfolioData) {
@@ -268,7 +267,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const { account: accountAddress } = fromAccountId(accountId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {

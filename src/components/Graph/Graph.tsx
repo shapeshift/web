@@ -1,4 +1,4 @@
-import { Center, Fade, SlideFade } from '@chakra-ui/react'
+import { Center, Fade } from '@chakra-ui/react'
 import { ParentSize } from '@visx/responsive'
 import { isEmpty } from 'lodash'
 import { useMemo } from 'react'
@@ -40,13 +40,11 @@ export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, is
               </Center>
             </Fade>
           ) : !isEmpty(data) ? (
-            <SlideFade in={!loading}>
-              {isRainbowChart ? (
-                <RainbowChart {...primaryChartProps} data={rainbow} />
-              ) : (
-                <PrimaryChart {...primaryChartProps} data={total} />
-              )}
-            </SlideFade>
+            isRainbowChart ? (
+              <RainbowChart {...primaryChartProps} data={rainbow} />
+            ) : (
+              <PrimaryChart {...primaryChartProps} data={total} />
+            )
           ) : null
         }}
       </ParentSize>

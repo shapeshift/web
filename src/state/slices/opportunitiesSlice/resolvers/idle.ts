@@ -9,20 +9,16 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   OpportunitiesState,
-  OpportunityDefiType,
   StakingId,
 } from '../types'
-import type { ReduxApi } from './types'
+import type { OpportunitiesMetadataResolverInput } from './types'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 
 export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: {
-  opportunityType: OpportunityDefiType
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const idleInvestor = getIdleInvestor()
   const opportunities = await idleInvestor.findAll()
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.1...@shapeshiftoss/swapper-v14.2.2) (2022-11-16)
+
+
+### Bug Fixes
+
+* **swapper:** use correct chain for osmo trades. fixes keplr ([#1088](https://github.com/shapeshift/lib/issues/1088)) ([ea88fec](https://github.com/shapeshift/lib/commit/ea88fecdf09108d7e95d8814b10db8f8e2e95b61))
+
 # [@shapeshiftoss/swapper-v14.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.0...@shapeshiftoss/swapper-v14.2.1) (2022-11-16)
 
 

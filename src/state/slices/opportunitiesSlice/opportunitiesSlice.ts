@@ -83,12 +83,12 @@ export const opportunitiesApi = createApi({
   keepUnusedDataFor: 300,
   endpoints: build => ({
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
-      queryFn: async ({ opportunityId, opportunityType, defiType }, { dispatch, getState }) => {
+      queryFn: async (
+        { opportunityId, opportunityType, defiType, defiProvider },
+        { dispatch, getState },
+      ) => {
         try {
-          const resolver = getMetadataResolversByDefiProviderAndDefiType(
-            DefiProvider.FoxFarming,
-            defiType,
-          )
+          const resolver = getMetadataResolversByDefiProviderAndDefiType(defiProvider, defiType)
           const resolved = await resolver({
             opportunityId,
             opportunityType,
@@ -114,14 +114,11 @@ export const opportunitiesApi = createApi({
     }),
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
       queryFn: async (
-        { accountId, opportunityId, opportunityType, defiType },
+        { accountId, opportunityId, opportunityType, defiType, defiProvider },
         { dispatch, getState },
       ) => {
         try {
-          const resolver = getUserDataResolversByDefiProviderAndDefiType(
-            DefiProvider.FoxFarming,
-            defiType,
-          )
+          const resolver = getUserDataResolversByDefiProviderAndDefiType(defiProvider, defiType)
 
           if (!resolver) {
             throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)

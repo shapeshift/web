@@ -360,7 +360,7 @@ export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParamFromFilter,
   (portfolioFiatBalances, assetId): string | undefined => assetId && portfolioFiatBalances[assetId],
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
@@ -392,7 +392,7 @@ export const selectPortfolioCryptoBalanceByAssetId = createCachedSelector(
   selectPortfolioAssetBalances,
   selectAssetIdParamFromFilter,
   (byId, assetId): string | undefined => assetId && byId[assetId],
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
   selectAssets,
@@ -429,7 +429,7 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)((_accountIds, paramFilter) => paramFilter?.assetId ?? 'assetId')
+)((state, paramFilter) => `${state.portfolio.walletId}-${paramFilter?.assetId}` ?? 'assetId')
 
 // If an AccountId is passed, selects data by AccountId
 // Else, aggregates the data for all AccountIds for said asset
@@ -604,7 +604,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
     )
     return highestBalanceAccountToAmount?.[0]
   },
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
@@ -878,7 +878,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   findAccountsByAssetId,
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
@@ -905,7 +905,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     )
     return aboveThreshold
   },
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export type AccountRowData = {
   name: string

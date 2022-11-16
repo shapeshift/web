@@ -2,12 +2,19 @@ import { Stack, Text } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import type { Margin } from '@visx/xychart'
-import { AnimatedAreaStack, AnimatedAxis, AreaSeries, Tooltip, XYChart } from '@visx/xychart'
+import {
+  AnimatedAreaSeries,
+  AnimatedAreaStack,
+  AnimatedAxis,
+  Tooltip,
+  XYChart,
+} from '@visx/xychart'
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import type { Numeric } from 'd3-array'
 import { extent } from 'd3-array'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -55,21 +62,9 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   )
 
   const labelColor = useColorModeValue(colors.gray[300], colors.gray[700])
-  const tickLabelProps = useMemo(
-    () => ({
-      textAnchor: 'middle' as const,
-      verticalAnchor: 'middle' as const,
-      fontSize: 12,
-      fontWeight: 'bold',
-      fill: labelColor,
-      letterSpacing: 0,
-    }),
-    [labelColor],
-  )
-
   const totals = useMemo(() => data.map(d => d.total), [data])
-  const minPrice = Math.min(...totals)
-  const maxPrice = Math.max(...totals)
+  const minPrice = useMemo(() => Math.min(...totals), [totals])
+  const maxPrice = useMemo(() => Math.max(...totals), [totals])
 
   const yScale = useMemo(
     () => ({
@@ -85,10 +80,43 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const tooltipBorder = useColorModeValue(colors.gray[200], colors.gray[600])
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
+  const renderTooltip = useCallback(
+    (params: RenderTooltipParams<RainbowData>) => {
+      const { tooltipData } = params
+      const { datum, key: assetId } = tooltipData?.nearestDatum!
+      const price = datum[assetId]
+      const { date } = datum
+      const asset = assets[assetId]!
+      const { symbol } = asset
+      return (
+        <Stack
+          borderRadius={'lg'}
+          borderColor={tooltipBorder}
+          borderWidth={1}
+          color={tooltipColor}
+          bgColor={tooltipBg}
+          direction='column'
+          spacing={0}
+          p={2}
+        >
+          <Stack direction='row' alignItems={'center'}>
+            <AssetIcon assetId={assetId} size='2xs' />
+            <Text fontWeight='bold'>{symbol}</Text>
+          </Stack>
+          <Amount.Fiat value={price} fontWeight='bold' />
+          <Text fontSize={'xs'} color={colors.gray[500]}>
+            {dayjs(date).locale(selectedLocale).format('LLL')}
+          </Text>
+        </Stack>
+      )
+    },
+    [assets, selectedLocale, tooltipBg, tooltipBorder, tooltipColor],
+  )
+
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
-        <AreaSeries
+        <AnimatedAreaSeries
           key={assetId}
           data={data}
           dataKey={assetId}
@@ -101,61 +129,57 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     [assets, accessors, assetIds, data],
   )
 
+  const verticalCrosshairStyle = useMemo(
+    () => ({
+      stroke: colors.blue[500],
+      strokeWidth: 2,
+      opacity: 0.5,
+      strokeDasharray: '5,2',
+      pointerEvents: 'none',
+    }),
+    [],
+  )
+
+  const tooltipStyle = useMemo(() => ({ zIndex: 10 }), [])
+
+  const tickLabelPropsObj = useMemo(
+    () => ({
+      textAnchor: 'middle' as const,
+      verticalAnchor: 'middle' as const,
+      fontSize: 12,
+      fontWeight: 'bold',
+      fill: labelColor,
+      letterSpacing: 0,
+    }),
+    [labelColor],
+  )
+
+  const tickLabelProps = useCallback(() => tickLabelPropsObj, [tickLabelPropsObj])
+
   return (
-    <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-      <AnimatedAreaStack order='ascending' curve={curveLinear}>
-        {areaLines}
-      </AnimatedAreaStack>
-      <AnimatedAxis
-        key={'date'}
-        orientation={'bottom'}
-        hideTicks
-        hideAxisLine
-        numTicks={5}
-        labelOffset={16}
-        tickLabelProps={() => tickLabelProps}
-      />
-      <Tooltip<RainbowData>
-        applyPositionStyle
-        style={{ zIndex: 10 }} // render over swapper TokenButton component
-        showVerticalCrosshair
-        verticalCrosshairStyle={{
-          stroke: colors.blue[500],
-          strokeWidth: 2,
-          opacity: 0.5,
-          strokeDasharray: '5,2',
-          pointerEvents: 'none',
-        }}
-        offsetTop={0}
-        renderTooltip={({ tooltipData }) => {
-          const { datum, key: assetId } = tooltipData?.nearestDatum!
-          const price = datum[assetId]
-          const { date } = datum
-          const asset = assets[assetId]!
-          const { symbol } = asset
-          return (
-            <Stack
-              borderRadius={'lg'}
-              borderColor={tooltipBorder}
-              borderWidth={1}
-              color={tooltipColor}
-              bgColor={tooltipBg}
-              direction='column'
-              spacing={0}
-              p={2}
-            >
-              <Stack direction='row' alignItems={'center'}>
-                <AssetIcon assetId={assetId} size='2xs' />
-                <Text fontWeight='bold'>{symbol}</Text>
-              </Stack>
-              <Amount.Fiat value={price} fontWeight='bold' />
-              <Text fontSize={'xs'} color={colors.gray[500]}>
-                {dayjs(date).locale(selectedLocale).format('LLL')}
-              </Text>
-            </Stack>
-          )
-        }}
-      />
-    </XYChart>
+    <div>
+      <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
+        <AnimatedAreaStack order='ascending' curve={curveLinear}>
+          {areaLines}
+        </AnimatedAreaStack>
+        <AnimatedAxis
+          key={'date'}
+          orientation={'bottom'}
+          hideTicks
+          hideAxisLine
+          numTicks={5}
+          labelOffset={16}
+          tickLabelProps={tickLabelProps}
+        />
+        <Tooltip<RainbowData>
+          applyPositionStyle
+          style={tooltipStyle} // render over swapper TokenButton component
+          showVerticalCrosshair
+          verticalCrosshairStyle={verticalCrosshairStyle}
+          offsetTop={0}
+          renderTooltip={renderTooltip}
+        />
+      </XYChart>
+    </div>
   )
 }

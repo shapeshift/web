@@ -211,7 +211,6 @@ describe('txHistorySlice', () => {
         byId: {},
         byAccountIdAssetId: {},
         ids: ['a', 'b'],
-        status: 'loading',
       }
       const rebases: RebasesState = {
         byAccountIdAssetId: {},

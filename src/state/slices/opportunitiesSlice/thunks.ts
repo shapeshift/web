@@ -5,7 +5,6 @@ import { store } from 'state/store'
 
 import { foxEthLpAssetIds, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
-import type { LpId } from '../opportunitiesSlice/types'
 
 export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
@@ -16,7 +15,7 @@ export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryAction
         await store.dispatch(
           getOpportunityMetadata.initiate(
             {
-              opportunityId: opportunityId as LpId,
+              opportunityId,
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
               defiProvider: DefiProvider.FoxFarming,
@@ -40,7 +39,7 @@ export const fetchAllStakingOpportunitiesMetadata = async (
         await store.dispatch(
           getOpportunityMetadata.initiate(
             {
-              opportunityId: opportunityId as LpId,
+              opportunityId,
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
               defiProvider: DefiProvider.FoxFarming,
@@ -73,7 +72,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
           getOpportunityUserData.initiate(
             {
               accountId,
-              opportunityId: opportunityId as LpId,
+              opportunityId,
               opportunityType: DefiType.Staking,
               defiType: DefiType.Staking,
               defiProvider: DefiProvider.FoxFarming,
@@ -99,7 +98,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
           getOpportunityUserData.initiate(
             {
               accountId,
-              opportunityId: opportunityId as LpId,
+              opportunityId,
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
               defiProvider: DefiProvider.FoxFarming,

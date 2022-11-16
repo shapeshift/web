@@ -9,7 +9,6 @@ import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectEarnUserLpOpportunity,
   selectHighestBalanceAccountIdByLpId,
@@ -35,12 +34,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [accountId],
   )
 
-  const opportunityId = foxEthLpAssetId as LpId
+  const opportunityId = foxEthLpAssetId
 
-  const highestBalanceAccountIdFilter = useMemo(
-    () => ({ lpId: opportunityId as LpId }),
-    [opportunityId],
-  )
+  const highestBalanceAccountIdFilter = useMemo(() => ({ lpId: opportunityId }), [opportunityId])
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
@@ -49,7 +45,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     () => ({
       accountId,
       assetId: opportunityId as AssetId,
-      lpId: opportunityId as LpId,
+      lpId: opportunityId,
     }),
     [accountId, opportunityId],
   )
@@ -61,7 +57,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     () => ({
       assetId: opportunityId as AssetId,
       accountId,
-      lpId: opportunityId as LpId,
+      lpId: opportunityId,
     }),
     [accountId, opportunityId],
   )

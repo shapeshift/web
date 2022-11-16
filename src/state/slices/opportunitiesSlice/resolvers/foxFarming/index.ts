@@ -35,9 +35,7 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunitiesState,
-  StakingId,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
@@ -290,7 +288,7 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   const data = {
     byId: {
-      [serializeUserStakingId(accountId, opportunityId as StakingId)]: {
+      [serializeUserStakingId(accountId, opportunityId)]: {
         stakedAmountCryptoPrecision,
         rewardsAmountCryptoPrecision,
       },
@@ -303,8 +301,8 @@ export const foxFarmingStakingUserDataResolver = async ({
 
 export const foxFarmingLpOpportunityIdsResolver = (): Promise<{
   data: GetOpportunityIdsOutput
-}> => Promise.resolve({ data: [...foxEthLpAssetIds] as LpId[] })
+}> => Promise.resolve({ data: [...foxEthLpAssetIds] })
 
 export const foxFarmingStakingOpportunityIdsResolver = (): Promise<{
   data: GetOpportunityIdsOutput
-}> => Promise.resolve({ data: [...foxEthStakingIds] as LpId[] })
+}> => Promise.resolve({ data: [...foxEthStakingIds] })

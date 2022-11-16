@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
@@ -9,8 +9,8 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   OpportunitiesState,
-  StakingId,
 } from '../types'
+import { toOpportunityId } from '../utils'
 import type { OpportunitiesMetadataResolverInput } from './types'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
@@ -28,11 +28,13 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
 
   for (const opportunity of opportunities) {
-    const assetId = toAssetId({
+    const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'erc20',
       assetReference: opportunity.id,
       chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
-    })
+    }
+    const assetId = toAssetId(toAssetIdParts)
+    const opportunityId = toOpportunityId(toAssetIdParts)
 
     const asset = selectAssetById(state, assetId)
 
@@ -48,7 +50,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       )
     })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined
 
-    stakingOpportunitiesById[assetId as StakingId] = {
+    stakingOpportunitiesById[opportunityId] = {
       apy: opportunity.apy.toFixed(),
       assetId,
       provider: DefiProvider.Idle,
@@ -79,11 +81,11 @@ export const idleStakingOpportunityIdsResolver = async (): Promise<{
 
   return {
     data: opportunities.map(opportunity => {
-      const assetId = toAssetId({
+      const assetId = toOpportunityId({
         assetNamespace: 'erc20',
         assetReference: opportunity.id,
         chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
-      }) as StakingId
+      })
       return assetId
     }),
   }

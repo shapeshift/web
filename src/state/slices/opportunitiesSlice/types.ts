@@ -43,9 +43,9 @@ export type UserStakingOpportunity = {
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-export type StakingId = Nominal<string, 'StakingId'>
+export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
-export type LpId = Nominal<string, 'LpId'>
+export type LpId = Nominal<string, 'LpId'> & AssetId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 

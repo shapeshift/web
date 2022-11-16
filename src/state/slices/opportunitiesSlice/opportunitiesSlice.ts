@@ -8,6 +8,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import {
   getMetadataResolversByDefiProviderAndDefiType,
+  getOpportunitiesMetadataResolversByDefiProviderAndDefiType,
   getOpportunityIdsResolversByDefiProviderAndDefiType,
   getUserDataResolversByDefiProviderAndDefiType,
 } from './resolvers/utils'
@@ -21,6 +22,7 @@ import type {
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
   OpportunityDataById,
+  OpportunityId,
   UserStakingId,
 } from './types'
 
@@ -52,12 +54,9 @@ export const opportunities = createSlice({
       draftState,
       { payload }: { payload: GetOpportunityMetadataOutput },
     ) => {
-      const payloadIds = Object.keys(payload.byId)
+      const payloadIds = Object.keys(payload.byId) as OpportunityId[]
 
-      draftState[payload.type].byId = {
-        ...draftState[payload.type].byId,
-        ...payload.byId,
-      }
+      draftState[payload.type].byId = Object.assign({}, draftState[payload.type].byId, payload.byId)
       draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])
     },
     upsertOpportunityAccounts: (
@@ -126,6 +125,38 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
+
+          moduleLogger.debug(message)
+
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
+    getOpportunitiesMetadata: build.query<
+      GetOpportunityMetadataOutput,
+      Omit<GetOpportunityMetadataInput, 'opportunityId'>
+    >({
+      queryFn: async ({ opportunityType, defiType, defiProvider }, { dispatch, getState }) => {
+        try {
+          const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
+            defiProvider,
+            defiType,
+          )
+          const resolved = await resolver({
+            opportunityType,
+            reduxApi: { dispatch, getState },
+          })
+
+          dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
+
+          return { data: resolved.data }
+        } catch (e) {
           const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
 
           moduleLogger.debug(message)
@@ -139,6 +170,7 @@ export const opportunitiesApi = createApi({
         }
       },
     }),
+
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
       queryFn: async (
         { accountId, opportunityId, opportunityType, defiType, defiProvider },

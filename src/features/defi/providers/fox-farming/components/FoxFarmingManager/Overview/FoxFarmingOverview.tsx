@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -18,8 +18,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -51,11 +50,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const { chainId, highestBalanceAccountAddress, contractAddress } = query
 
   const opportunityId = useMemo(
-    () => toAssetId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
     [contractAddress, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
-    () => ({ stakingId: opportunityId as StakingId }),
+    () => ({ stakingId: opportunityId }),
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
@@ -66,11 +65,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     () => ({
       userStakingId: serializeUserStakingId(
         (accountId ?? highestBalanceAccountId)!,
-        toAssetId({
+        toOpportunityId({
           chainId,
           assetNamespace: 'erc20',
           assetReference: contractAddress,
-        }) as StakingId,
+        }),
       ),
     }),
     [accountId, chainId, contractAddress, highestBalanceAccountId],

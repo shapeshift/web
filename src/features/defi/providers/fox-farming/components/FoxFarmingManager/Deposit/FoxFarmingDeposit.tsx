@@ -19,7 +19,7 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectMarketDataById,
@@ -61,11 +61,11 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 
   const foxFarmingOpportunityFilter = useMemo(
     () => ({
-      stakingId: toAssetId({
+      stakingId: toOpportunityId({
         assetNamespace: 'erc20',
         assetReference: contractAddress,
         chainId: ethChainId,
-      }) as StakingId,
+      }),
     }),
     [contractAddress],
   )

@@ -21,7 +21,7 @@ type ParamFilter = Partial<{
   contractAddress: string
   assetId: AssetId
   accountId: AccountId
-  validatorAddress: PubKey
+  validatorAddress: PubKey // TODO(0xdef1cafe): change this to an AccountId that represents the chainId:validatorAddress
   accountNumber: number
   chainId: ChainId
   userStakingId: UserStakingId

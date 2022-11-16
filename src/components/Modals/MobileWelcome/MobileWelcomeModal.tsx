@@ -25,8 +25,12 @@ export const MobileWelcomeModal = () => {
             {({ location }) => (
               <AnimatePresence exitBeforeEnter initial={false}>
                 <Switch key={location.key} location={location}>
-                  <Route path='/success' component={ImportSuccess} />
-                  <Route path='/notice' component={Notice} />
+                  <Route path='/success'>
+                    <ImportSuccess />
+                  </Route>
+                  <Route path='/notice'>
+                    <Notice />
+                  </Route>
                   <Redirect exact from='/' to='/success' />
                 </Switch>
               </AnimatePresence>

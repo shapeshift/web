@@ -5,7 +5,7 @@ import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
@@ -38,17 +38,13 @@ export type WalletConnectedProps = {
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
     <MemoryRouter initialEntries={entries}>
-      <Switch>
-        <Route path='/'>
-          <WalletConnectedMenu
-            isConnected={props.isConnected}
-            walletInfo={props.walletInfo}
-            onDisconnect={props.onDisconnect}
-            onSwitchProvider={props.onSwitchProvider}
-            type={props.type}
-          />
-        </Route>
-      </Switch>
+      <WalletConnectedMenu
+        isConnected={props.isConnected}
+        walletInfo={props.walletInfo}
+        onDisconnect={props.onDisconnect}
+        onSwitchProvider={props.onSwitchProvider}
+        type={props.type}
+      />
     </MemoryRouter>
   )
 }

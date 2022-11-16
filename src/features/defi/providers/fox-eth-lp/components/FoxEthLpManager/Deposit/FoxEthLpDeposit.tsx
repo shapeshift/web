@@ -17,7 +17,6 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
@@ -49,7 +48,7 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
       accountId,
     }),

@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
@@ -46,7 +45,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const foxEthLpOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserLpOpportunity(state, {
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
   )

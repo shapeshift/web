@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "14.2.0",
+  "version": "14.2.1",
   "description": "An interface and implementations to trade coins via various protocols",
   "repository": "https://github.com/shapeshift/lib",
   "license": "MIT",

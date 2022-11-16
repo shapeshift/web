@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.0...@shapeshiftoss/swapper-v14.2.1) (2022-11-16)
+
+
+### Bug Fixes
+
+* osmosis api pools api has changed ([#1087](https://github.com/shapeshift/lib/issues/1087)) ([81e6a3d](https://github.com/shapeshift/lib/commit/81e6a3deb10e71cc2f5a42639b1735ba4663ac02))
+
 # [@shapeshiftoss/swapper-v14.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.1.0...@shapeshiftoss/swapper-v14.2.0) (2022-11-03)
 
 

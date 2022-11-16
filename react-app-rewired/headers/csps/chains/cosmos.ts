@@ -5,7 +5,6 @@ export const csp: Csp = {
     process.env.REACT_APP_UNCHAINED_COSMOS_HTTP_URL!,
     process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL!,
     process.env.REACT_APP_COSMOS_NODE_URL!,
-    'https://dev-daemon.cosmos.shapeshift.com'
   ],
   'img-src': [
     'https://raw.githubusercontent.com/cosmostation/',

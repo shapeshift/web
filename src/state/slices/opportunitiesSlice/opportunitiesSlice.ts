@@ -20,10 +20,9 @@ import type {
   GetOpportunityUserDataInput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunitiesState,
   OpportunityDataById,
-  StakingId,
+  OpportunityId,
   UserStakingId,
 } from './types'
 
@@ -55,7 +54,7 @@ export const opportunities = createSlice({
       draftState,
       { payload }: { payload: GetOpportunityMetadataOutput },
     ) => {
-      const payloadIds = Object.keys(payload.byId) as (LpId | StakingId)[]
+      const payloadIds = Object.keys(payload.byId) as OpportunityId[]
 
       draftState[payload.type].byId = Object.assign({}, draftState[payload.type].byId, payload.byId)
       draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])

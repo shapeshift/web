@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import type { LpId, StakingId, UserStakingId } from './types'
+import type { OpportunityId, StakingId, UserStakingId } from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -31,4 +31,4 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 }
 
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
-  toAssetId(args) as LpId | StakingId
+  toAssetId(args) as OpportunityId

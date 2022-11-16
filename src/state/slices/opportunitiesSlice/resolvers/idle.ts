@@ -3,6 +3,7 @@ import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
+import { bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import {
@@ -106,7 +107,8 @@ export const idleStakingOpportunitiesUserDataResolver = ({
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
-    if (bnOrZero(balance).eq(0)) return
+    const asset = selectAssetById(state, stakingOpportunityId)
+    if (!asset || bnOrZero(balance).eq(0)) return
 
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
@@ -116,7 +118,9 @@ export const idleStakingOpportunitiesUserDataResolver = ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: balance,
+      stakedAmountCryptoPrecision: bnOrZero(balance.toString())
+        .div(bn(10).pow(asset.precision))
+        .toString(),
       rewardsAmountCryptoPrecision: '0', // TODO: Not implemented
     }
   })

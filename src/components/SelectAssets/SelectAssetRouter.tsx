@@ -1,7 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { RouteComponentProps } from 'react-router-dom'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import { SelectAssetView } from './SelectAssetView'
@@ -11,7 +10,7 @@ export const entries = [SelectAssetRoutes.Search]
 type SelectAssetRouterProps = {
   onClick: (asset: Asset) => void
   onBack?: () => void
-} & RouteComponentProps
+}
 
 export type SelectAssetLocation = {
   toRoute: SelectAssetRoutes
@@ -22,14 +21,7 @@ export const SelectAssetRouter = ({ onClick, onBack: handleBack }: SelectAssetRo
   const { state } = useLocation<SelectAssetLocation>()
   return (
     <MemoryRouter initialEntries={entries}>
-      <Switch>
-        <Route
-          path='/'
-          component={(props: RouteComponentProps) => (
-            <SelectAssetView onClick={onClick} onBack={handleBack} {...state} {...props} />
-          )}
-        />
-      </Switch>
+      <SelectAssetView onClick={onClick} onBack={handleBack} {...state} />
     </MemoryRouter>
   )
 }

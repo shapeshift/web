@@ -329,7 +329,7 @@ type UseBalanceChartDataReturn = {
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: AssetId[]
+  assetId?: AssetId
   accountId?: AccountId
   timeframe: HistoryTimeframe
 }
@@ -341,14 +341,14 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   balances and fiat prices for each time interval (bucket) of the chart
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds: inputAssetIds, accountId, timeframe } = args
+  const { assetId, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
-  const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
+  const filter = useMemo(() => ({ accountId }), [accountId])
   const balances = useAppSelector(s =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(s, null),
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(s, filter),
   )
 
   const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])
@@ -359,8 +359,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
    * for assets with a current balance that falls below the user's specified balance threshold
    */
   const intersectedAssetIds = useMemo(
-    () => intersection(assetIdsWithBalancesAboveThreshold, inputAssetIds),
-    [assetIdsWithBalancesAboveThreshold, inputAssetIds],
+    () =>
+      assetId
+        ? intersection(assetIdsWithBalancesAboveThreshold, [assetId])
+        : assetIdsWithBalancesAboveThreshold,
+    [assetIdsWithBalancesAboveThreshold, assetId],
   )
 
   // remove blacklisted assets that we can't obtain exhaustive tx data for
@@ -369,13 +372,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const walletInfo = useWallet().state.walletInfo
 
-  const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
+  const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
+
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
@@ -446,7 +448,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [
     assets,
     assetIds,
-    accountIds,
+    accountId,
     cryptoPriceHistoryData,
     cryptoPriceHistoryDataLoading,
     fiatPriceHistoryData,

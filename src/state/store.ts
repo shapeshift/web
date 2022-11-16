@@ -41,9 +41,9 @@ const persistedReducer = persistReducer(persistConfig, reducer)
 export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
   store.dispatch(slices.marketData.actions.clear())
-  // store.dispatch(slices.txHistory.actions.clear())
+  store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
-  // store.dispatch(slices.portfolio.actions.clear())
+  store.dispatch(slices.portfolio.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

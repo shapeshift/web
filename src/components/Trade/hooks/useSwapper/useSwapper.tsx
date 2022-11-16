@@ -102,7 +102,6 @@ export const useSwapper = () => {
     if (!bestTradeSwapper) return false
     switch (bestTradeSwapper.name) {
       case SwapperName.Thorchain:
-        return true
       case SwapperName.Osmosis:
         return true
       case SwapperName.Zrx:

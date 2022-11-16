@@ -36,8 +36,8 @@ REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://daemon.ethereum.shapeshift.com
 REACT_APP_ETHEREUM_INFURA_URL=https://mainnet.infura.io/v3/6e2f28ff4f5340fdb0db5da3baec0af2
-REACT_APP_COSMOS_NODE_URL=https://daemon.cosmos.shapeshift.com/lcd
-REACT_APP_OSMOSIS_NODE_URL=https://daemon.osmosis.shapeshift.com/lcd
+REACT_APP_COSMOS_NODE_URL=https://daemon.cosmos.shapeshift.com
+REACT_APP_OSMOSIS_NODE_URL=https://daemon.osmosis.shapeshift.com
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 
 # thorchain

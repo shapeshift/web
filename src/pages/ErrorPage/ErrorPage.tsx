@@ -1,4 +1,5 @@
 import { Button, Center, Heading, Stack } from '@chakra-ui/react'
+import type { FC } from 'react'
 import type { FallbackProps } from 'react-error-boundary'
 import { FaSadTear } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -7,7 +8,7 @@ import { Layout } from 'components/Layout/Layout'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
 
-export const ErrorPage = ({ resetErrorBoundary }: FallbackProps) => {
+export const ErrorPage: FC<FallbackProps> = ({ resetErrorBoundary }) => {
   const translate = useTranslate()
   return (
     <Layout display='flex'>

@@ -23,7 +23,6 @@ import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunit
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectLpOpportunitiesById,
@@ -49,11 +48,11 @@ const FoxFarmCTA = () => {
   const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    () => lpOpportunitiesById[foxEthLpAssetId],
     [lpOpportunitiesById],
   )
   const defaultStakingOpportunityData = useMemo(
-    () => stakingOpportunitiesById[foxEthStakingAssetIdV4 as StakingId],
+    () => stakingOpportunitiesById[foxEthStakingAssetIdV4],
     [stakingOpportunitiesById],
   )
 

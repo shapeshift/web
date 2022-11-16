@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -17,7 +17,8 @@ import {
   fetchAllStakingOpportunitiesMetadata,
   fetchAllStakingOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
-import type { LpId, OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
+import type { OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -166,11 +167,11 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
             opportunitiesApi.endpoints.getOpportunityUserData.initiate(
               {
                 accountId: farmingAccountId,
-                opportunityId: toAssetId({
+                opportunityId: toOpportunityId({
                   assetNamespace: 'erc20',
                   chainId: ethChainId,
                   assetReference: ongoingTxContractAddress,
-                }) as LpId,
+                }),
                 opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
                 defiProvider: DefiProvider.FoxFarming,

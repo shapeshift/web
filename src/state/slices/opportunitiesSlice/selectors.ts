@@ -568,7 +568,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectAssets,
   (lpId, lpOpportunitiesById, lpAssetBalance, assets): AssetWithBalance[] | undefined => {
     if (!lpId) return
-    const opportunityMetadata = lpOpportunitiesById[lpId as LpId]
+    const opportunityMetadata = lpOpportunitiesById[lpId]
 
     if (!opportunityMetadata) return
     const underlyingAssetsIcons = opportunityMetadata.underlyingAssetIds.map(

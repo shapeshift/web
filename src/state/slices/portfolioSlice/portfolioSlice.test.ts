@@ -237,6 +237,7 @@ describe('portfolioSlice', () => {
         const { ethAccount, ethAccount2, btcAccount, ethAccountId, ethAccount2Id, btcAccountId } =
           mockEthAndBtcAccounts()
 
+        store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
             [ethAccountId]: { bip44Params },
@@ -281,6 +282,7 @@ describe('portfolioSlice', () => {
         const { ethAccount, ethAccount2, btcAccount, ethAccountId, ethAccount2Id, btcAccountId } =
           mockEthAndBtcAccounts()
 
+        store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
             [ethAccountId]: { bip44Params },
@@ -327,6 +329,7 @@ describe('portfolioSlice', () => {
         ethAccount2Obj: { balance: '200000000000000000' },
       })
 
+      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },
@@ -402,6 +405,7 @@ describe('portfolioSlice', () => {
       const { btcAccount, btcAccount2, btcAccount3, btcAccountId, btcAccount2Id, btcAccount3Id } =
         mockEthAndBtcAccounts()
 
+      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [btcAccountId]: { bip44Params },
@@ -449,6 +453,7 @@ describe('portfolioSlice', () => {
         ethAccount2Obj: { balance: '200000000000000000' },
       })
 
+      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
       // dispatch portfolio data
       store.dispatch(
         portfolioSlice.actions.upsertPortfolio(
@@ -509,6 +514,7 @@ describe('portfolioSlice', () => {
         },
       })
 
+      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },
@@ -572,6 +578,7 @@ describe('portfolioSlice', () => {
         },
       })
 
+      store.dispatch(portfolioSlice.actions.setWalletId('fakeWalletId'))
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
           [ethAccountId]: { bip44Params },

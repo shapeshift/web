@@ -24,7 +24,6 @@ describe('txHistorySlice', () => {
         byId: {},
         byAccountIdAssetId: {},
         ids: [],
-        status: 'loading',
       },
       rebases: {
         byAccountIdAssetId: {},

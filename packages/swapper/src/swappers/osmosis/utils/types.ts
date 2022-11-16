@@ -15,9 +15,9 @@ export type IbcTransferInput = {
 }
 
 export type PoolInfo = {
-  poolAssets: PoolAssetInfo[]
-  poolParams: {
-    swapFee: string
+  pool_assets: PoolAssetInfo[]
+  pool_params: {
+    swap_fee: string
   }
 }
 

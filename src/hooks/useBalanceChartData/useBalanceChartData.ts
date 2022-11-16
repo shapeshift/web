@@ -415,7 +415,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       hasNoDeviceId ||
       hasNoAssetIds ||
       hasNoPriceHistoryData ||
-      cryptoPriceHistoryDataLoading ||
+      // cryptoPriceHistoryDataLoading ||
       hasNotFinishedLoadingTxHistory
     ) {
       return setBalanceChartDataLoading(true)

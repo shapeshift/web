@@ -37,7 +37,7 @@ export const selectAssets = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
   byId => byId,
 )
-export const selectAssetIds = (state: ReduxState) => state.assets.ids
+export const selectAssetIds = (state: ReduxState): AssetId[] => state.assets.ids ?? []
 
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,

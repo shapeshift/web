@@ -20,7 +20,7 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: [/* 'assets', 'marketData', */ 'txHistory', 'portfolio'],
+  whitelist: ['txHistory', 'portfolio'],
   storage: localforage,
 }
 

@@ -89,7 +89,7 @@ const initialState: TxHistory = {
     byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-    status: 'loading', // TODO(0xdef1cafe): remove this
+    status: 'loaded', // TODO(0xdef1cafe): remove this
   },
   rebases: {
     byAccountIdAssetId: {},

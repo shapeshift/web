@@ -104,7 +104,7 @@ const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) =
 export const selectCryptoPriceHistoryTimeframe = createSelector(
   selectCryptoPriceHistory,
   selectTimeframeParam,
-  (priceHistory, timeframe): PriceHistoryData | undefined => priceHistory?.[timeframe],
+  (priceHistory, timeframe): PriceHistoryData => priceHistory?.[timeframe] ?? {},
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(

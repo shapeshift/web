@@ -88,9 +88,42 @@ const selectTransactionTypesParamFromFilter = (_state: ReduxState, filter: TxHis
 const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) =>
   filter?.matchingAssets
 
+const selectWalletTxsByAccountIdAssetId = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
+  (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
+    pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
+)
+
+const selectWalletRebasesByAccountIdAssetId = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.txHistory.rebases.byAccountIdAssetId,
+  (accountIds, rebasesByAccountIdAssetId): RebaseIdsByAccountIdAssetId =>
+    pickBy(rebasesByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
+)
+
+export const selectTxIdsByFilter = createDeepEqualOutputSelector(
+  selectTxIds,
+  selectWalletTxsByAccountIdAssetId,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
+    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
+    const filtered = pickBy(data, (_, accountId) =>
+      accountIdFilter ? accountId === accountIdFilter : true,
+    )
+    const flattened = values(filtered)
+      .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
+      .filter(isSome)
+    const uniqueIds = uniq(flattened)
+    const sortedIds = uniqueIds.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+    return sortedIds
+  },
+)
+
 export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
   selectTxs,
-  selectTxIds,
+  selectTxIdsByFilter,
   selectMatchingAssetsParamFromFilter,
   selectDateParamFromFilter,
   selectTransactionTypesParamFromFilter,
@@ -125,39 +158,6 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
       filteredBasedOnMatchingAssets,
       filteredBasedOnType,
     )
-  },
-)
-
-const selectWalletTxsByAccountIdAssetId = createSelector(
-  selectWalletAccountIds,
-  (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
-  (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
-    pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
-)
-
-const selectWalletRebasesByAccountIdAssetId = createSelector(
-  selectWalletAccountIds,
-  (state: ReduxState) => state.txHistory.rebases.byAccountIdAssetId,
-  (accountIds, rebasesByAccountIdAssetId): RebaseIdsByAccountIdAssetId =>
-    pickBy(rebasesByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
-)
-
-export const selectTxIdsByFilter = createDeepEqualOutputSelector(
-  selectTxIds,
-  selectWalletTxsByAccountIdAssetId,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (txIds, data, accountIdFilter, assetIdFilter): TxId[] => {
-    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
-    const filtered = pickBy(data, (_, accountId) =>
-      accountIdFilter ? accountId === accountIdFilter : true,
-    )
-    const flattened = values(filtered)
-      .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
-      .filter(isSome)
-    const uniqueIds = uniq(flattened)
-    const sortedIds = uniqueIds.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
-    return sortedIds
   },
 )
 

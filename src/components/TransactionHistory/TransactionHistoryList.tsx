@@ -7,8 +7,6 @@ import { TransactionsGroupByDate } from 'components/TransactionHistory/Transacti
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
-import { TransactionsLoading } from './TransactionsLoading'
-
 type TransactionHistoryListProps = {
   txIds: TxId[]
   useCompactMode?: boolean
@@ -19,8 +17,6 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   useCompactMode = false,
 }) => {
   const { next, data, hasMore } = useInfiniteScroll(txIds)
-
-  if (!data.length) return <TransactionsLoading />
 
   return data.length ? (
     <Card.Body px={0} pt={0}>

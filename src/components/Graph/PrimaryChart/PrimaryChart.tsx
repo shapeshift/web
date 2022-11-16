@@ -5,7 +5,8 @@ import type { HistoryData } from '@shapeshiftoss/types'
 import { LinearGradient } from '@visx/gradient'
 import { scaleLinear } from '@visx/scale'
 import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
-import { max, min } from 'd3-array'
+import type { Numeric } from 'd3-array'
+import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -48,6 +49,7 @@ export const PrimaryChart = ({
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
+  const xMax = Math.max(width - margin.left - margin.right, 0)
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
   const minPrice = Math.min(...data.map(getStockValue))
@@ -77,15 +79,26 @@ export const PrimaryChart = ({
     }),
     [labelColor],
   )
+  const xScale = useMemo(
+    () => ({
+      type: 'time' as const,
+      range: [0, xMax] as [Numeric, Numeric],
+      domain: extent(data, d => new Date(d.date)) as [Date, Date],
+    }),
+    [data, xMax],
+  )
+  const yScale = useMemo(
+    () => ({
+      type: 'linear' as const,
+      range: [yMax + margin.top - 32, margin.top + 32], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      domain: [minPrice, maxPrice],
+      zero: false,
+    }),
+    [yMax, margin.top, minPrice, maxPrice],
+  )
 
   return (
-    <XYChart
-      width={width}
-      height={height}
-      margin={margin}
-      xScale={{ type: 'utc' }}
-      yScale={{ type: 'log', range: [yMax + margin.top - 32, margin.top + 32] }}
-    >
+    <XYChart width={width} height={height} margin={margin} xScale={xScale} yScale={yScale}>
       <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
       <AnimatedAxis
         orientation='bottom'

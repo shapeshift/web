@@ -47,7 +47,7 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-If you are using Linux and MacOS it works out of the box following the steps.
+If you are using Linux and MacOS it works out of the box following these steps:
 
 1. Clone the repo
 
@@ -71,59 +71,69 @@ If you are using Linux and MacOS it works out of the box following the steps.
 > If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
 >
 > **Please do NOT ask our Engineering team for further help with WSL.**
+
 ### Commands
+
+To run the app in the development mode:
 
 ```sh
 yarn dev
 ```
 
-Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+> It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
+>
+> You will also see any lint errors in the console.
 
-The page will reload if you make edits. You will also see any lint errors
-in the console.
+<br/>
+
+To launch the test runner in interactive watch mode:
 
 ```sh
 yarn test
 ```
 
-Launches the test runner in the interactive watch mode.<br /> See the section
-about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
-It also creates a html page you can interact with at the root level of the project in `/coverage`.
+> See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+>
+> It also creates an HTML page you can interact with at the root level of the project in `/coverage`.
+
+<br/>
+
+To start Cypress E2E testing with GUI:
 
 ```sh
 yarn test:cypress
 ```
-
-Starts Cypress E2E testing with GUI.
+or, to start it in headless mode:
 
 ```sh
 yarn test:cypress:headless
 ```
 
-Stars Cypress E2E testing in headless mode.
+<br/>
+
+To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
 yarn build
 ```
 
-Builds the app for production to the `build` folder.<br /> It correctly bundles
-React in production mode and optimizes the build for the best performance.
+> It correctly bundles React in production mode and optimizes the build for the best performance.
+>
+> The build is minified and the filenames include the hashes.
+>
+> Your app is ready to be deployed!
+>
+> See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-The build is minified and the filenames include the hashes.<br /> Your app is
-ready to be deployed!
+<br/>
 
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+To run the component documentation:
 
 ```sh
 yarn storybook
 ```
 
-Runs the component documentation.<br /> Open
-[http://localhost:6006](http://localhost:6006) to view it in the browser.
+> It opens [http://localhost:6006](http://localhost:6006) to view it in the browser.
 
 ### Linking
 

@@ -9,6 +9,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import {
   getMetadataResolversByDefiProviderAndDefiType,
   getOpportunitiesMetadataResolversByDefiProviderAndDefiType,
+  getOpportunitiesUserDataResolversByDefiProviderAndDefiType,
   getOpportunityIdsResolversByDefiProviderAndDefiType,
   getUserDataResolversByDefiProviderAndDefiType,
 } from './resolvers/utils'
@@ -170,7 +171,6 @@ export const opportunitiesApi = createApi({
         }
       },
     }),
-
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
       queryFn: async (
         { accountId, opportunityId, opportunityType, defiType, defiProvider },
@@ -197,6 +197,61 @@ export const opportunitiesApi = createApi({
 
           const byAccountId = {
             [accountId]: [opportunityId],
+          } as OpportunityDataById
+
+          const data = {
+            byAccountId,
+            type: opportunityType,
+          }
+
+          dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+
+          return { data }
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error getting opportunities data'
+
+          moduleLogger.debug(message)
+
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
+    getOpportunitiesUserData: build.query<
+      GetOpportunityUserDataOutput,
+      Omit<GetOpportunityUserDataInput, 'opportunityId'>
+    >({
+      queryFn: async (
+        { accountId, opportunityType, defiType, defiProvider },
+        { dispatch, getState },
+      ) => {
+        try {
+          const resolver = getOpportunitiesUserDataResolversByDefiProviderAndDefiType(
+            defiProvider,
+            defiType,
+          )
+
+          if (!resolver) {
+            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+          }
+
+          const resolved = await resolver({
+            opportunityType,
+            accountId,
+            reduxApi: { dispatch, getState },
+          })
+
+          if (resolved?.data) {
+            // If we get a `data` object back, this is userStakingData - LP just returns void, not `{data}`
+            dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
+          }
+
+          const byAccountId = {
+            // TODO
           } as OpportunityDataById
 
           const data = {

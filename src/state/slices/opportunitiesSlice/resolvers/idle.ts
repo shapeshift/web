@@ -8,10 +8,14 @@ import { selectAssetById } from 'state/slices/selectors'
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
+  GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
 } from '../types'
-import { toOpportunityId } from '../utils'
-import type { OpportunitiesMetadataResolverInput } from './types'
+import { serializeUserStakingId, toOpportunityId } from '../utils'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunitiesUserDataResolverInput,
+} from './types'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 
@@ -67,6 +71,60 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
+    type: opportunityType,
+  }
+
+  return { data }
+}
+
+export const idleStakingOpportunitiesUserDataResolver = async ({
+  opportunityType,
+  accountId, // TODO: Surely, idleInvestor.findAll() needs this?
+  reduxApi,
+}: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const idleInvestor = getIdleInvestor()
+  const opportunities = await idleInvestor.findAll()
+
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
+
+  for (const opportunity of opportunities) {
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: 'erc20',
+      assetReference: opportunity.id,
+      chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
+    }
+    const assetId = toAssetId(toAssetIdParts)
+    const opportunityId = toOpportunityId(toAssetIdParts)
+
+    const asset = selectAssetById(state, assetId)
+
+    // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
+    // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
+    // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
+    if (!asset) continue
+
+    // const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
+    // moduleLogger.debug(
+    // { fn: 'idleStakingOpportunitiesMetadataResolver', error },
+    // 'Error fetching Idle opportunities metadata',
+    // )
+    // })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined
+
+    const stakedAmountCryptoPrecision = '0' // TODO
+    const rewardsAmountCryptoPrecision = '0' // TODO
+
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+    stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      stakedAmountCryptoPrecision,
+      rewardsAmountCryptoPrecision,
+    }
+  }
+
+  const data = {
+    byId: stakingOpportunitiesUserDataByUserStakingId,
     type: opportunityType,
   }
 

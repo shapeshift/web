@@ -18,7 +18,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
@@ -49,7 +48,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
       accountId,
     }),

@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -19,8 +19,7 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { selectEarnUserStakingOpportunity, selectPortfolioLoading } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,11 +55,11 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     () => ({
       userStakingId: serializeUserStakingId(
         accountId!,
-        toAssetId({
+        toOpportunityId({
           chainId,
           assetNamespace: 'erc20',
           assetReference: contractAddress,
-        }) as StakingId,
+        }),
       ),
     }),
     [accountId, chainId, contractAddress],

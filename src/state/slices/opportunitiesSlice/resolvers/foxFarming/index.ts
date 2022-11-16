@@ -1,4 +1,3 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -25,33 +24,29 @@ import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slic
 
 import {
   foxEthLpAssetId,
+  foxEthLpAssetIds,
   foxEthPair,
+  foxEthStakingIds,
   LP_EARN_OPPORTUNITIES,
   STAKING_ID_TO_NAME,
 } from '../../constants'
 import type {
+  GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunitiesState,
-  OpportunityDefiType,
-  StakingId,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
-import type { ReduxApi } from '../types'
+import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { fetchPairData, getOrCreateContract } from './contractManager'
 
 export const foxFarmingLpMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { dispatch, getState } = reduxApi
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
@@ -142,11 +137,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -156,7 +147,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
@@ -240,12 +231,7 @@ export const foxFarmingLpUserDataResolver = ({
   opportunityType: _opportunityType,
   accountId,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  accountId: AccountId
-  reduxApi: ReduxApi
-}): Promise<void> => {
+}: OpportunityUserDataResolverInput): Promise<void> => {
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
@@ -256,7 +242,7 @@ export const foxFarmingLpUserDataResolver = ({
 
   const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
 
-  const hasPortfolioData = Boolean(balances[accountId][opportunityId as AssetId])
+  const hasPortfolioData = Boolean(balances[accountId][opportunityId])
 
   // Reject RTK query if there's no account portfolio data for this LP token
   if (!hasPortfolioData) {
@@ -269,15 +255,10 @@ export const foxFarmingLpUserDataResolver = ({
 
 export const foxFarmingStakingUserDataResolver = async ({
   opportunityId,
-  opportunityType: _opportunityType,
+  opportunityType,
   accountId,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  accountId: AccountId
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+}: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -286,7 +267,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const { account: accountAddress } = fromAccountId(accountId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
@@ -306,12 +287,21 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   const data = {
     byId: {
-      [serializeUserStakingId(accountId, opportunityId as StakingId)]: {
+      [serializeUserStakingId(accountId, opportunityId)]: {
         stakedAmountCryptoPrecision,
         rewardsAmountCryptoPrecision,
       },
     },
+    type: opportunityType,
   }
 
   return { data }
 }
+
+export const foxFarmingLpOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthLpAssetIds] })
+
+export const foxFarmingStakingOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthStakingIds] })

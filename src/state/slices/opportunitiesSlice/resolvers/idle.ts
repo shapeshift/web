@@ -1,5 +1,5 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
@@ -57,7 +57,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
       moduleLogger.debug(
         { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        'Error fetching Idle opportunities metadata',
+        `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
       )
     })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined
 
@@ -103,12 +103,28 @@ export const idleStakingOpportunitiesUserDataResolver = ({
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
-  idleStakingOpportunityIds.forEach(stakingOpportunityId => {
+  const idleInvestor = getIdleInvestor()
+
+  idleStakingOpportunityIds.forEach(async stakingOpportunityId => {
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
     if (!asset || bnOrZero(balance).eq(0)) return
+
+    const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
+    if (!opportunity) return
+
+    // TODO: lib tranches rewardAssetIds / reward amount implementation
+    // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
+    if (!opportunity.metadata.cdoAddress) {
+      const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
+      const totalClaimableRewards = claimableTokens.reduce((totalRewards, token) => {
+        console.log({ totalRewards: totalRewards.toString() }, token)
+        totalRewards = totalRewards.plus(token.amount)
+        return totalRewards
+      }, bnOrZero(0))
+    }
 
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,

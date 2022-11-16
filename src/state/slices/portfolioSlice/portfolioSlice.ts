@@ -23,7 +23,8 @@ export const portfolio = createSlice({
       return initialState
     },
     setWalletId: (state, { payload }: { payload: WalletId | undefined }) => {
-      moduleLogger.info('setting wallet id')
+      // note this function can unset the walletId to undefined
+      moduleLogger.info(payload, 'setting wallet id')
       state.walletId = payload
       if (!payload) return
       state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
@@ -37,8 +38,9 @@ export const portfolio = createSlice({
       const accountIds = Object.keys(payload)
       state.accountMetadata.ids = Array.from(new Set([...state.accountMetadata.ids, ...accountIds]))
 
-      if (!state.walletId) return // satisfy compiler - we'll always have it at runtime here
+      if (!state.walletId) return
       const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
+      // keep an index of what account ids belong to this wallet
       state.wallet.byId = {
         ...state.wallet.byId,
         [state.walletId]: Array.from(new Set([...existingWalletAccountIds, ...accountIds])),

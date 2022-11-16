@@ -25,11 +25,14 @@ import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slic
 
 import {
   foxEthLpAssetId,
+  foxEthLpAssetIds,
   foxEthPair,
+  foxEthStakingIds,
   LP_EARN_OPPORTUNITIES,
   STAKING_ID_TO_NAME,
 } from '../../constants'
 import type {
+  GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   LpId,
@@ -315,3 +318,11 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   return { data }
 }
+
+export const foxFarmingLpOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthLpAssetIds] as LpId[] })
+
+export const foxFarmingStakingOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthStakingIds] as LpId[] })

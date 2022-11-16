@@ -13,7 +13,7 @@ export default function register(): Plugins {
       'osmosisChainAdapter',
       {
         name: 'osmosisChainAdapter',
-        featureFlag: ['OsmosisSend', 'OsmosisStaking', 'OsmosisSwap'],
+        featureFlag: ['OsmosisSend', 'OsmosisStaking', 'OsmosisSwap', 'OsmosisLP'],
         providers: {
           chainAdapters: [
             [

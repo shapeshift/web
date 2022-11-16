@@ -11,6 +11,7 @@ export type FeatureFlags = {
   OsmosisSend: boolean
   OsmosisStaking: boolean
   OsmosisSwap: boolean
+  OsmosisLP: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -47,6 +48,7 @@ const initialState: Preferences = {
     OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
     OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
+    OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,

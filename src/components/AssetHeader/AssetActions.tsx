@@ -35,8 +35,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   useEffect(() => {
-    // Temporary feature flag to disable Osmosis Sends
     const isValid =
+      // feature flag to disable Osmosis Sends
       asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
         ? false
         : chainAdapterManager.has(asset.chainId)

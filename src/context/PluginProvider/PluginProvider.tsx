@@ -123,6 +123,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
         !featureFlags.OsmosisSend &&
         !featureFlags.OsmosisStaking &&
         !featureFlags.OsmosisSwap &&
+        !featureFlags.OsmosisLP &&
         chainId === KnownChainIds.OsmosisMainnet
       )
         return false

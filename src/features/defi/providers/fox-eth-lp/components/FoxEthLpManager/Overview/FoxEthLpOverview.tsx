@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -9,7 +9,6 @@ import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectEarnUserLpOpportunity,
   selectHighestBalanceAccountIdByLpId,
@@ -35,12 +34,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     [accountId],
   )
 
-  const opportunityId = foxEthLpAssetId as LpId
+  const opportunityId = foxEthLpAssetId
 
-  const highestBalanceAccountIdFilter = useMemo(
-    () => ({ lpId: opportunityId as LpId }),
-    [opportunityId],
-  )
+  const highestBalanceAccountIdFilter = useMemo(() => ({ lpId: opportunityId }), [opportunityId])
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
@@ -48,8 +44,8 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
       accountId,
-      assetId: opportunityId as AssetId,
-      lpId: opportunityId as LpId,
+      assetId: opportunityId,
+      lpId: opportunityId,
     }),
     [accountId, opportunityId],
   )
@@ -59,9 +55,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId as AssetId,
+      assetId: opportunityId,
       accountId,
-      lpId: opportunityId as LpId,
+      lpId: opportunityId,
     }),
     [accountId, opportunityId],
   )
@@ -76,7 +72,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
     () => ({
-      assetId: opportunityId as AssetId,
+      assetId: opportunityId,
       accountId,
     }),
     [accountId, opportunityId],

@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -9,8 +9,7 @@ import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,11 +39,11 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
     selectUserStakingOpportunityByUserStakingId(state, {
       userStakingId: serializeUserStakingId(
         accountId ?? '',
-        toAssetId({
+        toOpportunityId({
           chainId,
           assetNamespace: 'erc20',
           assetReference: contractAddress,
-        }) as StakingId,
+        }),
       ),
     }),
   )

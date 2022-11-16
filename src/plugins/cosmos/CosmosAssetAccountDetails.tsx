@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
@@ -9,6 +9,7 @@ import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'
@@ -22,7 +23,11 @@ type AssetDetailsProps = {
 }
 
 export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
+  const isOsmosisSwapEnabled = useFeatureFlag('OsmosisSwap')
   const assetIds = useMemo(() => [assetId], [assetId])
+  const defaultBuyAssetId =
+    assetId === osmosisAssetId && !isOsmosisSwapEnabled ? foxAssetId : assetId
+
   return (
     <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
@@ -42,7 +47,7 @@ export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsPr
           <AssetTransactionHistory assetId={assetId} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard defaultBuyAssetId={assetId} />
+          <TradeCard defaultBuyAssetId={defaultBuyAssetId} />
           <AssetMarketData assetId={assetId} />
           <AssetDescription assetId={assetId} />
         </Stack>

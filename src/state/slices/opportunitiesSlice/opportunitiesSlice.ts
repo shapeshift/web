@@ -26,6 +26,7 @@ import type {
   OpportunityId,
   UserStakingId,
 } from './types'
+import { deserializeUserStakingId } from './utils'
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -251,7 +252,9 @@ export const opportunitiesApi = createApi({
           }
 
           const byAccountId = {
-            // TODO
+            [accountId]: Object.keys(resolved?.data.byId ?? {}).map(
+              (userStakingId: UserStakingId) => deserializeUserStakingId(userStakingId)[1],
+            ),
           } as OpportunityDataById
 
           const data = {

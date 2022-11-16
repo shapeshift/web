@@ -8,7 +8,6 @@ import {
   foxEthStakingAssetIdV4,
   v4EarnFarmingOpportunity,
 } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -24,7 +23,7 @@ import { OpportunityTypes } from '../FoxCommon'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const highestFarmingBalanceAccountIdFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV4 as StakingId,
+      stakingId: foxEthStakingAssetIdV4,
     }),
     [],
   )
@@ -35,12 +34,12 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    () => lpOpportunitiesById[foxEthLpAssetId],
     [lpOpportunitiesById],
   )
   const lpOpportunityId = foxEthLpAssetId
   const highestBalanceLpAccountIdFilter = useMemo(
-    () => ({ lpId: lpOpportunityId as LpId }),
+    () => ({ lpId: lpOpportunityId }),
     [lpOpportunityId],
   )
   const highestBalanceLpAccountId = useAppSelector(state =>
@@ -49,7 +48,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
 
   const farmingv4EarnOpportunityFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV4 as StakingId,
+      stakingId: foxEthStakingAssetIdV4,
     }),
     [],
   )
@@ -59,7 +58,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
     [],

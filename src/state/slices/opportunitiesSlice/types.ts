@@ -43,9 +43,11 @@ export type UserStakingOpportunity = {
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-export type StakingId = Nominal<string, 'StakingId'>
+export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
-export type LpId = Nominal<string, 'LpId'>
+export type LpId = Nominal<string, 'LpId'> & AssetId
+
+export type OpportunityId = LpId | StakingId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 
@@ -74,7 +76,7 @@ export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['b
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
-  opportunityId: LpId | StakingId
+  opportunityId: OpportunityId
   opportunityType: OpportunityDefiType
   defiType: DefiType
   defiProvider: DefiProvider
@@ -82,14 +84,14 @@ export type GetOpportunityMetadataInput = {
 
 export type GetOpportunityUserDataInput = {
   accountId: AccountId
-  opportunityId: LpId | StakingId
+  opportunityId: OpportunityId
   opportunityType: OpportunityDefiType
   defiType: DefiType
   defiProvider: DefiProvider
 }
 
 export type GetOpportunityIdsInput = {
-  opportunityId: LpId | StakingId
+  opportunityId: OpportunityId
   defiType: DefiType
   defiProvider: DefiProvider
 }
@@ -107,4 +109,4 @@ export type GetOpportunityUserStakingDataOutput = {
   byId: OpportunitiesState['userStaking']['byId']
 }
 
-export type GetOpportunityIdsOutput = (LpId | StakingId)[]
+export type GetOpportunityIdsOutput = OpportunityId[]

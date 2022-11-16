@@ -47,79 +47,93 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-If you are using Linux and MacOS it works out of the box following the steps.<br/>
-⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
+If you are using Linux and MacOS it works out of the box following these steps:
 
-- Clone the repo
+1. Clone the repo
 
-- (optional) Make sure you're using the right Node.js version.
+2. (optional) Make sure you're using the right Node.js version.
 
   ```sh
   nvm use
   ```
 
-- Install Dependencies:
+3. Install Dependencies:
 
   ```sh
   # This is short for `yarn install`; be sure to use `yarn install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
   yarn
   ```
 
-- Run `yarn env dev` to generate a `.env` file
+4. Run `yarn env dev` to generate a `.env` file
+
+> ⚠️ On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required but **WE DO NOT SUPPORT THIS ENVIRONMENT, SO USE IT AT YOUR OWN RISK**.
+>
+> If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
+>
+> **Please do NOT ask our Engineering team for further help with WSL.**
 
 ### Commands
 
-Runs the app in the development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits. You will also see any lint errors
-in the console.
+To run the app in the development mode:
 
 ```sh
-    yarn dev
+yarn dev
 ```
 
-Launches the test runner in the interactive watch mode.<br /> See the section
-about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
-It also creates a html page you can interact with at the root level of the project in `/coverage`.
+> It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
+>
+> You will also see any lint errors in the console.
+
+<br/>
+
+To launch the test runner in interactive watch mode:
 
 ```sh
-    yarn test
+yarn test
 ```
 
-Starts Cypress E2E testing with GUI.
+> See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+>
+> It also creates an HTML page you can interact with at the root level of the project in `/coverage`.
 
-```
+<br/>
+
+To start Cypress E2E testing with GUI:
+
+```sh
 yarn test:cypress
 ```
-
-Or run Cypress headless
-
-```
-test:cypress:headless
-```
-
-Builds the app for production to the `build` folder.<br /> It correctly bundles
-React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br /> Your app is
-ready to be deployed!
-
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+or, to start it in headless mode:
 
 ```sh
-    yarn build
+yarn test:cypress:headless
 ```
 
-Runs the component documentation.<br /> Open
-[http://localhost:6006](http://localhost:6006) to view it in the browser.
+<br/>
+
+To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-    yarn storybook
+yarn build
 ```
+
+> It correctly bundles React in production mode and optimizes the build for the best performance.
+>
+> The build is minified and the filenames include the hashes.
+>
+> Your app is ready to be deployed!
+>
+> See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+<br/>
+
+To run the component documentation:
+
+```sh
+yarn storybook
+```
+
+> It opens [http://localhost:6006](http://localhost:6006) to view it in the browser.
 
 ### Linking
 

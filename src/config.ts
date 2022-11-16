@@ -86,12 +86,10 @@ const validators = {
     default: 'https://api.cow.fi/mainnet/api',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
-    default:
-      'https://osmosis-1--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/',
+    default: 'https://dev-daemon.osmosis.shapeshift.com',
   }),
   REACT_APP_OSMOSIS_NODE_URL: url({
-    default:
-      'https://cosmoshub-4--lcd--full.datahub.figment.io/apikey/14c056a2415b6e0d2b9f55985214f3f1/',
+    default: 'https://dev-daemon.cosmos.shapeshift.com',
   }),
   REACT_APP_FEATURE_PENDO: bool({ default: false }),
   REACT_APP_PENDO_API_KEY: envalid.str({ default: '67c2f326-a6c2-4aa2-4559-08a53b679e93' }),

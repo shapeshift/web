@@ -15,7 +15,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
@@ -47,7 +46,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
     [],

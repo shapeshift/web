@@ -14,7 +14,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
@@ -39,7 +38,7 @@ export const AllEarnOpportunities = () => {
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
     [],

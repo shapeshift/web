@@ -1,9 +1,15 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import {
+  selectAssetById,
+  selectPortfolioCryptoBalanceByFilter,
+  selectStakingOpportunitiesById,
+} from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -77,58 +83,50 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   return { data }
 }
 
-export const idleStakingOpportunitiesUserDataResolver = async ({
+export const idleStakingOpportunitiesUserDataResolver = ({
   opportunityType,
   accountId, // TODO: Surely, idleInvestor.findAll() needs this?
   reduxApi,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const idleInvestor = getIdleInvestor()
-  const opportunities = await idleInvestor.findAll()
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
+  // TODO: We can do better and await the opportunity IDs query
+  const stakingOpportunitiesById = selectStakingOpportunitiesById(state)
+  const idleStakingOpportunityIds = Object.values(stakingOpportunitiesById)
+    .filter(
+      stakingOpportunity =>
+        isSome(stakingOpportunity) && stakingOpportunity.provider === DefiProvider.Idle,
+    )
+    .map(stakingOpportunity => stakingOpportunity!.assetId)
+
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
-  for (const opportunity of opportunities) {
+  idleStakingOpportunityIds.forEach(stakingOpportunityId => {
+    const balanceFilter = { accountId, assetId: stakingOpportunityId }
+    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+
+    if (bnOrZero(balance).eq(0)) return
+
     const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: 'erc20',
-      assetReference: opportunity.id,
-      chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
     }
-    const assetId = toAssetId(toAssetIdParts)
     const opportunityId = toOpportunityId(toAssetIdParts)
-
-    const asset = selectAssetById(state, assetId)
-
-    // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
-    // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
-    // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
-    if (!asset) continue
-
-    // const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-    // moduleLogger.debug(
-    // { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-    // 'Error fetching Idle opportunities metadata',
-    // )
-    // })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined
-
-    const stakedAmountCryptoPrecision = '0' // TODO
-    const rewardsAmountCryptoPrecision = '0' // TODO
-
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision,
-      rewardsAmountCryptoPrecision,
+      stakedAmountCryptoPrecision: balance,
+      rewardsAmountCryptoPrecision: '0', // TODO: Not implemented
     }
-  }
+  })
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
     type: opportunityType,
   }
 
-  return { data }
+  return Promise.resolve({ data })
 }
 
 export const idleStakingOpportunityIdsResolver = async (): Promise<{

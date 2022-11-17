@@ -4,6 +4,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { getLatestFirmwareData } from './firmwareUtils';
 import { initializeWallet } from './walletUtils'
 import { usb } from 'usb';
+import log from 'electron-log'
 
 // possible states
 export const UPDATE_BOOTLOADER = 'updateBootloader'
@@ -30,15 +31,18 @@ export class KKStateController {
     public onStateChange: any
 
     constructor(onStateChange: any) {
+        log.info("KKStateController constructor")
         this.keyring = new Keyring()
         this.onStateChange = onStateChange
 
         usb.on('attach', async (e) => {
+            log.info("KKStateController attach")
             if(e.deviceDescriptor.idVendor !== 11044) return
             this.updateState(PLUGIN, {})
             await this.syncState()
         })
         usb.on('detach', async (e) => {
+            log.info("KKStateController detach")
             if(e.deviceDescriptor.idVendor !== 11044) return
             this.updateState(DISCONNECTED, {})
         })
@@ -52,15 +56,18 @@ export class KKStateController {
     }
 
     public syncState = async () => {
-
+        log.info("KKStateController syncState")
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
 
-        if(resultInit.unplugged)
+        if(resultInit.unplugged){
+            log.info("KKStateController resultInit.unplugged")
             this.updateState(DISCONNECTED, {})
-        else if (!resultInit || !resultInit.success || resultInit.error)
+        } else if (!resultInit || !resultInit.success || resultInit.error){
+            log.info("KKStateController HARDWARE_ERROR")
             this.updateState(HARDWARE_ERROR, { error: resultInit?.error })
-        else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version)
+        } else if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version){
+            log.info("KKStateController UPDATE_BOOTLOADER")
             this.updateState(UPDATE_BOOTLOADER, {
                 bootloaderUpdateNeeded: true,
                 firmware: resultInit.firmwareVersion,
@@ -69,7 +76,8 @@ export class KKStateController {
                 recommendedFirmware: latestFirmware.firmware.version,
                 bootloaderMode: resultInit.bootloaderMode
             })
-        else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
+        } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
+            log.info("KKStateController UPDATE_FIRMWARE")
             this.updateState(UPDATE_FIRMWARE, {
                 firmwareUpdateNeededNotBootloader: true,
                 firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
@@ -79,10 +87,12 @@ export class KKStateController {
                 bootloaderMode: resultInit.bootloaderMode
             })
         } else if (!resultInit?.features?.initialized) {
+            log.info("KKStateController NEEDS_INITIALIZE")
             this.updateState(NEEDS_INITIALIZE, {
                 needsInitialize: true
             })
         } else {
+            log.info("KKStateController CONNECTED")
             this.updateState(CONNECTED, {
                 ready: true
             })

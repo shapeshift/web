@@ -47,8 +47,6 @@ export const DappRegistryGrid: FC = () => {
   const history = useHistory()
   const { dispatch } = useWallet()
 
-
-
   const filteredListings = useMemo(
     () =>
       registryItems.filter(

@@ -12,6 +12,7 @@ import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import {ipcRenderer} from "electron";
 
 export const ConnectWallet = () => {
   const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
@@ -20,6 +21,14 @@ export const ConnectWallet = () => {
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
+
+  const debugDevice = async function(){
+    try{
+      ipcRenderer.send('@app/restart', { })
+    }catch(e){
+      console.error(e)
+    }
+  }
 
   useEffect(() => {
     // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
@@ -103,6 +112,26 @@ export const ConnectWallet = () => {
               </Button>
             </Flex>
             <Flex
+                direction={'column'}
+                gap={4}
+                width='full'
+                position={{ base: 'static', md: 'fixed' }}
+                zIndex={3}
+                py={3}
+                px={4}
+                bottom={10}
+                alignItems={'center'}
+            >
+              <Button
+                  width='360px'
+                  rightIcon={<ExternalLinkIcon />}
+                  colorScheme='green'
+                  onClick={debugDevice}
+              >
+                {translate('connectWalletPage.troubleshoot')}
+              </Button>
+            </Flex>
+            <Flex
               direction={'column'}
               gap={4}
               width='full'
@@ -114,6 +143,7 @@ export const ConnectWallet = () => {
               alignItems={'center'}
             >
               <Flex width='full' alignItems='center' justifyContent='center' gap={8}>
+                <small>debug: {JSON.stringify(state.deviceState)}</small>
                 <Link
                   href='/#/legal/terms-of-service'
                   color='whiteAlpha.500'

@@ -6,19 +6,21 @@ import { ExplorationBanner } from './components/ExplorationBanner'
 
 // @ts-ignore
 import Client from '@pioneer-platform/pioneer-client'
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 export const WalletConnectToDapps: FC = () => {
+  const [motd, setSetMotd] = useState('')
 
   //get MOTD
   let updateMotd = async function(){
     try{
-      let spec = "http://127.0.0.1:9001/spec/swagger.json"
+      let spec = "https://pioneers.dev/spec/swagger.json"
       let config = { queryKey:'key:public', spec }
       let Api = new Client(spec,config)
       let api = await Api.init()
-      let info = await api.Instance.Globals()
-      console.log("info: ",info)
+      let info = await api.instance.Info()
+      console.log("info: ",info.data)
+      setSetMotd(info.data.motd)
     }catch(e){
       console.error(e)
     }
@@ -26,14 +28,14 @@ export const WalletConnectToDapps: FC = () => {
 
   useEffect(() => {
     updateMotd()
-  })
+  }, []);
 
   return (
     <Container p={4} maxW='container.lg'>
       <Stack spacing={10}>
         <Alert status='info'>
           <AlertIcon />
-          Hello World
+          {motd}
         </Alert>
         <ExplorationBanner />
         <DappRegistryGrid />

@@ -149,6 +149,7 @@
     "noProvidersBody": "Looks like we don't have any providers for that asset yet."
   },
   "connectWalletPage": {
+    "troubleshoot": "troubleshoot connection",
     "nextFrontier": "The Next Frontier of Crypto Security",
     "protectYourCrypto": "Protect your cryptocurrencies, store your private keys offline, and safeguard your assets from hackers. It’s time to achieve financial freedom in the most secure way with KeepKey.",
     "shapeshift": "ShapeShift",

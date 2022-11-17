@@ -7,6 +7,7 @@ import path from 'path';
 import log from 'electron-log'
 
 export const openSignTxWindow = async (signArgs: any) => {
+    log.info(" | openSignTxWindow | ")
     let prevContentSize = { width: 0, height: 0 }
     let windowWasPreviouslyOpen = false
 

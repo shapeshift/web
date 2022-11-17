@@ -12,6 +12,16 @@ import log from 'electron-log'
 
 export const startIpcListeners = () => {
     ipcMain.setMaxListeners(15)
+
+    ipcMain.on('@app/restart', (event, data) => {
+        app.relaunch();
+        app.exit();
+    })
+
+    ipcMain.on('@app/exit', (event, data) => {
+        app.exit();
+    })
+
     ipcMain.on('@app/get-asset-url', (event, data) => {
         const assetUrl = !isDev ? `file://${path.resolve(__dirname, "../../build/", data.assetPath)}` : data.assetPath
         event.sender.send(`@app/get-asset-url-${data.nonce}`, { nonce: data.nonce, assetUrl })

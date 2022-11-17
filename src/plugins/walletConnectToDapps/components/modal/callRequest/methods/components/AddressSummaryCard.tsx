@@ -1,10 +1,11 @@
-import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, HStack, IconButton, Link, useColorModeValue } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { Box, HStack, useColorModeValue } from '@chakra-ui/react'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
+import { CopyButton } from './CopyButton'
+import { ExternalLinkButton } from './ExternalLinkButtons'
 
 type AddressSummaryCardProps = {
   address: string
@@ -12,16 +13,12 @@ type AddressSummaryCardProps = {
   icon?: React.ReactNode
 }
 
-export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
+export const AddressSummaryCard = ({
   address,
   icon,
   showWalletProviderName = true,
-}) => {
+}: AddressSummaryCardProps) => {
   const walletName = useWallet().state.walletInfo?.name ?? ''
-  const handleCopyAddressClick = useCallback(
-    () => navigator.clipboard.writeText(address),
-    [address],
-  )
   return (
     <Card bg={useColorModeValue('white', 'gray.850')} py={4} pl={4} pr={2} borderRadius='md'>
       <HStack spacing={0}>
@@ -38,24 +35,8 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
             </RawText>
           )}
         </Box>
-        <IconButton
-          variant='ghost'
-          size='small'
-          aria-label='Copy'
-          icon={<CopyIcon />}
-          p={2}
-          onClick={handleCopyAddressClick}
-        />
-        <Link href={`https://etherscan.com/address/${address}`} isExternal>
-          <IconButton
-            icon={<ExternalLinkIcon />}
-            variant='ghost'
-            size='small'
-            aria-label={address}
-            p={2}
-            colorScheme='gray'
-          />
-        </Link>
+        <CopyButton value={address} />
+        <ExternalLinkButton href={`https://etherscan.com/address/${address}`} ariaLabel={address} />
       </HStack>
     </Card>
   )

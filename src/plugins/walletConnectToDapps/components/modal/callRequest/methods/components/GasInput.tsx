@@ -12,6 +12,7 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import type { FC } from 'react'
@@ -21,9 +22,11 @@ import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
-import type { ConfirmData } from './SendTransactionConfirmation'
-import { useCallRequestFees } from './useCallRequestFees'
+import type { ConfirmData } from '../../CallRequestCommon'
+import { useCallRequestFees } from '../hooks/useCallRequestFees'
 
 type GasInputProps = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -45,6 +48,8 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
+
+  const web3 = getWeb3InstanceByChainId(ethChainId)
 
   const options = useMemo(
     (): GasOption[] =>
@@ -124,7 +129,13 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                       </RawText>
                     </HStack>
                   </Radio>
-                  <RawText color={option.color}>{option.amount}</RawText>
+                  <RawText color={option.color}>
+                    {bnOrZero(web3.utils.toWei(option.amount, 'ether'))
+                      .div(10e9) // convert to gwei
+                      .div(request.gas) // divide by gas price
+                      .toFixed(0)}{' '}
+                    Gwei
+                  </RawText>
                 </HStack>
                 <Divider />
               </Fragment>

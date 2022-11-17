@@ -14,7 +14,7 @@ import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 
-import type { ConfirmData } from './SendTransactionConfirmation'
+import type { ConfirmData } from '../../CallRequestCommon'
 
 export const TransactionAdvancedParameters = () => {
   const translate = useTranslate()

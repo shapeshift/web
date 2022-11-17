@@ -6,8 +6,8 @@ import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
 
-import type { ConfirmData } from './SendTransactionConfirmation'
-import { useCallRequestFees } from './useCallRequestFees'
+import type { ConfirmData } from '../../CallRequestCommon'
+import { useCallRequestFees } from '../hooks/useCallRequestFees'
 
 type Props = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -22,7 +22,7 @@ export const GasFeeEstimateLabel = ({ request }: Props) => {
     () => (speed === 'custom' ? customFee : fees?.[speed]),
     [customFee, fees, speed],
   )
-  if (!fee) return <CircularProgress size='20px' color='gray.500' />
+  if (!fee) return <CircularProgress size='18px' color='gray.500' />
   return (
     <HStack spacing={1}>
       <RawText fontWeight='medium'>

@@ -8,8 +8,11 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText, Text } from 'components/Text'
 
-import { SendTransactionConfirmation } from './SendTransactionConfirmation'
-import { SignMessageConfirmation } from './SignMessageConfirmation'
+import type { ConfirmData } from './CallRequestCommon'
+import { SendTransactionConfirmation } from './methods/SendTransactionConfirmation'
+import { SignMessageConfirmation } from './methods/SignMessageConfirmation'
+import { SignTransactionConfirmation } from './methods/SignTransactionConfirmation'
+import { SignTypedDataConfirmation } from './methods/SignTypedDataConfirmation'
 
 type WalletConnectModalProps = {
   callRequest: WalletConnectCallRequest | undefined
@@ -19,7 +22,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
   const { approveRequest, rejectRequest, chainName } = useWalletConnect()
 
   const approve = useCallback(
-    (data?: unknown) => !!callRequest && approveRequest(callRequest, data),
+    (data?: ConfirmData) => !!callRequest && approveRequest(callRequest, data),
     [approveRequest, callRequest],
   )
   const reject = useCallback(
@@ -46,8 +49,19 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
             onReject={reject}
           />
         )
-      case 'eth_sendTransaction':
+      case 'eth_signTypedData':
+        return (
+          <SignTypedDataConfirmation request={callRequest} onConfirm={approve} onReject={reject} />
+        )
       case 'eth_signTransaction':
+        return (
+          <SignTransactionConfirmation
+            request={callRequest.params[0]}
+            onConfirm={approve}
+            onReject={reject}
+          />
+        )
+      case 'eth_sendTransaction':
         return (
           <SendTransactionConfirmation
             request={callRequest.params[0]}

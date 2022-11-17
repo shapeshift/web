@@ -1,5 +1,4 @@
-import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Divider, Flex, HStack, IconButton, Link, useColorModeValue } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType } from '@ethersproject/abi'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import startCase from 'lodash/startCase'
@@ -13,8 +12,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 import { handleAbiApiResponse } from 'state/apis/abi/utils'
 
+import { useCallRequestFees } from '../hooks/useCallRequestFees'
+import { CopyButton } from './CopyButton'
+import { ExternalLinkButton } from './ExternalLinkButtons'
 import { ModalSection } from './ModalSection'
-import { useCallRequestFees } from './useCallRequestFees'
 
 type Props = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -23,13 +24,7 @@ type Props = {
 const EncodedText = ({ value }: { value: string }) => (
   <Flex>
     <RawText pr={2}>{new TextEncoder().encode(value).length} bytes</RawText>
-    <IconButton
-      size='small'
-      variant='ghost'
-      aria-label='Copy'
-      icon={<CopyIcon />}
-      onClick={() => navigator.clipboard.writeText(value)}
-    />
+    <CopyButton value={value} />
   </Flex>
 )
 
@@ -57,23 +52,11 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
             <Box flex={1} fontFamily='monospace' fontSize='md'>
               <MiddleEllipsis color={addressColor} value={inputValue} />
             </Box>
-            <IconButton
-              size='small'
-              variant='ghost'
-              aria-label='Copy'
-              icon={<CopyIcon />}
-              onClick={() => navigator.clipboard.writeText(inputValue)}
+            <CopyButton value={inputValue} />
+            <ExternalLinkButton
+              href={`https://etherscan.com/address/${inputValue}`}
+              ariaLabel={inputValue}
             />
-            <Link href={`https://etherscan.com/address/${inputValue}`} isExternal>
-              <IconButton
-                icon={<ExternalLinkIcon />}
-                variant='ghost'
-                size='small'
-                aria-label={inputValue}
-                p={2}
-                colorScheme='gray'
-              />
-            </Link>
           </HStack>
         )
       default:

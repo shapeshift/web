@@ -1504,6 +1504,9 @@
           "estGasCost": "Est. Gas Cost",
           "description": "You're about to create a transaction and will have to confirm it with your currently connected wallet."
         },
+        "signTransaction": {
+          "description": "You're about to sign a transaction and will have to confirm it with your currently connected wallet."
+        },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "howTo": "How to connect to a dApp?",

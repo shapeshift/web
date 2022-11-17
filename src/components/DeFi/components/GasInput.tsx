@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/components/modal/callRequest/SignMessageConfirmation'
+import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/components/modal/callRequest/CallRequestCommon'
 import { Fragment, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'

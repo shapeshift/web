@@ -12,13 +12,13 @@ type ModalSectionProps = {
   children: ReactNode
 }
 
-export const ModalSection: React.FC<ModalSectionProps> = ({
+export const ModalSection = ({
   title,
   icon,
   children,
   defaultOpen = true,
-  titleRightComponent = null,
-}) => {
+  titleRightComponent,
+}: ModalSectionProps) => {
   const [isOpen, setOpen] = useState(defaultOpen)
   const toggle = useCallback(() => setOpen(prev => !prev), [])
   return (

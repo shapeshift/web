@@ -1,8 +1,7 @@
-import { Box, Button, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Button, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -11,27 +10,19 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
-import { AddressSummaryCard } from './AddressSummaryCard'
-import { AmountCard } from './AmountCard'
-import { ContractInteractionBreakdown } from './ContractInteractionBreakdown'
-import { GasFeeEstimateLabel } from './GasFeeEstimateLabel'
-import { GasInput } from './GasInput'
-import { ModalSection } from './ModalSection'
-import { TransactionAdvancedParameters } from './TransactionAdvancedParameters'
-import { useCallRequestFees } from './useCallRequestFees'
+import type { ConfirmData } from '../CallRequestCommon'
+import { AddressSummaryCard } from './components/AddressSummaryCard'
+import { AmountCard } from './components/AmountCard'
+import { ContractInteractionBreakdown } from './components/ContractInteractionBreakdown'
+import { GasFeeEstimateLabel } from './components/GasFeeEstimateLabel'
+import { GasInput } from './components/GasInput'
+import { ModalSection } from './components/ModalSection'
+import { TransactionAdvancedParameters } from './components/TransactionAdvancedParameters'
+import { useCallRequestFees } from './hooks/useCallRequestFees'
+import { useIsInteractingWithContract } from './hooks/useIsInteractingWithContract'
 
 type CallRequest = WalletConnectEthSendTransactionCallRequest
-export type ConfirmData = {
-  nonce?: string
-  gasLimit?: string
-  speed: FeeDataKey | 'custom'
-  customFee?: {
-    fiatFee: string
-    txFee: string
-  }
-}
 
 type Props = {
   request: CallRequest['params'][number]
@@ -42,16 +33,10 @@ type Props = {
 export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Props) => {
   const walletConnect = useWalletConnect()
   const { feeAsset } = useCallRequestFees(request)
-  const [isInteractingWithContract, setIsInteractingWithContract] = useState<boolean | null>(null)
-  useEffect(() => {
-    ;(async () => {
-      const result = await getWeb3InstanceByChainId(walletConnect.ethChainId).eth.getCode(
-        request.to,
-      )
-      // this util function returns '0x' if the recipient address is not a contract address
-      setIsInteractingWithContract(result !== '0x')
-    })()
-  }, [request.to, walletConnect.ethChainId])
+  const { isInteractingWithContract } = useIsInteractingWithContract({
+    ethChainId: walletConnect.ethChainId,
+    address: request.to,
+  })
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
   const {
@@ -70,7 +55,12 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
   if (!walletConnect.bridge || !walletConnect.dapp) return null
   const address = walletConnect.bridge?.connector.accounts[0]
 
-  if (isInteractingWithContract === null) return <CircularProgress />
+  if (isInteractingWithContract === null)
+    return (
+      <Center p={8}>
+        <CircularProgress />
+      </Center>
+    )
 
   return (
     <FormProvider {...form}>
@@ -155,7 +145,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             width='full'
             colorScheme='blue'
             type='submit'
-            onClick={form.handleSubmit(onConfirm)}
+            onClick={form.handleSubmit(() => onConfirm(form.getValues()))}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

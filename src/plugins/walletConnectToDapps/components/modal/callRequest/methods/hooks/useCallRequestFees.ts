@@ -19,7 +19,7 @@ export function useCallRequestFees(
   const address = walletConnect.bridge?.connector.accounts[0]
   const connectedChainId = walletConnect.bridge?.connector.chainId
   const assets = useAppSelector(selectAssets)
-  const evmChainId = `${CHAIN_NAMESPACE.Evm}:${request.chainId ?? connectedChainId}`
+  const evmChainId = `${CHAIN_NAMESPACE.Evm}:${connectedChainId}`
 
   const feeAsset = useMemo(() => {
     const feeAssetId = getChainAdapterManager().get(evmChainId)?.getFeeAssetId()

@@ -1,16 +1,4 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Divider,
-  HStack,
-  IconButton,
-  Image,
-  Link,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { Box, Button, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -18,14 +6,14 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { AddressSummaryCard } from './AddressSummaryCard'
+import { AddressSummaryCard } from './components/AddressSummaryCard'
+import { ExternalLinkButton } from './components/ExternalLinkButtons'
 
 type SignMessageConfirmationProps = {
   message: string
   onConfirm(): void
   onReject(): void
 }
-export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
 
 export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
   const { message, onConfirm, onReject } = props
@@ -58,19 +46,12 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
           mb={4}
         />
         <Card bg={cardBg} borderRadius='md'>
-          <HStack align='center' pl={4}>
+          <HStack align='center' p={4}>
             <Image borderRadius='full' boxSize='24px' src={walletConnect.dapp.icons[0]} />
             <RawText fontWeight='semibold' flex={1}>
               {walletConnect.dapp.name}
             </RawText>
-            <Link href={walletConnect.dapp.url} isExternal>
-              <IconButton
-                icon={<ExternalLinkIcon />}
-                variant='ghost'
-                aria-label={walletConnect.dapp.name}
-                colorScheme='gray'
-              />
-            </Link>
+            <ExternalLinkButton href={walletConnect.dapp.url} ariaLabel={walletConnect.dapp.name} />
           </HStack>
           <Divider />
           <Box p={4}>
@@ -91,7 +72,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={() => onConfirm()}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={onReject}>

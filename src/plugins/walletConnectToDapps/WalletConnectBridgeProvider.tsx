@@ -8,6 +8,8 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
@@ -34,6 +36,18 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
   }, [ethChainId, supportedEvmChainIds, translate])
+
+  const assets = useAppSelector(selectAssets)
+  // will generalize for all evm chains
+  const accountExplorerAddressLink = useMemo(() => {
+    if (!ethChainId) return ''
+    const chainId = `eip155:${ethChainId}`
+    const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+    if (!feeAssetId) return ''
+    const asset = assets[feeAssetId]
+    if (!asset) return ''
+    return asset.explorerAddressLink
+  }, [assets, ethChainId])
 
   const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
   const onCallRequest = useCallback(
@@ -139,6 +153,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         rejectRequest,
         chainName,
         ethChainId,
+        accountExplorerAddressLink,
       }}
     >
       {children}

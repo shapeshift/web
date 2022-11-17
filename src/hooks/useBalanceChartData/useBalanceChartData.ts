@@ -17,7 +17,6 @@ import values from 'lodash/values'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
@@ -31,6 +30,7 @@ import {
   selectFiatPriceHistoryTimeframe,
   selectRebasesByFilter,
   selectTxsByFilter,
+  selectWalletId,
 } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -339,6 +339,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetId, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
+  const walletId = useAppSelector(selectWalletId)
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
@@ -368,10 +369,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  const walletInfo = useWallet().state.walletInfo
-
   const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
 
   // rebasing token balances can be adjusted by rebase events rather than txs
@@ -393,7 +391,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // calculation
   useEffect(() => {
     const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
-    if (!walletInfo?.deviceId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
+    if (!walletId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -431,7 +429,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     timeframe,
     balances,
     setBalanceChartData,
-    walletInfo?.deviceId,
+    walletId,
     rebases,
   ])
 

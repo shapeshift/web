@@ -4116,7 +4116,7 @@
     ts-node "^8.10.2"
     typescript "^3.9.5"
 
-"@pioneer-platform/pioneer-client@8.1.25":
+"@pioneer-platform/pioneer-client@^8.1.25":
   version "8.1.25"
   resolved "https://registry.yarnpkg.com/@pioneer-platform/pioneer-client/-/pioneer-client-8.1.25.tgz#bd7207e99b9cd71fad0a0cd7027780d1d9ea06ad"
   integrity sha512-Y54ZFq52OOgnjJcL6qZgKylaoOcR9sfJw4ZA6hyZLVwCY1Xr3wI/aqjyRTAzfJtgEKb7J927hJXiEybjp8lJAQ==

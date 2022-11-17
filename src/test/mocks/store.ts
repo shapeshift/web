@@ -41,6 +41,10 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+    wallet: {
+      byId: {},
+      ids: [],
+    },
   },
   preferences: {
     featureFlags: {
@@ -94,7 +98,6 @@ export const mockStore: ReduxState = {
       byId: {},
       byAccountIdAssetId: {},
       ids: [],
-      status: 'loading',
     },
     rebases: {
       byAccountIdAssetId: {},

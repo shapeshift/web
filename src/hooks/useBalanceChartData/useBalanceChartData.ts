@@ -10,15 +10,13 @@ import fill from 'lodash/fill'
 import head from 'lodash/head'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
-import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import values from 'lodash/values'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
@@ -29,12 +27,10 @@ import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
-  selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
-  selectPriceHistoriesLoadingByAssetTimeframe,
   selectRebasesByFilter,
-  selectTxHistoryStatus,
   selectTxsByFilter,
+  selectWalletId,
 } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -343,6 +339,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetId, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
+  const walletId = useAppSelector(selectWalletId)
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
@@ -372,13 +369,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     [intersectedAssetIds],
   )
 
-  const walletInfo = useWallet().state.walletInfo
-
   const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
-
-  const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
@@ -389,35 +381,17 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, timeframe),
   )
-  const cryptoPriceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
-  )
 
   const fiatPriceHistoryData = useAppSelector(state =>
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
-  const fiatPriceHistoryDataLoading = useAppSelector(state =>
-    selectFiatPriceHistoriesLoadingByTimeframe(state, timeframe),
-  )
-
   // loading state
   useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
 
   // calculation
   useEffect(() => {
-    // data prep
-    const hasNoDeviceId = isNil(walletInfo?.deviceId)
-    const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData =
-      isEmpty(cryptoPriceHistoryData) || !cryptoPriceHistoryData || !fiatPriceHistoryData
-    const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
-    if (
-      hasNoDeviceId ||
-      hasNoAssetIds ||
-      hasNoPriceHistoryData ||
-      cryptoPriceHistoryDataLoading ||
-      hasNotFinishedLoadingTxHistory
-    ) {
+    const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
+    if (!walletId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -450,16 +424,13 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     assetIds,
     accountId,
     cryptoPriceHistoryData,
-    cryptoPriceHistoryDataLoading,
     fiatPriceHistoryData,
-    fiatPriceHistoryDataLoading,
     txs,
     timeframe,
     balances,
     setBalanceChartData,
-    walletInfo?.deviceId,
+    walletId,
     rebases,
-    txHistoryStatus,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

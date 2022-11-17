@@ -274,6 +274,10 @@
         "claimYour": "Reclame su %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Por favor, no edite la nota de transacción.",
+      "body": "Las transacciones que se originan en ShapeShift ayudan a respaldar la DAO."
+    },
     "amountToStake": "Cantidad a Stake",
     "amountToUnstake": "Monto a Unstake",
     "confirmDetails": "Confirmar Detalles",
@@ -991,6 +995,7 @@
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
           "passphrase": "Habilite la capacidad de tener múltiples billeteras, accesibles mediante el uso de una frase de contraseña única para cada billetera.",
           "label": "Etiquetar cada uno de los dispositivos le permite distinguir fácilmente uno de otro.",
+          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puedes cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",

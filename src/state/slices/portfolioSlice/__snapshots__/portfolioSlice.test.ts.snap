@@ -28,6 +28,10 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
+  },
 }
 `;
 
@@ -68,6 +72,10 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
       "bip122:000000000019d6689c085ae165831e93:xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
+  },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
 }
 `;
@@ -132,6 +140,10 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
+  },
 }
 `;
 
@@ -181,6 +193,10 @@ Object {
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w",
     ],
   },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
+  },
 }
 `;
 
@@ -213,6 +229,10 @@ Object {
     "ids": Array [
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
     ],
+  },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
 }
 `;
@@ -258,6 +278,10 @@ Object {
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
     ],
+  },
+  "wallet": Object {
+    "byId": Object {},
+    "ids": Array [],
   },
 }
 `;

@@ -9,9 +9,11 @@ import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
 import intersection from 'lodash/intersection'
+import isEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import values from 'lodash/values'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
@@ -390,7 +392,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   // calculation
   useEffect(() => {
-    if (!walletInfo?.deviceId) return setBalanceChartDataLoading(true)
+    const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
+    if (!walletInfo?.deviceId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
+      return setBalanceChartDataLoading(true)
+    }
 
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({

@@ -8,7 +8,7 @@ import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychar
 import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -90,7 +90,7 @@ export const PrimaryChart = ({
   const yScale = useMemo(
     () => ({
       type: 'linear' as const,
-      range: [yMax + margin.top - 32, margin.top + 32], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      range: [yMax + margin.top - 24, margin.top + 24], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
       domain: [minPrice, maxPrice],
       zero: false,
     }),
@@ -98,73 +98,75 @@ export const PrimaryChart = ({
   )
 
   return (
-    <XYChart width={width} height={height} margin={margin} xScale={xScale} yScale={yScale}>
-      <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
-      <AnimatedAxis
-        orientation='bottom'
-        hideTicks
-        hideAxisLine
-        tickLabelProps={() => tickLabelProps}
-        numTicks={5}
-        labelOffset={16}
-      />
-      <AnimatedAreaSeries
-        dataKey='Line 1'
-        data={data}
-        fill='url(#area-gradient)'
-        fillOpacity={0.1}
-        lineProps={{ stroke: chartColor }}
-        offset={16}
-        {...accessors}
-      />
-      <Tooltip
-        applyPositionStyle
-        style={{ zIndex: 10 }} // render over swapper TokenButton component
-        showVerticalCrosshair
-        snapTooltipToDatumX
-        showSeriesGlyphs
-        verticalCrosshairStyle={{
-          stroke: colors.blue[500],
-          strokeWidth: 2,
-          opacity: 0.5,
-          strokeDasharray: '5,2',
-          pointerEvents: 'none',
-        }}
-        detectBounds
-        renderTooltip={({ tooltipData }) => {
-          const { datum } = tooltipData?.nearestDatum!
-          const { date, price } = datum as HistoryData
-          return (
-            <CStack
-              borderRadius={'lg'}
-              borderColor={tooltipBorder}
-              borderWidth={1}
-              color={tooltipColor}
-              bgColor={tooltipBg}
-              direction='column'
-              spacing={0}
-              p={2}
-            >
-              <Amount.Fiat value={price} fontWeight='bold' />
-              <RawText fontSize={'xs'} color={colors.gray[500]}>
-                {dayjs(date).locale(selectedLocale).format('LLL')}
-              </RawText>
-            </CStack>
-          )
-        }}
-      />
-      <MaxPrice
-        yText={priceScale(maxPrice)}
-        label={toFiat(maxPrice)}
-        width={width}
-        stroke={chartColor}
-      />
-      <MinPrice
-        yText={priceScale(minPrice)}
-        label={toFiat(minPrice)}
-        width={width}
-        stroke={chartColor}
-      />
-    </XYChart>
+    <div style={{ position: 'relative' }}>
+      <XYChart width={width} height={height} margin={margin} xScale={xScale} yScale={yScale}>
+        <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
+        <AnimatedAxis
+          orientation='bottom'
+          hideTicks
+          hideAxisLine
+          tickLabelProps={() => tickLabelProps}
+          numTicks={5}
+          labelOffset={16}
+        />
+        <AnimatedAreaSeries
+          dataKey='Line 1'
+          data={data}
+          fill='url(#area-gradient)'
+          fillOpacity={0.1}
+          lineProps={{ stroke: chartColor }}
+          offset={16}
+          {...accessors}
+        />
+        <Tooltip
+          applyPositionStyle
+          style={{ zIndex: 10 }} // render over swapper TokenButton component
+          showVerticalCrosshair
+          snapTooltipToDatumX
+          showSeriesGlyphs
+          verticalCrosshairStyle={{
+            stroke: colors.blue[500],
+            strokeWidth: 2,
+            opacity: 0.5,
+            strokeDasharray: '5,2',
+            pointerEvents: 'none',
+          }}
+          detectBounds
+          renderTooltip={({ tooltipData }) => {
+            const { datum } = tooltipData?.nearestDatum!
+            const { date, price } = datum as HistoryData
+            return (
+              <CStack
+                borderRadius={'lg'}
+                borderColor={tooltipBorder}
+                borderWidth={1}
+                color={tooltipColor}
+                bgColor={tooltipBg}
+                direction='column'
+                spacing={0}
+                p={2}
+              >
+                <Amount.Fiat value={price} fontWeight='bold' />
+                <RawText fontSize={'xs'} color={colors.gray[500]}>
+                  {dayjs(date).locale(selectedLocale).format('LLL')}
+                </RawText>
+              </CStack>
+            )
+          }}
+        />
+        <MaxPrice
+          yText={priceScale(maxPrice)}
+          label={toFiat(maxPrice)}
+          width={width}
+          stroke={chartColor}
+        />
+        <MinPrice
+          yText={priceScale(minPrice)}
+          label={toFiat(minPrice)}
+          width={width}
+          stroke={chartColor}
+        />
+      </XYChart>
+    </div>
   )
 }

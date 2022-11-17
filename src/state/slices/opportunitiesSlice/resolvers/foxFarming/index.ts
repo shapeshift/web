@@ -168,7 +168,7 @@ export const foxFarmingStakingMetadataResolver = async ({
     .toFixed(2)
 
   // apr
-  const foxRewardRatePerTokenV4 = await rewardRatePerToken(foxFarmingContract)
+  const foxRewardRatePerTokenV5 = await rewardRatePerToken(foxFarmingContract)
   const pair = await Fetcher.fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, ethPrecision),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, foxPrecision),
@@ -193,7 +193,7 @@ export const foxFarmingStakingMetadataResolver = async ({
     .div(bnOrZero(totalSupplyV2.toString()))
     .times(bn(10).pow(pair.token1.decimals)) // convert to base unit value
     .toString()
-  const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken))
+  const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV5, foxEquivalentPerLPToken))
     .div(100)
     .toString()
 

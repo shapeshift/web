@@ -31,8 +31,7 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV2,
   foxEthStakingAssetIdV3,
   foxEthStakingAssetIdV4,
-  // TODO: uncomment me in a follow-up PR swapping v4 for v5 everywhere
-  // foxEthStakingAssetIdV5,
+  foxEthStakingAssetIdV5,
 ] as const
 
 export const STAKING_ID_TO_NAME = {
@@ -119,6 +118,7 @@ export const STAKING_EARN_OPPORTUNITIES = {
   [foxEthStakingAssetIdV2]: v2EarnFarmingOpportunity,
   [foxEthStakingAssetIdV3]: v3EarnFarmingOpportunity,
   [foxEthStakingAssetIdV4]: v4EarnFarmingOpportunity,
+  [foxEthStakingAssetIdV5]: v5EarnFarmingOpportunity,
 }
 
 export const LP_EARN_OPPORTUNITIES = {

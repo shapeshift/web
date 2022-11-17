@@ -22,7 +22,7 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthLpAssetId, foxEthStakingAssetIdV4 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectLpOpportunitiesById,
@@ -52,7 +52,7 @@ const FoxFarmCTA = () => {
     [lpOpportunitiesById],
   )
   const defaultStakingOpportunityData = useMemo(
-    () => stakingOpportunitiesById[foxEthStakingAssetIdV4],
+    () => stakingOpportunitiesById[foxEthStakingAssetIdV5],
     [stakingOpportunitiesById],
   )
 
@@ -68,7 +68,7 @@ const FoxFarmCTA = () => {
       search: qs.stringify({
         provider: DefiProvider.FoxFarming,
         chainId: ethChainId,
-        contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
+        contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
         assetReference: fromAssetId(foxEthLpAssetId).assetReference,
         rewardId: FOX_TOKEN_CONTRACT_ADDRESS,
         modal: 'overview',

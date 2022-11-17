@@ -2,10 +2,12 @@ import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -20,6 +22,8 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const isOsmosisSendEnabled = useFeatureFlag('OsmosisSend')
+
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
   const { send, receive } = useModal()
@@ -31,8 +35,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   useEffect(() => {
-    setIsValidChainId(chainAdapterManager.has(asset.chainId))
-  }, [chainAdapterManager, asset])
+    const isValid =
+      // feature flag to disable Osmosis Sends
+      asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
+        ? false
+        : chainAdapterManager.has(asset.chainId)
+    setIsValidChainId(isValid)
+  }, [chainAdapterManager, asset, isOsmosisSendEnabled])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -71,7 +80,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           onClick={handleSendClick}
           leftIcon={<ArrowUpIcon />}
           width={{ base: '100%', md: 'auto' }}
-          isDisabled={!hasValidBalance}
+          isDisabled={!hasValidBalance || !isValidChainId}
           data-test='asset-action-send'
         >
           {translate('common.send')}

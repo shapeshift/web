@@ -20,6 +20,6 @@ export const CosmosAsset = () => {
       </Flex>
     </Page>
   ) : (
-    <CosmosAssetAccountDetails assetId={asset.assetId} />
+    <CosmosAssetAccountDetails chainId={asset.chainId} assetId={asset.assetId} />
   )
 }

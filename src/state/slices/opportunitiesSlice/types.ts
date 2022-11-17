@@ -91,7 +91,6 @@ export type GetOpportunityUserDataInput = {
 }
 
 export type GetOpportunityIdsInput = {
-  opportunityId: OpportunityId
   defiType: DefiType
   defiProvider: DefiProvider
 }

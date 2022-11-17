@@ -220,6 +220,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             await dispatch(
+              opportunitiesApi.endpoints.getOpportunityIds.initiate({
+                defiType: DefiType.Staking,
+                defiProvider: DefiProvider.Idle,
+              }),
+            )
+            await dispatch(
               opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
                 defiType: DefiType.Staking,
                 defiProvider: DefiProvider.Idle,

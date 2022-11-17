@@ -3,12 +3,13 @@ import { Stack as CStack } from '@chakra-ui/react'
 import { useToken } from '@chakra-ui/system'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { LinearGradient } from '@visx/gradient'
+import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear } from '@visx/scale'
 import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
 import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -90,16 +91,22 @@ export const PrimaryChart = ({
   const yScale = useMemo(
     () => ({
       type: 'linear' as const,
-      range: [yMax + margin.top - 24, margin.top + 24], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+      range: [yMax + margin.top - margin.bottom, margin.top + margin.bottom], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
       domain: [minPrice, maxPrice],
       zero: false,
     }),
-    [yMax, margin.top, minPrice, maxPrice],
+    [yMax, margin.top, margin.bottom, minPrice, maxPrice],
   )
 
   return (
-    <div style={{ position: 'relative' }}>
-      <XYChart width={width} height={height} margin={margin} xScale={xScale} yScale={yScale}>
+    <ScaleSVG width={width} height={height}>
+      <XYChart
+        width={width}
+        height={height}
+        margin={{ top: 0, bottom: margin.bottom, left: 0, right: 0 }}
+        xScale={xScale}
+        yScale={yScale}
+      >
         <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
         <AnimatedAxis
           orientation='bottom'
@@ -167,6 +174,6 @@ export const PrimaryChart = ({
           stroke={chartColor}
         />
       </XYChart>
-    </div>
+    </ScaleSVG>
   )
 }

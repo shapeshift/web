@@ -48,7 +48,7 @@ import {
   accountIdToFeeAssetId,
   genericBalanceIncludingStakingByFilter,
 } from 'state/slices/portfolioSlice/utils'
-import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
+import { selectBalanceThreshold, selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import {
@@ -1110,14 +1110,18 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
   selectStakingDataByFilter,
   selectAssetIdParamFromFilter,
   selectDefaultStakingDataByValidatorId,
+  selectFeatureFlags,
   (
     portfolioValidatorIds,
     validatorsData,
     stakingDataByValidator,
     assetId,
     defaultStakingData,
+    featureFlags,
   ): OpportunitiesDataFull[] => {
-    if (defaultStakingData) {
+    // used to enable/disable staking by feature flag
+    const featureFlagFilter = !(assetId === osmosisAssetId && !featureFlags.OsmosisStaking)
+    if (defaultStakingData && featureFlagFilter) {
       const dummy: OpportunitiesDataFull[] = [
         {
           isLoaded: true,
@@ -1130,6 +1134,7 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
       if (!assetId) return dummy
     }
     if (!assetId) return []
+
     return portfolioValidatorIds.map(validatorId => {
       const delegatedAmount = stakingDataByValidator
         .reduce((acc, currentStakingDataByValidator) => {

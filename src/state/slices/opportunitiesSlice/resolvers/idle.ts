@@ -115,15 +115,14 @@ export const idleStakingOpportunitiesUserDataResolver = ({
     const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
     if (!opportunity) return
 
+    let rewardsAmountCryptoPrecision = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
-      const totalClaimableRewards = claimableTokens.reduce((totalRewards, token) => {
-        console.log({ totalRewards: totalRewards.toString() }, token)
-        totalRewards = totalRewards.plus(token.amount)
-        return totalRewards
-      }, bnOrZero(0))
+      rewardsAmountCryptoPrecision = claimableTokens.map(token =>
+        bnOrZero(token.amount).toFixed(),
+      ) as [string] | [string, string]
     }
 
     const toAssetIdParts: ToAssetIdArgs = {
@@ -137,7 +136,7 @@ export const idleStakingOpportunitiesUserDataResolver = ({
       stakedAmountCryptoPrecision: bnOrZero(balance.toString())
         .div(bn(10).pow(asset.precision))
         .toString(),
-      rewardsAmountCryptoPrecision: ['0'], // TODO: Not implemented
+      rewardsAmountCryptoPrecision, // TODO: Not implemented
     }
   })
 

@@ -253,7 +253,7 @@ export const opportunitiesApi = createApi({
 
           const byAccountId = {
             [accountId]: Object.keys(resolved?.data.byId ?? {}).map(
-              (userStakingId: UserStakingId) => deserializeUserStakingId(userStakingId)[1],
+              userStakingId => deserializeUserStakingId(userStakingId as UserStakingId)[1],
             ),
           } as OpportunityDataById
 

@@ -64,7 +64,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={opportunity.rewardsAmountCryptoPrecision!}
+              amount={opportunity.rewardsAmountsCryptoPrecision?.[0] ?? '0'}
             />
           </Route>
           <Route exact path='/status'>

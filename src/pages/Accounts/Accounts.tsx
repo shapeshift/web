@@ -9,7 +9,7 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectIsTxHistoryLoading, selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
+import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
 import { ChainRow } from './components/ChainRow'
 
@@ -20,7 +20,6 @@ const AccountHeader = () => {
     state: { wallet },
   } = useWallet()
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
-  const isTxHistoryLoading = useSelector(selectIsTxHistoryLoading)
 
   useEffect(() => {
     if (!wallet) return
@@ -38,13 +37,11 @@ const AccountHeader = () => {
       </Heading>
       {isMultiAccountEnabled && isMultiAccountWallet && (
         <Button
-          isLoading={isTxHistoryLoading}
           loadingText={translate('accounts.addAccount')}
           leftIcon={<AddIcon />}
           colorScheme='blue'
           onClick={open}
           data-test='add-account-button'
-          disabled={isTxHistoryLoading}
         >
           <Text translation='accounts.addAccount' />
         </Button>

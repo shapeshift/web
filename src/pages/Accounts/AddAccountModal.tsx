@@ -93,7 +93,8 @@ export const AddAccountModal = () => {
     const chainAdapterManager = getChainAdapterManager()
     return chainIds.map(chainId => {
       const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
-      const asset = assets[assetId]
+      const asset = assets?.[assetId]
+      if (!asset) return null
       const { name, icon } = asset
       const key = chainId
       const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
@@ -103,7 +104,7 @@ export const AddAccountModal = () => {
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
-    return assets[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
+    return assets?.[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
   }, [assets, selectedChainId])
 
   const handleAddAccount = useCallback(() => {

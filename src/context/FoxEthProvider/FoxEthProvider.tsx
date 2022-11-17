@@ -37,7 +37,7 @@ export type FoxFarmingEarnOpportunityType = OpportunityMetadata & {
    */
   unclaimedRewards?: string
   stakedAmountCryptoPrecision?: string
-  rewardsAmountCryptoPrecision?: string
+  rewardsAmountsCryptoPrecision?: readonly [string]
   underlyingToken0Amount?: string
   underlyingToken1Amount?: string
   isVisible?: boolean

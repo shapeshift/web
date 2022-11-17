@@ -39,7 +39,7 @@ export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountCryptoPrecision: string
+  rewardsAmountsCryptoPrecision: readonly [string, string] | [string, string] | [string]
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
@@ -91,7 +91,6 @@ export type GetOpportunityUserDataInput = {
 }
 
 export type GetOpportunityIdsInput = {
-  opportunityId: OpportunityId
   defiType: DefiType
   defiProvider: DefiProvider
 }

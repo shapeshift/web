@@ -232,14 +232,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                 opportunityType: DefiType.Staking,
               }),
             )
-            await dispatch(
-              opportunitiesApi.endpoints.getOpportunitiesUserData.initiate({
-                accountId,
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.Idle,
-                opportunityType: DefiType.Staking,
-              }),
-            )
+            // await dispatch(
+            // opportunitiesApi.endpoints.getOpportunitiesUserData.initiate({
+            // accountId,
+            // defiType: DefiType.Staking,
+            // defiProvider: DefiProvider.Idle,
+            // opportunityType: DefiType.Staking,
+            // }),
+            // )
 
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)

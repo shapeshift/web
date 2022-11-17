@@ -52,9 +52,6 @@ export type TxHistoryById = {
 export type TxIdsByAssetId = PartialRecord<AssetId, TxId[]>
 export type TxIdsByAccountIdAssetId = PartialRecord<AccountId, TxIdsByAssetId>
 
-// status is loading until all tx history is fetched
-export type TxHistoryStatus = 'loading' | 'loaded'
-
 export type RebaseId = Nominal<string, 'RebaseId'>
 type RebaseById = PartialRecord<RebaseId, RebaseHistory>
 
@@ -65,7 +62,6 @@ export type TxsState = {
   byId: TxHistoryById
   byAccountIdAssetId: TxIdsByAccountIdAssetId
   ids: TxId[]
-  status: TxHistoryStatus
 }
 
 export type RebasesState = {
@@ -89,7 +85,6 @@ const initialState: TxHistory = {
     byAccountIdAssetId: {},
     byId: {},
     ids: [], // sorted, newest first
-    status: 'loading', // TODO(0xdef1cafe): remove this
   },
   rebases: {
     byAccountIdAssetId: {},
@@ -163,7 +158,6 @@ type MakeRebaseId = (args: MakeRebaseIdArgs) => string
 const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
   [accountId, assetId, rebase.blockTime].join(UNIQUE_TX_ID_DELIMITER)
 
-type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
   payload: {
     accountId: AccountId
@@ -179,9 +173,6 @@ export const txHistory = createSlice({
     clear: () => {
       moduleLogger.info('clearing tx history')
       return initialState
-    },
-    setStatus: (state, { payload }: TxHistoryStatusPayload) => {
-      state.txs.status = payload
     },
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsertTx(txState, payload.message, payload.accountId),
@@ -301,8 +292,6 @@ export const txHistoryApi = createApi({
             moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
           }
         })
-
-        dispatch(txHistory.actions.setStatus('loaded'))
 
         return { data: [] }
       },

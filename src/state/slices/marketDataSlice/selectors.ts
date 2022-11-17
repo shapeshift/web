@@ -105,22 +105,13 @@ const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) =
 export const selectCryptoPriceHistoryTimeframe = createSelector(
   selectCryptoPriceHistory,
   selectTimeframeParam,
-  (priceHistory, timeframe): PriceHistoryData | undefined => priceHistory?.[timeframe],
+  (priceHistory, timeframe): PriceHistoryData => priceHistory?.[timeframe] ?? {},
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
   selectTimeframeParam,
-  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] | undefined =>
-    fiatPriceHistory?.[timeframe]?.[selectedCurrency],
-)
-
-export const selectFiatPriceHistoriesLoadingByTimeframe = createSelector(
-  selectFiatPriceHistory,
-  selectSelectedCurrency,
-  selectTimeframeParam,
-  // if we don't have the data it's loading
-  (fiatPriceHistory, currency, timeframe): boolean =>
-    !Boolean(fiatPriceHistory?.[timeframe]?.[currency]),
+  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] =>
+    fiatPriceHistory?.[timeframe]?.[selectedCurrency] ?? [],
 )

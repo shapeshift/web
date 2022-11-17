@@ -8,7 +8,11 @@ import {
   foxFarmingStakingOpportunityIdsResolver,
   foxFarmingStakingUserDataResolver,
 } from './foxFarming'
-import { idleStakingOpportunitiesMetadataResolver, idleStakingOpportunityIdsResolver } from './idle'
+import {
+  idleStakingOpportunitiesMetadataResolver,
+  idleStakingOpportunitiesUserDataResolver,
+  idleStakingOpportunityIdsResolver,
+} from './idle'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.FoxFarming}`]: {
@@ -20,6 +24,12 @@ export const DefiProviderToMetadataResolverByDeFiType = {
 export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
+  },
+}
+
+export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
+  [`${DefiProvider.Idle}`]: {
+    [`${DefiType.Staking}`]: idleStakingOpportunitiesUserDataResolver,
   },
 }
 

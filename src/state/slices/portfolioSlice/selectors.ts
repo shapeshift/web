@@ -48,7 +48,7 @@ import {
   accountIdToFeeAssetId,
   genericBalanceIncludingStakingByFilter,
 } from 'state/slices/portfolioSlice/utils'
-import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
+import { selectBalanceThreshold, selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import {
@@ -84,10 +84,16 @@ const FEE_ASSET_IDS = [
   avalancheAssetId,
 ]
 
+export const selectWalletId = (state: ReduxState) => state.portfolio.walletId
+
 /**
  * the accountIds from the wallet, not necessarily loaded
  */
-export const selectWalletAccountIds = (state: ReduxState) => state.portfolio.accountMetadata.ids
+export const selectWalletAccountIds = createDeepEqualOutputSelector(
+  selectWalletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,
@@ -125,7 +131,9 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
-  accountMetadata => accountMetadata,
+  selectWalletAccountIds,
+  (accountMetadata, walletAccountIds): AccountMetadataById =>
+    pickBy(accountMetadata, (_, accountId: AccountId) => walletAccountIds.includes(accountId)),
 )
 
 export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(
@@ -354,7 +362,7 @@ export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParamFromFilter,
   (portfolioFiatBalances, assetId): string | undefined => assetId && portfolioFiatBalances[assetId],
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
@@ -386,7 +394,7 @@ export const selectPortfolioCryptoBalanceByAssetId = createCachedSelector(
   selectPortfolioAssetBalances,
   selectAssetIdParamFromFilter,
   (byId, assetId): string | undefined => assetId && byId[assetId],
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
   selectAssets,
@@ -423,7 +431,7 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)((_accountIds, paramFilter) => paramFilter?.assetId ?? 'assetId')
+)((state, paramFilter) => `${state.portfolio.walletId}-${paramFilter?.assetId}` ?? 'assetId')
 
 // If an AccountId is passed, selects data by AccountId
 // Else, aggregates the data for all AccountIds for said asset
@@ -598,7 +606,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
     )
     return highestBalanceAccountToAmount?.[0]
   },
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
@@ -730,7 +738,9 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
     }>((acc, [accountId, account]) => {
       const entries: [AssetId, BigNumber][] = Object.entries(account).map(
         ([assetId, cryptoBalance]) => {
-          const { precision } = assets[assetId]
+          const asset = assets?.[assetId]
+          if (!asset) return [assetId, bn(0)]
+          const { precision } = asset
           const price = marketData[assetId]?.price ?? 0
           return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
         },
@@ -870,7 +880,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
   findAccountsByAssetId,
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
@@ -897,7 +907,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     )
     return aboveThreshold
   },
-)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
+)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export type AccountRowData = {
   name: string
@@ -1100,14 +1110,18 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
   selectStakingDataByFilter,
   selectAssetIdParamFromFilter,
   selectDefaultStakingDataByValidatorId,
+  selectFeatureFlags,
   (
     portfolioValidatorIds,
     validatorsData,
     stakingDataByValidator,
     assetId,
     defaultStakingData,
+    featureFlags,
   ): OpportunitiesDataFull[] => {
-    if (defaultStakingData) {
+    // used to enable/disable staking by feature flag
+    const featureFlagFilter = !(assetId === osmosisAssetId && !featureFlags.OsmosisStaking)
+    if (defaultStakingData && featureFlagFilter) {
       const dummy: OpportunitiesDataFull[] = [
         {
           isLoaded: true,
@@ -1120,6 +1134,7 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
       if (!assetId) return dummy
     }
     if (!assetId) return []
+
     return portfolioValidatorIds.map(validatorId => {
       const delegatedAmount = stakingDataByValidator
         .reduce((acc, currentStakingDataByValidator) => {

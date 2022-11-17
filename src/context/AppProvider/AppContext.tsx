@@ -17,7 +17,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -32,7 +31,6 @@ import {
   fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -54,8 +52,6 @@ import {
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-const moduleLogger = logger.child({ namespace: ['AppContext'] })
-
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
@@ -71,9 +67,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const {
-    state: { wallet, walletInfo },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
@@ -99,18 +93,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
-
-  /**
-   * handle wallet disconnect/switch logic
-   */
-  useEffect(() => {
-    const walletId: WalletId | undefined = walletInfo?.deviceId
-    const switched = Boolean(walletId)
-    const disconnected = !walletId
-    switched && moduleLogger.info('Wallet switched')
-    disconnected && moduleLogger.info('Wallet disconnected')
-    dispatch(portfolio.actions.setWalletId(walletId))
-  }, [dispatch, walletInfo?.deviceId])
 
   useEffect(() => {
     if (!wallet) return

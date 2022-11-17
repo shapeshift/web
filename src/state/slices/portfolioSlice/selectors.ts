@@ -84,11 +84,13 @@ const FEE_ASSET_IDS = [
   avalancheAssetId,
 ]
 
+export const selectWalletId = (state: ReduxState) => state.portfolio.walletId
+
 /**
  * the accountIds from the wallet, not necessarily loaded
  */
 export const selectWalletAccountIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.portfolio.walletId,
+  selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
   (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
 )

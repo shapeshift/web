@@ -6,6 +6,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -57,6 +58,7 @@ export const TradeInput = () => {
     swapperSupportsCrossAccountTrade,
     receiveAddress,
   } = useSwapper()
+  const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { control, setValue, getValues, handleSubmit } = useFormContext<TS>()
@@ -300,19 +302,28 @@ export const TradeInput = () => {
     if (!walletSupportsSellAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
-        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'Sell asset' },
+        {
+          assetSymbol:
+            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
+        },
       ]
     if (!walletSupportsBuyAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
-        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'Buy asset' },
+        {
+          assetSymbol:
+            buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
+        },
       ]
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [
         'common.insufficientAmountForGas',
-        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'sell asset' },
+        {
+          assetSymbol:
+            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
+        },
       ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
@@ -320,7 +331,10 @@ export const TradeInput = () => {
     if (!receiveAddress)
       return [
         'trade.errors.noReceiveAddress',
-        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'buy asset' },
+        {
+          assetSymbol:
+            buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
+        },
       ]
 
     return 'trade.previewTrade'
@@ -343,6 +357,7 @@ export const TradeInput = () => {
     sellTradeAsset?.amount,
     sellTradeAsset?.asset?.assetId,
     sellTradeAsset?.asset?.symbol,
+    translate,
     wallet,
     walletSupportsBuyAssetChain,
     walletSupportsSellAssetChain,

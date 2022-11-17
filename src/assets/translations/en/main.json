@@ -554,6 +554,10 @@
     },
     "errors": {
       "title": "Something went wrong",
+      "sellAssetStartSentence": "Sell asset",
+      "buyAssetStartSentence": "Buy asset",
+      "sellAssetMiddleSentence": "sell asset",
+      "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",

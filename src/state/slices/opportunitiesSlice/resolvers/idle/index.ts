@@ -97,7 +97,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 
 export const idleStakingOpportunitiesUserDataResolver = async ({
   opportunityType,
-  accountId, // TODO: Surely, idleInvestor.findAll() needs this?
+  accountId,
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
@@ -124,7 +124,6 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
       rewardsAmountCryptoPrecision = claimableTokens.map(token => {
-        // TODO: to crypto human
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
         return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
@@ -142,7 +141,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       stakedAmountCryptoPrecision: bnOrZero(balance.toString())
         .div(bn(10).pow(asset.precision))
         .toString(),
-      rewardsAmountCryptoPrecision, // TODO: Not implemented
+      rewardsAmountCryptoPrecision,
     }
   }
 

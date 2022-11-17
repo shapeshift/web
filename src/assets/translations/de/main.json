@@ -275,7 +275,8 @@
       }
     },
     "memoNote": {
-      "title": "Bitte bearbeiten Sie das Transaktionsmemo nicht"
+      "title": "Bitte bearbeiten Sie das Transaktionsmemo nicht",
+      "body": "Transaktionen, die von ShapeShift stammen, unterstützen die DAO."
     },
     "amountToStake": "Betrag für Staking",
     "amountToUnstake": "Betrag von Staking entfernen",

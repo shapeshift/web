@@ -218,13 +218,13 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
         .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
         .toString(),
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountCryptoPrecision
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
       // We will need to update them holistically after this goes in
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
-      rewardsAmountCryptoPrecision: [
-        bnOrZero(acc?.rewardsAmountCryptoPrecision[0])
-          .plus(userStakingOpportunity.rewardsAmountCryptoPrecision[0])
+      rewardsAmountsCryptoPrecision: [
+        bnOrZero(acc?.rewardsAmountsCryptoPrecision[0])
+          .plus(userStakingOpportunity.rewardsAmountsCryptoPrecision[0])
           .toString(),
       ],
     }
@@ -263,11 +263,11 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
       isLoaded: true,
       icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
       opportunityName: opportunity.name,
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountCryptoPrecision
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
       // We will need to update them holistically after this goes in
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
-      rewardsAmountCryptoPrecision: [opportunity.rewardsAmountCryptoPrecision[0]] as const,
+      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]] as const,
     }),
 )
 
@@ -301,11 +301,11 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       isLoaded: true,
       icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
       opportunityName: opportunity.name,
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountCryptoPrecision
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
       // We will need to update them holistically after this goes in
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
-      rewardsAmountCryptoPrecision: [opportunity.rewardsAmountCryptoPrecision[0]],
+      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]],
     })),
 )
 
@@ -320,19 +320,19 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
           cryptoAmount: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountCryptoPrecision
+          // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
           // We will need to update them holistically after this goes in
           // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
           // Which is fine since it isn't wired up yet
-          fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountCryptoPrecision?.[0])
-            .plus(acc?.rewardsAmountCryptoPrecision?.[0] ?? 0)
+          fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
+            .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
             .toString(),
           stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          rewardsAmountCryptoPrecision: [
-            bnOrZero(currentOpportunity?.rewardsAmountCryptoPrecision?.[0])
-              .plus(acc?.rewardsAmountCryptoPrecision?.[0] ?? 0)
+          rewardsAmountsCryptoPrecision: [
+            bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
+              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
               .toString(),
           ],
         })
@@ -442,11 +442,11 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
         .times(marketDataPrice ?? '0')
         .toString(),
       stakedAmountCryptoPrecision: userStakingOpportunity.stakedAmountCryptoPrecision ?? '0',
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountCryptoPrecision
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
       // We will need to update them holistically after this goes in
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
-      rewardsAmountCryptoPrecision: [userStakingOpportunity.rewardsAmountCryptoPrecision[0] ?? '0'],
+      rewardsAmountsCryptoPrecision: [userStakingOpportunity.rewardsAmountsCryptoPrecision[0] ?? '0'],
       opportunityName: userStakingOpportunity.name,
       icons: userStakingOpportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
@@ -521,9 +521,9 @@ export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelec
           stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          rewardsAmountCryptoPrecision: [
-            bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision[0])
-              .plus(acc?.rewardsAmountCryptoPrecision[0] ?? 0)
+          rewardsAmountsCryptoPrecision: [
+            bnOrZero(currentOpportunity.rewardsAmountsCryptoPrecision[0])
+              .plus(acc?.rewardsAmountsCryptoPrecision[0] ?? 0)
               .toString(),
           ],
         }

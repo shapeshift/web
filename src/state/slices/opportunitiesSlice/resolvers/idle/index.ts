@@ -118,12 +118,12 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
     if (!opportunity) continue
 
-    let rewardsAmountCryptoPrecision = ['0'] as [string] | [string, string]
+    let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
-      rewardsAmountCryptoPrecision = claimableTokens.map(token => {
+      rewardsAmountsCryptoPrecision = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
         return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
@@ -141,7 +141,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       stakedAmountCryptoPrecision: bnOrZero(balance.toString())
         .div(bn(10).pow(asset.precision))
         .toString(),
-      rewardsAmountCryptoPrecision,
+      rewardsAmountsCryptoPrecision,
     }
   }
 

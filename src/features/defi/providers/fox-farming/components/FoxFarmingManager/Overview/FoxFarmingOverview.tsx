@@ -122,7 +122,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   )
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
-  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountCryptoPrecision[0])
+  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountsCryptoPrecision[0])
   const hasClaim = rewardAmountAvailable.gt(0)
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.2.0...@shapeshiftoss/investor-idle-v2.3.0) (2022-11-17)
+
+
+### Features
+
+* idle tranche rewardAssetIds ([#1089](https://github.com/shapeshift/lib/issues/1089)) ([dffa46e](https://github.com/shapeshift/lib/commit/dffa46e28523ed4cc6a1c667ad6dad185332d3d4))
+
 # [@shapeshiftoss/investor-idle-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.1.5...@shapeshiftoss/investor-idle-v2.2.0) (2022-11-14)
 
 

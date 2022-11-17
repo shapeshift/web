@@ -18,6 +18,7 @@ import { numberToHex } from 'web3-utils'
 import {
   erc20Abi,
   idleCdoAbi,
+  idleStrategyAbi,
   idleTokenV4Abi,
   IdleVault,
   MAX_ALLOWANCE,
@@ -309,8 +310,23 @@ export class IdleOpportunity
   }
 
   async getRewardAssetIds(): Promise<AssetId[]> {
-    const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
-    const govTokens = await vaultContract.methods.getGovTokens().call()
+    let govTokens = []
+
+    if (this.metadata.cdoAddress) {
+      const cdoContract: Contract = new this.#internals.web3.eth.Contract(
+        idleCdoAbi,
+        this.metadata.cdoAddress,
+      )
+      const strategyContractAddress: string = await cdoContract.methods.strategy().call()
+      const strategyContract = new this.#internals.web3.eth.Contract(
+        idleStrategyAbi,
+        strategyContractAddress,
+      )
+      govTokens = await strategyContract.methods.getRewardTokens().call()
+    } else {
+      const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
+      govTokens = await vaultContract.methods.getGovTokens().call()
+    }
 
     const rewardAssetIds = govTokens.map((token: string) =>
       toAssetId({

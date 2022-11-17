@@ -25,7 +25,6 @@ export const mockStore: ReduxState = {
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
-  foxEthApi: mockApiFactory('foxEthApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
@@ -58,6 +57,7 @@ export const mockStore: ReduxState = {
       WalletConnectToDapps: false,
       MigrationMessage: false,
       DashboardBreakdown: false,
+      FiatPopup: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -89,14 +89,12 @@ export const mockStore: ReduxState = {
   txHistory: {
     txs: {
       byId: {},
-      byAssetId: {},
-      byAccountId: {},
+      byAccountIdAssetId: {},
       ids: [],
       status: 'loading',
     },
     rebases: {
-      byAssetId: {},
-      byAccountId: {},
+      byAccountIdAssetId: {},
       ids: [],
       byId: {},
     },
@@ -105,7 +103,6 @@ export const mockStore: ReduxState = {
     byValidator: {},
     validatorIds: [],
   },
-  foxEth: {},
   opportunities: {
     lp: {
       byAccountId: {},

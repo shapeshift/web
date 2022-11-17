@@ -8,14 +8,11 @@ import {
   Text as CText,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
-import { FOX_FARMING_V4_CONTRACT_ADDRESS } from 'features/defi/providers/fox-farming/constants'
-import isEqual from 'lodash/isEqual'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -25,10 +22,13 @@ import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthApi } from 'state/slices/foxEthSlice/foxEthSlice'
-import type { GetFoxFarmingContractMetricsReturn } from 'state/slices/foxEthSlice/types'
-import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
+import {
+  selectAssetById,
+  selectLpOpportunitiesById,
+  selectStakingOpportunitiesById,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -40,78 +40,21 @@ const DefiHeader = () => {
 }
 
 const FoxFarmCTA = () => {
-  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
 
-  const [lpApy, setLpApy] = useState<string | undefined>()
-  const [farmingV4Data, setFarmingV4Data] = useState<GetFoxFarmingContractMetricsReturn>()
-  const [isLpAprLoaded, setIsLpAprLoaded] = useState<boolean>(false)
-  const [isFarmingAprV4Loaded, setIsFarmingAprV4Loaded] = useState<boolean>(false)
+  const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
+  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
 
-  const filter = useMemo(() => ({ assetId: ethAssetId }), [])
-  const ethAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
-
-  useEffect(() => {
-    ;(async () => {
-      if (!ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      const metricsPromises = await Promise.all(
-        ethAccountAddresses.map(
-          async accountAddress =>
-            await dispatch(
-              foxEthApi.endpoints.getFoxEthLpMetrics.initiate({
-                accountAddress,
-              }),
-            ),
-        ),
-      )
-
-      // To get the APY, we need to fire the metrics requests for all accounts
-      // However, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const { isLoading, isSuccess, data } = metricsPromises[0]
-
-      if (isLoading || !data) return
-
-      if (isSuccess) {
-        setLpApy(data.apy)
-        setIsLpAprLoaded(true)
-      }
-    })()
-  }, [ethAccountIds, dispatch])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!ethAccountIds?.length) return
-
-      const ethAccountAddresses = ethAccountIds.map(accountId => fromAccountId(accountId).account)
-
-      const metricsPromises = await Promise.all(
-        ethAccountAddresses.map(
-          async accountAddress =>
-            await dispatch(
-              foxEthApi.endpoints.getFoxFarmingContractMetrics.initiate({
-                contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-                accountAddress,
-              }),
-            ),
-        ),
-      )
-
-      // To get the FOX farming contract metrics data, it doesn't matter which account we introspect - it's going to be the same for all accounts
-      const { isLoading, isSuccess, data } = metricsPromises[0]
-
-      if (isLoading || !data) return
-
-      if (isSuccess) {
-        setFarmingV4Data(data)
-        setIsFarmingAprV4Loaded(true)
-      }
-    })()
-  }, [ethAccountIds, dispatch])
+  const defaultLpOpportunityData = useMemo(
+    () => lpOpportunitiesById[foxEthLpAssetId],
+    [lpOpportunitiesById],
+  )
+  const defaultStakingOpportunityData = useMemo(
+    () => stakingOpportunitiesById[foxEthStakingAssetIdV5],
+    [stakingOpportunitiesById],
+  )
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -125,8 +68,8 @@ const FoxFarmCTA = () => {
       search: qs.stringify({
         provider: DefiProvider.FoxFarming,
         chainId: ethChainId,
-        contractAddress: FOX_FARMING_V4_CONTRACT_ADDRESS,
-        assetReference: UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
+        contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
+        assetReference: fromAssetId(foxEthLpAssetId).assetReference,
         rewardId: FOX_TOKEN_CONTRACT_ADDRESS,
         modal: 'overview',
       }),
@@ -161,14 +104,15 @@ const FoxFarmCTA = () => {
             {translate('defi.clickHereToEarn')}
             <span> </span>
             <Skeleton
-              as='span'
               display='inline-block'
-              isLoaded={isFarmingAprV4Loaded && isLpAprLoaded}
+              isLoaded={Boolean(
+                defaultStakingOpportunityData?.apy && defaultLpOpportunityData?.apy,
+              )}
             >
               <Amount.Percent
                 as='span'
-                value={bnOrZero(farmingV4Data?.apy)
-                  .plus(lpApy ?? 0)
+                value={bnOrZero(defaultStakingOpportunityData?.apy)
+                  .plus(defaultLpOpportunityData?.apy ?? 0)
                   .toString()}
               />
             </Skeleton>

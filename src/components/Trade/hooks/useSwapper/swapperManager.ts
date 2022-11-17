@@ -79,8 +79,8 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   }
 
   if (flags.Osmosis) {
-    const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
-    const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
+    const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
+    const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
     _swapperManager.addSwapper(osmoSwapper)
   }

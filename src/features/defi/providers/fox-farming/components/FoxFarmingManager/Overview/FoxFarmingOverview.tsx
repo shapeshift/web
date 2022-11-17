@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -17,15 +17,14 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketData,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -43,6 +42,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
+
   const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
   const marketData = useAppSelector(selectMarketData)
@@ -50,11 +50,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const { chainId, highestBalanceAccountAddress, contractAddress } = query
 
   const opportunityId = useMemo(
-    () => toAssetId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
     [contractAddress, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
-    () => ({ stakingId: opportunityId as StakingId }),
+    () => ({ stakingId: opportunityId }),
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
@@ -64,15 +64,15 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        accountId!,
-        toAssetId({
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
           chainId,
           assetNamespace: 'erc20',
           assetReference: contractAddress,
-        }) as StakingId,
+        }),
       ),
     }),
-    [accountId, chainId, contractAddress],
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
   )
   const opportunityData = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
@@ -88,32 +88,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     [accountId],
   )
 
-  // TODO: Abstract into a selector, not relying on the LP token but rather on the sum of both underlying tokens fiat value
   const underlyingAssetsFiatBalance = useMemo(() => {
-    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(2)
-    // TODO: add a stakingAssetId property in OpportunityMetadata ?
-    const foxEthLpFiatPrice = marketData?.[foxEthLpAssetId]?.price ?? '0'
+    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toString()
+    const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
-  }, [marketData, opportunityData?.stakedAmountCryptoPrecision])
+  }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])
 
-  const underlyingAssetsWithBalancesAndIcons = useMemo(
-    () =>
-      opportunityData?.underlyingAssetIds.map((assetId, i) => ({
-        ...assets[assetId],
-        cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
-          .times(fromBaseUnit(opportunityData.underlyingAssetRatios[i], assets[assetId].precision))
-          .toFixed(6)
-          .toString(),
-        icons: [underlyingAssetsIcons![i]],
-        allocationPercentage: '0.50',
-      })),
-    [
-      assets,
-      opportunityData?.stakedAmountCryptoPrecision,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.underlyingAssetRatios,
-      underlyingAssetsIcons,
-    ],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
   const lpAssetWithBalancesAndIcons = useMemo(
@@ -135,7 +117,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highestBalanceAccountId])
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.underlyingAssetId ?? ''),
+  )
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
   const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountCryptoPrecision)

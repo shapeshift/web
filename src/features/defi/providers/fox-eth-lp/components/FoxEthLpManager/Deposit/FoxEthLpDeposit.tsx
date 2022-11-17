@@ -1,6 +1,5 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
-import { fromAccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -17,15 +16,15 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
@@ -47,20 +46,27 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
     [accountId],
   )
-
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
-  const marketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity?.assetId ?? ''),
+  const underlyingAsset = useAppSelector(
+    state =>
+      foxEthLpOpportunity?.underlyingAssetId &&
+      selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId),
+  )
+  const marketData = useAppSelector(
+    state =>
+      foxEthLpOpportunity?.underlyingAssetId &&
+      selectMarketDataById(state, foxEthLpOpportunity?.underlyingAssetId),
   )
 
   const loading = useSelector(selectPortfolioLoading)
@@ -75,11 +81,15 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     })
   }
 
-  const StepConfig: DefiStepProps = useMemo(() => {
+  const StepConfig: DefiStepProps | undefined = useMemo(() => {
+    if (!underlyingAsset) return
+
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        description: translate('defi.steps.deposit.info.description', {
+          asset: underlyingAsset.symbol,
+        }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -97,15 +107,15 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, asset.symbol, handleAccountIdChange, translate])
+  }, [accountId, underlyingAsset, handleAccountIdChange, translate])
 
   useEffect(() => {
-    if (!opportunity) return
+    if (!foxEthLpOpportunity) return
 
-    dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: opportunity })
-  }, [opportunity])
+    dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
+  }, [foxEthLpOpportunity])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !underlyingAsset || !marketData || !foxEthLpOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -117,7 +127,9 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
     <DepositContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: foxEthLpOpportunityName })}
+          title={translate('modals.deposit.depositInto', {
+            opportunity: foxEthLpOpportunity.opportunityName!,
+          })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

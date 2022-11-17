@@ -5,13 +5,12 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
-import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectFoxFarmingOpportunityByContractAddress } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -36,19 +35,22 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
 
-  const { farmingAccountAddress } = useFoxEth()
-
-  const filter = useMemo(
-    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
-    [farmingAccountAddress, contractAddress],
-  )
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, filter),
+    selectUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
   )
+
   const location = useLocation()
 
   if (!opportunity) return null
-  const rewardAmount = opportunity.unclaimedRewards
 
   return (
     <SlideTransition>
@@ -62,7 +64,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={rewardAmount!}
+              amount={opportunity.rewardsAmountCryptoPrecision!}
             />
           </Route>
           <Route exact path='/status'>

@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 
 import { useBridgeRoutes } from '../hooks/useBridgeRoutes'
 import { BridgeRoutePaths } from '../types'
@@ -10,7 +11,7 @@ import { SelectAsset } from './SelectAsset'
 import { SelectChain } from './SelectChain'
 import { Status } from './Status'
 
-export const entries = ['/send/details', '/send/confirm']
+export const entries = [SendRoutes.Confirm, SendRoutes.Details]
 
 export const BridgeRoutes = () => {
   const location = useLocation()
@@ -37,9 +38,15 @@ export const BridgeRoutes = () => {
             <SelectChain onClick={handleToChainClick} {...props} />
           )}
         />
-        <Route path={BridgeRoutePaths.Input} component={BridgeInput} />
-        <Route path={BridgeRoutePaths.Confirm} component={Confirm} />
-        <Route path={BridgeRoutePaths.Status} component={Status} />
+        <Route path={BridgeRoutePaths.Input}>
+          <BridgeInput />
+        </Route>
+        <Route path={BridgeRoutePaths.Confirm}>
+          <Confirm />
+        </Route>
+        <Route path={BridgeRoutePaths.Status}>
+          <Status />
+        </Route>
         <Redirect from='/' to={BridgeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>

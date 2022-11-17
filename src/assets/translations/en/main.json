@@ -82,13 +82,18 @@
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found"
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "buyPage": {
     "title": {
       "first": "Buy Crypto",
       "second": "in Seconds"
     },
     "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
-    "disclaimer": "*You can also sell crypto directly for cash into your bank account.", 
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
@@ -276,7 +281,7 @@
     },
     "memoNote": {
       "title": "Please don't edit the transaction memo",
-      "body": "Transactions originating from ShapeShit help support the DAO."
+      "body": "Transactions originating from ShapeShift help support the DAO."
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
@@ -600,6 +605,13 @@
     "recentTrades": "Recent Trades"
   },
   "modals": {
+    "popup": {
+      "body": "We've launched a secure window to complete your order.",
+      "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
+      "continue": "Click to Continue",
+      "showWindow": "Show Window",
+      "cancel": "Cancel"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

@@ -13,10 +13,23 @@ export type OpportunityMetadata = {
   type: DefiType
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
+  // Which might or might not be the same as the AssetId, e.g
+  // - with LP staking, you stake an LP token
+  // - with Idle, you stake a yield-bearing token, so the underlyingAssetId *is* the AssetId
+  // - with Cosmos SDK, you stake the underlying asset directly, so the underlyingAssetId *is* the AssetId
   underlyingAssetId: AssetId
-  underlyingAssetIds: readonly [AssetId, AssetId]
-  // The underlying amount of underlyingAssetId 0 and 1 per 1 LP token, in base unit
-  underlyingAssetRatios: readonly [string, string]
+  // The AssetId or AssetIds this opportunity represents
+  // For LP tokens, that's an asset pair
+  // For opportunities a la Idle, that's the asset the opportunity wraps
+  underlyingAssetIds: readonly [AssetId, AssetId] | readonly [AssetId]
+  // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
+  underlyingAssetRatios: readonly [string, string] | readonly [string]
+  // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
+  // TODO: Optional for backwards compatibility, but it should always be present
+  rewardAssetIds?:
+    | readonly [AssetId, AssetId, AssetId]
+    | readonly [AssetId, AssetId]
+    | readonly [AssetId]
   expired?: boolean
   name?: string
 }
@@ -30,9 +43,11 @@ export type UserStakingOpportunity = {
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-export type StakingId = Nominal<string, 'StakingId'>
+export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
-export type LpId = Nominal<string, 'LpId'>
+export type LpId = Nominal<string, 'LpId'> & AssetId
+
+export type OpportunityId = LpId | StakingId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 
@@ -61,16 +76,24 @@ export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['b
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
-  opportunityId: LpId | StakingId
+  opportunityId: OpportunityId
   opportunityType: OpportunityDefiType
   defiType: DefiType
+  defiProvider: DefiProvider
 }
 
 export type GetOpportunityUserDataInput = {
   accountId: AccountId
-  opportunityId: LpId | StakingId
+  opportunityId: OpportunityId
   opportunityType: OpportunityDefiType
   defiType: DefiType
+  defiProvider: DefiProvider
+}
+
+export type GetOpportunityIdsInput = {
+  opportunityId: OpportunityId
+  defiType: DefiType
+  defiProvider: DefiProvider
 }
 
 export type GetOpportunityMetadataOutput = {
@@ -85,3 +108,5 @@ export type GetOpportunityUserDataOutput = {
 export type GetOpportunityUserStakingDataOutput = {
   byId: OpportunitiesState['userStaking']['byId']
 }
+
+export type GetOpportunityIdsOutput = OpportunityId[]

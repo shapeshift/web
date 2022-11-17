@@ -1,16 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import {
-  ethAssetId,
-  foxAssetId,
-  foxyAssetId,
-  fromAccountId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
@@ -21,10 +14,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
+  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserStakingOpportunities,
   selectAssetById,
-  selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress,
-  selectVisibleFoxFarmingAccountOpportunities,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,19 +42,17 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const { vaults } = useVaultBalances()
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const filter = useMemo(
+  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+
+  const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      accountAddress: accountId ? fromAccountId(accountId ?? '').account : '',
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
     }),
-    [accountId],
+    [],
   )
-
-  const visibleFoxFarmingOpportunities = useAppSelector(state =>
-    selectVisibleFoxFarmingAccountOpportunities(state, filter),
-  )
-
-  const foxEthLpOpportunitiesWrapped = useAppSelector(state =>
-    selectFoxEthLpAccountOpportunitiesByMaybeAccountAddress(state, filter),
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
@@ -76,8 +68,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     vaultArray: Object.values(vaults),
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity: foxEthLpOpportunitiesWrapped[0],
-    foxFarmingOpportunities: visibleFoxFarmingOpportunities,
+    foxEthLpOpportunity,
+    foxFarmingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
@@ -130,8 +122,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
               ml='auto'
               as={NavLink}
               to='/defi/earn'
+              rightIcon={<ArrowForwardIcon />}
             >
-              <Text translation='common.seeAll' /> <ArrowForwardIcon />
+              <Text translation='common.seeAll' />
             </Button>
           </Box>
         </HStack>

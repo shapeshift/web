@@ -47,7 +47,9 @@ export const BackupPassphraseRouter = () => {
         <Route path={BackupPassphraseRoutes.Test}>
           <BackupPassphraseTest revocableWallet={revocableWallet} />
         </Route>
-        <Route path={BackupPassphraseRoutes.Success} component={BackupPassphraseSuccess} />
+        <Route path={BackupPassphraseRoutes.Success}>
+          <BackupPassphraseSuccess />
+        </Route>
         <Redirect to={BackupPassphraseRoutes.Start} />
       </Switch>
     </AnimatePresence>

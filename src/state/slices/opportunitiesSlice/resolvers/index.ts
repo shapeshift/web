@@ -2,15 +2,34 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 
 import {
   foxFarmingLpMetadataResolver,
+  foxFarmingLpOpportunityIdsResolver,
   foxFarmingLpUserDataResolver,
   foxFarmingStakingMetadataResolver,
+  foxFarmingStakingOpportunityIdsResolver,
   foxFarmingStakingUserDataResolver,
-} from './foxfarming'
+} from './foxFarming'
+import { idleStakingOpportunitiesMetadataResolver, idleStakingOpportunityIdsResolver } from './idle'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.FoxFarming}`]: {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpMetadataResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingMetadataResolver,
+  },
+}
+
+export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
+  [`${DefiProvider.Idle}`]: {
+    [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
+  },
+}
+
+export const DefiProviderToOpportunityIdsResolverByDeFiType = {
+  [`${DefiProvider.FoxFarming}`]: {
+    [`${DefiType.LiquidityPool}`]: foxFarmingLpOpportunityIdsResolver,
+    [`${DefiType.Staking}`]: foxFarmingStakingOpportunityIdsResolver,
+  },
+  [`${DefiProvider.Idle}`]: {
+    [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
   },
 }
 

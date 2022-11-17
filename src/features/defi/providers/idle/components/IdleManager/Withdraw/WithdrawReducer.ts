@@ -22,7 +22,7 @@ export const reducer = (
 ): IdleWithdrawState => {
   switch (action.type) {
     case IdleWithdrawActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
+      return { ...state, opportunity: action.payload }
     case IdleWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case IdleWithdrawActionType.SET_USER_ADDRESS:

@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -8,7 +8,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
@@ -20,6 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -46,22 +46,20 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { assetReference, contractAddress } = query
   const opportunity = state?.opportunity
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-
-  // user info
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : ''),
-    [accountId],
+  const asset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
-  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+
+  const filter = useMemo(
+    () => ({ assetId: opportunity?.underlyingAssetId, accountId }),
+    [accountId, opportunity?.underlyingAssetId],
+  )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountAddress)
+  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,
@@ -110,6 +108,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch({ type: FoxFarmingDepositActionType.SET_DEPOSIT, payload: formValues })
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       try {
+        if (!asset) return
         // Check if approval is required for user address
         const _allowance = await foxFarmingAllowance()
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
@@ -150,7 +149,7 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      asset.precision,
+      asset,
       assetReference,
       dispatch,
       ethAsset.precision,
@@ -165,31 +164,41 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  const cryptoHumanAmountAvailable = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(asset?.precision)),
+    [asset?.precision, balance],
+  )
+  const fiatAmountAvailable = useMemo(
+    () => bnOrZero(cryptoHumanAmountAvailable).times(marketData?.price),
+    [cryptoHumanAmountAvailable, marketData?.price],
+  )
 
-  const handleCancel = browserHistory.goBack
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      if (!asset) return
+      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const _value = bnOrZero(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset, balance],
+  )
 
-  const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
-    const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      if (!asset) return
+      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const fiat = crypto.times(marketData.price)
+      const _value = bnOrZero(value)
+      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+      if (_value.isEqualTo(0)) return ''
+      return hasValidBalance || 'common.insufficientFunds'
+    },
+    [asset, balance, marketData.price],
+  )
 
-  const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
-    const fiat = crypto.times(marketData.price)
-    const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
-
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset.precision))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
-
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,
       search: qs.stringify({
@@ -197,7 +206,11 @@ export const Deposit: React.FC<DepositProps> = ({
         modal: DefiAction.Overview,
       }),
     })
-  }
+  }, [history, query])
+
+  if (!state || !dispatch || !opportunity || !asset || !marketData) return null
+
+  const handleCancel = browserHistory.goBack
 
   return (
     <ReusableDeposit
@@ -206,7 +219,7 @@ export const Deposit: React.FC<DepositProps> = ({
       rewardAsset={rewardAsset}
       inputIcons={opportunity?.icons}
       apy={String(opportunity?.apy)}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

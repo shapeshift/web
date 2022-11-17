@@ -13,7 +13,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
@@ -69,9 +70,15 @@ export const AllEarnOpportunities = () => {
     ),
   })
 
-  const filteredRows = useMemo(() => {
-    return allRows.filter(e => bnOrZero(e.tvl).gte(50000))
-  }, [allRows])
+  const filteredRows = useMemo(
+    () =>
+      allRows.filter(
+        opportunity =>
+          foxEthStakingIds.includes(opportunity.assetId as StakingId) ||
+          bnOrZero(opportunity.tvl).gte(50000),
+      ),
+    [allRows],
+  )
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {

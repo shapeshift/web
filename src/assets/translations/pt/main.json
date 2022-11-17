@@ -139,6 +139,7 @@
       "recentTransactions": "Transações Recentes"
     },
     "tradeCard": {
+      "trade": "Negocie",
       "bridge": "Bridge"
     }
   },
@@ -170,7 +171,8 @@
     "nonUS": "não residente nos EUA",
     "availableProviders": "Soluções disponíveis",
     "noProvidersAvailable": "Nenhuma solução disponível",
-    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo."
+    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo.",
+    "notSupported": "%{asset} não é suportado pela %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -311,6 +313,7 @@
     "asset": "Ativo",
     "category": "Categoria",
     "tvl": "TVL",
+    "type": "Tipo",
     "apy": "APY",
     "apr": "APR",
     "ended": "Finalizado",

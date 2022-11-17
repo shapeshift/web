@@ -35,16 +35,16 @@ export const portfolio = createSlice({
         ...state.accountMetadata.byId,
         ...payload,
       }
-      const accountIds = Object.keys(payload)
-      state.accountMetadata.ids = Array.from(new Set([...state.accountMetadata.ids, ...accountIds]))
 
-      if (!state.walletId) return
+      state.accountMetadata.ids = Object.keys(state.accountMetadata.byId)
+
+      if (!state.walletId) return // realistically, at this point, we should have a walletId set
       const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
+      const newWalletAccountIds = Object.keys(payload)
       // keep an index of what account ids belong to this wallet
-      state.wallet.byId = {
-        ...state.wallet.byId,
-        [state.walletId]: Array.from(new Set([...existingWalletAccountIds, ...accountIds])),
-      }
+      state.wallet.byId[state.walletId] = Array.from(
+        new Set([...existingWalletAccountIds, ...newWalletAccountIds]),
+      )
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       moduleLogger.debug('upserting portfolio')

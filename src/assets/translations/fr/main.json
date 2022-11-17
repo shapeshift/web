@@ -274,6 +274,10 @@
         "claimYour": "Réclamer vos %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Merci de ne pas modifier le mémo de transaction",
+      "body": "Les transactions provenant de ShapeShift aident à soutenir la DAO."
+    },
     "amountToStake": "Montant à miser",
     "amountToUnstake": "Montant à démiser",
     "confirmDetails": "Confirmer les détails",
@@ -991,6 +995,7 @@
           "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
           "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de sécurité unique pour chaque porte-monnaie.",
           "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
+          "timeout": "Votre appareil se met en veille après 10 minutes d'inactivité par défaut. Cependant, vous pouvez changer ceci.",
           "buttonPrompt": "Appuyez longuement sur le bouton de votre KeepKey pour modifier le %{setting} de l'appareil.",
           "updateSuccess": "%{setting} mis à jour avec succès !",
           "updateFailed": "Une erreur s'est produite lors de la mise à jour de %{setting}.",

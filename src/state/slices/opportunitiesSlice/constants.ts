@@ -73,7 +73,7 @@ export const baseEarnFarmingOpportunity = {
   assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmount: '',
-  rewardsAmountCryptoPrecision: '',
+  rewardsAmountsCryptoPrecision: '',
   isLoaded: false,
   type: DefiType.Farming,
 }

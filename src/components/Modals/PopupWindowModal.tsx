@@ -96,7 +96,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
             </Button>
           )}
           <Button onClick={handleCloseWindow} variant='ghost'>
-            {translate('modals.popup.cancel')}
+            {translate('common.close')}
           </Button>
         </Center>
       </ModalContent>

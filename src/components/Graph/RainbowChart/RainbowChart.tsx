@@ -2,13 +2,7 @@ import { Stack, Text } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { curveLinear } from '@visx/curve'
 import type { Margin } from '@visx/xychart'
-import {
-  AnimatedAreaSeries,
-  AnimatedAreaStack,
-  AnimatedAxis,
-  Tooltip,
-  XYChart,
-} from '@visx/xychart'
+import { AnimatedAxis, AreaSeries, AreaStack, Tooltip, XYChart } from '@visx/xychart'
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import type { Numeric } from 'd3-array'
 import { extent } from 'd3-array'
@@ -116,7 +110,7 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
-        <AnimatedAreaSeries
+        <AreaSeries
           key={assetId}
           data={data}
           dataKey={assetId}
@@ -159,9 +153,9 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   return (
     <div>
       <XYChart margin={margin} height={height} width={width} xScale={xScale} yScale={yScale}>
-        <AnimatedAreaStack order='ascending' curve={curveLinear}>
+        <AreaStack order='ascending' curve={curveLinear}>
           {areaLines}
-        </AnimatedAreaStack>
+        </AreaStack>
         <AnimatedAxis
           key={'date'}
           orientation={'bottom'}

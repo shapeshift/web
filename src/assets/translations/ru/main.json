@@ -274,6 +274,10 @@
         "claimYour": "Заклеймить свои %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Пожалуйста, не редактируйте memo транзакции  ",
+      "body": "Транзакции, происходящие из ShapeShift, помогают поддерживать DAO."
+    },
     "amountToStake": "Сумма к стейкингу",
     "amountToUnstake": "Сумма к снятию со стейкинга",
     "confirmDetails": "Подтвердить детали",

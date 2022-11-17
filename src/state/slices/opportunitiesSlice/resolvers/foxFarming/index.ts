@@ -278,11 +278,11 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)
-  const stakedAmountCryptoPrecision = bnOrZero(stakedBalance.toString())
+  const stakedAmountCryptoPrecision = bnOrZero(stakedBalance.toFixed())
     .div(bn(10).pow(lpAssetPrecision))
     .toString()
   const rewardsAmountsCryptoPrecision = [
-    bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toString(),
+    bnOrZero(earned.toFixed()).div(bn(10).pow(foxPrecision)).toFixed(),
   ] as [string]
 
   const data = {

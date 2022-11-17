@@ -223,7 +223,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
       rewardsAmountsCryptoPrecision: [
-        bnOrZero(acc?.rewardsAmountsCryptoPrecision[0])
+        bnOrZero(acc?.rewardsAmountsCryptoPrecision?.[0])
           .plus(userStakingOpportunity.rewardsAmountsCryptoPrecision[0])
           .toString(),
       ],
@@ -446,7 +446,9 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
       // We will need to update them holistically after this goes in
       // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
       // Which is fine since it isn't wired up yet
-      rewardsAmountsCryptoPrecision: [userStakingOpportunity.rewardsAmountsCryptoPrecision[0] ?? '0'],
+      rewardsAmountsCryptoPrecision: [
+        userStakingOpportunity.rewardsAmountsCryptoPrecision[0] ?? '0',
+      ],
       opportunityName: userStakingOpportunity.name,
       icons: userStakingOpportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
@@ -523,7 +525,7 @@ export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelec
             .toString(),
           rewardsAmountsCryptoPrecision: [
             bnOrZero(currentOpportunity.rewardsAmountsCryptoPrecision[0])
-              .plus(acc?.rewardsAmountsCryptoPrecision[0] ?? 0)
+              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
               .toString(),
           ],
         }

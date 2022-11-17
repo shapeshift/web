@@ -1,0 +1,95 @@
+{
+  "latest": {
+    "firmware": {
+      "version": "v7.4.0",
+      "url": "v7.4.0/firmware.keepkey.bin",
+      "hash": "43472b6fc1a3c9a2546ba771af830005f5758acbd9ea0679d4f20d480f63a040"
+    },
+    "bootloader": {
+      "version": "v2.1.4",
+      "url": "bl_v2.1.4/blupdater.bin",
+      "hash": "6bb7cfd28262fcd61c450fdc3f6932650bdf16a134ab6c1bc6f90b0d1578e620"
+    },
+    "updater": {
+      "version": "v2.1.4"
+    }
+  },
+  "beta": {
+    "firmware": {
+      "version": "v7.5.0",
+      "url": "v7.5.0/firmware.keepkey.bin",
+      "hash": "b1083a159b6ef4a576574d09c86255d02d634a41f0380ac71ecd1275bf297c09"
+    },
+    "bootloader": {
+      "version": "v2.1.4",
+      "url": "bl_v2.1.4/blupdater.bin",
+      "hash": "6bb7cfd28262fcd61c450fdc3f6932650bdf16a134ab6c1bc6f90b0d1578e620"
+    },
+    "updater": {
+      "version": "v2.1.4"
+    }
+  },
+  "hashes": {
+    "bootloader": {
+      "6397c446f6b9002a8b150bf4b9b4e0bb66800ed099b881ca49700139b0559f10": "v1.0.0",
+      "f13ce228c0bb2bdbc56bdcb5f4569367f8e3011074ccc63331348deb498f2d8f": "v1.0.0",
+      "d544b5e06b0c355d68b868ac7580e9bab2d224a1e2440881cc1bca2b816752d5": "v1.0.1",
+      "ec618836f86423dbd3114c37d6e3e4ffdfb87d9e4c6199cf3e163a67b27498a2": "v1.0.1",
+      "cd702b91028a2cfa55af43d3407ba0f6f752a4a2be0583a172983b303ab1032e": "v1.0.2",
+      "bcafb38cd0fbd6e2bdbea89fb90235559fdda360765b74e4a8758b4eff2d4921": "v1.0.2",
+      "cb222548a39ff6cbe2ae2f02c8d431c9ae0df850f814444911f521b95ab02f4c": "v1.0.3",
+      "917d1952260c9b89f3a96bea07eea4074afdcc0e8cdd5d064e36868bdd68ba7d": "v1.0.3",
+      "6465bc505586700a8111c4bf7db6f40af73e720f9e488d20db56135e5a690c4f": "v1.0.3",
+      "db4bc389335e876e942ae3b12558cecd202b745903e79b34dd2c32532708860e": "v1.0.3",
+      "2e38950143cf350345a6ddada4c0c4f21eb2ed337309f39c5dbc70b6c091ae00": "v1.0.3",
+      "83d14cb6c7c48af2a83bc326353ee6b9abdd74cfe47ba567de1cb564da65e8e9": "v1.0.3",
+      "770b30aaa0be884ee8621859f5d055437f894a5c9c7ca22635e7024e059857b7": "v1.0.4",
+      "fc4e5c4dc2e5127b6814a3f69424c936f1dc241d1daf2c5a2d8f0728eb69d20d": "v1.0.4",
+      "e45f587fb07533d832548402d0e71d8e8234881da54d86c4b699c28a6482b0ee": "v1.1.0",
+      "9bf1580d1b21250f922b68794cdadd6c8e166ae5b15ce160a42f8c44a2f05936": "v2.0.0",
+      "e1ad2667d1924e4ddbeb623bd6939e94114d8471b84f8fb056e0c9abf0c4e4f4": "v2.1.0",
+      "a3f8c745ff33cd92a7e95d37c76c65523d258a70352ea44a232038ec4ec38dea": "v2.1.1",
+      "3b97596ed612aa29a74a7f51f33ea85fd6e0cfe7340dfbb96f0c17077b363498": "v2.1.2",
+      "e6685ab14844d0a381d658d77e13d6145fe7ae80469e5a5360210ae9c3447a77": "v2.1.3",
+      "fe98454e7ebd4aef4a6db5bd4c60f52cf3f58b974283a7c1e1fcc5fea02cf3eb": "v2.1.4"
+    },
+    "firmware": {
+      "43472b6fc1a3c9a2546ba771af830005f5758acbd9ea0679d4f20d480f63a040": "v7.4.0",
+      "efcdcb32f199110e9a38010bc48d2acc66da89d41fb30c7d0b64c1ef74c90359": "v7.3.2",
+      "47f3ead32f7be5926018163a2324f7dd1c47ef0b4cebec9bd8ae380d0a803314": "v7.3.1",
+      "28932f4ee19f88936c76fb5179e3d680443fede2fa782da0e674988963190a96": "v7.3.0",
+      "c6cf79e7c2cc1b9cf7eca57aacaab5310b4dd0eff1559cda307295d753251eff": "v7.2.1",
+      "72838adfe3762760dbbbadd74c8914b783660ea0ef3b8fe340e4a663442c5549": "v7.1.8",
+      "2b7edd319536076e0a00058d0cfd1b1863c8d616ba5851668796d04966df8594": "v7.1.7",
+      "53adf5693f7c23bc30c8cad8acc6ea939b063e205a4f4201eb9bd24fdc8285f0": "v7.1.5",
+      "7a52fa75be2e3e9794c4a01e74fc2a68cd502aace13fca1f272d5296156f1499": "v7.1.4",
+      "aa5834bb591c40dffd5e083797fe25e6d5591199a781220025fa469a965d0279": "v7.1.2",
+      "eb3d8853d549671dee532b51363cffdfa2038bc7730117e72dc17bb1452de4db": "v7.1.1",
+      "d8b2b43eada45ded399f347289750a7083081186b37158b85eab41a38cbc6e50": "v7.1.0",
+      "6a5e2bcf98aeafbb2faa98ea425ac066a7b4733e5b9edb29e544bad659cb3766": "v7.0.3",
+      "24071db7596f0824e51ce971c1ec39ac5a07e7a5bcaf5f1b33313de844e25580": "v6.7.0",
+      "85a44f1872b4b4ed0d5ff062711cfd4d4d69d9274312c9e3780b7db8da9072e8": "v6.6.0",
+      "89d1b5230bbca2e02901b091cbd77207d0636e6f1956f6f27a0ecb10c43cce3d": "v6.5.1",
+      "0ef1b51a450fafd8e0586103bda38526c5d012fc260618b8df5437cba7682c5b": "v6.4.0",
+      "0e2463b777f39dc8b450aca78f55b3355e906c69d19b59e84052786c5fa8f78c": "v6.3.0",
+      "5bcbeecea0a1c78cbd11344bb31c809072a01cb775f1e42368ef275888012208": "v6.2.2",
+      "0158073bb527b3b14148641722e77346ecec66a12fc4a5b4457dc0559c63169e": "v6.2.0",
+      "f9dfd903e6d4d8189409a72b9d31897ca1753a4000a24cc1c9217f4b8141403c": "v6.1.1",
+      "4246ff0e1b71a2a6b3e89e2cfd0882dc207f96b2516640d6c5fff406c02097bf": "v6.1.0",
+      "61c157a7fbc22f4d9825909ac067277a94e44c174e77db419fbb78b361fbf4ea": "v6.0.4",
+      "14cf71b0872a5c3cda1af2007aafd9bd0d5401be927e08e5b226fe764334d515": "v6.0.2",
+      "699f75ae5936977bf4f9df0478afe40106ea21bc2d94746bbe244a7832d4c5ca": "v6.0.1",
+      "d380357b7403064d7b1ea963dc56032239541a21ef0b7e08082fb36ed470de82": "v6.0.0",
+      "a05b992c1cadb151117704a03af8b7020482061200ce7bc72f90e8e4aba01a4f": "v5.11.0"
+    }
+  },
+  "links": {
+    "app": "https://app.shapeshift.com",
+    "support": "https://shapeshift.zendesk.com",
+    "updater": "https://github.com/keepkey/keepkey-updater/releases/latest"
+  },
+  "strings": {
+    "goToApp": "Head over to ShapeShift!",
+    "updateUpdater": "Update Available"
+  }
+}

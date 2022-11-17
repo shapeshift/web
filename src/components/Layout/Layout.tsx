@@ -1,68 +1,13 @@
 import type { ContainerProps } from '@chakra-ui/react'
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Button,
   Container,
   Flex,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@keepkey/caip'
-import React, { useCallback } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
-import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectPortfolioLoadingStatus,
-  selectPortfolioLoadingStatusGranular,
-} from 'state/slices/selectors'
-import { useAppDispatch } from 'state/store'
-
+import React, { } from 'react'
 import { Header } from './Header/Header'
 import { SideNav } from './Header/SideNav'
 
-const DegradedStateBanner = () => {
-  const dispatch = useAppDispatch()
-  const translate = useTranslate()
-  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
-  const handleRetry = useCallback(() => {
-    Object.entries(portfolioLoadingStatusGranular)
-      .filter(([, accountState]) => accountState === 'error', [])
-      .forEach(([accountId]) => {
-        const { chainId, account } = fromAccountId(accountId)
-        const accountSpecifierMap = { [chainId]: account }
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountSpecifierMap },
-            { forceRefetch: true },
-          ),
-        )
-      })
-  }, [dispatch, portfolioLoadingStatusGranular])
-
-  return (
-    <Alert
-      status='warning'
-      mx={4}
-      mt={4}
-      width='auto'
-      flexDirection={{ base: 'column', lg: 'row' }}
-    >
-      <AlertIcon />
-      <AlertTitle>{translate('common.degradedState')}</AlertTitle>
-      <AlertDescription textAlign={{ base: 'center', lg: 'left' }}>
-        {translate('common.degradedInfo')}
-        <Button ml={1} variant='link' onClick={handleRetry}>
-          {translate('common.retryQuestion')}
-        </Button>
-      </AlertDescription>
-    </Alert>
-  )
-}
-
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
-  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
   return (
     <>
       <Header />
@@ -81,7 +26,6 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
           {...rest}
         >
           <>
-            {isDegradedState && <DegradedStateBanner />}
             {children}
           </>
         </Container>

@@ -1,4 +1,4 @@
-import { AlertDescription, Button, Flex, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@keepkey/caip'
 import {
   cosmosChainId,
@@ -11,7 +11,7 @@ import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { entries } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
-import uniq from 'lodash/uniq'
+// import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
@@ -29,7 +29,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+// import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountSpecifiers,
@@ -253,44 +253,44 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!erroredAccountIds.length) return // yay
 
     // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
-    const erroredAccountNames = uniq(
-      erroredAccountIds.map(accountId => assets[accountIdToFeeAssetId(accountId)].name),
-    ).join(', ')
-
-    const handleRetry = () => {
-      handleAccountErrorToastClose()
-      erroredAccountIds.forEach(accountId => {
-        const { chainId, account } = fromAccountId(accountId)
-        const accountSpecifierMap = { [chainId]: account }
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountSpecifierMap },
-            { forceRefetch: true },
-          ),
-        )
-      })
-    }
-    const toastOptions = {
-      position: 'top-right' as const,
-      id: accountErrorToastId,
-      title: translate('common.somethingWentWrong'),
-      status: 'error' as const,
-      description: (
-        <Flex flexDir='column' gap={4} alignItems='flex-start'>
-          <AlertDescription>
-            {translate('common.accountError', { erroredAccountNames })}
-          </AlertDescription>
-          <Button colorScheme='red' onClick={handleRetry}>
-            {translate('common.retry')}
-          </Button>
-        </Flex>
-      ),
-      isClosable: true,
-      duration: null, // don't auto-dismiss
-    }
-    toast.isActive(accountErrorToastId)
-      ? toast.update(accountErrorToastId, toastOptions)
-      : toast(toastOptions)
+    // const erroredAccountNames = uniq(
+    //   erroredAccountIds.map(accountId => assets[accountIdToFeeAssetId(accountId)].name),
+    // ).join(', ')
+    //
+    // const handleRetry = () => {
+    //   handleAccountErrorToastClose()
+    //   erroredAccountIds.forEach(accountId => {
+    //     const { chainId, account } = fromAccountId(accountId)
+    //     const accountSpecifierMap = { [chainId]: account }
+    //     dispatch(
+    //       portfolioApi.endpoints.getAccount.initiate(
+    //         { accountSpecifierMap },
+    //         { forceRefetch: true },
+    //       ),
+    //     )
+    //   })
+    // }
+    // const toastOptions = {
+    //   position: 'top-right' as const,
+    //   id: accountErrorToastId,
+    //   title: translate('common.somethingWentWrong'),
+    //   status: 'error' as const,
+    //   description: (
+    //     <Flex flexDir='column' gap={4} alignItems='flex-start'>
+    //       <AlertDescription>
+    //         {translate('common.accountError', { erroredAccountNames })}
+    //       </AlertDescription>
+    //       <Button colorScheme='red' onClick={handleRetry}>
+    //         {translate('common.retry')}
+    //       </Button>
+    //     </Flex>
+    //   ),
+    //   isClosable: true,
+    //   duration: null, // don't auto-dismiss
+    // }
+    // toast.isActive(accountErrorToastId)
+    //   ? toast.update(accountErrorToastId, toastOptions)
+    //   : toast(toastOptions)
   }, [
     assets,
     dispatch,

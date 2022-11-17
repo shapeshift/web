@@ -96,6 +96,7 @@ export const skipUpdateCheck = (splash: BrowserWindow) => {
         if(intervalCount >= 10) {
             clearInterval(windowShowInterval)
             splash.webContents.send("@update/errorReset")
+            setTimeout(app.quit,3000)
         }
 
         if (shouldShowWindow) {

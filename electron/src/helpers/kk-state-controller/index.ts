@@ -59,7 +59,7 @@ export class KKStateController {
         log.info("KKStateController syncState")
         const latestFirmware = await getLatestFirmwareData()
         const resultInit = await initializeWallet(this)
-
+        log.info("KKStateController resultInit: ",resultInit)
         if(resultInit.unplugged){
             log.info("KKStateController resultInit.unplugged")
             this.updateState(DISCONNECTED, {})

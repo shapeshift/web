@@ -84,7 +84,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   return { data }
 }
 
-export const idleStakingOpportunitiesUserDataResolver = ({
+export const idleStakingOpportunitiesUserDataResolver = async ({
   opportunityType,
   accountId, // TODO: Surely, idleInvestor.findAll() needs this?
   reduxApi,
@@ -105,15 +105,15 @@ export const idleStakingOpportunitiesUserDataResolver = ({
 
   const idleInvestor = getIdleInvestor()
 
-  idleStakingOpportunityIds.forEach(async stakingOpportunityId => {
+  for (const stakingOpportunityId of idleStakingOpportunityIds) {
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset || bnOrZero(balance).eq(0)) return
+    if (!asset || bnOrZero(balance).eq(0)) continue
 
     const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
-    if (!opportunity) return
+    if (!opportunity) continue
 
     let rewardsAmountCryptoPrecision = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
@@ -121,6 +121,7 @@ export const idleStakingOpportunitiesUserDataResolver = ({
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
       rewardsAmountCryptoPrecision = claimableTokens.map(token =>
+        // TODO: to crypto human
         bnOrZero(token.amount).toFixed(),
       ) as [string] | [string, string]
     }
@@ -138,7 +139,7 @@ export const idleStakingOpportunitiesUserDataResolver = ({
         .toString(),
       rewardsAmountCryptoPrecision, // TODO: Not implemented
     }
-  })
+  }
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,

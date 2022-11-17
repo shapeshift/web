@@ -5,24 +5,20 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { isSome } from 'lib/utils'
-import {
-  selectAssetById,
-  selectPortfolioCryptoBalanceByFilter,
-  selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
-} from '../types'
-import { serializeUserStakingId, toOpportunityId } from '../utils'
+} from '../../types'
+import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
-} from './types'
+} from '../types'
+import { BASE_OPPORTUNITIES_BY_ID } from './constants'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 
@@ -54,26 +50,41 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
     if (!asset) continue
 
-    const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-      moduleLogger.debug(
-        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
-      )
-    })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined
-
-    stakingOpportunitiesById[opportunityId] = {
-      apy: opportunity.apy.toFixed(),
-      assetId,
-      provider: DefiProvider.Idle,
-      tvl: opportunity.tvl.balance.toFixed(),
-      type: DefiType.Staking,
-      underlyingAssetId: assetId,
-      underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-      ...{ rewardAssetIds },
-      // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
-      underlyingAssetRatios: ['1'],
-      name: asset.name,
+    const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
+    if (!baseOpportunity) {
+      moduleLogger.warn(`
+        No base opportunity found for ${opportunityId} in BASE_OPPORTUNITIES_BY_ID, refetching.
+        Add me to avoid re-fetching from the contract.
+        `)
     }
+    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
+    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
+    stakingOpportunitiesById[opportunityId] = baseOpportunity
+      ? {
+          ...baseOpportunity,
+          apy: opportunity.apy.toFixed(),
+          tvl: opportunity.tvl.balance.toFixed(),
+        }
+      : {
+          apy: opportunity.apy.toFixed(),
+          assetId,
+          provider: DefiProvider.Idle,
+          tvl: opportunity.tvl.balance.toFixed(),
+          type: DefiType.Staking,
+          underlyingAssetId: assetId,
+          underlyingAssetIds: [opportunity.underlyingAsset.assetId],
+          ...{
+            rewardAssetIds: (await opportunity.getRewardAssetIds().catch(error => {
+              moduleLogger.debug(
+                { fn: 'idleStakingOpportunitiesMetadataResolver', error },
+                `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
+              )
+            })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined,
+          },
+          // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
+          underlyingAssetRatios: ['1'],
+          name: asset.name,
+        }
   }
 
   const data = {
@@ -88,24 +99,16 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
   opportunityType,
   accountId, // TODO: Surely, idleInvestor.findAll() needs this?
   reduxApi,
+  opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-
-  // TODO: We can do better and await the opportunity IDs query
-  const stakingOpportunitiesById = selectStakingOpportunitiesById(state)
-  const idleStakingOpportunityIds = Object.values(stakingOpportunitiesById)
-    .filter(
-      stakingOpportunity =>
-        isSome(stakingOpportunity) && stakingOpportunity.provider === DefiProvider.Idle,
-    )
-    .map(stakingOpportunity => stakingOpportunity!.assetId)
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
   const idleInvestor = getIdleInvestor()
 
-  for (const stakingOpportunityId of idleStakingOpportunityIds) {
+  for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
@@ -120,10 +123,12 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
-      rewardsAmountCryptoPrecision = claimableTokens.map(token =>
+      rewardsAmountCryptoPrecision = claimableTokens.map(token => {
         // TODO: to crypto human
-        bnOrZero(token.amount).toFixed(),
-      ) as [string] | [string, string]
+        const asset = selectAssetById(state, token.assetId)
+        if (!asset) return '0'
+        return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
+      }) as [string] | [string, string]
     }
 
     const toAssetIdParts: ToAssetIdArgs = {

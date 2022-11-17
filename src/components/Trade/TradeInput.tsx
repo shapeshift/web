@@ -476,7 +476,7 @@ export const TradeInput = () => {
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
-          size='lg'
+          size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
           isLoading={isLoading}

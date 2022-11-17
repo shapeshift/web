@@ -22,6 +22,8 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { store } from 'state/store'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
@@ -150,6 +152,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      const deviceId = action?.payload?.deviceId
+      // set walletId in redux store
+      store.dispatch(portfolio.actions.setWalletId(deviceId))
       return {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
@@ -157,7 +162,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         walletInfo: {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
-          deviceId: action?.payload?.deviceId,
+          deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
             address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
@@ -288,6 +293,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
+      // reset walletId in redux store
+      store.dispatch(portfolio.actions.setWalletId(undefined))
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {

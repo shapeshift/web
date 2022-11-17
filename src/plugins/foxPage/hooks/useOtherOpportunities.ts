@@ -5,10 +5,9 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   foxEthLpAssetId,
-  foxEthStakingAssetIdV4,
-  v4EarnFarmingOpportunity,
+  foxEthStakingAssetIdV5,
+  v5EarnFarmingOpportunity,
 } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -24,7 +23,7 @@ import { OpportunityTypes } from '../FoxCommon'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const highestFarmingBalanceAccountIdFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV4 as StakingId,
+      stakingId: foxEthStakingAssetIdV5,
     }),
     [],
   )
@@ -35,31 +34,31 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
 
   const defaultLpOpportunityData = useMemo(
-    () => lpOpportunitiesById[foxEthLpAssetId as LpId],
+    () => lpOpportunitiesById[foxEthLpAssetId],
     [lpOpportunitiesById],
   )
   const lpOpportunityId = foxEthLpAssetId
   const highestBalanceLpAccountIdFilter = useMemo(
-    () => ({ lpId: lpOpportunityId as LpId }),
+    () => ({ lpId: lpOpportunityId }),
     [lpOpportunityId],
   )
   const highestBalanceLpAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
-  const farmingv4EarnOpportunityFilter = useMemo(
+  const farmingv5EarnOpportunityFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV4 as StakingId,
+      stakingId: foxEthStakingAssetIdV5,
     }),
     [],
   )
-  const farmingv4EarnOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserStakingOpportunityByStakingId(state, farmingv4EarnOpportunityFilter),
+  const farmingv5EarnOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, farmingv5EarnOpportunityFilter),
   )
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
     [],
@@ -75,17 +74,17 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           type: OpportunityTypes.Farming,
           title: 'plugins.foxPage.farming',
           opportunities: [
-            ...(farmingv4EarnOpportunity
+            ...(farmingv5EarnOpportunity
               ? [
                   {
-                    ...farmingv4EarnOpportunity,
+                    ...farmingv5EarnOpportunity,
                     isLoaded: true,
-                    apy: Boolean(defaultLpOpportunityData && farmingv4EarnOpportunity)
-                      ? bnOrZero(farmingv4EarnOpportunity?.apy)
+                    apy: Boolean(defaultLpOpportunityData && farmingv5EarnOpportunity)
+                      ? bnOrZero(farmingv5EarnOpportunity?.apy)
                           .plus(defaultLpOpportunityData?.apy ?? 0)
                           .toString()
                       : undefined,
-                    contractAddress: v4EarnFarmingOpportunity.contractAddress,
+                    contractAddress: v5EarnFarmingOpportunity.contractAddress,
                     highestBalanceAccountAddress:
                       highestFarmingBalanceAccountId &&
                       fromAccountId(highestFarmingBalanceAccountId).account,
@@ -150,7 +149,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   }, [
     assetId,
     defaultLpOpportunityData,
-    farmingv4EarnOpportunity,
+    farmingv5EarnOpportunity,
     foxEthLpOpportunity,
     highestBalanceLpAccountId,
     highestFarmingBalanceAccountId,

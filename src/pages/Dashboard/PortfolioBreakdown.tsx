@@ -9,7 +9,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectPortfolioTotalFiatBalanceWithStakingData,
@@ -62,7 +61,7 @@ export const PortfolioBreakdown = () => {
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId as LpId,
+      lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
     }),
     [],

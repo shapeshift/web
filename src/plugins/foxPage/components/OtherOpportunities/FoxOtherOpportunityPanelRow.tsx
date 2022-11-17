@@ -1,8 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -14,7 +13,7 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { LpId, StakingId } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -37,24 +36,26 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
   const opportunityId = useMemo(
     () =>
       opportunity.contractAddress &&
-      (toAssetId({
+      toOpportunityId({
         assetReference: opportunity.contractAddress,
         assetNamespace: 'erc20',
         chainId: ethChainId,
-      }) as LpId | StakingId),
+      }),
     [opportunity.contractAddress],
   )
 
-  const earnOpportunity = useAppSelector(state =>
-    opportunity.type === DefiType.LiquidityPool
+  const earnOpportunity = useAppSelector(state => {
+    if (!opportunityId) return
+
+    return opportunity.type === DefiType.LiquidityPool
       ? selectAggregatedEarnUserLpOpportunity(state, {
-          assetId: opportunityId as AssetId | undefined,
-          lpId: opportunityId as LpId | undefined,
+          assetId: opportunityId,
+          lpId: opportunityId,
         })
       : selectAggregatedEarnUserStakingOpportunityByStakingId(state, {
-          stakingId: opportunityId as StakingId,
-        }),
-  )
+          stakingId: opportunityId,
+        })
+  })
 
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
   const hasActivePosition = bnOrZero(earnOpportunity?.cryptoAmount).gt(0) ?? false

@@ -51,7 +51,7 @@ export default function register(): Plugins {
       'pendoAnalytics',
       {
         name: 'pendoAnalytics',
-        featureFlag: 'Pendo',
+        featureFlag: ['Pendo'],
         icon: <OptInIcon />,
         onLoad: () => VisitorDataManager.load(),
       },

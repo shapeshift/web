@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
@@ -8,7 +8,10 @@ import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
+import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'
@@ -18,11 +21,15 @@ import { supportsStaking } from './components/modals/Staking/StakingCommon'
 
 type AssetDetailsProps = {
   assetId: AssetId
+  chainId: ChainId
   accountId?: AccountId
 }
 
-export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
+export const CosmosAssetAccountDetails = ({ assetId, chainId, accountId }: AssetDetailsProps) => {
+  const featureFlags = useAppSelector(selectFeatureFlags)
   const assetIds = useMemo(() => [assetId], [assetId])
+  const { buyAssetId } = getDefaultAssetIdPairByChainId(chainId, featureFlags)
+
   return (
     <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
@@ -42,7 +49,7 @@ export const CosmosAssetAccountDetails = ({ assetId, accountId }: AssetDetailsPr
           <AssetTransactionHistory assetId={assetId} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard defaultBuyAssetId={assetId} />
+          <TradeCard defaultBuyAssetId={buyAssetId} />
           <AssetMarketData assetId={assetId} />
           <AssetDescription assetId={assetId} />
         </Stack>

@@ -225,6 +225,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     [asset?.chainId, asset.precision, asset.symbol, marketData.price],
   )
 
+  if (stakingOpportunitiesData.length === 0) return null
+
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>

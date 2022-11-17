@@ -37,18 +37,18 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, contractAddress } = query
   const opportunity = state?.opportunity
   const { allowance, approve, getStakeGasData } = useFoxFarming(contractAddress)
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

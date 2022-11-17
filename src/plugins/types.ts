@@ -8,7 +8,7 @@ export type Plugins = [chainId: string, chain: Plugin][]
 export interface Plugin {
   name: string
   icon?: JSX.Element
-  featureFlag?: keyof FeatureFlags
+  featureFlag?: (keyof FeatureFlags)[]
   onLoad?: () => void
   providers?: {
     chainAdapters?: [ChainId, () => ChainAdapter<ChainId>][]

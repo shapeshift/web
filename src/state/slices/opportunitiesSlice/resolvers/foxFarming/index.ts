@@ -281,15 +281,15 @@ export const foxFarmingStakingUserDataResolver = async ({
   const stakedAmountCryptoPrecision = bnOrZero(stakedBalance.toString())
     .div(bn(10).pow(lpAssetPrecision))
     .toString()
-  const rewardsAmountCryptoPrecision = bnOrZero(earned.toString())
-    .div(bn(10).pow(foxPrecision))
-    .toString()
+  const rewardsAmountsCryptoPrecision = [
+    bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toFixed(),
+  ] as [string]
 
   const data = {
     byId: {
       [serializeUserStakingId(accountId, opportunityId)]: {
         stakedAmountCryptoPrecision,
-        rewardsAmountCryptoPrecision,
+        rewardsAmountsCryptoPrecision,
       },
     },
     type: opportunityType,

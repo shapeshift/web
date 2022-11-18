@@ -80,7 +80,8 @@
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "enterAmount": "Enter Amount",
-    "pageNotFound": "The page you're looking for cannot be found"
+    "pageNotFound": "The page you're looking for cannot be found",
+    "buySell": "Buy/Sell"
   },
   "errorPage": {
     "title": "Oops!",

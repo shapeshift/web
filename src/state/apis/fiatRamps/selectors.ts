@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { createSelector } from 'reselect'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAssetIdParamFromFilter, selectFiatRampActionFromFilter } from 'state/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectMarketData } from 'state/slices/selectors'
 
@@ -32,5 +33,17 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
       acc.push({ ...assetData, ...marketData })
       return acc
     }, [])
+  },
+)
+export const selectSupportsFiatRampByAssetId = createSelector(
+  selectFiatBuyAssetIds,
+  selectFiatSellAssetIds,
+  selectAssetIdParamFromFilter,
+  selectFiatRampActionFromFilter,
+  (buyAssetIds, sellAssetIds, assetId, fiatRampAction): boolean => {
+    if (!assetId) return false
+    if (!fiatRampAction) return false
+    const targetArray = fiatRampAction === 'buy' ? buyAssetIds : sellAssetIds
+    return targetArray.includes(assetId)
   },
 )

@@ -1,17 +1,18 @@
-import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Link, Stack } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Button, Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { tokenOrUndefined } from 'lib/utils'
+import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,13 +27,15 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
 
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
-  const { send, receive } = useModal()
+  const { send, receive, fiatRamps } = useModal()
   const translate = useTranslate()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const filter = useMemo(() => ({ assetId, fiatRampAction: FiatRampAction.Buy }), [assetId])
+  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
   useEffect(() => {
     const isValid =
@@ -51,12 +54,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
-  const { assetReference } = fromAssetId(asset.assetId)
-  const maybeToken = tokenOrUndefined(assetReference)
-
-  // If token is undefined, redirect to the basic explorer link
-  // else redirect to the token explorer link
-  const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
+  const handleBuySellClick = useCallback(() => {
+    fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy, accountId })
+  }, [accountId, assetId, fiatRamps])
 
   return (
     <Stack
@@ -65,17 +65,13 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       direction={{ base: 'column-reverse', md: 'row' }}
       width={{ base: 'full', md: 'auto' }}
     >
-      <Button
-        as={Link}
-        leftIcon={<ExternalLinkIcon />}
-        href={href}
-        variant='solid'
-        width={{ base: '100%', md: 'auto' }}
-        isExternal
-      >
-        {translate('defi.viewOnChain')}
-      </Button>
-      <Stack direction='row'>
+      <Flex direction='row' gap={2}>
+        {assetSupportsBuy && (
+          <Button onClick={handleBuySellClick} leftIcon={<FaCreditCard />}>
+            {translate('common.buySell')}
+          </Button>
+        )}
+
         <Button
           onClick={handleSendClick}
           leftIcon={<ArrowUpIcon />}
@@ -94,7 +90,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
         >
           {translate('common.receive')}
         </Button>
-      </Stack>
+      </Flex>
     </Stack>
   )
 }

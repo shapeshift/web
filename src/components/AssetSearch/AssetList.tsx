@@ -1,6 +1,7 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { FC } from 'react'
 import { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -19,12 +20,12 @@ export type AssetData = {
 
 type AssetListProps = AssetData & ListProps
 
-export const AssetList = ({
+export const AssetList: FC<AssetListProps> = ({
   assets,
   handleClick,
   disableUnsupported = false,
   hideZeroBalanceAmounts = true,
-}: AssetListProps) => {
+}) => {
   const assetId = useRouteAssetId()
   const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<AssetData>>({
     deps: [assetId],

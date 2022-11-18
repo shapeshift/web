@@ -5,7 +5,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import orderBy from 'lodash/orderBy'
-import type { FormEvent } from 'react'
+import type { FC, FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -47,7 +47,7 @@ export type AssetSearchProps = {
   hideZeroBalanceAmounts?: boolean
 }
 
-export const AssetSearch = ({
+export const AssetSearch: FC<AssetSearchProps> = ({
   onClick,
   filterBy,
   disableUnsupported,
@@ -55,7 +55,7 @@ export const AssetSearch = ({
   accountId,
   assetListAsDropdown,
   hideZeroBalanceAmounts,
-}: AssetSearchProps) => {
+}) => {
   const translate = useTranslate()
   const history = useHistory()
   const assets = useSelector(selectAssetsByMarketCap)

@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import type { FC } from 'react'
 import { useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
@@ -15,7 +16,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const AssetRow: React.FC<ListChildComponentProps<AssetData>> = ({
+export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
   data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts },
   index,
   style,
@@ -32,7 +33,6 @@ export const AssetRow: React.FC<ListChildComponentProps<AssetData>> = ({
     selectPortfolioCryptoHumanBalanceByFilter(s, filter),
   )
   const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
-
   if (!asset) return null
 
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())

@@ -12,7 +12,6 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
@@ -98,19 +97,17 @@ export const Header = () => {
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        <AnimatePresence exitBeforeEnter>
-          <SlideFade in={!!isLoading}>
-            <Progress
-              isIndeterminate
-              position='absolute'
-              top={0}
-              left={0}
-              width='100%'
-              size='xs'
-              bg='transparent'
-            />
-          </SlideFade>
-        </AnimatePresence>
+        <SlideFade in={!!isLoading} reverse>
+          <Progress
+            isIndeterminate
+            position='absolute'
+            top={0}
+            left={0}
+            width='100%'
+            size='xs'
+            bg='transparent'
+          />
+        </SlideFade>
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'

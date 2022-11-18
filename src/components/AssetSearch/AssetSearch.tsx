@@ -1,13 +1,17 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import type { InputProps } from '@chakra-ui/react'
+import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { debounce } from 'lodash'
 import orderBy from 'lodash/orderBy'
 import type { FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router'
+import { Card } from 'components/Card/Card'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
@@ -34,11 +38,12 @@ export enum AssetSearchOrder {
 }
 
 export type AssetSearchProps = {
-  onClick: (asset: Asset) => void
+  onClick?: (asset: Asset) => void
   filterBy?: (asset: Asset[]) => Asset[] | undefined
   sortOrder?: AssetSearchOrder
   disableUnsupported?: boolean
   accountId?: AccountId
+  assetListAsDropdown?: boolean
 }
 
 export const AssetSearch = ({
@@ -47,8 +52,10 @@ export const AssetSearch = ({
   disableUnsupported,
   sortOrder = AssetSearchOrder.UserBalanceMarketCap,
   accountId,
+  assetListAsDropdown,
 }: AssetSearchProps) => {
   const translate = useTranslate()
+  const history = useHistory()
   const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
@@ -56,6 +63,19 @@ export const AssetSearch = ({
     () => (filterBy ? filterBy(assets) : assets) ?? [],
     [assets, filterBy],
   )
+  const [isFocused, setIsFocused] = useState(false)
+  const debounceBlur = debounce(() => setIsFocused(false), 150)
+
+  // If a custom click handler isn't provided navigate to the asset's page
+  const defaultClickHandler = (asset: Asset) => {
+    // AssetId has a `/` separator so the router will have to parse 2 variables
+    // e.g., /assets/:chainId/:assetSubId
+    const url = `/assets/${asset.assetId}`
+    history.push(url)
+    setIsFocused(false)
+  }
+
+  const handleClick = onClick ?? defaultClickHandler
 
   const marketData = useAppSelector(selectMarketData)
   const sortedAssets = useMemo(() => {
@@ -126,41 +146,69 @@ export const AssetSearch = ({
   }, [searchString])
 
   const listAssets = searching ? searchTermAssets : sortedAssets
+  const inputProps: InputProps = {
+    ...register('search'),
+    type: 'text',
+    placeholder: translate('common.search'),
+    pl: 10,
+    variant: 'filled',
+    autoComplete: 'off',
+    ...(() =>
+      assetListAsDropdown
+        ? { onBlur: debounceBlur, onFocus: () => setIsFocused(true) }
+        : { autoFocus: true })(),
+  }
 
-  return (
+  const searchElement: JSX.Element = (
+    <Box
+      as='form'
+      mb={3}
+      px={4}
+      visibility='visible'
+      onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
+    >
+      <InputGroup size='lg'>
+        {/* Override zIndex to prevent element displaying on overlay components */}
+        <InputLeftElement pointerEvents='none' zIndex={1}>
+          <SearchIcon color='gray.300' />
+        </InputLeftElement>
+        <Input {...inputProps} />
+      </InputGroup>
+    </Box>
+  )
+
+  const assetSearchWithAssetList: JSX.Element = (
     <>
-      <Box
-        as='form'
-        mb={3}
-        px={4}
-        visibility='visible'
-        onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
-      >
-        <InputGroup size='lg'>
-          <InputLeftElement pointerEvents='none'>
-            <SearchIcon color='gray.300' />
-          </InputLeftElement>
-          <Input
-            {...register('search')}
-            type='text'
-            placeholder={translate('common.search')}
-            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-            pl={10}
-            variant='filled'
-            autoComplete='off'
-          />
-        </InputGroup>
-      </Box>
+      {searchElement}
       {listAssets && (
         <Box flex={1}>
           <AssetList
             mb='10'
             assets={listAssets}
-            handleClick={onClick}
+            handleClick={handleClick}
             disableUnsupported={disableUnsupported}
           />
         </Box>
       )}
     </>
   )
+
+  const assetSearchWithAssetDropdown: JSX.Element = (
+    <Box position='relative' maxWidth='xl'>
+      {searchElement}
+      {isFocused && (
+        <SlideFade in={isFocused}>
+          <Card position='absolute' width='100%' mt={2} zIndex='banner'>
+            <Card.Body p={2}>
+              <Box flex={1} height={300}>
+                <AssetList mb='10' assets={listAssets} handleClick={handleClick} />
+              </Box>
+            </Card.Body>
+          </Card>
+        </SlideFade>
+      )}
+    </Box>
+  )
+
+  return assetListAsDropdown ? assetSearchWithAssetDropdown : assetSearchWithAssetList
 }

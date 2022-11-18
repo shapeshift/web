@@ -3,12 +3,12 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useTranslate } from 'react-polyglot'
+import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
 import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
-import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
@@ -64,7 +64,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             </Box>
           )}
           <Box width='full'>
-            <AutoCompleteSearch />
+            <AssetSearch assetListAsDropdown />
           </Box>
         </Flex>
       )}

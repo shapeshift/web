@@ -32,9 +32,18 @@ import type {
 } from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
 
+/**
+ * the accountIds from the wallet, not necessarily loaded
+ */
+// Redeclared because of circular deps, don't export me
+const selectWalletAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.portfolio.walletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
 // Redeclared because of circular deps, don't export me
 const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.portfolio.accountMetadata.ids,
+  selectWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
@@ -45,15 +54,28 @@ const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
-export const selectUserStakingIds = (state: ReduxState) => state.opportunities.userStaking.ids
+export const selectUserStakingIds = createDeepEqualOutputSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.ids,
+  (walletAccountIds, userStakingIds): UserStakingId[] =>
+    userStakingIds.filter(userStakingId =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
-export const selectUserStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.userStaking.byId
+export const selectUserStakingOpportunitiesById = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.byId,
+  (walletAccountIds, userStakingById) =>
+    pickBy(userStakingById, (_userStaking, userStakingId) =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 

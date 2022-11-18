@@ -32,9 +32,18 @@ import type {
 } from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
 
+/**
+ * the accountIds from the wallet, not necessarily loaded
+ */
+// Redeclared because of circular deps, don't export me
+const selectWalletAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.portfolio.walletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
 // Redeclared because of circular deps, don't export me
 const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.portfolio.accountMetadata.ids,
+  selectWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>

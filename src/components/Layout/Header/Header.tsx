@@ -7,9 +7,12 @@ import {
   Flex,
   HStack,
   IconButton,
+  Progress,
+  SlideFade,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
@@ -18,6 +21,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ChainMenu } from './NavBar/ChainMenu'
@@ -26,6 +30,8 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const isLoading = useIsAnyApiFetching()
+
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -58,6 +64,30 @@ export const Header = () => {
 
   return (
     <>
+      {isDemoWallet && (
+        <Box
+          bg='blue.500'
+          width='full'
+          paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
+          paddingBottom={{ base: '0.5rem', md: 0 }}
+          minHeight='2.5rem'
+          fontSize={{ base: 'sm', md: 'md' }}
+          as='button'
+          onClick={handleBannerClick}
+        >
+          <HStack
+            verticalAlign='middle'
+            justifyContent='center'
+            spacing={3}
+            color='white'
+            wrap='wrap'
+          >
+            <InfoIcon boxSize='1.3em' />
+            <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
+            <Text display='inline' translation='navBar.clickToConnect' />
+          </HStack>
+        </Box>
+      )}
       <Flex
         direction='column'
         bg={bg}
@@ -67,30 +97,21 @@ export const Header = () => {
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        {isDemoWallet && (
-          <Box
-            bg='blue.500'
-            width='full'
-            paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
-            paddingBottom={{ base: '0.5rem', md: 0 }}
-            minHeight='2.5rem'
-            fontSize={{ base: 'sm', md: 'md' }}
-            as='button'
-            onClick={handleBannerClick}
-          >
-            <HStack
-              verticalAlign='middle'
-              justifyContent='center'
-              spacing={3}
-              color='white'
-              wrap='wrap'
-            >
-              <InfoIcon boxSize='1.3em' />
-              <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
-              <Text display='inline' translation='navBar.clickToConnect' />
-            </HStack>
-          </Box>
-        )}
+        <AnimatePresence exitBeforeEnter initial={true}>
+          {isLoading && (
+            <SlideFade in={true} reverse>
+              <Progress
+                isIndeterminate
+                position='absolute'
+                top={0}
+                left={0}
+                width='100%'
+                size='xs'
+                bg='transparent'
+              />
+            </SlideFade>
+          )}
+        </AnimatePresence>
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'
@@ -110,7 +131,7 @@ export const Header = () => {
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Link to='/'>
-                <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
+                <FoxIcon boxSize='7' />
               </Link>
             </Flex>
             <HStack

@@ -45,6 +45,8 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  swapperApi,
+  foxyApi,
   fiatRampApi,
   opportunitiesApi,
 }

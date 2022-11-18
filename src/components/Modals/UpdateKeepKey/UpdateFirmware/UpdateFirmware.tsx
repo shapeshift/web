@@ -3,28 +3,34 @@ import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
 import { useModal } from 'hooks/useModal/useModal'
 
+
 export const UpdateFirmware = (params: any) => {
   const { updateKeepKey, requestBootloaderMode } = useModal()
   const { isOpen } = updateKeepKey
 
-  const handleUpdateFirmware = async () => {
+  const onAcceptUpdate = async () => {
+    console.log("onAcceptUpdate: ")
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
 
-  const onAcceptUpdate = async () => {
-    //updateBootloader
-    requestBootloaderMode.open({})
-  }
-
   // const onSkipUpdate = async () => {
-  //
+  //   console.log("onSkipUpdate: ")
+  //   ipcRenderer.send('onCompleteFirmwareUpload',{})
   // }
 
   useEffect(() => {
     if (isOpen) {
-      handleUpdateFirmware()
+      console.log("isOpen: ")
+      ipcRenderer.send('@keepkey/update-firmware', {})
     }
   }, [isOpen])
+
+  useEffect(() => {
+    console.log("params: ",params)
+    if(!params?.event?.bootloaderMode){
+      requestBootloaderMode.open({})
+    }
+  }, [params?.event])
 
   return (
     <ModalBody pt={5}>

@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { FC } from 'react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
@@ -16,7 +17,11 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import { breakpoints } from 'theme/theme'
 
-export const AssetSearchModal: React.FC<AssetSearchProps> = ({
+interface AssetSearchModalProps extends AssetSearchProps {
+  onClick: Required<AssetSearchProps>['onClick']
+}
+
+export const AssetSearchModal: FC<AssetSearchModalProps> = ({
   onClick,
   filterBy,
   disableUnsupported,

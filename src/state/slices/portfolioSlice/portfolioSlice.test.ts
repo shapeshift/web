@@ -31,8 +31,8 @@ import {
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
   selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
+  selectPortfolioFiatBalancesByAccount,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -375,7 +375,7 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
         expect(fiatAccountBalance).toEqual(returnValue)
       })
 
@@ -395,7 +395,7 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
         expect(fiatAccountBalance).toEqual(returnValue)
       })
     })

@@ -11,11 +11,7 @@ import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import {
-  selectAssets,
-  selectPortfolioAccountMetadata,
-  selectWalletAccountIds,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -42,29 +38,21 @@ export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRa
     state: { wallet, isDemoWallet },
   } = useWallet()
 
-  const assets = useSelector(selectAssets)
   const { data: ramps } = useGetFiatRampsQuery()
-
   const { assetSearch } = useModal()
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
       const assetIds =
-        fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds
-      const listOfAssets = assetIds?.reduce<Asset[]>((acc, assetId) => {
-        const asset = assets[assetId]
-        if (!asset) return acc
-        acc.push(asset)
-        return acc
-      }, [])
+        (fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds) ?? []
       assetSearch.open({
         onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        filterBy: () => listOfAssets,
+        filterBy: (assets: Asset[]) => assets.filter(asset => assetIds.includes(asset.assetId)),
         disableUnsupported: true,
       })
     },
-    [assetSearch, assets, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
+    [assetSearch, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
   )
 
   /**

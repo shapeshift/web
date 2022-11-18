@@ -1,6 +1,7 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
   Center,
   Drawer,
   DrawerContent,
@@ -9,6 +10,7 @@ import {
   HStack,
   IconButton,
   SlideFade,
+  Tooltip,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -59,12 +61,6 @@ export const Header = () => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
-  })
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
@@ -122,10 +118,14 @@ export const Header = () => {
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
               <Center boxSize={7} ml={{ base: 0, '2xl': 4 }}>
-                <AnimatePresence>
+                <AnimatePresence exitBeforeEnter>
                   {isLoading ? (
                     <SlideFade key='loading' in={true}>
-                      <CircularProgress size='18px' />
+                      <Tooltip label='Something something loading'>
+                        <Box>
+                          <CircularProgress size={6} />
+                        </Box>
+                      </Tooltip>
                     </SlideFade>
                   ) : (
                     <SlideFade key='icon' in={true}>
@@ -145,6 +145,7 @@ export const Header = () => {
             >
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
+            <Button onClick={() => setIsLoading(!isLoading)}>Do Shit</Button>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />

@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import type { AssetData } from 'components/AssetSearch/AssetList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { firstNonZeroDecimal } from 'lib/math'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -14,13 +15,17 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
+export const AssetRow: React.FC<ListChildComponentProps<AssetData>> = ({
+  data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts },
+  index,
+  style,
+}) => {
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
   const {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const asset: Asset = data.items[index]
-  const assetId = asset.assetId
+  const asset: Asset | undefined = assets[index]
+  const assetId = asset?.assetId
   const filter = useMemo(() => ({ assetId }), [assetId])
   const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
   const cryptoHumanBalance = useAppSelector(s =>
@@ -30,7 +35,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
 
   if (!asset) return null
 
-  const { handleClick, disableUnsupported } = data
+  const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
 
   return (
     <Button
@@ -60,7 +65,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
           </Text>
         </Box>
       </Flex>
-      {isConnected && !isDemoWallet && (
+      {isConnected && !isDemoWallet && !hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
           <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={fiatBalance} />
           <Amount.Crypto

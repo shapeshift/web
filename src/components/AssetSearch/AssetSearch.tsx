@@ -44,6 +44,7 @@ export type AssetSearchProps = {
   disableUnsupported?: boolean
   accountId?: AccountId
   assetListAsDropdown?: boolean
+  hideZeroBalanceAmounts?: boolean
 }
 
 export const AssetSearch = ({
@@ -53,6 +54,7 @@ export const AssetSearch = ({
   sortOrder = AssetSearchOrder.UserBalanceMarketCap,
   accountId,
   assetListAsDropdown,
+  hideZeroBalanceAmounts,
 }: AssetSearchProps) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -201,7 +203,12 @@ export const AssetSearch = ({
           <Card position='absolute' width='100%' mt={2} zIndex='banner'>
             <Card.Body p={2}>
               <Box flex={1} height={300}>
-                <AssetList mb='10' assets={listAssets} handleClick={handleClick} />
+                <AssetList
+                  mb='10'
+                  assets={listAssets}
+                  handleClick={handleClick}
+                  hideZeroBalanceAmounts={hideZeroBalanceAmounts}
+                />
               </Box>
             </Card.Body>
           </Card>

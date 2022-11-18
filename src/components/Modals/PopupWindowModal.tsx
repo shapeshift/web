@@ -45,7 +45,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 
-  const handleCloseWindow = useCallback(() => popupWindow?.close?.(), [popupWindow])
+  const handleCloseWindow = useCallback(() => {
+    popupWindow?.close?.()
+    popup.close()
+  }, [popup, popupWindow])
 
   const handleContinue = useCallback(() => window.open(url, '_blank')?.focus(), [url])
 
@@ -78,6 +81,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
           height={height}
           flexDirection='column'
           textAlign='center'
+          px={6}
           gap={6}
           position='relative'
         >

@@ -1,7 +1,6 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Center,
   Drawer,
   DrawerContent,
@@ -16,7 +15,8 @@ import {
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -25,6 +25,7 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectIsAnyApiFetching } from 'state/reducer'
 
 import { ChainMenu } from './NavBar/ChainMenu'
 import { UserMenu } from './NavBar/UserMenu'
@@ -32,8 +33,8 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const [isLoading, setIsLoading] = useState(true)
-  const appLoading = true
+  const isLoading = useSelector(selectIsAnyApiFetching)
+
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -145,7 +146,6 @@ export const Header = () => {
             >
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
-            <Button onClick={() => setIsLoading(!isLoading)}>Do Shit</Button>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />

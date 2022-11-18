@@ -1,5 +1,6 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers, createSelector } from '@reduxjs/toolkit'
 import localforage from 'localforage'
+import identity from 'lodash/identity'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
@@ -45,6 +46,8 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  swapperApi,
+  foxyApi,
   fiatRampApi,
   opportunitiesApi,
 }
@@ -63,3 +66,9 @@ export const apiReducers = {
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })
 export type ReduxState = ReturnType<typeof reducer>
+
+export const selectIsAnyApiFetching = createSelector(
+  () =>
+    Boolean(Object.values(apiSlices).flatMap(api => api.util.getRunningOperationPromises()).length),
+  identity,
+)

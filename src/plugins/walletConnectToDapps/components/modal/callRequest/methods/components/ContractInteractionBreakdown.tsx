@@ -1,7 +1,7 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType } from '@ethersproject/abi'
-import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import startCase from 'lodash/startCase'
+import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'

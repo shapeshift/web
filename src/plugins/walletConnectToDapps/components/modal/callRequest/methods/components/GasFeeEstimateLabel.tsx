@@ -1,5 +1,5 @@
 import { HStack } from '@chakra-ui/react'
-import type { WalletConnectEthSendTransactionCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
+import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'

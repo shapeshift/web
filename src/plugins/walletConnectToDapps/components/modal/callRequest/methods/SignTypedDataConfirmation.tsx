@@ -1,6 +1,6 @@
 // import { Box, Button, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 // import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectEthSignTypedDataCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
+import type { WalletConnectEthSignTypedDataCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 // import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 // import { useEffect, useState } from 'react'
 // import { FormProvider, useForm } from 'react-hook-form'

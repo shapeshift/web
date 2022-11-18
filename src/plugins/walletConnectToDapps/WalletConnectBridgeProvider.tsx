@@ -1,7 +1,5 @@
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
-import { HDWalletWCBridge } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,13 +9,15 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { WalletConnectCallRequest } from './bridge/types'
+import { WalletConnectBridge } from './bridge/WalletConnectBridge'
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
-  const [bridge, setBridge] = useState<HDWalletWCBridge>()
+  const [bridge, setBridge] = useState<WalletConnectBridge>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const ethChainId = useMemo(
     () =>
@@ -81,7 +81,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     async (uri: string, account: string | null) => {
       if (!wallet || !supportsETH(wallet)) return
 
-      const newBridge = HDWalletWCBridge.fromURI(
+      const newBridge = WalletConnectBridge.fromURI(
         uri,
         wallet,
         connectedEvmChainId
@@ -110,7 +110,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!wcSessionJsonString) return
 
     const session = JSON.parse(wcSessionJsonString)
-    const existingBridge = HDWalletWCBridge.fromSession(
+    const existingBridge = WalletConnectBridge.fromSession(
       session,
       wallet,
       connectedEvmChainId

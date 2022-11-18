@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
-import type { WalletConnectCallRequest } from '@shapeshiftoss/hdwallet-walletconnect-bridge'
 import { convertHexToUtf8 } from '@walletconnect/utils'
+import type { WalletConnectCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'

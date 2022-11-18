@@ -41,10 +41,17 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+    wallet: {
+      byId: {},
+      ids: [],
+    },
   },
   preferences: {
     featureFlags: {
-      Osmosis: false,
+      OsmosisSend: false,
+      OsmosisStaking: false,
+      OsmosisLP: false,
+      OsmosisSwap: false,
       Thorchain: false,
       ThorSwap: false,
       CowSwap: false,
@@ -91,7 +98,6 @@ export const mockStore: ReduxState = {
       byId: {},
       byAccountIdAssetId: {},
       ids: [],
-      status: 'loading',
     },
     rebases: {
       byAccountIdAssetId: {},

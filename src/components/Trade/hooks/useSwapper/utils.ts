@@ -178,7 +178,7 @@ export const getDefaultAssetIdPairByChainId = (
   buyAssetChainId: ChainId | undefined,
   featureFlags: FeatureFlags,
 ): AssetIdTradePair => {
-  const osmosisEnabled = featureFlags.Osmosis
+  const osmosisEnabled = featureFlags.OsmosisSwap
   const ethFoxPair = {
     sellAssetId: ethAssetId,
     buyAssetId: foxAssetId,

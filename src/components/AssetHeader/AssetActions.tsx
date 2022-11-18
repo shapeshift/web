@@ -65,9 +65,15 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       direction={{ base: 'column-reverse', md: 'row' }}
       width={{ base: 'full', md: 'auto' }}
     >
-      <Flex direction='row' gap={2}>
+      <Flex direction='row' gap={2} flexWrap='wrap'>
         {assetSupportsBuy && (
-          <Button onClick={handleBuySellClick} leftIcon={<FaCreditCard />}>
+          <Button
+            data-test='asset-action-buy-sell'
+            width='full'
+            flex={{ base: 'auto', md: 1 }}
+            onClick={handleBuySellClick}
+            leftIcon={<FaCreditCard />}
+          >
             {translate('common.buySell')}
           </Button>
         )}
@@ -78,6 +84,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           width={{ base: '100%', md: 'auto' }}
           isDisabled={!hasValidBalance || !isValidChainId}
           data-test='asset-action-send'
+          flex={1}
         >
           {translate('common.send')}
         </Button>
@@ -87,6 +94,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           leftIcon={<ArrowDownIcon />}
           width={{ base: '100%', md: 'auto' }}
           data-test='asset-action-receive'
+          flex={1}
         >
           {translate('common.receive')}
         </Button>

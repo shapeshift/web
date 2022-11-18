@@ -68,7 +68,14 @@ export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })
 export type ReduxState = ReturnType<typeof reducer>
 
 export const selectIsAnyApiFetching = createSelector(
-  () =>
-    Boolean(Object.values(apiSlices).flatMap(api => api.util.getRunningOperationPromises()).length),
+  // () =>
+  //   Boolean(Object.values(apiSlices).flatMap(api => api.util.getRunningOperationPromises()).length),
+  () => {
+    const promises = Object.values(apiSlices).flatMap(api => api.util.getRunningOperationPromises())
+    const names = promises.map((p: any) => p.queryCacheKey.slice(0, 20))
+    // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
+    console.log({ names })
+    return Boolean(promises.length)
+  },
   identity,
 )

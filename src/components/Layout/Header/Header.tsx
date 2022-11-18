@@ -1,15 +1,14 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Center,
   Drawer,
   DrawerContent,
   DrawerOverlay,
   Flex,
   HStack,
   IconButton,
+  Progress,
   SlideFade,
-  Tooltip,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -19,7 +18,6 @@ import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -67,6 +65,30 @@ export const Header = () => {
 
   return (
     <>
+      {isDemoWallet && (
+        <Box
+          bg='blue.500'
+          width='full'
+          paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
+          paddingBottom={{ base: '0.5rem', md: 0 }}
+          minHeight='2.5rem'
+          fontSize={{ base: 'sm', md: 'md' }}
+          as='button'
+          onClick={handleBannerClick}
+        >
+          <HStack
+            verticalAlign='middle'
+            justifyContent='center'
+            spacing={3}
+            color='white'
+            wrap='wrap'
+          >
+            <InfoIcon boxSize='1.3em' />
+            <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
+            <Text display='inline' translation='navBar.clickToConnect' />
+          </HStack>
+        </Box>
+      )}
       <Flex
         direction='column'
         bg={bg}
@@ -76,30 +98,19 @@ export const Header = () => {
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        {isDemoWallet && (
-          <Box
-            bg='blue.500'
-            width='full'
-            paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
-            paddingBottom={{ base: '0.5rem', md: 0 }}
-            minHeight='2.5rem'
-            fontSize={{ base: 'sm', md: 'md' }}
-            as='button'
-            onClick={handleBannerClick}
-          >
-            <HStack
-              verticalAlign='middle'
-              justifyContent='center'
-              spacing={3}
-              color='white'
-              wrap='wrap'
-            >
-              <InfoIcon boxSize='1.3em' />
-              <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
-              <Text display='inline' translation='navBar.clickToConnect' />
-            </HStack>
-          </Box>
-        )}
+        <AnimatePresence exitBeforeEnter>
+          <SlideFade in={!!isLoading}>
+            <Progress
+              isIndeterminate
+              position='absolute'
+              top={0}
+              left={0}
+              width='100%'
+              size='xs'
+              bg='transparent'
+            />
+          </SlideFade>
+        </AnimatePresence>
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'
@@ -118,25 +129,9 @@ export const Header = () => {
               />
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-              <Center boxSize={7} ml={{ base: 0, '2xl': 4 }}>
-                <AnimatePresence exitBeforeEnter>
-                  {isLoading ? (
-                    <SlideFade key='loading' in={true}>
-                      <Tooltip label='Something something loading'>
-                        <Box>
-                          <CircularProgress size={6} />
-                        </Box>
-                      </Tooltip>
-                    </SlideFade>
-                  ) : (
-                    <SlideFade key='icon' in={true}>
-                      <Link to='/'>
-                        <FoxIcon boxSize='7' />
-                      </Link>
-                    </SlideFade>
-                  )}
-                </AnimatePresence>
-              </Center>
+              <Link to='/'>
+                <FoxIcon boxSize='7' />
+              </Link>
             </Flex>
             <HStack
               width='100%'

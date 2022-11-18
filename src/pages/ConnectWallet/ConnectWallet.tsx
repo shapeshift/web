@@ -119,7 +119,7 @@ export const ConnectWallet = () => {
                 zIndex={3}
                 py={3}
                 px={4}
-                bottom={10}
+                bottom={20}
                 alignItems={'center'}
             >
               <Button

@@ -78,9 +78,10 @@ export class KKStateController {
             })
         } else if (resultInit.firmwareVersion !== latestFirmware.firmware.version) {
             log.info("KKStateController UPDATE_FIRMWARE")
+            log.info("KKStateController UPDATE_FIRMWARE resultInit: ",resultInit)
             this.updateState(UPDATE_FIRMWARE, {
                 firmwareUpdateNeededNotBootloader: true,
-                firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'v1.0.1',
+                firmware: !!resultInit.firmwareVersion ? resultInit.firmwareVersion : 'unknown',
                 bootloader: resultInit.bootloaderVersion,
                 recommendedBootloader: latestFirmware.bootloader.version,
                 recommendedFirmware: latestFirmware.firmware.version,

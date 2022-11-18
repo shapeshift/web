@@ -34,7 +34,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
   const walletConnect = useWalletConnect()
   const { feeAsset } = useCallRequestFees(request)
   const { isInteractingWithContract } = useIsInteractingWithContract({
-    ethChainId: walletConnect.ethChainId,
+    evmChainId: walletConnect.evmChainId,
     address: request.to,
   })
   const translate = useTranslate()

@@ -132,7 +132,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                   <RawText color={option.color}>
                     {bnOrZero(web3.utils.toWei(option.amount, 'ether'))
                       .div(10e9) // convert to gwei
-                      .div(request.gas) // divide by gas price
+                      .div(request.gasPrice) // divide by gas price
                       .toFixed(0)}{' '}
                     Gwei
                   </RawText>

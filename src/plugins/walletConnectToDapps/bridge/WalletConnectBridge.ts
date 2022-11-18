@@ -1,8 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter, EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import * as core from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 // import { logger } from 'lib/logger'
 import type {
@@ -20,13 +24,16 @@ export type HDWalletWCBridgeOptions = {
 // const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 export class WalletConnectBridge {
+  chainAdapter: ChainAdapter<KnownChainIds>
   constructor(
     private wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
     private chainId: ChainId,
     private account: string | null,
     private readonly options?: HDWalletWCBridgeOptions,
-  ) {}
+  ) {
+    this.chainAdapter = getChainAdapterManager().get(chainId) as ChainAdapter<KnownChainIds>
+  }
 
   static fromURI(
     uri: string,
@@ -87,7 +94,7 @@ export class WalletConnectBridge {
     const address = this.account ?? (await this.wallet.ethGetAddress({ addressNList }))
     if (address) {
       this.connector.approveSession({
-        chainId: parseInt(this.chainId),
+        chainId: parseInt(fromChainId(this.chainId).chainReference),
         accounts: [address],
       })
     }
@@ -105,10 +112,11 @@ export class WalletConnectBridge {
     this.wallet = wallet
     this.chainId = chainId
     this.account = account ?? null
+    this.chainAdapter = getChainAdapterManager().get(chainId) as ChainAdapter<KnownChainIds>
     const address = account ?? (await wallet.ethGetAddress({ addressNList }))
     if (address) {
       this.connector.updateSession({
-        chainId: parseInt(chainId),
+        chainId: parseInt(fromChainId(chainId).chainReference),
         accounts: [address],
       })
     }
@@ -141,35 +149,23 @@ export class WalletConnectBridge {
     let result: any
     // console.info(request, approveData);
     switch (request.method) {
-      // TODO: figure out what to do for "eth_sign" and "eth_signTypedData".
-      // MetaMaskHDWallet's ethSignMessage calls "personal_sign"
-      // and the other fns don't seem to be exposed on HDWallet
       case 'eth_sign': {
-        const response = await this.wallet.ethSignMessage({
-          ...approveData,
-          addressNList,
-          message: this.convertHexToUtf8IfPossible(request.params[1]),
-        })
-        result = response?.signature
+        result = await this.signMessage(this.convertHexToUtf8IfPossible(request.params[1]))
         break
       }
       case 'eth_signTypedData': {
+        result = await this.signMessage(request.params[1])
         break
       }
       case 'personal_sign': {
-        const response = await this.wallet.ethSignMessage({
-          ...approveData,
-          addressNList,
-          message: this.convertHexToUtf8IfPossible(request.params[0]),
-        })
-        result = response?.signature
+        result = await this.signMessage(this.convertHexToUtf8IfPossible(request.params[0]))
         break
       }
       case 'eth_sendTransaction': {
         const tx = request.params[0]
         const response = await this.wallet.ethSendTx?.({
           addressNList,
-          chainId: parseInt(this.chainId),
+          chainId: parseInt(fromChainId(this.chainId).chainReference),
           data: tx.data,
           gasLimit: tx.gas,
           nonce: tx.nonce,
@@ -184,7 +180,7 @@ export class WalletConnectBridge {
         const tx = request.params[0]
         const response = await this.wallet.ethSignTx({
           addressNList,
-          chainId: parseInt(this.chainId),
+          chainId: parseInt(fromChainId(this.chainId).chainReference),
           data: tx.data,
           gasLimit: tx.gas,
           nonce: tx.nonce,
@@ -211,6 +207,16 @@ export class WalletConnectBridge {
   public async rejectRequest(request: WalletConnectCallRequest) {
     // moduleLogger.info("Reject Request", { request })
     this.connector.rejectRequest({ id: request.id, error: { message: 'Rejected by user' } })
+  }
+
+  async signMessage(message: string) {
+    return await (this.chainAdapter as unknown as EvmBaseAdapter<EvmChainId>).signMessage({
+      messageToSign: {
+        addressNList,
+        message,
+      },
+      wallet: this.wallet,
+    })
   }
 
   private convertHexToUtf8IfPossible(hex: string) {

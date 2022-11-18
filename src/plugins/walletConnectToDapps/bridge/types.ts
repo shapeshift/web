@@ -14,7 +14,7 @@ export interface WalletConnectEthSignCallRequest {
 export interface WalletConnectEthSignTypedDataCallRequest {
   id: number
   method: 'eth_signTypedData'
-  params: [string, unknown]
+  params: [string, string]
 }
 
 export interface WalletConnectPersonalSignCallRequest {

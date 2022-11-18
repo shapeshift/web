@@ -12,7 +12,6 @@ export type FeatureFlags = {
   OsmosisStaking: boolean
   OsmosisSwap: boolean
   OsmosisLP: boolean
-  Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
   Pendo: boolean
@@ -20,9 +19,7 @@ export type FeatureFlags = {
   Axelar: boolean
   Zendesk: boolean
   Yat: boolean
-  MultiAccounts: boolean
   WalletConnectToDapps: boolean
-  MigrationMessage: boolean
   DashboardBreakdown: boolean
   FiatPopup: boolean
 }
@@ -49,7 +46,6 @@ const initialState: Preferences = {
     OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
     OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
-    Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
@@ -57,9 +53,7 @@ const initialState: Preferences = {
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
-    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
     FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
   },

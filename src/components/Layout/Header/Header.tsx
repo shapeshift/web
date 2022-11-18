@@ -1,19 +1,23 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Center,
   Drawer,
   DrawerContent,
   DrawerOverlay,
   Flex,
   HStack,
   IconButton,
+  SlideFade,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -26,6 +30,8 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const [isLoading, setIsLoading] = useState(true)
+  const appLoading = true
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -53,6 +59,12 @@ export const Header = () => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
+  })
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
@@ -109,9 +121,21 @@ export const Header = () => {
               />
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-              <Link to='/'>
-                <FoxIcon ml={{ base: 0, '2xl': 4 }} boxSize='7' />
-              </Link>
+              <Center boxSize={7} ml={{ base: 0, '2xl': 4 }}>
+                <AnimatePresence>
+                  {isLoading ? (
+                    <SlideFade key='loading' in={true}>
+                      <CircularProgress size='18px' />
+                    </SlideFade>
+                  ) : (
+                    <SlideFade key='icon' in={true}>
+                      <Link to='/'>
+                        <FoxIcon boxSize='7' />
+                      </Link>
+                    </SlideFade>
+                  )}
+                </AnimatePresence>
+              </Center>
             </Flex>
             <HStack
               width='100%'

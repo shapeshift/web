@@ -54,15 +54,28 @@ const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
-export const selectUserStakingIds = (state: ReduxState) => state.opportunities.userStaking.ids
+export const selectUserStakingIds = createDeepEqualOutputSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.ids,
+  (walletAccountIds, userStakingIds): UserStakingId[] =>
+    userStakingIds.filter(userStakingId =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
-export const selectUserStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.userStaking.byId
+export const selectUserStakingOpportunitiesById = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.byId,
+  (walletAccountIds, userStakingById) =>
+    pickBy(userStakingById, (_userStaking, userStakingId) =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 

@@ -5,6 +5,7 @@ import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import pull from 'lodash/pull'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -270,6 +271,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * portfolio loading error notification
    */
   useEffect(() => {
+    if (isEmpty(assets)) return
     const erroredAccountIds = entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
       (acc, [accountId, accountState]) => {
         accountState === 'error' && acc.push(accountId)

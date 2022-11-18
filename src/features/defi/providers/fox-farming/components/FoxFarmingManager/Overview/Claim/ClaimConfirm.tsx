@@ -134,6 +134,8 @@ export const ClaimConfirm = ({
     foxFarmingContract,
   ])
 
+  if (!asset) return null
+
   return (
     <SlideTransition>
       <ModalBody>

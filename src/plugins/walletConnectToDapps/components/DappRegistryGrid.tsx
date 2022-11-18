@@ -20,6 +20,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getConfig } from 'config'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
@@ -58,7 +59,7 @@ export const DappRegistryGrid: FC = () => {
 
   let findLatestReleaseLinks = async function (){
     try{
-      let spec = "https://pioneers.dev/spec/swagger.json"
+      let spec = getConfig().REACT_APP_DAPP_URL
       let config = {
         queryKey:'key:public',
         username:"user:public",

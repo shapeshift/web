@@ -1,16 +1,24 @@
-import { ModalBody, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Button, ModalBody, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect } from 'react'
-import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
 export const UpdateFirmware = (params: any) => {
-  const { updateKeepKey } = useModal()
+  const { updateKeepKey, requestBootloaderMode } = useModal()
   const { isOpen } = updateKeepKey
 
   const handleUpdateFirmware = async () => {
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
+
+  const onAcceptUpdate = async () => {
+    //updateBootloader
+    requestBootloaderMode.open({})
+  }
+
+  // const onSkipUpdate = async () => {
+  //
+  // }
 
   useEffect(() => {
     if (isOpen) {
@@ -41,7 +49,9 @@ export const UpdateFirmware = (params: any) => {
         </Tbody>
       </Table>
       <br />
-      <Text size='xl' translation='Confirm on device' />
+      <Button colorScheme='green' onClick={onAcceptUpdate}>Update</Button>
+      {/*<Button colorScheme='yellow' onClick={onSkipUpdate}>skip</Button>*/}
+
     </ModalBody>
   )
 }
